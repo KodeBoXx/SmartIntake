@@ -3,3 +3,4 @@ dist/
 target/
 .env
 .DS_Store
+frontend/.angular/
