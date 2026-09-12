@@ -1,6 +1,6 @@
 package com.kodeboxx.smartintake;
 
-import java.time.*;import java.util.*;import org.springframework.http.*;import org.springframework.jdbc.core.*;import org.springframework.web.bind.annotation.*;import org.springframework.web.server.ResponseStatusException;import com.fasterxml.jackson.databind.*;
+import java.time.*;import java.util.*;import org.springframework.http.*;import org.springframework.jdbc.core.*;import org.springframework.web.bind.annotation.*;import org.springframework.web.server.ResponseStatusException;import com.fasterxml.jackson.databind.*;import com.kodeboxx.smartintake.contract.FormRuntime;
 import org.springframework.boot.*;import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;import org.springframework.boot.autoconfigure.*;import org.springframework.context.annotation.*;import org.springframework.web.servlet.config.annotation.*;
 
 @SpringBootApplication public class SmartIntakeApplication {
@@ -40,7 +40,7 @@ import org.springframework.boot.*;import org.springframework.security.crypto.bcr
    Map<String,Object> email=Map.of("id","email-address","type","text","label","Email address","required",true,"visibleWhen",Map.of("fieldId","contact-method","equals","email"));
    return Map.of("contractVersion","4.0.0","formKey",key,"title",title,"pages",List.of(Map.of("id","page-intake","title","Tell us about yourself","fields",List.of(name,contact,email))));
  }
- private void validateDefinition(Map<String,Object> d){if(!"4.0.0".equals(d.get("contractVersion"))||!d.containsKey("pages"))throw bad("DEFINITION_INVALID","Definition must use contract 4.0.0 and include pages.");}
- @SuppressWarnings("unchecked") private List<Map<String,Object>> validateAnswers(String definition,Map<String,Object> answers){List<Map<String,Object>> errors=new ArrayList<>();Object pages=parse(definition).get("pages");if(pages instanceof List<?> list)for(Object p:list){Object fields=((Map<String,Object>)p).get("fields");if(fields instanceof List<?> fs)for(Object x:fs){Map<String,Object> f=(Map<String,Object>)x;boolean visible=true;if(f.get("visibleWhen") instanceof Map<?,?> r){Map<String,Object> rule=(Map<String,Object>)r;visible=Objects.equals(answers.get(rule.get("fieldId")),rule.get("equals"));}if(visible&&Boolean.TRUE.equals(f.get("required"))&&(answers.get(f.get("id"))==null||answers.get(f.get("id")).toString().trim().isEmpty()))errors.add(Map.of("fieldId",f.get("id"),"message","This field is required."));}}return errors;}
+ private void validateDefinition(Map<String,Object> d){try{new FormRuntime(json).validateDefinition(d);}catch(IllegalArgumentException e){throw bad(e.getMessage(),"Invalid field registry, page, or rule AST.");}}
+ private List<Map<String,Object>> validateAnswers(String definition,Map<String,Object> answers){return new FormRuntime(json).validate(parse(definition),answers);}
  private void audit(String a,UUID id){db.update("insert into audit_events(id,action,resource_id) values(?,?,?)",UUID.randomUUID(),a,id);}private String etag(long rev){return "\""+rev+"\"";}private ResponseStatusException bad(String c,String d){return new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,c+": "+d);}private ResponseStatusException missing(){return new ResponseStatusException(HttpStatus.NOT_FOUND,"Resource not found");}
 }
