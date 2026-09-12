@@ -17,5 +17,6 @@ class FormRuntimeTests {
  }
  @Test void validatesTypedValuesAndOptions(){var errors=runtime.validate(def(),Map.of("age","twenty","amount","1.2.3","channels",List.of("sms")));assertEquals(3,errors.size());assertTrue(errors.stream().anyMatch(x->"age".equals(x.get("fieldId"))));}
  @Test void evaluatesRequiredRuleAst(){assertTrue(runtime.validate(def(),Map.of("age","21")).stream().anyMatch(x->"followup".equals(x.get("fieldId"))));assertFalse(runtime.validate(def(),Map.of("age","20")).stream().anyMatch(x->"followup".equals(x.get("fieldId"))));}
+ @Test void stripsSystemOwnedValuesAndRejectsMalformedRepeater(){Map<String,Object> d=Map.of("contractVersion","4.0.0","pages",List.of(Map.of("id","p","fields",List.of(Map.of("id","total","type","calculated"),Map.of("id","note","type","readOnly"),Map.of("id","items","type","repeater")))));assertFalse(runtime.respondentAnswers(d,Map.of("total","forged","note","forged","items",List.of(Map.of("id","a","value","ok")))).containsKey("total"));assertEquals("REPEATER_ITEM_INVALID",runtime.validate(d,Map.of("items",List.of(Map.of("value","bad")))).get(0).get("code"));}
  @Test void rejectsUnknownFieldTypes(){assertThrows(IllegalArgumentException.class,()->runtime.validateDefinition(Map.of("contractVersion","4.0.0","pages",List.of(Map.of("id","a","fields",List.of(Map.of("id","x","type","script")))))));}
 }
