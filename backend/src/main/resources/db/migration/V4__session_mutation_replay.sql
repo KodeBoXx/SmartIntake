@@ -1,0 +1,1 @@
+create table session_mutations (session_id uuid not null references sessions(id), client_mutation_id uuid not null, accepted_revision bigint not null, response jsonb not null, created_at timestamptz not null default now(), primary key(session_id,client_mutation_id));
