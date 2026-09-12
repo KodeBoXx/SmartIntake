@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/package.schema.json",
+  "title": "Smart Form Builder Lite package 4.0.0",
+  "type": "object",
+  "required": ["contractVersion", "packageStamp", "pages"],
+  "properties": {
+    "contractVersion": {"const": "4.0.0"},
+    "pages": {"type": "array"},
+    "packageStamp": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contractVersion", "evaluatorContract", "canonicalSha256"],
+      "properties": {
+        "contractVersion": {"const": "4.0.0"},
+        "evaluatorContract": {"const": "4.0.0"},
+        "canonicalSha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+        "timeZoneDatabaseVersion": {"type": "string", "minLength": 1}
+      }
+    }
+  },
+  "additionalProperties": true
+}

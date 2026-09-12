@@ -1,0 +1,39 @@
+openapi: 3.1.0
+info:
+  title: Smart Form Builder Lite 4.0.0 contract components
+  version: 4.0.0
+components:
+  schemas:
+    PackageStamp:
+      type: object
+      additionalProperties: false
+      required: [contractVersion, evaluatorContract, canonicalSha256]
+      properties:
+        contractVersion: {const: '4.0.0'}
+        evaluatorContract: {const: '4.0.0'}
+        canonicalSha256: {type: string, pattern: '^sha256:[0-9a-f]{64}$'}
+        timeZoneDatabaseVersion: {type: string}
+    IntegerValue:
+      type: string
+      pattern: '^(0|-?[1-9][0-9]*)$'
+      description: Exact signed int64 decimal string; semantic validation rejects values outside [-9223372036854775808, 9223372036854775807].
+    DecimalValue:
+      type: string
+      pattern: '^-?(0|[1-9][0-9]*)(\.[0-9]+)?$'
+      description: Exact decimal string, no plus or exponent notation.
+    TypedAnswerCell:
+      type: object
+      additionalProperties: false
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [answered, unanswered, unknown, declined, respondentNotApplicable, notApplicable]
+        type:
+          type: string
+          enum: [text, integer, decimal, boolean, date, time, choice]
+        value: {}
+      allOf:
+        - if: {properties: {status: {const: answered}}}
+          then: {required: [type, value]}
+          else: {not: {required: [value]}}

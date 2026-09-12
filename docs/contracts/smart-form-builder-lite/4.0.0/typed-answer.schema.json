@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/typed-answer.schema.json",
+  "title": "Smart Form Builder Lite typed answer cell",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["status"],
+  "properties": {
+    "status": {"enum": ["answered", "unanswered", "unknown", "declined", "respondentNotApplicable", "notApplicable"]},
+    "type": {"enum": ["text", "integer", "decimal", "boolean", "date", "time", "choice"]},
+    "value": {}
+  },
+  "allOf": [{
+    "if": {"properties": {"status": {"const": "answered"}}},
+    "then": {"required": ["type", "value"]},
+    "else": {"not": {"required": ["value"]}}
+  }],
+  "$defs": {
+    "integer": {"type": "string", "pattern": "^(0|-?[1-9][0-9]*)$", "description": "Implementation additionally range-checks signed int64."},
+    "decimal": {"type": "string", "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$"}
+  }
+}
