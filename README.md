@@ -27,3 +27,7 @@ The local profile deliberately has no SMTP, object store, scanner, outbound webh
 ## Design system provenance
 
 Certinal UI v0.0.1 is vendored under `assets/certinal/certinal-ui/`. Root UI `tokens.css` and `typography.css` are copied under `frontend/src/assets/certinal/styles/` and imported once in `src/styles.css`.
+
+## Local security lifecycle
+
+The first local staff account is created exactly once through `POST /v1/auth/bootstrap` with an email and a password of at least 12 characters. It creates an organization, the `local` workspace, an OWNER membership, and an eight-hour opaque staff session token. Staff catalog and create-form calls require that token in `X-Staff-Session`; anonymous or arbitrary tokens are denied. This is a local bootstrap foundation, not a replacement for production HTTPS cookies, CSRF protection, password recovery, rate limiting, or full role policy enforcement.
