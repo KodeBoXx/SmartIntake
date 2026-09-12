@@ -1,0 +1,20 @@
+<span class="inline-flex items-center gap-2">
+  <button
+    type="button"
+    role="switch"
+    [class]="trackClasses()"
+    [disabled]="disabled()"
+    [attr.aria-checked]="value()"
+    [attr.aria-label]="label() ?? null"
+    (click)="toggle()"
+  >
+    <span [class]="thumbClasses()" aria-hidden="true"></span>
+  </button>
+  @if (label()) {
+    <span
+      class="type-body-sm text-text-primary cursor-pointer select-none"
+      [class.opacity-50]="disabled()"
+      (click)="toggle()"
+    >{{ label() }}</span>
+  }
+</span>

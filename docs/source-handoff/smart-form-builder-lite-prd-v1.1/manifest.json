@@ -1,0 +1,84 @@
+{
+  "name": "Smart Form Builder Lite 1.1",
+  "singlePrd": "Smart-Form-Builder-Lite-PRD-v1.1.md",
+  "profile": "4.0.0",
+  "requirements": 95,
+  "fixtures": 31,
+  "sourceVersionsPreserved": [
+    "Lite 1.0",
+    "Core 1.1"
+  ],
+  "files": [
+    {
+      "path": "Smart-Form-Builder-Lite-PRD-v1.1.md",
+      "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e",
+      "bytes": 384168
+    },
+    {
+      "path": "smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md",
+      "sha256": "e09a460f2cb3ac4f7d296abdbd6e894f18f587cd036b9db34b1f21663ae9aa0b",
+      "bytes": 16819
+    },
+    {
+      "path": "smart-form-builder-lite-prd-v1.1/Gap-Analysis.md",
+      "sha256": "24c00e936be2629808f97ba8bc04a44f4caeeae38f7a6fac4978ffe942117755",
+      "bytes": 12871
+    },
+    {
+      "path": "smart-form-builder-lite-prd-v1.1/Lite-Contract-Details.md",
+      "sha256": "488e049ec680fc2806142efdebd2d010c5ee3400068d426f8451b27568a06fb2",
+      "bytes": 34069
+    },
+    {
+      "path": "smart-form-builder-lite-prd-v1.1/Lite-Evaluator-Protocol.md",
+      "sha256": "20bf0154fb07c6b917f73c6db246f7917e5a2e80f0fc1735fcaef4d2bfc3f6d3",
+      "bytes": 32877
+    },
+    {
+      "path": "smart-form-builder-lite-prd-v1.1/START-HERE.md",
+      "sha256": "6c47312305ac92848db41d6243fe9cf334f4c2951196ce537c856c6e60ff5d7f",
+      "bytes": 4187
+    },
+    {
+      "path": "smart-form-builder-lite-prd-v1.1/Scope-Review.md",
+      "sha256": "98a72b57fdc9622215196026b0367e4a00aa1e3b549f21aa8181055dc41a9401",
+      "bytes": 2476
+    },
+    {
+      "path": "smart-form-builder-lite-prd-v1.1/certinal-ui-assets.zip",
+      "sha256": "e6a300dd39ccda59aa6b4582a386f00a11492bc67edab8cda878f33413a3f0e9",
+      "bytes": 241479
+    },
+    {
+      "path": "smart-form-builder-lite-prd-v1.1/expression-contract.json",
+      "sha256": "6fd9cd69b123418209b9ae21d1b7a76af2a7ceb76689f2aad0fbe261d2a00aa7",
+      "bytes": 146339
+    },
+    {
+      "path": "smart-form-builder-lite-prd-v1.1/requirement-dispositions.csv",
+      "sha256": "090e0c02414e6bec0ebaf2c84a718d3f9ddb09a006c12d9a99976092fe1d810e",
+      "bytes": 21995
+    },
+    {
+      "path": "smart-form-builder-lite-prd-v1.1/source-evidence.json",
+      "sha256": "ac22711264540f68954c1fa5695ed758af304ad7a7689d50593b220eb4162506",
+      "bytes": 4125
+    },
+    {
+      "path": "smart-form-builder-lite-prd-v1.1/source-preservation.json",
+      "sha256": "5007cf6b124a960fa7897b570d94e5690cece6957528a2798c39c49b64a315c6",
+      "bytes": 7155
+    },
+    {
+      "path": "smart-form-builder-lite-prd-v1.1/validation-results.json",
+      "sha256": "83f0587d873c83c64ff0c3675eed0ad6070fa84968f3bfd789688097818447c9",
+      "bytes": 1281
+    },
+    {
+      "path": "smart-form-builder-lite-prd-v1.1/verify-handoff.py",
+      "sha256": "5ae57d2b52932caecfa5607d13f71214e5ace06bf1c132d4e4bd87be216279d6",
+      "bytes": 397
+    }
+  ],
+  "manifestHashing": "Manifest excludes itself to avoid a self-reference; all other handoff files are hashed. ZIP container hash is reported separately."
+}

@@ -1,0 +1,11 @@
+{
+  "name": "@certinal/design-tokens",
+  "version": "1.0.0",
+  "description": "Certinal Design System v3 tokens",
+  "main": "index.js",
+  "files": [
+    "css/",
+    "tailwind/",
+    "index.js"
+  ]
+}

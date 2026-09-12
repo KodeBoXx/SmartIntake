@@ -1,0 +1,11 @@
+<button
+  type="button"
+  role="tab"
+  [class]="tabClasses()"
+  [disabled]="disabled()"
+  [attr.aria-selected]="active()"
+  (click)="onClick()"
+>
+  <ng-content select="[cuiTabIcon]" />
+  <span>{{ label() }}</span>
+</button>

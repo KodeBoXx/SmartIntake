@@ -1,0 +1,101 @@
+{
+  "reviewDate": "2026-09-11",
+  "implementationRoot": "/Users/praveen.das/AgenticToolTest/SmartFormBuilder/softwareFactory",
+  "gitProvenance": "Directory was not a Git repository; no commit claimed.",
+  "implementationSources": [
+    {
+      "path": "README.md",
+      "sha256": "46f1e2837ab149aabc6f8a228c2556a7783cc7845a2376e408d351a51ceb544c"
+    },
+    {
+      "path": "CLAUDE.md",
+      "sha256": "c8b834198231ec48a69b4a44197f632c29fcca688e2de4f6d2ff32410411d9cb"
+    },
+    {
+      "path": "compose.yaml",
+      "sha256": "9392031eeb731633d2eaca7842e52ff9101b8c716e0d139ce2eea23b5557f3e5"
+    },
+    {
+      "path": "client/package.json",
+      "sha256": "fe0f2ad5e8da2e0936f2860ce6ade826870253211ccbfeb5998e526394bca16f"
+    },
+    {
+      "path": ".sw-factory/phase-plan.md",
+      "sha256": "d8cd28e0e1540b6def121411b191a73595c43fae007fc27a7f9da63a34b85b73"
+    },
+    {
+      "path": ".sw-factory/WO-19/context.md",
+      "sha256": "e9e18cafc1e8812dece3192c9f8f4aa6c339a1cbaaa6acbf6982e9c5d9b5cb9a"
+    },
+    {
+      "path": ".sw-factory/WO-19/implementation-plan.md",
+      "sha256": "847f46b428e560852e092d49d450b1b52481eea98c6346f76ed7e712675f85ec"
+    },
+    {
+      "path": ".sw-factory/WO-20/implementation-plan.md",
+      "sha256": "4aff6679c2d91e46a77aaaafde71be71798b5a6169c317ab5512b91284cef182"
+    },
+    {
+      "path": ".sw-factory/WO-21/implementation-plan.md",
+      "sha256": "18c1adfad64284afb6002d9bc89d8e22eeda4cd25d2aedd90fc7112d9afd6bb8"
+    },
+    {
+      "path": ".sw-factory/WO-5/review-log.md",
+      "sha256": "1da75e9d00d297a3598269cc3a4e41a61ca6a807de8e48a945ea95af5a01484d"
+    },
+    {
+      "path": "api/src/main/java/com/certinal/smartformbuilder/api/identity/Account.java",
+      "sha256": "ba951124ddbd844d14b9296bcfd4ecfa8889e93bd443f3147408a5111a818b41"
+    },
+    {
+      "path": "api/src/main/java/com/certinal/smartformbuilder/api/identity/AccountActivationService.java",
+      "sha256": "3a247d8a13ac0771f1cb566e89122645e76bd9ae8c1d36067a351188c7f87755"
+    },
+    {
+      "path": "api/src/main/java/com/certinal/smartformbuilder/api/identity/AuthenticationProperties.java",
+      "sha256": "8534a94739c379c457c2b9b951fb176b5838957d1935a13cf2fea216d19ed3e4"
+    },
+    {
+      "path": "api/src/main/java/com/certinal/smartformbuilder/api/identity/platform/PlatformBootstrap.java",
+      "sha256": "d927435fd1302bec2241738cc6d5e53741da6f955b1143edc1c3ebb8e09f6be8"
+    },
+    {
+      "path": "api/src/main/java/com/certinal/smartformbuilder/api/tenancy/StaffUser.java",
+      "sha256": "102969268d9ab282986602783561abe31906d9c12562011266ac24a8ff3bb333"
+    },
+    {
+      "path": "api/src/main/java/com/certinal/smartformbuilder/api/authz/OrganizationRole.java",
+      "sha256": "a276d5fff3badc5f236553f6d37630edad5e73dc42f55c1382c1fd7c0530b6d7"
+    },
+    {
+      "path": "api/src/main/java/com/certinal/smartformbuilder/api/authz/WorkspaceRole.java",
+      "sha256": "a45c5405f4a07c3e1ed32f5175a3ac95e02aa6119e6c5776d1721b7671328eb7"
+    },
+    {
+      "path": "api/src/main/resources/db/migration/V2__accounts_and_sessions.sql",
+      "sha256": "827a26c78ab0a2eb463842d871398d0dbdfcc5e14436264eac59bfd44c63cf12"
+    },
+    {
+      "path": "api/src/main/java/com/certinal/smartformbuilder/api/forms/FormPackage.java",
+      "sha256": "61266f4f9488d449e8c012d89fed552bf8b7be577e9159bab3e7b22dcfbf6ef6"
+    },
+    {
+      "path": "api/src/main/resources/rules/fixtures/contract-v1.json",
+      "sha256": "9a77e6de4d30648313bf1ca0c420c9ac28d195c3f0691239a6b8a7038a608dcd"
+    }
+  ],
+  "claudeSession": {
+    "title": "Software Factory Smart Form MCP setup",
+    "evidenceType": "local persisted session, user message and tool/assistant records; not live remote record verification",
+    "confirmedScopeMessageDate": "2026-09-10",
+    "laterContractDecisionDate": "2026-09-11"
+  },
+  "uiAssets": {
+    "origin": "/Users/praveen.das/.claude/skills/certinal-ui",
+    "fileCount": 179,
+    "sha256": "e6a300dd39ccda59aa6b4582a386f00a11492bc67edab8cda878f33413a3f0e9"
+  },
+  "productTestsRun": false,
+  "applicationModified": false,
+  "softwareFactoryRecordsModified": false
+}

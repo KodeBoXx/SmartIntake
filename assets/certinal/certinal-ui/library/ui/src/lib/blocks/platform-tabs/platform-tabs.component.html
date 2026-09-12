@@ -1,0 +1,14 @@
+<div class="flex items-end" role="tablist">
+  @for (t of tabs(); track t.id) {
+    <cui-product-tab
+      [label]="t.label"
+      [active]="activeId() === t.id"
+      [disabled]="!!t.disabled"
+      (tabClick)="onTabClick(t.id)"
+    >
+      @if (t.icon) {
+        <cui-icon cuiTabIcon [name]="t.icon" size="sm" />
+      }
+    </cui-product-tab>
+  }
+</div>

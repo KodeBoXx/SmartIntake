@@ -1,0 +1,20 @@
+<div [class]="containerClasses()" role="radiogroup">
+  @for (opt of options(); track opt.value) {
+    <button
+      type="button"
+      role="radio"
+      [class]="segmentClasses(opt)"
+      [disabled]="!!opt.disabled || disabled()"
+      [attr.aria-checked]="value() === opt.value"
+      [attr.aria-label]="opt.label ?? opt.value"
+      (click)="onSelect(opt)"
+    >
+      @if (opt.icon) {
+        <cui-icon [name]="opt.icon" size="sm" />
+      }
+      @if (opt.label) {
+        <span>{{ opt.label }}</span>
+      }
+    </button>
+  }
+</div>

@@ -1,0 +1,26 @@
+<div class="bg-bg-surface border border-border-default rounded-lg overflow-hidden divide-y divide-border-default">
+  @for (item of items(); track $index; let i = $index) {
+    @let open = isExpanded(i);
+    <div>
+      <button
+        type="button"
+        [class]="headerClasses(item, open)"
+        [disabled]="!!item.disabled"
+        [attr.aria-expanded]="open"
+        (click)="toggle(i)"
+      >
+        <span class="flex-1">{{ item.label }}</span>
+        <cui-icon
+          name="chevron-down"
+          size="sm"
+          [class]="chevronClasses() + ' ' + isOpenChevron(i)"
+        />
+      </button>
+      @if (open) {
+        <div class="px-4 pb-4 type-body-sm text-text-secondary">
+          {{ item.content }}
+        </div>
+      }
+    </div>
+  }
+</div>

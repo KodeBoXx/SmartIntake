@@ -1,0 +1,62 @@
+<div class="flex items-center justify-between gap-4 flex-wrap">
+  @if (showTotal()) {
+    <div class="type-body-sm text-text-muted">
+      @if (totalItems() === 0) {
+        No results
+      } @else {
+        Showing
+        <span class="text-text-primary font-medium">{{ rangeStart() }}–{{ rangeEnd() }}</span>
+        of
+        <span class="text-text-primary font-medium">{{ totalItems() }}</span>
+      }
+    </div>
+  }
+
+  <div class="flex items-center gap-3 ml-auto">
+    @if (showPageSize()) {
+      <div class="w-32">
+        <cui-select
+          size="sm"
+          [options]="pageSizeSelectOptions()"
+          [value]="pageSizeValue()"
+          (valueChange)="onPageSizeChange($event)"
+        />
+      </div>
+    }
+
+    <nav class="flex items-center gap-1" aria-label="Pagination">
+      <cui-icon-button
+        size="md"
+        ariaLabel="Previous page"
+        [disabled]="!canPrev()"
+        (click)="goPrev()"
+      >
+        <cui-icon name="chevron-right" size="md" class="-scale-x-100" />
+      </cui-icon-button>
+
+      @for (item of pageItems(); track $index) {
+        @if (isNumber(item)) {
+          <cui-page-button
+            [page]="item"
+            [active]="currentPage() === item"
+            (pageClick)="goToPage($event)"
+          />
+        } @else {
+          <span
+            class="inline-flex items-center justify-center w-9 h-9 type-label text-text-faint"
+            aria-hidden="true"
+          >…</span>
+        }
+      }
+
+      <cui-icon-button
+        size="md"
+        ariaLabel="Next page"
+        [disabled]="!canNext()"
+        (click)="goNext()"
+      >
+        <cui-icon name="chevron-right" size="md" />
+      </cui-icon-button>
+    </nav>
+  </div>
+</div>

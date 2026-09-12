@@ -1,0 +1,27 @@
+@if (open()) {
+  <div
+    class="cui-modal-overlay"
+    (click)="onOverlayClick($event)"
+    (keydown)="onKeydown($event)"
+  >
+    <div
+      [class]="containerClasses()"
+      role="dialog"
+      aria-modal="true"
+      [attr.aria-label]="ariaLabel() ?? null"
+      tabindex="-1"
+    >
+      @if (showClose()) {
+        <cui-icon-button
+          class="cui-modal-close"
+          size="md"
+          ariaLabel="Close"
+          (click)="close()"
+        >
+          <cui-icon name="close" size="sm" />
+        </cui-icon-button>
+      }
+      <ng-content />
+    </div>
+  </div>
+}

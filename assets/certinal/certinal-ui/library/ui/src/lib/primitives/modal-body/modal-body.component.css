@@ -1,0 +1,10 @@
+:host {
+  display: block;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 20px 24px;
+  font-family: var(--font-body);
+  font-size: var(--text-t-300);
+  line-height: 1.6;
+  color: var(--color-text-primary);
+}

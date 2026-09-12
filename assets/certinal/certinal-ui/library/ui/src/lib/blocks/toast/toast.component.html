@@ -1,0 +1,20 @@
+<div [class]="containerClasses()">
+  <cui-icon [name]="iconName()" size="md" [class]="iconClasses()" />
+
+  <div class="flex-1 min-w-0">
+    @if (title()) {
+      <div class="type-label text-text-primary mb-0.5">{{ title() }}</div>
+    }
+    <div class="type-body-sm text-text-secondary">{{ message() }}</div>
+  </div>
+
+  @if (closable()) {
+    <cui-icon-button
+      size="sm"
+      ariaLabel="Close notification"
+      (buttonClick)="closed.emit()"
+    >
+      <cui-icon name="close" size="xs" />
+    </cui-icon-button>
+  }
+</div>

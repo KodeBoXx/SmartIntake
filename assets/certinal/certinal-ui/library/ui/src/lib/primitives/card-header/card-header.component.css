@@ -1,0 +1,21 @@
+/* ================================================================
+   cui-card-header — header slot inside cui-card.
+   Adds a bottom divider and pulls its own padding so it sits flush
+   against the card's top/left/right edges when the parent card's
+   own padding is 0 — or sits naturally inside cards with padding.
+   ================================================================ */
+
+:host {
+  display: block;
+  padding-bottom: var(--spacing-4);
+  border-bottom: 1px solid var(--color-border-default);
+  margin-bottom: var(--spacing-4);
+}
+
+/* On dark/feature variants, soften the divider to match */
+:host-context(.cui-card--dark) {
+  border-bottom-color: var(--color-slate-700);
+}
+:host-context(.cui-card--feature) {
+  border-bottom-color: var(--color-emerald-200);
+}

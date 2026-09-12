@@ -1,0 +1,49 @@
+/* ══════════════════════════════════════════════════════════════
+   CERTINAL DESIGN SYSTEM v3 — CSS Custom Properties
+   Forest / Teal / Lime palette
+   ══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Core brand */
+  --ds2-forest: #0A2F1F;
+  --ds2-forest-light: #123626;
+  --ds2-teal-700: #10503D;
+  --ds2-teal-600: #15654D;
+  --ds2-teal-500: #1A7A5E;
+  --ds2-teal-400: #25C999;
+  --ds2-teal-50: #E6F5F0;
+  --ds2-lime: #C4E538;
+  --ds2-lime-hover: #B5D42E;
+  --ds2-lime-50: #F7FCE4;
+  --ds2-sage: #C5D8A8;
+  --ds2-mint: #E8F2DC;
+  --ds2-mint-light: #F4F8EE;
+  --ds2-card-bar: #042129;
+
+  /* Surfaces */
+  --ds2-page-bg: #F8FAFC;
+  --ds2-surface: #FFFFFF;
+  --ds2-subtle: #F1F5F9;
+
+  /* Text */
+  --ds2-text-primary: #2D3239;
+  --ds2-text-secondary: #4A4A4A;
+  --ds2-text-muted: #6B7280;
+  --ds2-text-faint: #9CA3AF;
+
+  /* Status */
+  --ds2-success: #22C55E;
+  --ds2-warning: #F59E0B;
+  --ds2-error: #EF4444;
+  --ds2-info: #3B82F6;
+
+  /* Shadows */
+  --ds2-shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+  --ds2-shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.06), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+  --ds2-shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.06), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+  --ds2-shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+
+  /* Transitions */
+  --ds2-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --ds2-transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}

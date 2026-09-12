@@ -1,0 +1,5 @@
+@import "tailwindcss";
+@import "./assets/certinal/styles/tokens.css";
+@import "./assets/certinal/styles/typography.css";
+:root { --app-surface: var(--color-stone-50); --app-ink: var(--color-stone-950); }
+* { box-sizing:border-box; } body { margin:0; background:var(--app-surface); color:var(--app-ink); font-family:'DM Sans',sans-serif; } button,input,select,textarea { font:inherit; } button { cursor:pointer; } :focus-visible { outline:3px solid var(--color-emerald-400); outline-offset:2px; }

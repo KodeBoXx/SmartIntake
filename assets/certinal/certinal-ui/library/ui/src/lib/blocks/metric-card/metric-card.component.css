@@ -1,0 +1,142 @@
+/* ================================================================
+   cui-metric-card — dashboard coverage card.
+   Composes cui-card (accentTop + accentColor + hover) with a fixed
+   layout: icon tile + hero number on top row, title below, stats
+   grid footer.
+
+   One accentColor prop drives 3 things coherently:
+     - top bar    (delegated to cui-card)
+     - icon tile  (bg at 10% opacity, icon at full color)
+     - hero value (full color)
+   ================================================================ */
+
+.cui-metric-card {
+  padding: 20px; /* spec from old dashboard cards (p-5) */
+}
+
+/* ------------ Accent color palette ------------ */
+.cui-metric-card--emerald {
+  --metric-accent: var(--color-emerald-700);
+  --metric-accent-soft: color-mix(in srgb, var(--color-emerald-600) 12%, transparent);
+}
+.cui-metric-card--lime {
+  --metric-accent: var(--color-lime-600);
+  --metric-accent-soft: color-mix(in srgb, var(--color-lime-500) 14%, transparent);
+}
+.cui-metric-card--cyan {
+  --metric-accent: var(--color-cyan-600);
+  --metric-accent-soft: color-mix(in srgb, var(--color-cyan-500) 12%, transparent);
+}
+.cui-metric-card--neutral {
+  --metric-accent: var(--color-slate-600);
+  --metric-accent-soft: color-mix(in srgb, var(--color-slate-400) 12%, transparent);
+}
+.cui-metric-card--success {
+  --metric-accent: var(--color-success-dark);
+  --metric-accent-soft: color-mix(in srgb, var(--color-success) 15%, transparent);
+}
+.cui-metric-card--warning {
+  --metric-accent: var(--color-warning-dark);
+  --metric-accent-soft: color-mix(in srgb, var(--color-warning) 15%, transparent);
+}
+.cui-metric-card--error {
+  --metric-accent: var(--color-error-dark);
+  --metric-accent-soft: color-mix(in srgb, var(--color-error) 12%, transparent);
+}
+.cui-metric-card--info {
+  --metric-accent: var(--color-info-dark);
+  --metric-accent-soft: color-mix(in srgb, var(--color-info) 12%, transparent);
+}
+
+/* ------------ Status override (icon + hero only; border stays as accentColor) ------------ */
+.cui-metric-card--status-success {
+  --metric-accent: var(--color-success-dark);
+  --metric-accent-soft: color-mix(in srgb, var(--color-success) 15%, transparent);
+}
+.cui-metric-card--status-warning {
+  --metric-accent: var(--color-warning-dark);
+  --metric-accent-soft: color-mix(in srgb, var(--color-warning) 15%, transparent);
+}
+.cui-metric-card--status-error {
+  --metric-accent: var(--color-error-dark);
+  --metric-accent-soft: color-mix(in srgb, var(--color-error) 12%, transparent);
+}
+.cui-metric-card--status-info {
+  --metric-accent: var(--color-info-dark);
+  --metric-accent-soft: color-mix(in srgb, var(--color-info) 12%, transparent);
+}
+
+/* ------------ Top row: icon + hero ------------ */
+.cui-metric-card__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.cui-metric-card__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-xl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--metric-accent-soft);
+  color: var(--metric-accent);
+  flex-shrink: 0;
+}
+
+.cui-metric-card__hero {
+  text-align: right;
+  min-width: 0;
+}
+
+.cui-metric-card__value {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--metric-accent);
+}
+
+.cui-metric-card__value-label {
+  font-size: 11px;
+  color: var(--color-text-faint);
+  line-height: 1.3;
+  margin-top: 2px;
+}
+
+/* ------------ Title ------------ */
+.cui-metric-card__title {
+  font-family: var(--font-body);
+  font-size: var(--text-t-300);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 16px 0;
+  line-height: 1.3;
+}
+
+/* ------------ Stats grid ------------ */
+.cui-metric-card__stats {
+  display: grid;
+  gap: 12px;
+}
+
+.cui-metric-card__stat-label {
+  font-size: 11px;
+  color: var(--color-text-faint);
+  margin-bottom: 2px;
+  line-height: 1.3;
+}
+
+.cui-metric-card__stat-value {
+  font-size: var(--text-t-400);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.cui-metric-card__stat-value--primary { color: var(--color-text-primary); }
+.cui-metric-card__stat-value--muted   { color: var(--color-text-muted); }
+.cui-metric-card__stat-value--success { color: var(--color-success-dark); }
+.cui-metric-card__stat-value--warning { color: var(--color-warning-dark); }
+.cui-metric-card__stat-value--error   { color: var(--color-error-dark); }

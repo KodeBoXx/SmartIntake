@@ -1,0 +1,13 @@
+<div [class]="containerClasses()">
+  @for (toast of service.toasts(); track toast.id) {
+    <div class="pointer-events-auto">
+      <cui-toast
+        [variant]="toast.variant"
+        [title]="toast.title"
+        [message]="toast.message"
+        [closable]="toast.closable"
+        (closed)="onClose(toast.id)"
+      />
+    </div>
+  }
+</div>

@@ -1,0 +1,5250 @@
+{
+  "kind": "smart-form-expression-contract",
+  "schemaVersion": "4.0.0",
+  "engineContract": "4.0.0",
+  "contractVersion": "4.0.0",
+  "status": "normative-specification",
+  "purpose": "Normative Lite 1.1 expression profile 4.0.0: retained signatures with exact 64-bit integer string transport, frozen today and explicit compile diagnostics. No product evaluator was executed.",
+  "scope": {
+    "included": [
+      "canonical expressions",
+      "compile checks",
+      "deterministic typed evaluation",
+      "fixed conformance vectors"
+    ],
+    "excluded": [
+      "product implementation",
+      "arbitrary executable code",
+      "network or clock access",
+      "PDF conversion/filling",
+      "e-sign",
+      "external generation pipelines"
+    ]
+  },
+  "grammar": {
+    "expressionVariants": [
+      "typed literal",
+      "field reference",
+      "frozen session context",
+      "operator application"
+    ],
+    "literal": {
+      "shape": {
+        "literal": {
+          "type": "one of the scalar type names",
+          "value": "raw value of that exact declared type"
+        }
+      },
+      "scalarTypes": [
+        "text",
+        "integer",
+        "decimal",
+        "boolean",
+        "date",
+        "time",
+        "dateTime",
+        "choice"
+      ],
+      "arrayShape": {
+        "literal": {
+          "type": "array",
+          "itemType": "one scalar type name",
+          "value": [
+            "homogeneous raw values of itemType"
+          ]
+        }
+      },
+      "rules": [
+        "All grammar objects are closed; reject unknown properties.",
+        "No untyped legacy literal and no null literal is admitted.",
+        "Arrays cannot have array/object/list itemType; no nested array values are admitted. A dateTime scalar has its specified instant/timeZone object shape.",
+        "Empty literal arrays still declare their scalar itemType.",
+        "Validate all literal values and numeric/date/timezone bounds during compile, including in branches that would be skipped at runtime."
+      ]
+    },
+    "reference": {
+      "shape": {
+        "ref": {
+          "fieldId": "stable declared field ID",
+          "scope": "root | item | parentItem",
+          "parentDepth": "optional integer 1..3, only legal with parentItem"
+        }
+      },
+      "rules": [
+        "Root resolves a root field or object descendant outside every repeater; a repeated leaf is not root-addressable.",
+        "Item resolves the current aggregate or renderer item and its object descendants; it cannot jump to an unrelated list occurrence.",
+        "ParentItem resolves the containing item exactly parentDepth ancestor item contexts above the current item; omitted parentDepth means 1 as a pinned behavioral default; normalization leaves it omitted.",
+        "Reject impossible depth, unknown field ID, an unrelated parent field, and parentDepth on root/item.",
+        "The item expression of sum/any/all creates a fresh nested item context for each item in the first operand list.",
+        "Static field definitions determine reference type; no inference from an answer string or its current availability is allowed."
+      ]
+    },
+    "context": {
+      "allowed": {
+        "sessionDate": "date",
+        "sessionTimeZone": "text"
+      },
+      "rules": [
+        "Both values come from trusted frozen evaluationContext metadata.",
+        "For a new public session, derive sessionDate once from its creation instant and pinned timezone. Preserve that basis throughout the draft and include it in the immutable accepted submission.",
+        "Mutable locale is not an expression context and returns UNSUPPORTED_CONTEXT.",
+        "No current time, machine timezone, random number, network value or arbitrary session metadata is accessible."
+      ]
+    },
+    "operatorApplication": {
+      "shape": {
+        "op": "registered built-in operator name",
+        "args": [
+          "recursive expressions"
+        ]
+      },
+      "rules": [
+        "Only the operators in this document are admitted in engineContract 4.0.0.",
+        "All arguments are compiled for shape, arity, type and scope even if runtime evaluation is lazy.",
+        "No code templates, provider expressions, downloaded operators or implicit casts are allowed."
+      ]
+    }
+  },
+  "types": {
+    "text": "Unicode string, exact scalar-sequence equality; no Unicode normalization or trimming by the expression engine.",
+    "integer": {
+      "wire": "Canonical signed base-10 integer string, no plus/exponent/leading zeros/negative zero; JSON numbers are rejected for typed integer values. Structural bounded counters remain JSON numbers.",
+      "minimum": "-9223372036854775808",
+      "maximum": "9223372036854775807",
+      "pattern": "^(0|-?[1-9][0-9]*)$",
+      "evaluation": "Exact signed 64-bit domain; JavaScript uses BigInt. Range-check all integer-typed inputs and results. Integer-to-decimal promotion remains exact and retains the established Lite operator result types."
+    },
+    "decimal": {
+      "wire": "decimal string; optional leading minus, integer part 0 or nonzero-leading digits, optional dot and at least one fractional digit; no plus sign or exponent notation",
+      "precision": 34,
+      "arithmetic": "Exact decimal arithmetic only. No operation silently rounds. Reject a result requiring more than 34 significant coefficient digits or a nonterminating decimal expansion with CALC_PRECISION.",
+      "exponentBounds": {
+        "minimumAdjustedExponent": -6143,
+        "maximumAdjustedExponent": 6144,
+        "definition": "For a nonzero exact decimal, adjusted exponent is floor(log10(abs(value))), calculated from decimal digits without binary floating point. Values outside bounds yield CALC_OVERFLOW. Zero has no exponent-bound failure."
+      },
+      "serialization": "No negative zero. Remove unnecessary trailing fractional zeros and a resulting decimal point. No exponent notation. Destination-field scale padding is outside expression evaluation. Significant coefficient precision is measured after removing leading and insignificant trailing coefficient zeros; exact powers of ten do not require one digit per expanded zero.",
+      "rounding": "Only round(value, scale) discards fractional digits, using half-even. Intermediate errors occur before an enclosing round can run."
+    },
+    "boolean": "JSON true or false only; not false/zero/string coercion.",
+    "date": "Canonical YYYY-MM-DD, proleptic Gregorian calendar, years 0001..9999; reject impossible dates.",
+    "time": "Canonical HH:mm:ss, 00:00:00..23:59:59, no timezone or leap second.",
+    "dateTime": "Closed {instant,timeZone}; instant is a valid UTC RFC 3339 instant with Z, Gregorian years 0001..9999 and optional 1..9 fractional-second digits; no leap second. timeZone is an IANA timezone identifier accepted by the pinned timezone database, including UTC. Equality/ordering compare instants exactly; associated timezone is preserved as value metadata.",
+    "choice": "Stable option-ID string; distinct from text. Validate the option ID against the relevant field/source domain when context supplies that domain.",
+    "array": "Homogeneous scalar array. multiChoice references have array<choice> type. No nested arrays. Array equality and ordering are not supported; use membership operators.",
+    "object": "Canonical field record, admitted only through a field reference and typed output transport; not a literal, not a comparison or arithmetic operand.",
+    "list": "Canonical item-record collection, admitted through references and consumed by sum/count/any/all; not interchangeable with a scalar array."
+  },
+  "typePromotion": {
+    "onlyImplicitPromotion": "integer to decimal for numeric-compatible signatures and numeric if/coalesce alternatives",
+    "forbidden": [
+      "text to number/date/time/dateTime/choice",
+      "Boolean to number",
+      "null to any type",
+      "choice to text",
+      "array/list interchange",
+      "dateTime to date using an implicit timezone"
+    ],
+    "numericResultTypes": "add/subtract/multiply/divide/round/min/max/sum return decimal; comparisons return Boolean. count/length/dateDiffDays/ageYears return integer.",
+    "branchUnification": "if/coalesce accept identical scalar types, identical scalar-array item types, or integer/decimal scalar alternatives promoted to decimal. Object/list branches are rejected. Array integer/decimal alternatives do not implicitly change array item type."
+  },
+  "availability": {
+    "states": [
+      "available typed value",
+      "Unknown with reason",
+      "structured error"
+    ],
+    "referenceRule": "Only an applicable answered field with a valid available canonical value yields a value. Unanswered, unknown, declined, respondentNotApplicable, automatic notApplicable, absent initialized value, or any hidden/not-applicable occurrence yields Unknown. Retained hidden storage is never readable by expressions.",
+    "answerStatusVsUnknown": "An explicit unknown answer is an input status. respondentNotApplicable is an explicit respondent status when allowed by the field. notApplicable is reserved for automatic server exclusion and cannot be requested by a respondent. Both Not applicable statuses have no value but remain distinguishable through statusIs. Unknown is an evaluation result without a value, not Boolean false or JSON null.",
+    "baseAnswerStatuses": [
+      "answered",
+      "unanswered",
+      "unknown",
+      "declined",
+      "respondentNotApplicable",
+      "notApplicable"
+    ],
+    "predicates": "exists/isAnswered/statusIs inspect the declared reference occurrence and its authoritative cell metadata; they do not need a readable answered value.",
+    "strictOperandEvaluation": "Unless an operator explicitly short-circuits, evaluate all operands left to right. Remember Unknown but propagate an evaluated error even if an earlier operand was Unknown. Otherwise return Unknown if any required operand was unavailable.",
+    "reasonCodes": {
+      "UNAVAILABLE_OPERAND": "An evaluated required operand/reference is unavailable.",
+      "UNKNOWN_CONDITION": "if condition is Unknown; neither branch evaluated.",
+      "UNAVAILABLE_AGGREGATE_ITEM": "No decisive Boolean result and one or more item results are unavailable, or any sum item is unavailable."
+    },
+    "threeValuedTables": {
+      "and": [
+        [
+          "true",
+          "true",
+          "true"
+        ],
+        [
+          "true",
+          "false",
+          "false"
+        ],
+        [
+          "true",
+          "Unknown",
+          "Unknown"
+        ],
+        [
+          "false",
+          "true",
+          "false"
+        ],
+        [
+          "false",
+          "false",
+          "false"
+        ],
+        [
+          "false",
+          "Unknown",
+          "false"
+        ],
+        [
+          "Unknown",
+          "true",
+          "Unknown"
+        ],
+        [
+          "Unknown",
+          "false",
+          "false"
+        ],
+        [
+          "Unknown",
+          "Unknown",
+          "Unknown"
+        ]
+      ],
+      "or": [
+        [
+          "true",
+          "true",
+          "true"
+        ],
+        [
+          "true",
+          "false",
+          "true"
+        ],
+        [
+          "true",
+          "Unknown",
+          "true"
+        ],
+        [
+          "false",
+          "true",
+          "true"
+        ],
+        [
+          "false",
+          "false",
+          "false"
+        ],
+        [
+          "false",
+          "Unknown",
+          "Unknown"
+        ],
+        [
+          "Unknown",
+          "true",
+          "true"
+        ],
+        [
+          "Unknown",
+          "false",
+          "Unknown"
+        ],
+        [
+          "Unknown",
+          "Unknown",
+          "Unknown"
+        ]
+      ],
+      "not": [
+        [
+          "true",
+          "false"
+        ],
+        [
+          "false",
+          "true"
+        ],
+        [
+          "Unknown",
+          "Unknown"
+        ]
+      ]
+    }
+  },
+  "determinism": {
+    "limits": {
+      "maximumExpressionDepth": 20,
+      "maximumPackageAstNodes": 10000,
+      "maximumArguments": 100,
+      "maximumEvaluationStepsPerMutation": 100000
+    },
+    "stepAccounting": "Count one step immediately before entering each evaluated AST node, including each item-expression entry on every visited item. Cached references do not avoid their AST visit step. Before a step that would exceed the limit, stop with EVALUATION_BUDGET. Short-circuited nodes cost zero steps. Product-level graph scheduling must additionally apply the same mutation-wide budget.",
+    "iteration": "List aggregate evaluation follows stored item order and field references use stable item IDs, never display indices.",
+    "timezoneDatabase": "Pin and identify timezone database version in the runtime manifest; host upgrades do not reinterpret an existing session. Calendar date operators do not consult that database.",
+    "errors": "No NaN, Infinity, binary rounding, partial calculated assignment or best-effort ignored operand is an accepted result. Errors include code and expression/field/item pointer context without raw sensitive values.",
+    "aggregateAccumulator": "The exact sum accumulator may use more than 34 significant digits internally, bounded by the allowed item count and input exponent span; only the final available aggregate result must fit decimal precision/magnitude. No additional supported precision is exposed as an arithmetic result."
+  },
+  "errorCodes": {
+    "EXPR_SHAPE": "Invalid or legacy expression node shape, unknown grammar property, or null literal.",
+    "EXPR_ARITY": "Wrong argument count.",
+    "EXPR_TYPE": "Unsupported operand type or incompatible branch/array type.",
+    "EXPR_SCOPE": "Invalid item/parent/root scope or depth.",
+    "UNKNOWN_FIELD": "Reference ID is not declared.",
+    "UNSUPPORTED_OPERATOR": "Operator is not in this contract.",
+    "UNSUPPORTED_CONTEXT": "Context such as mutable locale is not admitted.",
+    "INVALID_LITERAL": "Literal value does not match its explicit type, scalar-array structure, calendar format or value domain.",
+    "INVALID_TIMEZONE": "Timezone identifier is not in the pinned timezone database.",
+    "INVALID_STATUS": "statusIs operand is not a literal canonical answer status.",
+    "INTEGER_RANGE": "Integer outside the exact signed 64-bit range.",
+    "DIVIDE_BY_ZERO": "Evaluated divisor is zero.",
+    "CALC_PRECISION": "Exact decimal literal/result exceeds supported precision or division is nonterminating.",
+    "CALC_OVERFLOW": "Decimal magnitude exceeds explicit exponent bounds.",
+    "DATE_RANGE": "Date arithmetic would exceed supported range or age as-of precedes birth.",
+    "EVALUATION_BUDGET": "Mutation-wide expression step limit would be exceeded.",
+    "INVALID_SCALE": "round scale is outside the supported integer range 0..12; reject a literal invalid scale during compile, otherwise at evaluation.",
+    "INTEGER_ENCODING": "Typed integer has noncanonical string encoding or wrong JSON type."
+  },
+  "operators": [
+    {
+      "name": "and",
+      "arity": {
+        "min": 2,
+        "max": 100
+      },
+      "operands": [
+        "boolean..."
+      ],
+      "resultType": "boolean",
+      "semantics": "False is decisive; otherwise Unknown if any evaluated operand is Unknown; otherwise true.",
+      "unavailable": "Apply the three-valued truth table, without converting Unknown to false.",
+      "evaluation": "Evaluate left to right; stop at false. Evaluated errors propagate immediately; skipped branches have no runtime effects, errors or evaluation cost. All branches are still statically checked.",
+      "compileErrors": [
+        "EXPR_ARITY",
+        "EXPR_TYPE"
+      ],
+      "runtimeErrors": {
+        "generated": [
+          "EVALUATION_BUDGET"
+        ],
+        "propagation": "Any evaluated operand/reference/item-expression error propagates unchanged before an available or Unknown result; unvisited lazy branches generate no runtime error."
+      }
+    },
+    {
+      "name": "or",
+      "arity": {
+        "min": 2,
+        "max": 100
+      },
+      "operands": [
+        "boolean..."
+      ],
+      "resultType": "boolean",
+      "semantics": "True is decisive; otherwise Unknown if any evaluated operand is Unknown; otherwise false.",
+      "unavailable": "Apply the three-valued truth table, without converting Unknown to false.",
+      "evaluation": "Evaluate left to right; stop at true. Evaluated errors propagate immediately; skipped branches have no runtime effects, errors or evaluation cost. All branches are still statically checked.",
+      "compileErrors": [
+        "EXPR_ARITY",
+        "EXPR_TYPE"
+      ],
+      "runtimeErrors": {
+        "generated": [
+          "EVALUATION_BUDGET"
+        ],
+        "propagation": "Any evaluated operand/reference/item-expression error propagates unchanged before an available or Unknown result; unvisited lazy branches generate no runtime error."
+      }
+    },
+    {
+      "name": "not",
+      "arity": 1,
+      "operands": [
+        "boolean"
+      ],
+      "resultType": "boolean",
+      "semantics": "Invert true/false. Unknown remains Unknown.",
+      "unavailable": "Any evaluated unavailable operand yields Unknown.",
+      "evaluation": "Evaluate arguments left to right. Propagate the first evaluated error.",
+      "compileErrors": [
+        "EXPR_ARITY",
+        "EXPR_TYPE"
+      ],
+      "runtimeErrors": {
+        "generated": [
+          "EVALUATION_BUDGET"
+        ],
+        "propagation": "Any evaluated operand/reference/item-expression error propagates unchanged before an available or Unknown result; unvisited lazy branches generate no runtime error."
+      }
+    },
+    {
+      "name": "eq",
+      "arity": 2,
+      "operands": [
+        "same scalar type, or integer/decimal pair"
+      ],
+      "resultType": "boolean",
+      "semantics": "Compare exact typed scalar values; integer/decimal operands promote to exact decimals. Return equality. Text/choice compare exact Unicode scalar sequences; Boolean compares Boolean; date/time compare canonical calendar/clock values; dateTime compares its instant, independent of associated display timezone. Object/list/array operands are compile errors.",
+      "unavailable": "Any evaluated unavailable operand yields Unknown.",
+      "evaluation": "Evaluate arguments left to right. Propagate the first evaluated error.",
+      "compileErrors": [
+        "EXPR_ARITY",
+        "EXPR_TYPE"
+      ],
+      "runtimeErrors": {
+        "generated": [
+          "EVALUATION_BUDGET"
+        ],
+        "propagation": "Any evaluated operand/reference/item-expression error propagates unchanged before an available or Unknown result; unvisited lazy branches generate no runtime error."
+      }
+    },
+    {
+      "name": "ne",
+      "arity": 2,
+      "operands": [
+        "same scalar type, or integer/decimal pair"
+      ],
+      "resultType": "boolean",
+      "semantics": "Compare exact typed scalar values; integer/decimal operands promote to exact decimals. Return the negation of equality. Text/choice compare exact Unicode scalar sequences; Boolean compares Boolean; date/time compare canonical calendar/clock values; dateTime compares its instant, independent of associated display timezone. Object/list/array operands are compile errors.",
+      "unavailable": "Any evaluated unavailable operand yields Unknown.",
+      "evaluation": "Evaluate arguments left to right. Propagate the first evaluated error.",
+      "compileErrors": [
+        "EXPR_ARITY",
+        "EXPR_TYPE"
+      ],
+      "runtimeErrors": {
+        "generated": [
+          "EVALUATION_BUDGET"
+        ],
+        "propagation": "Any evaluated operand/reference/item-expression error propagates unchanged before an available or Unknown result; unvisited lazy branches generate no runtime error."
+      }
+    },
+    {
+      "name": "lt",
+      "arity": 2,
+      "operands": [
+        "numeric pair, date/date, time/time, or dateTime/dateTime"
+      ],
+      "resultType": "boolean",
+      "semantics": "First operand is strictly less than second. Numeric promotion is exact. Calendar dates/clock times order chronologically; dateTime orders by instant. Text, choice, Boolean and collections are not orderable.",
+      "unavailable": "Any evaluated unavailable operand yields Unknown.",
+      "evaluation": "Evaluate arguments left to right. Propagate the first evaluated error.",
+      "compileErrors": [
+        "EXPR_ARITY",
+        "EXPR_TYPE"
+      ],
+      "runtimeErrors": {
+        "generated": [
+          "EVALUATION_BUDGET"
+        ],
+        "propagation": "Any evaluated operand/reference/item-expression error propagates unchanged before an available or Unknown result; unvisited lazy branches generate no runtime error."
+      }
+    },
+    {
+      "name": "lte",
+      "arity": 2,
+      "operands": [
+        "numeric pair, date/date, time/time, or dateTime/dateTime"
+      ],
+      "resultType": "boolean",
+      "semantics": "First operand is less than or equal to second. Numeric promotion is exact. Calendar dates/clock times order chronologically; dateTime orders by instant. Text, choice, Boolean and collections are not orderable.",
+      "unavailable": "Any evaluated unavailable operand yields Unknown.",
+      "evaluation": "Evaluate arguments left to right. Propagate the first evaluated error.",
+      "compileErrors": [
+        "EXPR_ARITY",
+        "EXPR_TYPE"
+      ],
+      "runtimeErrors": {
+        "generated": [
+          "EVALUATION_BUDGET"
+        ],
+        "propagation": "Any evaluated operand/reference/item-expression error propagates unchanged before an available or Unknown result; unvisited lazy branches generate no runtime error."
+      }
+    },
+    {
+      "name": "gt",
+      "arity": 2,
+      "operands": [
+        "numeric pair, date/date, time/time, or dateTime/dateTime"
+      ],
+      "resultType": "boolean",
+      "semantics": "First operand is strictly greater than second. Numeric promotion is exact. Calendar dates/clock times order chronologically; dateTime orders by instant. Text, choice, Boolean and collections are not orderable.",
+      "unavailable": "Any evaluated unavailable operand yields Unknown.",
+      "evaluation": "Evaluate arguments left to right. Propagate the first evaluated error.",
+      "compileErrors": [
+        "EXPR_ARITY",
+        "EXPR_TYPE"
+      ],
+      "runtimeErrors": {
+        "generated": [
+          "EVALUATION_BUDGET"
+        ],
+        "propagation": "Any evaluated operand/reference/item-expression error propagates unchanged before an available or Unknown result; unvisited lazy branches generate no runtime error."
+      }
+    },
+    {
+      "name": "gte",
+      "arity": 2,
+      "operands": [
+        "numeric pair, date/date, time/time, or dateTime/dateTime"
+      ],
+      "resultType": "boolean",
+      "semantics": "First operand is greater than or equal to second. Numeric promotion is exact. Calendar dates/clock times order chronologically; dateTime orders by instant. Text, choice, Boolean and collections are not orderable.",
+      "unavailable": "Any evaluated unavailable operand yields Unknown.",
+      "evaluation": "Evaluate arguments left to right. Propagate the first evaluated error.",
+      "compileErrors": [
+        "EXPR_ARITY",
+        "EXPR_TYPE"
+      ],
+      "runtimeErrors": {
+        "generated": [
+          "EVALUATION_BUDGET"
+        ],
+        "propagation": "Any evaluated operand/reference/item-expression error propagates unchanged before an available or Unknown result; unvisited lazy branches generate no runtime error."
+      }
+    },
+    {
+      "name": "in",
+      "arity": 2,
+      "operands": [
+        "scalar<T>",
+        "array<T>"
+      ],
+      "resultType": "boolean",
+      "semantics": "True if the first operand equals any member of the second using scalar eq semantics. Integer/decimal membership promotes numeric values exactly. Empty array returns false.",
+      "unavailable": "Any evaluated unavailable operand yields Unknown.",
+      "evaluation": "Evaluate arguments left to right. Propagate the first evaluated error.",
+      "compileErrors": [
+        "EXPR_ARITY",
+        "EXPR_TYPE"
+      ],
+      "runtimeErrors": {
+        "generated": [
+          "EVALUATION_BUDGET"
+        ],
+        "propagation": "Any evaluated operand/reference/item-expression error propagates unchanged before an available or Unknown result; unvisited lazy branches generate no runtime error."
+      }
+    },
+    {
+      "name": "contains",
+      "arity": 2,
+      "operands": [
+        "array<T>",
+        "scalar<T>"
+      ],
+      "resultType": "boolean",
+      "semantics": "True if the second operand equals any member of the first using scalar eq semantics. Integer/decimal membership promotes numeric values exactly. Empty array returns false. Text substring matching is not supported.",
+      "unavailable": "Any evaluated unavailable operand yields Unknown.",
+      "evaluation": "Evaluate arguments left to right. Propagate the first evaluated error.",
+      "compileErrors": [
+        "EXPR_ARITY",
+        "EXPR_TYPE"
+      ],
+      "runtimeErrors": {
+        "generated": [
+          "EVALUATION_BUDGET"
+        ],
+        "propagation": "Any evaluated operand/reference/item-expression error propagates unchanged before an available or Unknown result; unvisited lazy branches generate no runtime error."
+      }
+    },
+    {
+      "name": "containsAll",
+      "arity": 2,
+      "operands": [
+        "array<T>",
+        "array<T>"
+      ],
+      "resultType": "boolean",
+      "semantics": "Every value in the second array must be present in the first by scalar eq. Order and duplicate multiplicity are ignored. Empty second array returns true. Numeric arrays may use integer/decimal promotion. The empty-second-array rule assumes both arguments are available; unavailable required operands still yield Unknown.",
+      "unavailable": "Any evaluated unavailable operand yields Unknown.",
+      "evaluation": "Evaluate arguments left to right. Propagate the first evaluated error.",
+      "compileErrors": [
+        "EXPR_ARITY",
+        "EXPR_TYPE"
+      ],
+      "runtimeErrors": {
+        "generated": [
+          "EVALUATION_BUDGET"
+        ],
+        "propagation": "Any evaluated operand/reference/item-expression error propagates unchanged before an available or Unknown result; unvisited lazy branches generate no runtime error."
+      }
+    },
+    {
+      "name": "exists",
+      "arity": 1,
+      "operands": [
+        "field reference only"
+      ],
+      "resultType": "boolean",
+      "semantics": "True exactly when the referenced field occurrence is applicable, has status answered and has a valid available value; false otherwise. A missing field ID/scope is a compile error, not false. In this engine version exists and isAnswered are intentionally equivalent.",
+      "unavailable": "Unavailable reference returns false. Inspect reference metadata rather than replacing it with Unknown.",
+      "evaluation": "Evaluate arguments left to right. Propagate the first evaluated error.",
+      "compileErrors": [
+        "EXPR_ARITY",
+        "EXPR_TYPE"
+      ],
+      "runtimeErrors": {
+        "generated": [
+          "EVALUATION_BUDGET"
+        ],
+        "propagation": "Any evaluated operand/reference/item-expression error propagates unchanged before an available or Unknown result; unvisited lazy branches generate no runtime error."
+      }
+    },
+    {
+      "name": "isAnswered",
+      "arity": 1,
+      "operands": [
+        "field reference only"
+      ],
+      "resultType": "boolean",
+      "semantics": "True exactly when the referenced field occurrence is applicable, has status answered and has a valid available value; false otherwise. False, zero, empty text, an empty scalar array and an answered empty list are answers, although constraints can still reject them.",
+      "unavailable": "Unavailable reference returns false. Inspect reference metadata rather than replacing it with Unknown.",
+      "evaluation": "Evaluate arguments left to right. Propagate the first evaluated error.",
+      "compileErrors": [
+        "EXPR_ARITY",
+        "EXPR_TYPE"
+      ],
+      "runtimeErrors": {
+        "generated": [
+          "EVALUATION_BUDGET"
+        ],
+        "propagation": "Any evaluated operand/reference/item-expression error propagates unchanged before an available or Unknown result; unvisited lazy branches generate no runtime error."
+      }
+    },
+    {
+      "name": "statusIs",
+      "arity": 2,
+      "operands": [
+        "field reference only",
+        "literal<text> containing a canonical answer status"
+      ],
+      "resultType": "boolean",
+      "semantics": "Compare the authoritative cell status with the second operand. This is a status test and does not read retained hidden values. A synthesized non-applicable cell has status notApplicable. Declared but unanswered is status unanswered. Missing field IDs/invalid scopes/unknown status names are compile errors. respondentNotApplicable and notApplicable are distinct accepted status-test literals; the latter is server-only automatic non-applicability.",
+      "unavailable": "Inspect reference metadata even when its value is unavailable; result is Boolean, not Unknown.",
+      "evaluation": "Evaluate arguments left to right. Propagate the first evaluated error.",
+      "compileErrors": [
+        "EXPR_ARITY",
+        "EXPR_TYPE",
+        "INVALID_STATUS"
+      ],
+      "runtimeErrors": {
+        "generated": [
+          "EVALUATION_BUDGET"
+        ],
+        "propagation": "Any evaluated operand/reference/item-expression error propagates unchanged before an available or Unknown result; unvisited lazy branches generate no runtime error."
+      }
+    },
+    {
+      "name": "add",
+      "arity": 2,
+      "operands": [
+        "numeric",
+        "numeric"
+      ],
+      "resultType": "decimal",
+      "semantics": "Return first plus second. All numeric operands promote exactly to decimal and the result is a canonical decimal string.",
+      "unavailable": "Any evaluated unavailable operand yields Unknown.",
+      "evaluation": "Evaluate arguments left to right. Propagate the first evaluated error.",
+      "compileErrors": [
+        "EXPR_ARITY",
+        "EXPR_TYPE"
+      ],
+      "runtimeErrors": {
+        "generated": [
+          "CALC_PRECISION",
+          "CALC_OVERFLOW",
+          "EVALUATION_BUDGET"
+        ],
+        "propagation": "Any evaluated operand/reference/item-expression error propagates unchanged before an available or Unknown result; unvisited lazy branches generate no runtime error."
+      }
+    },
+    {
+      "name": "subtract",
+      "arity": 2,
+      "operands": [
+        "numeric",
+        "numeric"
+      ],
+      "resultType": "decimal",
+      "semantics": "Return first minus second. All numeric operands promote exactly to decimal and the result is a canonical decimal string.",
+      "unavailable": "Any evaluated unavailable operand yields Unknown.",
+      "evaluation": "Evaluate arguments left to right. Propagate the first evaluated error.",
+      "compileErrors": [
+        "EXPR_ARITY",
+        "EXPR_TYPE"
+      ],
+      "runtimeErrors": {
+        "generated": [
+          "CALC_PRECISION",
+          "CALC_OVERFLOW",
+          "EVALUATION_BUDGET"
+        ],
+        "propagation": "Any evaluated operand/reference/item-expression error propagates unchanged before an available or Unknown result; unvisited lazy branches generate no runtime error."
+      }
+    },
+    {
+      "name": "multiply",
+      "arity": 2,
+      "operands": [
+        "numeric",
+        "numeric"
+      ],
+      "resultType": "decimal",
+      "semantics": "Return first times second. All numeric operands promote exactly to decimal and the result is a canonical decimal string.",
+      "unavailable": "Any evaluated unavailable operand yields Unknown.",
+      "evaluation": "Evaluate arguments left to right. Propagate the first evaluated error.",
+      "compileErrors": [
+        "EXPR_ARITY",
+        "EXPR_TYPE"
+      ],
+      "runtimeErrors": {
+        "generated": [
+          "CALC_PRECISION",
+          "CALC_OVERFLOW",
+          "EVALUATION_BUDGET"
+        ],
+        "propagation": "Any evaluated operand/reference/item-expression error propagates unchanged before an available or Unknown result; unvisited lazy branches generate no runtime error."
+      }
+    },
+    {
+      "name": "divide",
+      "arity": 2,
+      "operands": [
+        "numeric",
+        "numeric"
+      ],
+      "resultType": "decimal",
+      "semantics": "Return first divided by second. Zero divisor is DIVIDE_BY_ZERO. A result requiring nonterminating or more-than-34-significant-digit decimal expansion is CALC_PRECISION; never silently round. All numeric operands promote exactly to decimal and the result is a canonical decimal string. A literal zero divisor is rejected during compile, including lazy branches; a field-derived zero is a runtime error if evaluated.",
+      "unavailable": "Any evaluated unavailable operand yields Unknown.",
+      "evaluation": "Evaluate arguments left to right. Propagate the first evaluated error.",
+      "compileErrors": [
+        "EXPR_ARITY",
+        "EXPR_TYPE",
+        "DIVIDE_BY_ZERO"
+      ],
+      "runtimeErrors": {
+        "generated": [
+          "CALC_PRECISION",
+          "CALC_OVERFLOW",
+          "DIVIDE_BY_ZERO",
+          "EVALUATION_BUDGET"
+        ],
+        "propagation": "Any evaluated operand/reference/item-expression error propagates unchanged before an available or Unknown result; unvisited lazy branches generate no runtime error."
+      }
+    },
+    {
+      "name": "round",
+      "arity": 2,
+      "operands": [
+        "numeric",
+        "integer scale from 0 through 12"
+      ],
+      "resultType": "decimal",
+      "semantics": "Round the first value to at most scale fractional places using decimal half-even, including negative values. This operator is the only implicit-digit-discarding operation. Result serialization removes unnecessary trailing fractional zeros; a destination field applies its declared storage scale separately. The value argument must itself evaluate successfully: round(divide(1,3),2) still reports CALC_PRECISION. An available scale outside 0..12 is INVALID_SCALE; detect a literal invalid scale during compile and a computed/reference invalid scale during evaluation.",
+      "unavailable": "Any evaluated unavailable operand yields Unknown.",
+      "evaluation": "Evaluate arguments left to right. Propagate the first evaluated error.",
+      "compileErrors": [
+        "EXPR_ARITY",
+        "EXPR_TYPE",
+        "INVALID_SCALE"
+      ],
+      "runtimeErrors": {
+        "generated": [
+          "CALC_PRECISION",
+          "CALC_OVERFLOW",
+          "INVALID_SCALE",
+          "EVALUATION_BUDGET"
+        ],
+        "propagation": "Any evaluated operand/reference/item-expression error propagates unchanged before an available or Unknown result; unvisited lazy branches generate no runtime error."
+      }
+    },
+    {
+      "name": "min",
+      "arity": {
+        "min": 2,
+        "max": 100
+      },
+      "operands": [
+        "numeric..."
+      ],
+      "resultType": "decimal",
+      "semantics": "Return the least numeric operand after exact integer-to-decimal promotion. All operands are evaluated; no unavailable input is ignored.",
+      "unavailable": "Any evaluated unavailable operand yields Unknown.",
+      "evaluation": "Evaluate arguments left to right. Propagate the first evaluated error.",
+      "compileErrors": [
+        "EXPR_ARITY",
+        "EXPR_TYPE"
+      ],
+      "runtimeErrors": {
+        "generated": [
+          "CALC_PRECISION",
+          "CALC_OVERFLOW",
+          "EVALUATION_BUDGET"
+        ],
+        "propagation": "Any evaluated operand/reference/item-expression error propagates unchanged before an available or Unknown result; unvisited lazy branches generate no runtime error."
+      }
+    },
+    {
+      "name": "max",
+      "arity": {
+        "min": 2,
+        "max": 100
+      },
+      "operands": [
+        "numeric..."
+      ],
+      "resultType": "decimal",
+      "semantics": "Return the greatest numeric operand after exact integer-to-decimal promotion. All operands are evaluated; no unavailable input is ignored.",
+      "unavailable": "Any evaluated unavailable operand yields Unknown.",
+      "evaluation": "Evaluate arguments left to right. Propagate the first evaluated error.",
+      "compileErrors": [
+        "EXPR_ARITY",
+        "EXPR_TYPE"
+      ],
+      "runtimeErrors": {
+        "generated": [
+          "CALC_PRECISION",
+          "CALC_OVERFLOW",
+          "EVALUATION_BUDGET"
+        ],
+        "propagation": "Any evaluated operand/reference/item-expression error propagates unchanged before an available or Unknown result; unvisited lazy branches generate no runtime error."
+      }
+    },
+    {
+      "name": "sum",
+      "arity": 2,
+      "operands": [
+        "applicable list",
+        "numeric item expression"
+      ],
+      "resultType": "decimal",
+      "semantics": "Evaluate the item expression in the context of each list item in stored order and add exactly in a bounded exact accumulator. Empty answered list returns decimal zero. Any unavailable item expression makes the result Unknown. Check aggregate-result precision/magnitude after the complete exact sum; do not round or reject only because an intermediate partial sum would require more significant digits than its final result. Item-expression precision errors still propagate normally. This makes the result or aggregate precision error independent of item reordering when all item expressions have the same available values.",
+      "unavailable": "Unavailable list or any unavailable item result yields Unknown; no missing child is treated as zero.",
+      "evaluation": "Evaluate list first, then every item expression left to right. An evaluated error propagates. An Unknown is remembered but does not hide a later evaluated error.",
+      "compileErrors": [
+        "EXPR_ARITY",
+        "EXPR_TYPE"
+      ],
+      "runtimeErrors": {
+        "generated": [
+          "CALC_PRECISION",
+          "CALC_OVERFLOW",
+          "EVALUATION_BUDGET"
+        ],
+        "propagation": "Any evaluated operand/reference/item-expression error propagates unchanged before an available or Unknown result; unvisited lazy branches generate no runtime error."
+      }
+    },
+    {
+      "name": "count",
+      "arity": 1,
+      "operands": [
+        "applicable list"
+      ],
+      "resultType": "integer",
+      "semantics": "Return the number of item records in an answered applicable list, including records whose child answers are unavailable. Empty answered list returns integer zero. This does not count answered children.",
+      "unavailable": "Unavailable list yields Unknown.",
+      "evaluation": "Evaluate the list only; do not evaluate item child values or predicates.",
+      "compileErrors": [
+        "EXPR_ARITY",
+        "EXPR_TYPE"
+      ],
+      "runtimeErrors": {
+        "generated": [
+          "EVALUATION_BUDGET"
+        ],
+        "propagation": "Any evaluated operand/reference/item-expression error propagates unchanged before an available or Unknown result; unvisited lazy branches generate no runtime error."
+      }
+    },
+    {
+      "name": "any",
+      "arity": 2,
+      "operands": [
+        "applicable list",
+        "Boolean item expression"
+      ],
+      "resultType": "boolean",
+      "semantics": "Empty answered list returns false. Return true on the first true item predicate; otherwise Unknown if at least one predicate was Unknown; otherwise false.",
+      "unavailable": "Unavailable list yields Unknown. Unknown predicates do not prevent a later true result.",
+      "evaluation": "Evaluate list then predicates in stored item order; stop at first true. An evaluated error propagates immediately; later unvisited errors do not occur.",
+      "compileErrors": [
+        "EXPR_ARITY",
+        "EXPR_TYPE"
+      ],
+      "runtimeErrors": {
+        "generated": [
+          "EVALUATION_BUDGET"
+        ],
+        "propagation": "Any evaluated operand/reference/item-expression error propagates unchanged before an available or Unknown result; unvisited lazy branches generate no runtime error."
+      }
+    },
+    {
+      "name": "all",
+      "arity": 2,
+      "operands": [
+        "applicable list",
+        "Boolean item expression"
+      ],
+      "resultType": "boolean",
+      "semantics": "Empty answered list returns true. Return false on the first false item predicate; otherwise Unknown if at least one predicate was Unknown; otherwise true.",
+      "unavailable": "Unavailable list yields Unknown. Unknown predicates do not prevent a later false result.",
+      "evaluation": "Evaluate list then predicates in stored item order; stop at first false. An evaluated error propagates immediately; later unvisited errors do not occur.",
+      "compileErrors": [
+        "EXPR_ARITY",
+        "EXPR_TYPE"
+      ],
+      "runtimeErrors": {
+        "generated": [
+          "EVALUATION_BUDGET"
+        ],
+        "propagation": "Any evaluated operand/reference/item-expression error propagates unchanged before an available or Unknown result; unvisited lazy branches generate no runtime error."
+      }
+    },
+    {
+      "name": "concat",
+      "arity": {
+        "min": 2,
+        "max": 100
+      },
+      "operands": [
+        "text..."
+      ],
+      "resultType": "text",
+      "semantics": "Concatenate in operand order without separator, trimming, locale formatting or implicit scalar conversion. A literal empty string is allowed.",
+      "unavailable": "Any evaluated unavailable operand yields Unknown.",
+      "evaluation": "Evaluate arguments left to right. Propagate the first evaluated error.",
+      "compileErrors": [
+        "EXPR_ARITY",
+        "EXPR_TYPE"
+      ],
+      "runtimeErrors": {
+        "generated": [
+          "EVALUATION_BUDGET"
+        ],
+        "propagation": "Any evaluated operand/reference/item-expression error propagates unchanged before an available or Unknown result; unvisited lazy branches generate no runtime error."
+      }
+    },
+    {
+      "name": "length",
+      "arity": 1,
+      "operands": [
+        "text or scalar array"
+      ],
+      "resultType": "integer",
+      "semantics": "For text, count Unicode scalar values (code points), not UTF-16 code units, bytes or grapheme clusters. For scalar arrays, count elements. Use count for canonical lists; object/list values are compile errors.",
+      "unavailable": "Any evaluated unavailable operand yields Unknown.",
+      "evaluation": "Evaluate arguments left to right. Propagate the first evaluated error.",
+      "compileErrors": [
+        "EXPR_ARITY",
+        "EXPR_TYPE"
+      ],
+      "runtimeErrors": {
+        "generated": [
+          "EVALUATION_BUDGET"
+        ],
+        "propagation": "Any evaluated operand/reference/item-expression error propagates unchanged before an available or Unknown result; unvisited lazy branches generate no runtime error."
+      }
+    },
+    {
+      "name": "coalesce",
+      "arity": {
+        "min": 2,
+        "max": 100
+      },
+      "operands": [
+        "same scalar type or compatible scalar-array type; numeric alternatives may promote"
+      ],
+      "resultType": "unified operand type",
+      "semantics": "Return the first available operand, including false, zero, empty text or an empty array. If static alternatives mix integer and decimal, promote an available integer result to decimal. Do not coerce text to a numeric/date/choice type.",
+      "unavailable": "Return Unknown when all operands are unavailable.",
+      "evaluation": "Evaluate left to right; skip unavailable values; stop at first available value. Errors encountered before that value propagate. Unvisited expressions are still statically checked.",
+      "compileErrors": [
+        "EXPR_ARITY",
+        "EXPR_TYPE"
+      ],
+      "runtimeErrors": {
+        "generated": [
+          "EVALUATION_BUDGET"
+        ],
+        "propagation": "Any evaluated operand/reference/item-expression error propagates unchanged before an available or Unknown result; unvisited lazy branches generate no runtime error."
+      }
+    },
+    {
+      "name": "if",
+      "arity": 3,
+      "operands": [
+        "Boolean condition",
+        "scalar or scalar-array true branch",
+        "same type false branch, or numeric-promotable branch"
+      ],
+      "resultType": "unified branch type",
+      "semantics": "True selects second operand and false selects third. Integer/decimal branches have decimal result type even if the integer branch is selected.",
+      "unavailable": "Unknown condition yields Unknown and evaluates neither branch.",
+      "evaluation": "Evaluate condition first; then evaluate only the selected branch. Both branches must be statically well typed and scope valid.",
+      "compileErrors": [
+        "EXPR_ARITY",
+        "EXPR_TYPE"
+      ],
+      "runtimeErrors": {
+        "generated": [
+          "EVALUATION_BUDGET"
+        ],
+        "propagation": "Any evaluated operand/reference/item-expression error propagates unchanged before an available or Unknown result; unvisited lazy branches generate no runtime error."
+      }
+    },
+    {
+      "name": "dateDiffDays",
+      "arity": 2,
+      "operands": [
+        "date startDate",
+        "date endDate"
+      ],
+      "resultType": "integer",
+      "semantics": "Return Gregorian calendar ordinal(endDate) minus ordinal(startDate). The result can be negative. No time or timezone conversion is involved; dateTime operands are rejected.",
+      "unavailable": "Any evaluated unavailable operand yields Unknown.",
+      "evaluation": "Evaluate arguments left to right. Propagate the first evaluated error.",
+      "compileErrors": [
+        "EXPR_ARITY",
+        "EXPR_TYPE"
+      ],
+      "runtimeErrors": {
+        "generated": [
+          "EVALUATION_BUDGET"
+        ],
+        "propagation": "Any evaluated operand/reference/item-expression error propagates unchanged before an available or Unknown result; unvisited lazy branches generate no runtime error."
+      }
+    },
+    {
+      "name": "ageYears",
+      "arity": 2,
+      "operands": [
+        "date birthDate",
+        "date asOfDate"
+      ],
+      "resultType": "integer",
+      "semantics": "Return completed Gregorian calendar years from birthDate through asOfDate. A leap-day birthday reaches its anniversary on March 1 in a non-leap year. An asOfDate before birthDate is DATE_RANGE. No current clock is consulted.",
+      "unavailable": "Any evaluated unavailable operand yields Unknown.",
+      "evaluation": "Evaluate arguments left to right. Propagate the first evaluated error.",
+      "compileErrors": [
+        "EXPR_ARITY",
+        "EXPR_TYPE"
+      ],
+      "runtimeErrors": {
+        "generated": [
+          "DATE_RANGE",
+          "EVALUATION_BUDGET"
+        ],
+        "propagation": "Any evaluated operand/reference/item-expression error propagates unchanged before an available or Unknown result; unvisited lazy branches generate no runtime error."
+      }
+    },
+    {
+      "name": "dateAddDays",
+      "arity": 2,
+      "operands": [
+        "date startingDate",
+        "integer signedDays"
+      ],
+      "resultType": "date",
+      "semantics": "Add signedDays Gregorian calendar days to startingDate. Negative days subtract. Dates outside 0001-01-01 through 9999-12-31 cause DATE_RANGE. Do not interpret days as seconds or use a machine timezone.",
+      "unavailable": "Any evaluated unavailable operand yields Unknown.",
+      "evaluation": "Evaluate arguments left to right. Propagate the first evaluated error.",
+      "compileErrors": [
+        "EXPR_ARITY",
+        "EXPR_TYPE"
+      ],
+      "runtimeErrors": {
+        "generated": [
+          "DATE_RANGE",
+          "EVALUATION_BUDGET"
+        ],
+        "propagation": "Any evaluated operand/reference/item-expression error propagates unchanged before an available or Unknown result; unvisited lazy branches generate no runtime error."
+      }
+    },
+    {
+      "name": "today",
+      "arity": 0,
+      "operands": [],
+      "resultType": "date",
+      "semantics": "Return trusted frozen context.sessionDate, identical to the sessionDate context expression. Never consult a clock.",
+      "unavailable": "Missing/invalid mandatory evaluation context is an invalid evaluation request, never the current date.",
+      "evaluation": "One AST step; read frozen context only.",
+      "compileErrors": [
+        "EXPR_ARITY"
+      ],
+      "runtimeErrors": {
+        "generated": [
+          "EVALUATION_BUDGET"
+        ],
+        "propagation": "No operands."
+      }
+    }
+  ],
+  "vectorHarness": {
+    "scope": "Specification conformance data, not an implemented evaluator or a set of completed product tests.",
+    "phase": "compile vectors must reject before runtime; evaluate vectors must compile and match the expected evaluation result.",
+    "fixtureProjection": "fieldDefinitions and answers are compact evaluator-test projections, not complete public packages/envelopes. Field definitions omit UI properties. Answer projections omit provenance and add an applicable Boolean supplied by the authoritative runtime; no public caller can forge it. Nested fields use the same projection.",
+    "defaults": "Missing vectors context defaults to sessionDate 2026-09-05 and sessionTimeZone UTC. Each field ID is globally unique in its vector; an omitted field declaration is an unknown reference.",
+    "expected": "Compare state, type and canonical value exactly for available results; compare reason for Unknown and code for errors. No undefined or null value stands in for Unknown. Diagnostic messages/trace IDs are not golden strings.",
+    "testStatus": "notRun; expected results are normative assertions. Static artifact checks are not expression execution.",
+    "minimumRequiredVectors": 25
+  },
+  "vectors": [
+    {
+      "id": "EXPR-001",
+      "name": "34-significant-digit decimal remains exact",
+      "phase": "evaluate",
+      "expression": {
+        "literal": {
+          "type": "decimal",
+          "value": "12345678901234567890123456789012.34"
+        }
+      },
+      "expected": {
+        "state": "available",
+        "type": "decimal",
+        "value": "12345678901234567890123456789012.34"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-002",
+      "name": "Text does not compare equal to a decimal by coercion",
+      "phase": "compile",
+      "expression": {
+        "op": "eq",
+        "args": [
+          {
+            "literal": {
+              "type": "text",
+              "value": "1"
+            }
+          },
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "1"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "error",
+        "code": "EXPR_TYPE"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-003",
+      "name": "Integer addition has decimal result",
+      "phase": "evaluate",
+      "expression": {
+        "op": "add",
+        "args": [
+          {
+            "literal": {
+              "type": "integer",
+              "value": "2"
+            }
+          },
+          {
+            "literal": {
+              "type": "integer",
+              "value": "3"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "decimal",
+        "value": "5"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-004",
+      "name": "Mixed numeric equality promotes exactly",
+      "phase": "evaluate",
+      "expression": {
+        "op": "eq",
+        "args": [
+          {
+            "literal": {
+              "type": "integer",
+              "value": "2"
+            }
+          },
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "2.00"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "boolean",
+        "value": true
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-005",
+      "name": "Mixed numeric greater-than-or-equal",
+      "phase": "evaluate",
+      "expression": {
+        "op": "gte",
+        "args": [
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "2.1"
+            }
+          },
+          {
+            "literal": {
+              "type": "integer",
+              "value": "2"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "boolean",
+        "value": true
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-006",
+      "name": "Text inequality is exact and case sensitive",
+      "phase": "evaluate",
+      "expression": {
+        "op": "ne",
+        "args": [
+          {
+            "literal": {
+              "type": "text",
+              "value": "A"
+            }
+          },
+          {
+            "literal": {
+              "type": "text",
+              "value": "a"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "boolean",
+        "value": true
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-007",
+      "name": "Dates order by Gregorian date",
+      "phase": "evaluate",
+      "expression": {
+        "op": "lt",
+        "args": [
+          {
+            "literal": {
+              "type": "date",
+              "value": "2024-02-29"
+            }
+          },
+          {
+            "literal": {
+              "type": "date",
+              "value": "2024-03-01"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "boolean",
+        "value": true
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-008",
+      "name": "Times compare as local clock values",
+      "phase": "evaluate",
+      "expression": {
+        "op": "lte",
+        "args": [
+          {
+            "literal": {
+              "type": "time",
+              "value": "09:30:00"
+            }
+          },
+          {
+            "literal": {
+              "type": "time",
+              "value": "09:30:00"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "boolean",
+        "value": true
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-009",
+      "name": "Numeric greater-than",
+      "phase": "evaluate",
+      "expression": {
+        "op": "gt",
+        "args": [
+          {
+            "literal": {
+              "type": "integer",
+              "value": "5"
+            }
+          },
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "4.99"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "boolean",
+        "value": true
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-010",
+      "name": "Text ordering has no implicit locale collation",
+      "phase": "compile",
+      "expression": {
+        "op": "gt",
+        "args": [
+          {
+            "literal": {
+              "type": "text",
+              "value": "b"
+            }
+          },
+          {
+            "literal": {
+              "type": "text",
+              "value": "a"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "error",
+        "code": "EXPR_TYPE"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-011",
+      "name": "Exact terminating division",
+      "phase": "evaluate",
+      "expression": {
+        "op": "divide",
+        "args": [
+          {
+            "literal": {
+              "type": "integer",
+              "value": "1"
+            }
+          },
+          {
+            "literal": {
+              "type": "integer",
+              "value": "8"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "decimal",
+        "value": "0.125"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-012",
+      "name": "Divide by zero is an explicit error",
+      "phase": "evaluate",
+      "expression": {
+        "op": "divide",
+        "args": [
+          {
+            "literal": {
+              "type": "integer",
+              "value": "1"
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_runtime_zero",
+              "scope": "root"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "error",
+        "code": "DIVIDE_BY_ZERO"
+      },
+      "status": "not_run_product_not_implemented",
+      "fieldDefinitions": [
+        {
+          "id": "fld_runtime_zero",
+          "type": "decimal"
+        }
+      ],
+      "answers": {
+        "fld_runtime_zero": {
+          "type": "decimal",
+          "status": "answered",
+          "value": "0",
+          "applicable": true
+        }
+      }
+    },
+    {
+      "id": "EXPR-013",
+      "name": "Nonterminating division is not silently rounded",
+      "phase": "evaluate",
+      "expression": {
+        "op": "divide",
+        "args": [
+          {
+            "literal": {
+              "type": "integer",
+              "value": "1"
+            }
+          },
+          {
+            "literal": {
+              "type": "integer",
+              "value": "3"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "error",
+        "code": "CALC_PRECISION"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-014",
+      "name": "Exact arithmetic exceeding 34 significant digits fails",
+      "phase": "evaluate",
+      "expression": {
+        "op": "add",
+        "args": [
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "1234567890123456789012345678901234"
+            }
+          },
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "0.1"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "error",
+        "code": "CALC_PRECISION"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-015",
+      "name": "Decimal multiplication avoids binary rounding",
+      "phase": "evaluate",
+      "expression": {
+        "op": "multiply",
+        "args": [
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "0.1"
+            }
+          },
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "0.2"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "decimal",
+        "value": "0.02"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-016",
+      "name": "Decimal subtraction remains exact",
+      "phase": "evaluate",
+      "expression": {
+        "op": "subtract",
+        "args": [
+          {
+            "literal": {
+              "type": "integer",
+              "value": "1"
+            }
+          },
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "0.1"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "decimal",
+        "value": "0.9"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-017",
+      "name": "Half-even rounding keeps an even last digit",
+      "phase": "evaluate",
+      "expression": {
+        "op": "round",
+        "args": [
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "2.345"
+            }
+          },
+          {
+            "literal": {
+              "type": "integer",
+              "value": "2"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "decimal",
+        "value": "2.34"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-018",
+      "name": "Half-even rounding increments an odd last digit",
+      "phase": "evaluate",
+      "expression": {
+        "op": "round",
+        "args": [
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "2.355"
+            }
+          },
+          {
+            "literal": {
+              "type": "integer",
+              "value": "2"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "decimal",
+        "value": "2.36"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-019",
+      "name": "Half-even rounding is symmetric for negatives",
+      "phase": "evaluate",
+      "expression": {
+        "op": "round",
+        "args": [
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "-2.345"
+            }
+          },
+          {
+            "literal": {
+              "type": "integer",
+              "value": "2"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "decimal",
+        "value": "-2.34"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-020",
+      "name": "Minimum promotes mixed numerics",
+      "phase": "evaluate",
+      "expression": {
+        "op": "min",
+        "args": [
+          {
+            "literal": {
+              "type": "integer",
+              "value": "2"
+            }
+          },
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "1.5"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "decimal",
+        "value": "1.5"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-021",
+      "name": "Maximum promotes mixed numerics",
+      "phase": "evaluate",
+      "expression": {
+        "op": "max",
+        "args": [
+          {
+            "literal": {
+              "type": "integer",
+              "value": "2"
+            }
+          },
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "1.5"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "decimal",
+        "value": "2"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-022",
+      "name": "Choice membership uses scalar then array",
+      "phase": "evaluate",
+      "expression": {
+        "op": "in",
+        "args": [
+          {
+            "literal": {
+              "type": "choice",
+              "value": "opt_red"
+            }
+          },
+          {
+            "literal": {
+              "type": "array",
+              "itemType": "choice",
+              "value": [
+                "opt_blue",
+                "opt_red"
+              ]
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "boolean",
+        "value": true
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-023",
+      "name": "Contains uses array then scalar",
+      "phase": "evaluate",
+      "expression": {
+        "op": "contains",
+        "args": [
+          {
+            "literal": {
+              "type": "array",
+              "itemType": "integer",
+              "value": [
+                "1",
+                "2"
+              ]
+            }
+          },
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "2.0"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "boolean",
+        "value": true
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-024",
+      "name": "Contains-all ignores order and duplicate multiplicity",
+      "phase": "evaluate",
+      "expression": {
+        "op": "containsAll",
+        "args": [
+          {
+            "literal": {
+              "type": "array",
+              "itemType": "integer",
+              "value": [
+                "1",
+                "2"
+              ]
+            }
+          },
+          {
+            "literal": {
+              "type": "array",
+              "itemType": "integer",
+              "value": [
+                "2",
+                "2",
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "boolean",
+        "value": true
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-025",
+      "name": "Array equality is rejected",
+      "phase": "compile",
+      "expression": {
+        "op": "eq",
+        "args": [
+          {
+            "literal": {
+              "type": "array",
+              "itemType": "integer",
+              "value": [
+                "1",
+                "2"
+              ]
+            }
+          },
+          {
+            "literal": {
+              "type": "array",
+              "itemType": "integer",
+              "value": [
+                "1",
+                "2"
+              ]
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "error",
+        "code": "EXPR_TYPE"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-026",
+      "name": "Contains is not a text substring operator",
+      "phase": "compile",
+      "expression": {
+        "op": "contains",
+        "args": [
+          {
+            "literal": {
+              "type": "text",
+              "value": "hello"
+            }
+          },
+          {
+            "literal": {
+              "type": "text",
+              "value": "ell"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "error",
+        "code": "EXPR_TYPE"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-027",
+      "name": "Concatenation has explicit text operands",
+      "phase": "evaluate",
+      "expression": {
+        "op": "concat",
+        "args": [
+          {
+            "literal": {
+              "type": "text",
+              "value": "Hello"
+            }
+          },
+          {
+            "literal": {
+              "type": "text",
+              "value": " "
+            }
+          },
+          {
+            "literal": {
+              "type": "text",
+              "value": "world"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "text",
+        "value": "Hello world"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-028",
+      "name": "Text length counts Unicode scalar values",
+      "phase": "evaluate",
+      "expression": {
+        "op": "length",
+        "args": [
+          {
+            "literal": {
+              "type": "text",
+              "value": "A😀"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "integer",
+        "value": "2"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-029",
+      "name": "Array length counts elements",
+      "phase": "evaluate",
+      "expression": {
+        "op": "length",
+        "args": [
+          {
+            "literal": {
+              "type": "array",
+              "itemType": "choice",
+              "value": [
+                "opt_red",
+                "opt_blue"
+              ]
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "integer",
+        "value": "2"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-030",
+      "name": "Coalesce skips unavailable text",
+      "phase": "evaluate",
+      "expression": {
+        "op": "coalesce",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_text",
+              "scope": "root"
+            }
+          },
+          {
+            "literal": {
+              "type": "text",
+              "value": "fallback"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "text",
+        "value": "fallback"
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_flag",
+          "type": "boolean"
+        },
+        {
+          "id": "fld_text",
+          "type": "text"
+        },
+        {
+          "id": "fld_number",
+          "type": "integer"
+        }
+      ],
+      "answers": {
+        "fld_flag": {
+          "type": "boolean",
+          "status": "unanswered",
+          "applicable": true
+        },
+        "fld_text": {
+          "type": "text",
+          "status": "declined",
+          "applicable": true
+        },
+        "fld_number": {
+          "type": "integer",
+          "status": "answered",
+          "applicable": true,
+          "value": "0"
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-031",
+      "name": "Coalesce promotes selected integer and skips a later error",
+      "phase": "evaluate",
+      "expression": {
+        "op": "coalesce",
+        "args": [
+          {
+            "literal": {
+              "type": "integer",
+              "value": "1"
+            }
+          },
+          {
+            "op": "divide",
+            "args": [
+              {
+                "literal": {
+                  "type": "integer",
+                  "value": "1"
+                }
+              },
+              {
+                "ref": {
+                  "fieldId": "fld_runtime_zero",
+                  "scope": "root"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "decimal",
+        "value": "1"
+      },
+      "status": "not_run_product_not_implemented",
+      "fieldDefinitions": [
+        {
+          "id": "fld_runtime_zero",
+          "type": "decimal"
+        }
+      ],
+      "answers": {
+        "fld_runtime_zero": {
+          "type": "decimal",
+          "status": "answered",
+          "value": "0",
+          "applicable": true
+        }
+      }
+    },
+    {
+      "id": "EXPR-032",
+      "name": "Unknown condition evaluates neither branch",
+      "phase": "evaluate",
+      "expression": {
+        "op": "if",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_flag",
+              "scope": "root"
+            }
+          },
+          {
+            "op": "divide",
+            "args": [
+              {
+                "literal": {
+                  "type": "integer",
+                  "value": "1"
+                }
+              },
+              {
+                "ref": {
+                  "fieldId": "fld_runtime_zero",
+                  "scope": "root"
+                }
+              }
+            ]
+          },
+          {
+            "literal": {
+              "type": "integer",
+              "value": "4"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "unknown",
+        "reason": "UNKNOWN_CONDITION"
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_flag",
+          "type": "boolean"
+        },
+        {
+          "id": "fld_text",
+          "type": "text"
+        },
+        {
+          "id": "fld_number",
+          "type": "integer"
+        },
+        {
+          "id": "fld_runtime_zero",
+          "type": "decimal"
+        }
+      ],
+      "answers": {
+        "fld_flag": {
+          "type": "boolean",
+          "status": "unanswered",
+          "applicable": true
+        },
+        "fld_text": {
+          "type": "text",
+          "status": "declined",
+          "applicable": true
+        },
+        "fld_number": {
+          "type": "integer",
+          "status": "answered",
+          "applicable": true,
+          "value": "0"
+        },
+        "fld_runtime_zero": {
+          "type": "decimal",
+          "status": "answered",
+          "value": "0",
+          "applicable": true
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-033",
+      "name": "False condition skips a failing true branch",
+      "phase": "evaluate",
+      "expression": {
+        "op": "if",
+        "args": [
+          {
+            "literal": {
+              "type": "boolean",
+              "value": false
+            }
+          },
+          {
+            "op": "divide",
+            "args": [
+              {
+                "literal": {
+                  "type": "integer",
+                  "value": "1"
+                }
+              },
+              {
+                "ref": {
+                  "fieldId": "fld_runtime_zero",
+                  "scope": "root"
+                }
+              }
+            ]
+          },
+          {
+            "literal": {
+              "type": "integer",
+              "value": "4"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "decimal",
+        "value": "4"
+      },
+      "status": "not_run_product_not_implemented",
+      "fieldDefinitions": [
+        {
+          "id": "fld_runtime_zero",
+          "type": "decimal"
+        }
+      ],
+      "answers": {
+        "fld_runtime_zero": {
+          "type": "decimal",
+          "status": "answered",
+          "value": "0",
+          "applicable": true
+        }
+      }
+    },
+    {
+      "id": "EXPR-034",
+      "name": "False AND Unknown is false",
+      "phase": "evaluate",
+      "expression": {
+        "op": "and",
+        "args": [
+          {
+            "literal": {
+              "type": "boolean",
+              "value": false
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_flag",
+              "scope": "root"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "boolean",
+        "value": false
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_flag",
+          "type": "boolean"
+        },
+        {
+          "id": "fld_text",
+          "type": "text"
+        },
+        {
+          "id": "fld_number",
+          "type": "integer"
+        }
+      ],
+      "answers": {
+        "fld_flag": {
+          "type": "boolean",
+          "status": "unanswered",
+          "applicable": true
+        },
+        "fld_text": {
+          "type": "text",
+          "status": "declined",
+          "applicable": true
+        },
+        "fld_number": {
+          "type": "integer",
+          "status": "answered",
+          "applicable": true,
+          "value": "0"
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-035",
+      "name": "True AND Unknown is Unknown",
+      "phase": "evaluate",
+      "expression": {
+        "op": "and",
+        "args": [
+          {
+            "literal": {
+              "type": "boolean",
+              "value": true
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_flag",
+              "scope": "root"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "unknown",
+        "reason": "UNAVAILABLE_OPERAND"
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_flag",
+          "type": "boolean"
+        },
+        {
+          "id": "fld_text",
+          "type": "text"
+        },
+        {
+          "id": "fld_number",
+          "type": "integer"
+        }
+      ],
+      "answers": {
+        "fld_flag": {
+          "type": "boolean",
+          "status": "unanswered",
+          "applicable": true
+        },
+        "fld_text": {
+          "type": "text",
+          "status": "declined",
+          "applicable": true
+        },
+        "fld_number": {
+          "type": "integer",
+          "status": "answered",
+          "applicable": true,
+          "value": "0"
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-036",
+      "name": "True OR Unknown is true",
+      "phase": "evaluate",
+      "expression": {
+        "op": "or",
+        "args": [
+          {
+            "literal": {
+              "type": "boolean",
+              "value": true
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_flag",
+              "scope": "root"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "boolean",
+        "value": true
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_flag",
+          "type": "boolean"
+        },
+        {
+          "id": "fld_text",
+          "type": "text"
+        },
+        {
+          "id": "fld_number",
+          "type": "integer"
+        }
+      ],
+      "answers": {
+        "fld_flag": {
+          "type": "boolean",
+          "status": "unanswered",
+          "applicable": true
+        },
+        "fld_text": {
+          "type": "text",
+          "status": "declined",
+          "applicable": true
+        },
+        "fld_number": {
+          "type": "integer",
+          "status": "answered",
+          "applicable": true,
+          "value": "0"
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-037",
+      "name": "False OR Unknown is Unknown",
+      "phase": "evaluate",
+      "expression": {
+        "op": "or",
+        "args": [
+          {
+            "literal": {
+              "type": "boolean",
+              "value": false
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_flag",
+              "scope": "root"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "unknown",
+        "reason": "UNAVAILABLE_OPERAND"
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_flag",
+          "type": "boolean"
+        },
+        {
+          "id": "fld_text",
+          "type": "text"
+        },
+        {
+          "id": "fld_number",
+          "type": "integer"
+        }
+      ],
+      "answers": {
+        "fld_flag": {
+          "type": "boolean",
+          "status": "unanswered",
+          "applicable": true
+        },
+        "fld_text": {
+          "type": "text",
+          "status": "declined",
+          "applicable": true
+        },
+        "fld_number": {
+          "type": "integer",
+          "status": "answered",
+          "applicable": true,
+          "value": "0"
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-038",
+      "name": "NOT Unknown is Unknown",
+      "phase": "evaluate",
+      "expression": {
+        "op": "not",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_flag",
+              "scope": "root"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "unknown",
+        "reason": "UNAVAILABLE_OPERAND"
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_flag",
+          "type": "boolean"
+        },
+        {
+          "id": "fld_text",
+          "type": "text"
+        },
+        {
+          "id": "fld_number",
+          "type": "integer"
+        }
+      ],
+      "answers": {
+        "fld_flag": {
+          "type": "boolean",
+          "status": "unanswered",
+          "applicable": true
+        },
+        "fld_text": {
+          "type": "text",
+          "status": "declined",
+          "applicable": true
+        },
+        "fld_number": {
+          "type": "integer",
+          "status": "answered",
+          "applicable": true,
+          "value": "0"
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-039",
+      "name": "Exists is false for unanswered",
+      "phase": "evaluate",
+      "expression": {
+        "op": "exists",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_flag",
+              "scope": "root"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "boolean",
+        "value": false
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_flag",
+          "type": "boolean"
+        },
+        {
+          "id": "fld_text",
+          "type": "text"
+        },
+        {
+          "id": "fld_number",
+          "type": "integer"
+        }
+      ],
+      "answers": {
+        "fld_flag": {
+          "type": "boolean",
+          "status": "unanswered",
+          "applicable": true
+        },
+        "fld_text": {
+          "type": "text",
+          "status": "declined",
+          "applicable": true
+        },
+        "fld_number": {
+          "type": "integer",
+          "status": "answered",
+          "applicable": true,
+          "value": "0"
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-040",
+      "name": "Zero is answered",
+      "phase": "evaluate",
+      "expression": {
+        "op": "isAnswered",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_number",
+              "scope": "root"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "boolean",
+        "value": true
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_flag",
+          "type": "boolean"
+        },
+        {
+          "id": "fld_text",
+          "type": "text"
+        },
+        {
+          "id": "fld_number",
+          "type": "integer"
+        }
+      ],
+      "answers": {
+        "fld_flag": {
+          "type": "boolean",
+          "status": "unanswered",
+          "applicable": true
+        },
+        "fld_text": {
+          "type": "text",
+          "status": "declined",
+          "applicable": true
+        },
+        "fld_number": {
+          "type": "integer",
+          "status": "answered",
+          "applicable": true,
+          "value": "0"
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-041",
+      "name": "Status test sees declined without reading a value",
+      "phase": "evaluate",
+      "expression": {
+        "op": "statusIs",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_text",
+              "scope": "root"
+            }
+          },
+          {
+            "literal": {
+              "type": "text",
+              "value": "declined"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "boolean",
+        "value": true
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_flag",
+          "type": "boolean"
+        },
+        {
+          "id": "fld_text",
+          "type": "text"
+        },
+        {
+          "id": "fld_number",
+          "type": "integer"
+        }
+      ],
+      "answers": {
+        "fld_flag": {
+          "type": "boolean",
+          "status": "unanswered",
+          "applicable": true
+        },
+        "fld_text": {
+          "type": "text",
+          "status": "declined",
+          "applicable": true
+        },
+        "fld_number": {
+          "type": "integer",
+          "status": "answered",
+          "applicable": true,
+          "value": "0"
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-042",
+      "name": "Unknown status names fail compile",
+      "phase": "compile",
+      "expression": {
+        "op": "statusIs",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_text",
+              "scope": "root"
+            }
+          },
+          {
+            "literal": {
+              "type": "text",
+              "value": "missing"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "error",
+        "code": "INVALID_STATUS"
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_flag",
+          "type": "boolean"
+        },
+        {
+          "id": "fld_text",
+          "type": "text"
+        },
+        {
+          "id": "fld_number",
+          "type": "integer"
+        }
+      ],
+      "answers": {
+        "fld_flag": {
+          "type": "boolean",
+          "status": "unanswered",
+          "applicable": true
+        },
+        "fld_text": {
+          "type": "text",
+          "status": "declined",
+          "applicable": true
+        },
+        "fld_number": {
+          "type": "integer",
+          "status": "answered",
+          "applicable": true,
+          "value": "0"
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-043",
+      "name": "Date difference is end minus start and includes leap day",
+      "phase": "evaluate",
+      "expression": {
+        "op": "dateDiffDays",
+        "args": [
+          {
+            "literal": {
+              "type": "date",
+              "value": "2024-02-28"
+            }
+          },
+          {
+            "literal": {
+              "type": "date",
+              "value": "2024-03-01"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "integer",
+        "value": "2"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-044",
+      "name": "Reversing date difference reverses its sign",
+      "phase": "evaluate",
+      "expression": {
+        "op": "dateDiffDays",
+        "args": [
+          {
+            "literal": {
+              "type": "date",
+              "value": "2024-03-01"
+            }
+          },
+          {
+            "literal": {
+              "type": "date",
+              "value": "2024-02-28"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "integer",
+        "value": "-2"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-045",
+      "name": "Leap birthday has not reached its next age on February 28",
+      "phase": "evaluate",
+      "expression": {
+        "op": "ageYears",
+        "args": [
+          {
+            "literal": {
+              "type": "date",
+              "value": "2024-02-29"
+            }
+          },
+          {
+            "literal": {
+              "type": "date",
+              "value": "2025-02-28"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "integer",
+        "value": "0"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-046",
+      "name": "Leap birthday reaches next age on March 1",
+      "phase": "evaluate",
+      "expression": {
+        "op": "ageYears",
+        "args": [
+          {
+            "literal": {
+              "type": "date",
+              "value": "2024-02-29"
+            }
+          },
+          {
+            "literal": {
+              "type": "date",
+              "value": "2025-03-01"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "integer",
+        "value": "1"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-047",
+      "name": "Age as-of before birth is rejected",
+      "phase": "evaluate",
+      "expression": {
+        "op": "ageYears",
+        "args": [
+          {
+            "literal": {
+              "type": "date",
+              "value": "2000-01-01"
+            }
+          },
+          {
+            "literal": {
+              "type": "date",
+              "value": "1999-12-31"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "error",
+        "code": "DATE_RANGE"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-048",
+      "name": "Adding calendar days crosses into leap day",
+      "phase": "evaluate",
+      "expression": {
+        "op": "dateAddDays",
+        "args": [
+          {
+            "literal": {
+              "type": "date",
+              "value": "2024-01-31"
+            }
+          },
+          {
+            "literal": {
+              "type": "integer",
+              "value": "29"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "date",
+        "value": "2024-02-29"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-049",
+      "name": "Adding negative calendar days subtracts",
+      "phase": "evaluate",
+      "expression": {
+        "op": "dateAddDays",
+        "args": [
+          {
+            "literal": {
+              "type": "date",
+              "value": "2024-03-01"
+            }
+          },
+          {
+            "literal": {
+              "type": "integer",
+              "value": "-1"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "date",
+        "value": "2024-02-29"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-050",
+      "name": "Session date is a frozen typed date",
+      "phase": "evaluate",
+      "expression": {
+        "context": "sessionDate"
+      },
+      "expected": {
+        "state": "available",
+        "type": "date",
+        "value": "2026-09-05"
+      },
+      "context": {
+        "sessionDate": "2026-09-05",
+        "sessionTimeZone": "Asia/Kolkata"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-051",
+      "name": "Session timezone is a frozen text value",
+      "phase": "evaluate",
+      "expression": {
+        "context": "sessionTimeZone"
+      },
+      "expected": {
+        "state": "available",
+        "type": "text",
+        "value": "Asia/Kolkata"
+      },
+      "context": {
+        "sessionDate": "2026-09-05",
+        "sessionTimeZone": "Asia/Kolkata"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-052",
+      "name": "Mutable locale is not an expression context",
+      "phase": "compile",
+      "expression": {
+        "context": "locale"
+      },
+      "expected": {
+        "state": "error",
+        "code": "UNSUPPORTED_CONTEXT"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-053",
+      "name": "Nested literal arrays are forbidden",
+      "phase": "compile",
+      "expression": {
+        "literal": {
+          "type": "array",
+          "itemType": "integer",
+          "value": [
+            [
+              1
+            ]
+          ]
+        }
+      },
+      "expected": {
+        "state": "error",
+        "code": "INVALID_LITERAL"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-054",
+      "name": "Legacy untyped literal is rejected",
+      "phase": "compile",
+      "expression": {
+        "literal": "1"
+      },
+      "expected": {
+        "state": "error",
+        "code": "EXPR_SHAPE"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-055",
+      "name": "Null literal is rejected",
+      "phase": "compile",
+      "expression": {
+        "literal": null
+      },
+      "expected": {
+        "state": "error",
+        "code": "EXPR_SHAPE"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-056",
+      "name": "Array values must have the declared homogeneous item type",
+      "phase": "compile",
+      "expression": {
+        "literal": {
+          "type": "array",
+          "itemType": "integer",
+          "value": [
+            "1",
+            "2"
+          ]
+        }
+      },
+      "expected": {
+        "state": "error",
+        "code": "INVALID_LITERAL"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-057",
+      "name": "Empty answered list sum",
+      "phase": "evaluate",
+      "expression": {
+        "op": "sum",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_items",
+              "scope": "root"
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_amount",
+              "scope": "item"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "decimal",
+        "value": "0"
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_items",
+          "type": "list",
+          "itemFields": [
+            {
+              "id": "fld_amount",
+              "type": "decimal"
+            },
+            {
+              "id": "fld_selected",
+              "type": "boolean"
+            }
+          ]
+        }
+      ],
+      "answers": {
+        "fld_items": {
+          "type": "list",
+          "status": "answered",
+          "applicable": true,
+          "value": {
+            "items": []
+          }
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-058",
+      "name": "Empty answered list count",
+      "phase": "evaluate",
+      "expression": {
+        "op": "count",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_items",
+              "scope": "root"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "integer",
+        "value": "0"
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_items",
+          "type": "list",
+          "itemFields": [
+            {
+              "id": "fld_amount",
+              "type": "decimal"
+            },
+            {
+              "id": "fld_selected",
+              "type": "boolean"
+            }
+          ]
+        }
+      ],
+      "answers": {
+        "fld_items": {
+          "type": "list",
+          "status": "answered",
+          "applicable": true,
+          "value": {
+            "items": []
+          }
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-059",
+      "name": "Empty answered list any",
+      "phase": "evaluate",
+      "expression": {
+        "op": "any",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_items",
+              "scope": "root"
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_selected",
+              "scope": "item"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "boolean",
+        "value": false
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_items",
+          "type": "list",
+          "itemFields": [
+            {
+              "id": "fld_amount",
+              "type": "decimal"
+            },
+            {
+              "id": "fld_selected",
+              "type": "boolean"
+            }
+          ]
+        }
+      ],
+      "answers": {
+        "fld_items": {
+          "type": "list",
+          "status": "answered",
+          "applicable": true,
+          "value": {
+            "items": []
+          }
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-060",
+      "name": "Empty answered list all",
+      "phase": "evaluate",
+      "expression": {
+        "op": "all",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_items",
+              "scope": "root"
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_selected",
+              "scope": "item"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "boolean",
+        "value": true
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_items",
+          "type": "list",
+          "itemFields": [
+            {
+              "id": "fld_amount",
+              "type": "decimal"
+            },
+            {
+              "id": "fld_selected",
+              "type": "boolean"
+            }
+          ]
+        }
+      ],
+      "answers": {
+        "fld_items": {
+          "type": "list",
+          "status": "answered",
+          "applicable": true,
+          "value": {
+            "items": []
+          }
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-061",
+      "name": "Sum evaluates all typed repeated amounts",
+      "phase": "evaluate",
+      "expression": {
+        "op": "sum",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_items",
+              "scope": "root"
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_amount",
+              "scope": "item"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "decimal",
+        "value": "19.75"
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_items",
+          "type": "list",
+          "itemFields": [
+            {
+              "id": "fld_amount",
+              "type": "decimal"
+            },
+            {
+              "id": "fld_selected",
+              "type": "boolean"
+            }
+          ]
+        }
+      ],
+      "answers": {
+        "fld_items": {
+          "type": "list",
+          "status": "answered",
+          "applicable": true,
+          "value": {
+            "items": [
+              {
+                "itemId": "item_000",
+                "fields": {
+                  "fld_amount": {
+                    "type": "decimal",
+                    "status": "answered",
+                    "applicable": true,
+                    "value": "12.50"
+                  },
+                  "fld_selected": {
+                    "type": "boolean",
+                    "status": "unanswered",
+                    "applicable": true
+                  }
+                }
+              },
+              {
+                "itemId": "item_001",
+                "fields": {
+                  "fld_amount": {
+                    "type": "decimal",
+                    "status": "answered",
+                    "applicable": true,
+                    "value": "7.25"
+                  },
+                  "fld_selected": {
+                    "type": "boolean",
+                    "status": "unanswered",
+                    "applicable": true
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-062",
+      "name": "Unavailable child makes sum Unknown rather than zero",
+      "phase": "evaluate",
+      "expression": {
+        "op": "sum",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_items",
+              "scope": "root"
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_amount",
+              "scope": "item"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "unknown",
+        "reason": "UNAVAILABLE_AGGREGATE_ITEM"
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_items",
+          "type": "list",
+          "itemFields": [
+            {
+              "id": "fld_amount",
+              "type": "decimal"
+            },
+            {
+              "id": "fld_selected",
+              "type": "boolean"
+            }
+          ]
+        }
+      ],
+      "answers": {
+        "fld_items": {
+          "type": "list",
+          "status": "answered",
+          "applicable": true,
+          "value": {
+            "items": [
+              {
+                "itemId": "item_000",
+                "fields": {
+                  "fld_amount": {
+                    "type": "decimal",
+                    "status": "answered",
+                    "applicable": true,
+                    "value": "12.50"
+                  },
+                  "fld_selected": {
+                    "type": "boolean",
+                    "status": "unanswered",
+                    "applicable": true
+                  }
+                }
+              },
+              {
+                "itemId": "item_001",
+                "fields": {
+                  "fld_amount": {
+                    "type": "decimal",
+                    "status": "unanswered",
+                    "applicable": true
+                  },
+                  "fld_selected": {
+                    "type": "boolean",
+                    "status": "unanswered",
+                    "applicable": true
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-063",
+      "name": "Count includes a row with unanswered children",
+      "phase": "evaluate",
+      "expression": {
+        "op": "count",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_items",
+              "scope": "root"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "integer",
+        "value": "2"
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_items",
+          "type": "list",
+          "itemFields": [
+            {
+              "id": "fld_amount",
+              "type": "decimal"
+            },
+            {
+              "id": "fld_selected",
+              "type": "boolean"
+            }
+          ]
+        }
+      ],
+      "answers": {
+        "fld_items": {
+          "type": "list",
+          "status": "answered",
+          "applicable": true,
+          "value": {
+            "items": [
+              {
+                "itemId": "item_000",
+                "fields": {
+                  "fld_amount": {
+                    "type": "decimal",
+                    "status": "answered",
+                    "applicable": true,
+                    "value": "12.50"
+                  },
+                  "fld_selected": {
+                    "type": "boolean",
+                    "status": "unanswered",
+                    "applicable": true
+                  }
+                }
+              },
+              {
+                "itemId": "item_001",
+                "fields": {
+                  "fld_amount": {
+                    "type": "decimal",
+                    "status": "unanswered",
+                    "applicable": true
+                  },
+                  "fld_selected": {
+                    "type": "boolean",
+                    "status": "unanswered",
+                    "applicable": true
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-064",
+      "name": "Any Unknown then true is true",
+      "phase": "evaluate",
+      "expression": {
+        "op": "any",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_items",
+              "scope": "root"
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_selected",
+              "scope": "item"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "boolean",
+        "value": true
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_items",
+          "type": "list",
+          "itemFields": [
+            {
+              "id": "fld_amount",
+              "type": "decimal"
+            },
+            {
+              "id": "fld_selected",
+              "type": "boolean"
+            }
+          ]
+        }
+      ],
+      "answers": {
+        "fld_items": {
+          "type": "list",
+          "status": "answered",
+          "applicable": true,
+          "value": {
+            "items": [
+              {
+                "itemId": "item_000",
+                "fields": {
+                  "fld_amount": {
+                    "type": "decimal",
+                    "status": "unanswered",
+                    "applicable": true
+                  },
+                  "fld_selected": {
+                    "type": "boolean",
+                    "status": "unanswered",
+                    "applicable": true
+                  }
+                }
+              },
+              {
+                "itemId": "item_001",
+                "fields": {
+                  "fld_amount": {
+                    "type": "decimal",
+                    "status": "unanswered",
+                    "applicable": true
+                  },
+                  "fld_selected": {
+                    "type": "boolean",
+                    "status": "answered",
+                    "applicable": true,
+                    "value": true
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-065",
+      "name": "All Unknown then false is false",
+      "phase": "evaluate",
+      "expression": {
+        "op": "all",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_items",
+              "scope": "root"
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_selected",
+              "scope": "item"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "boolean",
+        "value": false
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_items",
+          "type": "list",
+          "itemFields": [
+            {
+              "id": "fld_amount",
+              "type": "decimal"
+            },
+            {
+              "id": "fld_selected",
+              "type": "boolean"
+            }
+          ]
+        }
+      ],
+      "answers": {
+        "fld_items": {
+          "type": "list",
+          "status": "answered",
+          "applicable": true,
+          "value": {
+            "items": [
+              {
+                "itemId": "item_000",
+                "fields": {
+                  "fld_amount": {
+                    "type": "decimal",
+                    "status": "unanswered",
+                    "applicable": true
+                  },
+                  "fld_selected": {
+                    "type": "boolean",
+                    "status": "unanswered",
+                    "applicable": true
+                  }
+                }
+              },
+              {
+                "itemId": "item_001",
+                "fields": {
+                  "fld_amount": {
+                    "type": "decimal",
+                    "status": "unanswered",
+                    "applicable": true
+                  },
+                  "fld_selected": {
+                    "type": "boolean",
+                    "status": "answered",
+                    "applicable": true,
+                    "value": false
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-066",
+      "name": "Any Unknown then false remains Unknown",
+      "phase": "evaluate",
+      "expression": {
+        "op": "any",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_items",
+              "scope": "root"
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_selected",
+              "scope": "item"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "unknown",
+        "reason": "UNAVAILABLE_AGGREGATE_ITEM"
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_items",
+          "type": "list",
+          "itemFields": [
+            {
+              "id": "fld_amount",
+              "type": "decimal"
+            },
+            {
+              "id": "fld_selected",
+              "type": "boolean"
+            }
+          ]
+        }
+      ],
+      "answers": {
+        "fld_items": {
+          "type": "list",
+          "status": "answered",
+          "applicable": true,
+          "value": {
+            "items": [
+              {
+                "itemId": "item_000",
+                "fields": {
+                  "fld_amount": {
+                    "type": "decimal",
+                    "status": "unanswered",
+                    "applicable": true
+                  },
+                  "fld_selected": {
+                    "type": "boolean",
+                    "status": "unanswered",
+                    "applicable": true
+                  }
+                }
+              },
+              {
+                "itemId": "item_001",
+                "fields": {
+                  "fld_amount": {
+                    "type": "decimal",
+                    "status": "unanswered",
+                    "applicable": true
+                  },
+                  "fld_selected": {
+                    "type": "boolean",
+                    "status": "answered",
+                    "applicable": true,
+                    "value": false
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-067",
+      "name": "All Unknown then true remains Unknown",
+      "phase": "evaluate",
+      "expression": {
+        "op": "all",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_items",
+              "scope": "root"
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_selected",
+              "scope": "item"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "unknown",
+        "reason": "UNAVAILABLE_AGGREGATE_ITEM"
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_items",
+          "type": "list",
+          "itemFields": [
+            {
+              "id": "fld_amount",
+              "type": "decimal"
+            },
+            {
+              "id": "fld_selected",
+              "type": "boolean"
+            }
+          ]
+        }
+      ],
+      "answers": {
+        "fld_items": {
+          "type": "list",
+          "status": "answered",
+          "applicable": true,
+          "value": {
+            "items": [
+              {
+                "itemId": "item_000",
+                "fields": {
+                  "fld_amount": {
+                    "type": "decimal",
+                    "status": "unanswered",
+                    "applicable": true
+                  },
+                  "fld_selected": {
+                    "type": "boolean",
+                    "status": "unanswered",
+                    "applicable": true
+                  }
+                }
+              },
+              {
+                "itemId": "item_001",
+                "fields": {
+                  "fld_amount": {
+                    "type": "decimal",
+                    "status": "unanswered",
+                    "applicable": true
+                  },
+                  "fld_selected": {
+                    "type": "boolean",
+                    "status": "answered",
+                    "applicable": true,
+                    "value": true
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-068",
+      "name": "Any short-circuits before an unvisited divide-by-zero",
+      "phase": "evaluate",
+      "expression": {
+        "op": "any",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_items",
+              "scope": "root"
+            }
+          },
+          {
+            "op": "eq",
+            "args": [
+              {
+                "op": "divide",
+                "args": [
+                  {
+                    "literal": {
+                      "type": "integer",
+                      "value": "1"
+                    }
+                  },
+                  {
+                    "ref": {
+                      "fieldId": "fld_amount",
+                      "scope": "item"
+                    }
+                  }
+                ]
+              },
+              {
+                "literal": {
+                  "type": "integer",
+                  "value": "1"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "boolean",
+        "value": true
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_items",
+          "type": "list",
+          "itemFields": [
+            {
+              "id": "fld_amount",
+              "type": "decimal"
+            },
+            {
+              "id": "fld_selected",
+              "type": "boolean"
+            }
+          ]
+        }
+      ],
+      "answers": {
+        "fld_items": {
+          "type": "list",
+          "status": "answered",
+          "applicable": true,
+          "value": {
+            "items": [
+              {
+                "itemId": "item_000",
+                "fields": {
+                  "fld_amount": {
+                    "type": "decimal",
+                    "status": "answered",
+                    "applicable": true,
+                    "value": "1"
+                  },
+                  "fld_selected": {
+                    "type": "boolean",
+                    "status": "unanswered",
+                    "applicable": true
+                  }
+                }
+              },
+              {
+                "itemId": "item_001",
+                "fields": {
+                  "fld_amount": {
+                    "type": "decimal",
+                    "status": "answered",
+                    "applicable": true,
+                    "value": "0"
+                  },
+                  "fld_selected": {
+                    "type": "boolean",
+                    "status": "unanswered",
+                    "applicable": true
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-069",
+      "name": "All short-circuits before an unvisited divide-by-zero",
+      "phase": "evaluate",
+      "expression": {
+        "op": "all",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_items",
+              "scope": "root"
+            }
+          },
+          {
+            "op": "eq",
+            "args": [
+              {
+                "op": "divide",
+                "args": [
+                  {
+                    "literal": {
+                      "type": "integer",
+                      "value": "1"
+                    }
+                  },
+                  {
+                    "ref": {
+                      "fieldId": "fld_amount",
+                      "scope": "item"
+                    }
+                  }
+                ]
+              },
+              {
+                "literal": {
+                  "type": "integer",
+                  "value": "1"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "boolean",
+        "value": false
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_items",
+          "type": "list",
+          "itemFields": [
+            {
+              "id": "fld_amount",
+              "type": "decimal"
+            },
+            {
+              "id": "fld_selected",
+              "type": "boolean"
+            }
+          ]
+        }
+      ],
+      "answers": {
+        "fld_items": {
+          "type": "list",
+          "status": "answered",
+          "applicable": true,
+          "value": {
+            "items": [
+              {
+                "itemId": "item_000",
+                "fields": {
+                  "fld_amount": {
+                    "type": "decimal",
+                    "status": "answered",
+                    "applicable": true,
+                    "value": "2"
+                  },
+                  "fld_selected": {
+                    "type": "boolean",
+                    "status": "unanswered",
+                    "applicable": true
+                  }
+                }
+              },
+              {
+                "itemId": "item_001",
+                "fields": {
+                  "fld_amount": {
+                    "type": "decimal",
+                    "status": "answered",
+                    "applicable": true,
+                    "value": "0"
+                  },
+                  "fld_selected": {
+                    "type": "boolean",
+                    "status": "unanswered",
+                    "applicable": true
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-070",
+      "name": "Unanswered list is Unknown even for count",
+      "phase": "evaluate",
+      "expression": {
+        "op": "count",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_items",
+              "scope": "root"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "unknown",
+        "reason": "UNAVAILABLE_OPERAND"
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_items",
+          "type": "list",
+          "itemFields": [
+            {
+              "id": "fld_amount",
+              "type": "decimal"
+            },
+            {
+              "id": "fld_selected",
+              "type": "boolean"
+            }
+          ]
+        }
+      ],
+      "answers": {
+        "fld_items": {
+          "type": "list",
+          "status": "unanswered",
+          "applicable": true
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-071",
+      "name": "Sum needs list and item expression",
+      "phase": "compile",
+      "expression": {
+        "op": "sum",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_items",
+              "scope": "root"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "error",
+        "code": "EXPR_ARITY"
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_items",
+          "type": "list",
+          "itemFields": [
+            {
+              "id": "fld_amount",
+              "type": "decimal"
+            },
+            {
+              "id": "fld_selected",
+              "type": "boolean"
+            }
+          ]
+        }
+      ],
+      "answers": {
+        "fld_items": {
+          "type": "list",
+          "status": "answered",
+          "applicable": true,
+          "value": {
+            "items": []
+          }
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-072",
+      "name": "Repeated leaf cannot be referenced from root",
+      "phase": "compile",
+      "expression": {
+        "ref": {
+          "fieldId": "fld_amount",
+          "scope": "root"
+        }
+      },
+      "expected": {
+        "state": "error",
+        "code": "EXPR_SCOPE"
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_items",
+          "type": "list",
+          "itemFields": [
+            {
+              "id": "fld_amount",
+              "type": "decimal"
+            },
+            {
+              "id": "fld_selected",
+              "type": "boolean"
+            }
+          ]
+        }
+      ],
+      "answers": {
+        "fld_items": {
+          "type": "list",
+          "status": "answered",
+          "applicable": true,
+          "value": {
+            "items": [
+              {
+                "itemId": "item_000",
+                "fields": {
+                  "fld_amount": {
+                    "type": "decimal",
+                    "status": "answered",
+                    "applicable": true,
+                    "value": "1"
+                  },
+                  "fld_selected": {
+                    "type": "boolean",
+                    "status": "unanswered",
+                    "applicable": true
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-073",
+      "name": "Signed 64-bit integer literal beyond JavaScript safe-number boundary remains exact",
+      "phase": "evaluate",
+      "expression": {
+        "literal": {
+          "type": "integer",
+          "value": "9007199254740992"
+        }
+      },
+      "expected": {
+        "state": "available",
+        "type": "integer",
+        "value": "9007199254740992"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-074",
+      "name": "Impossible calendar date is rejected at compile",
+      "phase": "compile",
+      "expression": {
+        "literal": {
+          "type": "date",
+          "value": "2023-02-29"
+        }
+      },
+      "expected": {
+        "state": "error",
+        "code": "INVALID_LITERAL"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-075",
+      "name": "DateTime equality compares instants not display timezone",
+      "phase": "evaluate",
+      "expression": {
+        "op": "eq",
+        "args": [
+          {
+            "literal": {
+              "type": "dateTime",
+              "value": {
+                "instant": "2026-09-05T10:00:00Z",
+                "timeZone": "UTC"
+              }
+            }
+          },
+          {
+            "literal": {
+              "type": "dateTime",
+              "value": {
+                "instant": "2026-09-05T10:00:00Z",
+                "timeZone": "Asia/Kolkata"
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "boolean",
+        "value": true
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-076",
+      "name": "Invalid IANA timezone is rejected",
+      "phase": "compile",
+      "expression": {
+        "literal": {
+          "type": "dateTime",
+          "value": {
+            "instant": "2026-09-05T10:00:00Z",
+            "timeZone": "Not/AZone"
+          }
+        }
+      },
+      "expected": {
+        "state": "error",
+        "code": "INVALID_TIMEZONE"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-077",
+      "name": "Nested sum resolves parent item by stable context",
+      "phase": "evaluate",
+      "expression": {
+        "op": "sum",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_orders",
+              "scope": "root"
+            }
+          },
+          {
+            "op": "sum",
+            "args": [
+              {
+                "ref": {
+                  "fieldId": "fld_parts",
+                  "scope": "item"
+                }
+              },
+              {
+                "op": "if",
+                "args": [
+                  {
+                    "op": "lte",
+                    "args": [
+                      {
+                        "ref": {
+                          "fieldId": "fld_quantity",
+                          "scope": "item"
+                        }
+                      },
+                      {
+                        "ref": {
+                          "fieldId": "fld_limit",
+                          "scope": "parentItem",
+                          "parentDepth": 1
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "ref": {
+                      "fieldId": "fld_quantity",
+                      "scope": "item"
+                    }
+                  },
+                  {
+                    "literal": {
+                      "type": "integer",
+                      "value": "0"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "decimal",
+        "value": "3"
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_orders",
+          "type": "list",
+          "itemFields": [
+            {
+              "id": "fld_limit",
+              "type": "integer"
+            },
+            {
+              "id": "fld_parts",
+              "type": "list",
+              "itemFields": [
+                {
+                  "id": "fld_quantity",
+                  "type": "integer"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "answers": {
+        "fld_orders": {
+          "type": "list",
+          "status": "answered",
+          "applicable": true,
+          "value": {
+            "items": [
+              {
+                "itemId": "item_order",
+                "fields": {
+                  "fld_limit": {
+                    "type": "integer",
+                    "status": "answered",
+                    "applicable": true,
+                    "value": "3"
+                  },
+                  "fld_parts": {
+                    "type": "list",
+                    "status": "answered",
+                    "applicable": true,
+                    "value": {
+                      "items": [
+                        {
+                          "itemId": "item_part_a",
+                          "fields": {
+                            "fld_quantity": {
+                              "type": "integer",
+                              "status": "answered",
+                              "applicable": true,
+                              "value": "1"
+                            }
+                          }
+                        },
+                        {
+                          "itemId": "item_part_b",
+                          "fields": {
+                            "fld_quantity": {
+                              "type": "integer",
+                              "status": "answered",
+                              "applicable": true,
+                              "value": "2"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-078",
+      "name": "Parent depth is illegal on root reference",
+      "phase": "compile",
+      "expression": {
+        "ref": {
+          "fieldId": "fld_number",
+          "scope": "root",
+          "parentDepth": 1
+        }
+      },
+      "expected": {
+        "state": "error",
+        "code": "EXPR_SCOPE"
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_flag",
+          "type": "boolean"
+        },
+        {
+          "id": "fld_text",
+          "type": "text"
+        },
+        {
+          "id": "fld_number",
+          "type": "integer"
+        }
+      ],
+      "answers": {
+        "fld_flag": {
+          "type": "boolean",
+          "status": "unanswered",
+          "applicable": true
+        },
+        "fld_text": {
+          "type": "text",
+          "status": "declined",
+          "applicable": true
+        },
+        "fld_number": {
+          "type": "integer",
+          "status": "answered",
+          "applicable": true,
+          "value": "0"
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-079",
+      "name": "Non-applicable retained value cannot participate",
+      "phase": "evaluate",
+      "expression": {
+        "ref": {
+          "fieldId": "fld_number",
+          "scope": "root"
+        }
+      },
+      "expected": {
+        "state": "unknown",
+        "reason": "UNAVAILABLE_OPERAND"
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_flag",
+          "type": "boolean"
+        },
+        {
+          "id": "fld_text",
+          "type": "text"
+        },
+        {
+          "id": "fld_number",
+          "type": "integer"
+        }
+      ],
+      "answers": {
+        "fld_flag": {
+          "type": "boolean",
+          "status": "unanswered",
+          "applicable": true
+        },
+        "fld_text": {
+          "type": "text",
+          "status": "declined",
+          "applicable": true
+        },
+        "fld_number": {
+          "type": "integer",
+          "status": "notApplicable",
+          "applicable": false
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-080",
+      "name": "Equal unavailable operands do not become equal",
+      "phase": "evaluate",
+      "expression": {
+        "op": "eq",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_flag",
+              "scope": "root"
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_flag",
+              "scope": "root"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "unknown",
+        "reason": "UNAVAILABLE_OPERAND"
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_flag",
+          "type": "boolean"
+        },
+        {
+          "id": "fld_text",
+          "type": "text"
+        },
+        {
+          "id": "fld_number",
+          "type": "integer"
+        }
+      ],
+      "answers": {
+        "fld_flag": {
+          "type": "boolean",
+          "status": "unanswered",
+          "applicable": true
+        },
+        "fld_text": {
+          "type": "text",
+          "status": "declined",
+          "applicable": true
+        },
+        "fld_number": {
+          "type": "integer",
+          "status": "answered",
+          "applicable": true,
+          "value": "0"
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-081",
+      "name": "Declared negative decimal zero normalizes to zero",
+      "phase": "evaluate",
+      "expression": {
+        "literal": {
+          "type": "decimal",
+          "value": "-0.000"
+        }
+      },
+      "expected": {
+        "state": "available",
+        "type": "decimal",
+        "value": "0"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-082",
+      "name": "Unsupported operator is rejected before execution",
+      "phase": "compile",
+      "expression": {
+        "op": "eval",
+        "args": [
+          {
+            "literal": {
+              "type": "text",
+              "value": "1+1"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "error",
+        "code": "UNSUPPORTED_OPERATOR"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-083",
+      "name": "Explicit respondent Not applicable remains distinct",
+      "phase": "evaluate",
+      "expression": {
+        "op": "statusIs",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_reason",
+              "scope": "root"
+            }
+          },
+          {
+            "literal": {
+              "type": "text",
+              "value": "respondentNotApplicable"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "boolean",
+        "value": true
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_reason",
+          "type": "text"
+        }
+      ],
+      "answers": {
+        "fld_reason": {
+          "type": "text",
+          "status": "respondentNotApplicable",
+          "applicable": true
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-084",
+      "name": "Explicit respondent Not applicable is not automatic exclusion",
+      "phase": "evaluate",
+      "expression": {
+        "op": "statusIs",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_reason",
+              "scope": "root"
+            }
+          },
+          {
+            "literal": {
+              "type": "text",
+              "value": "notApplicable"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "boolean",
+        "value": false
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_reason",
+          "type": "text"
+        }
+      ],
+      "answers": {
+        "fld_reason": {
+          "type": "text",
+          "status": "respondentNotApplicable",
+          "applicable": true
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-085",
+      "name": "Explicit respondent Not applicable has unavailable value",
+      "phase": "evaluate",
+      "expression": {
+        "ref": {
+          "fieldId": "fld_reason",
+          "scope": "root"
+        }
+      },
+      "expected": {
+        "state": "unknown",
+        "reason": "UNAVAILABLE_OPERAND"
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_reason",
+          "type": "text"
+        }
+      ],
+      "answers": {
+        "fld_reason": {
+          "type": "text",
+          "status": "respondentNotApplicable",
+          "applicable": true
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-086",
+      "name": "Automatic exclusion is observable only as server status",
+      "phase": "evaluate",
+      "expression": {
+        "op": "statusIs",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_reason",
+              "scope": "root"
+            }
+          },
+          {
+            "literal": {
+              "type": "text",
+              "value": "notApplicable"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "boolean",
+        "value": true
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_reason",
+          "type": "text"
+        }
+      ],
+      "answers": {
+        "fld_reason": {
+          "type": "text",
+          "status": "notApplicable",
+          "applicable": false
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-087",
+      "name": "Evaluated error is not hidden by an earlier Unknown",
+      "phase": "evaluate",
+      "expression": {
+        "op": "add",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_number",
+              "scope": "root"
+            }
+          },
+          {
+            "op": "divide",
+            "args": [
+              {
+                "literal": {
+                  "type": "integer",
+                  "value": "1"
+                }
+              },
+              {
+                "ref": {
+                  "fieldId": "fld_runtime_zero",
+                  "scope": "root"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "state": "error",
+        "code": "DIVIDE_BY_ZERO"
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_number",
+          "type": "integer"
+        },
+        {
+          "id": "fld_runtime_zero",
+          "type": "decimal"
+        }
+      ],
+      "answers": {
+        "fld_number": {
+          "type": "integer",
+          "status": "unanswered",
+          "applicable": true
+        },
+        "fld_runtime_zero": {
+          "type": "decimal",
+          "status": "answered",
+          "value": "0",
+          "applicable": true
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-088",
+      "name": "Out-of-range literal round scale fails compile",
+      "phase": "compile",
+      "expression": {
+        "op": "round",
+        "args": [
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "1.23"
+            }
+          },
+          {
+            "literal": {
+              "type": "integer",
+              "value": "13"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "error",
+        "code": "INVALID_SCALE"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-089",
+      "name": "Out-of-range referenced round scale fails evaluation",
+      "phase": "evaluate",
+      "expression": {
+        "op": "round",
+        "args": [
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "1.23"
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_scale",
+              "scope": "root"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "error",
+        "code": "INVALID_SCALE"
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_scale",
+          "type": "integer"
+        }
+      ],
+      "answers": {
+        "fld_scale": {
+          "type": "integer",
+          "status": "answered",
+          "value": "13",
+          "applicable": true
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-090",
+      "name": "Exact sum accumulator preserves cancellation across reorder 1",
+      "phase": "evaluate",
+      "expression": {
+        "op": "sum",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_items",
+              "scope": "root"
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_amount",
+              "scope": "item"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "decimal",
+        "value": "2"
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_items",
+          "type": "list",
+          "itemFields": [
+            {
+              "id": "fld_amount",
+              "type": "decimal"
+            }
+          ]
+        }
+      ],
+      "answers": {
+        "fld_items": {
+          "type": "list",
+          "status": "answered",
+          "applicable": true,
+          "value": {
+            "items": [
+              {
+                "itemId": "item_000",
+                "fields": {
+                  "fld_amount": {
+                    "type": "decimal",
+                    "status": "answered",
+                    "value": "9999999999999999999999999999999999",
+                    "applicable": true
+                  }
+                }
+              },
+              {
+                "itemId": "item_001",
+                "fields": {
+                  "fld_amount": {
+                    "type": "decimal",
+                    "status": "answered",
+                    "value": "2",
+                    "applicable": true
+                  }
+                }
+              },
+              {
+                "itemId": "item_002",
+                "fields": {
+                  "fld_amount": {
+                    "type": "decimal",
+                    "status": "answered",
+                    "value": "-9999999999999999999999999999999999",
+                    "applicable": true
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "EXPR-091",
+      "name": "Exact sum accumulator preserves cancellation across reorder 2",
+      "phase": "evaluate",
+      "expression": {
+        "op": "sum",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_items",
+              "scope": "root"
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_amount",
+              "scope": "item"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "available",
+        "type": "decimal",
+        "value": "2"
+      },
+      "fieldDefinitions": [
+        {
+          "id": "fld_items",
+          "type": "list",
+          "itemFields": [
+            {
+              "id": "fld_amount",
+              "type": "decimal"
+            }
+          ]
+        }
+      ],
+      "answers": {
+        "fld_items": {
+          "type": "list",
+          "status": "answered",
+          "applicable": true,
+          "value": {
+            "items": [
+              {
+                "itemId": "item_000",
+                "fields": {
+                  "fld_amount": {
+                    "type": "decimal",
+                    "status": "answered",
+                    "value": "9999999999999999999999999999999999",
+                    "applicable": true
+                  }
+                }
+              },
+              {
+                "itemId": "item_001",
+                "fields": {
+                  "fld_amount": {
+                    "type": "decimal",
+                    "status": "answered",
+                    "value": "-9999999999999999999999999999999999",
+                    "applicable": true
+                  }
+                }
+              },
+              {
+                "itemId": "item_002",
+                "fields": {
+                  "fld_amount": {
+                    "type": "decimal",
+                    "status": "answered",
+                    "value": "2",
+                    "applicable": true
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "INT64-01",
+      "name": "Largest signed integer",
+      "phase": "evaluate",
+      "expression": {
+        "literal": {
+          "type": "integer",
+          "value": "9223372036854775807"
+        }
+      },
+      "expected": {
+        "state": "available",
+        "type": "integer",
+        "value": "9223372036854775807"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "INT64-02",
+      "name": "Smallest signed integer",
+      "phase": "evaluate",
+      "expression": {
+        "literal": {
+          "type": "integer",
+          "value": "-9223372036854775808"
+        }
+      },
+      "expected": {
+        "state": "available",
+        "type": "integer",
+        "value": "-9223372036854775808"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "INT64-03",
+      "name": "Above signed range",
+      "phase": "compile",
+      "expression": {
+        "literal": {
+          "type": "integer",
+          "value": "9223372036854775808"
+        }
+      },
+      "expected": {
+        "state": "error",
+        "code": "INTEGER_RANGE"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "INT64-04",
+      "name": "Below signed range",
+      "phase": "compile",
+      "expression": {
+        "literal": {
+          "type": "integer",
+          "value": "-9223372036854775809"
+        }
+      },
+      "expected": {
+        "state": "error",
+        "code": "INTEGER_RANGE"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "INT64-05",
+      "name": "Exact 2^53 plus one",
+      "phase": "evaluate",
+      "expression": {
+        "literal": {
+          "type": "integer",
+          "value": "9007199254740993"
+        }
+      },
+      "expected": {
+        "state": "available",
+        "type": "integer",
+        "value": "9007199254740993"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "INT64-06",
+      "name": "Reject JSON number integer transport",
+      "phase": "compile",
+      "expression": {
+        "literal": {
+          "type": "integer",
+          "value": 1
+        }
+      },
+      "expected": {
+        "state": "error",
+        "code": "INTEGER_ENCODING"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "INT64-07",
+      "name": "Reject negative zero",
+      "phase": "compile",
+      "expression": {
+        "literal": {
+          "type": "integer",
+          "value": "-0"
+        }
+      },
+      "expected": {
+        "state": "error",
+        "code": "INTEGER_ENCODING"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "INT64-08",
+      "name": "Reject leading zero",
+      "phase": "compile",
+      "expression": {
+        "literal": {
+          "type": "integer",
+          "value": "01"
+        }
+      },
+      "expected": {
+        "state": "error",
+        "code": "INTEGER_ENCODING"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "TODAY-01",
+      "name": "Frozen today ignores wall clock",
+      "phase": "evaluate",
+      "context": {
+        "sessionDate": "2026-09-05",
+        "sessionTimeZone": "UTC"
+      },
+      "expression": {
+        "op": "today",
+        "args": []
+      },
+      "expected": {
+        "state": "available",
+        "type": "date",
+        "value": "2026-09-05"
+      },
+      "status": "not_run_product_not_implemented"
+    },
+    {
+      "id": "DIV-COMPILE-01",
+      "name": "Literal zero divisor rejected before runtime",
+      "phase": "compile",
+      "expression": {
+        "op": "divide",
+        "args": [
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "1"
+            }
+          },
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "0"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "state": "error",
+        "code": "DIVIDE_BY_ZERO"
+      },
+      "status": "not_run_product_not_implemented"
+    }
+  ],
+  "productTestsExecuted": false,
+  "revisionNotes": {
+    "integerTransport": "All typed integer scalar/array fixtures converted to canonical strings. Structural counts remain numbers. EXPR-073 now accepts 2^53 rather than rejecting it.",
+    "runtimeZeroVectorsAdjusted": [
+      "EXPR-012",
+      "EXPR-031",
+      "EXPR-032",
+      "EXPR-033",
+      "EXPR-087"
+    ],
+    "retainedNumericSemantics": "Lite arithmetic promotion and decimal result types retained; Software Factory internal v1 has a different operator language and is not substituted."
+  }
+}

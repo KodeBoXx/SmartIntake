@@ -1,0 +1,11 @@
+<button
+  type="button"
+  [class]="tabClasses()"
+  [disabled]="disabled()"
+  (click)="onClick()"
+>
+  <span [class]="iconClasses()">
+    <ng-content select="[cuiTabIcon]" />
+  </span>
+  <span>{{ label() }}</span>
+</button>

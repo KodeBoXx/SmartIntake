@@ -1,0 +1,9 @@
+/* Drawer enter animation */
+aside[role="dialog"] {
+  animation: cui-header-drawer-in var(--dur-base) var(--ease-out);
+}
+
+@keyframes cui-header-drawer-in {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}

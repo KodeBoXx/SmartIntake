@@ -1,0 +1,72 @@
+@let label = ariaLabel() ?? monthYearLabel();
+
+<div class="flex items-center justify-between px-2 pt-2 pb-1">
+  <button
+    type="button"
+    [disabled]="!canGoPrev()"
+    aria-label="Previous month"
+    class="w-8 h-8 inline-flex items-center justify-center rounded-md text-text-muted hover:bg-bg-subtle hover:text-text-primary disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent transition-colors"
+    (click)="goToPrevMonth()"
+  >
+    <cui-icon name="chevron-left" size="sm" />
+  </button>
+
+  <div
+    class="font-medium text-t-300 text-text-primary"
+    aria-live="polite"
+  >
+    {{ monthYearLabel() }}
+  </div>
+
+  <button
+    type="button"
+    [disabled]="!canGoNext()"
+    aria-label="Next month"
+    class="w-8 h-8 inline-flex items-center justify-center rounded-md text-text-muted hover:bg-bg-subtle hover:text-text-primary disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent transition-colors"
+    (click)="goToNextMonth()"
+  >
+    <cui-icon name="chevron-right" size="sm" />
+  </button>
+</div>
+
+<div
+  #grid
+  role="grid"
+  [attr.aria-label]="label"
+  class="px-2 pb-2"
+  (keydown)="onKeydown($event)"
+  (mouseleave)="onGridMouseLeave()"
+>
+  <div role="row" class="grid grid-cols-7 mb-1">
+    @for (wd of weekdayLabels(); track $index) {
+      <div
+        role="columnheader"
+        class="w-9 h-7 inline-flex items-center justify-center text-t-200 text-text-muted"
+      >
+        {{ wd }}
+      </div>
+    }
+  </div>
+
+  @for (week of monthMatrix(); track $index) {
+    <div role="row" class="grid grid-cols-7">
+      @for (day of week; track day.getTime()) {
+        <button
+          type="button"
+          role="gridcell"
+          [attr.tabindex]="isDayFocused(day) ? 0 : -1"
+          [attr.aria-selected]="isDaySelected(day) || null"
+          [attr.aria-disabled]="isDayDisabled(day) || null"
+          [attr.aria-current]="isDayToday(day) ? 'date' : null"
+          [attr.data-cui-active]="isDayFocused(day) ? 'true' : null"
+          [disabled]="isDayDisabled(day)"
+          [class]="dayClasses(day)"
+          (click)="onDayClick(day)"
+          (mouseenter)="onDayMouseEnter(day)"
+        >
+          {{ day.getDate() }}
+        </button>
+      }
+    </div>
+  }
+</div>

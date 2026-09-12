@@ -1,0 +1,2880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Certinal Design System v1.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   CERTINAL DESIGN SYSTEM — DESIGN TOKENS
+   ============================================================ */
+:root {
+  /* === PRIMARY BRAND (Emerald / Teal) === */
+  --c-emerald-50:  #E6F5F0;
+  --c-emerald-100: #E6F5F0;
+  --c-emerald-200: #B3E0D2;
+  --c-emerald-300: #80CCB5;
+  --c-emerald-400: #25C999;
+  --c-emerald-500: #1A7A5E;
+  --c-emerald-600: #1A7A5E;
+  --c-emerald-700: #15654D;
+  --c-emerald-800: #0F4A38;
+  --c-emerald-900: #0A2F1F;
+
+  /* === ACCENT (Cyan) === */
+  --c-cyan-50:  #ECFEFF;
+  --c-cyan-100: #CFFAFE;
+  --c-cyan-200: #A5F3FC;
+  --c-cyan-300: #67E8F9;
+  --c-cyan-400: #22D3EE;
+  --c-cyan-500: #0891B2;
+  --c-cyan-600: #0E7490;
+  --c-cyan-700: #155E75;
+  --c-cyan-800: #164E63;
+  --c-cyan-900: #0C3547;
+
+  /* === SECONDARY BRAND === */
+  --c-lime-50:  #F7FEE7;
+  --c-lime-100: #ECFCCB;
+  --c-lime-200: #D9F99D;
+  --c-lime-300: #BEF264;
+  --c-lime-400: #A3E635;
+  --c-lime-500: #84CC16;
+  --c-lime-600: #65A30D;
+  --c-lime-700: #4D7C0F;
+  --c-lime-800: #3F6212;
+  --c-lime-900: #365314;
+
+  /* === NEUTRAL === */
+  --c-slate-0:   #FFFFFF;
+  --c-slate-50:  #F8FAFC;
+  --c-slate-100: #F1F5F9;
+  --c-slate-200: #E2E8F0;
+  --c-slate-300: #CBD5E1;
+  --c-slate-400: #94A3B8;
+  --c-slate-500: #64748B;
+  --c-slate-600: #475569;
+  --c-slate-700: #334155;
+  --c-slate-800: #1E293B;
+  --c-slate-900: #0F172A;
+
+  /* === SEMANTIC === */
+  --c-success-light: #F7FEE7;
+  --c-success:       #C4E538;
+  --c-success-dark:  #4D7C0F;
+  --c-warning-light: #FEF3C7;
+  --c-warning:       #F59E0B;
+  --c-warning-dark:  #92400E;
+  --c-error-light:   #FEE2E2;
+  --c-error:         #EF4444;
+  --c-error-dark:    #991B1B;
+  --c-info-light:    #ECFEFF;
+  --c-info:          #0891B2;
+  --c-info-dark:     #155E75;
+
+  /* === TYPOGRAPHY === */
+  --font-display: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body:    'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono:    'DM Mono', ui-monospace, 'Cascadia Mono', monospace;
+
+  /* === TYPE SCALE === */
+  --t-900: clamp(3rem, 6vw, 4.5rem);
+  --t-800: clamp(2.25rem, 4vw, 3rem);
+  --t-700: clamp(1.875rem, 3vw, 2.25rem);
+  --t-600: clamp(1.5rem, 2.5vw, 1.875rem);
+  --t-500: clamp(1.25rem, 2vw, 1.5rem);
+  --t-400: 1.125rem;
+  --t-300: 1rem;
+  --t-200: 0.875rem;
+  --t-100: 0.75rem;
+
+  /* === SPACING (8px base) === */
+  --sp-1: 0.25rem;   /* 4px  */
+  --sp-2: 0.5rem;    /* 8px  */
+  --sp-3: 0.75rem;   /* 12px */
+  --sp-4: 1rem;      /* 16px */
+  --sp-5: 1.25rem;   /* 20px */
+  --sp-6: 1.5rem;    /* 24px */
+  --sp-8: 2rem;      /* 32px */
+  --sp-10: 2.5rem;   /* 40px */
+  --sp-12: 3rem;     /* 48px */
+  --sp-16: 4rem;     /* 64px */
+  --sp-20: 5rem;     /* 80px */
+  --sp-24: 6rem;     /* 96px */
+
+  /* === RADIUS === */
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-xl: 16px;
+  --r-2xl: 24px;
+  --r-full: 9999px;
+
+  /* === SHADOWS === */
+  --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.06), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.06), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+  --shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+
+  /* === SEMANTIC SURFACE === */
+  --bg-page:       var(--c-slate-50);
+  --bg-surface:    var(--c-slate-0);
+  --bg-subtle:     var(--c-slate-100);
+  --bg-muted:      var(--c-slate-200);
+  --border:        var(--c-slate-200);
+  --border-strong: var(--c-slate-300);
+  --text-primary:  var(--c-slate-900);
+  --text-secondary:var(--c-slate-700);
+  --text-muted:    var(--c-slate-500);
+  --text-faint:    var(--c-slate-400);
+  --text-inverse:  #FFFFFF;
+  --brand-primary: var(--c-emerald-500);
+  --brand-secondary: var(--c-lime-500);
+  --brand-gradient: linear-gradient(135deg, #C4E538 0%, #25C999 100%);
+
+  /* === TRANSITIONS === */
+  --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast: 150ms;
+  --dur-base: 200ms;
+  --dur-slow: 350ms;
+
+  /* === Z-INDEX === */
+  --z-base:    0;
+  --z-raised:  10;
+  --z-dropdown:100;
+  --z-modal:   200;
+  --z-toast:   300;
+}
+
+/* Light theme only — dark mode not currently implemented */
+
+/* ============================================================
+   BASE RESET & GLOBAL
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  font-size: var(--t-300);
+  line-height: 1.6;
+  color: var(--text-primary);
+  background: var(--bg-page);
+}
+code, pre { font-family: var(--font-mono); }
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+.page-shell { display: flex; min-height: 100vh; }
+
+/* Sidebar */
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  padding: var(--sp-6) 0;
+  display: flex;
+  flex-direction: column;
+}
+.sidebar-logo {
+  padding: 0 var(--sp-6) var(--sp-6);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: var(--sp-4);
+}
+.logo-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-lg);
+  background: var(--brand-gradient);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 18px;
+  margin-bottom: var(--sp-2);
+}
+.sidebar-brand {
+  font-family: var(--font-display);
+  font-size: var(--t-500);
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+.sidebar-version {
+  font-size: var(--t-100);
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.sidebar-section-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: var(--sp-4) var(--sp-6) var(--sp-2);
+}
+.sidebar-nav a {
+  display: block;
+  padding: var(--sp-2) var(--sp-6);
+  font-size: var(--t-200);
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-radius: 0;
+  transition: all var(--dur-fast) var(--ease-out);
+  border-left: 2px solid transparent;
+}
+.sidebar-nav a:hover {
+  color: var(--text-primary);
+  background: var(--bg-subtle);
+  border-left-color: var(--border-strong);
+}
+.sidebar-nav a.active {
+  color: var(--c-emerald-600);
+  background: var(--c-emerald-50);
+  border-left-color: var(--c-emerald-500);
+  font-weight: 500;
+}
+
+/* Main content */
+.main-content {
+  flex: 1;
+  min-width: 0;
+  padding: var(--sp-16) var(--sp-20);
+  max-width: 1100px;
+}
+
+/* Section */
+.ds-section {
+  margin-bottom: var(--sp-24);
+  scroll-margin-top: var(--sp-8);
+}
+.ds-section-header {
+  margin-bottom: var(--sp-10);
+  padding-bottom: var(--sp-6);
+  border-bottom: 1px solid var(--border);
+}
+.section-eyebrow {
+  font-size: var(--t-100);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-emerald-600);
+  margin-bottom: var(--sp-2);
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: var(--t-700);
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.15;
+  margin-bottom: var(--sp-3);
+}
+.section-desc {
+  font-size: var(--t-400);
+  color: var(--text-secondary);
+  max-width: 640px;
+  line-height: 1.7;
+}
+
+/* Grid */
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--sp-4); }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-4); }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-4); }
+.grid-auto { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--sp-4); }
+@media (max-width: 900px) {
+  .grid-3, .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .main-content { padding: var(--sp-8) var(--sp-6); }
+}
+
+/* Token cards */
+.token-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+}
+.token-swatch {
+  height: 80px;
+  width: 100%;
+}
+.token-info {
+  padding: var(--sp-3) var(--sp-4);
+}
+.token-name {
+  font-size: var(--t-200);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+.token-value {
+  font-size: var(--t-100);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  margin-top: 2px;
+}
+
+/* Code block */
+.code-block {
+  background: var(--c-slate-900);
+  color: #E2E8F0;
+  border-radius: var(--r-lg);
+  padding: var(--sp-4) var(--sp-5);
+  font-family: var(--font-mono);
+  font-size: var(--t-200);
+  line-height: 1.7;
+  overflow-x: auto;
+  margin: var(--sp-4) 0;
+}
+.code-block .k { color: #93C5FD; }
+.code-block .s { color: #86EFAC; }
+.code-block .v { color: #FCA5A5; }
+.code-block .c { color: #6B7280; }
+.code-block .p { color: #F3F4F6; }
+
+/* Spec table */
+.spec-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--t-200);
+  margin: var(--sp-4) 0;
+}
+.spec-table th {
+  text-align: left;
+  padding: var(--sp-2) var(--sp-4);
+  background: var(--bg-subtle);
+  font-weight: 600;
+  font-size: var(--t-100);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+}
+.spec-table td {
+  padding: var(--sp-3) var(--sp-4);
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+  vertical-align: top;
+}
+.spec-table tr:last-child td { border-bottom: none; }
+.spec-table td:first-child { font-weight: 500; }
+.spec-table code {
+  background: var(--bg-subtle);
+  padding: 2px 6px;
+  border-radius: var(--r-sm);
+  font-size: 12px;
+  color: var(--c-emerald-700);
+}
+
+/* Do / Don't */
+.do-dont-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-4); margin: var(--sp-4) 0; }
+.do-box, .dont-box {
+  border-radius: var(--r-xl);
+  padding: var(--sp-5);
+  font-size: var(--t-200);
+  line-height: 1.6;
+}
+.do-box { background: var(--c-success-light); border-left: 3px solid var(--c-success); }
+.dont-box { background: var(--c-error-light); border-left: 3px solid var(--c-error); }
+.do-box strong { color: var(--c-success-dark); }
+.dont-box strong { color: var(--c-error-dark); }
+
+/* ============================================================
+   COMPONENT DEMOS
+   ============================================================ */
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  font-family: var(--font-body);
+  font-size: var(--t-300);
+  font-weight: 500;
+  line-height: 1;
+  padding: var(--sp-3) var(--sp-5);
+  border-radius: var(--r-full);
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all var(--dur-base) var(--ease-out);
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+}
+.btn:focus-visible {
+  outline: 3px solid var(--c-emerald-400);
+  outline-offset: 2px;
+}
+.btn:active { transform: scale(0.97); }
+
+.btn-primary {
+  background: var(--c-emerald-500);
+  color: white;
+  border-color: transparent;
+}
+.btn-primary:hover { background: var(--c-emerald-400); box-shadow: var(--shadow-md); }
+
+.btn-secondary {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+.btn-secondary:hover { background: var(--bg-subtle); border-color: var(--c-emerald-400); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--c-emerald-600);
+  border-color: transparent;
+}
+.btn-ghost:hover { background: var(--c-emerald-50); }
+
+.btn-danger {
+  background: var(--c-error);
+  color: white;
+  border-color: transparent;
+}
+.btn-danger:hover { background: var(--c-error-dark); }
+
+.btn-sm { padding: 6px var(--sp-4); font-size: var(--t-200); }
+.btn-lg { padding: var(--sp-4) var(--sp-8); font-size: var(--t-400); }
+.btn-xl { padding: var(--sp-5) var(--sp-10); font-size: var(--t-500); }
+
+.btn:disabled, .btn[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.btn-icon-only {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: var(--r-md);
+}
+.btn-loading::after {
+  content: '';
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Inputs */
+.input-group { display: flex; flex-direction: column; gap: var(--sp-2); }
+.input-label {
+  font-size: var(--t-200);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+.input-hint {
+  font-size: var(--t-100);
+  color: var(--text-muted);
+}
+.input-error-msg {
+  font-size: var(--t-100);
+  color: var(--c-error);
+}
+.input {
+  width: 100%;
+  padding: var(--sp-3) var(--sp-4);
+  font-family: var(--font-body);
+  font-size: var(--t-300);
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--r-lg);
+  transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+  outline: none;
+  line-height: 1.5;
+}
+.input::placeholder { color: var(--text-muted); }
+.input:hover { border-color: var(--c-emerald-400); }
+.input:focus {
+  border-color: var(--c-emerald-500);
+  box-shadow: 0 0 0 3px rgba(20,184,166,0.15);
+}
+.input.error {
+  border-color: var(--c-error);
+  box-shadow: 0 0 0 3px rgba(239,68,68,0.12);
+}
+.input.success { border-color: var(--c-success); }
+.input:disabled { opacity: 0.5; cursor: not-allowed; background: var(--bg-subtle); }
+
+.input-with-icon { position: relative; }
+.input-with-icon .input { padding-left: 40px; }
+.input-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+/* Select */
+.select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+/* Textarea */
+.textarea { min-height: 100px; resize: vertical; }
+
+/* Checkbox / Radio */
+.check-group, .radio-group { display: flex; flex-direction: column; gap: var(--sp-2); }
+.check-item, .radio-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  cursor: pointer;
+}
+.check-item input[type="checkbox"],
+.radio-item input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: var(--c-emerald-500);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.check-label, .radio-label {
+  font-size: var(--t-300);
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+/* Toggle */
+.toggle-wrapper { display: flex; align-items: center; gap: var(--sp-3); }
+.toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  cursor: pointer;
+}
+.toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+.toggle-track {
+  position: absolute;
+  inset: 0;
+  background: var(--border-strong);
+  border-radius: var(--r-full);
+  transition: background var(--dur-base) var(--ease-out);
+}
+.toggle input:checked + .toggle-track { background: var(--c-emerald-500); }
+.toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  background: white;
+  border-radius: 50%;
+  transition: transform var(--dur-base) var(--ease-out);
+  box-shadow: var(--shadow-sm);
+}
+.toggle input:checked ~ .toggle-thumb { transform: translateX(20px); }
+.toggle-label { font-size: var(--t-300); font-weight: 500; color: var(--text-primary); }
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: var(--r-full);
+  font-size: var(--t-100);
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.badge-emerald { background: var(--c-emerald-100); color: var(--c-emerald-700); }
+.badge-lime { background: var(--c-lime-100); color: var(--c-lime-700); }
+.badge-success { background: var(--c-success-light); color: var(--c-success-dark); }
+.badge-warning { background: var(--c-warning-light); color: var(--c-warning-dark); }
+.badge-error { background: var(--c-error-light); color: var(--c-error-dark); }
+.badge-neutral { background: var(--bg-muted); color: var(--text-secondary); }
+.badge-dot::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  display: inline-block;
+}
+
+/* Cards */
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-2xl);
+  padding: var(--sp-6);
+  transition: box-shadow var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+}
+.card-hover:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+.card-elevated {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-2xl);
+  padding: var(--sp-6);
+  box-shadow: var(--shadow-md);
+}
+.card-feature {
+  background: linear-gradient(135deg, var(--c-emerald-50) 0%, var(--c-lime-50) 100%);
+  border: 1px solid var(--c-emerald-200);
+  border-radius: var(--r-2xl);
+  padding: var(--sp-6);
+}
+.card-dark {
+  background: var(--c-slate-900);
+  border: 1px solid var(--c-slate-700);
+  border-radius: var(--r-2xl);
+  padding: var(--sp-6);
+  color: white;
+}
+.card-title {
+  font-family: var(--font-display);
+  font-size: var(--t-500);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--sp-2);
+}
+.card-body { font-size: var(--t-300); color: var(--text-secondary); line-height: 1.7; }
+.card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--r-xl);
+  background: var(--c-emerald-50);
+  color: var(--c-emerald-500);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--sp-4);
+  font-size: 22px;
+}
+
+/* Alerts */
+.alert {
+  display: flex;
+  gap: var(--sp-4);
+  padding: var(--sp-4) var(--sp-5);
+  border-radius: var(--r-xl);
+  font-size: var(--t-300);
+  line-height: 1.6;
+  border: 1px solid;
+  align-items: flex-start;
+}
+.alert-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.alert-content { flex: 1; }
+.alert-title { font-weight: 600; margin-bottom: 2px; }
+.alert-info { background: var(--c-info-light); border-color: var(--c-info); color: var(--c-info-dark); }
+.alert-success { background: var(--c-success-light); border-color: var(--c-success); color: var(--c-success-dark); }
+.alert-warning { background: var(--c-warning-light); border-color: var(--c-warning); color: var(--c-warning-dark); }
+.alert-error { background: var(--c-error-light); border-color: var(--c-error); color: var(--c-error-dark); }
+
+/* Avatar */
+.avatar {
+  border-radius: 50%;
+  background: var(--brand-gradient);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: white;
+  font-size: var(--t-200);
+  flex-shrink: 0;
+}
+.avatar-xs { width: 24px; height: 24px; font-size: 10px; }
+.avatar-sm { width: 32px; height: 32px; font-size: var(--t-100); }
+.avatar-md { width: 40px; height: 40px; font-size: var(--t-200); }
+.avatar-lg { width: 48px; height: 48px; font-size: var(--t-300); }
+.avatar-xl { width: 64px; height: 64px; font-size: var(--t-500); }
+.avatar-group { display: flex; }
+.avatar-group .avatar { border: 2px solid var(--bg-surface); margin-left: -8px; }
+.avatar-group .avatar:first-child { margin-left: 0; }
+
+/* Progress */
+.progress-bar {
+  height: 8px;
+  background: var(--bg-muted);
+  border-radius: var(--r-full);
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--brand-gradient);
+  border-radius: var(--r-full);
+  transition: width 0.6s var(--ease-out);
+}
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--t-100);
+  color: var(--text-muted);
+  margin-top: var(--sp-2);
+}
+
+/* Steps */
+.steps { display: flex; align-items: center; gap: 0; }
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  position: relative;
+}
+.step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  width: 100%;
+  height: 2px;
+  background: var(--border);
+}
+.step.completed:not(:last-child)::after { background: var(--c-emerald-400); }
+.step-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--t-200);
+  font-weight: 600;
+  position: relative;
+  z-index: 1;
+  transition: all var(--dur-base) var(--ease-out);
+}
+.step.completed .step-circle { background: var(--c-emerald-500); color: white; }
+.step.active .step-circle { background: var(--brand-gradient); color: white; box-shadow: 0 0 0 4px var(--c-emerald-100); }
+.step.pending .step-circle { background: var(--bg-subtle); color: var(--text-muted); border: 1.5px solid var(--border-strong); }
+.step-label { font-size: 11px; color: var(--text-muted); margin-top: var(--sp-2); text-align: center; }
+.step.active .step-label { color: var(--c-emerald-600); font-weight: 500; }
+
+/* Tabs */
+.tabs { border-bottom: 1px solid var(--border); margin-bottom: var(--sp-6); }
+.tab-list { display: flex; gap: 0; }
+.tab-btn {
+  padding: var(--sp-3) var(--sp-5);
+  font-size: var(--t-300);
+  font-weight: 500;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-out);
+  margin-bottom: -1px;
+}
+.tab-btn:hover { color: var(--text-primary); }
+.tab-btn.active {
+  color: var(--c-emerald-600);
+  border-bottom-color: var(--c-emerald-500);
+}
+
+/* Modal */
+.modal-backdrop {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  border-radius: var(--r-2xl);
+  padding: var(--sp-10);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+}
+.modal-dialog {
+  background: var(--bg-surface);
+  border-radius: var(--r-2xl);
+  padding: var(--sp-8);
+  max-width: 480px;
+  width: 100%;
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--border);
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--sp-4);
+}
+.modal-title {
+  font-family: var(--font-display);
+  font-size: var(--t-500);
+  font-weight: 700;
+}
+.modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-md);
+  background: var(--bg-subtle);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 18px;
+  line-height: 1;
+  transition: all var(--dur-fast) var(--ease-out);
+}
+.modal-close:hover { background: var(--bg-muted); color: var(--text-primary); }
+.modal-body { color: var(--text-secondary); line-height: 1.7; margin-bottom: var(--sp-6); }
+.modal-footer { display: flex; gap: var(--sp-3); justify-content: flex-end; }
+
+/* Tooltip */
+.tooltip-demo { position: relative; display: inline-block; }
+.tooltip-tip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--c-slate-900);
+  color: white;
+  padding: 6px 10px;
+  border-radius: var(--r-md);
+  font-size: var(--t-100);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+.tooltip-tip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--c-slate-900);
+}
+.tooltip-demo:hover .tooltip-tip { opacity: 1; }
+
+/* Table */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--t-300);
+  background: var(--bg-surface);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.data-table thead {
+  background: var(--bg-subtle);
+}
+.data-table th {
+  padding: var(--sp-3) var(--sp-4);
+  text-align: left;
+  font-weight: 600;
+  font-size: var(--t-100);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+.data-table td {
+  padding: var(--sp-4);
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--bg-subtle); }
+.data-table .td-muted { color: var(--text-muted); font-size: var(--t-200); }
+
+/* Breadcrumb */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--t-200);
+}
+.breadcrumb a { color: var(--c-emerald-600); text-decoration: none; }
+.breadcrumb a:hover { text-decoration: underline; }
+.breadcrumb-sep { color: var(--text-muted); }
+.breadcrumb-current { color: var(--text-muted); }
+
+/* Pagination */
+.pagination { display: flex; align-items: center; gap: var(--sp-1); }
+.page-btn {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 var(--sp-2);
+  border-radius: var(--r-md);
+  border: 1px solid transparent;
+  background: none;
+  font-size: var(--t-200);
+  font-family: var(--font-body);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--dur-fast) var(--ease-out);
+}
+.page-btn:hover { background: var(--bg-subtle); color: var(--text-primary); }
+.page-btn.active {
+  background: var(--c-emerald-500);
+  color: white;
+  font-weight: 600;
+}
+.page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Dropdown */
+.dropdown-wrapper { position: relative; display: inline-block; }
+.dropdown-menu {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  padding: var(--sp-2);
+  box-shadow: var(--shadow-lg);
+  min-width: 200px;
+  margin-top: var(--sp-2);
+}
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--r-md);
+  font-size: var(--t-300);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.dropdown-item:hover { background: var(--bg-subtle); }
+.dropdown-item.danger { color: var(--c-error); }
+.dropdown-item.danger:hover { background: var(--c-error-light); }
+.dropdown-divider { height: 1px; background: var(--border); margin: var(--sp-2) 0; }
+
+/* Skeleton */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-muted) 25%, var(--bg-subtle) 50%, var(--bg-muted) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--r-md);
+}
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+/* Signature / eSign specific */
+.sign-box {
+  border: 2px dashed var(--c-emerald-300);
+  border-radius: var(--r-xl);
+  padding: var(--sp-6);
+  background: var(--c-emerald-50);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-3);
+  cursor: pointer;
+  transition: all var(--dur-base) var(--ease-out);
+  min-height: 120px;
+}
+.sign-box:hover {
+  background: var(--c-emerald-100);
+  border-color: var(--c-emerald-500);
+}
+.sign-box-label {
+  font-size: var(--t-200);
+  color: var(--c-emerald-600);
+  font-weight: 500;
+}
+.sign-box-icon { font-size: 28px; }
+
+.doc-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-3) var(--sp-5);
+  background: var(--c-lime-50);
+  border: 1px solid var(--c-lime-200);
+  border-radius: var(--r-xl);
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+}
+.doc-status-bar .status-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.status-value { font-weight: 600; font-size: var(--t-300); color: var(--c-lime-800); }
+.status-label { font-size: var(--t-100); color: var(--c-lime-600); }
+
+/* Notification / Toast */
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--c-slate-900);
+  color: white;
+  border-radius: var(--r-xl);
+  max-width: 380px;
+  box-shadow: var(--shadow-xl);
+  font-size: var(--t-300);
+}
+.toast-icon { font-size: 18px; flex-shrink: 0; }
+.toast-body { flex: 1; }
+.toast-title { font-weight: 600; margin-bottom: 2px; }
+.toast-msg { font-size: var(--t-200); opacity: 0.8; }
+.toast-close {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.6);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+  line-height: 1;
+}
+
+/* Search */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--r-full);
+  transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+}
+.search-bar:focus-within {
+  border-color: var(--c-emerald-500);
+  box-shadow: 0 0 0 3px rgba(20,184,166,0.15);
+}
+.search-bar input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-family: var(--font-body);
+  font-size: var(--t-300);
+  color: var(--text-primary);
+  flex: 1;
+}
+.search-bar input::placeholder { color: var(--text-muted); }
+.search-icon { color: var(--text-muted); font-size: 16px; }
+.search-kbd {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+
+/* Chip / Tag */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 4px var(--sp-3);
+  border-radius: var(--r-full);
+  font-size: var(--t-200);
+  font-weight: 500;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-out);
+}
+.chip:hover { border-color: var(--c-emerald-400); color: var(--c-emerald-600); background: var(--c-emerald-50); }
+.chip.active { background: var(--c-emerald-100); border-color: var(--c-emerald-400); color: var(--c-emerald-700); }
+.chip-remove { width: 14px; height: 14px; border-radius: 50%; background: var(--text-muted); color: white; font-size: 10px; display: flex; align-items: center; justify-content: center; line-height: 1; }
+
+/* Slider */
+.range-slider { width: 100%; accent-color: var(--c-emerald-500); height: 6px; cursor: pointer; }
+
+/* Radio group styled */
+.segmented-control {
+  display: inline-flex;
+  background: var(--bg-subtle);
+  border-radius: var(--r-lg);
+  padding: 3px;
+  gap: 2px;
+}
+.seg-btn {
+  padding: var(--sp-2) var(--sp-4);
+  border-radius: var(--r-md);
+  font-size: var(--t-200);
+  font-weight: 500;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-out);
+}
+.seg-btn.active {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Stat card */
+.stat-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-2xl);
+  padding: var(--sp-6);
+}
+.stat-label { font-size: var(--t-200); color: var(--text-muted); margin-bottom: var(--sp-2); }
+.stat-value {
+  font-family: var(--font-display);
+  font-size: var(--t-700);
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+.stat-change {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--t-200);
+  font-weight: 500;
+  margin-top: var(--sp-2);
+}
+.stat-change.up { color: var(--c-success); }
+.stat-change.down { color: var(--c-error); }
+
+/* ============================================================
+   HERO / BRAND HEADER
+   ============================================================ */
+.ds-hero {
+  padding: var(--sp-20) 0 var(--sp-16);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: var(--sp-16);
+  position: relative;
+  overflow: hidden;
+}
+.ds-hero::before {
+  content: '';
+  position: absolute;
+  top: -80px;
+  right: -80px;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(20,184,166,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.ds-hero::after {
+  content: '';
+  position: absolute;
+  bottom: -40px;
+  left: 20%;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(163,230,53,0.10) 0%, transparent 70%);
+  pointer-events: none;
+}
+.ds-hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  background: var(--c-emerald-50);
+  border: 1px solid var(--c-emerald-200);
+  border-radius: var(--r-full);
+  padding: 4px 14px;
+  font-size: var(--t-100);
+  font-weight: 600;
+  color: var(--c-emerald-700);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: var(--sp-5);
+}
+.ds-hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-weight: 700;
+  line-height: 1.05;
+  margin-bottom: var(--sp-5);
+}
+.ds-hero-title .brand-word {
+  background: var(--brand-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.ds-hero-sub {
+  font-size: var(--t-500);
+  color: var(--text-secondary);
+  max-width: 560px;
+  line-height: 1.6;
+  margin-bottom: var(--sp-8);
+}
+.ds-hero-meta {
+  display: flex;
+  gap: var(--sp-6);
+  flex-wrap: wrap;
+}
+.ds-hero-meta-item { font-size: var(--t-200); color: var(--text-muted); }
+.ds-hero-meta-item strong { color: var(--text-primary); font-weight: 500; }
+
+/* ============================================================
+   COMPONENT CANVAS
+   ============================================================ */
+.component-canvas {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--r-2xl);
+  padding: var(--sp-8);
+  margin: var(--sp-4) 0;
+}
+.component-canvas.dark {
+  background: var(--c-slate-800);
+  border-color: var(--c-slate-700);
+}
+.component-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-4);
+  align-items: center;
+}
+.component-col { display: flex; flex-direction: column; gap: var(--sp-4); }
+.canvas-label {
+  font-size: var(--t-100);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: var(--sp-4);
+}
+
+/* ============================================================
+   TYPE SPECIMENS
+   ============================================================ */
+.type-specimen { padding: var(--sp-4) 0; border-bottom: 1px solid var(--border); }
+.type-specimen:last-child { border-bottom: none; }
+.type-meta {
+  display: flex;
+  gap: var(--sp-4);
+  align-items: baseline;
+  margin-bottom: var(--sp-2);
+}
+.type-role { font-size: var(--t-100); color: var(--text-muted); font-family: var(--font-mono); }
+.type-size { font-size: var(--t-100); color: var(--text-muted); }
+
+/* ============================================================
+   COLOR PALETTE
+   ============================================================ */
+.color-scale {
+  display: flex;
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  height: 60px;
+  margin-bottom: var(--sp-3);
+}
+.color-stop { flex: 1; position: relative; cursor: pointer; transition: transform 0.1s; }
+.color-stop:hover { transform: scaleY(1.1); z-index: 1; }
+
+.swatch-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--sp-3); }
+.swatch-item {
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.swatch-color { height: 80px; }
+.swatch-info { padding: var(--sp-3) var(--sp-4); background: var(--bg-surface); }
+.swatch-name { font-size: var(--t-200); font-weight: 600; color: var(--text-primary); }
+.swatch-hex { font-size: var(--t-100); color: var(--text-muted); font-family: var(--font-mono); }
+
+/* ============================================================
+   TOKENS JSON VIEWER
+   ============================================================ */
+.json-viewer {
+  background: #0A0F1A;
+  border-radius: var(--r-xl);
+  padding: var(--sp-6);
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.8;
+}
+.json-key { color: #93C5FD; }
+.json-str { color: #86EFAC; }
+.json-num { color: #FCA5A5; }
+.json-brace { color: #9CA3AF; }
+.json-comment { color: #4B5563; font-style: italic; }
+
+/* ============================================================
+   GRID DEMO
+   ============================================================ */
+.grid-demo-cell {
+  background: var(--c-emerald-100);
+  border: 1px dashed var(--c-emerald-400);
+  border-radius: var(--r-md);
+  padding: var(--sp-4);
+  text-align: center;
+  font-size: var(--t-200);
+  font-weight: 500;
+  color: var(--c-emerald-700);
+}
+.grid-demo-cell.accent {
+  background: var(--c-lime-100);
+  border-color: var(--c-lime-500);
+  color: var(--c-lime-800);
+}
+
+/* ============================================================
+   SPACING DEMO
+   ============================================================ */
+.spacing-demo-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  margin: var(--sp-2) 0;
+}
+.spacing-block {
+  background: var(--brand-gradient);
+  border-radius: var(--r-sm);
+  height: 24px;
+}
+.spacing-label {
+  font-family: var(--font-mono);
+  font-size: var(--t-100);
+  color: var(--text-muted);
+  min-width: 80px;
+}
+
+/* ============================================================
+   ICON DEMO
+   ============================================================ */
+.icon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: var(--sp-2); }
+.icon-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  border-radius: var(--r-lg);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.icon-cell:hover { background: var(--bg-subtle); }
+.icon-cell svg { color: var(--text-secondary); }
+.icon-name { font-size: 10px; color: var(--text-muted); text-align: center; line-height: 1.3; }
+
+/* ============================================================
+   FOOTER / DEV GUIDE CALLOUT
+   ============================================================ */
+.callout {
+  background: linear-gradient(135deg, var(--c-emerald-900) 0%, var(--c-slate-900) 100%);
+  border-radius: var(--r-2xl);
+  padding: var(--sp-8) var(--sp-10);
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+.callout::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(163,230,53,0.15) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.callout-title {
+  font-family: var(--font-display);
+  font-size: var(--t-600);
+  font-weight: 700;
+  margin-bottom: var(--sp-3);
+}
+.callout-body { opacity: 0.8; line-height: 1.7; margin-bottom: var(--sp-6); max-width: 520px; }
+
+/* ============================================================
+   PRINCIPLES
+   ============================================================ */
+.principle-card {
+  border-left: 3px solid var(--c-emerald-400);
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--bg-surface);
+  border-radius: 0 var(--r-lg) var(--r-lg) 0;
+}
+.principle-title {
+  font-size: var(--t-400);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--sp-2);
+}
+.principle-body { font-size: var(--t-300); color: var(--text-secondary); line-height: 1.7; }
+
+/* ============================================================
+   ACCESSIBILITY
+   ============================================================ */
+.a11y-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-3) 0;
+  border-bottom: 1px solid var(--border);
+  font-size: var(--t-300);
+}
+.a11y-check { color: var(--c-success); font-size: 18px; }
+.a11y-warn { color: var(--c-warning); font-size: 18px; }
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ============================================================
+   UTILITY
+   ============================================================ */
+.mb-2 { margin-bottom: var(--sp-2); }
+.mb-4 { margin-bottom: var(--sp-4); }
+.mb-6 { margin-bottom: var(--sp-6); }
+.mb-8 { margin-bottom: var(--sp-8); }
+.mt-4 { margin-top: var(--sp-4); }
+.mt-6 { margin-top: var(--sp-6); }
+.flex { display: flex; }
+.flex-wrap { flex-wrap: wrap; }
+.items-center { align-items: center; }
+.gap-2 { gap: var(--sp-2); }
+.gap-3 { gap: var(--sp-3); }
+.gap-4 { gap: var(--sp-4); }
+.text-muted { color: var(--text-muted); font-size: var(--t-200); }
+.pill { display: inline-block; background: var(--c-emerald-500); color: white; border-radius: var(--r-full); padding: 2px 10px; font-size: var(--t-100); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="page-shell">
+
+<!-- ============================================================
+     SIDEBAR
+     ============================================================ -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">C</div>
+    <div class="sidebar-brand">Certinal</div>
+    <div class="sidebar-version">Design System v1.0</div>
+  </div>
+
+  <div class="sidebar-section-label">Foundation</div>
+  <div class="sidebar-nav">
+    <a href="#principles">Principles</a>
+    <a href="#colors">Color System</a>
+    <a href="#typography">Typography</a>
+    <a href="#spacing">Spacing & Grid</a>
+    <a href="#icons">Iconography</a>
+  </div>
+
+  <div class="sidebar-section-label">Components</div>
+  <div class="sidebar-nav">
+    <a href="#buttons">Buttons</a>
+    <a href="#inputs">Inputs & Forms</a>
+    <a href="#selection">Selection Controls</a>
+    <a href="#badges">Badges</a>
+    <a href="#cards">Cards</a>
+    <a href="#alerts">Alerts</a>
+    <a href="#avatars">Avatars</a>
+    <a href="#progress">Progress</a>
+    <a href="#steps">Steps & Progress</a>
+    <a href="#tabs">Tabs</a>
+    <a href="#modals">Modals</a>
+    <a href="#tooltips">Tooltips</a>
+    <a href="#tables">Tables</a>
+    <a href="#navigation">Navigation</a>
+    <a href="#search">Search</a>
+    <a href="#chips">Chips & Tags</a>
+    <a href="#toasts">Toasts</a>
+    <a href="#skeleton">Skeleton</a>
+    <a href="#esign">eSign Specific</a>
+  </div>
+
+  <div class="sidebar-section-label">Resources</div>
+  <div class="sidebar-nav">
+    <a href="#tokens">Design Tokens</a>
+    <a href="#patterns">Patterns</a>
+    <a href="#a11y">Accessibility</a>
+    <a href="#devguide">Dev Guide</a>
+  </div>
+</nav>
+
+<!-- ============================================================
+     MAIN CONTENT
+     ============================================================ -->
+<main class="main-content">
+
+  <!-- HERO -->
+  <header class="ds-hero">
+    <div class="ds-hero-eyebrow">✦ Design System</div>
+    <h1 class="ds-hero-title">
+      <span class="brand-word">Certinal</span><br>Design System
+    </h1>
+    <p class="ds-hero-sub">A unified language for building secure, trustworthy, and delightful eSignature experiences. Every component built for clarity at scale.</p>
+    <div class="ds-hero-meta">
+      <div class="ds-hero-meta-item"><strong>Version</strong> 1.0.0</div>
+      <div class="ds-hero-meta-item"><strong>Components</strong> 30+</div>
+      <div class="ds-hero-meta-item"><strong>Tokens</strong> 80+</div>
+      <div class="ds-hero-meta-item"><strong>WCAG</strong> 2.1 AA</div>
+      <div class="ds-hero-meta-item"><strong>Date</strong> March 2026</div>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       PRINCIPLES
+       ============================================================ -->
+  <section class="ds-section" id="principles">
+    <div class="ds-section-header">
+      <div class="section-eyebrow">01 — Foundation</div>
+      <h2 class="section-title">Design Principles</h2>
+      <p class="section-desc">Six commitments that guide every decision, from a button border radius to an enterprise workflow.</p>
+    </div>
+
+    <div class="grid-2 mb-8">
+      <div class="principle-card">
+        <div class="principle-title">Trust First</div>
+        <div class="principle-body">Every interface element should communicate security, legality, and reliability. Certinal handles signatures on contracts — users need to feel safe, not confused.</div>
+      </div>
+      <div class="principle-card">
+        <div class="principle-title">Clarity Over Cleverness</div>
+        <div class="principle-body">Labels should say what they mean. Workflows should reveal their logic. When in doubt between interesting and clear, choose clear.</div>
+      </div>
+      <div class="principle-card">
+        <div class="principle-title">Speed at Scale</div>
+        <div class="principle-body">Enterprise users process hundreds of documents. Interactions must be fast — both technically and cognitively. Reduce steps, surface defaults intelligently.</div>
+      </div>
+      <div class="principle-card">
+        <div class="principle-title">Accessible by Default</div>
+        <div class="principle-body">WCAG 2.1 AA minimum for every component shipped. Accessibility is a first-class design constraint, not a post-launch audit.</div>
+      </div>
+      <div class="principle-card">
+        <div class="principle-title">System Coherence</div>
+        <div class="principle-body">A token changed once updates everywhere. Components inherit from the same primitives. No one-offs without a documented exception process.</div>
+      </div>
+      <div class="principle-card">
+        <div class="principle-title">Progressive Disclosure</div>
+        <div class="principle-body">Show only what the user needs at this moment. Advanced options reveal on demand. The signing flow should feel simple on day one and powerful on day 100.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       COLORS
+       ============================================================ -->
+  <section class="ds-section" id="colors">
+    <div class="ds-section-header">
+      <div class="section-eyebrow">02 — Foundation</div>
+      <h2 class="section-title">Color System</h2>
+      <p class="section-desc">Derived from Certinal's brand character — emerald/teal-to-lime — with a full 10-stop scale for each family and semantic aliases. Light theme only.</p>
+    </div>
+
+    <h3 style="font-size:var(--t-400);font-weight:600;margin-bottom:var(--sp-3);color:var(--text-primary)">Brand Gradient</h3>
+    <div style="height:64px;border-radius:var(--r-xl);background:var(--brand-gradient);margin-bottom:var(--sp-3)"></div>
+    <div class="flex gap-4 mb-8" style="font-size:var(--t-100);font-family:var(--font-mono);color:var(--text-muted)">
+      <span>Lime → Emerald 400</span>
+      <span>#C4E538 → #25C999</span>
+      <span>135°</span>
+    </div>
+
+    <h3 style="font-size:var(--t-400);font-weight:600;margin-bottom:var(--sp-4);color:var(--text-primary)">Emerald / Teal — Primary Brand</h3>
+    <div class="color-scale mb-4">
+      <div class="color-stop" style="background:#E6F5F0" title="Emerald 50"></div>
+      <div class="color-stop" style="background:#E6F5F0" title="Emerald 100"></div>
+      <div class="color-stop" style="background:#B3E0D2" title="Emerald 200"></div>
+      <div class="color-stop" style="background:#80CCB5" title="Emerald 300"></div>
+      <div class="color-stop" style="background:#25C999" title="Emerald 400"></div>
+      <div class="color-stop" style="background:#1A7A5E" title="Emerald 500"></div>
+      <div class="color-stop" style="background:#1A7A5E" title="Emerald 600"></div>
+      <div class="color-stop" style="background:#15654D" title="Emerald 700"></div>
+      <div class="color-stop" style="background:#0F4A38" title="Emerald 800"></div>
+      <div class="color-stop" style="background:#0A2F1F" title="Emerald 900"></div>
+    </div>
+    <div class="flex gap-2 mb-8" style="font-size:10px;font-family:var(--font-mono);color:var(--text-muted);flex-wrap:wrap">
+      <span>50</span><span style="flex:1;text-align:center">100</span><span style="flex:1;text-align:center">200</span><span style="flex:1;text-align:center">300</span><span style="flex:1;text-align:center">400★</span><span style="flex:1;text-align:center">500★</span><span style="flex:1;text-align:center">600</span><span style="flex:1;text-align:center">700</span><span style="flex:1;text-align:center">800</span><span>900</span>
+    </div>
+
+    <h3 style="font-size:var(--t-400);font-weight:600;margin-bottom:var(--sp-4);color:var(--text-primary)">Cyan — Accent</h3>
+    <div class="color-scale mb-8">
+      <div class="color-stop" style="background:#ECFEFF" title="Cyan 50"></div>
+      <div class="color-stop" style="background:#CFFAFE" title="Cyan 100"></div>
+      <div class="color-stop" style="background:#A5F3FC" title="Cyan 200"></div>
+      <div class="color-stop" style="background:#67E8F9" title="Cyan 300"></div>
+      <div class="color-stop" style="background:#22D3EE" title="Cyan 400"></div>
+      <div class="color-stop" style="background:#0891B2" title="Cyan 500"></div>
+      <div class="color-stop" style="background:#0E7490" title="Cyan 600"></div>
+      <div class="color-stop" style="background:#155E75" title="Cyan 700"></div>
+      <div class="color-stop" style="background:#164E63" title="Cyan 800"></div>
+      <div class="color-stop" style="background:#0C3547" title="Cyan 900"></div>
+    </div>
+
+    <h3 style="font-size:var(--t-400);font-weight:600;margin-bottom:var(--sp-4);color:var(--text-primary)">Lime — Secondary Brand</h3>
+    <div class="color-scale mb-4">
+      <div class="color-stop" style="background:#F7FEE7" title="Lime 50"></div>
+      <div class="color-stop" style="background:#ECFCCB" title="Lime 100"></div>
+      <div class="color-stop" style="background:#D9F99D" title="Lime 200"></div>
+      <div class="color-stop" style="background:#BEF264" title="Lime 300"></div>
+      <div class="color-stop" style="background:#A3E635" title="Lime 400"></div>
+      <div class="color-stop" style="background:#84CC16" title="Lime 500"></div>
+      <div class="color-stop" style="background:#65A30D" title="Lime 600"></div>
+      <div class="color-stop" style="background:#4D7C0F" title="Lime 700"></div>
+      <div class="color-stop" style="background:#3F6212" title="Lime 800"></div>
+      <div class="color-stop" style="background:#365314" title="Lime 900"></div>
+    </div>
+    <div class="flex gap-2 mb-8" style="font-size:10px;font-family:var(--font-mono);color:var(--text-muted);flex-wrap:wrap">
+      <span>50</span><span style="flex:1;text-align:center">100</span><span style="flex:1;text-align:center">200</span><span style="flex:1;text-align:center">300</span><span style="flex:1;text-align:center">400</span><span style="flex:1;text-align:center">500★</span><span style="flex:1;text-align:center">600</span><span style="flex:1;text-align:center">700</span><span style="flex:1;text-align:center">800</span><span>900</span>
+    </div>
+
+    <h3 style="font-size:var(--t-400);font-weight:600;margin-bottom:var(--sp-4);color:var(--text-primary)">Neutral — Slate</h3>
+    <div class="color-scale mb-4">
+      <div class="color-stop" style="background:#FFFFFF;border:1px solid #E2E8F0" title="Slate 0"></div>
+      <div class="color-stop" style="background:#F8FAFC" title="Slate 50"></div>
+      <div class="color-stop" style="background:#F1F5F9" title="Slate 100"></div>
+      <div class="color-stop" style="background:#E2E8F0" title="Slate 200"></div>
+      <div class="color-stop" style="background:#CBD5E1" title="Slate 300"></div>
+      <div class="color-stop" style="background:#94A3B8" title="Slate 400"></div>
+      <div class="color-stop" style="background:#64748B" title="Slate 500"></div>
+      <div class="color-stop" style="background:#475569" title="Slate 600"></div>
+      <div class="color-stop" style="background:#334155" title="Slate 700"></div>
+      <div class="color-stop" style="background:#1E293B" title="Slate 800"></div>
+      <div class="color-stop" style="background:#0F172A" title="Slate 900"></div>
+    </div>
+    <div class="flex gap-2 mb-8" style="font-size:10px;font-family:var(--font-mono);color:var(--text-muted);flex-wrap:wrap">
+      <span>0</span><span style="flex:1;text-align:center">50</span><span style="flex:1;text-align:center">100</span><span style="flex:1;text-align:center">200★</span><span style="flex:1;text-align:center">300</span><span style="flex:1;text-align:center">400</span><span style="flex:1;text-align:center">500★</span><span style="flex:1;text-align:center">600</span><span style="flex:1;text-align:center">700★</span><span style="flex:1;text-align:center">800</span><span>900★</span>
+    </div>
+
+    <h3 style="font-size:var(--t-400);font-weight:600;margin-bottom:var(--sp-4);color:var(--text-primary)">Semantic Palette</h3>
+    <div class="swatch-grid mb-8">
+      <div class="swatch-item">
+        <div class="swatch-color" style="background:var(--c-success)"></div>
+        <div class="swatch-info"><div class="swatch-name">Success</div><div class="swatch-hex">#C4E538</div></div>
+      </div>
+      <div class="swatch-item">
+        <div class="swatch-color" style="background:var(--c-warning)"></div>
+        <div class="swatch-info"><div class="swatch-name">Warning</div><div class="swatch-hex">#F59E0B</div></div>
+      </div>
+      <div class="swatch-item">
+        <div class="swatch-color" style="background:var(--c-error)"></div>
+        <div class="swatch-info"><div class="swatch-name">Error</div><div class="swatch-hex">#EF4444</div></div>
+      </div>
+      <div class="swatch-item">
+        <div class="swatch-color" style="background:var(--c-info)"></div>
+        <div class="swatch-info"><div class="swatch-name">Info</div><div class="swatch-hex">#0891B2</div></div>
+      </div>
+    </div>
+
+    <h3 style="font-size:var(--t-400);font-weight:600;margin-bottom:var(--sp-4);color:var(--text-primary)">Usage Rules</h3>
+    <div class="do-dont-grid">
+      <div class="do-box"><strong>Do</strong> — Use Emerald 500/700 for primary interactive elements, CTAs, and focus states. Use Lime only as accent or for success/confirmed states. Use Cyan as info accent.</div>
+      <div class="dont-box"><strong>Don't</strong> — Mix Emerald and Lime in the same interactive element outside the gradient. Never use Lime 400+ on white backgrounds for body text (fails 4.5:1 contrast).</div>
+    </div>
+
+    <h3 style="font-size:var(--t-400);font-weight:600;margin:var(--sp-6) 0 var(--sp-4);color:var(--text-primary)">Contrast Reference</h3>
+    <table class="spec-table">
+      <thead><tr><th>Pair</th><th>Ratio</th><th>WCAG AA</th><th>WCAG AAA</th></tr></thead>
+      <tbody>
+        <tr><td>Emerald 700 on White</td><td>5.9:1</td><td>✅ Pass</td><td>❌ Fail</td></tr>
+        <tr><td>Emerald 500 on White</td><td>4.8:1</td><td>✅ Pass</td><td>❌ Fail</td></tr>
+        <tr><td>White on Emerald 500</td><td>4.8:1</td><td>✅ Pass</td><td>❌ Fail</td></tr>
+        <tr><td>Slate 900 on Emerald 400</td><td>7.5:1</td><td>✅ Pass</td><td>✅ Pass</td></tr>
+        <tr><td>Slate 900 on Lime 400</td><td>8.1:1</td><td>✅ Pass</td><td>✅ Pass</td></tr>
+        <tr><td>Slate 700 on Slate 50</td><td>5.8:1</td><td>✅ Pass</td><td>❌ Fail</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============================================================
+       TYPOGRAPHY
+       ============================================================ -->
+  <section class="ds-section" id="typography">
+    <div class="ds-section-header">
+      <div class="section-eyebrow">03 — Foundation</div>
+      <h2 class="section-title">Typography</h2>
+      <p class="section-desc">DM Sans for all UI text including display headings, DM Mono for technical content and code. 9-level responsive scale from 12px to 72px.</p>
+    </div>
+
+    <div class="mb-8">
+      <div class="type-specimen">
+        <div class="type-meta"><span class="type-role">--t-900 / Display</span><span class="type-size">clamp(3rem–4.5rem) · 300 weight</span></div>
+        <div style="font-family:var(--font-display);font-size:var(--t-900);font-weight:300;line-height:1.05;color:var(--text-primary)">Sign with confidence</div>
+      </div>
+      <div class="type-specimen">
+        <div class="type-meta"><span class="type-role">--t-800 / H1</span><span class="type-size">clamp(2.25rem–3rem) · 700</span></div>
+        <div style="font-family:var(--font-display);font-size:var(--t-800);font-weight:700;line-height:1.1;color:var(--text-primary)">Document Management</div>
+      </div>
+      <div class="type-specimen">
+        <div class="type-meta"><span class="type-role">--t-700 / H2</span><span class="type-size">clamp(1.875rem–2.25rem) · 700</span></div>
+        <div style="font-family:var(--font-display);font-size:var(--t-700);font-weight:700;line-height:1.15;color:var(--text-primary)">Pending Signatures</div>
+      </div>
+      <div class="type-specimen">
+        <div class="type-meta"><span class="type-role">--t-600 / H3</span><span class="type-size">clamp(1.5rem–1.875rem) · 600</span></div>
+        <div style="font-size:var(--t-600);font-weight:600;line-height:1.2;color:var(--text-primary)">Signer Details</div>
+      </div>
+      <div class="type-specimen">
+        <div class="type-meta"><span class="type-role">--t-500 / H4</span><span class="type-size">clamp(1.25rem–1.5rem) · 600</span></div>
+        <div style="font-size:var(--t-500);font-weight:600;line-height:1.25;color:var(--text-primary)">Audit Trail Events</div>
+      </div>
+      <div class="type-specimen">
+        <div class="type-meta"><span class="type-role">--t-400 / Body Large</span><span class="type-size">1.125rem · 400</span></div>
+        <div style="font-size:var(--t-400);color:var(--text-primary);line-height:1.7">This document has been legally signed by all required parties and is now binding. You can download a certified copy from your dashboard.</div>
+      </div>
+      <div class="type-specimen">
+        <div class="type-meta"><span class="type-role">--t-300 / Body</span><span class="type-size">1rem · 400</span></div>
+        <div style="font-size:var(--t-300);color:var(--text-primary);line-height:1.7">Certinal keeps a complete, tamper-evident record of every action taken on your document — who signed, when, and from what IP address.</div>
+      </div>
+      <div class="type-specimen">
+        <div class="type-meta"><span class="type-role">--t-200 / Body Small</span><span class="type-size">0.875rem · 400</span></div>
+        <div style="font-size:var(--t-200);color:var(--text-secondary);line-height:1.6">Signed 14 March 2026 at 10:42 UTC · IP 203.0.113.42 · Browser Chrome 122</div>
+      </div>
+      <div class="type-specimen">
+        <div class="type-meta"><span class="type-role">--t-100 / Caption</span><span class="type-size">0.75rem · 400–600</span></div>
+        <div style="font-size:var(--t-100);color:var(--text-muted);letter-spacing:0.04em">DOCUMENT ID · CERT-2026-0031847-XA</div>
+      </div>
+      <div class="type-specimen">
+        <div class="type-meta"><span class="type-role">DM Mono / Code</span><span class="type-size">0.875rem · 400</span></div>
+        <div style="font-family:var(--font-mono);font-size:var(--t-200);background:var(--bg-subtle);padding:var(--sp-3) var(--sp-4);border-radius:var(--r-md);color:var(--c-emerald-700)">SHA256: 3a7c8f91b2e4d06a...</div>
+      </div>
+    </div>
+
+    <table class="spec-table mb-8">
+      <thead><tr><th>Level</th><th>Token</th><th>Size</th><th>Weight</th><th>Family</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td>Display</td><td><code>--t-900</code></td><td>48–72px</td><td>300</td><td>DM Sans</td><td>Hero headlines</td></tr>
+        <tr><td>H1</td><td><code>--t-800</code></td><td>36–48px</td><td>700</td><td>DM Sans</td><td>Page titles</td></tr>
+        <tr><td>H2</td><td><code>--t-700</code></td><td>30–36px</td><td>700</td><td>DM Sans</td><td>Section headers</td></tr>
+        <tr><td>H3</td><td><code>--t-600</code></td><td>24–30px</td><td>600</td><td>DM Sans</td><td>Subsections</td></tr>
+        <tr><td>H4</td><td><code>--t-500</code></td><td>20–24px</td><td>600</td><td>DM Sans</td><td>Card titles</td></tr>
+        <tr><td>Body L</td><td><code>--t-400</code></td><td>18px</td><td>400</td><td>DM Sans</td><td>Lead paragraphs</td></tr>
+        <tr><td>Body</td><td><code>--t-300</code></td><td>16px</td><td>400</td><td>DM Sans</td><td>Default body</td></tr>
+        <tr><td>Small</td><td><code>--t-200</code></td><td>14px</td><td>400</td><td>DM Sans</td><td>Secondary info</td></tr>
+        <tr><td>Caption</td><td><code>--t-100</code></td><td>12px</td><td>400/600</td><td>DM Sans</td><td>Labels, captions</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============================================================
+       SPACING & GRID
+       ============================================================ -->
+  <section class="ds-section" id="spacing">
+    <div class="ds-section-header">
+      <div class="section-eyebrow">04 — Foundation</div>
+      <h2 class="section-title">Spacing & Grid</h2>
+      <p class="section-desc">8px base unit. 12-column grid at 1280px max-width with 24px gutters and 40px outer margins. Mobile collapses to 4 columns.</p>
+    </div>
+
+    <h3 style="font-size:var(--t-400);font-weight:600;margin-bottom:var(--sp-4);color:var(--text-primary)">8px Spacing Scale</h3>
+    <div class="mb-8">
+      <div class="spacing-demo-row"><div class="spacing-label">--sp-1 · 4px</div><div class="spacing-block" style="width:4px"></div></div>
+      <div class="spacing-demo-row"><div class="spacing-label">--sp-2 · 8px</div><div class="spacing-block" style="width:8px"></div></div>
+      <div class="spacing-demo-row"><div class="spacing-label">--sp-3 · 12px</div><div class="spacing-block" style="width:12px"></div></div>
+      <div class="spacing-demo-row"><div class="spacing-label">--sp-4 · 16px</div><div class="spacing-block" style="width:16px"></div></div>
+      <div class="spacing-demo-row"><div class="spacing-label">--sp-5 · 20px</div><div class="spacing-block" style="width:20px"></div></div>
+      <div class="spacing-demo-row"><div class="spacing-label">--sp-6 · 24px</div><div class="spacing-block" style="width:24px"></div></div>
+      <div class="spacing-demo-row"><div class="spacing-label">--sp-8 · 32px</div><div class="spacing-block" style="width:32px"></div></div>
+      <div class="spacing-demo-row"><div class="spacing-label">--sp-10 · 40px</div><div class="spacing-block" style="width:40px"></div></div>
+      <div class="spacing-demo-row"><div class="spacing-label">--sp-12 · 48px</div><div class="spacing-block" style="width:48px"></div></div>
+      <div class="spacing-demo-row"><div class="spacing-label">--sp-16 · 64px</div><div class="spacing-block" style="width:64px"></div></div>
+    </div>
+
+    <h3 style="font-size:var(--t-400);font-weight:600;margin-bottom:var(--sp-4);color:var(--text-primary)">12-Column Grid</h3>
+    <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:var(--sp-3);margin-bottom:var(--sp-4)" class="mb-8">
+      <div class="grid-demo-cell" style="grid-column:span 12">12 col — Full width</div>
+      <div class="grid-demo-cell" style="grid-column:span 6">6 col</div>
+      <div class="grid-demo-cell" style="grid-column:span 6">6 col</div>
+      <div class="grid-demo-cell" style="grid-column:span 4">4 col</div>
+      <div class="grid-demo-cell" style="grid-column:span 4">4 col</div>
+      <div class="grid-demo-cell" style="grid-column:span 4">4 col</div>
+      <div class="grid-demo-cell" style="grid-column:span 3">3 col</div>
+      <div class="grid-demo-cell" style="grid-column:span 3">3 col</div>
+      <div class="grid-demo-cell" style="grid-column:span 3">3 col</div>
+      <div class="grid-demo-cell" style="grid-column:span 3">3 col</div>
+      <div class="grid-demo-cell accent" style="grid-column:span 8">8 col — Main content</div>
+      <div class="grid-demo-cell" style="grid-column:span 4">4 col — Sidebar</div>
+    </div>
+
+    <table class="spec-table mb-6">
+      <thead><tr><th>Breakpoint</th><th>Width</th><th>Columns</th><th>Gutter</th><th>Margin</th></tr></thead>
+      <tbody>
+        <tr><td>Mobile (sm)</td><td>&lt; 640px</td><td>4</td><td>16px</td><td>16px</td></tr>
+        <tr><td>Tablet (md)</td><td>640–1024px</td><td>8</td><td>20px</td><td>24px</td></tr>
+        <tr><td>Desktop (lg)</td><td>1024–1280px</td><td>12</td><td>24px</td><td>32px</td></tr>
+        <tr><td>Wide (xl)</td><td>&gt; 1280px</td><td>12</td><td>24px</td><td>max-width 1280px</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============================================================
+       BUTTONS
+       ============================================================ -->
+  <section class="ds-section" id="buttons">
+    <div class="ds-section-header">
+      <div class="section-eyebrow">05 — Components</div>
+      <h2 class="section-title">Buttons</h2>
+      <p class="section-desc">Five variants, four sizes, four states. Use Primary only for the single most important action on a page. One Primary button per view.</p>
+    </div>
+
+    <div class="canvas-label">Variants</div>
+    <div class="component-canvas mb-4">
+      <div class="component-row">
+        <button class="btn btn-primary">Sign Document</button>
+        <button class="btn btn-secondary">View Audit Trail</button>
+        <button class="btn btn-ghost">Cancel</button>
+        <button class="btn btn-danger">Void Contract</button>
+      </div>
+    </div>
+
+    <div class="canvas-label">Sizes</div>
+    <div class="component-canvas mb-4">
+      <div class="component-row">
+        <button class="btn btn-primary btn-sm">Small</button>
+        <button class="btn btn-primary">Default</button>
+        <button class="btn btn-primary btn-lg">Large</button>
+        <button class="btn btn-primary btn-xl">Extra Large</button>
+      </div>
+    </div>
+
+    <div class="canvas-label">States</div>
+    <div class="component-canvas mb-6">
+      <div class="component-row">
+        <button class="btn btn-primary">Default</button>
+        <button class="btn btn-primary" style="opacity:0.9;box-shadow:var(--shadow-md)">Hover</button>
+        <button class="btn btn-primary btn-loading">Loading</button>
+        <button class="btn btn-primary" disabled>Disabled</button>
+      </div>
+    </div>
+
+    <div class="do-dont-grid mb-6">
+      <div class="do-box"><strong>Do</strong> — Use verb labels: "Send for Signature", "Download PDF", "Add Signer". The label tells the user exactly what happens next.</div>
+      <div class="dont-box"><strong>Don't</strong> — Use vague labels like "OK", "Submit", or "Click Here". Don't place two Primary buttons side by side — one action should always lead.</div>
+    </div>
+
+    <table class="spec-table">
+      <thead><tr><th>Property</th><th>Value</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Border radius</td><td><code>--r-full</code> (9999px)</td><td>Pill shape for primary, secondary, ghost</td></tr>
+        <tr><td>Min height</td><td>44px (default)</td><td>Meets WCAG 2.5.8 Target Size</td></tr>
+        <tr><td>Focus ring</td><td>3px emerald-400 offset 2px</td><td>Visible on light backgrounds</td></tr>
+        <tr><td>Transition</td><td>all 200ms ease-out</td><td>All interactive properties</td></tr>
+        <tr><td>Active scale</td><td>scale(0.97)</td><td>Physical press feedback</td></tr>
+        <tr><td>Font</td><td>DM Sans 500</td><td>Medium weight for legibility at small sizes</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============================================================
+       INPUTS
+       ============================================================ -->
+  <section class="ds-section" id="inputs">
+    <div class="ds-section-header">
+      <div class="section-eyebrow">06 — Components</div>
+      <h2 class="section-title">Inputs & Forms</h2>
+      <p class="section-desc">All form elements share the same border, focus ring, and error treatment. Labels always visible — no placeholder-only labels.</p>
+    </div>
+
+    <div class="component-canvas mb-4">
+      <div class="grid-2">
+        <div class="input-group">
+          <label class="input-label">Full Legal Name</label>
+          <input class="input" type="text" placeholder="As it appears on government ID">
+          <div class="input-hint">This name will appear on the signed document</div>
+        </div>
+        <div class="input-group">
+          <label class="input-label">Email Address</label>
+          <div class="input-with-icon">
+            <span class="input-icon">✉</span>
+            <input class="input" type="email" placeholder="signer@company.com" style="padding-left:40px">
+          </div>
+        </div>
+        <div class="input-group">
+          <label class="input-label">Document Reference</label>
+          <input class="input error" type="text" value="CERT-2026-XXXX">
+          <div class="input-error-msg">Reference format is invalid. Use CERT-YYYY-NNNNN.</div>
+        </div>
+        <div class="input-group">
+          <label class="input-label">Signing Deadline</label>
+          <input class="input success" type="date" value="2026-04-01">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Document Category</label>
+          <select class="input select">
+            <option>NDA</option>
+            <option>Employment Contract</option>
+            <option>Vendor Agreement</option>
+            <option>Partnership Agreement</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label class="input-label">Internal Notes</label>
+          <textarea class="input textarea" placeholder="Add context for your team..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <table class="spec-table">
+      <thead><tr><th>State</th><th>Border</th><th>Shadow</th></tr></thead>
+      <tbody>
+        <tr><td>Default</td><td><code>1.5px slate-300</code></td><td>None</td></tr>
+        <tr><td>Hover</td><td><code>1.5px emerald-400</code></td><td>None</td></tr>
+        <tr><td>Focus</td><td><code>1.5px emerald-500</code></td><td><code>0 0 0 3px emerald-400/15%</code></td></tr>
+        <tr><td>Error</td><td><code>1.5px error</code></td><td><code>0 0 0 3px error/12%</code></td></tr>
+        <tr><td>Success</td><td><code>1.5px success</code></td><td>None</td></tr>
+        <tr><td>Disabled</td><td><code>1.5px slate-200</code></td><td>None, 50% opacity</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============================================================
+       SELECTION CONTROLS
+       ============================================================ -->
+  <section class="ds-section" id="selection">
+    <div class="ds-section-header">
+      <div class="section-eyebrow">07 — Components</div>
+      <h2 class="section-title">Selection Controls</h2>
+      <p class="section-desc">Checkboxes, radios, toggles, and segmented controls. All use native elements with accent-color for maximum accessibility.</p>
+    </div>
+
+    <div class="component-canvas mb-6">
+      <div class="component-row" style="align-items:flex-start;gap:var(--sp-10)">
+        <div>
+          <div class="canvas-label">Checkbox</div>
+          <div class="check-group">
+            <label class="check-item">
+              <input type="checkbox" checked>
+              <div><div class="check-label">Require all signers to verify identity</div><div class="input-hint" style="margin-top:2px">SMS or email OTP</div></div>
+            </label>
+            <label class="check-item">
+              <input type="checkbox">
+              <div class="check-label">Enable in-person signing mode</div>
+            </label>
+            <label class="check-item">
+              <input type="checkbox" disabled>
+              <div class="check-label" style="opacity:0.5">Notarization required (upgrade plan)</div>
+            </label>
+          </div>
+        </div>
+        <div>
+          <div class="canvas-label">Radio</div>
+          <div class="radio-group">
+            <label class="radio-item">
+              <input type="radio" name="order" checked>
+              <div class="radio-label">Sign in any order</div>
+            </label>
+            <label class="radio-item">
+              <input type="radio" name="order">
+              <div class="radio-label">Sign in defined sequence</div>
+            </label>
+            <label class="radio-item">
+              <input type="radio" name="order">
+              <div class="radio-label">Parallel signing groups</div>
+            </label>
+          </div>
+        </div>
+        <div>
+          <div class="canvas-label">Toggle</div>
+          <div style="display:flex;flex-direction:column;gap:var(--sp-4)">
+            <div class="toggle-wrapper">
+              <label class="toggle">
+                <input type="checkbox" checked>
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+              </label>
+              <span class="toggle-label">Email reminders</span>
+            </div>
+            <div class="toggle-wrapper">
+              <label class="toggle">
+                <input type="checkbox">
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+              </label>
+              <span class="toggle-label">CC on each event</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="canvas-label">Segmented Control</div>
+    <div class="component-canvas mb-4">
+      <div class="segmented-control">
+        <button class="seg-btn active">All Documents</button>
+        <button class="seg-btn">Pending</button>
+        <button class="seg-btn">Completed</button>
+        <button class="seg-btn">Voided</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       BADGES
+       ============================================================ -->
+  <section class="ds-section" id="badges">
+    <div class="ds-section-header">
+      <div class="section-eyebrow">08 — Components</div>
+      <h2 class="section-title">Badges</h2>
+      <p class="section-desc">Status indicators, category labels, and count chips. Always communicate state — never use color alone.</p>
+    </div>
+
+    <div class="component-canvas mb-6">
+      <div class="component-row">
+        <span class="badge badge-success badge-dot">Completed</span>
+        <span class="badge badge-warning badge-dot">Awaiting Signature</span>
+        <span class="badge badge-error badge-dot">Voided</span>
+        <span class="badge badge-emerald">NDA</span>
+        <span class="badge badge-lime">Verified</span>
+        <span class="badge badge-neutral">Draft</span>
+      </div>
+    </div>
+
+    <table class="spec-table">
+      <thead><tr><th>Variant</th><th>Background</th><th>Text</th><th>Use case</th></tr></thead>
+      <tbody>
+        <tr><td>Emerald</td><td>Emerald 100</td><td>Emerald 700</td><td>Brand category, primary tag</td></tr>
+        <tr><td>Lime</td><td>Lime 100</td><td>Lime 700</td><td>Verified, certified state</td></tr>
+        <tr><td>Success</td><td>Emerald 100</td><td>Emerald 800</td><td>Signed, completed, approved</td></tr>
+        <tr><td>Warning</td><td>Amber 100</td><td>Amber 800</td><td>Pending, awaiting action</td></tr>
+        <tr><td>Error</td><td>Red 100</td><td>Red 800</td><td>Voided, declined, expired</td></tr>
+        <tr><td>Neutral</td><td>Slate 100</td><td>Slate 600</td><td>Draft, inactive, unknown</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============================================================
+       CARDS
+       ============================================================ -->
+  <section class="ds-section" id="cards">
+    <div class="ds-section-header">
+      <div class="section-eyebrow">09 — Components</div>
+      <h2 class="section-title">Cards</h2>
+      <p class="section-desc">Surface containers for documents, features, data, and settings. Four variants — each for a distinct hierarchy level.</p>
+    </div>
+
+    <div class="grid-3 mb-6">
+      <div class="card card-hover" style="cursor:pointer">
+        <div class="card-icon">📄</div>
+        <div class="card-title">Service Agreement</div>
+        <div class="card-body">3 signers · Sent 12 March · Expires 19 March</div>
+        <div style="margin-top:var(--sp-4)"><span class="badge badge-warning badge-dot">Awaiting Signature</span></div>
+      </div>
+      <div class="card-elevated">
+        <div class="card-icon">⚡</div>
+        <div class="card-title">Bulk Send</div>
+        <div class="card-body">Send one document to up to 1,000 signers in a single operation.</div>
+        <div style="margin-top:var(--sp-4)"><span class="pill">Enterprise</span></div>
+      </div>
+      <div class="card-feature">
+        <div class="card-icon">🔒</div>
+        <div class="card-title" style="color:var(--c-emerald-900)">eIDAS Compliant</div>
+        <div class="card-body" style="color:var(--c-emerald-700)">Certinal supports qualified electronic signatures under EU eIDAS Regulation.</div>
+      </div>
+    </div>
+
+    <div class="card-dark mb-6">
+      <div style="color:var(--c-lime-400);font-size:var(--t-200);font-weight:600;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:var(--sp-3)">Document Signed</div>
+      <div style="font-family:var(--font-display);font-size:var(--t-700);font-weight:700;color:white;margin-bottom:var(--sp-2)">Employment Contract</div>
+      <div style="color:var(--c-slate-400);font-size:var(--t-300)">All 3 parties have signed · Certificate ID CERT-2026-0031847-XA</div>
+      <div style="margin-top:var(--sp-5);display:flex;gap:var(--sp-3)">
+        <button class="btn" style="background:white;color:var(--c-slate-900)">Download PDF</button>
+        <button class="btn btn-ghost" style="color:var(--c-lime-400);border-color:rgba(163,230,53,0.3)">View Certificate</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       ALERTS
+       ============================================================ -->
+  <section class="ds-section" id="alerts">
+    <div class="ds-section-header">
+      <div class="section-eyebrow">10 — Components</div>
+      <h2 class="section-title">Alerts</h2>
+      <p class="section-desc">Inline contextual feedback. Use for system status, validation results, and process confirmations. Not for transient notifications (use Toast).</p>
+    </div>
+
+    <div class="component-col mb-6">
+      <div class="alert alert-info">
+        <div class="alert-icon">ℹ️</div>
+        <div class="alert-content">
+          <div class="alert-title">Remote signing enabled</div>
+          Signers will be sent a unique, tamper-proof link. Each link expires after 72 hours.
+        </div>
+      </div>
+      <div class="alert alert-success">
+        <div class="alert-icon">✅</div>
+        <div class="alert-content">
+          <div class="alert-title">Document fully executed</div>
+          All 4 signers completed. The signed PDF and audit certificate are ready to download.
+        </div>
+      </div>
+      <div class="alert alert-warning">
+        <div class="alert-icon">⚠️</div>
+        <div class="alert-content">
+          <div class="alert-title">Deadline in 48 hours</div>
+          Sarah Chen has not yet signed. Consider sending a reminder.
+        </div>
+      </div>
+      <div class="alert alert-error">
+        <div class="alert-icon">🚫</div>
+        <div class="alert-content">
+          <div class="alert-title">Signature declined</div>
+          Marcus O. declined to sign and left a reason: "Contract terms have changed since draft."
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       AVATARS
+       ============================================================ -->
+  <section class="ds-section" id="avatars">
+    <div class="ds-section-header">
+      <div class="section-eyebrow">11 — Components</div>
+      <h2 class="section-title">Avatars</h2>
+      <p class="section-desc">User identity representation in five sizes. Supports initials, images, and group stacking.</p>
+    </div>
+
+    <div class="component-canvas mb-4">
+      <div class="component-row">
+        <div class="avatar avatar-xs">SR</div>
+        <div class="avatar avatar-sm">SR</div>
+        <div class="avatar avatar-md">SR</div>
+        <div class="avatar avatar-lg">SR</div>
+        <div class="avatar avatar-xl">SR</div>
+      </div>
+    </div>
+
+    <div class="component-canvas mb-6">
+      <div class="canvas-label">Avatar Group — Signer Panel</div>
+      <div class="avatar-group">
+        <div class="avatar avatar-md" style="background:linear-gradient(135deg,var(--c-emerald-400),var(--c-emerald-600))">SC</div>
+        <div class="avatar avatar-md" style="background:linear-gradient(135deg,var(--c-lime-400),var(--c-lime-600))">MO</div>
+        <div class="avatar avatar-md" style="background:linear-gradient(135deg,var(--c-info),#2563EB)">AJ</div>
+        <div class="avatar avatar-md" style="background:var(--c-slate-400)">+4</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PROGRESS
+       ============================================================ -->
+  <section class="ds-section" id="progress">
+    <div class="ds-section-header">
+      <div class="section-eyebrow">12 — Components</div>
+      <h2 class="section-title">Progress Bars</h2>
+      <p class="section-desc">For showing completion of multi-step flows, document processing, and signature collection.</p>
+    </div>
+
+    <div class="component-col mb-6">
+      <div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:var(--sp-2)">
+          <span style="font-size:var(--t-200);font-weight:500;color:var(--text-primary)">Signers completed</span>
+          <span style="font-size:var(--t-200);font-weight:600;color:var(--c-emerald-600)">3 of 4</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:75%"></div></div>
+        <div class="progress-label"><span>75%</span><span>1 remaining</span></div>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:var(--sp-2)">
+          <span style="font-size:var(--t-200);font-weight:500;color:var(--text-primary)">Document processing</span>
+        </div>
+        <div class="progress-bar" style="height:4px"><div class="progress-fill" style="width:40%"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       STEPS
+       ============================================================ -->
+  <section class="ds-section" id="steps">
+    <div class="ds-section-header">
+      <div class="section-eyebrow">13 — Components</div>
+      <h2 class="section-title">Step Indicator</h2>
+      <p class="section-desc">Guides users through multi-step processes — document setup, signer configuration, and sending workflows.</p>
+    </div>
+
+    <div class="component-canvas mb-6">
+      <div class="steps">
+        <div class="step completed">
+          <div class="step-circle">✓</div>
+          <div class="step-label">Upload</div>
+        </div>
+        <div class="step completed">
+          <div class="step-circle">✓</div>
+          <div class="step-label">Configure</div>
+        </div>
+        <div class="step active">
+          <div class="step-circle">3</div>
+          <div class="step-label">Add Signers</div>
+        </div>
+        <div class="step pending">
+          <div class="step-circle">4</div>
+          <div class="step-label">Review</div>
+        </div>
+        <div class="step pending">
+          <div class="step-circle">5</div>
+          <div class="step-label">Send</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       TABS
+       ============================================================ -->
+  <section class="ds-section" id="tabs">
+    <div class="ds-section-header">
+      <div class="section-eyebrow">14 — Components</div>
+      <h2 class="section-title">Tabs</h2>
+      <p class="section-desc">Horizontal navigation within a page context. Used for document views, account sections, and report switching.</p>
+    </div>
+
+    <div class="component-canvas mb-6">
+      <div class="tabs">
+        <div class="tab-list">
+          <button class="tab-btn active">Overview</button>
+          <button class="tab-btn">Signers</button>
+          <button class="tab-btn">Audit Trail</button>
+          <button class="tab-btn">Certificate</button>
+        </div>
+      </div>
+      <div style="padding:var(--sp-4) 0;color:var(--text-secondary);font-size:var(--t-300)">Tab content renders here.</div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       MODALS
+       ============================================================ -->
+  <section class="ds-section" id="modals">
+    <div class="ds-section-header">
+      <div class="section-eyebrow">15 — Components</div>
+      <h2 class="section-title">Modals & Dialogs</h2>
+      <p class="section-desc">For confirmations, data entry, and focused decisions. Always include a visible dismiss action. Trap focus within open modal.</p>
+    </div>
+
+    <div class="component-canvas mb-6">
+      <div class="modal-backdrop">
+        <div class="modal-dialog">
+          <div class="modal-header">
+            <div class="modal-title">Void Document?</div>
+            <button class="modal-close">✕</button>
+          </div>
+          <div class="modal-body">
+            Voiding this document is permanent and cannot be undone. All signers will be notified and the document will be marked void in the audit trail.
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary">Cancel</button>
+            <button class="btn btn-danger">Void Document</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <table class="spec-table">
+      <thead><tr><th>Property</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Max width</td><td>480px (default), 640px (large), 320px (compact)</td></tr>
+        <tr><td>Backdrop</td><td>Slate 900 · 60% opacity · 4px blur</td></tr>
+        <tr><td>Animation</td><td>scale(0.95)→scale(1) · 200ms ease-out</td></tr>
+        <tr><td>Close triggers</td><td>Esc key, backdrop click (unless critical), close button</td></tr>
+        <tr><td>Focus trap</td><td>Required — Tab cycles within modal only</td></tr>
+        <tr><td>Role</td><td><code>role="dialog"</code> + <code>aria-modal="true"</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============================================================
+       TOOLTIPS
+       ============================================================ -->
+  <section class="ds-section" id="tooltips">
+    <div class="ds-section-header">
+      <div class="section-eyebrow">16 — Components</div>
+      <h2 class="section-title">Tooltips</h2>
+      <p class="section-desc">Non-critical supplementary information. Never put essential content only in a tooltip — it must be discoverable without hover.</p>
+    </div>
+
+    <div class="component-canvas mb-6">
+      <div class="component-row">
+        <div class="tooltip-demo">
+          <button class="btn btn-secondary">What is QES? ℹ️</button>
+          <div class="tooltip-tip">Qualified Electronic Signature — highest legal<br>standard under EU eIDAS Regulation</div>
+        </div>
+        <div class="tooltip-demo">
+          <button class="btn btn-secondary">Audit Trail 📋</button>
+          <div class="tooltip-tip">Tamper-evident log of all<br>document events with timestamps</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       TABLES
+       ============================================================ -->
+  <section class="ds-section" id="tables">
+    <div class="ds-section-header">
+      <div class="section-eyebrow">17 — Components</div>
+      <h2 class="section-title">Data Tables</h2>
+      <p class="section-desc">For document lists, signer queues, and audit logs. Support sorting, filtering, and row selection.</p>
+    </div>
+
+    <div class="mb-6" style="overflow-x:auto">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th><input type="checkbox"></th>
+            <th>Document</th>
+            <th>Signers</th>
+            <th>Status</th>
+            <th>Deadline</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="checkbox"></td>
+            <td>
+              <div style="font-weight:500">Employment Contract — Chen</div>
+              <div class="td-muted">Sent 10 Mar · CERT-2026-00318</div>
+            </td>
+            <td>
+              <div class="avatar-group">
+                <div class="avatar avatar-sm" style="font-size:10px;background:var(--brand-gradient)">SC</div>
+                <div class="avatar avatar-sm" style="font-size:10px;background:linear-gradient(135deg,var(--c-lime-400),var(--c-lime-600));color:white">HR</div>
+              </div>
+            </td>
+            <td><span class="badge badge-warning badge-dot">Pending</span></td>
+            <td><div>19 Mar 2026</div><div class="td-muted">6 days left</div></td>
+            <td><button class="btn btn-ghost btn-sm">Remind</button></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox"></td>
+            <td>
+              <div style="font-weight:500">Vendor NDA — Acme Corp</div>
+              <div class="td-muted">Sent 5 Mar · CERT-2026-00299</div>
+            </td>
+            <td>
+              <div class="avatar-group">
+                <div class="avatar avatar-sm" style="font-size:10px;background:linear-gradient(135deg,var(--c-info),#2563EB);color:white">AJ</div>
+              </div>
+            </td>
+            <td><span class="badge badge-success badge-dot">Signed</span></td>
+            <td><div style="color:var(--text-muted)">—</div></td>
+            <td><button class="btn btn-ghost btn-sm">Download</button></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox"></td>
+            <td>
+              <div style="font-weight:500">Software License Agreement</div>
+              <div class="td-muted">Draft · Not sent</div>
+            </td>
+            <td><span class="td-muted">—</span></td>
+            <td><span class="badge badge-neutral">Draft</span></td>
+            <td><div style="color:var(--text-muted)">—</div></td>
+            <td><button class="btn btn-ghost btn-sm">Edit</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       NAVIGATION
+       ============================================================ -->
+  <section class="ds-section" id="navigation">
+    <div class="ds-section-header">
+      <div class="section-eyebrow">18 — Components</div>
+      <h2 class="section-title">Navigation</h2>
+      <p class="section-desc">Breadcrumbs and pagination — both essential for document-heavy enterprise interfaces.</p>
+    </div>
+
+    <div class="canvas-label">Breadcrumb</div>
+    <div class="component-canvas mb-4">
+      <div class="breadcrumb">
+        <a href="#">Dashboard</a>
+        <span class="breadcrumb-sep">›</span>
+        <a href="#">Documents</a>
+        <span class="breadcrumb-sep">›</span>
+        <a href="#">Employment Contracts</a>
+        <span class="breadcrumb-sep">›</span>
+        <span class="breadcrumb-current">Chen Employment Contract</span>
+      </div>
+    </div>
+
+    <div class="canvas-label">Pagination</div>
+    <div class="component-canvas mb-6">
+      <div class="pagination">
+        <button class="page-btn" disabled>‹</button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">3</button>
+        <span class="page-btn" style="pointer-events:none;color:var(--text-muted)">…</span>
+        <button class="page-btn">12</button>
+        <button class="page-btn">›</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SEARCH
+       ============================================================ -->
+  <section class="ds-section" id="search">
+    <div class="ds-section-header">
+      <div class="section-eyebrow">19 — Components</div>
+      <h2 class="section-title">Search</h2>
+      <p class="section-desc">Global and contextual search. Supports keyboard shortcut (⌘K) for power users.</p>
+    </div>
+
+    <div class="component-canvas mb-6">
+      <div class="search-bar" style="max-width:480px">
+        <span class="search-icon">🔍</span>
+        <input type="text" placeholder="Search documents, signers, or templates…">
+        <span class="search-kbd">⌘K</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CHIPS
+       ============================================================ -->
+  <section class="ds-section" id="chips">
+    <div class="ds-section-header">
+      <div class="section-eyebrow">20 — Components</div>
+      <h2 class="section-title">Chips & Tags</h2>
+      <p class="section-desc">Filter selectors, applied filters, and removable category tags.</p>
+    </div>
+
+    <div class="component-canvas mb-6">
+      <div class="component-row">
+        <span class="chip">All</span>
+        <span class="chip active">Pending</span>
+        <span class="chip">Completed</span>
+        <span class="chip">Voided</span>
+        <span class="chip">NDA <span class="chip-remove">✕</span></span>
+        <span class="chip">Employment <span class="chip-remove">✕</span></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       TOASTS
+       ============================================================ -->
+  <section class="ds-section" id="toasts">
+    <div class="ds-section-header">
+      <div class="section-eyebrow">21 — Components</div>
+      <h2 class="section-title">Toasts & Notifications</h2>
+      <p class="section-desc">Transient feedback for actions that complete in the background. Auto-dismiss after 5s. Never block critical UI.</p>
+    </div>
+
+    <div class="component-col mb-6">
+      <div class="toast" style="background:var(--c-slate-900)">
+        <div class="toast-icon">✅</div>
+        <div class="toast-body">
+          <div class="toast-title">Document sent for signature</div>
+          <div class="toast-msg">4 signers will receive an email link shortly.</div>
+        </div>
+        <button class="toast-close">✕</button>
+      </div>
+      <div class="toast" style="background:var(--c-error-dark)">
+        <div class="toast-icon">⚠️</div>
+        <div class="toast-body">
+          <div class="toast-title">Failed to send reminder</div>
+          <div class="toast-msg">Check signer email addresses and try again.</div>
+        </div>
+        <button class="toast-close">✕</button>
+      </div>
+    </div>
+
+    <table class="spec-table">
+      <thead><tr><th>Property</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Position</td><td>Bottom-right, 24px inset</td></tr>
+        <tr><td>Auto-dismiss</td><td>5000ms (success), persistent (error)</td></tr>
+        <tr><td>Stack limit</td><td>Max 4 visible, FIFO</td></tr>
+        <tr><td>Animation</td><td>Slide-up + fade-in · 200ms ease-out</td></tr>
+        <tr><td>Role</td><td><code>role="alert"</code> · <code>aria-live="polite"</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============================================================
+       SKELETON
+       ============================================================ -->
+  <section class="ds-section" id="skeleton">
+    <div class="ds-section-header">
+      <div class="section-eyebrow">22 — Components</div>
+      <h2 class="section-title">Skeleton Loaders</h2>
+      <p class="section-desc">Match the shape of real content. Reduces perceived loading time vs. spinners for content-heavy views.</p>
+    </div>
+
+    <div class="component-canvas mb-6">
+      <div class="grid-2">
+        <div style="display:flex;gap:var(--sp-3);align-items:center">
+          <div class="skeleton" style="width:48px;height:48px;border-radius:50%;flex-shrink:0"></div>
+          <div style="flex:1">
+            <div class="skeleton" style="width:60%;height:14px;margin-bottom:8px;border-radius:4px"></div>
+            <div class="skeleton" style="width:40%;height:12px;border-radius:4px"></div>
+          </div>
+        </div>
+        <div>
+          <div class="skeleton" style="width:100%;height:12px;margin-bottom:8px;border-radius:4px"></div>
+          <div class="skeleton" style="width:85%;height:12px;margin-bottom:8px;border-radius:4px"></div>
+          <div class="skeleton" style="width:70%;height:12px;border-radius:4px"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       ESIGN SPECIFIC
+       ============================================================ -->
+  <section class="ds-section" id="esign">
+    <div class="ds-section-header">
+      <div class="section-eyebrow">23 — Domain-Specific</div>
+      <h2 class="section-title">eSign Components</h2>
+      <p class="section-desc">Certinal-specific patterns for the signing experience — signature fields, document status bars, and audit trail entries.</p>
+    </div>
+
+    <div class="canvas-label">Signature Field</div>
+    <div class="component-canvas mb-4">
+      <div class="grid-2">
+        <div class="sign-box">
+          <div class="sign-box-icon">✍️</div>
+          <div class="sign-box-label">Click to sign here</div>
+          <div style="font-size:var(--t-100);color:var(--text-muted)">Sarah Chen · Authorized Signatory</div>
+        </div>
+        <div class="sign-box" style="border-color:var(--c-success);background:var(--c-success-light)">
+          <div style="font-family:var(--font-display);font-size:2rem;font-weight:300;color:var(--c-success-dark);font-style:italic">Sarah Chen</div>
+          <div style="font-size:var(--t-100);color:var(--c-success-dark)">Signed 14 Mar 2026 · 10:42 UTC</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="canvas-label">Document Status Bar</div>
+    <div class="mb-6">
+      <div class="doc-status-bar">
+        <div class="status-item"><div class="status-value">CERT-2026-00318</div><div class="status-label">Document ID</div></div>
+        <div class="status-item"><div class="status-value">3 / 4</div><div class="status-label">Signers Complete</div></div>
+        <div class="status-item"><div class="status-value">19 Mar 2026</div><div class="status-label">Deadline</div></div>
+        <div class="status-item"><div class="status-value"><span class="badge badge-warning badge-dot">Pending</span></div><div class="status-label">Status</div></div>
+        <button class="btn btn-primary btn-sm">Send Reminder</button>
+      </div>
+    </div>
+
+    <div class="canvas-label">Stat Cards — Dashboard</div>
+    <div class="grid-4 mb-6">
+      <div class="stat-card">
+        <div class="stat-label">Documents Sent</div>
+        <div class="stat-value">1,847</div>
+        <div class="stat-change up">↑ 12% this month</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Signed Today</div>
+        <div class="stat-value">43</div>
+        <div class="stat-change up">↑ 8 from yesterday</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Awaiting Action</div>
+        <div class="stat-value">12</div>
+        <div class="stat-change down">↓ 3 overdue</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Completion Rate</div>
+        <div class="stat-value">94%</div>
+        <div class="stat-change up">↑ 2% vs last month</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       DESIGN TOKENS JSON
+       ============================================================ -->
+  <section class="ds-section" id="tokens">
+    <div class="ds-section-header">
+      <div class="section-eyebrow">24 — Resources</div>
+      <h2 class="section-title">Design Tokens</h2>
+      <p class="section-desc">All decisions expressed as structured data. Import into Figma Variables, Style Dictionary, or any token transformer.</p>
+    </div>
+
+    <div class="json-viewer">
+<span class="json-comment">// certinal-tokens.json — v1.0.0</span>
+<span class="json-brace">{</span>
+  <span class="json-key">"color"</span><span class="json-brace">: {</span>
+    <span class="json-key">"brand"</span><span class="json-brace">: {</span>
+      <span class="json-key">"emerald"</span><span class="json-brace">: {</span>
+        <span class="json-key">"400"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-str">"#25C999"</span><span class="json-brace">,</span> <span class="json-key">"type"</span><span class="json-brace">:</span> <span class="json-str">"color"</span> <span class="json-brace">},</span>
+        <span class="json-key">"500"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-str">"#1A7A5E"</span><span class="json-brace">,</span> <span class="json-key">"type"</span><span class="json-brace">:</span> <span class="json-str">"color"</span> <span class="json-brace">},</span>
+        <span class="json-key">"700"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-str">"#15654D"</span><span class="json-brace">,</span> <span class="json-key">"type"</span><span class="json-brace">:</span> <span class="json-str">"color"</span> <span class="json-brace">},</span>
+        <span class="json-key">"900"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-str">"#0A2F1F"</span><span class="json-brace">,</span> <span class="json-key">"type"</span><span class="json-brace">:</span> <span class="json-str">"color"</span> <span class="json-brace">}</span>
+      <span class="json-brace">},</span>
+      <span class="json-key">"cyan"</span><span class="json-brace">: {</span>
+        <span class="json-key">"500"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-str">"#0891B2"</span><span class="json-brace">,</span> <span class="json-key">"type"</span><span class="json-brace">:</span> <span class="json-str">"color"</span> <span class="json-brace">}</span>
+      <span class="json-brace">},</span>
+      <span class="json-key">"lime"</span><span class="json-brace">: {</span>
+        <span class="json-key">"400"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-str">"#A3E635"</span><span class="json-brace">,</span> <span class="json-key">"type"</span><span class="json-brace">:</span> <span class="json-str">"color"</span> <span class="json-brace">},</span>
+        <span class="json-key">"500"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-str">"#84CC16"</span><span class="json-brace">,</span> <span class="json-key">"type"</span><span class="json-brace">:</span> <span class="json-str">"color"</span> <span class="json-brace">}</span>
+      <span class="json-brace">}</span>
+    <span class="json-brace">},</span>
+    <span class="json-key">"semantic"</span><span class="json-brace">: {</span>
+      <span class="json-key">"background-page"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-str">"{color.neutral.slate.50}"</span><span class="json-brace">,</span> <span class="json-key">"type"</span><span class="json-brace">:</span> <span class="json-str">"color"</span> <span class="json-brace">},</span>
+      <span class="json-key">"background-surface"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-str">"{color.neutral.white}"</span><span class="json-brace">,</span> <span class="json-key">"type"</span><span class="json-brace">:</span> <span class="json-str">"color"</span> <span class="json-brace">},</span>
+      <span class="json-key">"text-primary"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-str">"{color.neutral.slate.900}"</span><span class="json-brace">,</span> <span class="json-key">"type"</span><span class="json-brace">:</span> <span class="json-str">"color"</span> <span class="json-brace">},</span>
+      <span class="json-key">"text-secondary"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-str">"{color.neutral.slate.700}"</span><span class="json-brace">,</span> <span class="json-key">"type"</span><span class="json-brace">:</span> <span class="json-str">"color"</span> <span class="json-brace">},</span>
+      <span class="json-key">"text-muted"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-str">"{color.neutral.slate.500}"</span><span class="json-brace">,</span> <span class="json-key">"type"</span><span class="json-brace">:</span> <span class="json-str">"color"</span> <span class="json-brace">},</span>
+      <span class="json-key">"text-faint"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-str">"{color.neutral.slate.400}"</span><span class="json-brace">,</span> <span class="json-key">"type"</span><span class="json-brace">:</span> <span class="json-str">"color"</span> <span class="json-brace">},</span>
+      <span class="json-key">"interactive-primary"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-str">"{color.brand.emerald.500}"</span><span class="json-brace">,</span> <span class="json-key">"type"</span><span class="json-brace">:</span> <span class="json-str">"color"</span> <span class="json-brace">},</span>
+      <span class="json-key">"focus-ring"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-str">"{color.brand.emerald.400}"</span><span class="json-brace">,</span> <span class="json-key">"type"</span><span class="json-brace">:</span> <span class="json-str">"color"</span> <span class="json-brace">},</span>
+      <span class="json-key">"success"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-str">"#C4E538"</span><span class="json-brace">,</span> <span class="json-key">"type"</span><span class="json-brace">:</span> <span class="json-str">"color"</span> <span class="json-brace">},</span>
+      <span class="json-key">"info"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-str">"#0891B2"</span><span class="json-brace">,</span> <span class="json-key">"type"</span><span class="json-brace">:</span> <span class="json-str">"color"</span> <span class="json-brace">},</span>
+      <span class="json-key">"warning"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-str">"#F59E0B"</span><span class="json-brace">,</span> <span class="json-key">"type"</span><span class="json-brace">:</span> <span class="json-str">"color"</span> <span class="json-brace">},</span>
+      <span class="json-key">"error"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-str">"#EF4444"</span><span class="json-brace">,</span> <span class="json-key">"type"</span><span class="json-brace">:</span> <span class="json-str">"color"</span> <span class="json-brace">}</span>
+    <span class="json-brace">}</span>
+  <span class="json-brace">},</span>
+  <span class="json-key">"spacing"</span><span class="json-brace">: {</span>
+    <span class="json-key">"1"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-num">"4px"</span><span class="json-brace">,</span> <span class="json-key">"type"</span><span class="json-brace">:</span> <span class="json-str">"spacing"</span> <span class="json-brace">},</span>
+    <span class="json-key">"2"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-num">"8px"</span><span class="json-brace">,</span> <span class="json-key">"type"</span><span class="json-brace">:</span> <span class="json-str">"spacing"</span> <span class="json-brace">},</span>
+    <span class="json-key">"4"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-num">"16px"</span><span class="json-brace">,</span> <span class="json-key">"type"</span><span class="json-brace">:</span> <span class="json-str">"spacing"</span> <span class="json-brace">},</span>
+    <span class="json-key">"6"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-num">"24px"</span><span class="json-brace">,</span> <span class="json-key">"type"</span><span class="json-brace">:</span> <span class="json-str">"spacing"</span> <span class="json-brace">},</span>
+    <span class="json-key">"8"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-num">"32px"</span><span class="json-brace">,</span> <span class="json-key">"type"</span><span class="json-brace">:</span> <span class="json-str">"spacing"</span> <span class="json-brace">}</span>
+  <span class="json-brace">},</span>
+  <span class="json-key">"typography"</span><span class="json-brace">: {</span>
+    <span class="json-key">"fontFamily"</span><span class="json-brace">: {</span>
+      <span class="json-key">"display"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-str">"'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"</span> <span class="json-brace">},</span>
+      <span class="json-key">"body"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-str">"'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"</span> <span class="json-brace">},</span>
+      <span class="json-key">"mono"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-str">"'DM Mono', ui-monospace, 'Cascadia Mono', monospace"</span> <span class="json-brace">}</span>
+    <span class="json-brace">},</span>
+    <span class="json-key">"fontSize"</span><span class="json-brace">: {</span>
+      <span class="json-key">"900"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-str">"clamp(3rem, 6vw, 4.5rem)"</span> <span class="json-brace">},</span>
+      <span class="json-key">"800"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-str">"clamp(2.25rem, 4vw, 3rem)"</span> <span class="json-brace">},</span>
+      <span class="json-key">"300"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-str">"1rem"</span> <span class="json-brace">},</span>
+      <span class="json-key">"100"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-str">"0.75rem"</span> <span class="json-brace">}</span>
+    <span class="json-brace">}</span>
+  <span class="json-brace">},</span>
+  <span class="json-key">"radius"</span><span class="json-brace">: {</span>
+    <span class="json-key">"sm"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-num">"4px"</span> <span class="json-brace">},</span>
+    <span class="json-key">"md"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-num">"8px"</span> <span class="json-brace">},</span>
+    <span class="json-key">"lg"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-num">"12px"</span> <span class="json-brace">},</span>
+    <span class="json-key">"xl"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-num">"16px"</span> <span class="json-brace">},</span>
+    <span class="json-key">"full"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-str">"9999px"</span> <span class="json-brace">}</span>
+  <span class="json-brace">},</span>
+  <span class="json-key">"shadow"</span><span class="json-brace">: {</span>
+    <span class="json-key">"sm"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-str">"0 1px 2px 0 rgba(15,23,42,0.04)"</span> <span class="json-brace">},</span>
+    <span class="json-key">"md"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-str">"0 4px 6px -1px rgba(15,23,42,0.06), 0 2px 4px -2px rgba(15,23,42,0.04)"</span> <span class="json-brace">},</span>
+    <span class="json-key">"xl"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-str">"0 20px 25px -5px rgba(15,23,42,0.08), 0 8px 10px -6px rgba(15,23,42,0.04)"</span> <span class="json-brace">}</span>
+  <span class="json-brace">},</span>
+  <span class="json-key">"duration"</span><span class="json-brace">: {</span>
+    <span class="json-key">"fast"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-str">"150ms"</span> <span class="json-brace">},</span>
+    <span class="json-key">"base"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-str">"200ms"</span> <span class="json-brace">},</span>
+    <span class="json-key">"slow"</span><span class="json-brace">: {</span> <span class="json-key">"value"</span><span class="json-brace">:</span> <span class="json-str">"350ms"</span> <span class="json-brace">}</span>
+  <span class="json-brace">}</span>
+<span class="json-brace">}</span>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PATTERNS
+       ============================================================ -->
+  <section class="ds-section" id="patterns">
+    <div class="ds-section-header">
+      <div class="section-eyebrow">25 — Resources</div>
+      <h2 class="section-title">Patterns</h2>
+      <p class="section-desc">Reusable interaction patterns that combine multiple components into higher-level solutions.</p>
+    </div>
+
+    <div class="grid-2 mb-6">
+      <div class="card">
+        <div style="font-weight:600;font-size:var(--t-400);margin-bottom:var(--sp-2)">Document Upload</div>
+        <div style="color:var(--text-secondary);font-size:var(--t-300);line-height:1.7">Drag-and-drop target + file picker fallback + upload progress bar + validation feedback. Supports PDF, DOCX. Max 50MB. Viruses scanned on upload.</div>
+      </div>
+      <div class="card">
+        <div style="font-weight:600;font-size:var(--t-400);margin-bottom:var(--sp-2)">Signer Configuration</div>
+        <div style="color:var(--text-secondary);font-size:var(--t-300);line-height:1.7">Add signer email → set role (signer, CC, approver) → set signing order → configure auth method. Each signer row uses Avatar + Input + Select + Toggle pattern.</div>
+      </div>
+      <div class="card">
+        <div style="font-weight:600;font-size:var(--t-400);margin-bottom:var(--sp-2)">Field Placement</div>
+        <div style="color:var(--text-secondary);font-size:var(--t-300);line-height:1.7">Canvas-based drag-and-drop with Signature, Initial, Date, and Text field types. Color-coded per signer. Snap-to-grid at 8px.</div>
+      </div>
+      <div class="card">
+        <div style="font-weight:600;font-size:var(--t-400);margin-bottom:var(--sp-2)">Audit Trail</div>
+        <div style="color:var(--text-secondary);font-size:var(--t-300);line-height:1.7">Chronological event timeline with icon + timestamp + actor + action + IP address. Filterable by event type. Exportable as PDF certificate.</div>
+      </div>
+      <div class="card">
+        <div style="font-weight:600;font-size:var(--t-400);margin-bottom:var(--sp-2)">Empty States</div>
+        <div style="color:var(--text-secondary);font-size:var(--t-300);line-height:1.7">Branded illustration + headline + subtext + single primary CTA. Distinct states for: no documents, filtered empty, error loading, no results found.</div>
+      </div>
+      <div class="card">
+        <div style="font-weight:600;font-size:var(--t-400);margin-bottom:var(--sp-2)">Onboarding Flow</div>
+        <div style="color:var(--text-secondary);font-size:var(--t-300);line-height:1.7">5-step wizard using Step Indicator. Skippable non-critical steps. Progress saved between sessions. Final step launches first document send.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       ACCESSIBILITY
+       ============================================================ -->
+  <section class="ds-section" id="a11y">
+    <div class="ds-section-header">
+      <div class="section-eyebrow">26 — Resources</div>
+      <h2 class="section-title">Accessibility</h2>
+      <p class="section-desc">WCAG 2.1 Level AA compliance is a baseline requirement. Every component ships with ARIA roles, keyboard navigation, and tested contrast ratios.</p>
+    </div>
+
+    <div class="mb-6">
+      <div class="a11y-row"><span class="a11y-check">✓</span> All interactive elements reachable by keyboard (Tab / Shift+Tab)</div>
+      <div class="a11y-row"><span class="a11y-check">✓</span> Focus visible at all times — 3px emerald-400 ring on all focusable elements</div>
+      <div class="a11y-row"><span class="a11y-check">✓</span> All buttons and inputs have accessible names (aria-label or visible label)</div>
+      <div class="a11y-row"><span class="a11y-check">✓</span> Status badges include text — color is never the only status indicator</div>
+      <div class="a11y-row"><span class="a11y-check">✓</span> Modals trap focus and restore on close</div>
+      <div class="a11y-row"><span class="a11y-check">✓</span> Live regions (aria-live) for Toast and async state changes</div>
+      <div class="a11y-row"><span class="a11y-check">✓</span> Skip navigation link at top of every page</div>
+      <div class="a11y-row"><span class="a11y-check">✓</span> Form errors linked to inputs via aria-describedby</div>
+      <div class="a11y-row"><span class="a11y-check">✓</span> Minimum 44×44px touch targets</div>
+      <div class="a11y-row"><span class="a11y-check">✓</span> Animations respect prefers-reduced-motion</div>
+      <div class="a11y-row"><span class="a11y-warn">⚠</span> Signature canvas requires keyboard-accessible alternative sign mode</div>
+      <div class="a11y-row"><span class="a11y-warn">⚠</span> PDF viewer requires accessible document view fallback</div>
+    </div>
+
+    <div class="code-block">
+<span class="c">/* Focus ring — apply globally */</span>
+<span class="k">:focus-visible</span> <span class="p">{</span>
+  <span class="k">outline</span><span class="p">:</span> <span class="v">3px</span> <span class="k">solid</span> <span class="s">var(--c-emerald-400)</span><span class="p">;</span>
+  <span class="k">outline-offset</span><span class="p">:</span> <span class="v">2px</span><span class="p">;</span>
+  <span class="k">border-radius</span><span class="p">:</span> <span class="s">var(--r-md)</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c">/* Reduced motion */</span>
+<span class="k">@media</span> <span class="p">(</span><span class="k">prefers-reduced-motion</span><span class="p">:</span> <span class="v">reduce</span><span class="p">) {</span>
+  <span class="k">*, *::before, *::after</span> <span class="p">{</span>
+    <span class="k">animation-duration</span><span class="p">:</span> <span class="v">0.01ms</span> <span class="k">!important</span><span class="p">;</span>
+    <span class="k">transition-duration</span><span class="p">:</span> <span class="v">0.01ms</span> <span class="k">!important</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       DEV GUIDE
+       ============================================================ -->
+  <section class="ds-section" id="devguide">
+    <div class="ds-section-header">
+      <div class="section-eyebrow">27 — Resources</div>
+      <h2 class="section-title">Developer Guide</h2>
+      <p class="section-desc">How to consume this system in production — tokens, theming, component implementation, and contribution workflow.</p>
+    </div>
+
+    <h3 style="font-size:var(--t-400);font-weight:600;margin-bottom:var(--sp-4);color:var(--text-primary)">Setup — Import Tokens</h3>
+    <div class="code-block mb-6">
+<span class="c">/* Option 1: CSS custom properties */</span>
+<span class="k">@import</span> <span class="s">'@certinal/design-tokens/css/variables.css'</span><span class="p">;</span>
+
+<span class="c">/* Option 2: JavaScript (Style Dictionary output) */</span>
+<span class="k">import</span> tokens <span class="k">from</span> <span class="s">'@certinal/design-tokens/js/tokens'</span><span class="p">;</span>
+
+<span class="c">/* Option 3: Tailwind preset */</span>
+<span class="c">// tailwind.config.js</span>
+<span class="k">module.exports</span> <span class="p">= {</span>
+  presets<span class="p">: [</span><span class="k">require</span><span class="p">(</span><span class="s">'@certinal/design-tokens/tailwind'</span><span class="p">)]</span>
+<span class="p">}</span>
+    </div>
+
+    <h3 style="font-size:var(--t-400);font-weight:600;margin-bottom:var(--sp-4);color:var(--text-primary)">Component Usage</h3>
+    <div class="code-block mb-6">
+<span class="c">// React component — Button</span>
+<span class="k">import</span> <span class="p">{</span> Button <span class="p">}</span> <span class="k">from</span> <span class="s">'@certinal/ui'</span><span class="p">;</span>
+
+<span class="k">function</span> <span class="p">SigningAction() {</span>
+  <span class="k">return</span> <span class="p">(</span>
+    <span class="s">&lt;Button</span>
+      <span class="k">variant</span><span class="p">=</span><span class="s">"primary"</span>
+      <span class="k">size</span><span class="p">=</span><span class="s">"lg"</span>
+      <span class="k">onClick</span><span class="p">={</span>handleSign<span class="p">}</span>
+      <span class="k">aria-label</span><span class="p">=</span><span class="s">"Sign Employment Contract"</span>
+    <span class="s">&gt;</span>
+      Sign Document
+    <span class="s">&lt;/Button&gt;</span>
+  <span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c">// Prop types reference</span>
+<span class="k">Button.propTypes</span> <span class="p">= {</span>
+  variant<span class="p">:</span> <span class="s">'primary' | 'secondary' | 'ghost' | 'danger'</span><span class="p">,</span>
+  size<span class="p">:</span> <span class="s">'sm' | 'md' | 'lg' | 'xl'</span><span class="p">,</span>
+  loading<span class="p">:</span> <span class="k">boolean</span><span class="p">,</span>
+  disabled<span class="p">:</span> <span class="k">boolean</span><span class="p">,</span>
+  iconLeft<span class="p">:</span> <span class="k">ReactNode</span><span class="p">,</span>
+  iconRight<span class="p">:</span> <span class="k">ReactNode</span>
+<span class="p">};</span>
+    </div>
+
+    <h3 style="font-size:var(--t-400);font-weight:600;margin-bottom:var(--sp-4);color:var(--text-primary)">Contribution Rules</h3>
+    <table class="spec-table mb-8">
+      <thead><tr><th>Rule</th><th>Detail</th></tr></thead>
+      <tbody>
+        <tr><td>Token-first</td><td>Never hardcode a hex, px value, or font string in component code. Always reference a token.</td></tr>
+        <tr><td>Light theme consistency</td><td>Every new component must be reviewed for visual consistency in the light theme before PR merge.</td></tr>
+        <tr><td>Accessibility PR check</td><td>All components need a keyboard walkthrough in the PR description.</td></tr>
+        <tr><td>Storybook story</td><td>Every component needs Default, All Variants, Loading, Disabled, and Error stories.</td></tr>
+        <tr><td>No one-offs</td><td>If a design asks for something not in the system, file a token/component request first. No inline styles in product code.</td></tr>
+        <tr><td>Changelog</td><td>Every change documented in CHANGELOG.md with semver bump. Breaking changes bump major version.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <div class="callout-title">Ready to build?</div>
+      <div class="callout-body">This system is the single source of truth for all Certinal product interfaces. Every decision here has been deliberate — colors from brand, type from legibility research, spacing from 8px discipline. When you follow it, you build faster and ship with confidence.</div>
+      <div style="display:flex;gap:var(--sp-3)">
+        <button class="btn" style="background:white;color:var(--c-slate-900)">npm install @certinal/ui</button>
+        <button class="btn btn-ghost" style="color:var(--c-lime-400);border-color:rgba(163,230,53,0.3)">Open in Figma</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<script>
+// Sidebar active state
+const sections = document.querySelectorAll('.ds-section[id]');
+const navLinks = document.querySelectorAll('.sidebar-nav a');
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('active'));
+      const link = document.querySelector(`.sidebar-nav a[href="#${entry.target.id}"]`);
+      if (link) link.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -75% 0px' });
+
+sections.forEach(s => observer.observe(s));
+
+// Segmented control
+document.querySelectorAll('.seg-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    btn.closest('.segmented-control').querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+// Tab buttons
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    btn.closest('.tab-list').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

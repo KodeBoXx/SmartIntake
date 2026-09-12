@@ -1,0 +1,44 @@
+<div class="flex items-start" role="list">
+  @for (step of steps(); track $index; let last = $last; let idx = $index) {
+    @let status = getStatus(idx);
+
+    <div role="listitem" class="flex flex-col items-center">
+      @if (clickable()) {
+        <button
+          type="button"
+          [class]="circleClasses(status)"
+          [attr.aria-current]="status === 'current' ? 'step' : null"
+          (click)="onStepClick(idx)"
+        >
+          @if (status === 'complete') {
+            <cui-icon name="check" size="sm" />
+          } @else {
+            {{ idx + 1 }}
+          }
+        </button>
+      } @else {
+        <div
+          [class]="circleClasses(status)"
+          [attr.aria-current]="status === 'current' ? 'step' : null"
+        >
+          @if (status === 'complete') {
+            <cui-icon name="check" size="sm" />
+          } @else {
+            {{ idx + 1 }}
+          }
+        </div>
+      }
+
+      <div class="mt-2 text-center max-w-[140px]">
+        <div [class]="labelClasses(status)">{{ step.label }}</div>
+        @if (step.description) {
+          <div class="type-caption text-text-muted mt-0.5">{{ step.description }}</div>
+        }
+      </div>
+    </div>
+
+    @if (!last) {
+      <div [class]="connectorClasses(idx)" aria-hidden="true"></div>
+    }
+  }
+</div>

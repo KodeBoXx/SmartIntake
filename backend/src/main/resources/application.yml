@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/smartintake}
+    username: ${DATABASE_USER:smartintake}
+    password: ${DATABASE_PASSWORD:smartintake}
+  flyway:
+    enabled: true
+server:
+  port: ${PORT:8080}

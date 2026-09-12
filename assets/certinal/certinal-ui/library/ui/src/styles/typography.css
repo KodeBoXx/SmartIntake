@@ -1,0 +1,159 @@
+/* ============================================================
+   CERTINAL DESIGN SYSTEM — TYPOGRAPHY
+   Source: certinal-design-system.html §Typography
+
+   Fonts (loaded from Google Fonts):
+     DM Sans  — display + body (300, 400, 500, 600, 700, 400 italic)
+     DM Mono  — code / technical content (400, 500)
+
+   Scale:
+     --t-900  clamp(3rem, 6vw, 4.5rem)     48–72px  300  Display
+     --t-800  clamp(2.25rem, 4vw, 3rem)    36–48px  700  H1
+     --t-700  clamp(1.875rem, 3vw, 2.25rem) 30–36px 700  H2
+     --t-600  clamp(1.5rem, 2.5vw, 1.875rem) 24–30px 600 H3
+     --t-500  clamp(1.25rem, 2vw, 1.5rem)  20–24px  600  H4
+     --t-400  1.125rem                     18px     400  Body L
+     --t-300  1rem                         16px     400  Body
+     --t-200  0.875rem                     14px     400  Small
+     --t-100  0.75rem                      12px     400/600 Caption
+
+   Usage:
+     @import '@certinal/ui/styles/typography.css';
+   Apply one of: .type-display, .type-h1…h4, .type-body[-lg|-sm],
+                 .type-caption[-bold], .type-label, .type-button, .type-code
+
+   Font loading: consumers must load DM Sans + DM Mono. The recommended
+   way is a <link> in <head>:
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+   ============================================================ */
+
+
+/* ============================================================
+   BASE — applies to html/body so fonts render everywhere
+   ============================================================ */
+html {
+  font-family: var(--font-body);
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-t-300);
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code, pre, kbd, samp {
+  font-family: var(--font-mono);
+}
+
+
+/* ============================================================
+   TYPE UTILITIES — one class gives family + size + weight + leading
+   ============================================================ */
+.type-display {
+  font-family: var(--font-display);
+  font-size: var(--text-t-900);
+  font-weight: 300;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.type-h1 {
+  font-family: var(--font-display);
+  font-size: var(--text-t-800);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+.type-h2 {
+  font-family: var(--font-display);
+  font-size: var(--text-t-700);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+.type-h3 {
+  font-family: var(--font-display);
+  font-size: var(--text-t-600);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.type-h4 {
+  font-family: var(--font-display);
+  font-size: var(--text-t-500);
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.type-body-lg {
+  font-family: var(--font-body);
+  font-size: var(--text-t-400);
+  font-weight: 400;
+  line-height: 1.7;
+}
+
+.type-body {
+  font-family: var(--font-body);
+  font-size: var(--text-t-300);
+  font-weight: 400;
+  line-height: 1.7;
+}
+
+.type-body-sm {
+  font-family: var(--font-body);
+  font-size: var(--text-t-200);
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.type-caption {
+  font-family: var(--font-body);
+  font-size: var(--text-t-100);
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.type-caption-bold {
+  font-family: var(--font-body);
+  font-size: var(--text-t-100);
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.type-label {
+  font-family: var(--font-body);
+  font-size: var(--text-t-200);
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.type-button {
+  font-family: var(--font-body);
+  font-size: var(--text-t-300);
+  font-weight: 500;
+  line-height: 1;
+}
+
+.type-code {
+  font-family: var(--font-mono);
+  font-size: var(--text-t-200);
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.type-code-sm {
+  font-family: var(--font-mono);
+  font-size: var(--text-t-100);
+  font-weight: 500;
+  line-height: 1.5;
+}
