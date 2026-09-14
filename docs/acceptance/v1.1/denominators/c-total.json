@@ -1,0 +1,286 @@
+{
+  "counting_rule": "one compiler/graph semantic case",
+  "current_execution_status": "not-run",
+  "independent_review_required": true,
+  "manifest": "C_total",
+  "members": [
+    {
+      "case": "closed-schema",
+      "citation": {
+        "lines": "\u00a75\u2013\u00a77; \u00a710; Appendix C T04\u2013T06",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-01",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "closed-schema"
+    },
+    {
+      "case": "stable-id-key",
+      "citation": {
+        "lines": "\u00a75\u2013\u00a77; \u00a710; Appendix C T04\u2013T06",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-02",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "stable-id-key"
+    },
+    {
+      "case": "control-type-compatibility",
+      "citation": {
+        "lines": "\u00a75\u2013\u00a77; \u00a710; Appendix C T04\u2013T06",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-03",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "control-type-compatibility"
+    },
+    {
+      "case": "scope-arity",
+      "citation": {
+        "lines": "\u00a75\u2013\u00a77; \u00a710; Appendix C T04\u2013T06",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-04",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "scope-arity"
+    },
+    {
+      "case": "option-domain",
+      "citation": {
+        "lines": "\u00a75\u2013\u00a77; \u00a710; Appendix C T04\u2013T06",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-05",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "option-domain"
+    },
+    {
+      "case": "route-reachability",
+      "citation": {
+        "lines": "\u00a75\u2013\u00a77; \u00a710; Appendix C T04\u2013T06",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-06",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "route-reachability"
+    },
+    {
+      "case": "route-cycle",
+      "citation": {
+        "lines": "\u00a75\u2013\u00a77; \u00a710; Appendix C T04\u2013T06",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-07",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "route-cycle"
+    },
+    {
+      "case": "dependency-cycle",
+      "citation": {
+        "lines": "\u00a75\u2013\u00a77; \u00a710; Appendix C T04\u2013T06",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-08",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "dependency-cycle"
+    },
+    {
+      "case": "hidden-retention",
+      "citation": {
+        "lines": "\u00a75\u2013\u00a77; \u00a710; Appendix C T04\u2013T06",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-09",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "hidden-retention"
+    },
+    {
+      "case": "dynamic-requiredness",
+      "citation": {
+        "lines": "\u00a75\u2013\u00a77; \u00a710; Appendix C T04\u2013T06",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-10",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "dynamic-requiredness"
+    },
+    {
+      "case": "calculation",
+      "citation": {
+        "lines": "\u00a75\u2013\u00a77; \u00a710; Appendix C T04\u2013T06",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-11",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "calculation"
+    },
+    {
+      "case": "review-projection",
+      "citation": {
+        "lines": "\u00a75\u2013\u00a77; \u00a710; Appendix C T04\u2013T06",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-12",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "review-projection"
+    },
+    {
+      "case": "locale-completeness",
+      "citation": {
+        "lines": "\u00a75\u2013\u00a77; \u00a710; Appendix C T04\u2013T06",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-13",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "locale-completeness"
+    },
+    {
+      "case": "rtl-theme",
+      "citation": {
+        "lines": "\u00a75\u2013\u00a77; \u00a710; Appendix C T04\u2013T06",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-14",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "rtl-theme"
+    },
+    {
+      "case": "asset-policy",
+      "citation": {
+        "lines": "\u00a75\u2013\u00a77; \u00a710; Appendix C T04\u2013T06",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-15",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "asset-policy"
+    },
+    {
+      "case": "limit-before-expansion",
+      "citation": {
+        "lines": "\u00a75\u2013\u00a77; \u00a710; Appendix C T04\u2013T06",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-16",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "limit-before-expansion"
+    },
+    {
+      "case": "extension-settings",
+      "citation": {
+        "lines": "\u00a75\u2013\u00a77; \u00a710; Appendix C T04\u2013T06",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-17",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "extension-settings"
+    },
+    {
+      "case": "fixed-matrix",
+      "citation": {
+        "lines": "\u00a75\u2013\u00a77; \u00a710; Appendix C T04\u2013T06",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-18",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "fixed-matrix"
+    },
+    {
+      "case": "nested-repeater-depth",
+      "citation": {
+        "lines": "\u00a75\u2013\u00a77; \u00a710; Appendix C T04\u2013T06",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-19",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "nested-repeater-depth"
+    },
+    {
+      "case": "protected-calculated-value",
+      "citation": {
+        "lines": "\u00a75\u2013\u00a77; \u00a710; Appendix C T04\u2013T06",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-20",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "protected-calculated-value"
+    },
+    {
+      "case": "unknown-truth",
+      "citation": {
+        "lines": "\u00a75\u2013\u00a77; \u00a710; Appendix C T04\u2013T06",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-21",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "unknown-truth"
+    },
+    {
+      "case": "exact-integer",
+      "citation": {
+        "lines": "\u00a75\u2013\u00a77; \u00a710; Appendix C T04\u2013T06",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-22",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "exact-integer"
+    },
+    {
+      "case": "decimal-scale",
+      "citation": {
+        "lines": "\u00a75\u2013\u00a77; \u00a710; Appendix C T04\u2013T06",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-23",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "decimal-scale"
+    },
+    {
+      "case": "diagnostic-pointer",
+      "citation": {
+        "lines": "\u00a75\u2013\u00a77; \u00a710; Appendix C T04\u2013T06",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-24",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "diagnostic-pointer"
+    }
+  ],
+  "owner": "acceptance/denominators",
+  "selection": "plan-selected",
+  "source_citations": [
+    {
+      "lines": "\u00a75\u2013\u00a77; \u00a710",
+      "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+    },
+    {
+      "lines": "Appendix C T04\u2013T06",
+      "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+    }
+  ],
+  "total": 24,
+  "version": "1.0.0-m0"
+}

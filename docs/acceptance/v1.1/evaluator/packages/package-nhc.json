@@ -1,0 +1,161 @@
+{
+  "catalogCoverage": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17
+  ],
+  "contentStatus": "structural-spec-frozen",
+  "domain": "transport-operations",
+  "emptyAggregateCases": {
+    "all": true,
+    "any": false,
+    "count": 0,
+    "sum": 0,
+    "unansweredList": "Unknown"
+  },
+  "formKey": "fleet-maintenance-audit",
+  "hostileImportHooks": [
+    "H01",
+    "H02",
+    "H03",
+    "H04",
+    "H05",
+    "H06",
+    "H07",
+    "H08",
+    "H09",
+    "H10"
+  ],
+  "instanceArtifactStatus": "pending-schema-M2",
+  "int64Cases": [
+    "-9223372036854775808",
+    "9223372036854775807",
+    "9007199254740992",
+    "9007199254740993"
+  ],
+  "noRealPHI": true,
+  "normalizationExpectations": {
+    "hashAlgorithm": "RFC8785+SHA-256",
+    "idempotent": true,
+    "normalizerMaterializedDefaults": [
+      "allowAdd",
+      "allowRemove",
+      "allowReorder"
+    ],
+    "omittedAndExplicitTrueRepeaterSettingsShareDigest": true
+  },
+  "packageId": "EVAL-PKG-NHC",
+  "parityActual": {
+    "acknowledgmentRequireTrue": 1,
+    "answerPages": 5,
+    "attachmentFields": 1,
+    "calculatedFields": 3,
+    "canonicalFields": 42,
+    "catalogFamilyCoverage": 17,
+    "dateFields": 1,
+    "dateTimeFields": 1,
+    "drawingFields": 1,
+    "exclusiveOptionConstraints": 1,
+    "expressions": 18,
+    "fixedMatrices": 1,
+    "fixedRowsMin": 3,
+    "guidanceItems": {
+      "approvedQA": 1,
+      "detailed": 1,
+      "glossary": 1,
+      "short": 1
+    },
+    "hiddenRetentionModes": {
+      "clear": 1,
+      "draft": 1,
+      "memory": 1
+    },
+    "int64ExtremaCases": [
+      "-9223372036854775808",
+      "9223372036854775807",
+      "9007199254740992",
+      "9007199254740993"
+    ],
+    "listFields": 4,
+    "localeBundles": 3,
+    "maxRepeaterDepth": 3,
+    "mixedDirectionIdentifiers": 1,
+    "modeSelectors": 1,
+    "objectComposites": 2,
+    "operatorFamiliesExercised": "all 34 named operators at least once across the two packages",
+    "otherWithDetail": 1,
+    "phases": 3,
+    "pluralMessages": 1,
+    "rankingFields": 1,
+    "ratingFields": 1,
+    "reviewPages": 1,
+    "scopeUsage": {
+      "item": true,
+      "parentItem": true,
+      "root": true
+    },
+    "sharedFieldInstances": {
+      "fields": 1,
+      "instances": 2
+    },
+    "timeFields": 1
+  },
+  "records": [
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "assertionKey": "EVAL-PKG-NHC",
+        "parityBudgetRef": "packages/parity-budget.json#/budget",
+        "structuralSpecRef": "#/requiredNodes"
+      },
+      "expectedSource": "evaluator-derived",
+      "fixtures": [
+        "T04",
+        "T26"
+      ],
+      "id": "EVAL-PKG-NHC",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "826",
+          "quote": "The complex medical-style core fixture is a **new synthetic definition** exercising history, family relationships, symptoms and repeated entries. It is not a PDF, a conversion task or an obligation to reproduce 643 document destinations. At least one equally complex non-healthcare fixture must be included to expose domain assumptions. The evaluator owns the fixed assertions and must freeze the complete input/expected-output corpus, including both complex domain definitions, before either measured run. Implementation teams supply adapters and runners and cannot select or rewrite the oracle. The Lite fixture descriptions, expression vectors and evaluator protocol are specification data; they are not a complete executable Lite fixture suite. Remaining corpus materialization is a disclosed evaluation-start gate, not a passing result."
+        }
+      ],
+      "rationale": "Domain selection is evaluator-derived; fleet maintenance is the approved transport-operations choice.",
+      "requirements": [],
+      "status": "not-run"
+    }
+  ],
+  "requiredNodes": [
+    "depot object: siteName, siteCode, commissionedOn date, shared contactEmail, phone",
+    "audit: auditAt dateTime, accessWindowTime, escortRequired and required-while-true memory-retained escortName",
+    "vehicles 1–50 with nested components <=10 and faults <=5; parentItem scoped fault severity",
+    "contractors list with role, exclusive None certifications, notes allowing unknown/declined/respondentNotApplicable",
+    "defects object category multiChoice fields plus other-with-detail",
+    "fixed rows row_lighting,row_signage,row_extinguisher with item-scoped false detail",
+    "risk rating, ranking, mode selector, attachments, ordinary-data drawing/typed-name alternative, draft-retained restricted findings",
+    "calculated count/any/sum; today/ageYears; dynamic zero divisor structured runtime error",
+    "review-only requireTrue nhcAcknowledged"
+  ],
+  "syntheticOnly": true,
+  "title": "Regional transit fleet maintenance audit (synthetic)"
+}

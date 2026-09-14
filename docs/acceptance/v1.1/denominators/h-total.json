@@ -1,0 +1,128 @@
+{
+  "counting_rule": "one hostile import class; each must reject safely before expensive semantic processing",
+  "current_execution_status": "not-run",
+  "independent_review_required": true,
+  "manifest": "H_total",
+  "members": [
+    {
+      "citation": {
+        "lines": "\u00a711.3 lines 568\u2013572",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "H-01",
+      "import_class": "duplicate-json-keys",
+      "owner": "import/security",
+      "status": "not-run",
+      "title": "duplicate-json-keys"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.3 lines 568\u2013572",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "H-02",
+      "import_class": "malformed-unicode",
+      "owner": "import/security",
+      "status": "not-run",
+      "title": "malformed-unicode"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.3 lines 568\u2013572",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "H-03",
+      "import_class": "excessive-nesting",
+      "owner": "import/security",
+      "status": "not-run",
+      "title": "excessive-nesting"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.3 lines 568\u2013572",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "H-04",
+      "import_class": "prototype-style-key",
+      "owner": "import/security",
+      "status": "not-run",
+      "title": "prototype-style-key"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.3 lines 568\u2013572",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "H-05",
+      "import_class": "raw-executable-content",
+      "owner": "import/security",
+      "status": "not-run",
+      "title": "raw-executable-content"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.3 lines 568\u2013572",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "H-06",
+      "import_class": "unsupported-type-or-operator",
+      "owner": "import/security",
+      "status": "not-run",
+      "title": "unsupported-type-or-operator"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.3 lines 568\u2013572",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "H-07",
+      "import_class": "remote-reference",
+      "owner": "import/security",
+      "status": "not-run",
+      "title": "remote-reference"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.3 lines 568\u2013572",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "H-08",
+      "import_class": "secret-like-provider-field",
+      "owner": "import/security",
+      "status": "not-run",
+      "title": "secret-like-provider-field"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.3 lines 568\u2013572",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "H-09",
+      "import_class": "oversize-json",
+      "owner": "import/security",
+      "status": "not-run",
+      "title": "oversize-json"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.3 lines 568\u2013572",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "H-10",
+      "import_class": "candidate-cross-tenant-commit",
+      "owner": "import/security",
+      "status": "not-run",
+      "title": "candidate-cross-tenant-commit"
+    }
+  ],
+  "owner": "acceptance/denominators",
+  "selection": "PRD-derived class inventory",
+  "source_citations": [
+    {
+      "lines": "\u00a711.3 lines 568\u2013572",
+      "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+    }
+  ],
+  "total": 10,
+  "version": "1.0.0-m0"
+}

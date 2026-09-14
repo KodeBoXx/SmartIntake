@@ -1,0 +1,1047 @@
+{
+  "counting_rule": "O_named members plus one verb+path for each frozen \u00a711.5 supporting CRUD resource",
+  "current_execution_status": "not-run",
+  "independent_review_required": true,
+  "manifest": "O_total",
+  "members": [
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "ON-GET-01",
+      "method": "GET",
+      "owner": "api/openapi",
+      "path": "/v1/capabilities",
+      "status": "not-run",
+      "title": "GET /v1/capabilities"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "ON-GET-02",
+      "method": "GET",
+      "owner": "api/openapi",
+      "path": "/v1/schemas/{kind}/{version}",
+      "status": "not-run",
+      "title": "GET /v1/schemas/{kind}/{version}"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "ON-POST-03",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/forms",
+      "status": "not-run",
+      "title": "POST /v1/workspaces/{w}/forms"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "ON-GET-04",
+      "method": "GET",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/forms",
+      "status": "not-run",
+      "title": "GET /v1/workspaces/{w}/forms"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "ON-GET-05",
+      "method": "GET",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/forms/{f}/drafts/{d}",
+      "status": "not-run",
+      "title": "GET /v1/workspaces/{w}/forms/{f}/drafts/{d}"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "ON-PUT-06",
+      "method": "PUT",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/forms/{f}/drafts/{d}",
+      "status": "not-run",
+      "title": "PUT /v1/workspaces/{w}/forms/{f}/drafts/{d}"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "ON-POST-07",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/imports/validate",
+      "status": "not-run",
+      "title": "POST /v1/workspaces/{w}/imports/validate"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "ON-POST-08",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/imports/{candidateId}/commit",
+      "status": "not-run",
+      "title": "POST /v1/workspaces/{w}/imports/{candidateId}/commit"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "ON-POST-09",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/forms/{f}/drafts/{d}/validate",
+      "status": "not-run",
+      "title": "POST /v1/workspaces/{w}/forms/{f}/drafts/{d}/validate"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "ON-POST-10",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/forms/{f}/drafts/{d}/review-requests",
+      "status": "not-run",
+      "title": "POST /v1/workspaces/{w}/forms/{f}/drafts/{d}/review-requests"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "ON-POST-11",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/forms/{f}/releases",
+      "status": "not-run",
+      "title": "POST /v1/workspaces/{w}/forms/{f}/releases"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "ON-GET-12",
+      "method": "GET",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/forms/{f}/releases/{releaseId}",
+      "status": "not-run",
+      "title": "GET /v1/workspaces/{w}/forms/{f}/releases/{releaseId}"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "ON-POST-13",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/forms/{f}/activation",
+      "status": "not-run",
+      "title": "POST /v1/workspaces/{w}/forms/{f}/activation"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "ON-GET-14",
+      "method": "GET",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/forms/{f}/export",
+      "status": "not-run",
+      "title": "GET /v1/workspaces/{w}/forms/{f}/export"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "ON-POST-15",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/public/forms/{shareId}/sessions",
+      "status": "not-run",
+      "title": "POST /v1/public/forms/{shareId}/sessions"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "ON-GET-16",
+      "method": "GET",
+      "owner": "api/openapi",
+      "path": "/v1/sessions/{s}",
+      "status": "not-run",
+      "title": "GET /v1/sessions/{s}"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "ON-PATCH-17",
+      "method": "PATCH",
+      "owner": "api/openapi",
+      "path": "/v1/sessions/{s}",
+      "status": "not-run",
+      "title": "PATCH /v1/sessions/{s}"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "ON-POST-18",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/sessions/{s}/attachments",
+      "status": "not-run",
+      "title": "POST /v1/sessions/{s}/attachments"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "ON-POST-19",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/sessions/{s}/attachments/{a}/complete",
+      "status": "not-run",
+      "title": "POST /v1/sessions/{s}/attachments/{a}/complete"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "ON-DELETE-20",
+      "method": "DELETE",
+      "owner": "api/openapi",
+      "path": "/v1/sessions/{s}/attachments/{a}",
+      "status": "not-run",
+      "title": "DELETE /v1/sessions/{s}/attachments/{a}"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "ON-POST-21",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/sessions/{s}/validate",
+      "status": "not-run",
+      "title": "POST /v1/sessions/{s}/validate"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "ON-POST-22",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/sessions/{s}/submissions",
+      "status": "not-run",
+      "title": "POST /v1/sessions/{s}/submissions"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "ON-GET-23",
+      "method": "GET",
+      "owner": "api/openapi",
+      "path": "/v1/sessions/{s}/submission-operation",
+      "status": "not-run",
+      "title": "GET /v1/sessions/{s}/submission-operation"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "ON-GET-24",
+      "method": "GET",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/submissions",
+      "status": "not-run",
+      "title": "GET /v1/workspaces/{w}/submissions"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "ON-GET-25",
+      "method": "GET",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/submissions/{id}",
+      "status": "not-run",
+      "title": "GET /v1/workspaces/{w}/submissions/{id}"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "ON-POST-26",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/exports",
+      "status": "not-run",
+      "title": "POST /v1/workspaces/{w}/exports"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "ON-GET-27",
+      "method": "GET",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/attachments/{id}/download",
+      "status": "not-run",
+      "title": "GET /v1/workspaces/{w}/attachments/{id}/download"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "ON-POST-28",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/webhooks",
+      "status": "not-run",
+      "title": "POST /v1/workspaces/{w}/webhooks"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "ON-GET-29",
+      "method": "GET",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/webhook-deliveries",
+      "status": "not-run",
+      "title": "GET /v1/workspaces/{w}/webhook-deliveries"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "ON-POST-30",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/webhook-deliveries/{id}/replay",
+      "status": "not-run",
+      "title": "POST /v1/workspaces/{w}/webhook-deliveries/{id}/replay"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "ON-POST-31",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/auth/sign-in",
+      "status": "not-run",
+      "title": "POST /v1/auth/sign-in"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "ON-POST-32",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/auth/sign-out",
+      "status": "not-run",
+      "title": "POST /v1/auth/sign-out"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "ON-GET-33",
+      "method": "GET",
+      "owner": "api/openapi",
+      "path": "/v1/auth/session",
+      "status": "not-run",
+      "title": "GET /v1/auth/session"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "ON-POST-34",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/auth/activate",
+      "status": "not-run",
+      "title": "POST /v1/auth/activate"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "ON-POST-35",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/auth/password-change",
+      "status": "not-run",
+      "title": "POST /v1/auth/password-change"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "ON-POST-36",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/auth/recovery",
+      "status": "not-run",
+      "title": "POST /v1/auth/recovery"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "ON-POST-37",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/auth/reset",
+      "status": "not-run",
+      "title": "POST /v1/auth/reset"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "ON-POST-38",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/invitations/accept",
+      "status": "not-run",
+      "title": "POST /v1/invitations/accept"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "ON-GET-39",
+      "method": "GET",
+      "owner": "api/openapi",
+      "path": "/v1/platform/organizations",
+      "status": "not-run",
+      "title": "GET /v1/platform/organizations"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "ON-POST-40",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/platform/organizations",
+      "status": "not-run",
+      "title": "POST /v1/platform/organizations"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "ON-PATCH-41",
+      "method": "PATCH",
+      "owner": "api/openapi",
+      "path": "/v1/platform/organizations/{o}",
+      "status": "not-run",
+      "title": "PATCH /v1/platform/organizations/{o}"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "ON-POST-42",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/platform/organizations/{o}/users",
+      "status": "not-run",
+      "title": "POST /v1/platform/organizations/{o}/users"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "ON-PATCH-43",
+      "method": "PATCH",
+      "owner": "api/openapi",
+      "path": "/v1/platform/accounts/{a}",
+      "status": "not-run",
+      "title": "PATCH /v1/platform/accounts/{a}"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "ON-GET-44",
+      "method": "GET",
+      "owner": "api/openapi",
+      "path": "/v1/organizations/{o}/users",
+      "status": "not-run",
+      "title": "GET /v1/organizations/{o}/users"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "ON-POST-45",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/organizations/{o}/users",
+      "status": "not-run",
+      "title": "POST /v1/organizations/{o}/users"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "ON-PATCH-46",
+      "method": "PATCH",
+      "owner": "api/openapi",
+      "path": "/v1/organizations/{o}/users/{u}",
+      "status": "not-run",
+      "title": "PATCH /v1/organizations/{o}/users/{u}"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "ON-DELETE-47",
+      "method": "DELETE",
+      "owner": "api/openapi",
+      "path": "/v1/organizations/{o}/users/{u}",
+      "status": "not-run",
+      "title": "DELETE /v1/organizations/{o}/users/{u}"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "ON-PUT-48",
+      "method": "PUT",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/users/{u}/roles",
+      "status": "not-run",
+      "title": "PUT /v1/workspaces/{w}/users/{u}/roles"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "ON-DELETE-49",
+      "method": "DELETE",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/users/{u}/roles",
+      "status": "not-run",
+      "title": "DELETE /v1/workspaces/{w}/users/{u}/roles"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "ON-POST-50",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/organizations/{o}/users/{u}/invitations",
+      "status": "not-run",
+      "title": "POST /v1/organizations/{o}/users/{u}/invitations"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "ON-DELETE-51",
+      "method": "DELETE",
+      "owner": "api/openapi",
+      "path": "/v1/organizations/{o}/invitations/{i}",
+      "status": "not-run",
+      "title": "DELETE /v1/organizations/{o}/invitations/{i}"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "ON-POST-52",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/organizations/{o}/users/{u}/recovery",
+      "status": "not-run",
+      "title": "POST /v1/organizations/{o}/users/{u}/recovery"
+    },
+    {
+      "citation": {
+        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "ON-POST-53",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/platform/accounts/{a}/recovery",
+      "status": "not-run",
+      "title": "POST /v1/platform/accounts/{a}/recovery"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.5 line 604",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "OS-01",
+      "method": "GET",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/folders",
+      "rationale": "M0-selected concrete CRUD path for PRD-required supporting resource",
+      "resource": "catalog folders",
+      "status": "not-run",
+      "title": "GET /v1/workspaces/{w}/folders (catalog folders)"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.5 line 604",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "OS-02",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/folders",
+      "rationale": "M0-selected concrete CRUD path for PRD-required supporting resource",
+      "resource": "catalog folders",
+      "status": "not-run",
+      "title": "POST /v1/workspaces/{w}/folders (catalog folders)"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.5 line 604",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "OS-03",
+      "method": "PATCH",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/folders",
+      "rationale": "M0-selected concrete CRUD path for PRD-required supporting resource",
+      "resource": "catalog folders",
+      "status": "not-run",
+      "title": "PATCH /v1/workspaces/{w}/folders (catalog folders)"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.5 line 604",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "OS-04",
+      "method": "DELETE",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/folders",
+      "rationale": "M0-selected concrete CRUD path for PRD-required supporting resource",
+      "resource": "catalog folders",
+      "status": "not-run",
+      "title": "DELETE /v1/workspaces/{w}/folders (catalog folders)"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.5 line 604",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "OS-05",
+      "method": "GET",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/tags",
+      "rationale": "M0-selected concrete CRUD path for PRD-required supporting resource",
+      "resource": "catalog tags",
+      "status": "not-run",
+      "title": "GET /v1/workspaces/{w}/tags (catalog tags)"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.5 line 604",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "OS-06",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/tags",
+      "rationale": "M0-selected concrete CRUD path for PRD-required supporting resource",
+      "resource": "catalog tags",
+      "status": "not-run",
+      "title": "POST /v1/workspaces/{w}/tags (catalog tags)"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.5 line 604",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "OS-07",
+      "method": "PATCH",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/tags",
+      "rationale": "M0-selected concrete CRUD path for PRD-required supporting resource",
+      "resource": "catalog tags",
+      "status": "not-run",
+      "title": "PATCH /v1/workspaces/{w}/tags (catalog tags)"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.5 line 604",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "OS-08",
+      "method": "DELETE",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/tags",
+      "rationale": "M0-selected concrete CRUD path for PRD-required supporting resource",
+      "resource": "catalog tags",
+      "status": "not-run",
+      "title": "DELETE /v1/workspaces/{w}/tags (catalog tags)"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.5 line 604",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "OS-09",
+      "method": "GET",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/blocks",
+      "rationale": "M0-selected concrete CRUD path for PRD-required supporting resource",
+      "resource": "reusable blocks",
+      "status": "not-run",
+      "title": "GET /v1/workspaces/{w}/blocks (reusable blocks)"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.5 line 604",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "OS-10",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/blocks",
+      "rationale": "M0-selected concrete CRUD path for PRD-required supporting resource",
+      "resource": "reusable blocks",
+      "status": "not-run",
+      "title": "POST /v1/workspaces/{w}/blocks (reusable blocks)"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.5 line 604",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "OS-11",
+      "method": "PATCH",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/blocks",
+      "rationale": "M0-selected concrete CRUD path for PRD-required supporting resource",
+      "resource": "reusable blocks",
+      "status": "not-run",
+      "title": "PATCH /v1/workspaces/{w}/blocks (reusable blocks)"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.5 line 604",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "OS-12",
+      "method": "DELETE",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/blocks",
+      "rationale": "M0-selected concrete CRUD path for PRD-required supporting resource",
+      "resource": "reusable blocks",
+      "status": "not-run",
+      "title": "DELETE /v1/workspaces/{w}/blocks (reusable blocks)"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.5 line 604",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "OS-13",
+      "method": "GET",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/themes",
+      "rationale": "M0-selected concrete CRUD path for PRD-required supporting resource",
+      "resource": "themes",
+      "status": "not-run",
+      "title": "GET /v1/workspaces/{w}/themes (themes)"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.5 line 604",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "OS-14",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/themes",
+      "rationale": "M0-selected concrete CRUD path for PRD-required supporting resource",
+      "resource": "themes",
+      "status": "not-run",
+      "title": "POST /v1/workspaces/{w}/themes (themes)"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.5 line 604",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "OS-15",
+      "method": "PATCH",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/themes",
+      "rationale": "M0-selected concrete CRUD path for PRD-required supporting resource",
+      "resource": "themes",
+      "status": "not-run",
+      "title": "PATCH /v1/workspaces/{w}/themes (themes)"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.5 line 604",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "OS-16",
+      "method": "DELETE",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/themes",
+      "rationale": "M0-selected concrete CRUD path for PRD-required supporting resource",
+      "resource": "themes",
+      "status": "not-run",
+      "title": "DELETE /v1/workspaces/{w}/themes (themes)"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.5 line 604",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "OS-17",
+      "method": "GET",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/locale-bundles",
+      "rationale": "M0-selected concrete CRUD path for PRD-required supporting resource",
+      "resource": "locale bundles",
+      "status": "not-run",
+      "title": "GET /v1/workspaces/{w}/locale-bundles (locale bundles)"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.5 line 604",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "OS-18",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/locale-bundles",
+      "rationale": "M0-selected concrete CRUD path for PRD-required supporting resource",
+      "resource": "locale bundles",
+      "status": "not-run",
+      "title": "POST /v1/workspaces/{w}/locale-bundles (locale bundles)"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.5 line 604",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "OS-19",
+      "method": "PUT",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/locale-bundles",
+      "rationale": "M0-selected concrete CRUD path for PRD-required supporting resource",
+      "resource": "locale bundles",
+      "status": "not-run",
+      "title": "PUT /v1/workspaces/{w}/locale-bundles (locale bundles)"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.5 line 604",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "OS-20",
+      "method": "DELETE",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/locale-bundles",
+      "rationale": "M0-selected concrete CRUD path for PRD-required supporting resource",
+      "resource": "locale bundles",
+      "status": "not-run",
+      "title": "DELETE /v1/workspaces/{w}/locale-bundles (locale bundles)"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.5 line 604",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "OS-21",
+      "method": "GET",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/forms/{f}/share-channels",
+      "rationale": "M0-selected concrete CRUD path for PRD-required supporting resource",
+      "resource": "share channels",
+      "status": "not-run",
+      "title": "GET /v1/workspaces/{w}/forms/{f}/share-channels (share channels)"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.5 line 604",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "OS-22",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/forms/{f}/share-channels",
+      "rationale": "M0-selected concrete CRUD path for PRD-required supporting resource",
+      "resource": "share channels",
+      "status": "not-run",
+      "title": "POST /v1/workspaces/{w}/forms/{f}/share-channels (share channels)"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.5 line 604",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "OS-23",
+      "method": "PATCH",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/forms/{f}/share-channels",
+      "rationale": "M0-selected concrete CRUD path for PRD-required supporting resource",
+      "resource": "share channels",
+      "status": "not-run",
+      "title": "PATCH /v1/workspaces/{w}/forms/{f}/share-channels (share channels)"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.5 line 604",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "OS-24",
+      "method": "DELETE",
+      "owner": "api/openapi",
+      "path": "/v1/workspaces/{w}/forms/{f}/share-channels",
+      "rationale": "M0-selected concrete CRUD path for PRD-required supporting resource",
+      "resource": "share channels",
+      "status": "not-run",
+      "title": "DELETE /v1/workspaces/{w}/forms/{f}/share-channels (share channels)"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.5 line 604",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "OS-25",
+      "method": "GET",
+      "owner": "api/openapi",
+      "path": "/v1/organizations/{o}/policies",
+      "rationale": "M0-selected concrete CRUD path for PRD-required supporting resource",
+      "resource": "policy objects",
+      "status": "not-run",
+      "title": "GET /v1/organizations/{o}/policies (policy objects)"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.5 line 604",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "OS-26",
+      "method": "POST",
+      "owner": "api/openapi",
+      "path": "/v1/organizations/{o}/policies",
+      "rationale": "M0-selected concrete CRUD path for PRD-required supporting resource",
+      "resource": "policy objects",
+      "status": "not-run",
+      "title": "POST /v1/organizations/{o}/policies (policy objects)"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.5 line 604",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "OS-27",
+      "method": "PATCH",
+      "owner": "api/openapi",
+      "path": "/v1/organizations/{o}/policies",
+      "rationale": "M0-selected concrete CRUD path for PRD-required supporting resource",
+      "resource": "policy objects",
+      "status": "not-run",
+      "title": "PATCH /v1/organizations/{o}/policies (policy objects)"
+    },
+    {
+      "citation": {
+        "lines": "\u00a711.5 line 604",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "OS-28",
+      "method": "DELETE",
+      "owner": "api/openapi",
+      "path": "/v1/organizations/{o}/policies",
+      "rationale": "M0-selected concrete CRUD path for PRD-required supporting resource",
+      "resource": "policy objects",
+      "status": "not-run",
+      "title": "DELETE /v1/organizations/{o}/policies (policy objects)"
+    }
+  ],
+  "owner": "acceptance/denominators",
+  "plan_selected_count": 81,
+  "selection": "mixed: O_named fixed plus M0-selected supporting CRUD",
+  "source_citations": [
+    {
+      "lines": "\u00a711.5 line 604",
+      "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+    }
+  ],
+  "total": 81,
+  "version": "1.0.0-m0"
+}

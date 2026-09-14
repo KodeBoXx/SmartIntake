@@ -1,0 +1,382 @@
+{
+  "counting_rule": "one PRD-named staff screen, with all six mandatory state categories and recorded Certinal intent",
+  "current_execution_status": "not-run",
+  "independent_review_required": true,
+  "manifest": "UI_staff_total",
+  "members": [
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "UISTAFF-01",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "sign-in",
+      "status": "not-run",
+      "title": "sign in"
+    },
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "UISTAFF-02",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "setup",
+      "status": "not-run",
+      "title": "setup"
+    },
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "UISTAFF-03",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "activation",
+      "status": "not-run",
+      "title": "activation"
+    },
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "UISTAFF-04",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "recovery",
+      "status": "not-run",
+      "title": "recovery"
+    },
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "UISTAFF-05",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "platform-organizations",
+      "status": "not-run",
+      "title": "platform organizations"
+    },
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "UISTAFF-06",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "organization-settings",
+      "status": "not-run",
+      "title": "organization settings"
+    },
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "UISTAFF-07",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "user-list",
+      "status": "not-run",
+      "title": "user list"
+    },
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "UISTAFF-08",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "add-user",
+      "status": "not-run",
+      "title": "add user"
+    },
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "UISTAFF-09",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "user-detail",
+      "status": "not-run",
+      "title": "user detail"
+    },
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "UISTAFF-10",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "role-assignment",
+      "status": "not-run",
+      "title": "role assignment"
+    },
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "UISTAFF-11",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "invitation-delivery",
+      "status": "not-run",
+      "title": "invitation delivery"
+    },
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "UISTAFF-12",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "catalog",
+      "status": "not-run",
+      "title": "catalog"
+    },
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "UISTAFF-13",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "builder",
+      "status": "not-run",
+      "title": "builder"
+    },
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "UISTAFF-14",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "review-publish",
+      "status": "not-run",
+      "title": "review publish"
+    },
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "UISTAFF-15",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "responses",
+      "status": "not-run",
+      "title": "responses"
+    },
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "UISTAFF-16",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "response-detail",
+      "status": "not-run",
+      "title": "response detail"
+    },
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "UISTAFF-17",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "export-history",
+      "status": "not-run",
+      "title": "export history"
+    },
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "UISTAFF-18",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "provider-policy",
+      "status": "not-run",
+      "title": "provider policy"
+    }
+  ],
+  "owner": "acceptance/denominators",
+  "selection": "plan-selected; labels split as listed",
+  "source_citations": [
+    {
+      "lines": "\u00a74 lines 194\u2013200",
+      "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+    },
+    {
+      "lines": "lines 74\u2013104",
+      "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+    }
+  ],
+  "total": 18,
+  "version": "1.0.0-m0"
+}

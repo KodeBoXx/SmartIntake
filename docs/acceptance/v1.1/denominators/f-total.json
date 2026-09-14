@@ -1,0 +1,150 @@
+{
+  "counting_rule": "one named fault/recovery drill",
+  "current_execution_status": "not-run",
+  "independent_review_required": true,
+  "manifest": "F_total",
+  "members": [
+    {
+      "citation": {
+        "lines": "T09 lines 808\u2013809; \u00a713 lines 663\u2013675; Appendix C lines 202\u2013204",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "drill": "idle-autosave",
+      "id": "F-01",
+      "owner": "operations/reliability",
+      "status": "not-run",
+      "title": "idle-autosave"
+    },
+    {
+      "citation": {
+        "lines": "T09 lines 808\u2013809; \u00a713 lines 663\u2013675; Appendix C lines 202\u2013204",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "drill": "continuous-autosave",
+      "id": "F-02",
+      "owner": "operations/reliability",
+      "status": "not-run",
+      "title": "continuous-autosave"
+    },
+    {
+      "citation": {
+        "lines": "T09 lines 808\u2013809; \u00a713 lines 663\u2013675; Appendix C lines 202\u2013204",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "drill": "server-500",
+      "id": "F-03",
+      "owner": "operations/reliability",
+      "status": "not-run",
+      "title": "server-500"
+    },
+    {
+      "citation": {
+        "lines": "T09 lines 808\u2013809; \u00a713 lines 663\u2013675; Appendix C lines 202\u2013204",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "drill": "offline",
+      "id": "F-04",
+      "owner": "operations/reliability",
+      "status": "not-run",
+      "title": "offline"
+    },
+    {
+      "citation": {
+        "lines": "T09 lines 808\u2013809; \u00a713 lines 663\u2013675; Appendix C lines 202\u2013204",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "drill": "two-tabs",
+      "id": "F-05",
+      "owner": "operations/reliability",
+      "status": "not-run",
+      "title": "two-tabs"
+    },
+    {
+      "citation": {
+        "lines": "T09 lines 808\u2013809; \u00a713 lines 663\u2013675; Appendix C lines 202\u2013204",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "drill": "stale-revision",
+      "id": "F-06",
+      "owner": "operations/reliability",
+      "status": "not-run",
+      "title": "stale-revision"
+    },
+    {
+      "citation": {
+        "lines": "T09 lines 808\u2013809; \u00a713 lines 663\u2013675; Appendix C lines 202\u2013204",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "drill": "expired-draft",
+      "id": "F-07",
+      "owner": "operations/reliability",
+      "status": "not-run",
+      "title": "expired-draft"
+    },
+    {
+      "citation": {
+        "lines": "T09 lines 808\u2013809; \u00a713 lines 663\u2013675; Appendix C lines 202\u2013204",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "drill": "shared-device",
+      "id": "F-08",
+      "owner": "operations/reliability",
+      "status": "not-run",
+      "title": "shared-device"
+    },
+    {
+      "citation": {
+        "lines": "T09 lines 808\u2013809; \u00a713 lines 663\u2013675; Appendix C lines 202\u2013204",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "drill": "app-restart",
+      "id": "F-09",
+      "owner": "operations/reliability",
+      "status": "not-run",
+      "title": "app-restart"
+    },
+    {
+      "citation": {
+        "lines": "T09 lines 808\u2013809; \u00a713 lines 663\u2013675; Appendix C lines 202\u2013204",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "drill": "database-restart",
+      "id": "F-10",
+      "owner": "operations/reliability",
+      "status": "not-run",
+      "title": "database-restart"
+    },
+    {
+      "citation": {
+        "lines": "T09 lines 808\u2013809; \u00a713 lines 663\u2013675; Appendix C lines 202\u2013204",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "drill": "backup-restore-tombstone-replay",
+      "id": "F-11",
+      "owner": "operations/reliability",
+      "status": "not-run",
+      "title": "backup-restore-tombstone-replay"
+    },
+    {
+      "citation": {
+        "lines": "T09 lines 808\u2013809; \u00a713 lines 663\u2013675; Appendix C lines 202\u2013204",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "drill": "dependency-partial-failure",
+      "id": "F-12",
+      "owner": "operations/reliability",
+      "status": "not-run",
+      "title": "dependency-partial-failure"
+    }
+  ],
+  "owner": "acceptance/denominators",
+  "selection": "plan-selected",
+  "source_citations": [
+    {
+      "lines": "T09 lines 808\u2013809; \u00a713 lines 663\u2013675",
+      "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+    }
+  ],
+  "total": 12,
+  "version": "1.0.0-m0"
+}

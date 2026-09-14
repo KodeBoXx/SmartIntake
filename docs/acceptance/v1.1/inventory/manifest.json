@@ -1,0 +1,36 @@
+{
+  "counts": {
+    "core": 83,
+    "enhancement": 12,
+    "fixtures": 31,
+    "operators": 34,
+    "requirements": 95,
+    "vectors": 101
+  },
+  "denialListEnumerationAvailable": false,
+  "format": "smart-form-builder-lite-m0-inventory-manifest/v1",
+  "generator": "tools/acceptance/generate_inventory.py",
+  "inventory": {
+    "path": "inventory.json",
+    "sha256": "c4a74690a73c3f744debab7eda23d239fc8215994d2d860c167f921ea6f7f8f4"
+  },
+  "sourceChecksums": {
+    "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931",
+    "backend/src/main/resources/db/migration/V1__smart_intake.sql": "da622444bfe419c93f5276af76d9a3c5063711d35e4fc2e1d6e86eab6566f1e2",
+    "backend/src/main/resources/db/migration/V2__identity_workspaces_and_release_binding.sql": "b1025c6cc1e3829ae4b1bc0375964775fe4ce69ee9dbd977e6fd576117b72f8b",
+    "backend/src/main/resources/db/migration/V3__respondent_session_secret.sql": "cfb30d4fbddab1bff009d1901956803871bdcdc7858f881dcadc2390fc6b55d1",
+    "backend/src/main/resources/db/migration/V4__session_mutation_replay.sql": "d535f190c37efdc29f74b51815cdfad8e1f525fddbea27fb3e805e5c0cf1754f",
+    "docs/api/openapi.yaml": "2dd83c659477d79126b027d7ccc5e2b80df7a64f08d070bc8c1d912346cb706a",
+    "docs/contracts/smart-form-builder-lite/4.0.0/README.md": "895c925de38c69d75fe1ebfab3c9a6ec433a72bf88ac9e9b2ae93d73694987d7",
+    "docs/contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml": "56f769081dd0c7b9b4cf0fe91789ff97e6e2e37d63fb300bae98d9f72d4af140",
+    "docs/contracts/smart-form-builder-lite/4.0.0/package.schema.json": "ee37c658d3896411c0824534845f4c3e283a45d9ce749313df1d2170e3b32cbf",
+    "docs/contracts/smart-form-builder-lite/4.0.0/typed-answer.schema.json": "6b69c236b3e04d56034e4d77d222679c0cfb184a2762699aed520d69491d2af6",
+    "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e",
+    "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Scope-Review.md": "98a72b57fdc9622215196026b0367e4a00aa1e3b549f21aa8181055dc41a9401",
+    "docs/source-handoff/smart-form-builder-lite-prd-v1.1/expression-contract.json": "6fd9cd69b123418209b9ae21d1b7a76af2a7ceb76689f2aad0fbe261d2a00aa7",
+    "docs/source-handoff/smart-form-builder-lite-prd-v1.1/manifest.json": "7bc9273a1ba498f8035e7452893b4030e85f6111e04b2e15ea2d8d33448adf22",
+    "frontend/angular.json": "4a3b49e7eb7b087d7a0ba34c4302ca314a179b1ccc138cdb50da756d1b629488",
+    "frontend/package.json": "06b16390236299cd4d26bbe55ab9211179998ad9b0d34f8bd5c0094818764065",
+    "frontend/src/app/app.component.ts": "53fff4e9b06c1b4884a14127f0aeb24dda373fea7dc38aebe72c59a3fd076672"
+  }
+}

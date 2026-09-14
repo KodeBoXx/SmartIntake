@@ -1,0 +1,1377 @@
+{
+  "authorActions": [
+    {
+      "assertionType": "oracle",
+      "evidenceLevel": "E2",
+      "expected": {
+        "action": "visual-only construction; both entry modes, fixed-row detail, nested repeaters, total; no duplicated answer definitions; raw JSON is not success"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-A1",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1338",
+          "quote": "1. Create the fields/layout/rules through visual controls. Configure and test both equipment entry modes, the fixed-row detail rule, nested repeaters and total. Shared fields must not become duplicated answer definitions."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "oracle",
+      "evidenceLevel": "E2",
+      "expected": {
+        "action": "guidance heading, two-item list, safe email placeholder, short/detailed help, Estimate glossary, exact approved Q&A, paraphrase and honest no-match"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-A2",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1339",
+          "quote": "2. Add semantic rich instructions with a heading, two-item list and safe email placeholder. Add short help, detailed help, glossary term **Estimate**, and approved Q&A: “Does an estimate take a payment?” → “No. This form only collects information.” Attach this approved Q&A to both About and Equipment scopes through a shared guidance reference or explicitly identical approved content. Declare one paraphrase: “Will this charge me?” The no-match script is “Can you recommend a supplier?” and must produce an honest no-approved-answer state."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "oracle",
+      "evidenceLevel": "E2",
+      "expected": {
+        "action": "narration exact text is opt-in and autoplay false"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-A3",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1340",
+          "quote": "3. Add visible/selectable narration text: “Enter the equipment you need. The estimate only records information. You can stop narration at any time.” Enable opt-in narration; never autoplay. The provider uses the approved real reference adapter in its separate E3 check."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "oracle",
+      "evidenceLevel": "E2",
+      "expected": {
+        "action": "reusable shipping+guidance block remap/impact/published-session safety"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-A4",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1341",
+          "quote": "4. Create a reusable block from the shipping object and its guidance; insert it into a temporary scratch area to inspect the ID remap, then remove the temporary insertion so the final package still has 30 definitions. Update the block in a separate draft and show the impact diff without silently updating a published session."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "oracle",
+      "evidenceLevel": "E2",
+      "expected": {
+        "action": "locale UI imports complete Hindi and Arabic RTL packs; invalid missing acknowledgment variant rejected; Roman Hindi/English-labeled Hindi fails"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-A5",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1342",
+          "quote": "5. Import the evaluator-supplied complete Hindi content pack and Arabic RTL test pack using the locale UI, inspect a deliberately missing mandatory acknowledgment key in a separate invalid variant, and approve only the complete pack. Full native-script packs are required evaluator assets; Roman Hindi or English text labeled Hindi is not a substitute."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "oracle",
+      "evidenceLevel": "E2",
+      "expected": {
+        "action": "preview complete/setup-detail/Other-detail/invalid cases; exact-object diagnostics; no real events/messages"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-A6",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1343",
+          "quote": "6. Preview the supplied complete, setup-detail, Other-detail and invalid input cases in ordinary preview. The invalid input case has whitespace-only name, quantity 0 and a false fixed row without detail. Diagnostics must link to those exact objects; preview creates no real events or messages."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "oracle",
+      "evidenceLevel": "E2",
+      "expected": {
+        "action": "publish v1 then stale/reapprove/publish v2 flow; v1 unchanged; export final v1 package"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-A7",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1344",
+          "quote": "7. Publish v1, open a pinned synthetic test session, start v2, rename a heading and reorder a question, inspect stale approval, reapprove and publish. Verify the v1 session is unchanged. Export the final v1 package for the staff-authorized import equivalence check."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "oracle",
+      "evidenceLevel": "E2",
+      "expected": {
+        "action": "ordinary-staff import equivalence preserves IDs; independent interpreter checks RFC8785 SHA-256 normalized package/golden output",
+        "t04Residual": "all catalog controls unused by this bounded task still need separate T04 coverage"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-A8",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1346",
+          "quote": "The evaluator's HTTP check under an ordinary staff workspace role imports the UI-created package preserving its generated IDs, edits a composite setting through the imported draft's properties panel and restores it, then compares normalized package hash and golden outputs. A separate interpreter/runner verifies the expected output independently; the tool's own serializer is not the sole oracle. T04 still needs separate coverage of all catalog controls not used by this bounded usability task."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    }
+  ],
+  "canonicalFieldCount": 30,
+  "defaultLocale": "en",
+  "fields": [
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalType": "text",
+        "config": {
+          "maxLength": 120,
+          "required": true
+        },
+        "control": "short text",
+        "key": "respondentName",
+        "n": 1,
+        "parentKey": null
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-F01",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1297",
+          "quote": "1. **About your request / About**: fields 1–12 below, relevant instructions and scoped help."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalType": "text",
+        "config": {
+          "maxLength": 20,
+          "preserveLeadingZeros": true,
+          "required": true
+        },
+        "control": "identifier",
+        "key": "referenceCode",
+        "n": 2,
+        "parentKey": null
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-F02",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1298",
+          "quote": "2. **Equipment / Equipment**: fields 13, 21, 24 and 27–29, their typed descendants, and a second read-only instance of field 3."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalType": "text",
+        "config": {
+          "answerCells": 1,
+          "instances": [
+            {
+              "editable": true,
+              "page": "About"
+            },
+            {
+              "page": "Equipment",
+              "readOnly": true
+            }
+          ],
+          "required": true
+        },
+        "control": "email",
+        "key": "email",
+        "n": 3,
+        "parentKey": null
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-F03",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1299",
+          "quote": "3. **Review / Review and submit**: a review node followed by field 30. Review is not an answer-progress page."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalType": "boolean",
+        "config": {
+          "falseIsValidAnswer": true,
+          "required": true
+        },
+        "control": "yes-no",
+        "key": "needsSetup",
+        "n": 4,
+        "parentKey": null
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-F04",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1301",
+          "quote": "Use exactly these 30 canonical field definitions, including children. Field keys are stable human-readable integration keys. The evaluator records generated field IDs from the author's first valid export and checks all later identity assertions against those IDs; authors need no developer ID picker. Labels can be the readable form of these names. Do not accept raw JSON editing as visual-authoring success."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalType": "text",
+        "config": {
+          "hiddenRetention": "clear",
+          "requiredWhile": "needsSetup == true",
+          "sensitive": true
+        },
+        "control": "long text",
+        "key": "setupDetails",
+        "n": 5,
+        "parentKey": null
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-F05",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1301",
+          "quote": "Use exactly these 30 canonical field definitions, including children. Field keys are stable human-readable integration keys. The evaluator records generated field IDs from the author's first valid export and checks all later identity assertions against those IDs; authors need no developer ID picker. Labels can be the readable form of these names. Do not accept raw JSON editing as visual-authoring success."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalType": "multiChoice",
+        "config": {
+          "exclusiveOptionIds": [
+            "opt_none"
+          ],
+          "minSelected": 1,
+          "options": [
+            "opt_collection",
+            "opt_setup",
+            "opt_other",
+            "opt_none"
+          ]
+        },
+        "control": "chips",
+        "key": "services",
+        "n": 6,
+        "parentKey": null
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-F06",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1303",
+          "quote": "| # | Key / parent | Canonical type / control | Required configuration |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalType": "text",
+        "config": {
+          "hiddenRetention": "clear",
+          "requiredWhile": "opt_other selected"
+        },
+        "control": "text",
+        "key": "otherServiceDetails",
+        "n": 7,
+        "parentKey": null
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-F07",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1303",
+          "quote": "| # | Key / parent | Canonical type / control | Required configuration |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalType": "date",
+        "config": {
+          "format": "ISO calendar date",
+          "informationOnly": true,
+          "required": true
+        },
+        "control": "date",
+        "key": "visitDate",
+        "n": 8,
+        "parentKey": null
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-F08",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "100",
+          "quote": "|---|---|---|---|"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalType": "integer",
+        "config": {
+          "max": "10",
+          "min": "0",
+          "required": true,
+          "step": "1"
+        },
+        "control": "number",
+        "key": "extraAttendees",
+        "n": 9,
+        "parentKey": null
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-F09",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1305",
+          "quote": "| 1 | `respondentName` | text / short text | Required, maximum 120 characters. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalType": "integer",
+        "config": {
+          "endpointLabels": [
+            "Low priority",
+            "High priority"
+          ],
+          "max": 5,
+          "min": 1,
+          "required": true
+        },
+        "control": "rating",
+        "key": "priority",
+        "n": 10,
+        "parentKey": null
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-F10",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1306",
+          "quote": "| 2 | `referenceCode` | text / identifier | Required, maximum 20; preserve leading zeros. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalType": "multiChoice",
+        "config": {
+          "keyboardMoveControls": true,
+          "options": [
+            "opt_reliability",
+            "opt_portability",
+            "opt_price"
+          ],
+          "ordered": true
+        },
+        "control": "ranking",
+        "key": "priorityOrder",
+        "n": 11,
+        "parentKey": null
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-F11",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1307",
+          "quote": "| 3 | `email` | text / email | Required; editable on About and shared read-only instance on Equipment. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalType": "choice",
+        "config": {
+          "default": "opt_cards",
+          "options": [
+            "opt_cards",
+            "opt_table"
+          ],
+          "required": true
+        },
+        "control": "mode selector",
+        "key": "entryMode",
+        "n": 12,
+        "parentKey": null
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-F12",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1308",
+          "quote": "| 4 | `needsSetup` | boolean / yes-no | Required; false is a valid answer. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalType": "list",
+        "config": {
+          "allowAdd": true,
+          "allowRemove": true,
+          "allowReorder": true,
+          "alternateInstancesBindSameField": true,
+          "maxItems": 50,
+          "minItems": 1,
+          "summaryFieldIds": [
+            "equipmentName",
+            "quantity"
+          ]
+        },
+        "control": "repeatingCards|dynamicMatrix",
+        "key": "equipment",
+        "n": 13,
+        "parentKey": null
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-F13",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1309",
+          "quote": "| 5 | `setupDetails` | text / long text | Required only while field 4 is true; sensitive, hidden retention clear. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalType": "text",
+        "config": {
+          "maxLength": 80,
+          "required": true
+        },
+        "control": "text",
+        "key": "equipment.equipmentName",
+        "n": 14,
+        "parentKey": "equipment"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-F14",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1310",
+          "quote": "| 6 | `services` | multiChoice / chips | Options `opt_collection`, `opt_setup`, `opt_other`, `opt_none`; at least one; `opt_none` exclusive. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalType": "integer",
+        "config": {
+          "max": "10",
+          "min": "1",
+          "required": true
+        },
+        "control": "number",
+        "key": "equipment.quantity",
+        "n": 15,
+        "parentKey": "equipment"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-F15",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1311",
+          "quote": "| 7 | `otherServiceDetails` | text / text | Required while `opt_other` is selected; hidden retention clear. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalType": "decimal",
+        "config": {
+          "currency": "USD",
+          "max": "1000000",
+          "min": "0",
+          "required": true,
+          "scale": 2
+        },
+        "control": "currency",
+        "key": "equipment.unitCost",
+        "n": 16,
+        "parentKey": "equipment"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-F16",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1312",
+          "quote": "| 8 | `visitDate` | date / date | Required ISO calendar date; this records information only. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalType": "list",
+        "config": {
+          "depth": 2,
+          "maxPerItem": 10,
+          "optional": true
+        },
+        "control": "list",
+        "key": "equipment.accessories",
+        "n": 17,
+        "parentKey": "equipment"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-F17",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1313",
+          "quote": "| 9 | `extraAttendees` | integer / number | Required, minimum 0, maximum 10, step 1. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalType": "text",
+        "config": {
+          "requiredWithinExistingAccessory": true
+        },
+        "control": "text",
+        "key": "equipment.accessories.accessoryName",
+        "n": 18,
+        "parentKey": "equipment.accessories"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-F18",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1314",
+          "quote": "| 10 | `priority` | integer / rating | Required, 1–5; endpoints labeled Low priority and High priority. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalType": "list",
+        "config": {
+          "depth": 3,
+          "maxItems": 5,
+          "optional": true
+        },
+        "control": "list",
+        "key": "equipment.accessories.tests",
+        "n": 19,
+        "parentKey": "equipment.accessories"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-F19",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1315",
+          "quote": "| 11 | `priorityOrder` | ordered multiChoice / ranking | Rank exactly `opt_reliability`, `opt_portability`, `opt_price`; keyboard move controls. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalType": "choice",
+        "config": {
+          "options": [
+            "opt_pass",
+            "opt_fail"
+          ],
+          "requiredWithinTest": true,
+          "visibility": "isAnswered(ref(accessoryName, scope=parentItem))"
+        },
+        "control": "radio",
+        "key": "equipment.accessories.tests.testResult",
+        "n": 20,
+        "parentKey": "equipment.accessories.tests"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-F20",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1316",
+          "quote": "| 12 | `entryMode` | choice / mode selector | Required, options `opt_cards`, `opt_table`; default cards. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalType": "list",
+        "config": {
+          "allowAdd": false,
+          "allowRemove": false,
+          "fixedItemIds": [
+            "row_power",
+            "row_space"
+          ],
+          "labels": [
+            "Power available",
+            "Space available"
+          ]
+        },
+        "control": "fixed yes-no matrix",
+        "key": "checks",
+        "n": 21,
+        "parentKey": null
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-F21",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1317",
+          "quote": "| 13 | `equipment` | list / repeating cards or dynamic matrix | 1–50 items; alternate instances bind the same field; allow add/remove/reorder; summaries use equipmentName and quantity. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalType": "boolean",
+        "config": {
+          "initialStatus": "unanswered",
+          "requiredPerFixedRow": true
+        },
+        "control": "yes-no",
+        "key": "checks.checkResult",
+        "n": 22,
+        "parentKey": "checks"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-F22",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1318",
+          "quote": "| 14 | `equipment.equipmentName` | text / short text | Required, maximum 80. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalType": "text",
+        "config": {
+          "hiddenRetention": "clear",
+          "requiredWhile": "same row checkResult == false",
+          "scope": "item"
+        },
+        "control": "row detail",
+        "key": "checks.checkDetails",
+        "n": 23,
+        "parentKey": "checks"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-F23",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1319",
+          "quote": "| 15 | `equipment.quantity` | integer / number | Required, minimum 1, maximum 10. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalType": "object",
+        "config": {
+          "noImplicitRegionRequirement": true,
+          "roles": [
+            "postalCode",
+            "country"
+          ]
+        },
+        "control": "address composite",
+        "key": "shipping",
+        "n": 24,
+        "parentKey": null
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-F24",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1320",
+          "quote": "| 16 | `equipment.unitCost` | decimal / currency | Required, USD, scale 2, minimum 0, maximum 1000000. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalType": "text",
+        "config": {
+          "noUSFormatRule": true,
+          "preserveLeadingZeros": true,
+          "required": true
+        },
+        "control": "identifier",
+        "key": "shipping.postalCode",
+        "n": 25,
+        "parentKey": "shipping"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-F25",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1321",
+          "quote": "| 17 | `equipment.accessories` | list / repeating cards | Optional, maximum 10 per equipment item; second repeater level. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalType": "choice",
+        "config": {
+          "labels": [
+            "India",
+            "United Kingdom"
+          ],
+          "options": [
+            "opt_in",
+            "opt_gb"
+          ],
+          "required": true
+        },
+        "control": "searchable combobox",
+        "key": "shipping.country",
+        "n": 26,
+        "parentKey": "shipping"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-F26",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1322",
+          "quote": "| 18 | `equipment.accessories.accessoryName` | text / short text | Required within an existing accessory. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalType": "text",
+        "config": {
+          "allowDeclined": true,
+          "allowUnknown": true,
+          "distinctFromUnanswered": true,
+          "optional": true
+        },
+        "control": "text with status choice",
+        "key": "note",
+        "n": 27,
+        "parentKey": null
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-F27",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1323",
+          "quote": "| 19 | `equipment.accessories.tests` | list / repeating cards | Optional, maximum 5; third repeater level. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalType": "decimal",
+        "config": {
+          "applicableItemsOnly": true,
+          "currency": "USD",
+          "expression": "sum(ref(equipment,root), multiply(ref(quantity,item), ref(unitCost,item)))",
+          "respondentOverride": false,
+          "scale": 2,
+          "serverRecomputes": true
+        },
+        "control": "read-only calculated",
+        "key": "total",
+        "n": 28,
+        "parentKey": null
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-F28",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1324",
+          "quote": "| 20 | `equipment.accessories.tests.testResult` | choice / radio | Required within a test; options `opt_pass`, `opt_fail`. Show this node only when the parentItem accessoryName is answered, exercising an explicit parent-scoped expression. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalType": "attachments",
+        "config": {
+          "allowedMime": [
+            "text/plain"
+          ],
+          "maxFiles": 2,
+          "optional": true,
+          "scanReadiness": "normal"
+        },
+        "control": "file upload",
+        "key": "supportingFiles",
+        "n": 29,
+        "parentKey": null
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-F29",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1325",
+          "quote": "| 21 | `checks` | list / fixed yes-no matrix | Fixed row IDs `row_power`, `row_space`, labels Power available and Space available; no add/remove. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalType": "boolean",
+        "config": {
+          "finalReviewOnly": true,
+          "requireTrue": true,
+          "voiceSupplyProhibited": true
+        },
+        "control": "acknowledgment",
+        "key": "reviewAcknowledged",
+        "n": 30,
+        "parentKey": null
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-AUTH-F30",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1326",
+          "quote": "| 22 | `checks.checkResult` | boolean / yes-no | Required in each fixed row; rows initialize unanswered. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    }
+  ],
+  "formKey": "equipment-support",
+  "formName": "Community equipment support request",
+  "idBindingRule": "evaluator records generated field IDs from first valid export; later identity assertions use recorded IDs; no developer ID picker",
+  "pages": [
+    {
+      "fieldNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "isAnswerPage": true,
+      "page": "About",
+      "phase": "About your request"
+    },
+    {
+      "fieldNumbers": [
+        13,
+        21,
+        24,
+        27,
+        28,
+        29
+      ],
+      "includesTypedDescendants": true,
+      "isAnswerPage": true,
+      "page": "Equipment",
+      "phase": "Equipment",
+      "secondReadOnlyInstanceOf": 3
+    },
+    {
+      "fieldNumbers": [
+        30
+      ],
+      "isAnswerPage": false,
+      "page": "Review and submit",
+      "phase": "Review",
+      "reviewNode": true
+    }
+  ],
+  "phases": 3,
+  "scopeNegations": [
+    "no payments",
+    "no appointment scheduling",
+    "no document processing",
+    "no e-signature"
+  ]
+}

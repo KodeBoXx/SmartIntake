@@ -1,0 +1,232 @@
+{
+  "artifacts": [
+    {
+      "path": "README.md",
+      "purpose": "corpus usage and non-conformance boundary",
+      "records": 0,
+      "sha256": "59944e17cf1fb2e02d626f4b9c3ca09da7bf330008316a840ba8195fa0851048"
+    },
+    {
+      "path": "conventions/encoding.md",
+      "purpose": "byte and JSON encoding conventions",
+      "records": 0,
+      "sha256": "0d188fd84377852854452db9ab8422b443b24f2304b2dba1b118e8717934df68"
+    },
+    {
+      "path": "conventions/record-schema.json",
+      "purpose": "record envelope JSON Schema",
+      "records": 1,
+      "sha256": "9765844aff1e9629d22a6782749d17499b49e291b10783bf961b42cb178676ed"
+    },
+    {
+      "path": "locales/invalid-variant.json",
+      "purpose": "invalid locale variants",
+      "records": 2,
+      "sha256": "66aafb9c93636f827497527b3f16a3d6704931c692663998ab357aab874fcd71"
+    },
+    {
+      "path": "locales/key-inventory.json",
+      "purpose": "mandatory localization keys and stubs",
+      "records": 18,
+      "sha256": "7e42fc5ce73e95b973dd789c1b92198593e9ec5085af00a832e952e6bc59e7ea"
+    },
+    {
+      "path": "locales/locale-expectations.json",
+      "purpose": "locale invariants and direction",
+      "records": 1,
+      "sha256": "55d0b46f68fb22851cca74a4eb4b9f38ff8f8f3824d9fdfc8cbb166760d141d0"
+    },
+    {
+      "path": "locales/plural-map.json",
+      "purpose": "frozen cardinal plural grammar",
+      "records": 1,
+      "sha256": "bf9a409c08289e74492884b35252d5df4cf13d88c2ede113f3d25cc86219816c"
+    },
+    {
+      "path": "navigation/completion-predicate.json",
+      "purpose": "answer-page completion predicate",
+      "records": 1,
+      "sha256": "4b12639ca486990bf8b0869f5ef47c4b228989e649baf0ea4dbfaf8f9257a116"
+    },
+    {
+      "path": "navigation/navigation-oracle.json",
+      "purpose": "baseline and five frozen navigation vectors",
+      "records": 6,
+      "sha256": "0498f7115399ef760a5ff8144256a494da38c02ecdb592a680f87f178c351336"
+    },
+    {
+      "path": "oracles/author-oracle.json",
+      "purpose": "author task oracle",
+      "records": 38,
+      "sha256": "e0b48a2281b09cca31903eb0b1992951a96ccdbdffa4c851576d5408398c683d"
+    },
+    {
+      "path": "oracles/focus-oracle.json",
+      "purpose": "human accessibility focus oracle",
+      "records": 12,
+      "sha256": "1be82890ca0a527e9e81800be08a142911a50d371f1765de1e746eb7f79dde8c"
+    },
+    {
+      "path": "oracles/respondent-critical-errors.json",
+      "purpose": "respondent hard failure oracle",
+      "records": 10,
+      "sha256": "b2d2e3ea44723575f0ca9e637a9aefbf43b279b87867c14dd442c643b98cc4ae"
+    },
+    {
+      "path": "oracles/respondent-oracle.json",
+      "purpose": "respondent script and final oracle",
+      "records": 31,
+      "sha256": "445ced5199b2fb3579fd8d2514bfe2071359eb6ac3580c8308af081f37e3b106"
+    },
+    {
+      "path": "packages/catalog-coverage-matrix.json",
+      "purpose": "17-family catalog coverage matrix",
+      "records": 17,
+      "sha256": "34d18b1012ee785520f62bd4906a6f2e82bb4f3b0da33874fdd111218d332874"
+    },
+    {
+      "path": "packages/package-hc.json",
+      "purpose": "healthcare-style structural package",
+      "records": 1,
+      "sha256": "ddd9a901b44368a0a4e2f86a59d87aa62013a785022f32fe225456d451c98a83"
+    },
+    {
+      "path": "packages/package-nhc.json",
+      "purpose": "transport-operations structural package",
+      "records": 1,
+      "sha256": "5c69827f5e10ea40541db024d287c9c50854da4a8d937b53dfcaf2c7fb799967"
+    },
+    {
+      "path": "packages/parity-budget.json",
+      "purpose": "cross-domain complexity budget",
+      "records": 1,
+      "sha256": "2861db1f90fb678f8af56aa7e1b2daf2852314680f6ba54696f96fc87feebd1a"
+    },
+    {
+      "path": "review/review-projection.json",
+      "purpose": "deterministic review projection rules",
+      "records": 25,
+      "sha256": "6e23933c182630c44ded795d28595bc0c550a7ac7e22f9d15a4003957dc515b6"
+    },
+    {
+      "path": "review/status-label-map.json",
+      "purpose": "English status labels and native-review stubs",
+      "records": 1,
+      "sha256": "af7d3af09c95698e3e878c2888648a7b2b7fa3b743e7c98b7af83eb3813b18aa"
+    },
+    {
+      "path": "sentinels/commitments.json",
+      "purpose": "unsealed M0 sentinel commitments",
+      "records": 0,
+      "sha256": "f484888767c3c6773c01c1f263320e7309ce6da90a794b8b0b1df1f32fd06068"
+    },
+    {
+      "path": "sentinels/gate-schedule.json",
+      "purpose": "sentinel milestone schedule",
+      "records": 0,
+      "sha256": "58df9fc026262b4237f683025f585b52c1620d06e23cdf47aca4fc8be8d4c489"
+    },
+    {
+      "path": "sentinels/public-catalog.json",
+      "purpose": "public semantic sentinel classes",
+      "records": 7,
+      "sha256": "3313f5a45e7c025a98acee50a550a448107eacc3f1ba75a196b029bc7f08b4a6"
+    },
+    {
+      "path": "sentinels/rotation-protocol.md",
+      "purpose": "blinded sentinel rotation protocol",
+      "records": 0,
+      "sha256": "c6eb6ea4e4a87888a41c089b8f700ab3699bd1ba8f7bb582b262b19c6db18814"
+    },
+    {
+      "path": "tools/test_validate_corpus.py",
+      "purpose": "validator negative matrix tests",
+      "records": 0,
+      "sha256": "2ddac7635f37e9a6991fc154a17ceaeec875685e53412518844915cd8a84103b"
+    },
+    {
+      "path": "tools/validate_corpus.py",
+      "purpose": "read-only C01-C20 corpus validator",
+      "records": 0,
+      "sha256": "a05a8acb23e8f26164c16b8caee37ded8b4e2557b24270e2a3be3d6f7be3a557"
+    }
+  ],
+  "authorRole": "encoder",
+  "blocked": [
+    {
+      "reason": "native-language-reviewer-not-yet-assigned",
+      "scope": "Hindi and Arabic native-script translations/review"
+    },
+    {
+      "reason": "pending-schema-M2",
+      "scope": "byte-exact 4.0.0 package instances"
+    },
+    {
+      "reason": "sentinel-payloads-and-round-secret-remain-in-evaluator-custody",
+      "scope": "sealed sentinel execution"
+    },
+    {
+      "reason": "denial-list-not-published",
+      "scope": "seven formerly removed whole-Core IDs"
+    }
+  ],
+  "branch": "vorflux/m0-acceptance-foundation",
+  "candidateSha": "66e96756d3e7d00c60e8d974b34a113b9ca60586",
+  "corpusDigest": "956cb41d162aa4c7535d33f4480dc7bd10a9d6c43fd34177a6659761c5e5a9f3",
+  "corpusName": "Smart Form Builder Lite v1.1 independent evaluator corpus",
+  "corpusVersion": "1.1.0",
+  "crossScopeRefs": {
+    "denialListRef": "docs/acceptance/v1.1/inventory/inventory.json#/formerlyRemovedWholeCoreDenialList.identifiers",
+    "denominatorManifest": {
+      "path": "docs/acceptance/v1.1/denominators/manifest-index.json",
+      "sha256": "5039670a8fecac08377c62462bacafe981d9c4db3077bee074d704663dd57392"
+    },
+    "inventoryManifest": {
+      "path": "docs/acceptance/v1.1/inventory/manifest.json",
+      "sha256": "4ceb14215093b7deaa4172b697b528e128fa3c3a3ef4b9374840a432db0990cc"
+    },
+    "operatorIndexRef": "docs/acceptance/v1.1/inventory/inventory.json#/expressionOperators",
+    "vectorIndexRef": "docs/acceptance/v1.1/inventory/inventory.json#/expressionVectors"
+  },
+  "derivationRule": "expected outcomes derived solely from PRD/handoff; current product output was not inspected",
+  "digestAlgorithm": "SHA-256",
+  "digestCommand": "cd docs/acceptance/v1.1/evaluator\nfind . -type f ! -path './manifest.json' ! -path './__pycache__/*' ! -path '*/__pycache__/*' -print0 | LC_ALL=C sort -z | xargs -0 sha256sum | LC_ALL=C sort | sha256sum",
+  "frozenAt": "2026-09-14T10:10:12Z",
+  "gateSchedule": "sentinels/gate-schedule.json",
+  "handoffSource": {
+    "path": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Lite-Evaluator-Protocol.md",
+    "sha256": "20bf0154fb07c6b917f73c6db246f7917e5a2e80f0fc1735fcaef4d2bfc3f6d3"
+  },
+  "owner": "evaluator, independent of implementation authors",
+  "prdSource": {
+    "lineCitationsUsed": [
+      "1261-1450",
+      "826",
+      "841",
+      "1075",
+      "1087",
+      "225-242"
+    ],
+    "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+    "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+  },
+  "reviewState": "provisional-freeze-c17-blocked",
+  "signature": {
+    "corpusDigest": "956cb41d162aa4c7535d33f4480dc7bd10a9d6c43fd34177a6659761c5e5a9f3",
+    "role": "independent evaluator",
+    "signedAt": "2026-09-14T10:10:12Z",
+    "signedBy": "independent-evaluator",
+    "state": "provisional-freeze-c17-blocked"
+  },
+  "specVersion": "M0-evaluator-corpus-spec-1.1.0",
+  "status": {
+    "localePacksNativeReviewed": false,
+    "measuredConformanceExecuted": false,
+    "packagesInstantiatedAs4_0_0": false,
+    "productSourceInspectedForExpectations": false,
+    "productTestsExecuted": false,
+    "schemasGenerated": false,
+    "sentinelsSealed": false,
+    "statement": "This corpus states expected outcomes only. No measured conformance run has been executed and no result in this tree may be read as evidence about the implementation."
+  }
+}

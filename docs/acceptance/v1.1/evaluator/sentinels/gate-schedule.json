@@ -1,0 +1,27 @@
+{
+  "M0": [
+    "EVAL-SNT-01",
+    "EVAL-SNT-02"
+  ],
+  "M12": [
+    "EVAL-SNT-01",
+    "EVAL-SNT-02",
+    "EVAL-SNT-03",
+    "EVAL-SNT-04",
+    "EVAL-SNT-05",
+    "EVAL-SNT-06",
+    "EVAL-SNT-07"
+  ],
+  "M3": [
+    "EVAL-SNT-01",
+    "EVAL-SNT-02",
+    "EVAL-SNT-03"
+  ],
+  "M8": [
+    "EVAL-SNT-03",
+    "EVAL-SNT-04",
+    "EVAL-SNT-05",
+    "EVAL-SNT-07"
+  ],
+  "rule": "every scheduled sentinel must actually fail its gate; an undetected sentinel is a gate failure, not a warning"
+}
