@@ -1,0 +1,87 @@
+{
+  "budget": {
+    "acknowledgmentRequireTrue": 1,
+    "answerPages": 5,
+    "attachmentFields": 1,
+    "calculatedFields": 3,
+    "canonicalFields": 42,
+    "catalogFamilyCoverage": 17,
+    "dateFields": 1,
+    "dateTimeFields": 1,
+    "drawingFields": 1,
+    "exclusiveOptionConstraints": 1,
+    "expressions": 18,
+    "fixedMatrices": 1,
+    "fixedRowsMin": 3,
+    "guidanceItems": {
+      "approvedQA": 1,
+      "detailed": 1,
+      "glossary": 1,
+      "short": 1
+    },
+    "hiddenRetentionModes": {
+      "clear": 1,
+      "draft": 1,
+      "memory": 1
+    },
+    "int64ExtremaCases": [
+      "-9223372036854775808",
+      "9223372036854775807",
+      "9007199254740992",
+      "9007199254740993"
+    ],
+    "listFields": 4,
+    "localeBundles": 3,
+    "maxRepeaterDepth": 3,
+    "mixedDirectionIdentifiers": 1,
+    "modeSelectors": 1,
+    "objectComposites": 2,
+    "operatorFamiliesExercised": "all 34 named operators at least once across the two packages",
+    "otherWithDetail": 1,
+    "phases": 3,
+    "pluralMessages": 1,
+    "rankingFields": 1,
+    "ratingFields": 1,
+    "reviewPages": 1,
+    "scopeUsage": {
+      "item": true,
+      "parentItem": true,
+      "root": true
+    },
+    "sharedFieldInstances": {
+      "fields": 1,
+      "instances": 2
+    },
+    "timeFields": 1
+  },
+  "records": [
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalRef": "#/budget"
+      },
+      "expectedRef": "#/budget",
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04",
+        "T26"
+      ],
+      "id": "EVAL-PKG-BUDGET",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "826",
+          "quote": "The complex medical-style core fixture is a **new synthetic definition** exercising history, family relationships, symptoms and repeated entries. It is not a PDF, a conversion task or an obligation to reproduce 643 document destinations. At least one equally complex non-healthcare fixture must be included to expose domain assumptions. The evaluator owns the fixed assertions and must freeze the complete input/expected-output corpus, including both complex domain definitions, before either measured run. Implementation teams supply adapters and runners and cannot select or rewrite the oracle. The Lite fixture descriptions, expression vectors and evaluator protocol are specification data; they are not a complete executable Lite fixture suite. Remaining corpus materialization is a disclosed evaluation-start gate, not a passing result."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    }
+  ]
+}

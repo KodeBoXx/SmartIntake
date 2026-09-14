@@ -1,0 +1,654 @@
+{
+  "records": [
+    {
+      "assertionType": "projection",
+      "evidenceLevel": "E2",
+      "expected": {
+        "rule": "review is a projection of the effective typed answer snapshot under the pinned release — not a second form, not a PDF preview."
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T14"
+      ],
+      "id": "EVAL-RVW-R01",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1397",
+          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "projection",
+      "evidenceLevel": "E2",
+      "expected": {
+        "rule": "traverse declared phase/page/section order."
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T14"
+      ],
+      "id": "EVAL-RVW-R02",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1397",
+          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "projection",
+      "evidenceLevel": "E2",
+      "expected": {
+        "rule": "deduplicate canonical fields; display each applicable canonical field once."
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T14"
+      ],
+      "id": "EVAL-RVW-R03",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1397",
+          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "projection",
+      "evidenceLevel": "E2",
+      "expected": {
+        "rule": "preserve object children and list item order and item IDs."
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T14"
+      ],
+      "id": "EVAL-RVW-R04",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1397",
+          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "projection",
+      "evidenceLevel": "E2",
+      "expected": {
+        "rule": "omit system-hidden notApplicable fields and their descendants."
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T14"
+      ],
+      "id": "EVAL-RVW-R05",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1397",
+          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "projection",
+      "evidenceLevel": "E2",
+      "expected": {
+        "rule": "final review-gate controls render separately after the summary; their acknowledgment is not duplicated as a summary question."
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T14"
+      ],
+      "id": "EVAL-RVW-R06",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1397",
+          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "projection",
+      "evidenceLevel": "E2",
+      "expected": {
+        "rule": "show localized field/option labels while retaining value meaning."
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T14"
+      ],
+      "id": "EVAL-RVW-R07",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1397",
+          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "projection",
+      "evidenceLevel": "E2",
+      "expected": {
+        "rule": "status/value display map."
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T14"
+      ],
+      "id": "EVAL-RVW-R08",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1397",
+          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "projection",
+      "evidenceLevel": "E2",
+      "expected": {
+        "rule": "respondentNotApplicable is an applicable respondent-selected status with no value and is displayed; system notApplicable is omitted."
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T14"
+      ],
+      "id": "EVAL-RVW-R09",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1397",
+          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "projection",
+      "evidenceLevel": "E2",
+      "expected": {
+        "rule": "an option named None remains a selected option, never an answer-status synonym."
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T14"
+      ],
+      "id": "EVAL-RVW-R10",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1397",
+          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "projection",
+      "evidenceLevel": "E2",
+      "expected": {
+        "rule": "preserve ranked option order."
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T14"
+      ],
+      "id": "EVAL-RVW-R11",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1397",
+          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "projection",
+      "evidenceLevel": "E2",
+      "expected": {
+        "rule": "show unit/currency and derived labeling."
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T14"
+      ],
+      "id": "EVAL-RVW-R12",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1397",
+          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "projection",
+      "evidenceLevel": "E2",
+      "expected": {
+        "rule": "for repeated items with identical labels show item position plus distinguishing configured summary values."
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T14"
+      ],
+      "id": "EVAL-RVW-R13",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1397",
+          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "projection",
+      "evidenceLevel": "E2",
+      "expected": {
+        "rule": "attachments show authorized name, size and readiness metadata; no durable download token or bearer URL."
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T14"
+      ],
+      "id": "EVAL-RVW-R14",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1397",
+          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "projection",
+      "evidenceLevel": "E2",
+      "expected": {
+        "rule": "drawing/typed-name values are ordinary captured data with no e-sign claim."
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T14"
+      ],
+      "id": "EVAL-RVW-R15",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1397",
+          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "projection",
+      "evidenceLevel": "E2",
+      "expected": {
+        "rule": "shared field edit links target first currently applicable editable instance, otherwise read-only with no edit action."
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T14"
+      ],
+      "id": "EVAL-RVW-R16",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1397",
+          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "projection",
+      "blockedReason": "human accessibility observation required",
+      "evidenceLevel": "human",
+      "expected": {
+        "rule": "locate by stable row path"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T13"
+      ],
+      "id": "EVAL-RVW-E01",
+      "milestoneGates": [
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1401",
+          "quote": "For a shared field, the edit link selects the first currently applicable editable instance in declared route order; if none is editable, display it as read-only without a misleading edit action. A nested link locates by stable row path, opens all relevant disclosures/containers, activates the required input mode if necessary, and focuses the actual field. Returning to review preserves scroll/focus near the edited summary row while announcing changed totals/errors. Removed/reordered rows cannot redirect the edit to another record."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "projection",
+      "blockedReason": "human accessibility observation required",
+      "evidenceLevel": "human",
+      "expected": {
+        "rule": "open all relevant disclosures/containers"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T13"
+      ],
+      "id": "EVAL-RVW-E02",
+      "milestoneGates": [
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1401",
+          "quote": "For a shared field, the edit link selects the first currently applicable editable instance in declared route order; if none is editable, display it as read-only without a misleading edit action. A nested link locates by stable row path, opens all relevant disclosures/containers, activates the required input mode if necessary, and focuses the actual field. Returning to review preserves scroll/focus near the edited summary row while announcing changed totals/errors. Removed/reordered rows cannot redirect the edit to another record."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "projection",
+      "blockedReason": "human accessibility observation required",
+      "evidenceLevel": "human",
+      "expected": {
+        "rule": "activate required input mode if necessary"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T13"
+      ],
+      "id": "EVAL-RVW-E03",
+      "milestoneGates": [
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1401",
+          "quote": "For a shared field, the edit link selects the first currently applicable editable instance in declared route order; if none is editable, display it as read-only without a misleading edit action. A nested link locates by stable row path, opens all relevant disclosures/containers, activates the required input mode if necessary, and focuses the actual field. Returning to review preserves scroll/focus near the edited summary row while announcing changed totals/errors. Removed/reordered rows cannot redirect the edit to another record."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "projection",
+      "blockedReason": "human accessibility observation required",
+      "evidenceLevel": "human",
+      "expected": {
+        "rule": "focus actual field"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T13"
+      ],
+      "id": "EVAL-RVW-E04",
+      "milestoneGates": [
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1401",
+          "quote": "For a shared field, the edit link selects the first currently applicable editable instance in declared route order; if none is editable, display it as read-only without a misleading edit action. A nested link locates by stable row path, opens all relevant disclosures/containers, activates the required input mode if necessary, and focuses the actual field. Returning to review preserves scroll/focus near the edited summary row while announcing changed totals/errors. Removed/reordered rows cannot redirect the edit to another record."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "projection",
+      "blockedReason": "human accessibility observation required",
+      "evidenceLevel": "human",
+      "expected": {
+        "rule": "return-to-review preserves scroll/focus near edited summary row while announcing changed totals/errors; removed/reordered rows never redirect to another record"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T13"
+      ],
+      "id": "EVAL-RVW-E05",
+      "milestoneGates": [
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1401",
+          "quote": "For a shared field, the edit link selects the first currently applicable editable instance in declared route order; if none is editable, display it as read-only without a misleading edit action. A nested link locates by stable row path, opens all relevant disclosures/containers, activates the required input mode if necessary, and focuses the actual field. Returning to review preserves scroll/focus near the edited summary row while announcing changed totals/errors. Removed/reordered rows cannot redirect the edit to another record."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "projection",
+      "evidenceLevel": "E2",
+      "expected": {
+        "rule": "relevant answer/applicability/acknowledgment locale/text/display change invalidates review digest and final acceptance"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T14"
+      ],
+      "id": "EVAL-RVW-S01",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1403",
+          "quote": "Any relevant answer, applicability, acknowledgment locale/text or displayed summary change invalidates the review digest and final review acceptance. The respondent returns to the refreshed review and explicitly acknowledges current content before submission. A server `REVIEW_STALE` response preserves valid draft data, announces the stale review and returns a review action; it is not a generic retry that submits a different unseen snapshot. Earlier accepted submissions remain immutable."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "projection",
+      "evidenceLevel": "E2",
+      "expected": {
+        "rule": "respondent returns to refreshed review and explicitly acknowledges current content"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T14"
+      ],
+      "id": "EVAL-RVW-S02",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1403",
+          "quote": "Any relevant answer, applicability, acknowledgment locale/text or displayed summary change invalidates the review digest and final review acceptance. The respondent returns to the refreshed review and explicitly acknowledges current content before submission. A server `REVIEW_STALE` response preserves valid draft data, announces the stale review and returns a review action; it is not a generic retry that submits a different unseen snapshot. Earlier accepted submissions remain immutable."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "projection",
+      "evidenceLevel": "E2",
+      "expected": {
+        "rule": "REVIEW_STALE HTTP 409 preserves valid draft data, announces stale review, returns review action, and is not a generic retry"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T14"
+      ],
+      "id": "EVAL-RVW-S03",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1403",
+          "quote": "Any relevant answer, applicability, acknowledgment locale/text or displayed summary change invalidates the review digest and final review acceptance. The respondent returns to the refreshed review and explicitly acknowledges current content before submission. A server `REVIEW_STALE` response preserves valid draft data, announces the stale review and returns a review action; it is not a generic retry that submits a different unseen snapshot. Earlier accepted submissions remain immutable."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "projection",
+      "evidenceLevel": "E2",
+      "expected": {
+        "rule": "earlier accepted submissions remain immutable"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T14"
+      ],
+      "id": "EVAL-RVW-S04",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1403",
+          "quote": "Any relevant answer, applicability, acknowledgment locale/text or displayed summary change invalidates the review digest and final review acceptance. The respondent returns to the refreshed review and explicitly acknowledges current content before submission. A server `REVIEW_STALE` response preserves valid draft data, announces the stale review and returns a review action; it is not a generic retry that submits a different unseen snapshot. Earlier accepted submissions remain immutable."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "records": [
+    {
+      "assertionType": "locale",
+      "blockedReason": "native-language-reviewer-not-yet-assigned",
+      "evidenceLevel": "E0",
+      "expected": {
+        "expectedOutcome": [
+          "locale UI reports missing mandatory key",
+          "invalid variant cannot be approved",
+          "complete pack can be approved",
+          "incomplete locale is not advertised"
+        ],
+        "locale": "hi",
+        "variant": "missing ack.review"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T06"
+      ],
+      "id": "EVAL-LOC-INVALID-01",
+      "milestoneGates": [
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1342",
+          "quote": "5. Import the evaluator-supplied complete Hindi content pack and Arabic RTL test pack using the locale UI, inspect a deliberately missing mandatory acknowledgment key in a separate invalid variant, and approve only the complete pack. Full native-script packs are required evaluator assets; Roman Hindi or English text labeled Hindi is not a substitute."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "locale",
+      "blockedReason": "native-language-reviewer-not-yet-assigned",
+      "evidenceLevel": "E0",
+      "expected": {
+        "expectedOutcome": "locale UI reports stale mandatory key and prevents approval",
+        "locale": "hi",
+        "variant": "stale mandatory key"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T06"
+      ],
+      "id": "EVAL-LOC-INVALID-02",
+      "milestoneGates": [
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "811",
+          "quote": "| T12 Localization | English, Hindi and Arabic RTL test bundles, long labels, mixed-direction identifier, plural messages, missing/stale mandatory key. Switching locale changes no canonical values. | Translation checks, screenshots and reviewer sample approval. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    }
+  ]
+}

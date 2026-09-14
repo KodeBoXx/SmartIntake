@@ -1,0 +1,230 @@
+{
+  "records": [
+    {
+      "assertionType": "sentinel",
+      "evidenceLevel": "E0",
+      "expected": {
+        "class": "wrong-vector",
+        "detectionMustBeSemantic": true,
+        "expectedDetection": "runner reports mismatch against frozen corpus digest and names vector; must not pass",
+        "hardGate": "silent truncation / changed answer meaning",
+        "idRecognitionIsCheating": true,
+        "injectionSurface": "one expected value in vector-expectation feed is altered",
+        "payloadCommitted": false
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T14"
+      ],
+      "id": "EVAL-SNT-01",
+      "milestoneGates": [
+        "M0",
+        "M3",
+        "M12"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "841",
+          "quote": "Full product completion requires all C and E requirements and their fixtures to pass at the appropriate evidence level. The following failures block release regardless of weighted score: cross-tenant/unauthorized data access; loss of acknowledged answers; silent truncation or changed answer meaning; acceptance of invalid/forged protected data; false submission success; arbitrary executable definitions; a UI-only authoring model; use of a prebuilt engine for owned-core responsibilities; and inability to complete the required keyboard/text-only respondent journey."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "sentinel",
+      "evidenceLevel": "E0",
+      "expected": {
+        "class": "hardcoded-allowlist",
+        "detectionMustBeSemantic": true,
+        "expectedDetection": "discovery count < required denominator hard fails and required-skip is recorded",
+        "hardGate": "no test may silently skip required assertions",
+        "idRecognitionIsCheating": true,
+        "injectionSurface": "runner allowlist/filter executes subset required IDs",
+        "payloadCommitted": false
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T14"
+      ],
+      "id": "EVAL-SNT-02",
+      "milestoneGates": [
+        "M0",
+        "M3",
+        "M12"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "841",
+          "quote": "Full product completion requires all C and E requirements and their fixtures to pass at the appropriate evidence level. The following failures block release regardless of weighted score: cross-tenant/unauthorized data access; loss of acknowledged answers; silent truncation or changed answer meaning; acceptance of invalid/forged protected data; false submission success; arbitrary executable definitions; a UI-only authoring model; use of a prebuilt engine for owned-core responsibilities; and inability to complete the required keyboard/text-only respondent journey."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "sentinel",
+      "evidenceLevel": "E0",
+      "expected": {
+        "class": "int64-rounding",
+        "detectionMustBeSemantic": true,
+        "expectedDetection": "exact string preserved end to end; rounding fails both runtimes",
+        "hardGate": "silent truncation / changed answer meaning",
+        "idRecognitionIsCheating": true,
+        "injectionSurface": "9007199254740993 through Number-precision path",
+        "payloadCommitted": false
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T14"
+      ],
+      "id": "EVAL-SNT-03",
+      "milestoneGates": [
+        "M3",
+        "M8",
+        "M12"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "841",
+          "quote": "Full product completion requires all C and E requirements and their fixtures to pass at the appropriate evidence level. The following failures block release regardless of weighted score: cross-tenant/unauthorized data access; loss of acknowledged answers; silent truncation or changed answer meaning; acceptance of invalid/forged protected data; false submission success; arbitrary executable definitions; a UI-only authoring model; use of a prebuilt engine for owned-core responsibilities; and inability to complete the required keyboard/text-only respondent journey."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "sentinel",
+      "evidenceLevel": "E0",
+      "expected": {
+        "class": "cross-tenant-read",
+        "detectionMustBeSemantic": true,
+        "expectedDetection": "denied; zero bytes B data in response/logs",
+        "hardGate": "cross-tenant/unauthorized data access",
+        "idRecognitionIsCheating": true,
+        "injectionSurface": "workspace B resource with workspace A authority",
+        "payloadCommitted": false
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T14"
+      ],
+      "id": "EVAL-SNT-04",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "841",
+          "quote": "Full product completion requires all C and E requirements and their fixtures to pass at the appropriate evidence level. The following failures block release regardless of weighted score: cross-tenant/unauthorized data access; loss of acknowledged answers; silent truncation or changed answer meaning; acceptance of invalid/forged protected data; false submission success; arbitrary executable definitions; a UI-only authoring model; use of a prebuilt engine for owned-core responsibilities; and inability to complete the required keyboard/text-only respondent journey."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "sentinel",
+      "evidenceLevel": "E0",
+      "expected": {
+        "class": "false-receipt",
+        "detectionMustBeSemantic": true,
+        "expectedDetection": "no receipt without durable snapshot + outbox row; uncertain attempts truthfully reconciled",
+        "hardGate": "false submission success",
+        "idRecognitionIsCheating": true,
+        "injectionSurface": "receipt before durable commit acknowledgment",
+        "payloadCommitted": false
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T14"
+      ],
+      "id": "EVAL-SNT-05",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "841",
+          "quote": "Full product completion requires all C and E requirements and their fixtures to pass at the appropriate evidence level. The following failures block release regardless of weighted score: cross-tenant/unauthorized data access; loss of acknowledged answers; silent truncation or changed answer meaning; acceptance of invalid/forged protected data; false submission success; arbitrary executable definitions; a UI-only authoring model; use of a prebuilt engine for owned-core responsibilities; and inability to complete the required keyboard/text-only respondent journey."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "sentinel",
+      "evidenceLevel": "E0",
+      "expected": {
+        "class": "deleted-data-restore",
+        "detectionMustBeSemantic": true,
+        "expectedDetection": "tombstones before access; reconciled DB/object/outbox/export hashes",
+        "hardGate": "loss/alteration acknowledged answer state; unauthorized access",
+        "idRecognitionIsCheating": true,
+        "injectionSurface": "restore rematerializes tombstoned data",
+        "payloadCommitted": false
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T14"
+      ],
+      "id": "EVAL-SNT-06",
+      "milestoneGates": [
+        "M12"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "841",
+          "quote": "Full product completion requires all C and E requirements and their fixtures to pass at the appropriate evidence level. The following failures block release regardless of weighted score: cross-tenant/unauthorized data access; loss of acknowledged answers; silent truncation or changed answer meaning; acceptance of invalid/forged protected data; false submission success; arbitrary executable definitions; a UI-only authoring model; use of a prebuilt engine for owned-core responsibilities; and inability to complete the required keyboard/text-only respondent journey."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "sentinel",
+      "evidenceLevel": "E0",
+      "expected": {
+        "class": "rtl-focus-failure",
+        "detectionMustBeSemantic": true,
+        "expectedDetection": "EVAL-FOCUS-03 + EVAL-FOCUS-10 fail; keyboard/text-only journey blocked",
+        "hardGate": "inability to complete keyboard/text-only respondent journey",
+        "idRecognitionIsCheating": true,
+        "injectionSurface": "locale toggle stale dir/lang or focus now-hidden field",
+        "payloadCommitted": false
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T14"
+      ],
+      "id": "EVAL-SNT-07",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "841",
+          "quote": "Full product completion requires all C and E requirements and their fixtures to pass at the appropriate evidence level. The following failures block release regardless of weighted score: cross-tenant/unauthorized data access; loss of acknowledged answers; silent truncation or changed answer meaning; acceptance of invalid/forged protected data; false submission success; arbitrary executable definitions; a UI-only authoring model; use of a prebuilt engine for owned-core responsibilities; and inability to complete the required keyboard/text-only respondent journey."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    }
+  ]
+}

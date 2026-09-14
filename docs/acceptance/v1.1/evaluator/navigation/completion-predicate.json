@@ -1,0 +1,58 @@
+{
+  "records": [
+    {
+      "assertionType": "predicate",
+      "evidenceLevel": "E2",
+      "expected": {
+        "completionPredicate": {
+          "insufficientAlone": [
+            "visiting the page",
+            "autosaving the page",
+            "entering a required-looking value"
+          ],
+          "requiresAll": [
+            "respondent successfully validated and navigated past the page",
+            "the page's applicable values remain valid"
+          ]
+        },
+        "denominatorRule": {
+          "exclude": [
+            "dedicated review pages",
+            "dedicated confirmation pages",
+            "final acknowledgment gates"
+          ],
+          "include": "applicable answer pages on the currently known reachable route"
+        },
+        "focusedPresentationRule": "unit remains answer pages/steps even in question-at-a-time presentation; a question-count percentage is prohibited",
+        "optionalPageRule": "counts while on route; complete after its valid Next action even if optional answers remain unanswered",
+        "presentation": {
+          "percentageDerivationAllowed": true,
+          "prohibited": [
+            "choosing a different denominator",
+            "choosing a different completion predicate"
+          ]
+        },
+        "unresolvedRouteRule": "denominator is the known-path count and must be accompanied by 'Remaining steps may change.'"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T14"
+      ],
+      "id": "EVAL-PRED-01",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1407",
+          "quote": "The progress unit is **answer pages**, even in focused-question presentation. Label it as pages/answer steps so a question-at-a-time view does not imply a question-count percentage. Denominator is the count of applicable answer pages on the currently known reachable route; dedicated review/confirmation pages and their final acknowledgment gates are excluded. A page is complete only after the respondent successfully validates/navigates past it and its applicable values remain valid. Merely visiting it, autosaving it or entering a required-looking value does not establish completion. An optional answer page counts while it is on the route and becomes complete after its valid Next action even if optional answers remain unanswered."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    }
+  ]
+}

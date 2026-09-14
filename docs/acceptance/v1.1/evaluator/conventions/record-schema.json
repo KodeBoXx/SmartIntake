@@ -1,0 +1,108 @@
+{
+  "$id": "urn:smartintake:evaluator:record:1.0.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "assertionType": {
+      "enum": [
+        "oracle",
+        "projection",
+        "navigation",
+        "structural",
+        "locale",
+        "sentinel",
+        "predicate"
+      ]
+    },
+    "evidenceLevel": {
+      "enum": [
+        "E0",
+        "E1",
+        "E2",
+        "E3",
+        "human"
+      ]
+    },
+    "expected": {},
+    "expectedSource": {
+      "enum": [
+        "prd",
+        "evaluator-derived"
+      ]
+    },
+    "fixtures": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "id": {
+      "pattern": "^EVAL-[A-Z]{3,5}-[0-9A-Z\\-]+$",
+      "type": "string"
+    },
+    "milestoneGates": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "prdCitations": {
+      "items": {
+        "properties": {
+          "file": {
+            "enum": [
+              "PRD",
+              "PROTO"
+            ]
+          },
+          "lines": {
+            "type": "string"
+          },
+          "quote": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "file",
+          "lines",
+          "quote"
+        ],
+        "type": "object"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "rationale": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "requirements": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "status": {
+      "const": "not-run"
+    }
+  },
+  "required": [
+    "assertionType",
+    "evidenceLevel",
+    "expected",
+    "expectedSource",
+    "fixtures",
+    "id",
+    "milestoneGates",
+    "prdCitations",
+    "rationale",
+    "requirements",
+    "status"
+  ],
+  "type": "object"
+}

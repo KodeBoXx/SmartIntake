@@ -1,0 +1,4705 @@
+{
+  "authority": {
+    "handoffManifest": {
+      "line": 1,
+      "path": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/manifest.json",
+      "rule": "handoff manifest",
+      "sha256": "7bc9273a1ba498f8035e7452893b4030e85f6111e04b2e15ea2d8d33448adf22"
+    },
+    "prd": {
+      "line": 1,
+      "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+      "rule": "single-document authority",
+      "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+    }
+  },
+  "counts": {
+    "core": 83,
+    "enhancement": 12,
+    "fixtures": 31,
+    "operators": 34,
+    "requirements": 95,
+    "vectors": 101
+  },
+  "currentRepository": {
+    "contracts": {
+      "artifacts": [
+        {
+          "path": "docs/contracts/smart-form-builder-lite/4.0.0/README.md",
+          "sha256": "895c925de38c69d75fe1ebfab3c9a6ec433a72bf88ac9e9b2ae93d73694987d7",
+          "source": {
+            "line": 1,
+            "path": "docs/contracts/smart-form-builder-lite/4.0.0/README.md",
+            "rule": "current versioned contract artifact",
+            "sha256": "895c925de38c69d75fe1ebfab3c9a6ec433a72bf88ac9e9b2ae93d73694987d7"
+          }
+        },
+        {
+          "path": "docs/contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml",
+          "sha256": "56f769081dd0c7b9b4cf0fe91789ff97e6e2e37d63fb300bae98d9f72d4af140",
+          "source": {
+            "line": 1,
+            "path": "docs/contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml",
+            "rule": "current versioned contract artifact",
+            "sha256": "56f769081dd0c7b9b4cf0fe91789ff97e6e2e37d63fb300bae98d9f72d4af140"
+          }
+        },
+        {
+          "declaredId": "https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/package.schema.json",
+          "declaredSchema": "https://json-schema.org/draft/2020-12/schema",
+          "path": "docs/contracts/smart-form-builder-lite/4.0.0/package.schema.json",
+          "sha256": "ee37c658d3896411c0824534845f4c3e283a45d9ce749313df1d2170e3b32cbf",
+          "source": {
+            "line": 1,
+            "path": "docs/contracts/smart-form-builder-lite/4.0.0/package.schema.json",
+            "rule": "current versioned contract artifact",
+            "sha256": "ee37c658d3896411c0824534845f4c3e283a45d9ce749313df1d2170e3b32cbf"
+          },
+          "title": "Smart Form Builder Lite package 4.0.0"
+        },
+        {
+          "declaredId": "https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/typed-answer.schema.json",
+          "declaredSchema": "https://json-schema.org/draft/2020-12/schema",
+          "path": "docs/contracts/smart-form-builder-lite/4.0.0/typed-answer.schema.json",
+          "sha256": "6b69c236b3e04d56034e4d77d222679c0cfb184a2762699aed520d69491d2af6",
+          "source": {
+            "line": 1,
+            "path": "docs/contracts/smart-form-builder-lite/4.0.0/typed-answer.schema.json",
+            "rule": "current versioned contract artifact",
+            "sha256": "6b69c236b3e04d56034e4d77d222679c0cfb184a2762699aed520d69491d2af6"
+          },
+          "title": "Smart Form Builder Lite typed answer cell"
+        }
+      ],
+      "normativeExpectation": {
+        "engineContract": "4.0.0",
+        "schemaVersion": "4.0.0",
+        "source": {
+          "line": 2,
+          "path": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/expression-contract.json",
+          "rule": "Appendix D version declarations",
+          "sha256": "6fd9cd69b123418209b9ae21d1b7a76af2a7ceb76689f2aad0fbe261d2a00aa7"
+        }
+      },
+      "observedVersionDirectory": "4.0.0"
+    },
+    "migrationsV1ToV4": [
+      {
+        "path": "backend/src/main/resources/db/migration/V1__smart_intake.sql",
+        "sha256": "da622444bfe419c93f5276af76d9a3c5063711d35e4fc2e1d6e86eab6566f1e2",
+        "source": {
+          "line": 1,
+          "path": "backend/src/main/resources/db/migration/V1__smart_intake.sql",
+          "rule": "preserved Flyway migration",
+          "sha256": "da622444bfe419c93f5276af76d9a3c5063711d35e4fc2e1d6e86eab6566f1e2"
+        },
+        "version": "V1"
+      },
+      {
+        "path": "backend/src/main/resources/db/migration/V2__identity_workspaces_and_release_binding.sql",
+        "sha256": "b1025c6cc1e3829ae4b1bc0375964775fe4ce69ee9dbd977e6fd576117b72f8b",
+        "source": {
+          "line": 1,
+          "path": "backend/src/main/resources/db/migration/V2__identity_workspaces_and_release_binding.sql",
+          "rule": "preserved Flyway migration",
+          "sha256": "b1025c6cc1e3829ae4b1bc0375964775fe4ce69ee9dbd977e6fd576117b72f8b"
+        },
+        "version": "V2"
+      },
+      {
+        "path": "backend/src/main/resources/db/migration/V3__respondent_session_secret.sql",
+        "sha256": "cfb30d4fbddab1bff009d1901956803871bdcdc7858f881dcadc2390fc6b55d1",
+        "source": {
+          "line": 1,
+          "path": "backend/src/main/resources/db/migration/V3__respondent_session_secret.sql",
+          "rule": "preserved Flyway migration",
+          "sha256": "cfb30d4fbddab1bff009d1901956803871bdcdc7858f881dcadc2390fc6b55d1"
+        },
+        "version": "V3"
+      },
+      {
+        "path": "backend/src/main/resources/db/migration/V4__session_mutation_replay.sql",
+        "sha256": "d535f190c37efdc29f74b51815cdfad8e1f525fddbea27fb3e805e5c0cf1754f",
+        "source": {
+          "line": 1,
+          "path": "backend/src/main/resources/db/migration/V4__session_mutation_replay.sql",
+          "rule": "preserved Flyway migration",
+          "sha256": "d535f190c37efdc29f74b51815cdfad8e1f525fddbea27fb3e805e5c0cf1754f"
+        },
+        "version": "V4"
+      }
+    ],
+    "routes": {
+      "controller": {
+        "count": 19,
+        "routes": [
+          {
+            "path": "/v1/auth/bootstrap",
+            "source": {
+              "line": 14,
+              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+              "rule": "Spring mapping annotation",
+              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            },
+            "verb": "POST"
+          },
+          {
+            "path": "/v1/auth/sign-in",
+            "source": {
+              "line": 15,
+              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+              "rule": "Spring mapping annotation",
+              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            },
+            "verb": "POST"
+          },
+          {
+            "path": "/v1/auth/logout",
+            "source": {
+              "line": 15,
+              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+              "rule": "Spring mapping annotation",
+              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            },
+            "verb": "POST"
+          },
+          {
+            "path": "/v1/health",
+            "source": {
+              "line": 16,
+              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+              "rule": "Spring mapping annotation",
+              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            },
+            "verb": "GET"
+          },
+          {
+            "path": "/v1/capabilities",
+            "source": {
+              "line": 17,
+              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+              "rule": "Spring mapping annotation",
+              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            },
+            "verb": "GET"
+          },
+          {
+            "path": "/v1/workspaces/{workspace}/forms",
+            "source": {
+              "line": 18,
+              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+              "rule": "Spring mapping annotation",
+              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            },
+            "verb": "GET"
+          },
+          {
+            "path": "/v1/workspaces/{workspace}/forms",
+            "source": {
+              "line": 19,
+              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+              "rule": "Spring mapping annotation",
+              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            },
+            "verb": "POST"
+          },
+          {
+            "path": "/v1/workspaces/{workspace}/forms/{form}/drafts/{draft}",
+            "source": {
+              "line": 20,
+              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+              "rule": "Spring mapping annotation",
+              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            },
+            "verb": "GET"
+          },
+          {
+            "path": "/v1/workspaces/{workspace}/forms/{form}/drafts/{draft}",
+            "source": {
+              "line": 21,
+              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+              "rule": "Spring mapping annotation",
+              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            },
+            "verb": "PUT"
+          },
+          {
+            "path": "/v1/workspaces/{workspace}/forms/{form}/definition-export",
+            "source": {
+              "line": 22,
+              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+              "rule": "Spring mapping annotation",
+              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            },
+            "verb": "GET"
+          },
+          {
+            "path": "/v1/workspaces/{workspace}/forms/{form}/definition-import",
+            "source": {
+              "line": 23,
+              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+              "rule": "Spring mapping annotation",
+              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            },
+            "verb": "PUT"
+          },
+          {
+            "path": "/v1/workspaces/{workspace}/forms/{form}/releases",
+            "source": {
+              "line": 24,
+              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+              "rule": "Spring mapping annotation",
+              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            },
+            "verb": "POST"
+          },
+          {
+            "path": "/v1/public/forms/{share}/sessions",
+            "source": {
+              "line": 25,
+              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+              "rule": "Spring mapping annotation",
+              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            },
+            "verb": "POST"
+          },
+          {
+            "path": "/v1/sessions/{id}",
+            "source": {
+              "line": 26,
+              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+              "rule": "Spring mapping annotation",
+              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            },
+            "verb": "GET"
+          },
+          {
+            "path": "/v1/sessions/{id}",
+            "source": {
+              "line": 27,
+              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+              "rule": "Spring mapping annotation",
+              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            },
+            "verb": "PATCH"
+          },
+          {
+            "path": "/v1/sessions/{id}/validate",
+            "source": {
+              "line": 28,
+              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+              "rule": "Spring mapping annotation",
+              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            },
+            "verb": "POST"
+          },
+          {
+            "path": "/v1/sessions/{id}/submissions",
+            "source": {
+              "line": 29,
+              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+              "rule": "Spring mapping annotation",
+              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            },
+            "verb": "POST"
+          },
+          {
+            "path": "/v1/workspaces/{workspace}/submissions/{id}",
+            "source": {
+              "line": 31,
+              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+              "rule": "Spring mapping annotation",
+              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            },
+            "verb": "GET"
+          },
+          {
+            "path": "/v1/workspaces/{workspace}/exports.json",
+            "source": {
+              "line": 32,
+              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+              "rule": "Spring mapping annotation",
+              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            },
+            "verb": "GET"
+          }
+        ],
+        "source": {
+          "line": 10,
+          "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+          "rule": "current controller",
+          "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+        }
+      },
+      "openapi": {
+        "count": 7,
+        "operations": [
+          {
+            "path": "/health",
+            "source": {
+              "line": 5,
+              "path": "docs/api/openapi.yaml",
+              "rule": "OpenAPI inline path",
+              "sha256": "2dd83c659477d79126b027d7ccc5e2b80df7a64f08d070bc8c1d912346cb706a"
+            },
+            "verb": "GET"
+          },
+          {
+            "path": "/capabilities",
+            "source": {
+              "line": 6,
+              "path": "docs/api/openapi.yaml",
+              "rule": "OpenAPI inline path",
+              "sha256": "2dd83c659477d79126b027d7ccc5e2b80df7a64f08d070bc8c1d912346cb706a"
+            },
+            "verb": "GET"
+          },
+          {
+            "path": "/workspaces/{workspace}/forms",
+            "source": {
+              "line": 8,
+              "path": "docs/api/openapi.yaml",
+              "rule": "OpenAPI operation",
+              "sha256": "2dd83c659477d79126b027d7ccc5e2b80df7a64f08d070bc8c1d912346cb706a"
+            },
+            "verb": "GET"
+          },
+          {
+            "path": "/workspaces/{workspace}/forms",
+            "source": {
+              "line": 9,
+              "path": "docs/api/openapi.yaml",
+              "rule": "OpenAPI operation",
+              "sha256": "2dd83c659477d79126b027d7ccc5e2b80df7a64f08d070bc8c1d912346cb706a"
+            },
+            "verb": "POST"
+          },
+          {
+            "path": "/public/forms/{shareId}/sessions",
+            "source": {
+              "line": 11,
+              "path": "docs/api/openapi.yaml",
+              "rule": "OpenAPI operation",
+              "sha256": "2dd83c659477d79126b027d7ccc5e2b80df7a64f08d070bc8c1d912346cb706a"
+            },
+            "verb": "POST"
+          },
+          {
+            "path": "/sessions/{sessionId}",
+            "source": {
+              "line": 13,
+              "path": "docs/api/openapi.yaml",
+              "rule": "OpenAPI operation",
+              "sha256": "2dd83c659477d79126b027d7ccc5e2b80df7a64f08d070bc8c1d912346cb706a"
+            },
+            "verb": "GET"
+          },
+          {
+            "path": "/sessions/{sessionId}",
+            "source": {
+              "line": 14,
+              "path": "docs/api/openapi.yaml",
+              "rule": "OpenAPI operation",
+              "sha256": "2dd83c659477d79126b027d7ccc5e2b80df7a64f08d070bc8c1d912346cb706a"
+            },
+            "verb": "PATCH"
+          }
+        ],
+        "source": {
+          "line": 1,
+          "path": "docs/api/openapi.yaml",
+          "rule": "current OpenAPI document",
+          "sha256": "2dd83c659477d79126b027d7ccc5e2b80df7a64f08d070bc8c1d912346cb706a"
+        }
+      }
+    },
+    "ui": {
+      "certinal": {
+        "assetReferences": [],
+        "cuiSymbolCount": 0,
+        "cuiTagCount": 0,
+        "imports": [],
+        "packageDependencies": []
+      },
+      "component": {
+        "lineCount": 18,
+        "standalone": false
+      },
+      "frontendSources": [
+        {
+          "line": 1,
+          "path": "frontend/package.json",
+          "rule": "package dependencies",
+          "sha256": "06b16390236299cd4d26bbe55ab9211179998ad9b0d34f8bd5c0094818764065"
+        },
+        {
+          "line": 1,
+          "path": "frontend/src/app/app.component.ts",
+          "rule": "standalone UI component",
+          "sha256": "53fff4e9b06c1b4884a14127f0aeb24dda373fea7dc38aebe72c59a3fd076672"
+        },
+        {
+          "line": 1,
+          "path": "frontend/angular.json",
+          "rule": "Angular workspace",
+          "sha256": "4a3b49e7eb7b087d7a0ba34c4302ca314a179b1ccc138cdb50da756d1b629488"
+        }
+      ],
+      "routing": {
+        "routeDeclarationPresent": false,
+        "routerImportPresent": false
+      }
+    }
+  },
+  "exclusions": [
+    {
+      "id": "X01",
+      "rule": "PDF/document upload for conversion, OCR, field extraction, document-to-form generation and a converter UI.",
+      "source": {
+        "line": 46,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§1.2 explicit exclusion",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "X02",
+      "rule": "Building a CLI, AI agent, MCP tool or local Claude generation pipeline. Canonical import/export and documented application APIs remain required under ordinary staff authorization.",
+      "source": {
+        "line": 47,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§1.2 explicit exclusion",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "X03",
+      "rule": "Mapping answers into PDF fields, coordinates or document templates; PDF filling, generation or document-processing pipelines.",
+      "source": {
+        "line": 48,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§1.2 explicit exclusion",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "X04",
+      "rule": "Certinal or other legally binding e-sign orchestration, signer handoff, signing-status verification or signed-document delivery.",
+      "source": {
+        "line": 49,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§1.2 explicit exclusion",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "X05",
+      "rule": "Payment collection, appointment scheduling, CRM/HR/clinical workflows and general business-process automation. Core calculated values and generic integration contracts remain in scope.",
+      "source": {
+        "line": 50,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§1.2 explicit exclusion",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "X06",
+      "rule": "An unconstrained conversational agent, typed-question interface, answer dictation or voice-driven answer changes. Compact narration and spoken approved-help questions remain in scope.",
+      "source": {
+        "line": 51,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§1.2 explicit exclusion",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    }
+  ],
+  "expression": {
+    "contract": {
+      "contractVersion": "4.0.0",
+      "engineContract": "4.0.0",
+      "schemaVersion": "4.0.0",
+      "source": {
+        "line": 1,
+        "path": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/expression-contract.json",
+        "rule": "matching Appendix D extract",
+        "sha256": "6fd9cd69b123418209b9ae21d1b7a76af2a7ceb76689f2aad0fbe261d2a00aa7"
+      }
+    },
+    "operators": [
+      {
+        "arity": {
+          "max": 100,
+          "min": 2
+        },
+        "name": "and",
+        "resultType": "boolean",
+        "source": {
+          "line": 1789,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D operator registry",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "arity": {
+          "max": 100,
+          "min": 2
+        },
+        "name": "or",
+        "resultType": "boolean",
+        "source": {
+          "line": 1789,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D operator registry",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "arity": 1,
+        "name": "not",
+        "resultType": "boolean",
+        "source": {
+          "line": 1789,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D operator registry",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "arity": 2,
+        "name": "eq",
+        "resultType": "boolean",
+        "source": {
+          "line": 1789,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D operator registry",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "arity": 2,
+        "name": "ne",
+        "resultType": "boolean",
+        "source": {
+          "line": 1789,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D operator registry",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "arity": 2,
+        "name": "lt",
+        "resultType": "boolean",
+        "source": {
+          "line": 1789,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D operator registry",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "arity": 2,
+        "name": "lte",
+        "resultType": "boolean",
+        "source": {
+          "line": 1789,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D operator registry",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "arity": 2,
+        "name": "gt",
+        "resultType": "boolean",
+        "source": {
+          "line": 1789,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D operator registry",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "arity": 2,
+        "name": "gte",
+        "resultType": "boolean",
+        "source": {
+          "line": 1789,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D operator registry",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "arity": 2,
+        "name": "in",
+        "resultType": "boolean",
+        "source": {
+          "line": 1789,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D operator registry",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "arity": 2,
+        "name": "contains",
+        "resultType": "boolean",
+        "source": {
+          "line": 1789,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D operator registry",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "arity": 2,
+        "name": "containsAll",
+        "resultType": "boolean",
+        "source": {
+          "line": 1789,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D operator registry",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "arity": 1,
+        "name": "exists",
+        "resultType": "boolean",
+        "source": {
+          "line": 1789,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D operator registry",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "arity": 1,
+        "name": "isAnswered",
+        "resultType": "boolean",
+        "source": {
+          "line": 1789,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D operator registry",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "arity": 2,
+        "name": "statusIs",
+        "resultType": "boolean",
+        "source": {
+          "line": 1789,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D operator registry",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "arity": 2,
+        "name": "add",
+        "resultType": "decimal",
+        "source": {
+          "line": 1789,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D operator registry",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "arity": 2,
+        "name": "subtract",
+        "resultType": "decimal",
+        "source": {
+          "line": 1789,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D operator registry",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "arity": 2,
+        "name": "multiply",
+        "resultType": "decimal",
+        "source": {
+          "line": 1789,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D operator registry",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "arity": 2,
+        "name": "divide",
+        "resultType": "decimal",
+        "source": {
+          "line": 1789,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D operator registry",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "arity": 2,
+        "name": "round",
+        "resultType": "decimal",
+        "source": {
+          "line": 1789,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D operator registry",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "arity": {
+          "max": 100,
+          "min": 2
+        },
+        "name": "min",
+        "resultType": "decimal",
+        "source": {
+          "line": 1789,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D operator registry",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "arity": {
+          "max": 100,
+          "min": 2
+        },
+        "name": "max",
+        "resultType": "decimal",
+        "source": {
+          "line": 1789,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D operator registry",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "arity": 2,
+        "name": "sum",
+        "resultType": "decimal",
+        "source": {
+          "line": 1789,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D operator registry",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "arity": 1,
+        "name": "count",
+        "resultType": "integer",
+        "source": {
+          "line": 1789,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D operator registry",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "arity": 2,
+        "name": "any",
+        "resultType": "boolean",
+        "source": {
+          "line": 1789,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D operator registry",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "arity": 2,
+        "name": "all",
+        "resultType": "boolean",
+        "source": {
+          "line": 1789,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D operator registry",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "arity": {
+          "max": 100,
+          "min": 2
+        },
+        "name": "concat",
+        "resultType": "text",
+        "source": {
+          "line": 1789,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D operator registry",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "arity": 1,
+        "name": "length",
+        "resultType": "integer",
+        "source": {
+          "line": 1789,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D operator registry",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "arity": {
+          "max": 100,
+          "min": 2
+        },
+        "name": "coalesce",
+        "resultType": "unified operand type",
+        "source": {
+          "line": 1789,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D operator registry",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "arity": 3,
+        "name": "if",
+        "resultType": "unified branch type",
+        "source": {
+          "line": 1789,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D operator registry",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "arity": 2,
+        "name": "dateDiffDays",
+        "resultType": "integer",
+        "source": {
+          "line": 1789,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D operator registry",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "arity": 2,
+        "name": "ageYears",
+        "resultType": "integer",
+        "source": {
+          "line": 1789,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D operator registry",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "arity": 2,
+        "name": "dateAddDays",
+        "resultType": "date",
+        "source": {
+          "line": 1789,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D operator registry",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "arity": 0,
+        "name": "today",
+        "resultType": "date",
+        "source": {
+          "line": 1789,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D operator registry",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      }
+    ],
+    "vectors": [
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-001",
+        "name": "34-significant-digit decimal remains exact",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-002",
+        "name": "Text does not compare equal to a decimal by coercion",
+        "phase": "compile",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-003",
+        "name": "Integer addition has decimal result",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-004",
+        "name": "Mixed numeric equality promotes exactly",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-005",
+        "name": "Mixed numeric greater-than-or-equal",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-006",
+        "name": "Text inequality is exact and case sensitive",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-007",
+        "name": "Dates order by Gregorian date",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-008",
+        "name": "Times compare as local clock values",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-009",
+        "name": "Numeric greater-than",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-010",
+        "name": "Text ordering has no implicit locale collation",
+        "phase": "compile",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-011",
+        "name": "Exact terminating division",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-012",
+        "name": "Divide by zero is an explicit error",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-013",
+        "name": "Nonterminating division is not silently rounded",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-014",
+        "name": "Exact arithmetic exceeding 34 significant digits fails",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-015",
+        "name": "Decimal multiplication avoids binary rounding",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-016",
+        "name": "Decimal subtraction remains exact",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-017",
+        "name": "Half-even rounding keeps an even last digit",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-018",
+        "name": "Half-even rounding increments an odd last digit",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-019",
+        "name": "Half-even rounding is symmetric for negatives",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-020",
+        "name": "Minimum promotes mixed numerics",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-021",
+        "name": "Maximum promotes mixed numerics",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-022",
+        "name": "Choice membership uses scalar then array",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-023",
+        "name": "Contains uses array then scalar",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-024",
+        "name": "Contains-all ignores order and duplicate multiplicity",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-025",
+        "name": "Array equality is rejected",
+        "phase": "compile",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-026",
+        "name": "Contains is not a text substring operator",
+        "phase": "compile",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-027",
+        "name": "Concatenation has explicit text operands",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-028",
+        "name": "Text length counts Unicode scalar values",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-029",
+        "name": "Array length counts elements",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-030",
+        "name": "Coalesce skips unavailable text",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-031",
+        "name": "Coalesce promotes selected integer and skips a later error",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-032",
+        "name": "Unknown condition evaluates neither branch",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-033",
+        "name": "False condition skips a failing true branch",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-034",
+        "name": "False AND Unknown is false",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-035",
+        "name": "True AND Unknown is Unknown",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-036",
+        "name": "True OR Unknown is true",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-037",
+        "name": "False OR Unknown is Unknown",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-038",
+        "name": "NOT Unknown is Unknown",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-039",
+        "name": "Exists is false for unanswered",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-040",
+        "name": "Zero is answered",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-041",
+        "name": "Status test sees declined without reading a value",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-042",
+        "name": "Unknown status names fail compile",
+        "phase": "compile",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-043",
+        "name": "Date difference is end minus start and includes leap day",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-044",
+        "name": "Reversing date difference reverses its sign",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-045",
+        "name": "Leap birthday has not reached its next age on February 28",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-046",
+        "name": "Leap birthday reaches next age on March 1",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-047",
+        "name": "Age as-of before birth is rejected",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-048",
+        "name": "Adding calendar days crosses into leap day",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-049",
+        "name": "Adding negative calendar days subtracts",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-050",
+        "name": "Session date is a frozen typed date",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-051",
+        "name": "Session timezone is a frozen text value",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-052",
+        "name": "Mutable locale is not an expression context",
+        "phase": "compile",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-053",
+        "name": "Nested literal arrays are forbidden",
+        "phase": "compile",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-054",
+        "name": "Legacy untyped literal is rejected",
+        "phase": "compile",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-055",
+        "name": "Null literal is rejected",
+        "phase": "compile",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-056",
+        "name": "Array values must have the declared homogeneous item type",
+        "phase": "compile",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-057",
+        "name": "Empty answered list sum",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-058",
+        "name": "Empty answered list count",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-059",
+        "name": "Empty answered list any",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-060",
+        "name": "Empty answered list all",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-061",
+        "name": "Sum evaluates all typed repeated amounts",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-062",
+        "name": "Unavailable child makes sum Unknown rather than zero",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-063",
+        "name": "Count includes a row with unanswered children",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-064",
+        "name": "Any Unknown then true is true",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-065",
+        "name": "All Unknown then false is false",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-066",
+        "name": "Any Unknown then false remains Unknown",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-067",
+        "name": "All Unknown then true remains Unknown",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-068",
+        "name": "Any short-circuits before an unvisited divide-by-zero",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-069",
+        "name": "All short-circuits before an unvisited divide-by-zero",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-070",
+        "name": "Unanswered list is Unknown even for count",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-071",
+        "name": "Sum needs list and item expression",
+        "phase": "compile",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-072",
+        "name": "Repeated leaf cannot be referenced from root",
+        "phase": "compile",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-073",
+        "name": "Signed 64-bit integer literal beyond JavaScript safe-number boundary remains exact",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-074",
+        "name": "Impossible calendar date is rejected at compile",
+        "phase": "compile",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-075",
+        "name": "DateTime equality compares instants not display timezone",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-076",
+        "name": "Invalid IANA timezone is rejected",
+        "phase": "compile",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-077",
+        "name": "Nested sum resolves parent item by stable context",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-078",
+        "name": "Parent depth is illegal on root reference",
+        "phase": "compile",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-079",
+        "name": "Non-applicable retained value cannot participate",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-080",
+        "name": "Equal unavailable operands do not become equal",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-081",
+        "name": "Declared negative decimal zero normalizes to zero",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-082",
+        "name": "Unsupported operator is rejected before execution",
+        "phase": "compile",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-083",
+        "name": "Explicit respondent Not applicable remains distinct",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-084",
+        "name": "Explicit respondent Not applicable is not automatic exclusion",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-085",
+        "name": "Explicit respondent Not applicable has unavailable value",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-086",
+        "name": "Automatic exclusion is observable only as server status",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-087",
+        "name": "Evaluated error is not hidden by an earlier Unknown",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-088",
+        "name": "Out-of-range literal round scale fails compile",
+        "phase": "compile",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-089",
+        "name": "Out-of-range referenced round scale fails evaluation",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-090",
+        "name": "Exact sum accumulator preserves cancellation across reorder 1",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "EXPR-091",
+        "name": "Exact sum accumulator preserves cancellation across reorder 2",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "INT64-01",
+        "name": "Largest signed integer",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "INT64-02",
+        "name": "Smallest signed integer",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "INT64-03",
+        "name": "Above signed range",
+        "phase": "compile",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "INT64-04",
+        "name": "Below signed range",
+        "phase": "compile",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "INT64-05",
+        "name": "Exact 2^53 plus one",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "INT64-06",
+        "name": "Reject JSON number integer transport",
+        "phase": "compile",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "INT64-07",
+        "name": "Reject negative zero",
+        "phase": "compile",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "INT64-08",
+        "name": "Reject leading zero",
+        "phase": "compile",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "TODAY-01",
+        "name": "Frozen today ignores wall clock",
+        "phase": "evaluate",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      },
+      {
+        "declaredStatus": "not_run_product_not_implemented",
+        "id": "DIV-COMPILE-01",
+        "name": "Literal zero divisor rejected before runtime",
+        "phase": "compile",
+        "source": {
+          "line": 2569,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "Appendix D fixed vector list",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      }
+    ]
+  },
+  "fixtures": [
+    {
+      "id": "T01",
+      "requirements": [
+        "SF-ORG-01",
+        "SF-ORG-02",
+        "SF-ORG-03",
+        "SF-AUTH-04",
+        "SF-ORG-05"
+      ],
+      "source": {
+        "line": 800,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§17 fixture table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "T02",
+      "requirements": [
+        "SF-AUT-01",
+        "SF-AUT-02",
+        "SF-AUT-03",
+        "SF-AUT-04",
+        "SF-AUT-05",
+        "SF-AUT-09",
+        "SF-UX-01"
+      ],
+      "source": {
+        "line": 801,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§17 fixture table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "T03",
+      "requirements": [
+        "SF-AUT-06",
+        "SF-VAL-03",
+        "SF-ACC-03"
+      ],
+      "source": {
+        "line": 802,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§17 fixture table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "T04",
+      "requirements": [
+        "SF-AUT-02",
+        "SF-FLD-01",
+        "SF-FLD-02",
+        "SF-FLD-04",
+        "SF-FLD-07",
+        "SF-VAL-01",
+        "SF-CON-02"
+      ],
+      "source": {
+        "line": 803,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§17 fixture table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "T05",
+      "requirements": [
+        "SF-AUT-05",
+        "SF-FLD-07",
+        "SF-RUL-01",
+        "SF-RUL-02",
+        "SF-RUL-03",
+        "SF-RUL-04",
+        "SF-RUL-05",
+        "SF-RUL-06",
+        "SF-VAL-01"
+      ],
+      "source": {
+        "line": 804,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§17 fixture table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "T06",
+      "requirements": [
+        "SF-FLD-03",
+        "SF-FLD-04",
+        "SF-RUL-03",
+        "SF-RUL-05"
+      ],
+      "source": {
+        "line": 805,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§17 fixture table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "T07",
+      "requirements": [
+        "SF-AUT-08",
+        "SF-THM-03",
+        "SF-PUB-04",
+        "SF-IMP-03",
+        "SF-EXT-01",
+        "SF-EXT-02"
+      ],
+      "source": {
+        "line": 806,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§17 fixture table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "T08",
+      "requirements": [
+        "SF-VAL-01",
+        "SF-VAL-02",
+        "SF-VAL-03",
+        "SF-UX-01"
+      ],
+      "source": {
+        "line": 807,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§17 fixture table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "T09",
+      "requirements": [
+        "SF-AUT-04",
+        "SF-RES-02",
+        "SF-RES-03",
+        "SF-API-03",
+        "SF-UX-01"
+      ],
+      "source": {
+        "line": 808,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§17 fixture table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "T10",
+      "requirements": [
+        "SF-AUT-03",
+        "SF-AUT-09",
+        "SF-PUB-01",
+        "SF-PUB-02",
+        "SF-PUB-03",
+        "SF-PUB-04",
+        "SF-CON-01"
+      ],
+      "source": {
+        "line": 809,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§17 fixture table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "T11",
+      "requirements": [
+        "SF-GUD-01",
+        "SF-GUD-02",
+        "SF-GUD-03",
+        "SF-GUD-04",
+        "SF-GUD-05",
+        "SF-SEC-04",
+        "SF-NFR-05",
+        "SF-EXT-04"
+      ],
+      "source": {
+        "line": 810,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§17 fixture table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "T12",
+      "requirements": [
+        "SF-LOC-01",
+        "SF-LOC-02",
+        "SF-LOC-03"
+      ],
+      "source": {
+        "line": 811,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§17 fixture table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "T13",
+      "requirements": [
+        "SF-UI-01",
+        "SF-THM-01",
+        "SF-THM-02",
+        "SF-THM-03",
+        "SF-VAL-02",
+        "SF-LOC-03",
+        "SF-ACC-01",
+        "SF-ACC-02",
+        "SF-ACC-03"
+      ],
+      "source": {
+        "line": 812,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§17 fixture table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "T14",
+      "requirements": [
+        "SF-PUB-03",
+        "SF-RES-01",
+        "SF-SHR-01",
+        "SF-SHR-02",
+        "SF-UX-01"
+      ],
+      "source": {
+        "line": 813,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§17 fixture table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "T15",
+      "requirements": [
+        "SF-FLD-06",
+        "SF-API-05",
+        "SF-SEC-06"
+      ],
+      "source": {
+        "line": 814,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§17 fixture table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "T17",
+      "requirements": [
+        "SF-RES-04",
+        "SF-ADM-04",
+        "SF-API-02",
+        "SF-API-03",
+        "SF-NFR-03"
+      ],
+      "source": {
+        "line": 815,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§17 fixture table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "T18",
+      "requirements": [
+        "SF-ADM-01",
+        "SF-ADM-02",
+        "SF-API-02",
+        "SF-SEC-05",
+        "SF-NFR-05",
+        "SF-CON-02"
+      ],
+      "source": {
+        "line": 816,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§17 fixture table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "T19",
+      "requirements": [
+        "SF-API-04",
+        "SF-SEC-06",
+        "SF-UX-01"
+      ],
+      "source": {
+        "line": 817,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§17 fixture table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "T20",
+      "requirements": [
+        "SF-ORG-03",
+        "SF-AUTH-01",
+        "SF-AUTH-02",
+        "SF-PLT-02",
+        "SF-ORG-05",
+        "SF-GUD-05",
+        "SF-RES-03",
+        "SF-SHR-02",
+        "SF-API-05",
+        "SF-IMP-04",
+        "SF-SEC-01",
+        "SF-SEC-02",
+        "SF-SEC-03",
+        "SF-SEC-04",
+        "SF-SEC-05"
+      ],
+      "source": {
+        "line": 818,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§17 fixture table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "T21",
+      "requirements": [
+        "SF-IMP-02",
+        "SF-IMP-04",
+        "SF-SEC-06",
+        "SF-NFR-02"
+      ],
+      "source": {
+        "line": 819,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§17 fixture table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "T22",
+      "requirements": [
+        "SF-ORG-02",
+        "SF-NFR-01",
+        "SF-NFR-02",
+        "SF-NFR-05"
+      ],
+      "source": {
+        "line": 820,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§17 fixture table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "T23",
+      "requirements": [
+        "SF-PLT-01",
+        "SF-SEC-03",
+        "SF-NFR-03",
+        "SF-NFR-04",
+        "SF-OPS-01"
+      ],
+      "source": {
+        "line": 821,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§17 fixture table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "T24",
+      "requirements": [
+        "SF-FLD-02",
+        "SF-VAL-03",
+        "SF-ADM-04",
+        "SF-API-01",
+        "SF-API-02",
+        "SF-API-03",
+        "SF-IMP-01",
+        "SF-IMP-03",
+        "SF-IMP-04",
+        "SF-CON-01",
+        "SF-CON-02"
+      ],
+      "source": {
+        "line": 822,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§17 fixture table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "T25",
+      "requirements": [
+        "SF-UX-02",
+        "SF-UX-03"
+      ],
+      "source": {
+        "line": 823,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§17 fixture table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "T26",
+      "requirements": [
+        "SF-EXT-01",
+        "SF-EXT-02",
+        "SF-EXT-03",
+        "SF-EXT-04"
+      ],
+      "source": {
+        "line": 824,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§17 fixture table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "T27",
+      "requirements": [
+        "SF-AUTH-01",
+        "SF-AUTH-02",
+        "SF-UI-01"
+      ],
+      "source": {
+        "line": 832,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§17 fixture table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "T28",
+      "requirements": [
+        "SF-AUTH-03",
+        "SF-AUTH-04",
+        "SF-AUTH-06",
+        "SF-AUTH-07",
+        "SF-PLT-01",
+        "SF-PLT-02",
+        "SF-PLT-03",
+        "SF-ORG-05",
+        "SF-UI-01"
+      ],
+      "source": {
+        "line": 833,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§17 fixture table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "T29",
+      "requirements": [
+        "SF-AUTH-05",
+        "SF-AUTH-06",
+        "SF-AUTH-07",
+        "SF-PLT-03",
+        "SF-UI-01"
+      ],
+      "source": {
+        "line": 834,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§17 fixture table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "T30",
+      "requirements": [
+        "SF-AUTH-07",
+        "SF-UI-01"
+      ],
+      "source": {
+        "line": 835,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§17 fixture table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "T31",
+      "requirements": [
+        "SF-CON-01",
+        "SF-CON-02"
+      ],
+      "source": {
+        "line": 836,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§17 fixture table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "id": "T32",
+      "requirements": [
+        "SF-OPS-01"
+      ],
+      "source": {
+        "line": 837,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "§17 fixture table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    }
+  ],
+  "format": "smart-form-builder-lite-m0-authoritative-inventory/v1",
+  "formerlyRemovedWholeCoreDenialList": {
+    "declaredCount": 7,
+    "enumerationAvailable": false,
+    "identifiers": [],
+    "source": {
+      "line": 3,
+      "path": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Scope-Review.md",
+      "rule": "scope review declaration",
+      "sha256": "98a72b57fdc9622215196026b0367e4a00aa1e3b549f21aa8181055dc41a9401"
+    }
+  },
+  "generationPolicy": {
+    "acceptanceStatusInferred": false,
+    "deterministic": true,
+    "duplicatesAndRequiredSkipsFailGeneration": true,
+    "sourceDriftFailsVerification": true
+  },
+  "normativeApiOperations": {
+    "count": 53,
+    "countingRule": "One operation equals one distinct HTTP verb plus canonical path; query examples are not part of the path.",
+    "operations": [
+      {
+        "path": " /v1/capabilities",
+        "source": {
+          "line": 551,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "GET"
+      },
+      {
+        "path": " /v1/schemas/{kind}/{version}",
+        "source": {
+          "line": 552,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "GET"
+      },
+      {
+        "path": " /v1/workspaces/{w}/forms",
+        "source": {
+          "line": 553,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "POST"
+      },
+      {
+        "path": " /v1/workspaces/{w}/forms",
+        "source": {
+          "line": 554,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "GET"
+      },
+      {
+        "path": " /v1/workspaces/{w}/forms/{f}/drafts/{d}",
+        "source": {
+          "line": 555,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "GET"
+      },
+      {
+        "path": " /v1/workspaces/{w}/forms/{f}/drafts/{d}",
+        "source": {
+          "line": 556,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "PUT"
+      },
+      {
+        "path": " /v1/workspaces/{w}/imports/validate",
+        "source": {
+          "line": 557,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "POST"
+      },
+      {
+        "path": " /v1/workspaces/{w}/imports/{candidateId}/commit",
+        "source": {
+          "line": 558,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "POST"
+      },
+      {
+        "path": " /v1/workspaces/{w}/forms/{f}/drafts/{d}/validate",
+        "source": {
+          "line": 559,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "POST"
+      },
+      {
+        "path": " /v1/workspaces/{w}/forms/{f}/drafts/{d}/review-requests",
+        "source": {
+          "line": 560,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "POST"
+      },
+      {
+        "path": " /v1/workspaces/{w}/forms/{f}/releases",
+        "source": {
+          "line": 561,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "POST"
+      },
+      {
+        "path": " /v1/workspaces/{w}/forms/{f}/releases/{releaseId}",
+        "source": {
+          "line": 562,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "GET"
+      },
+      {
+        "path": " /v1/workspaces/{w}/forms/{f}/activation",
+        "source": {
+          "line": 563,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "POST"
+      },
+      {
+        "path": " /v1/workspaces/{w}/forms/{f}/export",
+        "source": {
+          "line": 564,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "GET"
+      },
+      {
+        "path": " /v1/public/forms/{shareId}/sessions",
+        "source": {
+          "line": 580,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "POST"
+      },
+      {
+        "path": " /v1/sessions/{s}",
+        "source": {
+          "line": 581,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "GET"
+      },
+      {
+        "path": " /v1/sessions/{s}",
+        "source": {
+          "line": 582,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "PATCH"
+      },
+      {
+        "path": " /v1/sessions/{s}/attachments",
+        "source": {
+          "line": 583,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "POST"
+      },
+      {
+        "path": " /v1/sessions/{s}/attachments/{a}/complete",
+        "source": {
+          "line": 584,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "POST"
+      },
+      {
+        "path": " /v1/sessions/{s}/attachments/{a}",
+        "source": {
+          "line": 585,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "DELETE"
+      },
+      {
+        "path": " /v1/sessions/{s}/validate",
+        "source": {
+          "line": 586,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "POST"
+      },
+      {
+        "path": " /v1/sessions/{s}/submissions",
+        "source": {
+          "line": 587,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "POST"
+      },
+      {
+        "path": " /v1/sessions/{s}/submission-operation",
+        "source": {
+          "line": 588,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "GET"
+      },
+      {
+        "path": " /v1/workspaces/{w}/submissions",
+        "source": {
+          "line": 596,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "GET"
+      },
+      {
+        "path": " /v1/workspaces/{w}/submissions/{id}",
+        "source": {
+          "line": 597,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "GET"
+      },
+      {
+        "path": " /v1/workspaces/{w}/exports",
+        "source": {
+          "line": 598,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "POST"
+      },
+      {
+        "path": " /v1/workspaces/{w}/attachments/{id}/download",
+        "source": {
+          "line": 599,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "GET"
+      },
+      {
+        "path": " /v1/workspaces/{w}/webhooks",
+        "source": {
+          "line": 600,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "POST"
+      },
+      {
+        "path": " /v1/workspaces/{w}/webhook-deliveries",
+        "source": {
+          "line": 601,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "GET"
+      },
+      {
+        "path": " /v1/workspaces/{w}/webhook-deliveries/{id}/replay",
+        "source": {
+          "line": 602,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "POST"
+      },
+      {
+        "path": " /v1/auth/sign-in",
+        "source": {
+          "line": 1022,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "POST"
+      },
+      {
+        "path": " /v1/auth/sign-out",
+        "source": {
+          "line": 1023,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "POST"
+      },
+      {
+        "path": " /v1/auth/session",
+        "source": {
+          "line": 1024,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "GET"
+      },
+      {
+        "path": " /v1/auth/activate",
+        "source": {
+          "line": 1025,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "POST"
+      },
+      {
+        "path": " /v1/auth/password-change",
+        "source": {
+          "line": 1026,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "POST"
+      },
+      {
+        "path": " /v1/auth/recovery",
+        "source": {
+          "line": 1027,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "POST"
+      },
+      {
+        "path": " /v1/auth/reset",
+        "source": {
+          "line": 1028,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "POST"
+      },
+      {
+        "path": " /v1/invitations/accept",
+        "source": {
+          "line": 1029,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "POST"
+      },
+      {
+        "path": " /v1/platform/organizations",
+        "source": {
+          "line": 1030,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "GET"
+      },
+      {
+        "path": " /v1/platform/organizations",
+        "source": {
+          "line": 1030,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "POST"
+      },
+      {
+        "path": " /v1/platform/organizations/{o}",
+        "source": {
+          "line": 1031,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "PATCH"
+      },
+      {
+        "path": " /v1/platform/organizations/{o}/users",
+        "source": {
+          "line": 1032,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "POST"
+      },
+      {
+        "path": " /v1/platform/accounts/{a}",
+        "source": {
+          "line": 1033,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "PATCH"
+      },
+      {
+        "path": " /v1/organizations/{o}/users",
+        "source": {
+          "line": 1034,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "GET"
+      },
+      {
+        "path": " /v1/organizations/{o}/users",
+        "source": {
+          "line": 1034,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "POST"
+      },
+      {
+        "path": " /v1/organizations/{o}/users/{u}",
+        "source": {
+          "line": 1035,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "PATCH"
+      },
+      {
+        "path": " /v1/organizations/{o}/users/{u}",
+        "source": {
+          "line": 1035,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "DELETE"
+      },
+      {
+        "path": " /v1/workspaces/{w}/users/{u}/roles",
+        "source": {
+          "line": 1036,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "PUT"
+      },
+      {
+        "path": " /v1/workspaces/{w}/users/{u}/roles",
+        "source": {
+          "line": 1036,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "DELETE"
+      },
+      {
+        "path": " /v1/organizations/{o}/users/{u}/invitations",
+        "source": {
+          "line": 1037,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "POST"
+      },
+      {
+        "path": " /v1/organizations/{o}/invitations/{i}",
+        "source": {
+          "line": 1038,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "DELETE"
+      },
+      {
+        "path": " /v1/organizations/{o}/users/{u}/recovery",
+        "source": {
+          "line": 1039,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "POST"
+      },
+      {
+        "path": " /v1/platform/accounts/{a}/recovery",
+        "source": {
+          "line": 1040,
+          "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+          "rule": "normative API table",
+          "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        "verb": "POST"
+      }
+    ],
+    "source": {
+      "line": 549,
+      "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+      "rule": "§11 and Appendix A named operation tables",
+      "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+    },
+    "supportingCrudRule": "§11.5 requires supporting CRUD but does not name finite verb+path members; it is intentionally not included in O_named."
+  },
+  "requirements": [
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T01"
+      ],
+      "id": "SF-ORG-01",
+      "source": {
+        "line": 101,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T01",
+        "T22"
+      ],
+      "id": "SF-ORG-02",
+      "source": {
+        "line": 102,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T01",
+        "T20"
+      ],
+      "id": "SF-ORG-03",
+      "source": {
+        "line": 103,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "new in Lite 1.1",
+      "class": "C",
+      "disposition": "added",
+      "fixtures": [
+        "T27",
+        "T20"
+      ],
+      "id": "SF-AUTH-01",
+      "source": {
+        "line": 127,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "new in Lite 1.1",
+      "class": "C",
+      "disposition": "added",
+      "fixtures": [
+        "T27",
+        "T20"
+      ],
+      "id": "SF-AUTH-02",
+      "source": {
+        "line": 128,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "new in Lite 1.1",
+      "class": "C",
+      "disposition": "added",
+      "fixtures": [
+        "T28"
+      ],
+      "id": "SF-AUTH-03",
+      "source": {
+        "line": 129,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "new in Lite 1.1",
+      "class": "C",
+      "disposition": "added",
+      "fixtures": [
+        "T28",
+        "T01"
+      ],
+      "id": "SF-AUTH-04",
+      "source": {
+        "line": 130,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "new in Lite 1.1",
+      "class": "C",
+      "disposition": "added",
+      "fixtures": [
+        "T29"
+      ],
+      "id": "SF-AUTH-05",
+      "source": {
+        "line": 131,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "new in Lite 1.1",
+      "class": "C",
+      "disposition": "added",
+      "fixtures": [
+        "T28",
+        "T29"
+      ],
+      "id": "SF-AUTH-06",
+      "source": {
+        "line": 132,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "new in Lite 1.1",
+      "class": "C",
+      "disposition": "added",
+      "fixtures": [
+        "T28",
+        "T29",
+        "T30"
+      ],
+      "id": "SF-AUTH-07",
+      "source": {
+        "line": 133,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "new in Lite 1.1",
+      "class": "C",
+      "disposition": "added",
+      "fixtures": [
+        "T28",
+        "T23"
+      ],
+      "id": "SF-PLT-01",
+      "source": {
+        "line": 134,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "new in Lite 1.1",
+      "class": "C",
+      "disposition": "added",
+      "fixtures": [
+        "T28",
+        "T20"
+      ],
+      "id": "SF-PLT-02",
+      "source": {
+        "line": 135,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "new in Lite 1.1",
+      "class": "C",
+      "disposition": "added",
+      "fixtures": [
+        "T28",
+        "T29"
+      ],
+      "id": "SF-PLT-03",
+      "source": {
+        "line": 136,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "new in Lite 1.1",
+      "class": "C",
+      "disposition": "added",
+      "fixtures": [
+        "T01",
+        "T28",
+        "T20"
+      ],
+      "id": "SF-ORG-05",
+      "source": {
+        "line": 137,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "new in Lite 1.1",
+      "class": "C",
+      "disposition": "added",
+      "fixtures": [
+        "T27",
+        "T28",
+        "T29",
+        "T30",
+        "T13"
+      ],
+      "id": "SF-UI-01",
+      "source": {
+        "line": 200,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T02"
+      ],
+      "id": "SF-AUT-01",
+      "source": {
+        "line": 206,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T02",
+        "T04"
+      ],
+      "id": "SF-AUT-02",
+      "source": {
+        "line": 207,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T02",
+        "T10"
+      ],
+      "id": "SF-AUT-03",
+      "source": {
+        "line": 208,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T02",
+        "T09"
+      ],
+      "id": "SF-AUT-04",
+      "source": {
+        "line": 209,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "E",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T02",
+        "T05"
+      ],
+      "id": "SF-AUT-05",
+      "source": {
+        "line": 210,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T03"
+      ],
+      "id": "SF-AUT-06",
+      "source": {
+        "line": 211,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T07"
+      ],
+      "id": "SF-AUT-08",
+      "source": {
+        "line": 212,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "E",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T02",
+        "T10"
+      ],
+      "id": "SF-AUT-09",
+      "source": {
+        "line": 213,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T13"
+      ],
+      "id": "SF-THM-01",
+      "source": {
+        "line": 214,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T13"
+      ],
+      "id": "SF-THM-02",
+      "source": {
+        "line": 215,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "E",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T07",
+        "T13"
+      ],
+      "id": "SF-THM-03",
+      "source": {
+        "line": 216,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "SF-FLD-01",
+      "source": {
+        "line": 246,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T04",
+        "T24"
+      ],
+      "id": "SF-FLD-02",
+      "source": {
+        "line": 247,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T06"
+      ],
+      "id": "SF-FLD-03",
+      "source": {
+        "line": 248,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T04",
+        "T06"
+      ],
+      "id": "SF-FLD-04",
+      "source": {
+        "line": 249,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T15"
+      ],
+      "id": "SF-FLD-06",
+      "source": {
+        "line": 250,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "E",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T04",
+        "T05"
+      ],
+      "id": "SF-FLD-07",
+      "source": {
+        "line": 251,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T05"
+      ],
+      "id": "SF-RUL-01",
+      "source": {
+        "line": 321,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T05"
+      ],
+      "id": "SF-RUL-02",
+      "source": {
+        "line": 322,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T05",
+        "T06"
+      ],
+      "id": "SF-RUL-03",
+      "source": {
+        "line": 323,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T05"
+      ],
+      "id": "SF-RUL-04",
+      "source": {
+        "line": 324,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T05",
+        "T06"
+      ],
+      "id": "SF-RUL-05",
+      "source": {
+        "line": 325,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "E",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T05"
+      ],
+      "id": "SF-RUL-06",
+      "source": {
+        "line": 326,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T04",
+        "T05",
+        "T08"
+      ],
+      "id": "SF-VAL-01",
+      "source": {
+        "line": 327,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T08",
+        "T13"
+      ],
+      "id": "SF-VAL-02",
+      "source": {
+        "line": 328,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T03",
+        "T08",
+        "T24"
+      ],
+      "id": "SF-VAL-03",
+      "source": {
+        "line": 329,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T11"
+      ],
+      "id": "SF-GUD-01",
+      "source": {
+        "line": 347,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T11"
+      ],
+      "id": "SF-GUD-02",
+      "source": {
+        "line": 348,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T11"
+      ],
+      "id": "SF-GUD-03",
+      "source": {
+        "line": 349,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "E",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T11"
+      ],
+      "id": "SF-GUD-04",
+      "source": {
+        "line": 350,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T11",
+        "T20"
+      ],
+      "id": "SF-GUD-05",
+      "source": {
+        "line": 351,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T12"
+      ],
+      "id": "SF-LOC-01",
+      "source": {
+        "line": 352,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "rewritten",
+      "fixtures": [
+        "T12"
+      ],
+      "id": "SF-LOC-02",
+      "source": {
+        "line": 353,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T12",
+        "T13"
+      ],
+      "id": "SF-LOC-03",
+      "source": {
+        "line": 354,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T13"
+      ],
+      "id": "SF-ACC-01",
+      "source": {
+        "line": 355,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T13"
+      ],
+      "id": "SF-ACC-02",
+      "source": {
+        "line": 356,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "E",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T03",
+        "T13"
+      ],
+      "id": "SF-ACC-03",
+      "source": {
+        "line": 357,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T10"
+      ],
+      "id": "SF-PUB-01",
+      "source": {
+        "line": 397,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T10"
+      ],
+      "id": "SF-PUB-02",
+      "source": {
+        "line": 398,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T10",
+        "T14"
+      ],
+      "id": "SF-PUB-03",
+      "source": {
+        "line": 399,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "E",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T07",
+        "T10"
+      ],
+      "id": "SF-PUB-04",
+      "source": {
+        "line": 400,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T14"
+      ],
+      "id": "SF-RES-01",
+      "source": {
+        "line": 401,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T09"
+      ],
+      "id": "SF-RES-02",
+      "source": {
+        "line": 402,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T09",
+        "T20"
+      ],
+      "id": "SF-RES-03",
+      "source": {
+        "line": 403,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T17"
+      ],
+      "id": "SF-RES-04",
+      "source": {
+        "line": 404,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T14"
+      ],
+      "id": "SF-SHR-01",
+      "source": {
+        "line": 405,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T14",
+        "T20"
+      ],
+      "id": "SF-SHR-02",
+      "source": {
+        "line": 406,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T18"
+      ],
+      "id": "SF-ADM-01",
+      "source": {
+        "line": 407,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T18"
+      ],
+      "id": "SF-ADM-02",
+      "source": {
+        "line": 408,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T17",
+        "T24"
+      ],
+      "id": "SF-ADM-04",
+      "source": {
+        "line": 409,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T24"
+      ],
+      "id": "SF-API-01",
+      "source": {
+        "line": 620,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T17",
+        "T18",
+        "T24"
+      ],
+      "id": "SF-API-02",
+      "source": {
+        "line": 621,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T09",
+        "T17",
+        "T24"
+      ],
+      "id": "SF-API-03",
+      "source": {
+        "line": 622,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T19"
+      ],
+      "id": "SF-API-04",
+      "source": {
+        "line": 623,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T15",
+        "T20"
+      ],
+      "id": "SF-API-05",
+      "source": {
+        "line": 624,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T24"
+      ],
+      "id": "SF-IMP-01",
+      "source": {
+        "line": 625,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T21"
+      ],
+      "id": "SF-IMP-02",
+      "source": {
+        "line": 626,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T07",
+        "T24"
+      ],
+      "id": "SF-IMP-03",
+      "source": {
+        "line": 627,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T20",
+        "T21",
+        "T24"
+      ],
+      "id": "SF-IMP-04",
+      "source": {
+        "line": 628,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T20"
+      ],
+      "id": "SF-SEC-01",
+      "source": {
+        "line": 644,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T20"
+      ],
+      "id": "SF-SEC-02",
+      "source": {
+        "line": 645,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T20",
+        "T23"
+      ],
+      "id": "SF-SEC-03",
+      "source": {
+        "line": 646,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T11",
+        "T20"
+      ],
+      "id": "SF-SEC-04",
+      "source": {
+        "line": 647,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T18",
+        "T20"
+      ],
+      "id": "SF-SEC-05",
+      "source": {
+        "line": 648,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T15",
+        "T19",
+        "T21"
+      ],
+      "id": "SF-SEC-06",
+      "source": {
+        "line": 649,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T22"
+      ],
+      "id": "SF-NFR-01",
+      "source": {
+        "line": 672,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T21",
+        "T22"
+      ],
+      "id": "SF-NFR-02",
+      "source": {
+        "line": 673,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T17",
+        "T23"
+      ],
+      "id": "SF-NFR-03",
+      "source": {
+        "line": 674,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T23"
+      ],
+      "id": "SF-NFR-04",
+      "source": {
+        "line": 675,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "E",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T11",
+        "T18",
+        "T22"
+      ],
+      "id": "SF-NFR-05",
+      "source": {
+        "line": 676,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T02",
+        "T08",
+        "T09",
+        "T14",
+        "T19"
+      ],
+      "id": "SF-UX-01",
+      "source": {
+        "line": 700,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "E",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T25"
+      ],
+      "id": "SF-UX-02",
+      "source": {
+        "line": 701,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "E",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T25"
+      ],
+      "id": "SF-UX-03",
+      "source": {
+        "line": 702,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T07",
+        "T26"
+      ],
+      "id": "SF-EXT-01",
+      "source": {
+        "line": 789,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T07",
+        "T26"
+      ],
+      "id": "SF-EXT-02",
+      "source": {
+        "line": 790,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "C",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T26"
+      ],
+      "id": "SF-EXT-03",
+      "source": {
+        "line": 791,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "Lite 1.0",
+      "class": "E",
+      "disposition": "unchanged",
+      "fixtures": [
+        "T11",
+        "T26"
+      ],
+      "id": "SF-EXT-04",
+      "source": {
+        "line": 792,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "new in Lite 1.1",
+      "class": "C",
+      "disposition": "added",
+      "fixtures": [
+        "T32",
+        "T23"
+      ],
+      "id": "SF-OPS-01",
+      "source": {
+        "line": 873,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "new in Lite 1.1",
+      "class": "C",
+      "disposition": "added",
+      "fixtures": [
+        "T31",
+        "T10",
+        "T24"
+      ],
+      "id": "SF-CON-01",
+      "source": {
+        "line": 874,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    },
+    {
+      "baseline": "new in Lite 1.1",
+      "class": "C",
+      "disposition": "added",
+      "fixtures": [
+        "T31",
+        "T04",
+        "T18",
+        "T24"
+      ],
+      "id": "SF-CON-02",
+      "source": {
+        "line": 875,
+        "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+        "rule": "normative requirement table",
+        "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+      }
+    }
+  ]
+}

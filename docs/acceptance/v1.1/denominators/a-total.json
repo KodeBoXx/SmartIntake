@@ -1,0 +1,1349 @@
+{
+  "counting_rule": "one retained requirement-disposition row = one assertion",
+  "current_execution_status": "not-run",
+  "independent_review_required": true,
+  "manifest": "A_total",
+  "members": [
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T01",
+      "id": "A-SF-ORG-01",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-ORG-01",
+      "requirement_text": "As an administrator, I can create workspaces, invite/remove members, assign teams/roles and transfer form ownership without transferring respondent data across tenants.",
+      "status": "not-run",
+      "title": "SF-ORG-01 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T01, T22",
+      "id": "A-SF-ORG-02",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-ORG-02",
+      "requirement_text": "As an author, I can search/filter/paginate forms by title, key, tag, owner, status and updated time; create folders/tags; duplicate, archive and restore forms. No fixed catalog-count cap is embedded in the model.",
+      "status": "not-run",
+      "title": "SF-ORG-02 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T01, T20",
+      "id": "A-SF-ORG-03",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-ORG-03",
+      "requirement_text": "As an owner, I can configure policy defaults, locale/timezone, storage/retention and approved providers; workspace overrides cannot weaken an enforced organization policy.",
+      "status": "not-run",
+      "title": "SF-ORG-03 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T27, T20",
+      "id": "A-SF-AUTH-01",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-AUTH-01",
+      "requirement_text": "As a staff member, I can sign in with username/password and sign out; no public self-registration or development identity header substitutes for authentication. Unknown username, wrong password, inactive account and invalid credentials have the same public failure response, with bounded abuse protection.",
+      "status": "not-run",
+      "title": "SF-AUTH-01 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T27, T20",
+      "id": "A-SF-AUTH-02",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-AUTH-02",
+      "requirement_text": "As a staff member, I receive an opaque server-managed session with expiry, idle timeout, secure transport and mutation protection. Logout invalidates it server-side. Account suspension/password changes revoke all sessions; membership/role removal invalidates affected access within five minutes and every sensitive request checks current authority.",
+      "status": "not-run",
+      "title": "SF-AUTH-02 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T28",
+      "id": "A-SF-AUTH-03",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-AUTH-03",
+      "requirement_text": "As a new staff member, I can use an administrator-set temporary password to reach mandatory password setup without email. Until setup succeeds, only setup, safe session status and sign-out are available; no ordinary staff API or page is usable.",
+      "status": "not-run",
+      "title": "SF-AUTH-03 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T28, T01",
+      "id": "A-SF-AUTH-04",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-AUTH-04",
+      "requirement_text": "As an administrator, I can invite a named user with scoped roles using an expiring single-use link. With configured email it is sent and delivery status is visible; without email I can copy the newly issued link. Redemption rechecks current authority and activates the new account or adds an authenticated existing account's offered membership.",
+      "status": "not-run",
+      "title": "SF-AUTH-04 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T29",
+      "id": "A-SF-AUTH-05",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-AUTH-05",
+      "requirement_text": "As an active user, I can change my password by proving the current password; forgotten-password recovery is a separate flow. An authorized administrator can initiate recovery without email within the account boundary above. Configured email enables holder-initiated recovery with a generic public response.",
+      "status": "not-run",
+      "title": "SF-AUTH-05 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T28, T29",
+      "id": "A-SF-AUTH-06",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-AUTH-06",
+      "requirement_text": "As an account holder, activation/reset/change enforces one documented password policy and invalidates old setup/reset links and affected sessions atomically. Tokens cannot be reused, replayed concurrently, accepted after expiry/revocation, or substituted between purposes/accounts/tenants.",
+      "status": "not-run",
+      "title": "SF-AUTH-06 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T28, T29, T30",
+      "id": "A-SF-AUTH-07",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-AUTH-07",
+      "requirement_text": "As an administrator, I see user identity, activation/membership status, workspace roles and invitation delivery state; create/add, role assignment, suspension/removal and authorized recovery are audited. Passwords, hashes and tokens never appear in ordinary list/detail/export/log responses.",
+      "status": "not-run",
+      "title": "SF-AUTH-07 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T28, T23",
+      "id": "A-SF-PLT-01",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-PLT-01",
+      "requirement_text": "As a deployment operator, I can establish and activate the first platform administrator once, safely retry startup, and recover administrator access through a documented audited operator procedure.",
+      "status": "not-run",
+      "title": "SF-PLT-01 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T28, T20",
+      "id": "A-SF-PLT-02",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-PLT-02",
+      "requirement_text": "As a platform administrator, I can list/create/manage organizations and appoint owners/admins; tenant administrators cannot perform platform operations. Creating an organization and its first owner is atomic.",
+      "status": "not-run",
+      "title": "SF-PLT-02 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T28, T29",
+      "id": "A-SF-PLT-03",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-PLT-03",
+      "requirement_text": "As an organization, concurrent account, role and recovery actions cannot remove our last acting owner; analogous protection applies to the last acting platform administrator. Pending activation and global account suspension count correctly.",
+      "status": "not-run",
+      "title": "SF-PLT-03 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T01, T28, T20",
+      "id": "A-SF-ORG-05",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-ORG-05",
+      "requirement_text": "As a staff member in multiple organizations/workspaces, I can switch among permitted memberships, with explicit tenant context and independently enforced roles. Removal in one tenant never grants or deletes membership in another.",
+      "status": "not-run",
+      "title": "SF-ORG-05 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T27, T28, T29, T30, T13",
+      "id": "A-SF-UI-01",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-UI-01",
+      "requirement_text": "As staff, I can complete all authentication and administration journeys through accessible Certinal UI screens, including empty/no-access, pending activation, expiry, denied operation and email-unavailable states; hidden navigation never replaces API authorization.",
+      "status": "not-run",
+      "title": "SF-UI-01 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T02",
+      "id": "A-SF-AUT-01",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-AUT-01",
+      "requirement_text": "As an author, I can create/reorder/duplicate/delete phases, pages, sections and question instances; use grouped-page or focused-question presentation; retain stable IDs through moves and label edits.",
+      "status": "not-run",
+      "title": "SF-AUT-01 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T02, T04",
+      "id": "A-SF-AUT-02",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-AUT-02",
+      "requirement_text": "As an author, I can edit label, description, placeholder, help/example, units, requiredness, default/read-only policy and sensitivity without editing application code.",
+      "status": "not-run",
+      "title": "SF-AUT-02 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T02, T10",
+      "id": "A-SF-AUT-03",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-AUT-03",
+      "requirement_text": "As an author, I can undo/redo at least 100 logical edit transactions per tab; grouped typing and drag actions undo as one action; saved draft history survives reload. Undo never alters a published release.",
+      "status": "not-run",
+      "title": "SF-AUT-03 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T02, T09",
+      "id": "A-SF-AUT-04",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-AUT-04",
+      "requirement_text": "As an author, I see Saving/Saved/Retrying/Conflict state. Edits use optimistic revision checks; concurrent changes are compared and explicitly resolved, never silently overwritten.",
+      "status": "not-run",
+      "title": "SF-AUT-04 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "E",
+      "fixture": "T02, T05",
+      "id": "A-SF-AUT-05",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-AUT-05",
+      "requirement_text": "Before deleting/changing a referenced field, option, page or block, I see impacted rules, text, translations and consumers; cancel, replace references or accept a draft-breaking change with diagnostics.",
+      "status": "not-run",
+      "title": "SF-AUT-05 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T03",
+      "id": "A-SF-AUT-06",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-AUT-06",
+      "requirement_text": "As an author, I can preview the exact candidate through the production compiler/runtime with synthetic data, device sizes and locale changes; preview cannot create real submissions or send live events.",
+      "status": "not-run",
+      "title": "SF-AUT-06 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T07",
+      "id": "A-SF-AUT-08",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-AUT-08",
+      "requirement_text": "As an author, I can create versioned reusable blocks containing fields, layout, rules, guidance and translations; insert with an ID remap, fork locally or explicitly update with an impact diff.",
+      "status": "not-run",
+      "title": "SF-AUT-08 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "E",
+      "fixture": "T02, T10",
+      "id": "A-SF-AUT-09",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-AUT-09",
+      "requirement_text": "As a collaborator, I can see who is editing, add/resolve comments and compare revisions. Presence is advisory; revision checks are authoritative. Live character-by-character coediting is optional.",
+      "status": "not-run",
+      "title": "SF-AUT-09 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T13",
+      "id": "A-SF-THM-01",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-THM-01",
+      "requirement_text": "As an administrator, I can define logo, approved fonts, colors, spacing, density, border radius, header/footer and responsive layouts using bounded theme tokens. No arbitrary JavaScript or CSS import is allowed.",
+      "status": "not-run",
+      "title": "SF-THM-01 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T13",
+      "id": "A-SF-THM-02",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-THM-02",
+      "requirement_text": "As an author, I can preview themes at 320\u20131440 CSS-pixel widths, 200% and 400% zoom and RTL; preflight rejects token combinations that fail required contrast or hide controls.",
+      "status": "not-run",
+      "title": "SF-THM-02 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "E",
+      "fixture": "T07, T13",
+      "id": "A-SF-THM-03",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-THM-03",
+      "requirement_text": "As a brand owner, I can lock selected organization tokens and publish versioned theme presets; updates never silently change existing releases.",
+      "status": "not-run",
+      "title": "SF-THM-03 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T04",
+      "id": "A-SF-FLD-01",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-FLD-01",
+      "requirement_text": "As an author, I can use every field family above with documented storage and constraints, including read-only, conditional and review behavior. Unknown controls fail preflight rather than disappearing.",
+      "status": "not-run",
+      "title": "SF-FLD-01 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T04, T24",
+      "id": "A-SF-FLD-02",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-FLD-02",
+      "requirement_text": "As an author, I can bind multiple instances to one field; editing one updates the other active views. A new independent question creates a new field ID.",
+      "status": "not-run",
+      "title": "SF-FLD-02 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T06",
+      "id": "A-SF-FLD-03",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-FLD-03",
+      "requirement_text": "As a respondent, I can manage repeated items without index-based identity loss; nested fields and calculations stay attached to the correct item after reorder/delete.",
+      "status": "not-run",
+      "title": "SF-FLD-03 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T04, T06",
+      "id": "A-SF-FLD-04",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-FLD-04",
+      "requirement_text": "As an author, I can configure fixed/dynamic matrices, row details and domain composites from typed child fields; they share ordinary validation and accessibility contracts.",
+      "status": "not-run",
+      "title": "SF-FLD-04 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T15",
+      "id": "A-SF-FLD-06",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-FLD-06",
+      "requirement_text": "As a respondent, I can upload, cancel, retry and remove files; pending/rejected required files block submission and ready files stay bound to the correct tenant/session.",
+      "status": "not-run",
+      "title": "SF-FLD-06 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "E",
+      "fixture": "T04, T05",
+      "id": "A-SF-FLD-07",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-FLD-07",
+      "requirement_text": "As an author, I can configure rating/ranking, exclusive options, Other-with-detail, safe answer piping and alternate input modes without custom executable code.",
+      "status": "not-run",
+      "title": "SF-FLD-07 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T05",
+      "id": "A-SF-RUL-01",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-RUL-01",
+      "requirement_text": "As an author, I can compose nested typed expressions, use item/parent scopes and inspect a readable explanation; identical inputs/context produce identical client/server results.",
+      "status": "not-run",
+      "title": "SF-RUL-01 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T05",
+      "id": "A-SF-RUL-02",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-RUL-02",
+      "requirement_text": "As a publisher, I receive blocking diagnostics for cycles, bad types/arity, unknown IDs, impossible scopes and conflicting assignments before any release is created.",
+      "status": "not-run",
+      "title": "SF-RUL-02 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T05, T06",
+      "id": "A-SF-RUL-03",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-RUL-03",
+      "requirement_text": "As a respondent, changing a branch consistently updates ancestor/child visibility, requiredness, calculations, review and output under the hidden-retention policy.",
+      "status": "not-run",
+      "title": "SF-RUL-03 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T05",
+      "id": "A-SF-RUL-04",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-RUL-04",
+      "requirement_text": "As an author, I can define safe page routes and defaults, optional sections and conditional requiredness without skipping applicable mandatory answers or review.",
+      "status": "not-run",
+      "title": "SF-RUL-04 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T05, T06",
+      "id": "A-SF-RUL-05",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-RUL-05",
+      "requirement_text": "As a user, I receive deterministic typed calculations and repeat aggregates; invalid arithmetic returns explicit diagnostics and never NaN/Infinity or silently rounded data.",
+      "status": "not-run",
+      "title": "SF-RUL-05 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "E",
+      "fixture": "T05",
+      "id": "A-SF-RUL-06",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-RUL-06",
+      "requirement_text": "As an author, I can use scoring/calculated summaries and safe answer piping for personalized explanations; the product makes no diagnostic, legal or payment decision automatically.",
+      "status": "not-run",
+      "title": "SF-RUL-06 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T04, T05, T08",
+      "id": "A-SF-VAL-01",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-VAL-01",
+      "requirement_text": "As a publisher, I can rely on shared type, enum, bounds, cardinality, pattern, cross-field and required checks on every authoring path and server submission.",
+      "status": "not-run",
+      "title": "SF-VAL-01 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T08, T13",
+      "id": "A-SF-VAL-02",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-VAL-02",
+      "requirement_text": "As a respondent, I see a linked error summary, inline correction guidance and preserved valid input; hidden fields do not create inaccessible errors.",
+      "status": "not-run",
+      "title": "SF-VAL-02 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T03, T08, T24",
+      "id": "A-SF-VAL-03",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-VAL-03",
+      "requirement_text": "As a publisher, I can test boundary/invalid inputs through the staff-authorized validation API; diagnostics include code, severity, field/node ID, row path and JSON pointer.",
+      "status": "not-run",
+      "title": "SF-VAL-03 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T11",
+      "id": "A-SF-GUD-01",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-GUD-01",
+      "requirement_text": "As an author, I can edit/version scoped brief/detailed help, glossary, examples, Q&A and narration with review notes and approval status.",
+      "status": "not-run",
+      "title": "SF-GUD-01 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T11",
+      "id": "A-SF-GUD-02",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-GUD-02",
+      "requirement_text": "As a respondent, I can read ordinary instructions and see the approved text associated with narration or a spoken answer; unavailable help has an honest fallback. No separate Read help action or typed-question interface is required.",
+      "status": "not-run",
+      "title": "SF-GUD-02 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T11",
+      "id": "A-SF-GUD-03",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-GUD-03",
+      "requirement_text": "As a respondent, I can play/control narration in a supported locale and see its exact text; no audio/provider/microphone capability is required to finish.",
+      "status": "not-run",
+      "title": "SF-GUD-03 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "E",
+      "fixture": "T11",
+      "id": "A-SF-GUD-04",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-GUD-04",
+      "requirement_text": "As a respondent, I can use Click to Ask for a spoken question and hear the most relevant approved visible-scope answer. Speech never enters field values, acknowledges terms or submits.",
+      "status": "not-run",
+      "title": "SF-GUD-04 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T11, T20",
+      "id": "A-SF-GUD-05",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-GUD-05",
+      "requirement_text": "As an operator, I can manage provider credentials, locale/voice selection, pronunciation terms, quotas and timeout/failure metrics without exposing keys or raw private speech in logs.",
+      "status": "not-run",
+      "title": "SF-GUD-05 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T12",
+      "id": "A-SF-LOC-01",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-LOC-01",
+      "requirement_text": "As a translator, I can import/export and review locale bundles, find missing/stale keys, preview long strings and publish only complete supported locales.",
+      "status": "not-run",
+      "title": "SF-LOC-01 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T12",
+      "id": "A-SF-LOC-02",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-LOC-02",
+      "requirement_text": "As a respondent, switching language preserves typed values and answer meaning; a persisted locale change may advance the session revision and invalidates locale-bound review/acknowledgments; dates/numbers display locally and the page language/direction updates.",
+      "status": "not-run",
+      "title": "SF-LOC-02 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T12, T13",
+      "id": "A-SF-LOC-03",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-LOC-03",
+      "requirement_text": "As an author, I can support RTL, mixed-direction identifiers, pluralization and locale-specific formatting without duplicating the form or changing stable IDs.",
+      "status": "not-run",
+      "title": "SF-LOC-03 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T13",
+      "id": "A-SF-ACC-01",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-ACC-01",
+      "requirement_text": "As a keyboard/screen-reader user, I can author and complete all required journeys with semantic labels/groups, accessible focus, errors, tables, dialogs, uploads, repeaters and review. Target WCAG 2.2 AA.",
+      "status": "not-run",
+      "title": "SF-ACC-01 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T13",
+      "id": "A-SF-ACC-02",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-ACC-02",
+      "requirement_text": "As a user, I can zoom/reflow, reduce motion, use touch targets and disable speech without losing functionality. Focus is not hidden by sticky navigation or the voice bar.",
+      "status": "not-run",
+      "title": "SF-ACC-02 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "E",
+      "fixture": "T03, T13",
+      "id": "A-SF-ACC-03",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-ACC-03",
+      "requirement_text": "As an author, I see automated contrast/label/alt-text and structural warnings plus a manual accessibility checklist; automated success is never presented as full conformance.",
+      "status": "not-run",
+      "title": "SF-ACC-03 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T10",
+      "id": "A-SF-PUB-01",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-PUB-01",
+      "requirement_text": "As a publisher, I can request review, approve a revision and atomically publish only after shared structural, semantic, localization, policy and dependency checks pass.",
+      "status": "not-run",
+      "title": "SF-PUB-01 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T10",
+      "id": "A-SF-PUB-02",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-PUB-02",
+      "requirement_text": "As a respondent, my session pins a release/manifest/engine contract; publishing or theme/block updates do not change its questions, meaning or history.",
+      "status": "not-run",
+      "title": "SF-PUB-02 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T10, T14",
+      "id": "A-SF-PUB-03",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-PUB-03",
+      "requirement_text": "As an operator, I can roll back, retire, archive and emergency-close forms with the explicit new-session/existing-session effects described above.",
+      "status": "not-run",
+      "title": "SF-PUB-03 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "E",
+      "fixture": "T07, T10",
+      "id": "A-SF-PUB-04",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-PUB-04",
+      "requirement_text": "As a reviewer, I can see semantic differences and impacted reusable dependencies/consumer keys before release; breaking changes require an explicit acknowledgment.",
+      "status": "not-run",
+      "title": "SF-PUB-04 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T14",
+      "id": "A-SF-RES-01",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-RES-01",
+      "requirement_text": "As a respondent, I get clear introduction, adaptive navigation, truthful progress, review/edit links and explicit submit; no rule or voice command silently submits.",
+      "status": "not-run",
+      "title": "SF-RES-01 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T09",
+      "id": "A-SF-RES-02",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-RES-02",
+      "requirement_text": "As a respondent, acknowledged drafts survive restart and recovery; failed or pending saves are displayed truthfully and retry without overwriting newer revisions.",
+      "status": "not-run",
+      "title": "SF-RES-02 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T09, T20",
+      "id": "A-SF-RES-03",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-RES-03",
+      "requirement_text": "As a respondent, I can continue an authorized draft on the same browser/device, handle expiry and start a fresh response without exposing another person's answers on shared devices.",
+      "status": "not-run",
+      "title": "SF-RES-03 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T17",
+      "id": "A-SF-RES-04",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-RES-04",
+      "requirement_text": "As a respondent, I can submit the same form repeatedly, including identical answers, and receive a truthful receipt for each accepted submission. No person/content duplicate restriction applies. Uncertain requests expose status without falsely claiming success.",
+      "status": "not-run",
+      "title": "SF-RES-04 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T14",
+      "id": "A-SF-SHR-01",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-SHR-01",
+      "requirement_text": "As a publisher, I can publish public link/QR/iframe channels with availability windows, form-wide response caps and clear confirmation.",
+      "status": "not-run",
+      "title": "SF-SHR-01 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T14, T20",
+      "id": "A-SF-SHR-02",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-SHR-02",
+      "requirement_text": "As an integrator, I can embed with origin checks and the defined message protocol; no raw answers leak to an unapproved parent.",
+      "status": "not-run",
+      "title": "SF-SHR-02 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T18",
+      "id": "A-SF-ADM-01",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-ADM-01",
+      "requirement_text": "As a workspace response viewer, I can list/filter/read submitted responses and inspect their attachments without editing answers or processing a response workflow.",
+      "status": "not-run",
+      "title": "SF-ADM-01 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T18",
+      "id": "A-SF-ADM-02",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-ADM-02",
+      "requirement_text": "As an exporter, I can obtain complete JSON and relational CSV exports, including repeated data and dictionary metadata, with safe cell encoding and expiring downloads.",
+      "status": "not-run",
+      "title": "SF-ADM-02 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T17, T24",
+      "id": "A-SF-ADM-04",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-ADM-04",
+      "requirement_text": "As a workspace user, I receive a documented typed submission envelope with stable IDs, pinned form-release metadata, locale, timestamps, attachment references and provenance.",
+      "status": "not-run",
+      "title": "SF-ADM-04 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T24",
+      "id": "A-SF-API-01",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-API-01",
+      "requirement_text": "As a staff author, I can discover capabilities/schema versions and create/update/import/export/validate/publish definitions through documented application APIs under my workspace role, with the same results as the UI.",
+      "status": "not-run",
+      "title": "SF-API-01 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T17, T18, T24",
+      "id": "A-SF-API-02",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-API-02",
+      "requirement_text": "As an authorized workspace user, I receive stable typed envelopes, data dictionaries, cursor pagination and compatible version evolution without knowing internal implementation details.",
+      "status": "not-run",
+      "title": "SF-API-02 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T09, T17, T24",
+      "id": "A-SF-API-03",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-API-03",
+      "requirement_text": "As a client, I can safely retry idempotent operations, detect stale revisions and receive actionable structured errors without partial mutation.",
+      "status": "not-run",
+      "title": "SF-API-03 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T19",
+      "id": "A-SF-API-04",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-API-04",
+      "requirement_text": "As an operator, I can configure signed webhooks, inspect/replay delivery failures and distinguish accepted submissions from pending downstream delivery.",
+      "status": "not-run",
+      "title": "SF-API-04 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T15, T20",
+      "id": "A-SF-API-05",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-API-05",
+      "requirement_text": "As a respondent or staff user, session and attachment access is server-authorized; query values or forged envelope metadata cannot override authorization.",
+      "status": "not-run",
+      "title": "SF-API-05 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T24",
+      "id": "A-SF-IMP-01",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-IMP-01",
+      "requirement_text": "As a producer, I can validate then commit a definition candidate with a digest/revision guard; invalid candidates show path/ID diagnostics and never publish automatically.",
+      "status": "not-run",
+      "title": "SF-IMP-01 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T21",
+      "id": "A-SF-IMP-02",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-IMP-02",
+      "requirement_text": "As an administrator, imports reject unsafe code, remote fetch instructions, duplicate keys, incompatible capabilities and excessive size/depth before expensive processing.",
+      "status": "not-run",
+      "title": "SF-IMP-02 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T07, T24",
+      "id": "A-SF-IMP-03",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-IMP-03",
+      "requirement_text": "As an author, importing/updating preserves approved identities and dependencies; copying remaps them explicitly; export/import round trips preserve supported semantics.",
+      "status": "not-run",
+      "title": "SF-IMP-03 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T20, T21, T24",
+      "id": "A-SF-IMP-04",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-IMP-04",
+      "requirement_text": "As a security owner, candidate expiry, tenant/actor binding, trusted approvals and effective policy are enforced at commit and publish, not trusted from JSON.",
+      "status": "not-run",
+      "title": "SF-IMP-04 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T20",
+      "id": "A-SF-SEC-01",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-SEC-01",
+      "requirement_text": "As an organization, my definitions, sessions, answers, attachments, jobs, exports and integrations remain isolated across tenants even with guessed IDs or concurrent requests.",
+      "status": "not-run",
+      "title": "SF-SEC-01 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T20",
+      "id": "A-SF-SEC-02",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-SEC-02",
+      "requirement_text": "As an administrator, least-privilege roles/scopes, secret storage, revocation, CSRF/CSP/session protections and audit apply equally to UI/API/background work.",
+      "status": "not-run",
+      "title": "SF-SEC-02 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T20, T23",
+      "id": "A-SF-SEC-03",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-SEC-03",
+      "requirement_text": "As a policy owner, I can configure retention/deletion/holds and verify expiry, backup-restore deletion handling and derivative cleanup without false success.",
+      "status": "not-run",
+      "title": "SF-SEC-03 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T11, T20",
+      "id": "A-SF-SEC-04",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-SEC-04",
+      "requirement_text": "As a respondent, sensitive hidden answers, voice and logs follow explicit minimization/consent policy; readable forms remain available without provider consent.",
+      "status": "not-run",
+      "title": "SF-SEC-04 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T18, T20",
+      "id": "A-SF-SEC-05",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-SEC-05",
+      "requirement_text": "As an auditor, I can trace publication, access, export, permissions and integration actions with correlation and revision evidence, subject to retention and redaction.",
+      "status": "not-run",
+      "title": "SF-SEC-05 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T15, T19, T21",
+      "id": "A-SF-SEC-06",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-SEC-06",
+      "requirement_text": "As an operator, uploads and remote-provider/webhook connections are bounded, authorized and protected against malicious files, SSRF and data exfiltration.",
+      "status": "not-run",
+      "title": "SF-SEC-06 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T22",
+      "id": "A-SF-NFR-01",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-NFR-01",
+      "requirement_text": "As a user, the catalog/runtime/save/submit/compiler/export meet the measured thresholds above under the shared workload and declared resource budget.",
+      "status": "not-run",
+      "title": "SF-NFR-01 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T21, T22",
+      "id": "A-SF-NFR-02",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-NFR-02",
+      "requirement_text": "As an operator, configured limits are discoverable and enforced consistently; exceeding any limit produces a clear error without truncation or corruption.",
+      "status": "not-run",
+      "title": "SF-NFR-02 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T17, T23",
+      "id": "A-SF-NFR-03",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-NFR-03",
+      "requirement_text": "As an operator, restart/timeout/partial dependency failures preserve acknowledged data and idempotent outcomes; health, metrics, alerts and correlation IDs identify failures.",
+      "status": "not-run",
+      "title": "SF-NFR-03 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T23",
+      "id": "A-SF-NFR-04",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-NFR-04",
+      "requirement_text": "As an operator, backup/restore and deletion replay are documented and demonstrated with RPO/RTO measurements and tenant isolation after recovery.",
+      "status": "not-run",
+      "title": "SF-NFR-04 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "E",
+      "fixture": "T11, T18, T22",
+      "id": "A-SF-NFR-05",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-NFR-05",
+      "requirement_text": "As a product owner, I can see per-provider latency/error/cost and operational service-health metrics without collecting raw sensitive answers.",
+      "status": "not-run",
+      "title": "SF-NFR-05 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T02, T08, T09, T14, T19",
+      "id": "A-SF-UX-01",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-UX-01",
+      "requirement_text": "As an author/respondent/operator, I can distinguish loading, empty, invalid, denied, expired and failed states and recover as specified without losing valid work.",
+      "status": "not-run",
+      "title": "SF-UX-01 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "E",
+      "fixture": "T25",
+      "id": "A-SF-UX-02",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-UX-02",
+      "requirement_text": "As a non-developer, I can complete the scripted author task after a 20-minute orientation; at least four of five independent trial users publish the fixture without code edits or facilitator intervention.",
+      "status": "not-run",
+      "title": "SF-UX-02 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "E",
+      "fixture": "T25",
+      "id": "A-SF-UX-03",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-UX-03",
+      "requirement_text": "As a respondent, I can complete the tested complex branch with help/review; at least four of five representative trial users finish without assistance and no critical answer-meaning errors. Report failures rather than claiming general usability from five users.",
+      "status": "not-run",
+      "title": "SF-UX-03 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T07, T26",
+      "id": "A-SF-EXT-01",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-EXT-01",
+      "requirement_text": "As a developer, I can add a versioned composite control with editor/runtime/review/validation/localization/accessibility fixtures through the documented registry without altering the core response format.",
+      "status": "not-run",
+      "title": "SF-EXT-01 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T07, T26",
+      "id": "A-SF-EXT-02",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-EXT-02",
+      "requirement_text": "As an administrator, I can approve/pin/disable provider and component versions; missing/incompatible required dependencies fail safely and prior releases remain reproducible.",
+      "status": "not-run",
+      "title": "SF-EXT-02 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T26",
+      "id": "A-SF-EXT-03",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-EXT-03",
+      "requirement_text": "As a product owner, I receive an owned schema/engine/rule/authoring implementation with a dependency inventory proving no prebuilt form engine supplies those responsibilities. Supporting libraries are disclosed.",
+      "status": "not-run",
+      "title": "SF-EXT-03 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "E",
+      "fixture": "T11, T26",
+      "id": "A-SF-EXT-04",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-EXT-04",
+      "requirement_text": "As an extension developer, I can use documented speech and retained provider/component adapter contracts and conformance fixtures without learning private database or UI internals.",
+      "status": "not-run",
+      "title": "SF-EXT-04 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T32, T23",
+      "id": "A-SF-OPS-01",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-OPS-01",
+      "requirement_text": "As an operator, I can start, bootstrap, use, stop, restart and restore the documented local stack without direct database provisioning, preserving acknowledged data and seeing accurate dependency readiness.",
+      "status": "not-run",
+      "title": "SF-OPS-01 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T31, T10, T24",
+      "id": "A-SF-CON-01",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-CON-01",
+      "requirement_text": "As a producer/consumer, I receive an explicit schema and evaluator contract on every package and pinned interpretation; unsupported or inconsistent versions fail before evaluation and an old package is never relabeled as compatible.",
+      "status": "not-run",
+      "title": "SF-CON-01 retained requirement"
+    },
+    {
+      "citation": {
+        "lines": "requirement disposition register",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "classification": "C",
+      "fixture": "T31, T04, T18, T24",
+      "id": "A-SF-CON-02",
+      "owner": "acceptance/requirement-ledger",
+      "requirement_id": "SF-CON-02",
+      "requirement_text": "As a respondent/exporter, every signed 64-bit integer remains exact through browser input, evaluation, storage, review, JSON and CSV. Typed integer wire values are canonical strings and overflow/invalid syntax are explicit failures.",
+      "status": "not-run",
+      "title": "SF-CON-02 retained requirement"
+    }
+  ],
+  "owner": "acceptance/denominators",
+  "prd_fixed_count": 95,
+  "selection": "PRD-fixed",
+  "source_citations": [
+    {
+      "lines": "requirement disposition register; plan M0",
+      "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+    }
+  ],
+  "total": 95,
+  "version": "1.0.0-m0"
+}

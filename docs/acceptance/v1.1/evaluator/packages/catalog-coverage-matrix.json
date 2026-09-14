@@ -1,0 +1,667 @@
+{
+  "records": [
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "boundaryCase": true,
+        "canonicalType": "text",
+        "family": "text",
+        "hc": [
+          "structural-spec"
+        ],
+        "invalidCase": true,
+        "nhc": [
+          "structural-spec"
+        ],
+        "prdLine": 226,
+        "row": 1,
+        "validCase": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04",
+        "T26"
+      ],
+      "id": "EVAL-CAT-01",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "226",
+          "quote": "| Short/long text, email, phone, URL, identifiers | `text` | Preserve Unicode; configurable length/format; identifiers remain strings so leading zeros survive. Required checks use trimmed emptiness, but storage preserves entered text unless an explicit normalizer is declared in the contract. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "boundaryCase": true,
+        "canonicalType": "integer",
+        "family": "integer",
+        "hc": [
+          "structural-spec"
+        ],
+        "invalidCase": true,
+        "nhc": [
+          "structural-spec"
+        ],
+        "prdLine": 227,
+        "row": 2,
+        "validCase": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04",
+        "T26"
+      ],
+      "id": "EVAL-CAT-02",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "227",
+          "quote": "| Whole number, rating, scale, integer slider | `integer` | Exact signed 64-bit range, canonical decimal-string wire value; enforce min/max/step; distinguish zero from unanswered. Rating endpoints and meaning are labeled. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "boundaryCase": true,
+        "canonicalType": "decimal",
+        "family": "decimal",
+        "hc": [
+          "structural-spec"
+        ],
+        "invalidCase": true,
+        "nhc": [
+          "structural-spec"
+        ],
+        "prdLine": 228,
+        "row": 3,
+        "validCase": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04",
+        "T26"
+      ],
+      "id": "EVAL-CAT-03",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "228",
+          "quote": "| Decimal, amount, currency, fractional slider | `decimal` | Decimal string, no exponent or binary-floating ambiguity; configured scale/unit/currency; round only by declared calculation rules. No payment side effect. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "boundaryCase": true,
+        "canonicalType": "date/time/dateTime",
+        "family": "date/time/dateTime",
+        "hc": [
+          "structural-spec"
+        ],
+        "invalidCase": true,
+        "nhc": [
+          "structural-spec"
+        ],
+        "prdLine": 229,
+        "row": 4,
+        "validCase": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04",
+        "T26"
+      ],
+      "id": "EVAL-CAT-04",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "229",
+          "quote": "| Date, time, date/time | `date`, `time`, `dateTime` | ISO calendar date; 24-hour local time; instant plus IANA timezone for date/time. Reject impossible dates and ambiguous nonexistent local times with correction UI. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "boundaryCase": true,
+        "canonicalType": "boolean",
+        "family": "boolean",
+        "hc": [
+          "structural-spec"
+        ],
+        "invalidCase": true,
+        "nhc": [
+          "structural-spec"
+        ],
+        "prdLine": 230,
+        "row": 5,
+        "validCase": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04",
+        "T26"
+      ],
+      "id": "EVAL-CAT-05",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "230",
+          "quote": "| Yes/no, checkbox, acknowledgment | `boolean` | False is an answer. A consent/acknowledgment gate uses explicit `requireTrue`; general required boolean does not require Yes. Optional unknown/declined states are distinct. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "boundaryCase": true,
+        "canonicalType": "choice",
+        "family": "choice",
+        "hc": [
+          "structural-spec"
+        ],
+        "invalidCase": true,
+        "nhc": [
+          "structural-spec"
+        ],
+        "prdLine": 231,
+        "row": 6,
+        "validCase": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04",
+        "T26"
+      ],
+      "id": "EVAL-CAT-06",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "231",
+          "quote": "| Radio, dropdown, searchable combobox, image choice | `choice` | Stable option ID; keyboard search; accessible image labels; option visibility; obsolete selections prompt correction. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "boundaryCase": true,
+        "canonicalType": "multiChoice",
+        "family": "multiChoice",
+        "hc": [
+          "structural-spec"
+        ],
+        "invalidCase": true,
+        "nhc": [
+          "structural-spec"
+        ],
+        "prdLine": 232,
+        "row": 7,
+        "validCase": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04",
+        "T26"
+      ],
+      "id": "EVAL-CAT-07",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "232",
+          "quote": "| Chips, checkbox group, multiple image choice | `multiChoice` | Unique stable option IDs; cardinality; exclusive None/Unknown options through declared constraints/rules. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "boundaryCase": true,
+        "canonicalType": "ranking",
+        "family": "ranking",
+        "hc": [
+          "structural-spec"
+        ],
+        "invalidCase": true,
+        "nhc": [
+          "structural-spec"
+        ],
+        "prdLine": 233,
+        "row": 8,
+        "validCase": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04",
+        "T26"
+      ],
+      "id": "EVAL-CAT-08",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "233",
+          "quote": "| Ranking | `multiChoice` with `ordered:true` | Ordered option IDs, keyboard move buttons, no duplicate values; order is semantic only when configured. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "boundaryCase": true,
+        "canonicalType": "object",
+        "family": "object",
+        "hc": [
+          "structural-spec"
+        ],
+        "invalidCase": true,
+        "nhc": [
+          "structural-spec"
+        ],
+        "prdLine": 234,
+        "row": 9,
+        "validCase": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04",
+        "T26"
+      ],
+      "id": "EVAL-CAT-09",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "234",
+          "quote": "| Address, person/contact, row of related values | `object` | Named child fields with individual validation; locale-aware labels, no US-only required address assumptions. Reuse data without concatenating it into one opaque string. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "boundaryCase": true,
+        "canonicalType": "list repeating/dynamic matrix",
+        "family": "list repeating/dynamic matrix",
+        "hc": [
+          "structural-spec"
+        ],
+        "invalidCase": true,
+        "nhc": [
+          "structural-spec"
+        ],
+        "prdLine": 235,
+        "row": 10,
+        "validCase": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04",
+        "T26"
+      ],
+      "id": "EVAL-CAT-10",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "235",
+          "quote": "| Repeating cards, dynamic matrix | `list` of item-field records | Stable item IDs; add/remove/reorder; cardinality; per-item errors; dependent fields and aggregate calculations; nested repeaters to the specified supported depth. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "boundaryCase": true,
+        "canonicalType": "matrix with fixed rows/details",
+        "family": "matrix with fixed rows/details",
+        "hc": [
+          "structural-spec"
+        ],
+        "invalidCase": true,
+        "nhc": [
+          "structural-spec"
+        ],
+        "prdLine": 236,
+        "row": 11,
+        "validCase": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04",
+        "T26"
+      ],
+      "id": "EVAL-CAT-11",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "236",
+          "quote": "| Single/multi-choice matrix, yes/no table with details | `list` with fixed item IDs or dynamic rows | Stable row/column definitions, accessible table/card presentation; row details, None/Unknown and per-row validation. Matrix cells use ordinary typed child fields. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "boundaryCase": true,
+        "canonicalType": "family/history/symptom composites",
+        "family": "family/history/symptom composites",
+        "hc": [
+          "structural-spec"
+        ],
+        "invalidCase": true,
+        "nhc": [
+          "structural-spec"
+        ],
+        "prdLine": 237,
+        "row": 12,
+        "validCase": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04",
+        "T26"
+      ],
+      "id": "EVAL-CAT-12",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "237",
+          "quote": "| Family members, history lists, symptoms by category | Composite object/list/choice fields | Configurable relationship/type options and grouped selectable items, detail follow-ups and summaries. These are reusable controls, not hard-coded medical assumptions. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "boundaryCase": true,
+        "canonicalType": "attachments",
+        "family": "attachments",
+        "hc": [
+          "structural-spec"
+        ],
+        "invalidCase": true,
+        "nhc": [
+          "structural-spec"
+        ],
+        "prdLine": 238,
+        "row": 13,
+        "validCase": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04",
+        "T26"
+      ],
+      "id": "EVAL-CAT-13",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "238",
+          "quote": "| File upload | `attachments` | References to verified uploaded assets, including ordinary PDFs, not base64 in answer JSON; multiple files, type/size limits, progress/retry and authorized download. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "boundaryCase": true,
+        "canonicalType": "drawing",
+        "family": "drawing",
+        "hc": [
+          "structural-spec"
+        ],
+        "invalidCase": true,
+        "nhc": [
+          "structural-spec"
+        ],
+        "prdLine": 239,
+        "row": 14,
+        "validCase": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04",
+        "T26"
+      ],
+      "id": "EVAL-CAT-14",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "239",
+          "quote": "| Drawing/initials-style input | `drawing` | Reference to captured image/stroke asset with typed-name/text alternative where a drawing is unnecessary; explicit ordinary-data label; no e-sign claim. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "boundaryCase": true,
+        "canonicalType": "calculated/read-only",
+        "family": "calculated/read-only",
+        "hc": [
+          "structural-spec"
+        ],
+        "invalidCase": true,
+        "nhc": [
+          "structural-spec"
+        ],
+        "prdLine": 240,
+        "row": 15,
+        "validCase": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04",
+        "T26"
+      ],
+      "id": "EVAL-CAT-15",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "240",
+          "quote": "| Calculated/read-only result | Any compatible scalar or object type | Deterministic server-recomputed value, labeled as derived; cannot be overridden by respondent payload. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "boundaryCase": true,
+        "canonicalType": "static content/layout/review nodes",
+        "family": "static content/layout/review nodes",
+        "hc": [
+          "structural-spec"
+        ],
+        "invalidCase": true,
+        "nhc": [
+          "structural-spec"
+        ],
+        "prdLine": 241,
+        "row": 16,
+        "validCase": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04",
+        "T26"
+      ],
+      "id": "EVAL-CAT-16",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "241",
+          "quote": "| Static content, collapsible groups, legal/instruction text, review | Layout/content nodes | No answer unless linked acknowledgment or data field; rich readable content, accessible disclosure and review edit links. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "boundaryCase": true,
+        "canonicalType": "mode selector",
+        "family": "mode selector",
+        "hc": [
+          "structural-spec"
+        ],
+        "invalidCase": true,
+        "nhc": [
+          "structural-spec"
+        ],
+        "prdLine": 242,
+        "row": 17,
+        "validCase": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04",
+        "T26"
+      ],
+      "id": "EVAL-CAT-17",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "242",
+          "quote": "| Mode selector / alternate data-entry view | `choice` plus alternative instances | Switch between manual/list/other presentations of the same canonical fields without duplicating answers; hidden-data rules determine data handling. |"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    }
+  ]
+}

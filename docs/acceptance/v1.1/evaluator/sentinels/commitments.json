@@ -1,0 +1,22 @@
+{
+  "algorithm": "HMAC-SHA-256",
+  "canonicalization": "RFC 8785 for JSON payloads; raw bytes otherwise",
+  "rounds": [
+    {
+      "commitmentCountExpected": 3,
+      "commitments": [],
+      "commitmentsStatus": "unsealed-no-commitments-published",
+      "nullSlots": 1,
+      "round": "S-R1",
+      "scheduledSentinelIds": [
+        "EVAL-SNT-01",
+        "EVAL-SNT-02"
+      ],
+      "sealed": false,
+      "secretLocation": "evaluator custody, never committed, never in chat",
+      "secretName": "SENTINEL_ROUND_SECRET_S_R1",
+      "slotCount": 3
+    }
+  ],
+  "status": "pending-evaluator-seal"
+}

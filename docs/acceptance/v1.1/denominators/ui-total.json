@@ -1,0 +1,204 @@
+{
+  "counting_rule": "one public/staff shell route with its named state cluster and Certinal control intent",
+  "current_execution_status": "not-run",
+  "independent_review_required": true,
+  "manifest": "UI_total",
+  "members": [
+    {
+      "citation": {
+        "lines": "\u00a74 lines 147\u2013194; \u00a79\u2013\u00a711; Appendix C",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
+      "id": "UI-01",
+      "owner": "frontend",
+      "route": "/sign-in",
+      "states": "sign-in/invalid/throttled",
+      "status": "not-run",
+      "title": "staff-sign-in"
+    },
+    {
+      "citation": {
+        "lines": "\u00a74 lines 147\u2013194; \u00a79\u2013\u00a711; Appendix C",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
+      "id": "UI-02",
+      "owner": "frontend",
+      "route": "/setup",
+      "states": "pending/expired",
+      "status": "not-run",
+      "title": "staff-setup"
+    },
+    {
+      "citation": {
+        "lines": "\u00a74 lines 147\u2013194; \u00a79\u2013\u00a711; Appendix C",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
+      "id": "UI-03",
+      "owner": "frontend",
+      "route": "/workspaces/{w}/forms",
+      "states": "loading/empty/no-access",
+      "status": "not-run",
+      "title": "catalog"
+    },
+    {
+      "citation": {
+        "lines": "\u00a74 lines 147\u2013194; \u00a79\u2013\u00a711; Appendix C",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
+      "id": "UI-04",
+      "owner": "frontend",
+      "route": "/workspaces/{w}/forms/{f}/drafts/{d}",
+      "states": "loading/invalid/conflict",
+      "status": "not-run",
+      "title": "builder"
+    },
+    {
+      "citation": {
+        "lines": "\u00a74 lines 147\u2013194; \u00a79\u2013\u00a711; Appendix C",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
+      "id": "UI-05",
+      "owner": "frontend",
+      "route": "/preview/{d}",
+      "states": "loading/error/no-side-effects",
+      "status": "not-run",
+      "title": "preview"
+    },
+    {
+      "citation": {
+        "lines": "\u00a74 lines 147\u2013194; \u00a79\u2013\u00a711; Appendix C",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
+      "id": "UI-06",
+      "owner": "frontend",
+      "route": "/workspaces/{w}/forms/{f}/review",
+      "states": "pending/denied/stale",
+      "status": "not-run",
+      "title": "review-publish"
+    },
+    {
+      "citation": {
+        "lines": "\u00a74 lines 147\u2013194; \u00a79\u2013\u00a711; Appendix C",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
+      "id": "UI-07",
+      "owner": "frontend",
+      "route": "/workspaces/{w}/submissions",
+      "states": "loading/empty/denied",
+      "status": "not-run",
+      "title": "responses"
+    },
+    {
+      "citation": {
+        "lines": "\u00a74 lines 147\u2013194; \u00a79\u2013\u00a711; Appendix C",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
+      "id": "UI-08",
+      "owner": "frontend",
+      "route": "/workspaces/{w}/submissions/{s}",
+      "states": "loading/tombstone/denied",
+      "status": "not-run",
+      "title": "response-detail"
+    },
+    {
+      "citation": {
+        "lines": "\u00a74 lines 147\u2013194; \u00a79\u2013\u00a711; Appendix C",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
+      "id": "UI-09",
+      "owner": "frontend",
+      "route": "/workspaces/{w}/integrations",
+      "states": "empty/invalid/denied",
+      "status": "not-run",
+      "title": "integrations"
+    },
+    {
+      "citation": {
+        "lines": "\u00a74 lines 147\u2013194; \u00a79\u2013\u00a711; Appendix C",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
+      "id": "UI-10",
+      "owner": "frontend",
+      "route": "/f/{shareId}",
+      "states": "closed/expired/start",
+      "status": "not-run",
+      "title": "public-entry"
+    },
+    {
+      "citation": {
+        "lines": "\u00a74 lines 147\u2013194; \u00a79\u2013\u00a711; Appendix C",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
+      "id": "UI-11",
+      "owner": "frontend",
+      "route": "/sessions/{s}",
+      "states": "loading/offline/stale",
+      "status": "not-run",
+      "title": "public-form"
+    },
+    {
+      "citation": {
+        "lines": "\u00a74 lines 147\u2013194; \u00a79\u2013\u00a711; Appendix C",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
+      "id": "UI-12",
+      "owner": "frontend",
+      "route": "/sessions/{s}/review",
+      "states": "stale/invalid/acknowledgment",
+      "status": "not-run",
+      "title": "public-review"
+    },
+    {
+      "citation": {
+        "lines": "\u00a74 lines 147\u2013194; \u00a79\u2013\u00a711; Appendix C",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
+      "id": "UI-13",
+      "owner": "frontend",
+      "route": "/sessions/{s}/receipt",
+      "states": "pending/succeeded/failed",
+      "status": "not-run",
+      "title": "receipt"
+    },
+    {
+      "citation": {
+        "lines": "\u00a74 lines 147\u2013194; \u00a79\u2013\u00a711; Appendix C",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
+      "id": "UI-14",
+      "owner": "frontend",
+      "route": "/not-found",
+      "states": "not-found/no-access",
+      "status": "not-run",
+      "title": "not-found"
+    }
+  ],
+  "owner": "acceptance/denominators",
+  "selection": "plan-selected",
+  "source_citations": [
+    {
+      "lines": "\u00a74 lines 147\u2013200",
+      "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+    },
+    {
+      "lines": "Appendix C",
+      "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+    }
+  ],
+  "total": 14,
+  "version": "1.0.0-m0"
+}

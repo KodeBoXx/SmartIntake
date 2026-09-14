@@ -1,0 +1,623 @@
+{
+  "counting_rule": "one identity-preservation assertion per item in the T06 50-item scenario",
+  "current_execution_status": "not-run",
+  "independent_review_required": true,
+  "manifest": "I_total",
+  "members": [
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-01",
+      "item_number": 1,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 1 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-02",
+      "item_number": 2,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 2 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-03",
+      "item_number": 3,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 3 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-04",
+      "item_number": 4,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 4 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-05",
+      "item_number": 5,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 5 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-06",
+      "item_number": 6,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 6 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-07",
+      "item_number": 7,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 7 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-08",
+      "item_number": 8,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 8 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-09",
+      "item_number": 9,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 9 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-10",
+      "item_number": 10,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 10 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-11",
+      "item_number": 11,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 11 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-12",
+      "item_number": 12,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 12 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-13",
+      "item_number": 13,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 13 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-14",
+      "item_number": 14,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 14 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-15",
+      "item_number": 15,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 15 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-16",
+      "item_number": 16,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 16 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-17",
+      "item_number": 17,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 17 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-18",
+      "item_number": 18,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 18 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-19",
+      "item_number": 19,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 19 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-20",
+      "item_number": 20,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 20 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-21",
+      "item_number": 21,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 21 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-22",
+      "item_number": 22,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 22 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-23",
+      "item_number": 23,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 23 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-24",
+      "item_number": 24,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 24 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-25",
+      "item_number": 25,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 25 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-26",
+      "item_number": 26,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 26 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-27",
+      "item_number": 27,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 27 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-28",
+      "item_number": 28,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 28 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-29",
+      "item_number": 29,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 29 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-30",
+      "item_number": 30,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 30 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-31",
+      "item_number": 31,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 31 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-32",
+      "item_number": 32,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 32 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-33",
+      "item_number": 33,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 33 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-34",
+      "item_number": 34,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 34 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-35",
+      "item_number": 35,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 35 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-36",
+      "item_number": 36,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 36 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-37",
+      "item_number": 37,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 37 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-38",
+      "item_number": 38,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 38 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-39",
+      "item_number": 39,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 39 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-40",
+      "item_number": 40,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 40 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-41",
+      "item_number": 41,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 41 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-42",
+      "item_number": 42,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 42 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-43",
+      "item_number": 43,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 43 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-44",
+      "item_number": 44,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 44 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-45",
+      "item_number": 45,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 45 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-46",
+      "item_number": 46,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 46 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-47",
+      "item_number": 47,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 47 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-48",
+      "item_number": 48,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 48 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-49",
+      "item_number": 49,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 49 retains generated ID and values after add/delete/reorder"
+    },
+    {
+      "assertion": "generated itemId remains attached to its original row; no index-derived reassignment or truncation",
+      "citation": {
+        "lines": "Appendix C T06 lines 804\u2013805; evaluator protocol lines 57\u201364, 103",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "I-50",
+      "item_number": 50,
+      "owner": "runtime/repeaters",
+      "status": "not-run",
+      "title": "item 50 retains generated ID and values after add/delete/reorder"
+    }
+  ],
+  "owner": "acceptance/denominators",
+  "prd_fixed_count": 50,
+  "selection": "PRD-fixed",
+  "source_citations": [
+    {
+      "lines": "Appendix C T06 lines 804\u2013805",
+      "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+    },
+    {
+      "lines": "lines 57\u201364, 103",
+      "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Lite-Evaluator-Protocol.md"
+    }
+  ],
+  "total": 50,
+  "version": "1.0.0-m0"
+}

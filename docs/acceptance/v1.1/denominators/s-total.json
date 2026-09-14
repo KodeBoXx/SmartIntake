@@ -1,0 +1,134 @@
+{
+  "counting_rule": "one M2 top-level schema artifact, each with independent positive and negative example validation",
+  "current_execution_status": "not-run",
+  "independent_review_required": true,
+  "manifest": "S_total",
+  "members": [
+    {
+      "artifact": "package",
+      "citation": {
+        "lines": "\u00a710/\u00a711 and plan M2",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "examples": [
+        "positive",
+        "negative"
+      ],
+      "id": "S-package",
+      "owner": "contract/schema",
+      "selection": "plan-selected seven-artifact contract set",
+      "status": "not-run",
+      "title": "package schema positive and negative validation"
+    },
+    {
+      "artifact": "expression",
+      "citation": {
+        "lines": "\u00a710/\u00a711 and plan M2",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "examples": [
+        "positive",
+        "negative"
+      ],
+      "id": "S-expression",
+      "owner": "contract/schema",
+      "selection": "plan-selected seven-artifact contract set",
+      "status": "not-run",
+      "title": "expression schema positive and negative validation"
+    },
+    {
+      "artifact": "input-answer",
+      "citation": {
+        "lines": "\u00a710/\u00a711 and plan M2",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "examples": [
+        "positive",
+        "negative"
+      ],
+      "id": "S-input-answer",
+      "owner": "contract/schema",
+      "selection": "plan-selected seven-artifact contract set",
+      "status": "not-run",
+      "title": "input-answer schema positive and negative validation"
+    },
+    {
+      "artifact": "typed-answer",
+      "citation": {
+        "lines": "\u00a710/\u00a711 and plan M2",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "examples": [
+        "positive",
+        "negative"
+      ],
+      "id": "S-typed-answer",
+      "owner": "contract/schema",
+      "selection": "plan-selected seven-artifact contract set",
+      "status": "not-run",
+      "title": "typed-answer schema positive and negative validation"
+    },
+    {
+      "artifact": "runtime-manifest",
+      "citation": {
+        "lines": "\u00a710/\u00a711 and plan M2",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "examples": [
+        "positive",
+        "negative"
+      ],
+      "id": "S-runtime-manifest",
+      "owner": "contract/schema",
+      "selection": "plan-selected seven-artifact contract set",
+      "status": "not-run",
+      "title": "runtime-manifest schema positive and negative validation"
+    },
+    {
+      "artifact": "submission-envelope",
+      "citation": {
+        "lines": "\u00a710/\u00a711 and plan M2",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "examples": [
+        "positive",
+        "negative"
+      ],
+      "id": "S-submission-envelope",
+      "owner": "contract/schema",
+      "selection": "plan-selected seven-artifact contract set",
+      "status": "not-run",
+      "title": "submission-envelope schema positive and negative validation"
+    },
+    {
+      "artifact": "event",
+      "citation": {
+        "lines": "\u00a710/\u00a711 and plan M2",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "examples": [
+        "positive",
+        "negative"
+      ],
+      "id": "S-event",
+      "owner": "contract/schema",
+      "selection": "plan-selected seven-artifact contract set",
+      "status": "not-run",
+      "title": "event schema positive and negative validation"
+    }
+  ],
+  "owner": "acceptance/denominators",
+  "selection": "plan-selected",
+  "source_citations": [
+    {
+      "lines": "\u00a710\u2013\u00a711",
+      "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+    },
+    {
+      "lines": "approved plan M2",
+      "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+    }
+  ],
+  "total": 7,
+  "version": "1.0.0-m0"
+}

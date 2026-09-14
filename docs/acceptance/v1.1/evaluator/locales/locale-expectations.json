@@ -1,0 +1,55 @@
+{
+  "advertisedLocales": [
+    "en",
+    "hi",
+    "ar"
+  ],
+  "direction": {
+    "ar": "rtl",
+    "en": "ltr",
+    "hi": "ltr"
+  },
+  "identifiers": "Unicode/BCP-47",
+  "invariants": [
+    "locale bundles belong to one definition",
+    "stable field/option/item IDs never change when text changes",
+    "switching locale changes no canonical value, applicability, routing, constraint or option",
+    "locale is not an expression context",
+    "a locale change clears pending acknowledgments and invalidates the review digest while leaving canonical answers and applicability unchanged",
+    "only complete approved locales may be advertised",
+    "no silent fallback to English for an advertised locale",
+    "Roman-script Hindi or English text labeled Hindi is not a substitute for a native-script pack",
+    "mixed-direction identifiers are not scrambled",
+    "long labels, plural messages and RTL layout are covered"
+  ],
+  "records": [
+    {
+      "assertionType": "locale",
+      "blockedReason": "native-language-reviewer-not-yet-assigned",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalRef": "#/canonical"
+      },
+      "expectedRef": "#/canonical",
+      "expectedSource": "prd",
+      "fixtures": [
+        "T06"
+      ],
+      "id": "EVAL-LOC-EXPECT",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1342",
+          "quote": "5. Import the evaluator-supplied complete Hindi content pack and Arabic RTL test pack using the locale UI, inspect a deliberately missing mandatory acknowledgment key in a separate invalid variant, and approve only the complete pack. Full native-script packs are required evaluator assets; Roman Hindi or English text labeled Hindi is not a substitute."
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [],
+      "status": "not-run"
+    }
+  ]
+}

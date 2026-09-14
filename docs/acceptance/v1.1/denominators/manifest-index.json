@@ -1,0 +1,22 @@
+{
+  "current_execution_status": "not-run",
+  "generator": "build_manifests.py",
+  "independent_review_required": true,
+  "manifests": {
+    "a-total.json": 95,
+    "c-total.json": 24,
+    "f-total.json": 12,
+    "h-total.json": 10,
+    "i-total.json": 50,
+    "n-current.json": 21,
+    "o-named.json": 53,
+    "o-total.json": 81,
+    "s-total.json": 7,
+    "sec-total.json": 1344,
+    "ui-staff-total.json": 18,
+    "ui-total.json": 14,
+    "wcag-total.json": 114
+  },
+  "source_sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e",
+  "version": "1.0.0-m0"
+}
