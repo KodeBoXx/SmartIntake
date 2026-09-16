@@ -105,7 +105,31 @@ describe('AppComponent journeys', () => {
     expect(api.importDefinition).toHaveBeenCalledWith('existing-token', 'form-1', 7, { contractVersion: '4.0.0' });
   });
 
-  it('opens an authorized response detail after a rendered response row click', () => {
+  it('filters the inlined response list from its rendered search control', () => {
+    localStorage.setItem('smartintake.staffSession', 'existing-token');
+    const api = createApi();
+    api.listResponses.mockReturnValue(of([
+      { id: 'receipt-1', submittedAt: '2026-09-16' },
+      { id: 'receipt-2', formKey: 'other' },
+    ]));
+    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+
+    toolbarButton(fixture, 'Response admin').click();
+    fixture.detectChanges();
+    const responseAdmin = fixture.nativeElement.querySelector('[data-testid="response-admin"]') as HTMLElement;
+    const search = responseAdmin.querySelector('input[placeholder="Search receipt or form"]') as HTMLInputElement;
+    search.value = 'receipt-1';
+    search.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    const rows = responseAdmin.querySelectorAll('.field-card');
+    expect(rows).toHaveLength(1);
+    expect(rows[0].textContent).toContain('receipt-1');
+  });
+
+  it('opens an authorized response detail after an inlined response row click', () => {
     localStorage.setItem('smartintake.staffSession', 'existing-token');
     const api = createApi();
     api.listResponses.mockReturnValue(of([{ id: 'receipt-1', submittedAt: '2026-09-16' }]));
@@ -117,7 +141,7 @@ describe('AppComponent journeys', () => {
 
     toolbarButton(fixture, 'Response admin').click();
     fixture.detectChanges();
-    const responseRow = fixture.nativeElement.querySelector('section[appResponseAdmin] .field-card') as HTMLButtonElement;
+    const responseRow = fixture.nativeElement.querySelector('[data-testid="response-admin"] .field-card') as HTMLButtonElement;
     responseRow.click();
     fixture.detectChanges();
 

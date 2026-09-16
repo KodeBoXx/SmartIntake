@@ -15,13 +15,12 @@ import {
   visibilityRule,
 } from './editor-state.helpers';
 import { FIELD_TYPES, Field, FormDefinition, RepeaterItem, ResponseSummary, createDefaultDefinition } from './models/form-definition.models';
-import { ResponseAdminComponent } from './response-admin.component';
 import { SmartIntakeApiService } from './smart-intake-api.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [AppToolbarComponent, CommonModule, FormsModule, ResponseAdminComponent],
+  imports: [AppToolbarComponent, CommonModule, FormsModule],
   template: `
 <header class="border-b border-stone-200 bg-white"><div class="mx-auto flex max-w-7xl items-center justify-between px-5 py-4"><div><p class="type-caption-bold text-emerald-700">SMART INTAKE</p><h1 class="type-h3">Form Builder Lite</h1></div><span class="type-caption">{{staffToken?'Staff session active':'Local bootstrap/sign-in required'}}</span></div></header>
 <main class="mx-auto max-w-7xl px-5 py-6">
@@ -30,7 +29,18 @@ import { SmartIntakeApiService } from './smart-intake-api.service';
 <div class="card"><div class="flex items-center justify-between"><div><p class="type-caption text-emerald-700">MULTI-PAGE DRAFT</p><input class="title-input" [(ngModel)]="definition().title" (ngModelChange)="touch()"></div><button class="pill" (click)="addPage()">Add page</button></div><label class="label">Page title<input [(ngModel)]="page().title" (ngModelChange)="touch()"></label><div class="mt-5 space-y-3"><article *ngFor="let f of page().fields;let i=index" class="field-card" [class.selected]="fieldIndex()===i" (click)="fieldIndex.set(i)"><div><b>{{f.label}}</b><p class="type-caption">{{f.type}} · {{f.id}}</p></div><div class="flex gap-2"><button class="icon" (click)="moveField(i,-1);$event.stopPropagation()">↑</button><button class="icon" (click)="moveField(i,1);$event.stopPropagation()">↓</button></div></article></div></div>
 <aside class="card" *ngIf="field() as f"><p class="type-label">FIELD PROPERTIES</p><label class="label">Label<input [(ngModel)]="f.label" (ngModelChange)="touch()"></label><label class="label">Type<select [(ngModel)]="f.type" (ngModelChange)="normalize(f)"><option *ngFor="let type of types" [value]="type">{{type}}</option></select></label><label class="check"><input type="checkbox" [(ngModel)]="f.required" (ngModelChange)="touch()"> Required</label><ng-container *ngIf="f.type==='text'"><label class="label">Minimum length<input type="number" [(ngModel)]="f.constraints!.minLength"></label><label class="label">Maximum length<input type="number" [(ngModel)]="f.constraints!.maxLength"></label></ng-container><ng-container *ngIf="f.type==='choice'||f.type==='multiChoice'"><p class="type-label">OPTIONS</p><div *ngFor="let option of f.options;let i=index" class="flex gap-1"><input [(ngModel)]="option.label"><button class="icon" (click)="removeOption(f,i)">×</button></div><button class="pill" (click)="addOption(f)">+ option</button></ng-container><p class="type-label mt-4">VISIBILITY RULE</p><select [ngModel]="visibilityFieldId(f)" (ngModelChange)="setVisibilityRuleField(f,$any($event))"><option value="">Always visible</option><option *ngFor="let other of allFields()" [value]="other.id">{{other.label}}</option></select><input *ngIf="f.visibleWhen?.fieldId" placeholder="equals value" [(ngModel)]="f.visibleWhen!.equals" (ngModelChange)="syncRules(f)"><p class="type-label mt-4">REQUIREDNESS RULE</p><select [(ngModel)]="f.requiredRuleField" (ngModelChange)="syncRequiredRule(f,$any($event))"><option value="">Use checkbox</option><option *ngFor="let other of allFields()" [value]="other.id">Required when {{other.label}} equals…</option></select><input *ngIf="f.requiredRuleField" placeholder="equals value" [(ngModel)]="f.requiredRuleValue" (ngModelChange)="syncRequiredRule(f,f.requiredRuleField)"><button class="pill danger mt-5" (click)="removeField()">Remove field</button></aside></section>
 <section *ngIf="mode()==='preview'" class="mx-auto max-w-2xl card"><p class="type-caption text-emerald-700">PUBLIC RUNTIME · PAGE {{previewPage()+1}}/{{definition().pages.length}}</p><h2 class="type-h3">{{definition().title}}</h2><h3 class="type-h4">{{definition().pages[previewPage()].title}}</h3><div *ngFor="let f of definition().pages[previewPage()].fields" class="mt-5" [hidden]="!visible(f)"><label class="label">{{f.label}} <span *ngIf="isRequired(f)">*</span><input *ngIf="['text','integer','decimal','date'].includes(f.type)" [type]="f.type==='date'?'date':f.type==='text'?'text':'number'" [(ngModel)]="answers[f.id]"><input *ngIf="f.type==='boolean'" type="checkbox" [(ngModel)]="answers[f.id]"><select *ngIf="f.type==='choice'" [(ngModel)]="answers[f.id]"><option value="">Choose one</option><option *ngFor="let o of f.options" [value]="o.id">{{o.label}}</option></select><select *ngIf="f.type==='multiChoice'" multiple [(ngModel)]="answers[f.id]"><option *ngFor="let o of f.options" [value]="o.id">{{o.label}}</option></select><div *ngIf="f.type==='calculated'||f.type==='readOnly'" class="rounded-lg bg-stone-100 p-3">{{displayValue(f)}}</div><div *ngIf="f.type==='repeater'" class="space-y-2"><div *ngFor="let item of repeater(f);let i=index" class="flex gap-2"><input [(ngModel)]="item.value" placeholder="Item value"><button class="icon" (click)="removeItem(f,i)">×</button><button class="icon" (click)="moveItem(f,i,-1)">↑</button><button class="icon" (click)="moveItem(f,i,1)">↓</button></div><button class="pill" (click)="addItem(f)">+ item</button></div></label></div><div class="mt-6 flex justify-between"><button class="pill" [disabled]="previewPage()===0" (click)="previousPage()">Back</button><button class="pill" *ngIf="previewPage()<definition().pages.length-1" (click)="persistPage()">Next page</button><button class="pill primary" *ngIf="previewPage()===definition().pages.length-1" (click)="submit()">Submit</button></div><p *ngIf="message()" class="notice">{{message()}}</p></section>
-<section appResponseAdmin *ngIf="responses().length" class="mt-6 card" [responses]="responses()" [(responseQuery)]="responseQuery" [openResponse]="openResponse"></section>
+<section *ngIf="responses().length" class="mt-6 card" data-testid="response-admin">
+  <div class="flex justify-between">
+    <h2 class="type-h3">Response administration</h2>
+    <input placeholder="Search receipt or form" [(ngModel)]="responseQuery">
+  </div>
+  <div class="mt-3 grid gap-2">
+    <button class="field-card text-left" *ngFor="let response of filteredResponses()" (click)="openResponse(response.id)">
+      <span>{{response.id}}</span>
+      <span>{{response.submittedAt}}</span>
+    </button>
+  </div>
+</section>
 <aside *ngIf="responseDetail()" class="mt-4 rounded-xl bg-stone-50 p-4">
   <div class="flex justify-between">
     <b>Authorized response detail</b>
@@ -132,6 +142,10 @@ export class AppComponent {
   }
 
   loadResponses() { this.api.listResponses(this.staffToken).subscribe({ next: (response) => this.responses.set(response), error: () => this.message.set('Response list unavailable.') }); }
+  filteredResponses() {
+    const query = this.responseQuery.toLowerCase();
+    return this.responses().filter((response) => JSON.stringify(response).toLowerCase().includes(query));
+  }
   openResponse = (id: string) => this.api.responseDetail(this.staffToken, id).subscribe({ next: (response) => this.responseDetail.set(response), error: () => this.message.set('Response detail unavailable.') });
 
   exportDefinition() {
