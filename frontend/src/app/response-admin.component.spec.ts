@@ -24,17 +24,4 @@ describe('ResponseAdminComponent', () => {
     card.click();
     expect(opened).toHaveBeenCalledWith('receipt-1');
   });
-
-  it('renders the styled close control and emits close', () => {
-    const fixture: ComponentFixture<ResponseAdminComponent> = TestBed.createComponent(ResponseAdminComponent);
-    fixture.componentRef.setInput('responseDetail', { id: 'receipt-1' });
-    const close = vi.fn();
-    fixture.componentInstance.close.subscribe(close);
-    fixture.detectChanges();
-
-    const closeButton = fixture.nativeElement.querySelector('aside .icon') as HTMLButtonElement;
-    expect(closeButton.classList.contains('icon')).toBe(true);
-    closeButton.click();
-    expect(close).toHaveBeenCalledOnce();
-  });
 });

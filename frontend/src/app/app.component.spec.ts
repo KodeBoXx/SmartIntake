@@ -59,8 +59,8 @@ describe('AppComponent journeys', () => {
     const api = createApi();
     TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
     const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
     const component = fixture.componentInstance;
+    fixture.detectChanges();
     const toolbar = fixture.nativeElement.querySelector('nav[appToolbar]') as HTMLElement;
     expect(toolbar.classList.contains('flex')).toBe(true);
     expect(toolbar.classList.contains('flex-wrap')).toBe(true);
@@ -112,6 +112,7 @@ describe('AppComponent journeys', () => {
     api.responseDetail.mockReturnValue(of({ id: 'receipt-1', answers: { name: 'Ada' } }));
     TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
     const fixture = TestBed.createComponent(AppComponent);
+    const component = fixture.componentInstance;
     fixture.detectChanges();
 
     toolbarButton(fixture, 'Response admin').click();
@@ -122,6 +123,14 @@ describe('AppComponent journeys', () => {
 
     expect(api.responseDetail).toHaveBeenCalledWith('existing-token', 'receipt-1');
     expect(fixture.nativeElement.textContent).toContain('Authorized response detail');
+    expect(fixture.nativeElement.textContent).toContain('Ada');
+
+    const closeButton = fixture.nativeElement.querySelector('aside .icon') as HTMLButtonElement;
+    expect(closeButton.classList.contains('icon')).toBe(true);
+    closeButton.click();
+    fixture.detectChanges();
+    expect(component.responseDetail()).toBeNull();
+    expect(fixture.nativeElement.textContent).not.toContain('Authorized response detail');
   });
 
   it('preserves draft, publish, and session failure messages', () => {

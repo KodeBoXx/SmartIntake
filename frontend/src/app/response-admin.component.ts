@@ -18,22 +18,13 @@ import { ResponseSummary } from './models/form-definition.models';
         <span>{{r.submittedAt}}</span>
       </button>
     </div>
-    <aside *ngIf="responseDetail" class="mt-4 rounded-xl bg-stone-50 p-4">
-      <div class="flex justify-between">
-        <b>Authorized response detail</b>
-        <button class="icon" (click)="close.emit()">×</button>
-      </div>
-      <pre class="overflow-auto text-xs">{{responseDetail|json}}</pre>
-    </aside>
   `,
 })
 export class ResponseAdminComponent {
   @Input() responses: ResponseSummary[] = [];
   @Input() responseQuery = '';
-  @Input() responseDetail: unknown = null;
   @Output() responseQueryChange = new EventEmitter<string>();
   @Output() responseOpen = new EventEmitter<string>();
-  @Output() close = new EventEmitter<void>();
 
   filteredResponses(): ResponseSummary[] {
     const query = this.responseQuery.toLowerCase();

@@ -34,7 +34,7 @@ The 21 observational `N_current` surfaces are covered as follows:
 Latest local results:
 
 - Backend: 31 route, compatibility, transactional concurrency, contract, and real closed-context restart tests passed with no failures, errors, or skips.
-- Frontend: 17 tests passed across 5 files; production build passed.
+- Frontend: 16 tests passed across 5 files; production build passed.
 - Live lifecycle: create → publish → start session → mutation → exact replay → submit → CSV export passed; the created session stored a 64-character secret digest.
 - Public preview: frontend and proxied API returned HTTP 200; author and public-preview screens rendered and were interactive.
 
