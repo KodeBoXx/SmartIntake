@@ -7,11 +7,11 @@ M1 establishes additive compatibility and modular boundaries while preserving M0
 ## Delivered
 
 - Preserved Flyway V1–V4 byte-for-byte and pinned their SHA-256 hashes in automated tests and the compatibility manifest.
-- Added V5–V6 compatibility profiles, durable digest-bound migration state, quarantine evidence, nullable profile seams, and supporting indexes.
-- Added idempotent startup reconciliation without rewriting source definitions, releases, sessions, mutations, submissions, IDs, or timestamps.
-- Quarantined tenantless forms and release-less sessions instead of inferring ownership or release relationships.
-- Classified the current `pages[]` prototype as read-only `legacy-prototype`; `contractVersion: 4.0.0` alone is not treated as a normative full-profile claim.
-- Persisted SHA-256 respondent-secret digests for new sessions and lazily backfilled acknowledged V3-only sessions after their retained token first matches.
+- Added V5–V7 compatibility profiles, durable source/target digest-bound migration state, quarantine evidence, nullable profile seams, supporting indexes, and an additive one-submission-per-session constraint.
+- Added transactionally executed, idempotent startup reconciliation without rewriting source definitions, releases, session answers, mutations, submissions, IDs, timestamps, or respondent hashes; interpretation state and relationship sides are included in source evidence and unsupported state cascades to dependents.
+- Quarantined tenantless forms, release-less sessions, session/release form mismatches, and submission/session form mismatches instead of inferring ownership or relationships.
+- Classifies only fully validated known current Lite definitions as read-only `legacy-prototype`; every stored source is parsed and validated even when tagged `m1-current-prototype`. `contractVersion: 4.0.0` or `pages[]` alone is not treated as a profile or normative full-profile claim.
+- Persists a SHA-256 digest of a newly returned bearer secret while retaining a distinct, unreturned V3 compatibility placeholder; acknowledged V3-only sessions lazily backfill only a null digest after their retained token first matches.
 - Split the monolithic Spring controller into focused web controllers with application, authorization, audit-persistence, and compatibility seams while preserving current routes and response behavior.
 - Split the Angular root into typed models, pure state/rule helpers, an HTTP facade, and bounded toolbar/response-administration components while preserving the current UI journeys.
 - Fixed the existing CSV export query ambiguity and malformed header line ending; CSV export now returns a valid workspace-scoped response with formula-safe cells.
@@ -27,13 +27,13 @@ The 21 observational `N_current` surfaces are covered as follows:
 | Public session start/read/mutation/validation/submission | Backend lifecycle tests, exact replay assertion, frontend journey tests, and live API flow |
 | Response list/detail/JSON/CSV export | Backend authorization/export tests and response-admin component tests |
 | Frontend entry, authoring, preview, respondent, and response admin | Angular unit tests, production build, public-host browser snapshots, and screenshots |
-| Database V1–V4 | Immutable SHA-256 guard plus Flyway validation through V6 |
-| Clean startup | Fresh temporary PostgreSQL database migrated through V1–V6 and served a healthy application |
+| Database V1–V4 | Immutable SHA-256 guard plus Flyway validation through V7 |
+| Clean startup | Fresh temporary PostgreSQL database migrated through V1–V7 and served a healthy application |
 
 Latest local results:
 
-- Backend: 25 tests passed, 0 failed, 0 errors, 0 skipped.
-- Frontend: 10 tests passed across 4 files; production build passed.
+- Backend: 31 route, compatibility, transactional concurrency, contract, and real closed-context restart tests passed with no failures, errors, or skips.
+- Frontend: 12 tests passed across 5 files; production build passed.
 - Live lifecycle: create → publish → start session → mutation → exact replay → submit → CSV export passed; the created session stored a 64-character secret digest.
 - Public preview: frontend and proxied API returned HTTP 200; author and public-preview screens rendered and were interactive.
 

@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "1.0",
+  "schemaVersion": "1.1",
   "milestone": "M1",
   "classification": "bounded-additive-compatibility",
   "immutableMigrationSha256": {
@@ -15,13 +15,29 @@
       "readOnly": true,
       "newWriteAllowed": false,
       "normativeFullProfile": false
+    },
+    {
+      "key": "m1-current-prototype",
+      "contractVersionObservation": "4.0.0",
+      "readOnly": false,
+      "newWriteAllowed": true,
+      "normativeFullProfile": false
     }
   ],
-  "quarantineReasons": ["TENANT_MISSING", "RELEASE_MISSING", "UNSUPPORTED_DEFINITION_SHAPE"],
+  "quarantineReasons": [
+    "TENANT_MISSING",
+    "RELEASE_MISSING",
+    "UNSUPPORTED_DEFINITION_SHAPE",
+    "SESSION_FORM_RELEASE_FORM_MISMATCH",
+    "SESSION_RELEASE_WORKSPACE_MISMATCH",
+    "SUBMISSION_FORM_SESSION_FORM_MISMATCH"
+  ],
   "guarantees": [
-    "V1-V4 are immutable and guarded by automated hashes.",
-    "Reconciliation is digest-bound and does not rewrite source definitions, releases, sessions, mutations, or submissions.",
-    "Tenantless forms and release-less sessions are quarantined without inferred relationships.",
-    "New respondent sessions persist and verify a SHA-256 secret digest; acknowledged V3-only sessions are verified against the retained token once, then lazily backfilled and verified through the digest."
+    "V1-V6 are immutable; V7 is additive only.",
+    "Every profile classification parses and validates the full known Lite prototype source; a current-profile tag is never trusted.",
+    "Reconciliation persists source and target digests without rewriting definitions, releases, answers, mutation responses, submission envelopes, or respondent hashes.",
+    "Unsupported and relationship-quarantined records cascade to dependent compatibility state without inferred links; session/release and submission/session form mismatches retain both sides as evidence.",
+    "New bearer secrets differ from V3 placeholders and are stored only as digests; reconciliation does not hash legacy rows, and authorization uses retained-token verification plus atomic null-only backfill.",
+    "Publish and public session start require the writable non-normative M1 profile and reject quarantined records."
   ]
 }
