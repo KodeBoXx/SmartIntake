@@ -1,17 +1,23 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ResponseSummary } from './models/form-definition.models';
+import { FormDefinition, ResponseSummary } from './models/form-definition.models';
+
+type StaffSession = { staffSession: string; workspaceKey?: string };
+export type CreatedForm = { id: string; draftId: string; revision: number; definition: FormDefinition };
+export type SavedDraft = { revision: number; definition: FormDefinition; diagnostics: unknown[] };
+export type PublishedForm = { releaseId: string; version: number; shareId: string; status: string };
 
 @Injectable({ providedIn: 'root' })
 export class SmartIntakeApiService {
   constructor(private readonly http: HttpClient) {}
 
-  bootstrap(): Observable<{ staffSession: string }> {
-    return this.http.post<{ staffSession: string }>('/v1/auth/bootstrap', {
-      email: 'owner@local.test',
-      password: 'LocalDevelopmentPassword!',
-    });
+  bootstrap(): Observable<StaffSession> {
+    return this.http.post<StaffSession>('/v1/auth/bootstrap', this.localCredentials());
+  }
+
+  signIn(): Observable<StaffSession> {
+    return this.http.post<StaffSession>('/v1/auth/sign-in', this.localCredentials());
   }
 
   listResponses(staffToken: string): Observable<ResponseSummary[]> {
@@ -26,9 +32,9 @@ export class SmartIntakeApiService {
     return this.http.get<unknown>(`/v1/workspaces/local/forms/${formId}/definition-export`, this.staff(staffToken));
   }
 
-  importDefinition(staffToken: string, formId: string, definition: unknown): Observable<{ revision: number }> {
+  importDefinition(staffToken: string, formId: string, revision: number, definition: unknown): Observable<{ revision: number }> {
     return this.http.put<{ revision: number }>(`/v1/workspaces/local/forms/${formId}/definition-import`, definition, {
-      headers: new HttpHeaders({ 'X-Staff-Session': staffToken, 'If-Match': '"1"' }),
+      headers: new HttpHeaders({ 'X-Staff-Session': staffToken, 'If-Match': this.etag(revision) }),
     });
   }
 
@@ -36,8 +42,18 @@ export class SmartIntakeApiService {
     return this.http.get<ResponseSummary[]>('/v1/workspaces/local/exports.json', this.staff(staffToken));
   }
 
-  saveDraft(staffToken: string, formKey: string, title: string): Observable<{ id: string; revision?: number }> {
-    return this.http.post<{ id: string; revision?: number }>('/v1/workspaces/local/forms', { formKey, title }, this.staff(staffToken));
+  createForm(staffToken: string, formKey: string, title: string): Observable<CreatedForm> {
+    return this.http.post<CreatedForm>('/v1/workspaces/local/forms', { formKey, title }, this.staff(staffToken));
+  }
+
+  updateDraft(staffToken: string, formId: string, draftId: string, revision: number, definition: FormDefinition): Observable<SavedDraft> {
+    return this.http.put<SavedDraft>(`/v1/workspaces/local/forms/${formId}/drafts/${draftId}`, { definition }, {
+      headers: new HttpHeaders({ 'X-Staff-Session': staffToken, 'If-Match': this.etag(revision) }),
+    });
+  }
+
+  publish(staffToken: string, formId: string): Observable<PublishedForm> {
+    return this.http.post<PublishedForm>(`/v1/workspaces/local/forms/${formId}/releases`, {}, this.staff(staffToken));
   }
 
   startSession(formId: string): Observable<{ sessionId: string; respondentSession: string; revision: number }> {
@@ -58,5 +74,13 @@ export class SmartIntakeApiService {
 
   private respondent(respondentToken: string) {
     return { headers: new HttpHeaders({ 'X-Respondent-Session': respondentToken }) };
+  }
+
+  private localCredentials() {
+    return { email: 'owner@local.test', password: 'LocalDevelopmentPassword!' };
+  }
+
+  private etag(revision: number) {
+    return `"${revision}"`;
   }
 }

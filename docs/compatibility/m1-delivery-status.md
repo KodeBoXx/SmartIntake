@@ -14,6 +14,7 @@ M1 establishes additive compatibility and modular boundaries while preserving M0
 - Persists a SHA-256 digest of a newly returned bearer secret while retaining a distinct, unreturned V3 compatibility placeholder; acknowledged V3-only sessions lazily backfill only a null digest after their retained token first matches.
 - Split the monolithic Spring controller into focused web controllers with application, authorization, audit-persistence, and compatibility seams while preserving current routes and response behavior.
 - Split the Angular root into typed models, pure state/rule helpers, an HTTP facade, and bounded toolbar/response-administration components while preserving the current UI journeys.
+- Completed the local usable flow: bootstrap falls back to sign-in, draft save persists the in-memory definition with revision preconditions, imports use the current revision, and the toolbar exposes the existing publish operation.
 - Fixed the existing CSV export query ambiguity and malformed header line ending; CSV export now returns a valid workspace-scoped response with formula-safe cells.
 
 ## Characterization evidence
@@ -33,7 +34,7 @@ The 21 observational `N_current` surfaces are covered as follows:
 Latest local results:
 
 - Backend: 31 route, compatibility, transactional concurrency, contract, and real closed-context restart tests passed with no failures, errors, or skips.
-- Frontend: 12 tests passed across 5 files; production build passed.
+- Frontend: 16 tests passed across 5 files; production build passed.
 - Live lifecycle: create → publish → start session → mutation → exact replay → submit → CSV export passed; the created session stored a 64-character secret digest.
 - Public preview: frontend and proxied API returned HTTP 200; author and public-preview screens rendered and were interactive.
 
