@@ -1,15 +1,15 @@
 {
-  "counting_rule": "one unique HTTP verb + canonical path from \u00a711.2\u2013\u00a711.5 and Appendix A",
+  "counting_rule": "one unique HTTP verb + canonical path from \u00a711.2\u2013\u00a711.5 and authentication companion API table",
   "current_execution_status": "not-run",
   "independent_review_required": true,
   "manifest": "O_named",
   "members": [
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "551",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "ON-GET-01",
+      "id": "ON-get-v1-capabilities-ca77d2f932",
       "method": "GET",
       "owner": "api/openapi",
       "path": "/v1/capabilities",
@@ -18,10 +18,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "552",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "ON-GET-02",
+      "id": "ON-get-v1-schemas-kind-version-4c108bde88",
       "method": "GET",
       "owner": "api/openapi",
       "path": "/v1/schemas/{kind}/{version}",
@@ -30,10 +30,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "553",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "ON-POST-03",
+      "id": "ON-post-v1-workspaces-w-forms-89f650ba42",
       "method": "POST",
       "owner": "api/openapi",
       "path": "/v1/workspaces/{w}/forms",
@@ -42,10 +42,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "554",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "ON-GET-04",
+      "id": "ON-get-v1-workspaces-w-forms-2cc818d28d",
       "method": "GET",
       "owner": "api/openapi",
       "path": "/v1/workspaces/{w}/forms",
@@ -54,10 +54,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "555",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "ON-GET-05",
+      "id": "ON-get-v1-workspaces-w-forms-f-drafts-d-4ba2cf8375",
       "method": "GET",
       "owner": "api/openapi",
       "path": "/v1/workspaces/{w}/forms/{f}/drafts/{d}",
@@ -66,10 +66,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "556",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "ON-PUT-06",
+      "id": "ON-put-v1-workspaces-w-forms-f-drafts-d-d5d5fa6522",
       "method": "PUT",
       "owner": "api/openapi",
       "path": "/v1/workspaces/{w}/forms/{f}/drafts/{d}",
@@ -78,10 +78,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "557",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "ON-POST-07",
+      "id": "ON-post-v1-workspaces-w-imports-validate-57f09aa4ca",
       "method": "POST",
       "owner": "api/openapi",
       "path": "/v1/workspaces/{w}/imports/validate",
@@ -90,10 +90,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "558",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "ON-POST-08",
+      "id": "ON-post-v1-workspaces-w-imports-candidateid-commit-9f77424a8c",
       "method": "POST",
       "owner": "api/openapi",
       "path": "/v1/workspaces/{w}/imports/{candidateId}/commit",
@@ -102,10 +102,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "559",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "ON-POST-09",
+      "id": "ON-post-v1-workspaces-w-forms-f-drafts-d-validate-a7ada56c4b",
       "method": "POST",
       "owner": "api/openapi",
       "path": "/v1/workspaces/{w}/forms/{f}/drafts/{d}/validate",
@@ -114,10 +114,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "560",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "ON-POST-10",
+      "id": "ON-post-v1-workspaces-w-forms-f-drafts-d-review-requests-4a2a20b9bf",
       "method": "POST",
       "owner": "api/openapi",
       "path": "/v1/workspaces/{w}/forms/{f}/drafts/{d}/review-requests",
@@ -126,10 +126,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "561",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "ON-POST-11",
+      "id": "ON-post-v1-workspaces-w-forms-f-releases-e3ec39e2bc",
       "method": "POST",
       "owner": "api/openapi",
       "path": "/v1/workspaces/{w}/forms/{f}/releases",
@@ -138,10 +138,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "562",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "ON-GET-12",
+      "id": "ON-get-v1-workspaces-w-forms-f-releases-releaseid-b49fe24697",
       "method": "GET",
       "owner": "api/openapi",
       "path": "/v1/workspaces/{w}/forms/{f}/releases/{releaseId}",
@@ -150,10 +150,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "563",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "ON-POST-13",
+      "id": "ON-post-v1-workspaces-w-forms-f-activation-960c53c753",
       "method": "POST",
       "owner": "api/openapi",
       "path": "/v1/workspaces/{w}/forms/{f}/activation",
@@ -162,10 +162,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "564",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "ON-GET-14",
+      "id": "ON-get-v1-workspaces-w-forms-f-export-3040e326d5",
       "method": "GET",
       "owner": "api/openapi",
       "path": "/v1/workspaces/{w}/forms/{f}/export",
@@ -174,10 +174,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "580",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "ON-POST-15",
+      "id": "ON-post-v1-public-forms-shareid-sessions-1ca37406cb",
       "method": "POST",
       "owner": "api/openapi",
       "path": "/v1/public/forms/{shareId}/sessions",
@@ -186,10 +186,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "581",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "ON-GET-16",
+      "id": "ON-get-v1-sessions-s-daef09677a",
       "method": "GET",
       "owner": "api/openapi",
       "path": "/v1/sessions/{s}",
@@ -198,10 +198,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "582",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "ON-PATCH-17",
+      "id": "ON-patch-v1-sessions-s-d902ee3064",
       "method": "PATCH",
       "owner": "api/openapi",
       "path": "/v1/sessions/{s}",
@@ -210,10 +210,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "583",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "ON-POST-18",
+      "id": "ON-post-v1-sessions-s-attachments-385dfc45a2",
       "method": "POST",
       "owner": "api/openapi",
       "path": "/v1/sessions/{s}/attachments",
@@ -222,10 +222,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "584",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "ON-POST-19",
+      "id": "ON-post-v1-sessions-s-attachments-a-complete-7605aab1bc",
       "method": "POST",
       "owner": "api/openapi",
       "path": "/v1/sessions/{s}/attachments/{a}/complete",
@@ -234,10 +234,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "585",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "ON-DELETE-20",
+      "id": "ON-delete-v1-sessions-s-attachments-a-d6208a4e81",
       "method": "DELETE",
       "owner": "api/openapi",
       "path": "/v1/sessions/{s}/attachments/{a}",
@@ -246,10 +246,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "586",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "ON-POST-21",
+      "id": "ON-post-v1-sessions-s-validate-dde1446480",
       "method": "POST",
       "owner": "api/openapi",
       "path": "/v1/sessions/{s}/validate",
@@ -258,10 +258,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "587",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "ON-POST-22",
+      "id": "ON-post-v1-sessions-s-submissions-ba988d3740",
       "method": "POST",
       "owner": "api/openapi",
       "path": "/v1/sessions/{s}/submissions",
@@ -270,10 +270,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "588",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "ON-GET-23",
+      "id": "ON-get-v1-sessions-s-submission-operation-978f11ba2b",
       "method": "GET",
       "owner": "api/openapi",
       "path": "/v1/sessions/{s}/submission-operation",
@@ -282,10 +282,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "596",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "ON-GET-24",
+      "id": "ON-get-v1-workspaces-w-submissions-bd7aaa46e9",
       "method": "GET",
       "owner": "api/openapi",
       "path": "/v1/workspaces/{w}/submissions",
@@ -294,10 +294,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "597",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "ON-GET-25",
+      "id": "ON-get-v1-workspaces-w-submissions-id-ba0bcaf245",
       "method": "GET",
       "owner": "api/openapi",
       "path": "/v1/workspaces/{w}/submissions/{id}",
@@ -306,10 +306,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "598",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "ON-POST-26",
+      "id": "ON-post-v1-workspaces-w-exports-380db1264c",
       "method": "POST",
       "owner": "api/openapi",
       "path": "/v1/workspaces/{w}/exports",
@@ -318,10 +318,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "599",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "ON-GET-27",
+      "id": "ON-get-v1-workspaces-w-attachments-id-download-0edfaf6893",
       "method": "GET",
       "owner": "api/openapi",
       "path": "/v1/workspaces/{w}/attachments/{id}/download",
@@ -330,10 +330,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "600",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "ON-POST-28",
+      "id": "ON-post-v1-workspaces-w-webhooks-e95a4d5035",
       "method": "POST",
       "owner": "api/openapi",
       "path": "/v1/workspaces/{w}/webhooks",
@@ -342,10 +342,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "601",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "ON-GET-29",
+      "id": "ON-get-v1-workspaces-w-webhook-deliveries-f6b56d678f",
       "method": "GET",
       "owner": "api/openapi",
       "path": "/v1/workspaces/{w}/webhook-deliveries",
@@ -354,10 +354,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "602",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "ON-POST-30",
+      "id": "ON-post-v1-workspaces-w-webhook-deliveries-id-replay-f720705f03",
       "method": "POST",
       "owner": "api/openapi",
       "path": "/v1/workspaces/{w}/webhook-deliveries/{id}/replay",
@@ -366,10 +366,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "74",
         "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "ON-POST-31",
+      "id": "ON-post-v1-auth-sign-in-7c9d8ac3a9",
       "method": "POST",
       "owner": "api/openapi",
       "path": "/v1/auth/sign-in",
@@ -378,10 +378,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "75",
         "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "ON-POST-32",
+      "id": "ON-post-v1-auth-sign-out-a46dbecd13",
       "method": "POST",
       "owner": "api/openapi",
       "path": "/v1/auth/sign-out",
@@ -390,10 +390,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "76",
         "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "ON-GET-33",
+      "id": "ON-get-v1-auth-session-4664ebe0bc",
       "method": "GET",
       "owner": "api/openapi",
       "path": "/v1/auth/session",
@@ -402,10 +402,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "77",
         "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "ON-POST-34",
+      "id": "ON-post-v1-auth-activate-177dd1f0af",
       "method": "POST",
       "owner": "api/openapi",
       "path": "/v1/auth/activate",
@@ -414,10 +414,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "78",
         "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "ON-POST-35",
+      "id": "ON-post-v1-auth-password-change-98d74c881d",
       "method": "POST",
       "owner": "api/openapi",
       "path": "/v1/auth/password-change",
@@ -426,10 +426,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "79",
         "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "ON-POST-36",
+      "id": "ON-post-v1-auth-recovery-759d7b6e5a",
       "method": "POST",
       "owner": "api/openapi",
       "path": "/v1/auth/recovery",
@@ -438,10 +438,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "80",
         "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "ON-POST-37",
+      "id": "ON-post-v1-auth-reset-7cc02daaf6",
       "method": "POST",
       "owner": "api/openapi",
       "path": "/v1/auth/reset",
@@ -450,10 +450,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "81",
         "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "ON-POST-38",
+      "id": "ON-post-v1-invitations-accept-7d992dc67a",
       "method": "POST",
       "owner": "api/openapi",
       "path": "/v1/invitations/accept",
@@ -462,10 +462,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "82",
         "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "ON-GET-39",
+      "id": "ON-get-v1-platform-organizations-69b54638c0",
       "method": "GET",
       "owner": "api/openapi",
       "path": "/v1/platform/organizations",
@@ -474,10 +474,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "82",
         "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "ON-POST-40",
+      "id": "ON-post-v1-platform-organizations-77f778ca30",
       "method": "POST",
       "owner": "api/openapi",
       "path": "/v1/platform/organizations",
@@ -486,10 +486,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "83",
         "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "ON-PATCH-41",
+      "id": "ON-patch-v1-platform-organizations-o-f7c610cd38",
       "method": "PATCH",
       "owner": "api/openapi",
       "path": "/v1/platform/organizations/{o}",
@@ -498,10 +498,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "84",
         "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "ON-POST-42",
+      "id": "ON-post-v1-platform-organizations-o-users-93c7715a28",
       "method": "POST",
       "owner": "api/openapi",
       "path": "/v1/platform/organizations/{o}/users",
@@ -510,10 +510,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "85",
         "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "ON-PATCH-43",
+      "id": "ON-patch-v1-platform-accounts-a-05f292a1f5",
       "method": "PATCH",
       "owner": "api/openapi",
       "path": "/v1/platform/accounts/{a}",
@@ -522,10 +522,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "86",
         "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "ON-GET-44",
+      "id": "ON-get-v1-organizations-o-users-987876371e",
       "method": "GET",
       "owner": "api/openapi",
       "path": "/v1/organizations/{o}/users",
@@ -534,10 +534,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "86",
         "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "ON-POST-45",
+      "id": "ON-post-v1-organizations-o-users-5260bb3701",
       "method": "POST",
       "owner": "api/openapi",
       "path": "/v1/organizations/{o}/users",
@@ -546,10 +546,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "87",
         "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "ON-PATCH-46",
+      "id": "ON-patch-v1-organizations-o-users-u-64340c0fdf",
       "method": "PATCH",
       "owner": "api/openapi",
       "path": "/v1/organizations/{o}/users/{u}",
@@ -558,10 +558,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "87",
         "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "ON-DELETE-47",
+      "id": "ON-delete-v1-organizations-o-users-u-e9143ed806",
       "method": "DELETE",
       "owner": "api/openapi",
       "path": "/v1/organizations/{o}/users/{u}",
@@ -570,10 +570,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "88",
         "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "ON-PUT-48",
+      "id": "ON-put-v1-workspaces-w-users-u-roles-b47a2cdecd",
       "method": "PUT",
       "owner": "api/openapi",
       "path": "/v1/workspaces/{w}/users/{u}/roles",
@@ -582,10 +582,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "88",
         "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "ON-DELETE-49",
+      "id": "ON-delete-v1-workspaces-w-users-u-roles-3882c2ac6d",
       "method": "DELETE",
       "owner": "api/openapi",
       "path": "/v1/workspaces/{w}/users/{u}/roles",
@@ -594,10 +594,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "89",
         "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "ON-POST-50",
+      "id": "ON-post-v1-organizations-o-users-u-invitations-2caab11b76",
       "method": "POST",
       "owner": "api/openapi",
       "path": "/v1/organizations/{o}/users/{u}/invitations",
@@ -606,10 +606,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "90",
         "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "ON-DELETE-51",
+      "id": "ON-delete-v1-organizations-o-invitations-i-f4f64aadd7",
       "method": "DELETE",
       "owner": "api/openapi",
       "path": "/v1/organizations/{o}/invitations/{i}",
@@ -618,10 +618,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "91",
         "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "ON-POST-52",
+      "id": "ON-post-v1-organizations-o-users-u-recovery-c327e4cd74",
       "method": "POST",
       "owner": "api/openapi",
       "path": "/v1/organizations/{o}/users/{u}/recovery",
@@ -630,10 +630,10 @@
     },
     {
       "citation": {
-        "lines": "PRD \u00a711.2\u2013\u00a711.5 or Appendix A API table",
+        "lines": "92",
         "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "ON-POST-53",
+      "id": "ON-post-v1-platform-accounts-a-recovery-af7d394d85",
       "method": "POST",
       "owner": "api/openapi",
       "path": "/v1/platform/accounts/{a}/recovery",
@@ -646,14 +646,14 @@
   "selection": "PRD-fixed",
   "source_citations": [
     {
-      "lines": "\u00a711.2\u2013\u00a711.5 lines 545\u2013604",
+      "lines": "545-604",
       "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
     },
     {
-      "lines": "API table lines 68\u201394",
+      "lines": "68-94",
       "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
     }
   ],
   "total": 53,
-  "version": "1.0.0-m0"
+  "version": "2.0.0-m0"
 }

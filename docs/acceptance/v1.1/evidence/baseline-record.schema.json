@@ -12,19 +12,22 @@
     "environment",
     "executionPolicy",
     "acceptanceBoundary",
+    "recordValidation",
     "tasks"
   ],
   "properties": {
-    "schemaVersion": { "const": "1.0.0" },
+    "schemaVersion": { "const": "1.1.0" },
     "recordType": { "const": "m0-baseline-observation" },
     "observedAtUtc": { "type": "string", "format": "date-time" },
     "candidate": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["sha", "shaAttempt", "dirty", "dirtyStateSha256", "dirtyStateSummary", "dirtyStateAttempt"],
+      "required": ["sha", "shaAttempt", "treeSha", "treeAttempt", "dirty", "dirtyStateSha256", "dirtyStateSummary", "dirtyStateAttempt"],
       "properties": {
         "sha": { "type": ["string", "null"], "pattern": "^[0-9a-f]{40}$" },
         "shaAttempt": { "$ref": "#/$defs/attempt" },
+        "treeSha": { "type": ["string", "null"], "pattern": "^[0-9a-f]{40}$" },
+        "treeAttempt": { "$ref": "#/$defs/attempt" },
         "dirty": { "type": "boolean" },
         "dirtyStateSha256": { "$ref": "#/$defs/sha256" },
         "dirtyStateSummary": { "type": "string", "maxLength": 4000 },
@@ -43,7 +46,22 @@
         "logsRetained": { "type": "string" }
       }
     },
-    "acceptanceBoundary": { "type": "string", "minLength": 1 },
+    "acceptanceBoundary": {
+      "const": "This record is baseline evidence only. No status, artifact, build, mock, screenshot, unavailable integration, filtered row, or command retry closes acceptance."
+    },
+    "recordValidation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaPath", "schemaSha256", "mode", "validatorAvailable", "validatorVersion", "valid"],
+      "properties": {
+        "schemaPath": { "const": "docs/acceptance/v1.1/evidence/baseline-record.schema.json" },
+        "schemaSha256": { "$ref": "#/$defs/sha256" },
+        "mode": { "enum": ["full-jsonschema", "structural-fallback"] },
+        "validatorAvailable": { "type": "boolean" },
+        "validatorVersion": { "type": ["string", "null"] },
+        "valid": { "const": true }
+      }
+    },
     "tasks": {
       "type": "array",
       "minItems": 1,

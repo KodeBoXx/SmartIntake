@@ -19,15 +19,26 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1428",
-          "quote": "| Open Logic and create an item-scoped condition | Operator/operand/scope controls have meaningful names; keyboard can complete the expression; invalid scope links to the offending object. |"
+          "lines": "1427",
+          "quote": "| Add a field/page without dragging | Keyboard reaches a named Add action; new object is selected and its label/property control is reachable; outline order is announced. |",
+          "rangeSha256": "f12bb3176ed16c1785c55b038fa3c7b22566300ee210a6a8f1ddd8b41498a3ae",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-ACC-01",
+        "SF-ACC-02",
+        "SF-UI-01"
+      ],
       "status": "not-run"
     },
     {
@@ -47,15 +58,26 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1429",
-          "quote": "| Use compact narration/help controls | Play/Pause and Click to Ask have accessible names and states; focus stays on the active control. Passive answer text and ordinary inline instructions remain readable without a separate help dialog. |"
+          "lines": "1428",
+          "quote": "| Open Logic and create an item-scoped condition | Operator/operand/scope controls have meaningful names; keyboard can complete the expression; invalid scope links to the offending object. |",
+          "rangeSha256": "5e0dc7b42671393ded1c70b221d3fa30a1a481c9ab09374a1c11ad76a0234807",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-ACC-01",
+        "SF-ACC-02",
+        "SF-UI-01"
+      ],
       "status": "not-run"
     },
     {
@@ -75,15 +97,26 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1430",
-          "quote": "| Change setup Yes to No while detail is focused | Hidden field leaves focus/accessibility tree; focus moves to the nearest meaningful visible heading/control without jumping to the browser chrome or exposing hidden text. |"
+          "lines": "1429",
+          "quote": "| Use compact narration/help controls | Play/Pause and Click to Ask have accessible names and states; focus stays on the active control. Passive answer text and ordinary inline instructions remain readable without a separate help dialog. |",
+          "rangeSha256": "a68556b417286322494e7412f8a6de6afb53082845fb952b26054956ee7c333a",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-ACC-01",
+        "SF-ACC-02",
+        "SF-UI-01"
+      ],
       "status": "not-run"
     },
     {
@@ -103,15 +136,26 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1431",
-          "quote": "| Add a nested accessory/test | New item and its position are announced; focus lands on its first editable control, and parent/item identity remains understandable. |"
+          "lines": "1430",
+          "quote": "| Change setup Yes to No while detail is focused | Hidden field leaves focus/accessibility tree; focus moves to the nearest meaningful visible heading/control without jumping to the browser chrome or exposing hidden text. |",
+          "rangeSha256": "c978154a151128a0d5bbda1ab79d7f5db61ea1f31e9442bbd5b067774a7cdd50",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-ACC-01",
+        "SF-ACC-02",
+        "SF-UI-01"
+      ],
       "status": "not-run"
     },
     {
@@ -131,15 +175,26 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1432",
-          "quote": "| Remove a repeated item | Removal is announced; focus moves to the next surviving item's related control, else previous item, else the list Add control. |"
+          "lines": "1431",
+          "quote": "| Add a nested accessory/test | New item and its position are announced; focus lands on its first editable control, and parent/item identity remains understandable. |",
+          "rangeSha256": "7ef59ee0b7642b65c9f24782be19d7f1ffd74390a0830a2873d5979b55df3a10",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-ACC-01",
+        "SF-ACC-02",
+        "SF-UI-01"
+      ],
       "status": "not-run"
     },
     {
@@ -159,15 +214,26 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1433",
-          "quote": "| Move equipment B above A | Position change is announced; focus remains associated with B and its move control; equal labels do not erase identity. |"
+          "lines": "1432",
+          "quote": "| Remove a repeated item | Removal is announced; focus moves to the next surviving item's related control, else previous item, else the list Add control. |",
+          "rangeSha256": "ec7bfa6826a57a490ff70041f117f9e382389978a302c411a39e3449478f2e2f",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-ACC-01",
+        "SF-ACC-02",
+        "SF-UI-01"
+      ],
       "status": "not-run"
     },
     {
@@ -187,15 +253,26 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1434",
-          "quote": "| Submit invalid nested row | Error summary announces failures; activating its link expands containers, selects the proper input mode and focuses that exact row/field with its inline error. |"
+          "lines": "1433",
+          "quote": "| Move equipment B above A | Position change is announced; focus remains associated with B and its move control; equal labels do not erase identity. |",
+          "rangeSha256": "0ab888fa63116664490387ccddf8fb412c386a4f852537a27a869a6f1ecd3eb5",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-ACC-01",
+        "SF-ACC-02",
+        "SF-UI-01"
+      ],
       "status": "not-run"
     },
     {
@@ -215,15 +292,27 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1435",
-          "quote": "| Activate a review edit link | Stable row path is used, target is focused and a Return to review action restores context near the changed summary row. |"
+          "lines": "1434",
+          "quote": "| Submit invalid nested row | Error summary announces failures; activating its link expands containers, selects the proper input mode and focuses that exact row/field with its inline error. |",
+          "rangeSha256": "a10e8079d44d1fb125377576654de4520827fa0de4471f0229a17375e18358cb",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-ACC-01",
+        "SF-ACC-02",
+        "SF-UI-01",
+        "SF-VAL-02"
+      ],
       "status": "not-run"
     },
     {
@@ -243,15 +332,26 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1436",
-          "quote": "| Toggle locale | `lang`/direction and accessible names update; typed values and item IDs stay unchanged; mixed-direction identifiers are not scrambled. |"
+          "lines": "1435",
+          "quote": "| Activate a review edit link | Stable row path is used, target is focused and a Return to review action restores context near the changed summary row. |",
+          "rangeSha256": "9657079d61325437b43e174ae6b64dc99af8c1b74ccabe0a82b96c4a64d9f4b3",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-ACC-01",
+        "SF-ACC-02",
+        "SF-UI-01"
+      ],
       "status": "not-run"
     },
     {
@@ -264,6 +364,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T12",
         "T13"
       ],
       "id": "EVAL-FOCUS-10",
@@ -271,15 +372,27 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1437",
-          "quote": "| Pause narration/navigate | Pause is keyboard reachable; navigation ends stale speech; focus is not trapped in a disappearing voice bar. |"
+          "lines": "1436",
+          "quote": "| Toggle locale | `lang`/direction and accessible names update; typed values and item IDs stay unchanged; mixed-direction identifiers are not scrambled. |",
+          "rangeSha256": "7a36166173ce54434fa07f487b5ac46a59957942a83964b67943b8a9ede24ffc",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-ACC-01",
+        "SF-ACC-02",
+        "SF-LOC-03",
+        "SF-UI-01"
+      ],
       "status": "not-run"
     },
     {
@@ -299,15 +412,26 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1438",
-          "quote": "| Upload pending/rejected/ready | Per-file name/state/progress/removal is accessible; changes are announced without interrupting every keystroke; required readiness error links to upload. |"
+          "lines": "1437",
+          "quote": "| Pause narration/navigate | Pause is keyboard reachable; navigation ends stale speech; focus is not trapped in a disappearing voice bar. |",
+          "rangeSha256": "d9f4f13d51f0891ffe3ee971bcef8ccb79032f67d0248603e465a5adda1cd3fe",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-ACC-01",
+        "SF-ACC-02",
+        "SF-UI-01"
+      ],
       "status": "not-run"
     },
     {
@@ -327,15 +451,26 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1440",
-          "quote": "Repeat essential respondent controls at 320 CSS pixels, 200% and 400% zoom, reduced-motion and high-contrast preferences. Focus cannot be covered by sticky controls. Wide data tables may use a justified accessible two-dimensional scrolling pattern; ordinary field labels and controls must remain operable. Verify applicable WCAG 2.2 AA contrast, target-size, semantic/error/focus criteria with actual evidence. An automated green scan alone does not pass T13 or justify a conformance claim."
+          "lines": "1438",
+          "quote": "| Upload pending/rejected/ready | Per-file name/state/progress/removal is accessible; changes are announced without interrupting every keystroke; required readiness error links to upload. |",
+          "rangeSha256": "67add71daca1961e63445970620420d3c39ad15ba8bd61ff3494c871ccb764ed",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-ACC-01",
+        "SF-ACC-02",
+        "SF-UI-01"
+      ],
       "status": "not-run"
     }
   ],

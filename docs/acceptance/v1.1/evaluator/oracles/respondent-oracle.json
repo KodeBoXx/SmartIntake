@@ -37,15 +37,25 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1350",
-          "quote": "Use the evaluator-reviewed target release from Section 3, not a participant author's potentially broken result. Keep the session date `2026-09-05` and timezone `Asia/Kolkata`. Begin in English, cards mode, with no entered answers and fixed matrix rows unanswered. This script assesses the builder/runtime, not the respondent's knowledge. Read these synthetic facts verbatim; do not infer real personal information."
+          "lines": "1352",
+          "quote": "1. Enter name **Alex Morgan**, reference **00123** and email **alex.morgan@example.test**. Set needs setup to **Yes**, enter **Please call after 17:00.**, then change needs setup to **No**. The hidden detail must clear.",
+          "rangeSha256": "1d2ed653172010bd9a11db01238026af8c18b70eb521721ba8da5b7216822717",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-RES-01",
+        "SF-UX-01"
+      ],
       "status": "not-run"
     },
     {
@@ -63,15 +73,25 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1350",
-          "quote": "Use the evaluator-reviewed target release from Section 3, not a participant author's potentially broken result. Keep the session date `2026-09-05` and timezone `Asia/Kolkata`. Begin in English, cards mode, with no entered answers and fixed matrix rows unanswered. This script assesses the builder/runtime, not the respondent's knowledge. Read these synthetic facts verbatim; do not infer real personal information."
+          "lines": "1353",
+          "quote": "2. Select **Other**, enter **Loan adapter.**, select **None**, then select **Collection**. At the end Collection is the only selected service and the hidden Other detail is cleared.",
+          "rangeSha256": "d379f47a9887ddf656ead8f54403e944194652264e30937b0585a0f2c25e9959",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-RES-01",
+        "SF-UX-01"
+      ],
       "status": "not-run"
     },
     {
@@ -89,15 +109,25 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1352",
-          "quote": "1. Enter name **Alex Morgan**, reference **00123** and email **alex.morgan@example.test**. Set needs setup to **Yes**, enter **Please call after 17:00.**, then change needs setup to **No**. The hidden detail must clear."
+          "lines": "1354",
+          "quote": "3. Enter date **5 September 2026**, extra attendees **0**, priority **4**. Rank priorities in the order **Reliability, Price, Portability**. Keep cards mode and press Next. Record the acknowledged server revision and progress **1/2**.",
+          "rangeSha256": "2d9eb3105c128104958bed36353253a7829b829a43e9b073ad0f83e2b60accd7",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-RES-01",
+        "SF-UX-01"
+      ],
       "status": "not-run"
     },
     {
@@ -108,6 +138,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T11",
         "T14"
       ],
       "id": "EVAL-RESP-S04",
@@ -115,15 +146,26 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1352",
-          "quote": "1. Enter name **Alex Morgan**, reference **00123** and email **alex.morgan@example.test**. Set needs setup to **Yes**, enter **Please call after 17:00.**, then change needs setup to **No**. The hidden detail must clear."
+          "lines": "1355",
+          "quote": "4. Use Click to Ask to speak “Does an estimate take a payment?” and then “Can you recommend a supplier?” in the appropriately scoped help. The first speaks only its approved answer and displays matching passive text; the second gives the no-approved-answer state. The bar has Play/Pause and Click to Ask only; there is no typed-question or answer-dictation input. The same Equipment help must also expose the approved estimate Q&A, either through a shared guidance reference or the explicitly authored equivalent scope.",
+          "rangeSha256": "de60dc00deca9ead3e577c130a2d50ae286c2d8144cb1e481773044e96dd5960",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-GUD-04",
+        "SF-RES-01",
+        "SF-UX-01"
+      ],
       "status": "not-run"
     },
     {
@@ -134,6 +176,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T06",
         "T14"
       ],
       "id": "EVAL-RESP-S05",
@@ -141,15 +184,27 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1353",
-          "quote": "2. Select **Other**, enter **Loan adapter.**, select **None**, then select **Collection**. At the end Collection is the only selected service and the hidden Other detail is cleared."
+          "lines": "1356",
+          "quote": "5. Add equipment A with name **Display unit**, quantity **2**, unit cost **12.50**; add accessory A **Power cable** and one test **Pass**. Add equipment B with the same name **Display unit**, quantity **1**, unit cost **7.25**; add accessory B **HDMI cable** and one test **Pass**. Add a temporary **Spare** accessory to B and delete that accessory.",
+          "rangeSha256": "a8a3e7b422fa54c4685193404361bc7d35a1f8e3ed49683a027305e72a41e22d",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-FLD-03",
+        "SF-RES-01",
+        "SF-RUL-05",
+        "SF-UX-01"
+      ],
       "status": "not-run"
     },
     {
@@ -160,6 +215,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T06",
         "T14"
       ],
       "id": "EVAL-RESP-S06",
@@ -167,15 +223,27 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1354",
-          "quote": "3. Enter date **5 September 2026**, extra attendees **0**, priority **4**. Rank priorities in the order **Reliability, Price, Portability**. Keep cards mode and press Next. Record the acknowledged server revision and progress **1/2**."
+          "lines": "1357",
+          "quote": "6. Move equipment B above A using the available accessible controls. Use Back to About to change entry mode to table, then Next to return to Equipment. All item identities/values must remain attached to their original records. Total is **32.25** at this point.",
+          "rangeSha256": "7b1b583eadc48ac257148afd1c4256d4203e6badb00f3bec87a9e0760badf0ed",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-FLD-03",
+        "SF-RES-01",
+        "SF-RUL-05",
+        "SF-UX-01"
+      ],
       "status": "not-run"
     },
     {
@@ -186,22 +254,34 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T14"
+        "T14",
+        "T15"
       ],
       "id": "EVAL-RESP-S07",
       "milestoneGates": [
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1355",
-          "quote": "4. Use Click to Ask to speak “Does an estimate take a payment?” and then “Can you recommend a supplier?” in the appropriately scoped help. The first speaks only its approved answer and displays matching passive text; the second gives the no-approved-answer state. The bar has Play/Pause and Click to Ask only; there is no typed-question or answer-dictation input. The same Equipment help must also expose the approved estimate Q&A, either through a shared guidance reference or the explicitly authored equivalent scope."
+          "lines": "1358",
+          "quote": "7. For Power available choose **Yes**. For Space available choose **No**, enter detail **Clear the rear shelf.**. Set shipping postal code **00120**, country **India**, and note answer status **Unknown**. Upload `equipment-note.txt` with exact UTF-8 bytes `fixture` followed by one LF byte (8 bytes total); wait for Ready.",
+          "rangeSha256": "f5f26ba3907e9d9929567b935b552da6f1243127ab5164cefaf960a963b350b4",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-FLD-06",
+        "SF-RES-01",
+        "SF-UX-01"
+      ],
       "status": "not-run"
     },
     {
@@ -212,6 +292,8 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T09",
+        "T12",
         "T14"
       ],
       "id": "EVAL-RESP-S08",
@@ -219,15 +301,27 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1356",
-          "quote": "5. Add equipment A with name **Display unit**, quantity **2**, unit cost **12.50**; add accessory A **Power cable** and one test **Pass**. Add equipment B with the same name **Display unit**, quantity **1**, unit cost **7.25**; add accessory B **HDMI cable** and one test **Pass**. Add a temporary **Spare** accessory to B and delete that accessory."
+          "lines": "1359",
+          "quote": "8. Save and reload the same browser/device with its existing unexpired session authorization. Acknowledged values must survive. Switch to Hindi and Arabic, inspect the same typed values/IDs and direction, then return to English. Advertise only complete approved locales. No resume code, second-device exchange or delivery task is part of this test.",
+          "rangeSha256": "4a67b9013422e02450958efe14e6849c30a266cf91efea63df039305d179a413",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-LOC-02",
+        "SF-RES-01",
+        "SF-RES-03",
+        "SF-UX-01"
+      ],
       "status": "not-run"
     },
     {
@@ -238,6 +332,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T09",
         "T14"
       ],
       "id": "EVAL-RESP-S09",
@@ -245,15 +340,27 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1357",
-          "quote": "6. Move equipment B above A using the available accessible controls. Use Back to About to change entry mode to table, then Next to return to Equipment. All item identities/values must remain attached to their original records. Total is **32.25** at this point."
+          "lines": "1360",
+          "quote": "9. Go to review. Record progress **2/2** and that Submit still needs the final acknowledgment. Open the **second equipment item's quantity** from review (this is original A after the reorder), change it to **3**, and return to review. The first equipment item must remain quantity 1; total becomes **44.75**.",
+          "rangeSha256": "1ef7d1ffa78a604ebe083036a17d03f0be94af1a14c3e77bbec8bf09db479eaf",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-API-03",
+        "SF-RES-01",
+        "SF-RES-02",
+        "SF-UX-01"
+      ],
       "status": "not-run"
     },
     {
@@ -264,22 +371,35 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T14"
+        "T14",
+        "T17"
       ],
       "id": "EVAL-RESP-S10",
       "milestoneGates": [
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1358",
-          "quote": "7. For Power available choose **Yes**. For Space available choose **No**, enter detail **Clear the rear shelf.**. Set shipping postal code **00120**, country **India**, and note answer status **Unknown**. Upload `equipment-note.txt` with exact UTF-8 bytes `fixture` followed by one LF byte (8 bytes total); wait for Ready."
+          "lines": "1361",
+          "quote": "10. Confirm that the cleared setup/Other details are absent, Unknown differs from blank, false/zero are retained, shipping code retains its leading zeros and attachment metadata says Ready. Acknowledge the displayed text **I reviewed these answers and authorize this information request.** Explicitly submit, then obtain a durable server receipt. A progress label, narration completion or URL change is not a receipt.",
+          "rangeSha256": "1bb03ece11de522a0b32801776426b0e93d2555da6f93e746269a8a65ceab6ed",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-ADM-04",
+        "SF-RES-01",
+        "SF-RES-04",
+        "SF-UX-01"
+      ],
       "status": "not-run"
     },
     {
@@ -293,6 +413,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T04",
         "T14"
       ],
       "id": "EVAL-RESP-O01",
@@ -300,15 +421,26 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1367",
-          "quote": "| Field | Exact final meaning/value |"
+          "lines": "1369",
+          "quote": "| respondentName | answered text `Alex Morgan` |",
+          "rangeSha256": "96fac79bd59da4f1ce3ff6f978ee2595ef36b0782eab607934f6e4ac1ab36af9",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-FLD-01",
+        "SF-RES-01",
+        "SF-VAL-01"
+      ],
       "status": "not-run"
     },
     {
@@ -322,6 +454,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T04",
         "T14"
       ],
       "id": "EVAL-RESP-O02",
@@ -329,15 +462,26 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "45",
-          "quote": "|---|---|"
+          "lines": "1370",
+          "quote": "| referenceCode | answered text `00123` |",
+          "rangeSha256": "b99f718a1f5f9d2fab63837c19bc7de2d9d5407dfc5eefedbb8c922747c84dd0",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-FLD-01",
+        "SF-RES-01",
+        "SF-VAL-01"
+      ],
       "status": "not-run"
     },
     {
@@ -352,6 +496,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T04",
         "T14"
       ],
       "id": "EVAL-RESP-O03",
@@ -359,15 +504,26 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1369",
-          "quote": "| respondentName | answered text `Alex Morgan` |"
+          "lines": "1371",
+          "quote": "| email | answered text `alex.morgan@example.test`, stored once despite two instances |",
+          "rangeSha256": "099045688476a86e424d774db9fb944991c810249aee30d1cb533d92021bcece",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-FLD-01",
+        "SF-RES-01",
+        "SF-VAL-01"
+      ],
       "status": "not-run"
     },
     {
@@ -381,6 +537,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T04",
         "T14"
       ],
       "id": "EVAL-RESP-O04",
@@ -388,15 +545,26 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1370",
-          "quote": "| referenceCode | answered text `00123` |"
+          "lines": "1372",
+          "quote": "| needsSetup | answered boolean `false` |",
+          "rangeSha256": "ab75854484aaf4f6573d3303a7a05d6a71d65b4abf1f018314222d48043530de",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-FLD-01",
+        "SF-RES-01",
+        "SF-VAL-01"
+      ],
       "status": "not-run"
     },
     {
@@ -410,6 +578,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T04",
         "T14"
       ],
       "id": "EVAL-RESP-O05",
@@ -417,15 +586,26 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1371",
-          "quote": "| email | answered text `alex.morgan@example.test`, stored once despite two instances |"
+          "lines": "1373",
+          "quote": "| setupDetails | system `notApplicable`, no value |",
+          "rangeSha256": "e8ea8d5b9fba6acfa7c8914c2ea2cfc2f9113c639270840cfcd1f2c6288c409c",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-FLD-01",
+        "SF-RES-01",
+        "SF-VAL-01"
+      ],
       "status": "not-run"
     },
     {
@@ -441,6 +621,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T04",
         "T14"
       ],
       "id": "EVAL-RESP-O06",
@@ -448,15 +629,26 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1372",
-          "quote": "| needsSetup | answered boolean `false` |"
+          "lines": "1374",
+          "quote": "| services | answered multichoice `[\"opt_collection\"]` |",
+          "rangeSha256": "ca594fa88fa415c007fa07b82d64080f3114a52383f898f68befd9d014cdf779",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-FLD-01",
+        "SF-RES-01",
+        "SF-VAL-01"
+      ],
       "status": "not-run"
     },
     {
@@ -470,6 +662,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T04",
         "T14"
       ],
       "id": "EVAL-RESP-O07",
@@ -477,15 +670,26 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1373",
-          "quote": "| setupDetails | system `notApplicable`, no value |"
+          "lines": "1375",
+          "quote": "| otherServiceDetails | system `notApplicable`, no value |",
+          "rangeSha256": "dc9801925c95abf082e2b3e8cfec69048fccdcb3534840eeede9dfe0f9ad0bb7",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-FLD-01",
+        "SF-RES-01",
+        "SF-VAL-01"
+      ],
       "status": "not-run"
     },
     {
@@ -499,6 +703,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T04",
         "T14"
       ],
       "id": "EVAL-RESP-O08",
@@ -506,15 +711,26 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1374",
-          "quote": "| services | answered multichoice `[\"opt_collection\"]` |"
+          "lines": "1376",
+          "quote": "| visitDate | answered date `2026-09-05` |",
+          "rangeSha256": "cbd7b9a87261708a0a026be4d790083a4cd5fcdcb75435bb0e034961ddbf24aa",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-FLD-01",
+        "SF-RES-01",
+        "SF-VAL-01"
+      ],
       "status": "not-run"
     },
     {
@@ -528,22 +744,36 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T14"
+        "T04",
+        "T14",
+        "T31"
       ],
       "id": "EVAL-RESP-O09",
       "milestoneGates": [
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1375",
-          "quote": "| otherServiceDetails | system `notApplicable`, no value |"
+          "lines": "1377",
+          "quote": "| extraAttendees | answered integer `\"0\"` |",
+          "rangeSha256": "a05e86139a390967c180f6c28ed6fadeb98a42ec2119e9412ef92b05aa88f5b4",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-CON-02",
+        "SF-FLD-01",
+        "SF-RES-01",
+        "SF-VAL-01"
+      ],
       "status": "not-run"
     },
     {
@@ -557,22 +787,36 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T14"
+        "T04",
+        "T14",
+        "T31"
       ],
       "id": "EVAL-RESP-O10",
       "milestoneGates": [
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1376",
-          "quote": "| visitDate | answered date `2026-09-05` |"
+          "lines": "1378",
+          "quote": "| priority | answered integer `\"4\"` |",
+          "rangeSha256": "9340f68b00b13c1586b851737371a03500899ab0d2c73f128f1ede20d1aec821",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-CON-02",
+        "SF-FLD-01",
+        "SF-RES-01",
+        "SF-VAL-01"
+      ],
       "status": "not-run"
     },
     {
@@ -580,8 +824,10 @@
       "evidenceLevel": "E2",
       "expected": {
         "canonicalKey": "priorityOrder",
+        "ordered": true,
+        "presentationControlFamily": "ranking",
         "status": "answered",
-        "type": "ordered",
+        "type": "multiChoice",
         "value": [
           "opt_reliability",
           "opt_price",
@@ -590,6 +836,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T04",
         "T14"
       ],
       "id": "EVAL-RESP-O11",
@@ -597,15 +844,26 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1377",
-          "quote": "| extraAttendees | answered integer `\"0\"` |"
+          "lines": "1379",
+          "quote": "| priorityOrder | answered ordered IDs `[\"opt_reliability\",\"opt_price\",\"opt_portability\"]` |",
+          "rangeSha256": "d6c8c9f4dc95e4739be5c89c302abaf18c78a6da0d2900626ea9c60a01f14da7",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-FLD-01",
+        "SF-RES-01",
+        "SF-VAL-01"
+      ],
       "status": "not-run"
     },
     {
@@ -619,6 +877,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T04",
         "T14"
       ],
       "id": "EVAL-RESP-O12",
@@ -626,15 +885,26 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1378",
-          "quote": "| priority | answered integer `\"4\"` |"
+          "lines": "1380",
+          "quote": "| entryMode | answered choice `opt_table` |",
+          "rangeSha256": "f9a9e350f88b15613e2400c4513d2cb2fecc18ac711edf0e75a5e5109343a4d6",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-FLD-01",
+        "SF-RES-01",
+        "SF-VAL-01"
+      ],
       "status": "not-run"
     },
     {
@@ -651,6 +921,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T06",
         "T14"
       ],
       "id": "EVAL-RESP-O13",
@@ -658,15 +929,26 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1379",
-          "quote": "| priorityOrder | answered ordered IDs `[\"opt_reliability\",\"opt_price\",\"opt_portability\"]` |"
+          "lines": "1381",
+          "quote": "| equipment | ordered items `[equipmentB,equipmentA]`, retaining their recorded IDs |",
+          "rangeSha256": "9a88a1d7aa88a3a22368ac046fdfbed1634a9053fedcee737b28384623f96dae",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-FLD-03",
+        "SF-FLD-04",
+        "SF-RES-01"
+      ],
       "status": "not-run"
     },
     {
@@ -684,6 +966,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T06",
         "T14"
       ],
       "id": "EVAL-RESP-O14",
@@ -691,15 +974,26 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1380",
-          "quote": "| entryMode | answered choice `opt_table` |"
+          "lines": "1382",
+          "quote": "| equipmentB | equipmentName `Display unit`, quantity `\"1\"`, unitCost `7.25`; only accessoryB `HDMI cable`, whose only testB has `opt_pass` |",
+          "rangeSha256": "4da9375bd5337f3a3645bd33afc3af35927cad2172073bc5ad72e1e222eced85",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-FLD-03",
+        "SF-FLD-04",
+        "SF-RES-01"
+      ],
       "status": "not-run"
     },
     {
@@ -717,6 +1011,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T06",
         "T14"
       ],
       "id": "EVAL-RESP-O15",
@@ -724,15 +1019,26 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1381",
-          "quote": "| equipment | ordered items `[equipmentB,equipmentA]`, retaining their recorded IDs |"
+          "lines": "1383",
+          "quote": "| equipmentA | equipmentName `Display unit`, quantity `\"3\"`, unitCost `12.50`; only accessoryA `Power cable`, whose only testA has `opt_pass` |",
+          "rangeSha256": "fababd1b7f4a90ab6f3ea871409823ceb9abd317472e151ff0d7e719fee7ce83",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-FLD-03",
+        "SF-FLD-04",
+        "SF-RES-01"
+      ],
       "status": "not-run"
     },
     {
@@ -752,6 +1058,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T06",
         "T14"
       ],
       "id": "EVAL-RESP-O16",
@@ -759,15 +1066,26 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1382",
-          "quote": "| equipmentB | equipmentName `Display unit`, quantity `\"1\"`, unitCost `7.25`; only accessoryB `HDMI cable`, whose only testB has `opt_pass` |"
+          "lines": "1384",
+          "quote": "| checks | fixed IDs unchanged; row_power checkResult `true`, checkDetails notApplicable/no value; row_space checkResult `false`, checkDetails `Clear the rear shelf.` |",
+          "rangeSha256": "f0a8381754ae034eefcf8299e96836153ec06e54c4e7397eea759d8d129469d3",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-FLD-03",
+        "SF-FLD-04",
+        "SF-RES-01"
+      ],
       "status": "not-run"
     },
     {
@@ -781,6 +1099,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T04",
         "T14"
       ],
       "id": "EVAL-RESP-O17",
@@ -788,15 +1107,26 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1383",
-          "quote": "| equipmentA | equipmentName `Display unit`, quantity `\"3\"`, unitCost `12.50`; only accessoryA `Power cable`, whose only testA has `opt_pass` |"
+          "lines": "1385",
+          "quote": "| shipping | typed object with postalCode `00120`, country `opt_in`; no undisclosed required children |",
+          "rangeSha256": "ef0f082eb2e470761950498268595745db23b6517108163a55a92dca3a15e26f",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-FLD-01",
+        "SF-RES-01",
+        "SF-VAL-01"
+      ],
       "status": "not-run"
     },
     {
@@ -811,6 +1141,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T04",
         "T14"
       ],
       "id": "EVAL-RESP-O18",
@@ -818,15 +1149,25 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1384",
-          "quote": "| checks | fixed IDs unchanged; row_power checkResult `true`, checkDetails notApplicable/no value; row_space checkResult `false`, checkDetails `Clear the rear shelf.` |"
+          "lines": "1386",
+          "quote": "| note | explicit `unknown` answer status, no value; not an unanswered cell or named None option |",
+          "rangeSha256": "678765422541e2bcc40c8a93686528d123cc3c56ab2fe33c88206a02b490abd3",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-FLD-01",
+        "SF-RES-01"
+      ],
       "status": "not-run"
     },
     {
@@ -842,6 +1183,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T05",
         "T14"
       ],
       "id": "EVAL-RESP-O19",
@@ -849,15 +1191,25 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1385",
-          "quote": "| shipping | typed object with postalCode `00120`, country `opt_in`; no undisclosed required children |"
+          "lines": "1387",
+          "quote": "| total | server-calculated answered decimal `44.75`, unit USD, calculated provenance |",
+          "rangeSha256": "fcac67c9bdaed7273336bd67a8f6f5debcd0f1b810186447c2dc8fdf9da8bb9b",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-RES-01",
+        "SF-RUL-05"
+      ],
       "status": "not-run"
     },
     {
@@ -874,22 +1226,33 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T14"
+        "T15"
       ],
       "id": "EVAL-RESP-O20",
       "milestoneGates": [
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1386",
-          "quote": "| note | explicit `unknown` answer status, no value; not an unanswered cell or named None option |"
+          "lines": "1388",
+          "quote": "| supportingFiles | one ready authorized attachment ID for the exact 8-byte file; safe metadata, no durable bearer URL |",
+          "rangeSha256": "57a592041163b4c71397dafadc7c86f718afc06d5899fc88060e8645dede1ac0",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-API-05",
+        "SF-FLD-06",
+        "SF-SEC-06"
+      ],
       "status": "not-run"
     },
     {
@@ -906,22 +1269,33 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T14"
+        "T14",
+        "T17"
       ],
       "id": "EVAL-RESP-O21",
       "milestoneGates": [
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1387",
-          "quote": "| total | server-calculated answered decimal `44.75`, unit USD, calculated provenance |"
+          "lines": "1389",
+          "quote": "| reviewAcknowledged | answered boolean `true`; server record binds approved English displayed text digest and respondent acceptance timestamp |",
+          "rangeSha256": "621dc1007d38593e541b306aad40679f049172752e34e3af23d7a21d5f468fb4",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-RES-01",
+        "SF-RES-04"
+      ],
       "status": "not-run"
     }
   ],

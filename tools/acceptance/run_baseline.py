@@ -11,8 +11,8 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import hashlib
+import importlib.metadata
 import json
-import os
 import platform
 import re
 import subprocess
@@ -22,9 +22,16 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Iterable, Sequence
 
-SCHEMA_VERSION = "1.0.0"
+SCHEMA_VERSION = "1.1.0"
+ATTESTATION_VERSION = "1.1.0"
+RECORD_ACCEPTANCE_BOUNDARY = (
+    "This record is baseline evidence only. No status, artifact, build, mock, screenshot, "
+    "unavailable integration, filtered row, or command retry closes acceptance."
+)
+ATTESTATION_ACCEPTANCE_BOUNDARY = "Attestation preserves a baseline observation; it grants no acceptance credit."
 STATUSES = {"pass", "fail", "blocked", "not-run"}
 LEVELS = {"E0", "E1", "E2", "E3", "Human"}
+RETAINED_RECORD_STATUSES = {"retained", "finalized"}
 MAX_SUMMARY_CHARS = 4_000
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -36,6 +43,9 @@ SCHEMAS = (
     Path("docs/contracts/smart-form-builder-lite/4.0.0/typed-answer.schema.json"),
 )
 OPENAPI = Path("docs/api/openapi.yaml")
+EVIDENCE_SCHEMA = Path("docs/acceptance/v1.1/evidence/baseline-record.schema.json")
+ATTESTATION_SCHEMA = Path("docs/acceptance/v1.1/evidence/baseline-attestation.schema.json")
+BASELINES_DIRECTORY = Path("docs/acceptance/v1.1/evidence/baselines")
 MIGRATIONS = tuple(Path(f"backend/src/main/resources/db/migration/V{number}__{suffix}.sql") for number, suffix in (
     (1, "smart_intake"),
     (2, "identity_workspaces_and_release_binding"),
@@ -80,8 +90,26 @@ def command_text(command: Sequence[str]) -> str:
 
 
 def truncate_and_redact(value: str) -> str:
-    """Keep output evidence small and avoid retaining obvious credentials."""
-    value = re.sub(r"(?i)(password|token|secret|authorization)\s*([=:])\s*\S+", r"\1\2[REDACTED]", value)
+    """Keep output evidence small without retaining header or URI credentials."""
+    # Header values can contain spaces (for example, ``Authorization: Bearer …``),
+    # so redact through the line ending rather than stopping at the first word.
+    value = re.sub(
+        r"(?im)(\b(?:authorization|proxy-authorization|x-api-key|api[-_ ]?key|password|token|secret)\s*[:=]\s*)[^\r\n]*",
+        r"\1[REDACTED]",
+        value,
+    )
+    # Command diagnostics sometimes echo separate flag/value pairs. Handle quoted
+    # values too, rather than leaving the tail of a quoted secret in the record.
+    value = re.sub(
+        r"(?i)(--(?:password|token|secret|authorization|access-token|api[-_]?key)\s+)(?:\"[^\r\n\"]*\"|'[^\r\n']*'|\S+)",
+        r"\1[REDACTED]",
+        value,
+    )
+    # A bearer token may be emitted without an Authorization header label.
+    value = re.sub(r"(?i)\b(Bearer\s+)(?:\"[^\r\n\"]*\"|'[^\r\n']*'|\S+)", r"\1[REDACTED]", value)
+    # Credentials in a URI may be emitted by a database/client error. Redact the
+    # complete userinfo component, including a username that could itself be PII.
+    value = re.sub(r"(?i)\b([a-z][a-z0-9+.-]*://)[^\s/@]+@", r"\1[REDACTED]@", value)
     if len(value) > MAX_SUMMARY_CHARS:
         return value[:MAX_SUMMARY_CHARS] + "\n...[truncated]"
     return value
@@ -194,11 +222,14 @@ def run(executor: CommandExecutor, root: Path, command: Sequence[str]) -> Comman
 
 def git_candidate(root: Path, executor: CommandExecutor) -> dict[str, Any]:
     sha = run(executor, root, ("git", "rev-parse", "HEAD"))
+    tree = run(executor, root, ("git", "rev-parse", "HEAD^{tree}"))
     state = run(executor, root, ("git", "status", "--porcelain=v1", "--untracked-files=all"))
     state_text = summarize_result(state)
     return {
         "sha": sha.stdout.strip() if sha.exit_code == 0 else None,
         "shaAttempt": command_attempt(sha),
+        "treeSha": tree.stdout.strip() if tree.exit_code == 0 else None,
+        "treeAttempt": command_attempt(tree),
         "dirty": bool(state_text),
         "dirtyStateSha256": sha256_bytes(state_text.encode()),
         "dirtyStateSummary": state_text[:MAX_SUMMARY_CHARS],
@@ -254,9 +285,17 @@ def postgres_prerequisite(root: Path, executor: CommandExecutor, now: str) -> tu
     ), ready
 
 
-def parse_surefire(root: Path) -> dict[str, int]:
-    totals = {"tests": 0, "failures": 0, "errors": 0, "skipped": 0, "reports": 0}
+def parse_surefire(root: Path, attempt_started_at: str) -> dict[str, int]:
+    """Read only reports produced by this ``mvn clean test`` attempt."""
+    started = dt.datetime.fromisoformat(attempt_started_at.replace("Z", "+00:00")).timestamp()
+    # utc_now intentionally has second precision; allow the filesystem's rounding
+    # window while ``clean`` remains the primary stale-report protection.
+    earliest_report_time = started - 1
+    totals = {"tests": 0, "failures": 0, "errors": 0, "skipped": 0, "reports": 0, "staleReports": 0}
     for report in sorted((root / "backend/target/surefire-reports").glob("TEST-*.xml")):
+        if report.stat().st_mtime < earliest_report_time:
+            totals["staleReports"] += 1
+            continue
         try:
             suite = ET.parse(report).getroot()
             totals["tests"] += int(suite.attrib.get("tests", "0"))
@@ -270,7 +309,7 @@ def parse_surefire(root: Path) -> dict[str, int]:
 
 
 def backend_task(root: Path, executor: CommandExecutor, now: str, postgres_ready: bool) -> tuple[dict[str, Any], bool]:
-    command = ("mvn", "-q", "test")
+    command = ("mvn", "-q", "clean", "test")
     prerequisite = {"id": "postgres-prerequisite", "status": "pass" if postgres_ready else "blocked"}
     if not postgres_ready:
         return task(
@@ -280,12 +319,20 @@ def backend_task(root: Path, executor: CommandExecutor, now: str, postgres_ready
             [unrun_attempt(command, now, "Blocked by postgres-prerequisite.", "backend")], prerequisites=[prerequisite],
         ), False
     result = run(executor, root / "backend", command)
-    totals = parse_surefire(root)
-    passed = result.exit_code == 0 and totals["tests"] > 0 and totals["failures"] == totals["errors"] == totals["skipped"] == 0
+    totals = parse_surefire(root, result.started_at)
+    if result.exit_code == 0 and totals["staleReports"] > 0:
+        return task(
+            "backend-maven-tests", "Backend Maven test observation", "blocked", "E2",
+            {"numerator": 0, "denominator": totals["tests"], "unit": "Surefire tests safely bound to this attempt", "failures": totals["failures"], "errors": totals["errors"], "skipped": totals["skipped"], "reportFiles": totals["reports"], "staleReportFiles": totals["staleReports"], "reportEvidence": "not-run: mtime/attempt-window skew"},
+            "Maven completed, but one or more Surefire reports fall outside the attempt window. With clean test as the primary control, this timing anomaly blocks result evidence rather than recording a product test failure.",
+            [command_attempt(result)], prerequisites=[prerequisite],
+        ), False
+    passed = (result.exit_code == 0 and totals["tests"] > 0 and totals["staleReports"] == 0
+              and totals["failures"] == totals["errors"] == totals["skipped"] == 0)
     return task(
         "backend-maven-tests", "Backend Maven test observation", "pass" if passed else "fail", "E2",
-        {"numerator": totals["tests"] if passed else 0, "denominator": totals["tests"], "unit": "Surefire tests", "failures": totals["failures"], "errors": totals["errors"], "skipped": totals["skipped"], "reportFiles": totals["reports"]},
-        "A passing Maven run is an integrated baseline observation only; it does not demonstrate full PRD conformance.",
+        {"numerator": totals["tests"] if passed else 0, "denominator": totals["tests"], "unit": "Surefire tests", "failures": totals["failures"], "errors": totals["errors"], "skipped": totals["skipped"], "reportFiles": totals["reports"], "staleReportFiles": totals["staleReports"]},
+        "Maven is run with clean test and report mtimes are bound to this attempt. A passing run remains an integrated baseline observation, not full PRD conformance.",
         [command_attempt(result)], prerequisites=[prerequisite],
     ), passed
 
@@ -334,9 +381,9 @@ def expression_task(root: Path, now: str) -> dict[str, Any]:
     executed = ids & vector_ids
     undiscovered = vector_ids - executed
     return task(
-        "expression-execution-discovery", "Expression vector discovery/execution boundary", "pass", "E0",
-        {"numerator": len(executed), "denominator": len(vector_ids), "unit": "authoritative expression vectors", "notExecuted": len(undiscovered), "operatorNumerator": len(operators), "operatorDenominator": 34, "operatorUnit": "normative operators"},
-        f"Source discovery identifies {len(executed)}/{len(vector_ids)} selected vector IDs and {len(undiscovered)}/{len(vector_ids)} not executed by the selected-ID harness. Discovery is not vector execution or conformance.",
+        "expression-conformance", "Expression corpus conformance boundary", "not-run", "E1",
+        {"numerator": 0, "denominator": len(vector_ids), "unit": "authoritative expression vectors required for conformance", "discoveredSelectedIds": len(executed), "discoveryDenominator": len(vector_ids), "notExecuted": len(undiscovered), "operatorNumerator": len(operators), "operatorDenominator": 34, "operatorUnit": "normative operators"},
+        f"Full corpus conformance is not run: source discovery identifies {len(executed)}/{len(vector_ids)} selected IDs and {len(undiscovered)}/{len(vector_ids)} explicitly not executed by the selected-ID harness. Discovery is not vector execution or conformance.",
         [unrun_attempt(("internal", "discover-selected-vector-ids", EXPRESSION_TEST.as_posix()), now, "Internal source/corpus discovery; execution is represented separately by Maven." )],
         artifacts=[file_artifact(root, EXPRESSION_CONTRACT), file_artifact(root, EXPRESSION_TEST)],
     )
@@ -400,9 +447,323 @@ def openapi_tasks(root: Path, executor: CommandExecutor, now: str) -> list[dict[
     return [syntax, semantic]
 
 
+def load_baseline_schema(root: Path) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Load the checked-in schema and reject runner/schema contract drift."""
+    schema_path = root / EVIDENCE_SCHEMA
+    try:
+        schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError(f"baseline evidence schema is unreadable: {exc}") from exc
+    if (schema.get("$schema") != "https://json-schema.org/draft/2020-12/schema"
+            or schema.get("properties", {}).get("schemaVersion", {}).get("const") != SCHEMA_VERSION
+            or schema.get("properties", {}).get("recordType", {}).get("const") != "m0-baseline-observation"
+            or schema.get("properties", {}).get("acceptanceBoundary", {}).get("const") != RECORD_ACCEPTANCE_BOUNDARY
+            or schema.get("$defs", {}).get("task", {}).get("properties", {}).get("acceptance", {}).get("properties", {}).get("countsTowardAcceptance", {}).get("const") is not False):
+        raise ValueError("runner/schema drift: baseline schema does not declare the runner record contract")
+    try:
+        import jsonschema  # type: ignore[import-not-found]
+        available = True
+        try:
+            version = importlib.metadata.version("jsonschema")
+        except importlib.metadata.PackageNotFoundError:
+            version = "unknown"
+    except ImportError:
+        jsonschema = None
+        available = False
+        version = None
+    return schema, {
+        "schemaPath": EVIDENCE_SCHEMA.as_posix(),
+        "schemaSha256": sha256_file(schema_path),
+        "mode": "full-jsonschema" if available else "structural-fallback",
+        "validatorAvailable": available,
+        "validatorVersion": version,
+        "valid": True,
+    }
+
+
+def load_attestation_schema(root: Path) -> dict[str, Any]:
+    """Load the checked-in attestation schema and verify its fixed boundary."""
+    schema_path = root / ATTESTATION_SCHEMA
+    try:
+        schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError(f"baseline attestation schema is unreadable: {exc}") from exc
+    if (schema.get("$schema") != "https://json-schema.org/draft/2020-12/schema"
+            or schema.get("properties", {}).get("attestationVersion", {}).get("const") != ATTESTATION_VERSION
+            or schema.get("properties", {}).get("acceptanceBoundary", {}).get("const") != ATTESTATION_ACCEPTANCE_BOUNDARY):
+        raise ValueError("runner/schema drift: baseline attestation schema does not declare the runner contract")
+    return schema
+
+
+def structural_validate_record(record: dict[str, Any], schema_info: dict[str, Any]) -> None:
+    """Dependency-free guard for record shape and the non-acceptance invariant."""
+    required_top = {
+        "schemaVersion", "recordType", "observedAtUtc", "candidate", "environment",
+        "executionPolicy", "acceptanceBoundary", "recordValidation", "tasks",
+    }
+    if set(record) != required_top:
+        raise ValueError("baseline record structural drift: unexpected top-level fields")
+    if record["schemaVersion"] != SCHEMA_VERSION or record["recordType"] != "m0-baseline-observation":
+        raise ValueError("unexpected record identity")
+    if record["acceptanceBoundary"] != RECORD_ACCEPTANCE_BOUNDARY:
+        raise ValueError("baseline record acceptance boundary may not grant acceptance")
+    validation = record["recordValidation"]
+    if not isinstance(validation, dict) or validation != schema_info:
+        raise ValueError("runner/schema drift: record validation metadata does not match the checked-in schema")
+    candidate = record.get("candidate")
+    if (
+        not isinstance(candidate, dict)
+        or set(candidate) != {"sha", "shaAttempt", "treeSha", "treeAttempt", "dirty", "dirtyStateSha256", "dirtyStateSummary", "dirtyStateAttempt"}
+        or not isinstance(candidate.get("sha"), str) or re.fullmatch(r"[0-9a-f]{40}", candidate["sha"]) is None
+        or not isinstance(candidate.get("treeSha"), str) or re.fullmatch(r"[0-9a-f]{40}", candidate["treeSha"]) is None
+        or not isinstance(candidate.get("dirty"), bool)
+    ):
+        raise ValueError("baseline record candidate SHA/tree identity is invalid")
+    if not isinstance(record["tasks"], list) or not record["tasks"]:
+        raise ValueError("baseline record must contain at least one task")
+    identifiers: set[str] = set()
+    for item in record["tasks"]:
+        if not isinstance(item, dict) or item.get("id") in identifiers:
+            raise ValueError("baseline record task IDs must be unique")
+        identifiers.add(item["id"])
+        if item.get("status") not in STATUSES or item.get("evidenceLevel") not in LEVELS:
+            raise ValueError(f"invalid task values for {item.get('id')}")
+        if item.get("acceptance", {}).get("countsTowardAcceptance") is not False:
+            raise ValueError(f"baseline task may not count toward acceptance: {item.get('id')}")
+        denominator = item.get("denominator", {})
+        if not isinstance(denominator.get("numerator"), int) or not isinstance(denominator.get("denominator"), (int, str)):
+            raise ValueError(f"task denominator is incomplete: {item.get('id')}")
+        for attempt in item.get("attempts", []):
+            if (attempt.get("result") not in STATUSES or attempt.get("number") != 1
+                    or attempt.get("retried") is not False or not isinstance(attempt.get("command"), list)):
+                raise ValueError(f"attempt policy violated for {item.get('id')}")
+
+
+def validate_record(record: dict[str, Any], root: Path = ROOT) -> dict[str, Any]:
+    """Validate against the checked-in full schema when available, else structurally."""
+    schema, schema_info = load_baseline_schema(root)
+    structural_validate_record(record, schema_info)
+    if schema_info["validatorAvailable"]:
+        import jsonschema
+        try:
+            jsonschema.Draft202012Validator.check_schema(schema)
+            errors = sorted(jsonschema.Draft202012Validator(schema).iter_errors(record), key=lambda error: list(error.path))
+        except jsonschema.SchemaError as exc:
+            raise ValueError(f"runner/schema drift: invalid baseline evidence schema: {exc.message}") from exc
+        if errors:
+            raise ValueError(f"baseline record does not satisfy full JSON Schema: {errors[0].message}")
+    return schema_info
+
+
+def resolved_repository_root(root: Path) -> Path:
+    try:
+        resolved = root.resolve(strict=True)
+    except OSError as exc:
+        raise ValueError(f"repository root is unreadable: {exc}") from exc
+    if not resolved.is_dir():
+        raise ValueError("repository root must be a directory")
+    return resolved
+
+
+def canonical_baselines_directory(root: Path, *, create: bool = False) -> tuple[Path, Path]:
+    """Resolve the canonical retained-evidence directory beneath a repository."""
+    repository = resolved_repository_root(root)
+    logical = repository / BASELINES_DIRECTORY
+    if create:
+        logical.mkdir(parents=True, exist_ok=True)
+    try:
+        baselines = logical.resolve(strict=True)
+        baselines.relative_to(repository)
+    except (OSError, ValueError) as exc:
+        raise ValueError("canonical baseline directory must remain under the repository root") from exc
+    if not baselines.is_dir():
+        raise ValueError("canonical baseline directory must be a directory")
+    return repository, baselines
+
+
+def resolve_retained_baseline_path(path: Path, root: Path, baselines: Path | None = None) -> Path:
+    """Resolve a retained record or attestation before it is parsed or hashed."""
+    repository, canonical = canonical_baselines_directory(root)
+    if baselines is not None and baselines != canonical:
+        raise ValueError("retained baseline directory does not match the canonical directory")
+    candidate = path if path.is_absolute() else repository / path
+    try:
+        resolved = candidate.resolve(strict=True)
+        resolved.relative_to(repository)
+        resolved.relative_to(canonical)
+    except (OSError, ValueError) as exc:
+        raise ValueError("retained baseline path must resolve under the canonical baseline directory") from exc
+    if not resolved.is_file():
+        raise ValueError("retained baseline path must resolve to a file")
+    return resolved
+
+
+def retained_baseline_output_path(path: Path, root: Path) -> Path:
+    """Prepare a contained output path without permitting a symlink escape."""
+    repository, baselines = canonical_baselines_directory(root, create=True)
+    candidate = path if path.is_absolute() else repository / path
+    try:
+        candidate.parent.resolve(strict=True).relative_to(baselines)
+    except (OSError, ValueError) as exc:
+        raise ValueError("retained baseline output must remain under the canonical baseline directory") from exc
+    if candidate.exists():
+        return resolve_retained_baseline_path(candidate, repository, baselines)
+    return candidate
+
+
+def attestation_record_location(record_path: Path, root: Path) -> str:
+    """Return a canonical repository-relative POSIX location for a retained record."""
+    repository, _ = canonical_baselines_directory(root)
+    resolved = resolve_retained_baseline_path(record_path, repository)
+    return resolved.relative_to(repository).as_posix()
+
+
+def resolve_attested_record_location(location: Any, root: Path, records: dict[str, Path]) -> Path:
+    """Resolve a record pointer and require that it names one discovered record."""
+    if not isinstance(location, str) or not location or "\\" in location:
+        raise ValueError("attestation record location is invalid")
+    repository, _ = canonical_baselines_directory(root)
+    resolved = resolve_retained_baseline_path(Path(location), repository)
+    expected = records.get(location)
+    if expected is None or expected != resolved:
+        raise ValueError("attestation record location does not correspond exactly to one retained record")
+    return resolved
+
+
+def retained_baseline_paths(root: Path) -> tuple[dict[str, Path], dict[str, Path]]:
+    """Discover contained retained records and attestations without parsing either."""
+    repository, baselines = canonical_baselines_directory(root)
+    records: dict[str, Path] = {}
+    attestations: dict[str, Path] = {}
+    resolved_targets: set[Path] = set()
+    for logical in sorted(baselines.glob("*.json")):
+        resolved = resolve_retained_baseline_path(logical, repository, baselines)
+        if resolved in resolved_targets:
+            raise ValueError("duplicate retained baseline paths resolve to the same target")
+        resolved_targets.add(resolved)
+        location = logical.relative_to(repository).as_posix()
+        if logical.name.endswith(".attestation.json"):
+            attestations[location] = resolved
+        else:
+            records[location] = resolved
+    return records, attestations
+
+
+def validate_retained_baselines(root: Path = ROOT) -> None:
+    """Require clean, active retained evidence and exactly one final sibling attestation."""
+    repository = resolved_repository_root(root)
+    records, attestations = retained_baseline_paths(repository)
+    if not records:
+        raise ValueError("at least one retained baseline record is required")
+    for location, path in records.items():
+        try:
+            record = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise ValueError(f"retained record is unreadable: {location}: {exc}") from exc
+        validate_record(record, repository)
+    attested_locations: set[str] = set()
+    for location, path in attestations.items():
+        try:
+            attestation = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise ValueError(f"retained attestation is unreadable: {location}: {exc}") from exc
+        validate_attestation(attestation, repository, records)
+        record_location = attestation["recordLocation"]
+        if record_location in attested_locations:
+            raise ValueError("duplicate retained attestations point to the same record")
+        expected_sibling = record_location.removesuffix(".json") + ".attestation.json"
+        if location != expected_sibling:
+            raise ValueError("baseline attestation must be the exact sibling of its record")
+        attested_locations.add(record_location)
+        record = json.loads(records[record_location].read_text(encoding="utf-8"))
+        record_identity = {key: record["candidate"][key] for key in ("sha", "treeSha", "dirty")}
+        if record_identity != attestation["candidate"]:
+            raise ValueError("baseline attestation candidate SHA/tree/status identity does not match its record")
+        if record["candidate"]["dirty"]:
+            raise ValueError("retained baseline record must have a clean candidate")
+        if attestation["recordStatus"] not in RETAINED_RECORD_STATUSES:
+            raise ValueError("provisional, superseded, or revoked baseline attestations cannot satisfy the M0 gate")
+    if attested_locations != set(records):
+        raise ValueError("each retained baseline record requires exactly one sibling attestation")
+
+
+def validate_attestation(attestation: dict[str, Any], root: Path, records: dict[str, Path] | None = None) -> None:
+    """Validate an attestation's non-acceptance boundary and resolved record binding."""
+    schema = load_attestation_schema(root)
+    required = {
+        "attestationVersion", "recordLocation", "recordSha256", "recordStatus", "candidate", "createdAtUtc",
+        "reviewer", "reviewerAuthority", "reviewStatus", "acceptanceBoundary",
+    }
+    if not isinstance(attestation, dict) or set(attestation) != required:
+        raise ValueError("baseline attestation structural drift")
+    if (attestation["attestationVersion"] != ATTESTATION_VERSION
+            or attestation["acceptanceBoundary"] != ATTESTATION_ACCEPTANCE_BOUNDARY):
+        raise ValueError("baseline attestation may not grant acceptance")
+    if not isinstance(attestation["recordSha256"], str) or not re.fullmatch(r"[0-9a-f]{64}", attestation["recordSha256"]):
+        raise ValueError("baseline attestation record digest is invalid")
+    candidate = attestation.get("candidate")
+    if (
+        not isinstance(candidate, dict) or set(candidate) != {"sha", "treeSha", "dirty"}
+        or not isinstance(candidate.get("sha"), str) or re.fullmatch(r"[0-9a-f]{40}", candidate["sha"]) is None
+        or not isinstance(candidate.get("treeSha"), str) or re.fullmatch(r"[0-9a-f]{40}", candidate["treeSha"]) is None
+        or candidate.get("dirty") is not False
+    ):
+        raise ValueError("baseline attestation must bind a clean candidate SHA/tree identity")
+    if (
+        not isinstance(attestation.get("reviewer"), str) or not attestation["reviewer"].strip()
+        or not isinstance(attestation.get("reviewerAuthority"), str) or not attestation["reviewerAuthority"].strip()
+        or attestation.get("reviewStatus") != "approved"
+    ):
+        raise ValueError("baseline attestation reviewer identity, authority, and approval status are required")
+    if records is None:
+        records, _ = retained_baseline_paths(root)
+    record_path = resolve_attested_record_location(attestation["recordLocation"], root, records)
+    if sha256_file(record_path) != attestation["recordSha256"]:
+        raise ValueError("baseline attestation record digest does not match resolved record bytes")
+    try:
+        import jsonschema
+        jsonschema.Draft202012Validator.check_schema(schema)
+        errors = sorted(jsonschema.Draft202012Validator(schema).iter_errors(attestation), key=lambda error: list(error.path))
+    except ImportError:
+        return
+    except jsonschema.SchemaError as exc:
+        raise ValueError(f"runner/schema drift: invalid baseline attestation schema: {exc.message}") from exc
+    if errors:
+        raise ValueError(f"baseline attestation does not satisfy full JSON Schema: {errors[0].message}")
+
+
+def build_attestation(
+    record: dict[str, Any], record_path: Path, status: str = "provisional", root: Path = ROOT,
+    reviewer: str | None = None, reviewer_authority: str | None = None,
+) -> dict[str, Any]:
+    """Create metadata for retaining a record without turning it into acceptance."""
+    if status not in {"provisional", "retained", "finalized", "superseded", "revoked"}:
+        raise ValueError(f"invalid attestation status: {status}")
+    repository = resolved_repository_root(root)
+    retained_record = resolve_retained_baseline_path(record_path, repository)
+    if not isinstance(reviewer, str) or not reviewer.strip() or not isinstance(reviewer_authority, str) or not reviewer_authority.strip():
+        raise ValueError("baseline reviewer identity and authority are required; do not invent them")
+    return {
+        "attestationVersion": ATTESTATION_VERSION,
+        "recordLocation": attestation_record_location(retained_record, repository),
+        "recordSha256": sha256_file(retained_record),
+        "recordStatus": status,
+        "candidate": {
+            "sha": record["candidate"]["sha"], "treeSha": record["candidate"]["treeSha"],
+            "dirty": record["candidate"]["dirty"],
+        },
+        "createdAtUtc": utc_now(),
+        "reviewer": reviewer,
+        "reviewerAuthority": reviewer_authority,
+        "reviewStatus": "approved",
+        "acceptanceBoundary": ATTESTATION_ACCEPTANCE_BOUNDARY,
+    }
+
+
 def build_record(root: Path = ROOT, executor: CommandExecutor = default_executor, now: str | None = None) -> dict[str, Any]:
     root = root.resolve()
     observed_at = now or utc_now()
+    _, schema_info = load_baseline_schema(root)
     candidate = git_candidate(root, executor)
     environment = version_record(root, executor)
     tasks: list[dict[str, Any]] = []
@@ -425,36 +786,43 @@ def build_record(root: Path = ROOT, executor: CommandExecutor = default_executor
         "candidate": candidate,
         "environment": environment,
         "executionPolicy": {"maxAttemptsPerCommand": 1, "retriesAllowed": False, "networkInstallAllowed": False, "logsRetained": "summaries only (maximum 4000 characters per command)"},
-        "acceptanceBoundary": "This record is baseline evidence only. No status, artifact, build, mock, screenshot, unavailable integration, filtered row, or command retry closes acceptance.",
+        "acceptanceBoundary": RECORD_ACCEPTANCE_BOUNDARY,
+        "recordValidation": schema_info,
         "tasks": tasks,
     }
-
-
-def validate_record(record: dict[str, Any]) -> None:
-    if record.get("schemaVersion") != SCHEMA_VERSION or record.get("recordType") != "m0-baseline-observation":
-        raise ValueError("unexpected record identity")
-    for item in record.get("tasks", []):
-        if item["status"] not in STATUSES or item["evidenceLevel"] not in LEVELS:
-            raise ValueError(f"invalid task values for {item.get('id')}")
-        if item["acceptance"]["countsTowardAcceptance"]:
-            raise ValueError(f"baseline task may not count toward acceptance: {item.get('id')}")
-        for attempt in item["attempts"]:
-            if attempt["result"] not in STATUSES or attempt["number"] != 1 or attempt["retried"]:
-                raise ValueError(f"attempt policy violated for {item.get('id')}")
+    validate_record(record, root)
+    return record
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo", type=Path, default=ROOT, help="repository root (default: inferred from this script)")
     parser.add_argument("--output", type=Path, help="optional JSON output path; stdout is the default")
+    parser.add_argument("--attestation-output", type=Path, help="optional attestation manifest; requires --output")
+    parser.add_argument("--attestation-status", default="provisional", choices=("provisional", "retained", "finalized", "superseded", "revoked"), help="retention status for --attestation-output")
+    parser.add_argument("--attestation-reviewer", help="reviewer identity for a retained baseline attestation")
+    parser.add_argument("--attestation-reviewer-authority", help="reviewer authority for a retained baseline attestation")
     parser.add_argument("--now", help="UTC timestamp override for reproducible fixture tests, e.g. 2026-09-14T00:00:00Z")
     args = parser.parse_args(argv)
-    record = build_record(args.repo, now=args.now)
-    validate_record(record)
+    if args.attestation_output and not args.output:
+        parser.error("--attestation-output requires --output so its digest has a retained record")
+    if args.attestation_output and (not args.attestation_reviewer or not args.attestation_reviewer_authority):
+        parser.error("--attestation-reviewer and --attestation-reviewer-authority are required; the tool will not invent a reviewer")
+    repository = resolved_repository_root(args.repo)
+    record = build_record(repository, now=args.now)
+    validate_record(record, repository)
     rendered = json.dumps(record, indent=2, sort_keys=True) + "\n"
     if args.output:
-        args.output.parent.mkdir(parents=True, exist_ok=True)
-        args.output.write_text(rendered, encoding="utf-8")
+        output = retained_baseline_output_path(args.output, repository)
+        output.write_text(rendered, encoding="utf-8")
+        if args.attestation_output:
+            attestation = build_attestation(
+                record, output, args.attestation_status, repository,
+                args.attestation_reviewer, args.attestation_reviewer_authority,
+            )
+            attestation_output = retained_baseline_output_path(args.attestation_output, repository)
+            attestation_output.write_text(json.dumps(attestation, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        validate_retained_baselines(repository)
     else:
         sys.stdout.write(rendered)
     return 0

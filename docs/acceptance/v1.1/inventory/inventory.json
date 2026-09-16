@@ -131,197 +131,364 @@
     ],
     "routes": {
       "controller": {
-        "count": 19,
+        "count": 21,
         "routes": [
           {
-            "path": "/v1/auth/bootstrap",
-            "source": {
-              "line": 14,
-              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
-              "rule": "Spring mapping annotation",
-              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            "annotationEvidence": {
+              "annotationsOnLine": 1,
+              "handlerName": "bootstrap",
+              "occurrenceOnLine": 1,
+              "sharedPhysicalLine": false,
+              "source": {
+                "line": 14,
+                "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+                "rule": "Spring mapping annotation occurrence 1 of 1 on physical line",
+                "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+              },
+              "text": "@PostMapping(\"/auth/bootstrap\")"
             },
-            "verb": "POST"
+            "method": "POST",
+            "path": "/v1/auth/bootstrap"
           },
           {
-            "path": "/v1/auth/sign-in",
-            "source": {
-              "line": 15,
-              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
-              "rule": "Spring mapping annotation",
-              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            "annotationEvidence": {
+              "annotationsOnLine": 2,
+              "handlerName": "signIn",
+              "occurrenceOnLine": 1,
+              "sharedPhysicalLine": true,
+              "source": {
+                "line": 15,
+                "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+                "rule": "Spring mapping annotation occurrence 1 of 2 on physical line",
+                "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+              },
+              "text": "@PostMapping(\"/auth/sign-in\")"
             },
-            "verb": "POST"
+            "method": "POST",
+            "path": "/v1/auth/sign-in"
           },
           {
-            "path": "/v1/auth/logout",
-            "source": {
-              "line": 15,
-              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
-              "rule": "Spring mapping annotation",
-              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            "annotationEvidence": {
+              "annotationsOnLine": 2,
+              "handlerName": "logout",
+              "occurrenceOnLine": 2,
+              "sharedPhysicalLine": true,
+              "source": {
+                "line": 15,
+                "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+                "rule": "Spring mapping annotation occurrence 2 of 2 on physical line",
+                "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+              },
+              "text": "@PostMapping(\"/auth/logout\")"
             },
-            "verb": "POST"
+            "method": "POST",
+            "path": "/v1/auth/logout"
           },
           {
-            "path": "/v1/health",
-            "source": {
-              "line": 16,
-              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
-              "rule": "Spring mapping annotation",
-              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            "annotationEvidence": {
+              "annotationsOnLine": 1,
+              "handlerName": "health",
+              "occurrenceOnLine": 1,
+              "sharedPhysicalLine": false,
+              "source": {
+                "line": 16,
+                "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+                "rule": "Spring mapping annotation occurrence 1 of 1 on physical line",
+                "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+              },
+              "text": "@GetMapping(\"/health\")"
             },
-            "verb": "GET"
+            "method": "GET",
+            "path": "/v1/health"
           },
           {
-            "path": "/v1/capabilities",
-            "source": {
-              "line": 17,
-              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
-              "rule": "Spring mapping annotation",
-              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            "annotationEvidence": {
+              "annotationsOnLine": 1,
+              "handlerName": "capabilities",
+              "occurrenceOnLine": 1,
+              "sharedPhysicalLine": false,
+              "source": {
+                "line": 17,
+                "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+                "rule": "Spring mapping annotation occurrence 1 of 1 on physical line",
+                "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+              },
+              "text": "@GetMapping(\"/capabilities\")"
             },
-            "verb": "GET"
+            "method": "GET",
+            "path": "/v1/capabilities"
           },
           {
-            "path": "/v1/workspaces/{workspace}/forms",
-            "source": {
-              "line": 18,
-              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
-              "rule": "Spring mapping annotation",
-              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            "annotationEvidence": {
+              "annotationsOnLine": 1,
+              "handlerName": "forms",
+              "occurrenceOnLine": 1,
+              "sharedPhysicalLine": false,
+              "source": {
+                "line": 18,
+                "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+                "rule": "Spring mapping annotation occurrence 1 of 1 on physical line",
+                "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+              },
+              "text": "@GetMapping(\"/workspaces/{workspace}/forms\")"
             },
-            "verb": "GET"
+            "method": "GET",
+            "path": "/v1/workspaces/{workspace}/forms"
           },
           {
-            "path": "/v1/workspaces/{workspace}/forms",
-            "source": {
-              "line": 19,
-              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
-              "rule": "Spring mapping annotation",
-              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            "annotationEvidence": {
+              "annotationsOnLine": 1,
+              "handlerName": "create",
+              "occurrenceOnLine": 1,
+              "sharedPhysicalLine": false,
+              "source": {
+                "line": 19,
+                "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+                "rule": "Spring mapping annotation occurrence 1 of 1 on physical line",
+                "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+              },
+              "text": "@PostMapping(\"/workspaces/{workspace}/forms\")"
             },
-            "verb": "POST"
+            "method": "POST",
+            "path": "/v1/workspaces/{workspace}/forms"
           },
           {
-            "path": "/v1/workspaces/{workspace}/forms/{form}/drafts/{draft}",
-            "source": {
-              "line": 20,
-              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
-              "rule": "Spring mapping annotation",
-              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            "annotationEvidence": {
+              "annotationsOnLine": 1,
+              "handlerName": "draft",
+              "occurrenceOnLine": 1,
+              "sharedPhysicalLine": false,
+              "source": {
+                "line": 20,
+                "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+                "rule": "Spring mapping annotation occurrence 1 of 1 on physical line",
+                "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+              },
+              "text": "@GetMapping(\"/workspaces/{workspace}/forms/{form}/drafts/{draft}\")"
             },
-            "verb": "GET"
+            "method": "GET",
+            "path": "/v1/workspaces/{workspace}/forms/{form}/drafts/{draft}"
           },
           {
-            "path": "/v1/workspaces/{workspace}/forms/{form}/drafts/{draft}",
-            "source": {
-              "line": 21,
-              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
-              "rule": "Spring mapping annotation",
-              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            "annotationEvidence": {
+              "annotationsOnLine": 1,
+              "handlerName": "save",
+              "occurrenceOnLine": 1,
+              "sharedPhysicalLine": false,
+              "source": {
+                "line": 21,
+                "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+                "rule": "Spring mapping annotation occurrence 1 of 1 on physical line",
+                "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+              },
+              "text": "@PutMapping(\"/workspaces/{workspace}/forms/{form}/drafts/{draft}\")"
             },
-            "verb": "PUT"
+            "method": "PUT",
+            "path": "/v1/workspaces/{workspace}/forms/{form}/drafts/{draft}"
           },
           {
-            "path": "/v1/workspaces/{workspace}/forms/{form}/definition-export",
-            "source": {
-              "line": 22,
-              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
-              "rule": "Spring mapping annotation",
-              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            "annotationEvidence": {
+              "annotationsOnLine": 1,
+              "handlerName": "definitionExport",
+              "occurrenceOnLine": 1,
+              "sharedPhysicalLine": false,
+              "source": {
+                "line": 22,
+                "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+                "rule": "Spring mapping annotation occurrence 1 of 1 on physical line",
+                "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+              },
+              "text": "@GetMapping(\"/workspaces/{workspace}/forms/{form}/definition-export\")"
             },
-            "verb": "GET"
+            "method": "GET",
+            "path": "/v1/workspaces/{workspace}/forms/{form}/definition-export"
           },
           {
-            "path": "/v1/workspaces/{workspace}/forms/{form}/definition-import",
-            "source": {
-              "line": 23,
-              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
-              "rule": "Spring mapping annotation",
-              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            "annotationEvidence": {
+              "annotationsOnLine": 1,
+              "handlerName": "definitionImport",
+              "occurrenceOnLine": 1,
+              "sharedPhysicalLine": false,
+              "source": {
+                "line": 23,
+                "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+                "rule": "Spring mapping annotation occurrence 1 of 1 on physical line",
+                "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+              },
+              "text": "@PutMapping(\"/workspaces/{workspace}/forms/{form}/definition-import\")"
             },
-            "verb": "PUT"
+            "method": "PUT",
+            "path": "/v1/workspaces/{workspace}/forms/{form}/definition-import"
           },
           {
-            "path": "/v1/workspaces/{workspace}/forms/{form}/releases",
-            "source": {
-              "line": 24,
-              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
-              "rule": "Spring mapping annotation",
-              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            "annotationEvidence": {
+              "annotationsOnLine": 1,
+              "handlerName": "publish",
+              "occurrenceOnLine": 1,
+              "sharedPhysicalLine": false,
+              "source": {
+                "line": 24,
+                "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+                "rule": "Spring mapping annotation occurrence 1 of 1 on physical line",
+                "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+              },
+              "text": "@PostMapping(\"/workspaces/{workspace}/forms/{form}/releases\")"
             },
-            "verb": "POST"
+            "method": "POST",
+            "path": "/v1/workspaces/{workspace}/forms/{form}/releases"
           },
           {
-            "path": "/v1/public/forms/{share}/sessions",
-            "source": {
-              "line": 25,
-              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
-              "rule": "Spring mapping annotation",
-              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            "annotationEvidence": {
+              "annotationsOnLine": 1,
+              "handlerName": "start",
+              "occurrenceOnLine": 1,
+              "sharedPhysicalLine": false,
+              "source": {
+                "line": 25,
+                "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+                "rule": "Spring mapping annotation occurrence 1 of 1 on physical line",
+                "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+              },
+              "text": "@PostMapping(\"/public/forms/{share}/sessions\")"
             },
-            "verb": "POST"
+            "method": "POST",
+            "path": "/v1/public/forms/{share}/sessions"
           },
           {
-            "path": "/v1/sessions/{id}",
-            "source": {
-              "line": 26,
-              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
-              "rule": "Spring mapping annotation",
-              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            "annotationEvidence": {
+              "annotationsOnLine": 1,
+              "handlerName": "session",
+              "occurrenceOnLine": 1,
+              "sharedPhysicalLine": false,
+              "source": {
+                "line": 26,
+                "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+                "rule": "Spring mapping annotation occurrence 1 of 1 on physical line",
+                "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+              },
+              "text": "@GetMapping(\"/sessions/{id}\")"
             },
-            "verb": "GET"
+            "method": "GET",
+            "path": "/v1/sessions/{id}"
           },
           {
-            "path": "/v1/sessions/{id}",
-            "source": {
-              "line": 27,
-              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
-              "rule": "Spring mapping annotation",
-              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            "annotationEvidence": {
+              "annotationsOnLine": 1,
+              "handlerName": "patch",
+              "occurrenceOnLine": 1,
+              "sharedPhysicalLine": false,
+              "source": {
+                "line": 27,
+                "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+                "rule": "Spring mapping annotation occurrence 1 of 1 on physical line",
+                "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+              },
+              "text": "@PatchMapping(\"/sessions/{id}\")"
             },
-            "verb": "PATCH"
+            "method": "PATCH",
+            "path": "/v1/sessions/{id}"
           },
           {
-            "path": "/v1/sessions/{id}/validate",
-            "source": {
-              "line": 28,
-              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
-              "rule": "Spring mapping annotation",
-              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            "annotationEvidence": {
+              "annotationsOnLine": 1,
+              "handlerName": "validate",
+              "occurrenceOnLine": 1,
+              "sharedPhysicalLine": false,
+              "source": {
+                "line": 28,
+                "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+                "rule": "Spring mapping annotation occurrence 1 of 1 on physical line",
+                "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+              },
+              "text": "@PostMapping(\"/sessions/{id}/validate\")"
             },
-            "verb": "POST"
+            "method": "POST",
+            "path": "/v1/sessions/{id}/validate"
           },
           {
-            "path": "/v1/sessions/{id}/submissions",
-            "source": {
-              "line": 29,
-              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
-              "rule": "Spring mapping annotation",
-              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            "annotationEvidence": {
+              "annotationsOnLine": 1,
+              "handlerName": "submit",
+              "occurrenceOnLine": 1,
+              "sharedPhysicalLine": false,
+              "source": {
+                "line": 29,
+                "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+                "rule": "Spring mapping annotation occurrence 1 of 1 on physical line",
+                "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+              },
+              "text": "@PostMapping(\"/sessions/{id}/submissions\")"
             },
-            "verb": "POST"
+            "method": "POST",
+            "path": "/v1/sessions/{id}/submissions"
           },
           {
-            "path": "/v1/workspaces/{workspace}/submissions/{id}",
-            "source": {
-              "line": 31,
-              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
-              "rule": "Spring mapping annotation",
-              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            "annotationEvidence": {
+              "annotationsOnLine": 1,
+              "handlerName": "submissions",
+              "occurrenceOnLine": 1,
+              "sharedPhysicalLine": false,
+              "source": {
+                "line": 30,
+                "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+                "rule": "Spring mapping annotation occurrence 1 of 1 on physical line",
+                "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+              },
+              "text": "@GetMapping(value=\"/workspaces/{workspace}/submissions\",produces=MediaType.APPLICATION_JSON_VALUE)"
             },
-            "verb": "GET"
+            "method": "GET",
+            "path": "/v1/workspaces/{workspace}/submissions"
           },
           {
-            "path": "/v1/workspaces/{workspace}/exports.json",
-            "source": {
-              "line": 32,
-              "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
-              "rule": "Spring mapping annotation",
-              "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+            "annotationEvidence": {
+              "annotationsOnLine": 1,
+              "handlerName": "submission",
+              "occurrenceOnLine": 1,
+              "sharedPhysicalLine": false,
+              "source": {
+                "line": 31,
+                "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+                "rule": "Spring mapping annotation occurrence 1 of 1 on physical line",
+                "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+              },
+              "text": "@GetMapping(\"/workspaces/{workspace}/submissions/{id}\")"
             },
-            "verb": "GET"
+            "method": "GET",
+            "path": "/v1/workspaces/{workspace}/submissions/{id}"
+          },
+          {
+            "annotationEvidence": {
+              "annotationsOnLine": 1,
+              "handlerName": "jsonExport",
+              "occurrenceOnLine": 1,
+              "sharedPhysicalLine": false,
+              "source": {
+                "line": 32,
+                "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+                "rule": "Spring mapping annotation occurrence 1 of 1 on physical line",
+                "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+              },
+              "text": "@GetMapping(\"/workspaces/{workspace}/exports.json\")"
+            },
+            "method": "GET",
+            "path": "/v1/workspaces/{workspace}/exports.json"
+          },
+          {
+            "annotationEvidence": {
+              "annotationsOnLine": 1,
+              "handlerName": "csv",
+              "occurrenceOnLine": 1,
+              "sharedPhysicalLine": false,
+              "source": {
+                "line": 33,
+                "path": "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java",
+                "rule": "Spring mapping annotation occurrence 1 of 1 on physical line",
+                "sha256": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931"
+              },
+              "text": "@GetMapping(value=\"/workspaces/{workspace}/exports.csv\",produces=\"text/csv\")"
+            },
+            "method": "GET",
+            "path": "/v1/workspaces/{workspace}/exports.csv"
           }
         ],
         "source": {
@@ -335,74 +502,74 @@
         "count": 7,
         "operations": [
           {
-            "path": "/health",
+            "method": "GET",
+            "path": "/v1/health",
             "source": {
               "line": 5,
               "path": "docs/api/openapi.yaml",
               "rule": "OpenAPI inline path",
               "sha256": "2dd83c659477d79126b027d7ccc5e2b80df7a64f08d070bc8c1d912346cb706a"
-            },
-            "verb": "GET"
+            }
           },
           {
-            "path": "/capabilities",
+            "method": "GET",
+            "path": "/v1/capabilities",
             "source": {
               "line": 6,
               "path": "docs/api/openapi.yaml",
               "rule": "OpenAPI inline path",
               "sha256": "2dd83c659477d79126b027d7ccc5e2b80df7a64f08d070bc8c1d912346cb706a"
-            },
-            "verb": "GET"
+            }
           },
           {
-            "path": "/workspaces/{workspace}/forms",
+            "method": "GET",
+            "path": "/v1/workspaces/{workspace}/forms",
             "source": {
               "line": 8,
               "path": "docs/api/openapi.yaml",
               "rule": "OpenAPI operation",
               "sha256": "2dd83c659477d79126b027d7ccc5e2b80df7a64f08d070bc8c1d912346cb706a"
-            },
-            "verb": "GET"
+            }
           },
           {
-            "path": "/workspaces/{workspace}/forms",
+            "method": "POST",
+            "path": "/v1/workspaces/{workspace}/forms",
             "source": {
               "line": 9,
               "path": "docs/api/openapi.yaml",
               "rule": "OpenAPI operation",
               "sha256": "2dd83c659477d79126b027d7ccc5e2b80df7a64f08d070bc8c1d912346cb706a"
-            },
-            "verb": "POST"
+            }
           },
           {
-            "path": "/public/forms/{shareId}/sessions",
+            "method": "POST",
+            "path": "/v1/public/forms/{shareId}/sessions",
             "source": {
               "line": 11,
               "path": "docs/api/openapi.yaml",
               "rule": "OpenAPI operation",
               "sha256": "2dd83c659477d79126b027d7ccc5e2b80df7a64f08d070bc8c1d912346cb706a"
-            },
-            "verb": "POST"
+            }
           },
           {
-            "path": "/sessions/{sessionId}",
+            "method": "GET",
+            "path": "/v1/sessions/{sessionId}",
             "source": {
               "line": 13,
               "path": "docs/api/openapi.yaml",
               "rule": "OpenAPI operation",
               "sha256": "2dd83c659477d79126b027d7ccc5e2b80df7a64f08d070bc8c1d912346cb706a"
-            },
-            "verb": "GET"
+            }
           },
           {
-            "path": "/sessions/{sessionId}",
+            "method": "PATCH",
+            "path": "/v1/sessions/{sessionId}",
             "source": {
               "line": 14,
               "path": "docs/api/openapi.yaml",
               "rule": "OpenAPI operation",
               "sha256": "2dd83c659477d79126b027d7ccc5e2b80df7a64f08d070bc8c1d912346cb706a"
-            },
-            "verb": "PATCH"
+            }
           }
         ],
         "source": {
@@ -415,15 +582,89 @@
     },
     "ui": {
       "certinal": {
-        "assetReferences": [],
-        "cuiSymbolCount": 0,
-        "cuiTagCount": 0,
-        "imports": [],
-        "packageDependencies": []
+        "componentConformanceClaimed": false,
+        "componentConformanceRule": "Token or typography style integration does not establish component-library use or conformance.",
+        "componentLibrary": {
+          "componentUsePresent": false,
+          "cuiSymbolCount": 0,
+          "cuiSymbols": [],
+          "cuiTagCount": 0,
+          "cuiTags": [],
+          "imports": [],
+          "packageDependencies": [],
+          "packagePresent": false
+        },
+        "styleIntegration": {
+          "configuredBuildStyles": [
+            {
+              "form": "string",
+              "index": 0,
+              "input": "src/styles.css",
+              "project": "smart-intake-web",
+              "source": {
+                "line": 1,
+                "path": "frontend/src/styles.css",
+                "rule": "Angular build style entry",
+                "sha256": "dedb65a068780d23c9833a8afeed6edf205de5560f739f67a69b73c3701e2ba3"
+              }
+            }
+          ],
+          "cycleProtected": true,
+          "cycles": [],
+          "localImports": [
+            {
+              "directive": "import",
+              "from": "src/styles.css",
+              "reference": "./assets/certinal/styles/tokens.css",
+              "source": {
+                "line": 1,
+                "path": "frontend/src/assets/certinal/styles/tokens.css",
+                "rule": "resolved local style import",
+                "sha256": "08c934080ab9e1f34ffd7301d39ea38490175ce70927b32fa0fa0e5e02ba2730"
+              },
+              "to": "src/assets/certinal/styles/tokens.css"
+            },
+            {
+              "directive": "import",
+              "from": "src/styles.css",
+              "reference": "./assets/certinal/styles/typography.css",
+              "source": {
+                "line": 1,
+                "path": "frontend/src/assets/certinal/styles/typography.css",
+                "rule": "resolved local style import",
+                "sha256": "eac297084266df135ac3f93f55868c7625e8d3bc28517dea607af5fa7206aeb0"
+              },
+              "to": "src/assets/certinal/styles/typography.css"
+            }
+          ],
+          "resolvedLocalStyleFiles": [
+            {
+              "line": 1,
+              "path": "frontend/src/styles.css",
+              "rule": "configured style or recursive local style import",
+              "sha256": "dedb65a068780d23c9833a8afeed6edf205de5560f739f67a69b73c3701e2ba3"
+            },
+            {
+              "line": 1,
+              "path": "frontend/src/assets/certinal/styles/tokens.css",
+              "rule": "configured style or recursive local style import",
+              "sha256": "08c934080ab9e1f34ffd7301d39ea38490175ce70927b32fa0fa0e5e02ba2730"
+            },
+            {
+              "line": 1,
+              "path": "frontend/src/assets/certinal/styles/typography.css",
+              "rule": "configured style or recursive local style import",
+              "sha256": "eac297084266df135ac3f93f55868c7625e8d3bc28517dea607af5fa7206aeb0"
+            }
+          ]
+        },
+        "tokenStylesIntegrated": true,
+        "typographyStylesIntegrated": true
       },
       "component": {
         "lineCount": 18,
-        "standalone": false
+        "standalone": true,
+        "standaloneMetadata": "standalone:true"
       },
       "frontendSources": [
         {
@@ -2645,13 +2886,30 @@
   ],
   "format": "smart-form-builder-lite-m0-authoritative-inventory/v1",
   "formerlyRemovedWholeCoreDenialList": {
+    "blocker": {
+      "code": "denial-list-unenumerated",
+      "message": "The scope review declares seven IDs but the required authoritative addendum is absent.",
+      "source": {
+        "line": 3,
+        "path": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Scope-Review.md",
+        "rule": "scope review declaration; identifiers are not enumerated here",
+        "sha256": "98a72b57fdc9622215196026b0367e4a00aa1e3b549f21aa8181055dc41a9401"
+      },
+      "sourceLabel": "scope-review-declaration"
+    },
     "declaredCount": 7,
     "enumerationAvailable": false,
+    "enumerationContract": {
+      "requiredFormat": "smart-form-builder-lite-formerly-removed-whole-core-id-addendum/v1",
+      "requiredIdentifierCount": 7,
+      "requiredPath": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/formerly-removed-whole-core-id-denial-list.json",
+      "requiredSourceLabel": "authoritative-addendum"
+    },
     "identifiers": [],
     "source": {
       "line": 3,
       "path": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Scope-Review.md",
-      "rule": "scope review declaration",
+      "rule": "scope review declaration; identifiers are not enumerated here",
       "sha256": "98a72b57fdc9622215196026b0367e4a00aa1e3b549f21aa8181055dc41a9401"
     }
   },
@@ -2663,546 +2921,601 @@
   },
   "normativeApiOperations": {
     "count": 53,
-    "countingRule": "One operation equals one distinct HTTP verb plus canonical path; query examples are not part of the path.",
+    "countingRule": "One O_named operation equals one distinct HTTP method plus canonical path from the four explicit endpoint tables; query examples are not part of the path.",
+    "namedSupportingOperations": {
+      "count": 2,
+      "countingRule": "O_total named inventory is O_named plus precisely these separately cited PRD-named operations; it does not assign a route to the authorized asset API.",
+      "oTotalNamedCount": 55,
+      "operations": [
+        {
+          "canonicalPathAvailable": false,
+          "method": null,
+          "name": "authorized asset API",
+          "path": null,
+          "reason": "PRD names this API but specifies neither an HTTP method nor a path; neither is inferred.",
+          "source": {
+            "line": 568,
+            "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+            "rule": "§11.3 authorized asset API",
+            "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+          }
+        },
+        {
+          "canonicalPathAvailable": true,
+          "method": "GET",
+          "name": "submission interpretation",
+          "path": "/v1/workspaces/{w}/submissions/{id}/interpretation",
+          "source": {
+            "line": 1103,
+            "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+            "rule": "Pinned interpretation and consumer access",
+            "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+          }
+        }
+      ]
+    },
+    "operationFieldContract": {
+      "legacyVerbCompatibility": "The generated v1 inventory no longer emits `verb`; consumers must read `method`.",
+      "method": "Canonical uppercase HTTP method. This replaces the legacy `verb` field.",
+      "path": "Canonical leading-slash path without presentation whitespace; null only when the PRD names an API without method/path."
+    },
     "operations": [
       {
-        "path": " /v1/capabilities",
+        "method": "GET",
+        "path": "/v1/capabilities",
         "source": {
           "line": 551,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "GET"
+        }
       },
       {
-        "path": " /v1/schemas/{kind}/{version}",
+        "method": "GET",
+        "path": "/v1/schemas/{kind}/{version}",
         "source": {
           "line": 552,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "GET"
+        }
       },
       {
-        "path": " /v1/workspaces/{w}/forms",
+        "method": "POST",
+        "path": "/v1/workspaces/{w}/forms",
         "source": {
           "line": 553,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "POST"
+        }
       },
       {
-        "path": " /v1/workspaces/{w}/forms",
+        "method": "GET",
+        "path": "/v1/workspaces/{w}/forms",
         "source": {
           "line": 554,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "GET"
+        }
       },
       {
-        "path": " /v1/workspaces/{w}/forms/{f}/drafts/{d}",
+        "method": "GET",
+        "path": "/v1/workspaces/{w}/forms/{f}/drafts/{d}",
         "source": {
           "line": 555,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "GET"
+        }
       },
       {
-        "path": " /v1/workspaces/{w}/forms/{f}/drafts/{d}",
+        "method": "PUT",
+        "path": "/v1/workspaces/{w}/forms/{f}/drafts/{d}",
         "source": {
           "line": 556,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "PUT"
+        }
       },
       {
-        "path": " /v1/workspaces/{w}/imports/validate",
+        "method": "POST",
+        "path": "/v1/workspaces/{w}/imports/validate",
         "source": {
           "line": 557,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "POST"
+        }
       },
       {
-        "path": " /v1/workspaces/{w}/imports/{candidateId}/commit",
+        "method": "POST",
+        "path": "/v1/workspaces/{w}/imports/{candidateId}/commit",
         "source": {
           "line": 558,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "POST"
+        }
       },
       {
-        "path": " /v1/workspaces/{w}/forms/{f}/drafts/{d}/validate",
+        "method": "POST",
+        "path": "/v1/workspaces/{w}/forms/{f}/drafts/{d}/validate",
         "source": {
           "line": 559,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "POST"
+        }
       },
       {
-        "path": " /v1/workspaces/{w}/forms/{f}/drafts/{d}/review-requests",
+        "method": "POST",
+        "path": "/v1/workspaces/{w}/forms/{f}/drafts/{d}/review-requests",
         "source": {
           "line": 560,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "POST"
+        }
       },
       {
-        "path": " /v1/workspaces/{w}/forms/{f}/releases",
+        "method": "POST",
+        "path": "/v1/workspaces/{w}/forms/{f}/releases",
         "source": {
           "line": 561,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "POST"
+        }
       },
       {
-        "path": " /v1/workspaces/{w}/forms/{f}/releases/{releaseId}",
+        "method": "GET",
+        "path": "/v1/workspaces/{w}/forms/{f}/releases/{releaseId}",
         "source": {
           "line": 562,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "GET"
+        }
       },
       {
-        "path": " /v1/workspaces/{w}/forms/{f}/activation",
+        "method": "POST",
+        "path": "/v1/workspaces/{w}/forms/{f}/activation",
         "source": {
           "line": 563,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "POST"
+        }
       },
       {
-        "path": " /v1/workspaces/{w}/forms/{f}/export",
+        "method": "GET",
+        "path": "/v1/workspaces/{w}/forms/{f}/export",
         "source": {
           "line": 564,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "GET"
+        }
       },
       {
-        "path": " /v1/public/forms/{shareId}/sessions",
+        "method": "POST",
+        "path": "/v1/public/forms/{shareId}/sessions",
         "source": {
           "line": 580,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "POST"
+        }
       },
       {
-        "path": " /v1/sessions/{s}",
+        "method": "GET",
+        "path": "/v1/sessions/{s}",
         "source": {
           "line": 581,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "GET"
+        }
       },
       {
-        "path": " /v1/sessions/{s}",
+        "method": "PATCH",
+        "path": "/v1/sessions/{s}",
         "source": {
           "line": 582,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "PATCH"
+        }
       },
       {
-        "path": " /v1/sessions/{s}/attachments",
+        "method": "POST",
+        "path": "/v1/sessions/{s}/attachments",
         "source": {
           "line": 583,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "POST"
+        }
       },
       {
-        "path": " /v1/sessions/{s}/attachments/{a}/complete",
+        "method": "POST",
+        "path": "/v1/sessions/{s}/attachments/{a}/complete",
         "source": {
           "line": 584,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "POST"
+        }
       },
       {
-        "path": " /v1/sessions/{s}/attachments/{a}",
+        "method": "DELETE",
+        "path": "/v1/sessions/{s}/attachments/{a}",
         "source": {
           "line": 585,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "DELETE"
+        }
       },
       {
-        "path": " /v1/sessions/{s}/validate",
+        "method": "POST",
+        "path": "/v1/sessions/{s}/validate",
         "source": {
           "line": 586,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "POST"
+        }
       },
       {
-        "path": " /v1/sessions/{s}/submissions",
+        "method": "POST",
+        "path": "/v1/sessions/{s}/submissions",
         "source": {
           "line": 587,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "POST"
+        }
       },
       {
-        "path": " /v1/sessions/{s}/submission-operation",
+        "method": "GET",
+        "path": "/v1/sessions/{s}/submission-operation",
         "source": {
           "line": 588,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "GET"
+        }
       },
       {
-        "path": " /v1/workspaces/{w}/submissions",
+        "method": "GET",
+        "path": "/v1/workspaces/{w}/submissions",
         "source": {
           "line": 596,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "GET"
+        }
       },
       {
-        "path": " /v1/workspaces/{w}/submissions/{id}",
+        "method": "GET",
+        "path": "/v1/workspaces/{w}/submissions/{id}",
         "source": {
           "line": 597,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "GET"
+        }
       },
       {
-        "path": " /v1/workspaces/{w}/exports",
+        "method": "POST",
+        "path": "/v1/workspaces/{w}/exports",
         "source": {
           "line": 598,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "POST"
+        }
       },
       {
-        "path": " /v1/workspaces/{w}/attachments/{id}/download",
+        "method": "GET",
+        "path": "/v1/workspaces/{w}/attachments/{id}/download",
         "source": {
           "line": 599,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "GET"
+        }
       },
       {
-        "path": " /v1/workspaces/{w}/webhooks",
+        "method": "POST",
+        "path": "/v1/workspaces/{w}/webhooks",
         "source": {
           "line": 600,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "POST"
+        }
       },
       {
-        "path": " /v1/workspaces/{w}/webhook-deliveries",
+        "method": "GET",
+        "path": "/v1/workspaces/{w}/webhook-deliveries",
         "source": {
           "line": 601,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "GET"
+        }
       },
       {
-        "path": " /v1/workspaces/{w}/webhook-deliveries/{id}/replay",
+        "method": "POST",
+        "path": "/v1/workspaces/{w}/webhook-deliveries/{id}/replay",
         "source": {
           "line": 602,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "POST"
+        }
       },
       {
-        "path": " /v1/auth/sign-in",
+        "method": "POST",
+        "path": "/v1/auth/sign-in",
         "source": {
           "line": 1022,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "POST"
+        }
       },
       {
-        "path": " /v1/auth/sign-out",
+        "method": "POST",
+        "path": "/v1/auth/sign-out",
         "source": {
           "line": 1023,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "POST"
+        }
       },
       {
-        "path": " /v1/auth/session",
+        "method": "GET",
+        "path": "/v1/auth/session",
         "source": {
           "line": 1024,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "GET"
+        }
       },
       {
-        "path": " /v1/auth/activate",
+        "method": "POST",
+        "path": "/v1/auth/activate",
         "source": {
           "line": 1025,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "POST"
+        }
       },
       {
-        "path": " /v1/auth/password-change",
+        "method": "POST",
+        "path": "/v1/auth/password-change",
         "source": {
           "line": 1026,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "POST"
+        }
       },
       {
-        "path": " /v1/auth/recovery",
+        "method": "POST",
+        "path": "/v1/auth/recovery",
         "source": {
           "line": 1027,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "POST"
+        }
       },
       {
-        "path": " /v1/auth/reset",
+        "method": "POST",
+        "path": "/v1/auth/reset",
         "source": {
           "line": 1028,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "POST"
+        }
       },
       {
-        "path": " /v1/invitations/accept",
+        "method": "POST",
+        "path": "/v1/invitations/accept",
         "source": {
           "line": 1029,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "POST"
+        }
       },
       {
-        "path": " /v1/platform/organizations",
+        "method": "GET",
+        "path": "/v1/platform/organizations",
         "source": {
           "line": 1030,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "GET"
+        }
       },
       {
-        "path": " /v1/platform/organizations",
+        "method": "POST",
+        "path": "/v1/platform/organizations",
         "source": {
           "line": 1030,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "POST"
+        }
       },
       {
-        "path": " /v1/platform/organizations/{o}",
+        "method": "PATCH",
+        "path": "/v1/platform/organizations/{o}",
         "source": {
           "line": 1031,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "PATCH"
+        }
       },
       {
-        "path": " /v1/platform/organizations/{o}/users",
+        "method": "POST",
+        "path": "/v1/platform/organizations/{o}/users",
         "source": {
           "line": 1032,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "POST"
+        }
       },
       {
-        "path": " /v1/platform/accounts/{a}",
+        "method": "PATCH",
+        "path": "/v1/platform/accounts/{a}",
         "source": {
           "line": 1033,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "PATCH"
+        }
       },
       {
-        "path": " /v1/organizations/{o}/users",
+        "method": "GET",
+        "path": "/v1/organizations/{o}/users",
         "source": {
           "line": 1034,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "GET"
+        }
       },
       {
-        "path": " /v1/organizations/{o}/users",
+        "method": "POST",
+        "path": "/v1/organizations/{o}/users",
         "source": {
           "line": 1034,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "POST"
+        }
       },
       {
-        "path": " /v1/organizations/{o}/users/{u}",
+        "method": "PATCH",
+        "path": "/v1/organizations/{o}/users/{u}",
         "source": {
           "line": 1035,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "PATCH"
+        }
       },
       {
-        "path": " /v1/organizations/{o}/users/{u}",
+        "method": "DELETE",
+        "path": "/v1/organizations/{o}/users/{u}",
         "source": {
           "line": 1035,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "DELETE"
+        }
       },
       {
-        "path": " /v1/workspaces/{w}/users/{u}/roles",
+        "method": "PUT",
+        "path": "/v1/workspaces/{w}/users/{u}/roles",
         "source": {
           "line": 1036,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "PUT"
+        }
       },
       {
-        "path": " /v1/workspaces/{w}/users/{u}/roles",
+        "method": "DELETE",
+        "path": "/v1/workspaces/{w}/users/{u}/roles",
         "source": {
           "line": 1036,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "DELETE"
+        }
       },
       {
-        "path": " /v1/organizations/{o}/users/{u}/invitations",
+        "method": "POST",
+        "path": "/v1/organizations/{o}/users/{u}/invitations",
         "source": {
           "line": 1037,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "POST"
+        }
       },
       {
-        "path": " /v1/organizations/{o}/invitations/{i}",
+        "method": "DELETE",
+        "path": "/v1/organizations/{o}/invitations/{i}",
         "source": {
           "line": 1038,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "DELETE"
+        }
       },
       {
-        "path": " /v1/organizations/{o}/users/{u}/recovery",
+        "method": "POST",
+        "path": "/v1/organizations/{o}/users/{u}/recovery",
         "source": {
           "line": 1039,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "POST"
+        }
       },
       {
-        "path": " /v1/platform/accounts/{a}/recovery",
+        "method": "POST",
+        "path": "/v1/platform/accounts/{a}/recovery",
         "source": {
           "line": 1040,
           "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
           "rule": "normative API table",
           "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
-        },
-        "verb": "POST"
+        }
       }
     ],
     "source": {
-      "line": 549,
+      "line": 545,
       "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
       "rule": "§11 and Appendix A named operation tables",
       "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
     },
-    "supportingCrudRule": "§11.5 requires supporting CRUD but does not name finite verb+path members; it is intentionally not included in O_named."
+    "supportingCrudRule": "§11.5 requires supporting CRUD but does not name finite verb+path members; it is intentionally not included in O_named.",
+    "tableAnchors": [
+      {
+        "heading": "### 11.2 Definition and publication endpoints",
+        "line": 545
+      },
+      {
+        "heading": "### 11.4 Respondent session and submission endpoints",
+        "line": 574
+      },
+      {
+        "heading": "### 11.5 Response, export and event APIs",
+        "line": 592
+      },
+      {
+        "heading": "### Application API requirements",
+        "line": 1016
+      }
+    ]
   },
   "requirements": [
     {

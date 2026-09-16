@@ -1,0 +1,386 @@
+{
+  "corpusVersion": "2.4.21-m0",
+  "executionStatus": "not-run",
+  "frozenInputProtocol": {
+    "allocation": "5 author slots + 5 respondent slots per tool; cohorts separate; all failures/abandonments retained; no participant has been recruited or run.",
+    "anonymization": {
+      "allowed": "participant slot IDs and structured codes only",
+      "removeBeforeRetention": [
+        "names",
+        "emails",
+        "IP addresses",
+        "free-text identifiers",
+        "recordings"
+      ],
+      "syntheticIdentitiesAndAnswersOnly": true
+    },
+    "anonymizationLegacy": "See anonymization form above.",
+    "authorTaskScript": [
+      "Create Community equipment support request / equipment-support with English default and three phases/pages.",
+      "Visually build all 30 canonical fields and child definitions from Appendix C section 3; configure both equipment modes, fixed-row detail, nested repeaters, calculated total and shared email identity.",
+      "Add heading/list/email-placeholder instructions; short/detailed help; Estimate glossary; exact approved Q&A and paraphrase/no-match behavior in About and Equipment.",
+      "Add exact opt-in narration text; no autoplay; do not use narration to set answers.",
+      "Create shipping reusable block, inspect temporary remap, remove temporary insertion, update separate draft and inspect impact diff.",
+      "Import complete Hindi and Arabic packs; inspect invalid missing acknowledgment variant; approve only complete packs.",
+      "Preview supplied complete/setup-detail/Other-detail/invalid cases; verify no preview response/webhook/email side effect.",
+      "Publish v1; open pinned synthetic session; start v2; rename/reorder; inspect/reapprove stale approval; publish and verify v1 unchanged; export v1."
+    ],
+    "browserAccessibilityPolicy": {
+      "automatedScan": "supporting only; cannot pass task",
+      "exactVersionsRequiredBeforeRun": true,
+      "sameCombinationsForBothTools": true,
+      "selectionStatus": "pending external selection"
+    },
+    "browserDeviceATMatrix": [
+      {
+        "at": "none",
+        "atVersion": "not-applicable",
+        "browser": "Chrome",
+        "browserVersion": "pending external selection",
+        "device": "desktop",
+        "id": "chrome-desktop",
+        "os": "pending external selection",
+        "selectionStatus": "pending-external-selection-at-run"
+      },
+      {
+        "at": "NVDA or predeclared equivalent",
+        "atVersion": "pending external selection",
+        "browser": "Firefox",
+        "browserVersion": "pending external selection",
+        "device": "desktop",
+        "id": "firefox-nvda",
+        "os": "pending external selection",
+        "selectionStatus": "pending-external-selection-at-run"
+      },
+      {
+        "at": "VoiceOver",
+        "atVersion": "pending external selection",
+        "browser": "Safari",
+        "browserVersion": "pending external selection",
+        "device": "macOS or iOS",
+        "id": "safari-voiceover",
+        "os": "pending external selection",
+        "selectionStatus": "pending-external-selection-at-run"
+      },
+      {
+        "at": "TalkBack",
+        "atVersion": "pending external selection",
+        "browser": "Chrome",
+        "browserVersion": "pending external selection",
+        "device": "Android",
+        "id": "android-talkback",
+        "os": "pending external selection",
+        "selectionStatus": "pending-external-selection-at-run"
+      }
+    ],
+    "counterbalance": "Latin square tool/browser order per participant ordinal; no product has a coaching advantage.",
+    "counterbalancing": {
+      "facilitatorMay": [
+        "read task verbatim",
+        "resolve shared-script typo equally",
+        "address equipment safety"
+      ],
+      "facilitatorMustNot": [
+        "point to a control",
+        "suggest a rule",
+        "repair data",
+        "confirm answer correctness"
+      ],
+      "fiveParticipantOrders": [
+        "A,B",
+        "B,A",
+        "A,B",
+        "B,A",
+        "A,B"
+      ],
+      "productHintOutcome": "intervention and unsuccessful unassisted attempt",
+      "whenParticipantsTryBothTools": "Use structurally identical relabeled variants; Latin-square tool order A/B and independently rotate browser/AT order; record prior exposure."
+    },
+    "executionStatus": "not-run",
+    "externalVersionSelection": {
+      "recordFields": [
+        "browserVersion",
+        "osVersion",
+        "atVersion",
+        "deviceModel"
+      ],
+      "requiredBeforeFirstParticipant": true,
+      "selectionRule": "Select then-current supported versions; freeze exact values uniformly before the first counterbalanced participant.",
+      "status": "pending-external-selection-at-run"
+    },
+    "interventionPolicy": {
+      "codes": [
+        "HELP_REQUESTED",
+        "HELP_REFUSED",
+        "FACILITATOR_TYPO_CORRECTION",
+        "EQUIPMENT_SAFETY",
+        "PRODUCT_HINT"
+      ],
+      "productHintMakesUnassistedAttemptFail": true,
+      "recordVerbatim": true
+    },
+    "observation": {
+      "outage": "confirmed evaluator-wide outage is blocked equally; not subtracted",
+      "record": [
+        "completion",
+        "time",
+        "inputLogicErrors",
+        "helpUsage",
+        "navigationRecovery",
+        "interventions",
+        "criticalMisunderstandings"
+      ]
+    },
+    "observationCodes": [
+      "SUCCESS",
+      "TIMEOUT",
+      "ERROR",
+      "HELP_REQUESTED",
+      "CRITICAL_MISUNDERSTANDING",
+      "INTERVENTION_PRODUCT_HINT"
+    ],
+    "observationForm": {
+      "completionEnum": [
+        "success",
+        "failure",
+        "abandoned",
+        "blocked"
+      ],
+      "required": [
+        "participantId",
+        "cohort",
+        "toolCode",
+        "variant",
+        "browserMatrixId",
+        "startedAtUtc",
+        "endedAtUtc",
+        "completion",
+        "elapsedSeconds",
+        "inputLogicErrors",
+        "helpUsage",
+        "navigationRecovery",
+        "interventionCodes",
+        "criticalMisunderstanding",
+        "outageClassification",
+        "evidenceReference"
+      ]
+    },
+    "orientation": {
+      "authorPracticeForm": "separate five-field practice form",
+      "covers": [
+        "navigation",
+        "ordinary properties",
+        "rules",
+        "preview",
+        "locale review",
+        "publish",
+        "recovery"
+      ],
+      "durationMinutes": 20,
+      "prohibits": [
+        "completed target package",
+        "target screenshots",
+        "raw JSON",
+        "source code",
+        "product coaching"
+      ]
+    },
+    "participantPolicy": {
+      "allocation": "match locale/device/accessibility needs before run; never replace with more experienced participant after a failure",
+      "authors": "independent nondeveloper form creators; separate from respondents; no developer of either tool",
+      "respondents": "independent adults comfortable with ordinary web forms; untrained on task/products"
+    },
+    "participants": [
+      {
+        "allocation": "slot only; recruitment pending; independent nondeveloper; not a product developer",
+        "cohort": "author",
+        "id": "A1"
+      },
+      {
+        "allocation": "slot only; recruitment pending; independent nondeveloper; not a product developer",
+        "cohort": "author",
+        "id": "A2"
+      },
+      {
+        "allocation": "slot only; recruitment pending; independent nondeveloper; not a product developer",
+        "cohort": "author",
+        "id": "A3"
+      },
+      {
+        "allocation": "slot only; recruitment pending; independent nondeveloper; not a product developer",
+        "cohort": "author",
+        "id": "A4"
+      },
+      {
+        "allocation": "slot only; recruitment pending; independent nondeveloper; not a product developer",
+        "cohort": "author",
+        "id": "A5"
+      },
+      {
+        "allocation": "slot only; recruitment pending; independent adult; untrained on task/products",
+        "cohort": "respondent",
+        "id": "R1"
+      },
+      {
+        "allocation": "slot only; recruitment pending; independent adult; untrained on task/products",
+        "cohort": "respondent",
+        "id": "R2"
+      },
+      {
+        "allocation": "slot only; recruitment pending; independent adult; untrained on task/products",
+        "cohort": "respondent",
+        "id": "R3"
+      },
+      {
+        "allocation": "slot only; recruitment pending; independent adult; untrained on task/products",
+        "cohort": "respondent",
+        "id": "R4"
+      },
+      {
+        "allocation": "slot only; recruitment pending; independent adult; untrained on task/products",
+        "cohort": "respondent",
+        "id": "R5"
+      }
+    ],
+    "protocolVersion": "t25-usability-v2",
+    "respondentReading": {
+      "durationMinutes": 5,
+      "text": "Neutral explanation that all data is synthetic."
+    },
+    "respondentTaskScript": [
+      "Enter Alex Morgan, 00123, alex.morgan@example.test; set setup Yes and exact detail, then No and verify hidden detail clears.",
+      "Select Other/detail, then None, then Collection; verify Collection only and Other detail clears.",
+      "Enter 5 September 2026, 0, 4; rank Reliability/Price/Portability; cards; Next; record acknowledged revision and 1/2.",
+      "Use Click to Ask for exact approved estimate question and no-match supplier question; inspect scoped passive result and available controls.",
+      "Create the two named equipment rows/accessories/tests and delete temporary Spare accessory.",
+      "Move equipment B above A; switch cards/table through Back/Next; verify ID binding; record total 32.25.",
+      "Set checks, exact Space detail, shipping 00120/India, Unknown; upload 8-byte equipment-note.txt and wait Ready.",
+      "Save/reload existing browser; verify values; switch Hindi/Arabic/English with IDs/values stable.",
+      "At review edit second displayed equipment quantity to 3; verify first remains 1; total 44.75.",
+      "Verify final meanings; acknowledge exact English text; submit explicitly and obtain durable receipt."
+    ],
+    "scoring": {
+      "passThreshold": "at least 4 of 5 independently allocated participants per cohort/task",
+      "record": [
+        "success",
+        "elapsedSeconds",
+        "errorCodes",
+        "helpCodes",
+        "criticalMisunderstanding"
+      ],
+      "success": "see scoringForm"
+    },
+    "scoringForm": {
+      "authorSuccess": "publishes required semantics without code edits or facilitator intervention",
+      "criticalRespondentError": "none may remain among successful attempts",
+      "failureRetention": "all failures and abandonment remain in denominator",
+      "noPopulationClaim": true,
+      "respondentSuccess": "exact final answer meaning plus accepted receipt without assistance",
+      "threshold": "at least 4 of 5 per cohort/task"
+    },
+    "sourceBinding": {
+      "PRD": "701-702,823,1261-1469",
+      "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+    },
+    "tasks": [
+      {
+        "cohort": "author",
+        "id": "author-build",
+        "scenario": "Appendix C section 3 frozen blank-canvas author task"
+      },
+      {
+        "cohort": "author",
+        "id": "author-governance",
+        "scenario": "Appendix C section 3 actions 2-7"
+      },
+      {
+        "cohort": "respondent",
+        "id": "respondent-complete",
+        "scenario": "Appendix C section 4 steps 1-8"
+      },
+      {
+        "cohort": "respondent",
+        "id": "respondent-review-submit",
+        "scenario": "Appendix C section 4 steps 9-10"
+      }
+    ],
+    "timeboxes": {
+      "authorMinutes": 60,
+      "includedDelays": [
+        "loading",
+        "recovery",
+        "help",
+        "provider delay"
+      ],
+      "respondentMinutes": 25
+    }
+  },
+  "records": [
+    {
+      "assertionType": "human-study-protocol",
+      "blockedReason": "independent participant recruitment, approved orientation materials, browser/AT matrix, and observation governance are later prerequisites; no participant outcome is claimed.",
+      "evidenceLevel": "human",
+      "expected": {
+        "authorOrientationMinutes": 20,
+        "authorSuccessThreshold": "at least 4 of 5",
+        "authorTaskLimitMinutes": 60,
+        "authorsPerTool": 5,
+        "respondentReadingMinutes": 5,
+        "respondentSuccessThreshold": "at least 4 of 5 with no unresolved critical answer-meaning error",
+        "respondentTaskLimitMinutes": 25,
+        "respondentsPerTool": 5,
+        "syntheticDataOnly": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T25"
+      ],
+      "id": "EVAL-T25-USABILITY-01",
+      "milestoneGates": [
+        "M0",
+        "M12"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-T25",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "701-702",
+          "quote": "| SF-UX-02 | E | As a non-developer, I can complete the scripted author task after a 20-minute orientation; at least four of five independent trial users publish the fixture without code edits or facilitator intervention. | T25 |\n| SF-UX-03 | E | As a respondent, I can complete the tested complex branch with help/review; at least four of five representative trial users finish without assistance and no critical answer-meaning errors. Report failures rather than claiming general usability from five users. | T25 |",
+          "rangeSha256": "458be448895cdeefe21ad3742e2b97a01c961ea2b33fc64fe85cd1c20073281a",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        {
+          "file": "PRD",
+          "lines": "823",
+          "quote": "| T25 Usability trials | Five independent authors/respondents per task, defined orientation and scenarios, record success/time/errors/help and critical misunderstandings. | Task script, anonymized observations and pass/fail against SF-UX-02/03. |",
+          "rangeSha256": "c7d57397775ab6e8f08451b5c06702df3dda9515abd2180930f96bf16f108e67",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        {
+          "file": "PRD",
+          "lines": "1267-1277",
+          "quote": "The evaluator owns the expected outcomes independently of either implementation. Before either timed implementation run starts, freeze and give both tools the same:\n\n- PRD/schema/contract versions, this protocol, assertion ledger and one manifest checksum.\n- Complete medical-style and equally complex nonmedical golden packages, per-control/type/operator/boundary vectors, exact input actions and expected machine outputs, all required English/Hindi/Arabic content, extension cases and large catalog/form/response datasets.\n- Test identities, tenant/role grants, permitted origins/domains, provider endpoints/credentials with equivalent scope, fault schedules, load-generation seeds and observation windows.\n- Model/tool versions, implementation time/token/cost allowance, human assistance policy, equal infrastructure/resource/cost ceilings and the milestone being compared.\n- Participant allocation, orientation materials, task timeboxes, usability scoring, browser/assistive-technology versions and any proposed score-4 improvement metrics/thresholds.\n\nRecord each case result with requirement/assertion IDs, source commit, corpus checksum, environment, command or manual task, artifact, observed outcome and pass/fail/blocked/not-run. A screenshot can establish visual state, not durable acceptance; a mock cannot establish required external-provider verification. Shared provider unavailability is blocked equally or replaced with the same approved evidence-equivalent environment for both. Every contract correction receives a new version and is distributed to both tools before its corresponding comparison resumes.\n\nThe historical Core ledger has 87 requirements and Lite 1.0 retained 80. Lite 1.1 accounts for every retained requirement and adds the explicit foundation requirements in its current disposition register; evaluation uses that current full set. Evaluators must materialize the remaining Lite assertions, translated packs, executable runners, fault/benchmark generators and field/operator vectors before a measured run. The fixed task below is not the entire executable oracle.",
+          "rangeSha256": "89e9fcfc724c0319814b3fa02254db57b0121ad64a79cc1d779718b8c3729b7c",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        {
+          "file": "PRD",
+          "lines": "1281-1289",
+          "quote": "### 2. Participant and observation protocol\n\nUse five independent nondeveloper authors and five independent respondents per tool. The author and respondent groups are separate. Authors routinely create or maintain information-collection forms, understand labels/options/required questions, and have not developed either evaluated product. Respondents are adults comfortable with an ordinary web form but have not been taught this task or either product. Use synthetic identities and answers only. Recruit language/device/accessibility needs in advance and match them across tools; do not substitute more experienced users after seeing failures.\n\nFor two independent groups, match relevant experience and locale/device needs. If participants must try both tools, counterbalance order and use structurally identical relabeled fixture variants with the same expected complexity; record prior exposure. Do not give one tool an unblinded coaching advantage. Facilitators may read the task verbatim, resolve a genuine typo in the shared script for both tools, or address equipment safety; they cannot point to a control, suggest a rule, repair data or confirm whether an answer is correct. Any product-use hint counts as intervention and an unsuccessful unassisted attempt. Record requested help even if refused.\n\nAuthors receive exactly 20 minutes of shared orientation covering navigation, ordinary properties, rules, preview, locale review, publish and recovery using a separate five-field practice form. They get no completed target package, target screenshots, raw JSON or source code. The author task then has a 60-minute wall-clock limit. Respondents get five minutes to read the introduction and neutral explanation that all data is synthetic; their task has a 25-minute wall-clock limit. Product loading, recovery, help and provider delay count toward the timebox. A confirmed evaluator-wide infrastructure outage is recorded as blocked and the same run policy applied to both, not silently subtracted from one result.\n\nMeasure completion, time, input/logic errors, help usage, navigation recovery and interventions. A successful author must publish the required semantics, not merely any form. A successful respondent must produce the exact final answer meaning and an accepted receipt. At least four of five must succeed for each respective requirement; no critical respondent answer-meaning error may remain among successful attempts. Keep every failed/abandoned attempt in the denominator and report its cause. These five-user trials do not prove population-wide usability.",
+          "rangeSha256": "5d39f6c414c9f5ed1baaff2fa987b19093ebbfd8496c81733381d42e8f31c44a",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Frozen evaluator protocol materialization; status is not-run and no product output was inspected.",
+      "requirements": [
+        "SF-UX-02",
+        "SF-UX-03"
+      ],
+      "status": "not-run"
+    }
+  ]
+}

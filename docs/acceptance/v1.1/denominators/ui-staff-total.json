@@ -7,10 +7,10 @@
     {
       "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
       "citation": {
-        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
-        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "UISTAFF-01",
+      "id": "UISTAFF-sign-in-48d7c508cc",
       "owner": "frontend/staff",
       "required_states": [
         "loading",
@@ -27,10 +27,10 @@
     {
       "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
       "citation": {
-        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
-        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "UISTAFF-02",
+      "id": "UISTAFF-setup-8fb6d5f37e",
       "owner": "frontend/staff",
       "required_states": [
         "loading",
@@ -47,10 +47,10 @@
     {
       "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
       "citation": {
-        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
-        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "UISTAFF-03",
+      "id": "UISTAFF-activation-b15526c9c0",
       "owner": "frontend/staff",
       "required_states": [
         "loading",
@@ -67,10 +67,10 @@
     {
       "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
       "citation": {
-        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
-        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "UISTAFF-04",
+      "id": "UISTAFF-recovery-8c58537851",
       "owner": "frontend/staff",
       "required_states": [
         "loading",
@@ -87,10 +87,10 @@
     {
       "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
       "citation": {
-        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
-        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "UISTAFF-05",
+      "id": "UISTAFF-platform-organizations-4e51b259d7",
       "owner": "frontend/staff",
       "required_states": [
         "loading",
@@ -107,10 +107,10 @@
     {
       "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
       "citation": {
-        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
-        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "UISTAFF-06",
+      "id": "UISTAFF-organization-settings-fda862aff8",
       "owner": "frontend/staff",
       "required_states": [
         "loading",
@@ -127,10 +127,10 @@
     {
       "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
       "citation": {
-        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
-        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "UISTAFF-07",
+      "id": "UISTAFF-user-list-e407e36ef9",
       "owner": "frontend/staff",
       "required_states": [
         "loading",
@@ -147,10 +147,10 @@
     {
       "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
       "citation": {
-        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
-        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "UISTAFF-08",
+      "id": "UISTAFF-add-user-e539eba177",
       "owner": "frontend/staff",
       "required_states": [
         "loading",
@@ -167,10 +167,10 @@
     {
       "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
       "citation": {
-        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
-        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "UISTAFF-09",
+      "id": "UISTAFF-user-detail-51b0fb9cc7",
       "owner": "frontend/staff",
       "required_states": [
         "loading",
@@ -187,10 +187,10 @@
     {
       "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
       "citation": {
-        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
-        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "UISTAFF-10",
+      "id": "UISTAFF-role-assignment-76db277394",
       "owner": "frontend/staff",
       "required_states": [
         "loading",
@@ -207,10 +207,10 @@
     {
       "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
       "citation": {
-        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
-        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "UISTAFF-11",
+      "id": "UISTAFF-invitation-delivery-57ec613c30",
       "owner": "frontend/staff",
       "required_states": [
         "loading",
@@ -227,10 +227,10 @@
     {
       "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
       "citation": {
-        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
-        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "UISTAFF-12",
+      "id": "UISTAFF-catalog-652f550162",
       "owner": "frontend/staff",
       "required_states": [
         "loading",
@@ -247,10 +247,10 @@
     {
       "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
       "citation": {
-        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
-        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "UISTAFF-13",
+      "id": "UISTAFF-builder-df6b07176a",
       "owner": "frontend/staff",
       "required_states": [
         "loading",
@@ -267,10 +267,10 @@
     {
       "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
       "citation": {
-        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
-        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "UISTAFF-14",
+      "id": "UISTAFF-review-publish-27fa51fc15",
       "owner": "frontend/staff",
       "required_states": [
         "loading",
@@ -287,10 +287,10 @@
     {
       "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
       "citation": {
-        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
-        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "UISTAFF-15",
+      "id": "UISTAFF-responses-e30b3910ff",
       "owner": "frontend/staff",
       "required_states": [
         "loading",
@@ -307,10 +307,10 @@
     {
       "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
       "citation": {
-        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
-        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "UISTAFF-16",
+      "id": "UISTAFF-response-detail-69fdcd144d",
       "owner": "frontend/staff",
       "required_states": [
         "loading",
@@ -327,10 +327,10 @@
     {
       "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
       "citation": {
-        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
-        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "UISTAFF-17",
+      "id": "UISTAFF-export-history-870d53877a",
       "owner": "frontend/staff",
       "required_states": [
         "loading",
@@ -347,10 +347,10 @@
     {
       "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
       "citation": {
-        "lines": "\u00a74 lines 194\u2013200; Appendix A lines 74\u2013104",
-        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "UISTAFF-18",
+      "id": "UISTAFF-provider-policy-4c8d7de783",
       "owner": "frontend/staff",
       "required_states": [
         "loading",
@@ -369,14 +369,10 @@
   "selection": "plan-selected; labels split as listed",
   "source_citations": [
     {
-      "lines": "\u00a74 lines 194\u2013200",
-      "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
-    },
-    {
-      "lines": "lines 74\u2013104",
+      "lines": "74-104",
       "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
     }
   ],
   "total": 18,
-  "version": "1.0.0-m0"
+  "version": "2.0.0-m0"
 }

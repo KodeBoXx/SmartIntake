@@ -1,1490 +1,1548 @@
 {
-  "counting_rule": "each listed WCAG 2.2 A/AA criterion \u00d7 both approved methods",
+  "counting_rule": "55 WCAG 2.2 A/AA criteria \u00d7 both approved methods",
   "current_execution_status": "not-run",
   "independent_review_required": true,
   "manifest": "WCAG_total",
   "members": [
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.1.1",
       "id": "WCAG-1.1.1-aut",
-      "level": "A/AA",
+      "level": "A",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.1.1 via automated-static-inspection"
+      "title": "WCAG 2.2 1.1.1 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.1.1",
       "id": "WCAG-1.1.1-man",
-      "level": "A/AA",
+      "level": "A",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.1.1 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 1.1.1 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.2.1",
       "id": "WCAG-1.2.1-aut",
-      "level": "A/AA",
+      "level": "A",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.2.1 via automated-static-inspection"
+      "title": "WCAG 2.2 1.2.1 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.2.1",
       "id": "WCAG-1.2.1-man",
-      "level": "A/AA",
+      "level": "A",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.2.1 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 1.2.1 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.2.2",
       "id": "WCAG-1.2.2-aut",
-      "level": "A/AA",
+      "level": "A",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.2.2 via automated-static-inspection"
+      "title": "WCAG 2.2 1.2.2 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.2.2",
       "id": "WCAG-1.2.2-man",
-      "level": "A/AA",
+      "level": "A",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.2.2 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 1.2.2 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.2.3",
       "id": "WCAG-1.2.3-aut",
-      "level": "A/AA",
+      "level": "A",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.2.3 via automated-static-inspection"
+      "title": "WCAG 2.2 1.2.3 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.2.3",
       "id": "WCAG-1.2.3-man",
-      "level": "A/AA",
+      "level": "A",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.2.3 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 1.2.3 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.2.4",
       "id": "WCAG-1.2.4-aut",
-      "level": "A/AA",
+      "level": "AA",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.2.4 via automated-static-inspection"
+      "title": "WCAG 2.2 1.2.4 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.2.4",
       "id": "WCAG-1.2.4-man",
-      "level": "A/AA",
+      "level": "AA",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.2.4 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 1.2.4 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.2.5",
       "id": "WCAG-1.2.5-aut",
-      "level": "A/AA",
+      "level": "AA",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.2.5 via automated-static-inspection"
+      "title": "WCAG 2.2 1.2.5 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.2.5",
       "id": "WCAG-1.2.5-man",
-      "level": "A/AA",
+      "level": "AA",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.2.5 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 1.2.5 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.3.1",
       "id": "WCAG-1.3.1-aut",
-      "level": "A/AA",
+      "level": "A",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.3.1 via automated-static-inspection"
+      "title": "WCAG 2.2 1.3.1 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.3.1",
       "id": "WCAG-1.3.1-man",
-      "level": "A/AA",
+      "level": "A",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.3.1 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 1.3.1 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.3.2",
       "id": "WCAG-1.3.2-aut",
-      "level": "A/AA",
+      "level": "A",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.3.2 via automated-static-inspection"
+      "title": "WCAG 2.2 1.3.2 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.3.2",
       "id": "WCAG-1.3.2-man",
-      "level": "A/AA",
+      "level": "A",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.3.2 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 1.3.2 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.3.3",
       "id": "WCAG-1.3.3-aut",
-      "level": "A/AA",
+      "level": "A",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.3.3 via automated-static-inspection"
+      "title": "WCAG 2.2 1.3.3 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.3.3",
       "id": "WCAG-1.3.3-man",
-      "level": "A/AA",
+      "level": "A",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.3.3 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 1.3.3 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.3.4",
       "id": "WCAG-1.3.4-aut",
-      "level": "A/AA",
+      "level": "AA",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.3.4 via automated-static-inspection"
+      "title": "WCAG 2.2 1.3.4 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.3.4",
       "id": "WCAG-1.3.4-man",
-      "level": "A/AA",
+      "level": "AA",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.3.4 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 1.3.4 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.3.5",
       "id": "WCAG-1.3.5-aut",
-      "level": "A/AA",
+      "level": "AA",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.3.5 via automated-static-inspection"
+      "title": "WCAG 2.2 1.3.5 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.3.5",
       "id": "WCAG-1.3.5-man",
-      "level": "A/AA",
+      "level": "AA",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.3.5 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 1.3.5 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.4.1",
       "id": "WCAG-1.4.1-aut",
-      "level": "A/AA",
+      "level": "A",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.4.1 via automated-static-inspection"
+      "title": "WCAG 2.2 1.4.1 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.4.1",
       "id": "WCAG-1.4.1-man",
-      "level": "A/AA",
+      "level": "A",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.4.1 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 1.4.1 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.4.2",
       "id": "WCAG-1.4.2-aut",
-      "level": "A/AA",
+      "level": "A",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.4.2 via automated-static-inspection"
+      "title": "WCAG 2.2 1.4.2 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.4.2",
       "id": "WCAG-1.4.2-man",
-      "level": "A/AA",
+      "level": "A",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.4.2 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 1.4.2 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.4.3",
       "id": "WCAG-1.4.3-aut",
-      "level": "A/AA",
+      "level": "AA",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.4.3 via automated-static-inspection"
+      "title": "WCAG 2.2 1.4.3 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.4.3",
       "id": "WCAG-1.4.3-man",
-      "level": "A/AA",
+      "level": "AA",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.4.3 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 1.4.3 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.4.4",
       "id": "WCAG-1.4.4-aut",
-      "level": "A/AA",
+      "level": "AA",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.4.4 via automated-static-inspection"
+      "title": "WCAG 2.2 1.4.4 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.4.4",
       "id": "WCAG-1.4.4-man",
-      "level": "A/AA",
+      "level": "AA",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.4.4 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 1.4.4 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.4.5",
       "id": "WCAG-1.4.5-aut",
-      "level": "A/AA",
+      "level": "AA",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.4.5 via automated-static-inspection"
+      "title": "WCAG 2.2 1.4.5 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.4.5",
       "id": "WCAG-1.4.5-man",
-      "level": "A/AA",
+      "level": "AA",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.4.5 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 1.4.5 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.4.10",
       "id": "WCAG-1.4.10-aut",
-      "level": "A/AA",
+      "level": "AA",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.4.10 via automated-static-inspection"
+      "title": "WCAG 2.2 1.4.10 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.4.10",
       "id": "WCAG-1.4.10-man",
-      "level": "A/AA",
+      "level": "AA",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.4.10 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 1.4.10 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.4.11",
       "id": "WCAG-1.4.11-aut",
-      "level": "A/AA",
+      "level": "AA",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.4.11 via automated-static-inspection"
+      "title": "WCAG 2.2 1.4.11 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.4.11",
       "id": "WCAG-1.4.11-man",
-      "level": "A/AA",
+      "level": "AA",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.4.11 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 1.4.11 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.4.12",
       "id": "WCAG-1.4.12-aut",
-      "level": "A/AA",
+      "level": "AA",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.4.12 via automated-static-inspection"
+      "title": "WCAG 2.2 1.4.12 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.4.12",
       "id": "WCAG-1.4.12-man",
-      "level": "A/AA",
+      "level": "AA",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.4.12 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 1.4.12 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.4.13",
       "id": "WCAG-1.4.13-aut",
-      "level": "A/AA",
+      "level": "AA",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.4.13 via automated-static-inspection"
+      "title": "WCAG 2.2 1.4.13 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "1.4.13",
       "id": "WCAG-1.4.13-man",
-      "level": "A/AA",
+      "level": "AA",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 1.4.13 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 1.4.13 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.1.1",
       "id": "WCAG-2.1.1-aut",
-      "level": "A/AA",
+      "level": "A",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.1.1 via automated-static-inspection"
+      "title": "WCAG 2.2 2.1.1 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.1.1",
       "id": "WCAG-2.1.1-man",
-      "level": "A/AA",
+      "level": "A",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.1.1 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 2.1.1 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.1.2",
       "id": "WCAG-2.1.2-aut",
-      "level": "A/AA",
+      "level": "A",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.1.2 via automated-static-inspection"
+      "title": "WCAG 2.2 2.1.2 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.1.2",
       "id": "WCAG-2.1.2-man",
-      "level": "A/AA",
+      "level": "A",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.1.2 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 2.1.2 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.1.4",
       "id": "WCAG-2.1.4-aut",
-      "level": "A/AA",
+      "level": "A",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.1.4 via automated-static-inspection"
+      "title": "WCAG 2.2 2.1.4 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.1.4",
       "id": "WCAG-2.1.4-man",
-      "level": "A/AA",
+      "level": "A",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.1.4 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 2.1.4 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.2.1",
       "id": "WCAG-2.2.1-aut",
-      "level": "A/AA",
+      "level": "A",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.2.1 via automated-static-inspection"
+      "title": "WCAG 2.2 2.2.1 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.2.1",
       "id": "WCAG-2.2.1-man",
-      "level": "A/AA",
+      "level": "A",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.2.1 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 2.2.1 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.2.2",
       "id": "WCAG-2.2.2-aut",
-      "level": "A/AA",
+      "level": "A",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.2.2 via automated-static-inspection"
+      "title": "WCAG 2.2 2.2.2 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.2.2",
       "id": "WCAG-2.2.2-man",
-      "level": "A/AA",
+      "level": "A",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.2.2 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 2.2.2 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.3.1",
       "id": "WCAG-2.3.1-aut",
-      "level": "A/AA",
+      "level": "A",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.3.1 via automated-static-inspection"
+      "title": "WCAG 2.2 2.3.1 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.3.1",
       "id": "WCAG-2.3.1-man",
-      "level": "A/AA",
+      "level": "A",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.3.1 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 2.3.1 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.4.1",
       "id": "WCAG-2.4.1-aut",
-      "level": "A/AA",
+      "level": "A",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.4.1 via automated-static-inspection"
+      "title": "WCAG 2.2 2.4.1 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.4.1",
       "id": "WCAG-2.4.1-man",
-      "level": "A/AA",
+      "level": "A",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.4.1 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 2.4.1 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.4.2",
       "id": "WCAG-2.4.2-aut",
-      "level": "A/AA",
+      "level": "A",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.4.2 via automated-static-inspection"
+      "title": "WCAG 2.2 2.4.2 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.4.2",
       "id": "WCAG-2.4.2-man",
-      "level": "A/AA",
+      "level": "A",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.4.2 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 2.4.2 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.4.3",
       "id": "WCAG-2.4.3-aut",
-      "level": "A/AA",
+      "level": "A",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.4.3 via automated-static-inspection"
+      "title": "WCAG 2.2 2.4.3 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.4.3",
       "id": "WCAG-2.4.3-man",
-      "level": "A/AA",
+      "level": "A",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.4.3 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 2.4.3 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.4.4",
       "id": "WCAG-2.4.4-aut",
-      "level": "A/AA",
+      "level": "A",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.4.4 via automated-static-inspection"
+      "title": "WCAG 2.2 2.4.4 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.4.4",
       "id": "WCAG-2.4.4-man",
-      "level": "A/AA",
+      "level": "A",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.4.4 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 2.4.4 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.4.5",
       "id": "WCAG-2.4.5-aut",
-      "level": "A/AA",
+      "level": "AA",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.4.5 via automated-static-inspection"
+      "title": "WCAG 2.2 2.4.5 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.4.5",
       "id": "WCAG-2.4.5-man",
-      "level": "A/AA",
+      "level": "AA",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.4.5 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 2.4.5 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.4.6",
       "id": "WCAG-2.4.6-aut",
-      "level": "A/AA",
+      "level": "AA",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.4.6 via automated-static-inspection"
+      "title": "WCAG 2.2 2.4.6 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.4.6",
       "id": "WCAG-2.4.6-man",
-      "level": "A/AA",
+      "level": "AA",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.4.6 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 2.4.6 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.4.7",
       "id": "WCAG-2.4.7-aut",
-      "level": "A/AA",
+      "level": "AA",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.4.7 via automated-static-inspection"
+      "title": "WCAG 2.2 2.4.7 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.4.7",
       "id": "WCAG-2.4.7-man",
-      "level": "A/AA",
+      "level": "AA",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.4.7 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 2.4.7 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.4.11",
       "id": "WCAG-2.4.11-aut",
-      "level": "A/AA",
+      "level": "AA",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.4.11 via automated-static-inspection"
+      "title": "WCAG 2.2 2.4.11 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.4.11",
       "id": "WCAG-2.4.11-man",
-      "level": "A/AA",
+      "level": "AA",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.4.11 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 2.4.11 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
-        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
-      },
-      "criterion": "2.4.12",
-      "id": "WCAG-2.4.12-aut",
-      "level": "A/AA",
-      "method": "automated-static-inspection",
-      "owner": "accessibility",
-      "status": "not-run",
-      "title": "WCAG 2.2 2.4.12 via automated-static-inspection"
-    },
-    {
-      "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
-        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
-      },
-      "criterion": "2.4.12",
-      "id": "WCAG-2.4.12-man",
-      "level": "A/AA",
-      "method": "manual-browser-keyboard-at",
-      "owner": "accessibility",
-      "status": "not-run",
-      "title": "WCAG 2.2 2.4.12 via manual-browser-keyboard-at"
-    },
-    {
-      "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
-        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
-      },
-      "criterion": "2.4.13",
-      "id": "WCAG-2.4.13-aut",
-      "level": "A/AA",
-      "method": "automated-static-inspection",
-      "owner": "accessibility",
-      "status": "not-run",
-      "title": "WCAG 2.2 2.4.13 via automated-static-inspection"
-    },
-    {
-      "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
-        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
-      },
-      "criterion": "2.4.13",
-      "id": "WCAG-2.4.13-man",
-      "level": "A/AA",
-      "method": "manual-browser-keyboard-at",
-      "owner": "accessibility",
-      "status": "not-run",
-      "title": "WCAG 2.2 2.4.13 via manual-browser-keyboard-at"
-    },
-    {
-      "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.5.1",
       "id": "WCAG-2.5.1-aut",
-      "level": "A/AA",
+      "level": "A",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.5.1 via automated-static-inspection"
+      "title": "WCAG 2.2 2.5.1 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.5.1",
       "id": "WCAG-2.5.1-man",
-      "level": "A/AA",
+      "level": "A",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.5.1 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 2.5.1 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.5.2",
       "id": "WCAG-2.5.2-aut",
-      "level": "A/AA",
+      "level": "A",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.5.2 via automated-static-inspection"
+      "title": "WCAG 2.2 2.5.2 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.5.2",
       "id": "WCAG-2.5.2-man",
-      "level": "A/AA",
+      "level": "A",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.5.2 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 2.5.2 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.5.3",
       "id": "WCAG-2.5.3-aut",
-      "level": "A/AA",
+      "level": "A",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.5.3 via automated-static-inspection"
+      "title": "WCAG 2.2 2.5.3 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.5.3",
       "id": "WCAG-2.5.3-man",
-      "level": "A/AA",
+      "level": "A",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.5.3 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 2.5.3 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.5.4",
       "id": "WCAG-2.5.4-aut",
-      "level": "A/AA",
+      "level": "A",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.5.4 via automated-static-inspection"
+      "title": "WCAG 2.2 2.5.4 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.5.4",
       "id": "WCAG-2.5.4-man",
-      "level": "A/AA",
+      "level": "A",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.5.4 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 2.5.4 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.5.7",
       "id": "WCAG-2.5.7-aut",
-      "level": "A/AA",
+      "level": "AA",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.5.7 via automated-static-inspection"
+      "title": "WCAG 2.2 2.5.7 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.5.7",
       "id": "WCAG-2.5.7-man",
-      "level": "A/AA",
+      "level": "AA",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.5.7 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 2.5.7 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.5.8",
       "id": "WCAG-2.5.8-aut",
-      "level": "A/AA",
+      "level": "AA",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.5.8 via automated-static-inspection"
+      "title": "WCAG 2.2 2.5.8 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "2.5.8",
       "id": "WCAG-2.5.8-man",
-      "level": "A/AA",
+      "level": "AA",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 2.5.8 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 2.5.8 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "3.1.1",
       "id": "WCAG-3.1.1-aut",
-      "level": "A/AA",
+      "level": "A",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 3.1.1 via automated-static-inspection"
+      "title": "WCAG 2.2 3.1.1 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "3.1.1",
       "id": "WCAG-3.1.1-man",
-      "level": "A/AA",
+      "level": "A",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 3.1.1 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 3.1.1 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "3.1.2",
       "id": "WCAG-3.1.2-aut",
-      "level": "A/AA",
+      "level": "AA",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 3.1.2 via automated-static-inspection"
+      "title": "WCAG 2.2 3.1.2 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "3.1.2",
       "id": "WCAG-3.1.2-man",
-      "level": "A/AA",
+      "level": "AA",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 3.1.2 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 3.1.2 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "3.2.1",
       "id": "WCAG-3.2.1-aut",
-      "level": "A/AA",
+      "level": "A",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 3.2.1 via automated-static-inspection"
+      "title": "WCAG 2.2 3.2.1 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "3.2.1",
       "id": "WCAG-3.2.1-man",
-      "level": "A/AA",
+      "level": "A",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 3.2.1 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 3.2.1 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "3.2.2",
       "id": "WCAG-3.2.2-aut",
-      "level": "A/AA",
+      "level": "A",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 3.2.2 via automated-static-inspection"
+      "title": "WCAG 2.2 3.2.2 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "3.2.2",
       "id": "WCAG-3.2.2-man",
-      "level": "A/AA",
+      "level": "A",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 3.2.2 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 3.2.2 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "3.2.3",
       "id": "WCAG-3.2.3-aut",
-      "level": "A/AA",
+      "level": "AA",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 3.2.3 via automated-static-inspection"
+      "title": "WCAG 2.2 3.2.3 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "3.2.3",
       "id": "WCAG-3.2.3-man",
-      "level": "A/AA",
+      "level": "AA",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 3.2.3 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 3.2.3 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "3.2.4",
       "id": "WCAG-3.2.4-aut",
-      "level": "A/AA",
+      "level": "AA",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 3.2.4 via automated-static-inspection"
+      "title": "WCAG 2.2 3.2.4 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "3.2.4",
       "id": "WCAG-3.2.4-man",
-      "level": "A/AA",
+      "level": "AA",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 3.2.4 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 3.2.4 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "3.2.6",
       "id": "WCAG-3.2.6-aut",
-      "level": "A/AA",
+      "level": "A",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 3.2.6 via automated-static-inspection"
+      "title": "WCAG 2.2 3.2.6 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "3.2.6",
       "id": "WCAG-3.2.6-man",
-      "level": "A/AA",
+      "level": "A",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 3.2.6 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 3.2.6 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "3.3.1",
       "id": "WCAG-3.3.1-aut",
-      "level": "A/AA",
+      "level": "A",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 3.3.1 via automated-static-inspection"
+      "title": "WCAG 2.2 3.3.1 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "3.3.1",
       "id": "WCAG-3.3.1-man",
-      "level": "A/AA",
+      "level": "A",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 3.3.1 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 3.3.1 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "3.3.2",
       "id": "WCAG-3.3.2-aut",
-      "level": "A/AA",
+      "level": "A",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 3.3.2 via automated-static-inspection"
+      "title": "WCAG 2.2 3.3.2 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "3.3.2",
       "id": "WCAG-3.3.2-man",
-      "level": "A/AA",
+      "level": "A",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 3.3.2 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 3.3.2 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "3.3.3",
       "id": "WCAG-3.3.3-aut",
-      "level": "A/AA",
+      "level": "AA",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 3.3.3 via automated-static-inspection"
+      "title": "WCAG 2.2 3.3.3 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "3.3.3",
       "id": "WCAG-3.3.3-man",
-      "level": "A/AA",
+      "level": "AA",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 3.3.3 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 3.3.3 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "3.3.4",
       "id": "WCAG-3.3.4-aut",
-      "level": "A/AA",
+      "level": "AA",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 3.3.4 via automated-static-inspection"
+      "title": "WCAG 2.2 3.3.4 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "3.3.4",
       "id": "WCAG-3.3.4-man",
-      "level": "A/AA",
+      "level": "AA",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 3.3.4 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 3.3.4 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "3.3.7",
       "id": "WCAG-3.3.7-aut",
-      "level": "A/AA",
+      "level": "A",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 3.3.7 via automated-static-inspection"
+      "title": "WCAG 2.2 3.3.7 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "3.3.7",
       "id": "WCAG-3.3.7-man",
-      "level": "A/AA",
+      "level": "A",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 3.3.7 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 3.3.7 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "3.3.8",
       "id": "WCAG-3.3.8-aut",
-      "level": "A/AA",
+      "level": "AA",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 3.3.8 via automated-static-inspection"
+      "title": "WCAG 2.2 3.3.8 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "3.3.8",
       "id": "WCAG-3.3.8-man",
-      "level": "A/AA",
+      "level": "AA",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 3.3.8 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 3.3.8 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "4.1.2",
       "id": "WCAG-4.1.2-aut",
-      "level": "A/AA",
+      "level": "A",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 4.1.2 via automated-static-inspection"
+      "title": "WCAG 2.2 4.1.2 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "4.1.2",
       "id": "WCAG-4.1.2-man",
-      "level": "A/AA",
+      "level": "A",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 4.1.2 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 4.1.2 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "4.1.3",
       "id": "WCAG-4.1.3-aut",
-      "level": "A/AA",
+      "level": "AA",
       "method": "automated-static-inspection",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 4.1.3 via automated-static-inspection"
+      "title": "WCAG 2.2 4.1.3 via automated-static-inspection",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     },
     {
       "citation": {
-        "lines": "\u00a78 lines 355\u2013359; Appendix C lines 1421\u20131440",
+        "lines": "355-359,1421-1440",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "criterion": "4.1.3",
       "id": "WCAG-4.1.3-man",
-      "level": "A/AA",
+      "level": "AA",
       "method": "manual-browser-keyboard-at",
       "owner": "accessibility",
       "status": "not-run",
-      "title": "WCAG 2.2 4.1.3 via manual-browser-keyboard-at"
+      "title": "WCAG 2.2 4.1.3 via manual-browser-keyboard-at",
+      "wcag_citation": "https://www.w3.org/TR/WCAG22/"
     }
   ],
   "methods": [
@@ -1492,18 +1550,15 @@
     "manual-browser-keyboard-at"
   ],
   "owner": "acceptance/denominators",
-  "selection": "plan-selected applicability inventory",
+  "selection": "WCAG-fixed criteria with plan-selected methods",
   "source_citations": [
     {
-      "lines": "\u00a78 lines 355\u2013359",
-      "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
-    },
-    {
-      "lines": "Appendix C lines 1421\u20131440",
+      "lines": "355-359,1421-1440",
       "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
     }
   ],
-  "total": 114,
-  "version": "1.0.0-m0",
+  "total": 110,
+  "version": "2.0.0-m0",
+  "wcag_criteria_count": 55,
   "wcag_reference": "https://www.w3.org/TR/WCAG22/"
 }

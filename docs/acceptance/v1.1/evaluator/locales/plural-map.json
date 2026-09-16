@@ -88,21 +88,34 @@
       "expectedRef": "#/canonical",
       "expectedSource": "prd",
       "fixtures": [
-        "T06"
+        "T12",
+        "T13"
       ],
       "id": "EVAL-LOC-PLURAL",
       "milestoneGates": [
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
           "lines": "1087",
-          "quote": "Translation messages may be plain text or `{grammar:'smartforms-message-1',parts:[...]}`. Parts are literal text, a formatted expression value, or a cardinal plural with an integer count expression and locale cases. There is no executable template syntax. Content/guidance/header/footer text parts use the sanitized Markdown subset from the PRD (semantic headings, paragraphs, lists, emphasis, HTTPS links, header tables and authorized asset images); plain labels remain inline text. Parse authored Markdown before inserting escaped expression-value text, so a value cannot add a link, image or formatting node. Legacy {{field:...}} string placeholders are not wire 4.0.0 syntax and produce a migration diagnostic; visual placeholders export AST value parts. Value text is escaped; unsupported/Unknown values show the localized system 'not provided' label, never an old hidden value. Maximum nesting is 3, maximum total parts is 200 per message; cycles through content references are impossible because parts cannot reference other messages. For plural counts only nonnegative integers are accepted. The frozen `smartforms-cardinal-1` map is: English one for 1, otherwise other; Hindi one for 0 or 1, otherwise other; Arabic zero for 0, one for 1, two for 2, few for integer remainder modulo 100 in 3..10, many for 11..99, otherwise other. Every required category plus other must be supplied for the advertised locale. Additional locale category maps are exact-version capabilities and must pass a locale review before advertisement; they cannot silently fall back to English."
+          "quote": "Translation messages may be plain text or `{grammar:'smartforms-message-1',parts:[...]}`. Parts are literal text, a formatted expression value, or a cardinal plural with an integer count expression and locale cases. There is no executable template syntax. Content/guidance/header/footer text parts use the sanitized Markdown subset from the PRD (semantic headings, paragraphs, lists, emphasis, HTTPS links, header tables and authorized asset images); plain labels remain inline text. Parse authored Markdown before inserting escaped expression-value text, so a value cannot add a link, image or formatting node. Legacy {{field:...}} string placeholders are not wire 4.0.0 syntax and produce a migration diagnostic; visual placeholders export AST value parts. Value text is escaped; unsupported/Unknown values show the localized system 'not provided' label, never an old hidden value. Maximum nesting is 3, maximum total parts is 200 per message; cycles through content references are impossible because parts cannot reference other messages. For plural counts only nonnegative integers are accepted. The frozen `smartforms-cardinal-1` map is: English one for 1, otherwise other; Hindi one for 0 or 1, otherwise other; Arabic zero for 0, one for 1, two for 2, few for integer remainder modulo 100 in 3..10, many for 11..99, otherwise other. Every required category plus other must be supplied for the advertised locale. Additional locale category maps are exact-version capabilities and must pass a locale review before advertisement; they cannot silently fall back to English.",
+          "rangeSha256": "eb8d8c6560f397fb6923de1925549c60d77fb08c22e54dff985c01189e6f3f77",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-ACC-02",
+        "SF-LOC-01",
+        "SF-LOC-02",
+        "SF-LOC-03"
+      ],
       "status": "not-run"
     }
   ],

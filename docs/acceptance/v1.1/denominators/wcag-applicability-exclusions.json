@@ -1,0 +1,44 @@
+{
+  "counting_rule": "two prior mistaken AAA inclusions removed from WCAG_total",
+  "current_execution_status": "not-run",
+  "independent_review_required": true,
+  "manifest": "WCAG_applicability_exclusions",
+  "members": [
+    {
+      "citation": {
+        "lines": "\u00a72.4.12",
+        "source": "https://www.w3.org/TR/WCAG22/"
+      },
+      "criterion": "2.4.12",
+      "id": "WCAGX-2.4.12",
+      "level": "AAA",
+      "owner": "accessibility",
+      "rationale": "PRD target is WCAG 2.2 AA, so AAA criterion is outside WCAG_total.",
+      "status": "not-run",
+      "title": "WCAG 2.2 2.4.12 Focus Not Obscured (Enhanced)"
+    },
+    {
+      "citation": {
+        "lines": "\u00a72.4.13",
+        "source": "https://www.w3.org/TR/WCAG22/"
+      },
+      "criterion": "2.4.13",
+      "id": "WCAGX-2.4.13",
+      "level": "AAA",
+      "owner": "accessibility",
+      "rationale": "PRD target is WCAG 2.2 AA, so AAA criterion is outside WCAG_total.",
+      "status": "not-run",
+      "title": "WCAG 2.2 2.4.13 Focus Appearance"
+    }
+  ],
+  "owner": "acceptance/denominators",
+  "selection": "correction inventory",
+  "source_citations": [
+    {
+      "lines": "355-359",
+      "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+    }
+  ],
+  "total": 2,
+  "version": "2.0.0-m0"
+}

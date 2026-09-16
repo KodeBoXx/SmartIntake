@@ -6,11 +6,11 @@
   "members": [
     {
       "citation": {
-        "lines": "\u00a74 lines 147\u2013194; \u00a79\u2013\u00a711; Appendix C",
+        "lines": "361-409,678-709",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
-      "id": "UI-01",
+      "id": "UI-staff-sign-in-sign-in-sign-in-invalid-throttled-a31817fc51",
       "owner": "frontend",
       "route": "/sign-in",
       "states": "sign-in/invalid/throttled",
@@ -19,11 +19,11 @@
     },
     {
       "citation": {
-        "lines": "\u00a74 lines 147\u2013194; \u00a79\u2013\u00a711; Appendix C",
+        "lines": "361-409,678-709",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
-      "id": "UI-02",
+      "id": "UI-staff-setup-setup-pending-expired-2b01845605",
       "owner": "frontend",
       "route": "/setup",
       "states": "pending/expired",
@@ -32,11 +32,11 @@
     },
     {
       "citation": {
-        "lines": "\u00a74 lines 147\u2013194; \u00a79\u2013\u00a711; Appendix C",
+        "lines": "361-409,678-709",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
-      "id": "UI-03",
+      "id": "UI-catalog-workspaces-w-forms-loading-empty-no-access-7d9b31a6ab",
       "owner": "frontend",
       "route": "/workspaces/{w}/forms",
       "states": "loading/empty/no-access",
@@ -45,11 +45,11 @@
     },
     {
       "citation": {
-        "lines": "\u00a74 lines 147\u2013194; \u00a79\u2013\u00a711; Appendix C",
+        "lines": "361-409,678-709",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
-      "id": "UI-04",
+      "id": "UI-builder-workspaces-w-forms-f-drafts-d-loading-invalid-conflict-7dfb8c8566",
       "owner": "frontend",
       "route": "/workspaces/{w}/forms/{f}/drafts/{d}",
       "states": "loading/invalid/conflict",
@@ -58,11 +58,11 @@
     },
     {
       "citation": {
-        "lines": "\u00a74 lines 147\u2013194; \u00a79\u2013\u00a711; Appendix C",
+        "lines": "361-409,678-709",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
-      "id": "UI-05",
+      "id": "UI-preview-preview-d-loading-error-no-side-effects-1a1f061363",
       "owner": "frontend",
       "route": "/preview/{d}",
       "states": "loading/error/no-side-effects",
@@ -71,11 +71,11 @@
     },
     {
       "citation": {
-        "lines": "\u00a74 lines 147\u2013194; \u00a79\u2013\u00a711; Appendix C",
+        "lines": "361-409,678-709",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
-      "id": "UI-06",
+      "id": "UI-review-publish-workspaces-w-forms-f-review-pending-denied-stale-e2587ac61c",
       "owner": "frontend",
       "route": "/workspaces/{w}/forms/{f}/review",
       "states": "pending/denied/stale",
@@ -84,11 +84,11 @@
     },
     {
       "citation": {
-        "lines": "\u00a74 lines 147\u2013194; \u00a79\u2013\u00a711; Appendix C",
+        "lines": "361-409,678-709",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
-      "id": "UI-07",
+      "id": "UI-responses-workspaces-w-submissions-loading-empty-denied-e0c703c5f3",
       "owner": "frontend",
       "route": "/workspaces/{w}/submissions",
       "states": "loading/empty/denied",
@@ -97,11 +97,11 @@
     },
     {
       "citation": {
-        "lines": "\u00a74 lines 147\u2013194; \u00a79\u2013\u00a711; Appendix C",
+        "lines": "361-409,678-709",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
-      "id": "UI-08",
+      "id": "UI-response-detail-workspaces-w-submissions-s-loading-tombstone-denied-683a8a9085",
       "owner": "frontend",
       "route": "/workspaces/{w}/submissions/{s}",
       "states": "loading/tombstone/denied",
@@ -110,11 +110,11 @@
     },
     {
       "citation": {
-        "lines": "\u00a74 lines 147\u2013194; \u00a79\u2013\u00a711; Appendix C",
+        "lines": "361-409,678-709",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
-      "id": "UI-09",
+      "id": "UI-integrations-workspaces-w-integrations-empty-invalid-denied-d6578ba261",
       "owner": "frontend",
       "route": "/workspaces/{w}/integrations",
       "states": "empty/invalid/denied",
@@ -123,11 +123,11 @@
     },
     {
       "citation": {
-        "lines": "\u00a74 lines 147\u2013194; \u00a79\u2013\u00a711; Appendix C",
+        "lines": "361-409,678-709",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
-      "id": "UI-10",
+      "id": "UI-public-entry-f-shareid-closed-expired-start-bfb3ccbe97",
       "owner": "frontend",
       "route": "/f/{shareId}",
       "states": "closed/expired/start",
@@ -136,11 +136,11 @@
     },
     {
       "citation": {
-        "lines": "\u00a74 lines 147\u2013194; \u00a79\u2013\u00a711; Appendix C",
+        "lines": "361-409,678-709",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
-      "id": "UI-11",
+      "id": "UI-public-form-sessions-s-loading-offline-stale-6dbb56a70b",
       "owner": "frontend",
       "route": "/sessions/{s}",
       "states": "loading/offline/stale",
@@ -149,11 +149,11 @@
     },
     {
       "citation": {
-        "lines": "\u00a74 lines 147\u2013194; \u00a79\u2013\u00a711; Appendix C",
+        "lines": "361-409,678-709",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
-      "id": "UI-12",
+      "id": "UI-public-review-sessions-s-review-stale-invalid-acknowledgment-f051e7fb3d",
       "owner": "frontend",
       "route": "/sessions/{s}/review",
       "states": "stale/invalid/acknowledgment",
@@ -162,11 +162,11 @@
     },
     {
       "citation": {
-        "lines": "\u00a74 lines 147\u2013194; \u00a79\u2013\u00a711; Appendix C",
+        "lines": "361-409,678-709",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
-      "id": "UI-13",
+      "id": "UI-receipt-sessions-s-receipt-pending-succeeded-failed-795814ae14",
       "owner": "frontend",
       "route": "/sessions/{s}/receipt",
       "states": "pending/succeeded/failed",
@@ -175,11 +175,11 @@
     },
     {
       "citation": {
-        "lines": "\u00a74 lines 147\u2013194; \u00a79\u2013\u00a711; Appendix C",
+        "lines": "361-409,678-709",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
-      "id": "UI-14",
+      "id": "UI-not-found-not-found-not-found-no-access-648364c15e",
       "owner": "frontend",
       "route": "/not-found",
       "states": "not-found/no-access",
@@ -191,14 +191,10 @@
   "selection": "plan-selected",
   "source_citations": [
     {
-      "lines": "\u00a74 lines 147\u2013200",
-      "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
-    },
-    {
-      "lines": "Appendix C",
+      "lines": "361-409,678-709",
       "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
     }
   ],
   "total": 14,
-  "version": "1.0.0-m0"
+  "version": "2.0.0-m0"
 }

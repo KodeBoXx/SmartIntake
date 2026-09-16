@@ -12,7 +12,7 @@
   "generator": "tools/acceptance/generate_inventory.py",
   "inventory": {
     "path": "inventory.json",
-    "sha256": "c4a74690a73c3f744debab7eda23d239fc8215994d2d860c167f921ea6f7f8f4"
+    "sha256": "7176fda429ebf18fa3e4a28516ca6f62fb167e516e0935aad659ef9cd59baf48"
   },
   "sourceChecksums": {
     "backend/src/main/java/com/kodeboxx/smartintake/SmartIntakeApplication.java": "c418a94b3599e7d2dbf3d50e4b1b0a916d973866196fcf9e2b272db3bc99f931",
@@ -31,6 +31,9 @@
     "docs/source-handoff/smart-form-builder-lite-prd-v1.1/manifest.json": "7bc9273a1ba498f8035e7452893b4030e85f6111e04b2e15ea2d8d33448adf22",
     "frontend/angular.json": "4a3b49e7eb7b087d7a0ba34c4302ca314a179b1ccc138cdb50da756d1b629488",
     "frontend/package.json": "06b16390236299cd4d26bbe55ab9211179998ad9b0d34f8bd5c0094818764065",
-    "frontend/src/app/app.component.ts": "53fff4e9b06c1b4884a14127f0aeb24dda373fea7dc38aebe72c59a3fd076672"
+    "frontend/src/app/app.component.ts": "53fff4e9b06c1b4884a14127f0aeb24dda373fea7dc38aebe72c59a3fd076672",
+    "frontend/src/assets/certinal/styles/tokens.css": "08c934080ab9e1f34ffd7301d39ea38490175ce70927b32fa0fa0e5e02ba2730",
+    "frontend/src/assets/certinal/styles/typography.css": "eac297084266df135ac3f93f55868c7625e8d3bc28517dea607af5fa7206aeb0",
+    "frontend/src/styles.css": "dedb65a068780d23c9833a8afeed6edf205de5560f739f67a69b73c3701e2ba3"
   }
 }

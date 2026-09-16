@@ -1,0 +1,2860 @@
+{
+  "corpusVersion": "2.4.21-m0",
+  "executionStatus": "not-run",
+  "purpose": "Hand-authored executable oracle cases for T08–T15. Expected outcomes derive from PRD/contract and frozen priority assets, not product output.",
+  "records": [
+    {
+      "actions": [
+        {
+          "actor": {
+            "kind": "respondent",
+            "sessionAuthorization": "same-device eval-session-t08"
+          },
+          "evidence": {
+            "captures": [
+              "raw-request-bytes",
+              "application-problem-json",
+              "linked-error-summary",
+              "inline-error-aria-describedby",
+              "session-snapshot-after-rejection"
+            ],
+            "level": "E2"
+          },
+          "expected": {
+            "atomicity": {
+              "acceptedRevision": 8,
+              "currentRevision": 8,
+              "operationsApplied": 0,
+              "unrelatedValidAnswerStillEquals": "valid@example.test"
+            },
+            "contentType": "application/problem+json",
+            "diagnostic": {
+              "code": "REQUIRED",
+              "fieldId": "respondentName",
+              "jsonPointer": "/operations/0/answer/value",
+              "rowPath": [],
+              "severity": "error"
+            },
+            "focusEvidence": {
+              "ariaDescribedBy": "error-whitespace-required-text",
+              "errorSummaryLinkTarget": "/operations/0/answer/value",
+              "inlineErrorFieldId": "respondentName",
+              "rowPath": []
+            },
+            "httpStatus": 422,
+            "problemCode": "VALIDATION_FAILED"
+          },
+          "forbiddenSideEffects": {
+            "acceptedRevisionRemains": 8,
+            "currentRevisionRemains": 8,
+            "noOperationsApplied": true,
+            "respondentEmailRemains": "valid@example.test"
+          },
+          "id": "T08-whitespace-required-text",
+          "input": {
+            "baseRevision": 8,
+            "clientMutationId": "00000000-0000-4000-8000-000000000701",
+            "operations": [
+              {
+                "answer": {
+                  "status": "answered",
+                  "value": "   "
+                },
+                "fieldId": "respondentName",
+                "op": "set",
+                "rowPath": []
+              }
+            ]
+          },
+          "inputRef": "#/records/T08/actions/T08-whitespace-required-text/input",
+          "request": {
+            "bodyUtf8Hex": "7b22626173655265766973696f6e223a382c22636c69656e744d75746174696f6e4964223a2230303030303030302d303030302d343030302d383030302d303030303030303030373031222c226f7065726174696f6e73223a5b7b226f70223a22736574222c226669656c644964223a22726573706f6e64656e744e616d65222c22726f7750617468223a5b5d2c22616e73776572223a7b22737461747573223a22616e737765726564222c2276616c7565223a22202020227d7d5d7d",
+            "method": "PATCH",
+            "path": "/v1/sessions/eval-session-t08",
+            "sha256": "31c7ddb619a198fb2f9188f9ef00ca41d7d8ea233570903b0e695050da1f9886"
+          },
+          "resource": {
+            "session": "eval-session-t08"
+          }
+        },
+        {
+          "actor": {
+            "kind": "respondent",
+            "sessionAuthorization": "same-device eval-session-t08"
+          },
+          "evidence": {
+            "captures": [
+              "raw-request-bytes",
+              "application-problem-json",
+              "linked-error-summary",
+              "inline-error-aria-describedby",
+              "session-snapshot-after-rejection"
+            ],
+            "level": "E2"
+          },
+          "expected": {
+            "atomicity": {
+              "acceptedRevision": 8,
+              "currentRevision": 8,
+              "operationsApplied": 0,
+              "unrelatedValidAnswerStillEquals": "valid@example.test"
+            },
+            "contentType": "application/problem+json",
+            "diagnostic": {
+              "code": "TYPE_DATE",
+              "fieldId": "inspectionDate",
+              "jsonPointer": "/operations/0/answer/value",
+              "rowPath": [],
+              "severity": "error"
+            },
+            "focusEvidence": {
+              "ariaDescribedBy": "error-invalid-date",
+              "errorSummaryLinkTarget": "/operations/0/answer/value",
+              "inlineErrorFieldId": "inspectionDate",
+              "rowPath": []
+            },
+            "httpStatus": 422,
+            "problemCode": "VALIDATION_FAILED"
+          },
+          "forbiddenSideEffects": {
+            "acceptedRevisionRemains": 8,
+            "currentRevisionRemains": 8,
+            "noOperationsApplied": true,
+            "respondentEmailRemains": "valid@example.test"
+          },
+          "id": "T08-invalid-date",
+          "input": {
+            "baseRevision": 8,
+            "clientMutationId": "00000000-0000-4000-8000-000000000702",
+            "operations": [
+              {
+                "answer": {
+                  "status": "answered",
+                  "value": "2026-02-30"
+                },
+                "fieldId": "inspectionDate",
+                "op": "set",
+                "rowPath": []
+              }
+            ]
+          },
+          "inputRef": "#/records/T08/actions/T08-invalid-date/input",
+          "request": {
+            "bodyUtf8Hex": "7b22626173655265766973696f6e223a382c22636c69656e744d75746174696f6e4964223a2230303030303030302d303030302d343030302d383030302d303030303030303030373032222c226f7065726174696f6e73223a5b7b226f70223a22736574222c226669656c644964223a22696e7370656374696f6e44617465222c22726f7750617468223a5b5d2c22616e73776572223a7b22737461747573223a22616e737765726564222c2276616c7565223a22323032362d30322d3330227d7d5d7d",
+            "method": "PATCH",
+            "path": "/v1/sessions/eval-session-t08",
+            "sha256": "e687bb0c5557eb4f9bde21ffc4d4dc2f8c9a01772873db8a2ebbf538a4ef8251"
+          },
+          "resource": {
+            "session": "eval-session-t08"
+          }
+        },
+        {
+          "actor": {
+            "kind": "respondent",
+            "sessionAuthorization": "same-device eval-session-t08"
+          },
+          "evidence": {
+            "captures": [
+              "raw-request-bytes",
+              "application-problem-json",
+              "linked-error-summary",
+              "inline-error-aria-describedby",
+              "session-snapshot-after-rejection"
+            ],
+            "level": "E2"
+          },
+          "expected": {
+            "atomicity": {
+              "acceptedRevision": 8,
+              "currentRevision": 8,
+              "operationsApplied": 0,
+              "unrelatedValidAnswerStillEquals": "valid@example.test"
+            },
+            "contentType": "application/problem+json",
+            "diagnostic": {
+              "code": "TYPE_DATE",
+              "fieldId": "inspectionDate",
+              "jsonPointer": "/operations/0/answer/value",
+              "rowPath": [],
+              "severity": "error"
+            },
+            "focusEvidence": {
+              "ariaDescribedBy": "error-invalid-type",
+              "errorSummaryLinkTarget": "/operations/0/answer/value",
+              "inlineErrorFieldId": "inspectionDate",
+              "rowPath": []
+            },
+            "httpStatus": 422,
+            "problemCode": "VALIDATION_FAILED"
+          },
+          "forbiddenSideEffects": {
+            "acceptedRevisionRemains": 8,
+            "currentRevisionRemains": 8,
+            "noOperationsApplied": true,
+            "respondentEmailRemains": "valid@example.test"
+          },
+          "id": "T08-invalid-type",
+          "input": {
+            "baseRevision": 8,
+            "clientMutationId": "00000000-0000-4000-8000-000000000708",
+            "operations": [
+              {
+                "answer": {
+                  "status": "answered",
+                  "value": 42
+                },
+                "fieldId": "inspectionDate",
+                "op": "set",
+                "rowPath": []
+              }
+            ]
+          },
+          "inputRef": "#/records/T08/actions/T08-invalid-type/input",
+          "request": {
+            "bodyUtf8Hex": "7b22626173655265766973696f6e223a382c22636c69656e744d75746174696f6e4964223a2230303030303030302d303030302d343030302d383030302d303030303030303030373038222c226f7065726174696f6e73223a5b7b226f70223a22736574222c226669656c644964223a22696e7370656374696f6e44617465222c22726f7750617468223a5b5d2c22616e73776572223a7b22737461747573223a22616e737765726564222c2276616c7565223a34327d7d5d7d",
+            "method": "PATCH",
+            "path": "/v1/sessions/eval-session-t08",
+            "sha256": "c66620d1626b861494e201d2e2191b9f16f65e7252431ad41141f36fb4332faa"
+          },
+          "resource": {
+            "session": "eval-session-t08"
+          }
+        },
+        {
+          "actor": {
+            "kind": "respondent",
+            "sessionAuthorization": "same-device eval-session-t08"
+          },
+          "evidence": {
+            "captures": [
+              "raw-request-bytes",
+              "application-problem-json",
+              "linked-error-summary",
+              "inline-error-aria-describedby",
+              "session-snapshot-after-rejection"
+            ],
+            "level": "E2"
+          },
+          "expected": {
+            "atomicity": {
+              "acceptedRevision": 8,
+              "currentRevision": 8,
+              "operationsApplied": 0,
+              "unrelatedValidAnswerStillEquals": "valid@example.test"
+            },
+            "contentType": "application/problem+json",
+            "diagnostic": {
+              "code": "CHOICE_OPTION",
+              "fieldId": "riskLevel",
+              "jsonPointer": "/operations/0/answer/value",
+              "rowPath": [],
+              "severity": "error"
+            },
+            "focusEvidence": {
+              "ariaDescribedBy": "error-invalid-choice",
+              "errorSummaryLinkTarget": "/operations/0/answer/value",
+              "inlineErrorFieldId": "riskLevel",
+              "rowPath": []
+            },
+            "httpStatus": 422,
+            "problemCode": "VALIDATION_FAILED"
+          },
+          "forbiddenSideEffects": {
+            "acceptedRevisionRemains": 8,
+            "currentRevisionRemains": 8,
+            "noOperationsApplied": true,
+            "respondentEmailRemains": "valid@example.test"
+          },
+          "id": "T08-invalid-choice",
+          "input": {
+            "baseRevision": 8,
+            "clientMutationId": "00000000-0000-4000-8000-000000000703",
+            "operations": [
+              {
+                "answer": {
+                  "status": "answered",
+                  "value": "critical-unknown"
+                },
+                "fieldId": "riskLevel",
+                "op": "set",
+                "rowPath": []
+              }
+            ]
+          },
+          "inputRef": "#/records/T08/actions/T08-invalid-choice/input",
+          "request": {
+            "bodyUtf8Hex": "7b22626173655265766973696f6e223a382c22636c69656e744d75746174696f6e4964223a2230303030303030302d303030302d343030302d383030302d303030303030303030373033222c226f7065726174696f6e73223a5b7b226f70223a22736574222c226669656c644964223a227269736b4c6576656c222c22726f7750617468223a5b5d2c22616e73776572223a7b22737461747573223a22616e737765726564222c2276616c7565223a22637269746963616c2d756e6b6e6f776e227d7d5d7d",
+            "method": "PATCH",
+            "path": "/v1/sessions/eval-session-t08",
+            "sha256": "3b33bef30e8f6a8f7995e21339c5a60beb7aab865da93cb46d83f45aa14ec41a"
+          },
+          "resource": {
+            "session": "eval-session-t08"
+          }
+        },
+        {
+          "actor": {
+            "kind": "respondent",
+            "sessionAuthorization": "same-device eval-session-t08"
+          },
+          "evidence": {
+            "captures": [
+              "raw-request-bytes",
+              "application-problem-json",
+              "linked-error-summary",
+              "inline-error-aria-describedby",
+              "session-snapshot-after-rejection"
+            ],
+            "level": "E2"
+          },
+          "expected": {
+            "atomicity": {
+              "acceptedRevision": 8,
+              "currentRevision": 8,
+              "operationsApplied": 0,
+              "unrelatedValidAnswerStillEquals": "valid@example.test"
+            },
+            "contentType": "application/problem+json",
+            "diagnostic": {
+              "code": "CALCULATED_READ_ONLY",
+              "fieldId": "totalRisk",
+              "jsonPointer": "/operations/0",
+              "rowPath": [],
+              "severity": "error"
+            },
+            "focusEvidence": {
+              "ariaDescribedBy": "error-forged-calculated-value",
+              "errorSummaryLinkTarget": "/operations/0",
+              "inlineErrorFieldId": "totalRisk",
+              "rowPath": []
+            },
+            "httpStatus": 422,
+            "problemCode": "VALIDATION_FAILED"
+          },
+          "forbiddenSideEffects": {
+            "acceptedRevisionRemains": 8,
+            "currentRevisionRemains": 8,
+            "noOperationsApplied": true,
+            "respondentEmailRemains": "valid@example.test"
+          },
+          "id": "T08-forged-calculated-value",
+          "input": {
+            "baseRevision": 8,
+            "clientMutationId": "00000000-0000-4000-8000-000000000704",
+            "operations": [
+              {
+                "answer": {
+                  "status": "answered",
+                  "value": "999"
+                },
+                "fieldId": "totalRisk",
+                "op": "set",
+                "rowPath": []
+              }
+            ]
+          },
+          "inputRef": "#/records/T08/actions/T08-forged-calculated-value/input",
+          "request": {
+            "bodyUtf8Hex": "7b22626173655265766973696f6e223a382c22636c69656e744d75746174696f6e4964223a2230303030303030302d303030302d343030302d383030302d303030303030303030373034222c226f7065726174696f6e73223a5b7b226f70223a22736574222c226669656c644964223a22746f74616c5269736b222c22726f7750617468223a5b5d2c22616e73776572223a7b22737461747573223a22616e737765726564222c2276616c7565223a22393939227d7d5d7d",
+            "method": "PATCH",
+            "path": "/v1/sessions/eval-session-t08",
+            "sha256": "2e378417ed75b180ba4603203c11cffc38c08121169c0c74ab39cc3677b99e72"
+          },
+          "resource": {
+            "session": "eval-session-t08"
+          }
+        },
+        {
+          "actor": {
+            "kind": "respondent",
+            "sessionAuthorization": "same-device eval-session-t08"
+          },
+          "evidence": {
+            "captures": [
+              "raw-request-bytes",
+              "application-problem-json",
+              "linked-error-summary",
+              "inline-error-aria-describedby",
+              "session-snapshot-after-rejection"
+            ],
+            "level": "E2"
+          },
+          "expected": {
+            "atomicity": {
+              "acceptedRevision": 8,
+              "currentRevision": 8,
+              "operationsApplied": 0,
+              "unrelatedValidAnswerStillEquals": "valid@example.test"
+            },
+            "contentType": "application/problem+json",
+            "diagnostic": {
+              "code": "READ_ONLY",
+              "fieldId": "releaseStamp",
+              "jsonPointer": "/operations/0",
+              "rowPath": [],
+              "severity": "error"
+            },
+            "focusEvidence": {
+              "ariaDescribedBy": "error-read-only-edit",
+              "errorSummaryLinkTarget": "/operations/0",
+              "inlineErrorFieldId": "releaseStamp",
+              "rowPath": []
+            },
+            "httpStatus": 422,
+            "problemCode": "VALIDATION_FAILED"
+          },
+          "forbiddenSideEffects": {
+            "acceptedRevisionRemains": 8,
+            "currentRevisionRemains": 8,
+            "noOperationsApplied": true,
+            "respondentEmailRemains": "valid@example.test"
+          },
+          "id": "T08-read-only-edit",
+          "input": {
+            "baseRevision": 8,
+            "clientMutationId": "00000000-0000-4000-8000-000000000705",
+            "operations": [
+              {
+                "answer": {
+                  "status": "answered",
+                  "value": "changed"
+                },
+                "fieldId": "releaseStamp",
+                "op": "set",
+                "rowPath": []
+              }
+            ]
+          },
+          "inputRef": "#/records/T08/actions/T08-read-only-edit/input",
+          "request": {
+            "bodyUtf8Hex": "7b22626173655265766973696f6e223a382c22636c69656e744d75746174696f6e4964223a2230303030303030302d303030302d343030302d383030302d303030303030303030373035222c226f7065726174696f6e73223a5b7b226f70223a22736574222c226669656c644964223a2272656c656173655374616d70222c22726f7750617468223a5b5d2c22616e73776572223a7b22737461747573223a22616e737765726564222c2276616c7565223a226368616e676564227d7d5d7d",
+            "method": "PATCH",
+            "path": "/v1/sessions/eval-session-t08",
+            "sha256": "2b4b1787804375de71e8bf47268759e7091fcf8d341f46c953812a98e492b0a7"
+          },
+          "resource": {
+            "session": "eval-session-t08"
+          }
+        },
+        {
+          "actor": {
+            "kind": "respondent",
+            "sessionAuthorization": "same-device eval-session-t08"
+          },
+          "evidence": {
+            "captures": [
+              "raw-request-bytes",
+              "application-problem-json",
+              "linked-error-summary",
+              "inline-error-aria-describedby",
+              "session-snapshot-after-rejection"
+            ],
+            "level": "E2"
+          },
+          "expected": {
+            "atomicity": {
+              "acceptedRevision": 8,
+              "currentRevision": 8,
+              "operationsApplied": 0,
+              "unrelatedValidAnswerStillEquals": "valid@example.test"
+            },
+            "contentType": "application/problem+json",
+            "diagnostic": {
+              "code": "RANGE_MAXIMUM",
+              "fieldId": "temperature",
+              "jsonPointer": "/operations/0/answer/value",
+              "rowPath": [],
+              "severity": "error"
+            },
+            "focusEvidence": {
+              "ariaDescribedBy": "error-out-of-range-decimal",
+              "errorSummaryLinkTarget": "/operations/0/answer/value",
+              "inlineErrorFieldId": "temperature",
+              "rowPath": []
+            },
+            "httpStatus": 422,
+            "problemCode": "VALIDATION_FAILED"
+          },
+          "forbiddenSideEffects": {
+            "acceptedRevisionRemains": 8,
+            "currentRevisionRemains": 8,
+            "noOperationsApplied": true,
+            "respondentEmailRemains": "valid@example.test"
+          },
+          "id": "T08-out-of-range-decimal",
+          "input": {
+            "baseRevision": 8,
+            "clientMutationId": "00000000-0000-4000-8000-000000000706",
+            "operations": [
+              {
+                "answer": {
+                  "status": "answered",
+                  "value": "1000.01"
+                },
+                "fieldId": "temperature",
+                "op": "set",
+                "rowPath": []
+              }
+            ]
+          },
+          "inputRef": "#/records/T08/actions/T08-out-of-range-decimal/input",
+          "request": {
+            "bodyUtf8Hex": "7b22626173655265766973696f6e223a382c22636c69656e744d75746174696f6e4964223a2230303030303030302d303030302d343030302d383030302d303030303030303030373036222c226f7065726174696f6e73223a5b7b226f70223a22736574222c226669656c644964223a2274656d7065726174757265222c22726f7750617468223a5b5d2c22616e73776572223a7b22737461747573223a22616e737765726564222c2276616c7565223a22313030302e3031227d7d5d7d",
+            "method": "PATCH",
+            "path": "/v1/sessions/eval-session-t08",
+            "sha256": "589df143b87d8492614dce477e8940d69e1696dbe120c34536afbf2e1dbde5a6"
+          },
+          "resource": {
+            "session": "eval-session-t08"
+          }
+        },
+        {
+          "actor": {
+            "kind": "respondent",
+            "sessionAuthorization": "same-device eval-session-t08"
+          },
+          "evidence": {
+            "captures": [
+              "raw-request-bytes",
+              "application-problem-json",
+              "linked-error-summary",
+              "inline-error-aria-describedby",
+              "session-snapshot-after-rejection"
+            ],
+            "level": "E2"
+          },
+          "expected": {
+            "atomicity": {
+              "acceptedRevision": 8,
+              "currentRevision": 8,
+              "operationsApplied": 0,
+              "unrelatedValidAnswerStillEquals": "valid@example.test"
+            },
+            "contentType": "application/problem+json",
+            "diagnostic": {
+              "code": "RANGE_MINIMUM",
+              "fieldId": "quantity",
+              "jsonPointer": "/operations/0/answer/value",
+              "rowPath": [
+                {
+                  "itemId": "eval-item-01",
+                  "listFieldId": "equipment"
+                }
+              ],
+              "severity": "error"
+            },
+            "focusEvidence": {
+              "ariaDescribedBy": "error-invalid-nested-row",
+              "errorSummaryLinkTarget": "/operations/0/answer/value",
+              "inlineErrorFieldId": "quantity",
+              "rowPath": [
+                {
+                  "itemId": "eval-item-01",
+                  "listFieldId": "equipment"
+                }
+              ]
+            },
+            "httpStatus": 422,
+            "problemCode": "VALIDATION_FAILED"
+          },
+          "forbiddenSideEffects": {
+            "acceptedRevisionRemains": 8,
+            "currentRevisionRemains": 8,
+            "noOperationsApplied": true,
+            "respondentEmailRemains": "valid@example.test"
+          },
+          "id": "T08-invalid-nested-row",
+          "input": {
+            "baseRevision": 8,
+            "clientMutationId": "00000000-0000-4000-8000-000000000707",
+            "operations": [
+              {
+                "answer": {
+                  "status": "answered",
+                  "value": "0"
+                },
+                "fieldId": "quantity",
+                "op": "set",
+                "rowPath": [
+                  {
+                    "itemId": "eval-item-01",
+                    "listFieldId": "equipment"
+                  }
+                ]
+              }
+            ]
+          },
+          "inputRef": "#/records/T08/actions/T08-invalid-nested-row/input",
+          "request": {
+            "bodyUtf8Hex": "7b22626173655265766973696f6e223a382c22636c69656e744d75746174696f6e4964223a2230303030303030302d303030302d343030302d383030302d303030303030303030373037222c226f7065726174696f6e73223a5b7b226f70223a22736574222c226669656c644964223a227175616e74697479222c22726f7750617468223a5b7b226c6973744669656c644964223a2265717569706d656e74222c226974656d4964223a226576616c2d6974656d2d3031227d5d2c22616e73776572223a7b22737461747573223a22616e737765726564222c2276616c7565223a2230227d7d5d7d",
+            "method": "PATCH",
+            "path": "/v1/sessions/eval-session-t08",
+            "sha256": "d68813fb5069d947122cb87bbc32e6637cc9c7800d649b8ab79e7980aaeeefed"
+          },
+          "resource": {
+            "session": "eval-session-t08"
+          }
+        }
+      ],
+      "assetExpected": {
+        "caseExpectations": [
+          {
+            "accessibleErrorLinked": true,
+            "caseId": "whitespace-required-text",
+            "failureAddress": {
+              "fieldId": "respondentName",
+              "rowPath": []
+            },
+            "failureCode": "validation.invalid",
+            "preserveValidFieldId": "respondentEmail",
+            "reason": "REQUIRED",
+            "reject": true
+          },
+          {
+            "accessibleErrorLinked": true,
+            "caseId": "invalid-date",
+            "failureAddress": {
+              "fieldId": "inspectionDate",
+              "rowPath": []
+            },
+            "failureCode": "validation.invalid",
+            "preserveValidFieldId": "respondentEmail",
+            "reason": "TYPE_DATE",
+            "reject": true
+          },
+          {
+            "accessibleErrorLinked": true,
+            "caseId": "invalid-type",
+            "failureAddress": {
+              "fieldId": "inspectionDate",
+              "rowPath": []
+            },
+            "failureCode": "validation.invalid",
+            "preserveValidFieldId": "respondentEmail",
+            "reason": "TYPE_DATE",
+            "reject": true
+          },
+          {
+            "accessibleErrorLinked": true,
+            "caseId": "invalid-choice",
+            "failureAddress": {
+              "fieldId": "riskLevel",
+              "rowPath": []
+            },
+            "failureCode": "validation.invalid",
+            "preserveValidFieldId": "respondentEmail",
+            "reason": "CHOICE_OPTION",
+            "reject": true
+          },
+          {
+            "accessibleErrorLinked": true,
+            "caseId": "forged-calculated-value",
+            "failureAddress": {
+              "fieldId": "totalRisk",
+              "rowPath": []
+            },
+            "failureCode": "validation.invalid",
+            "preserveValidFieldId": "respondentEmail",
+            "reason": "CALCULATED_READ_ONLY",
+            "reject": true
+          },
+          {
+            "accessibleErrorLinked": true,
+            "caseId": "read-only-edit",
+            "failureAddress": {
+              "fieldId": "releaseStamp",
+              "rowPath": []
+            },
+            "failureCode": "validation.invalid",
+            "preserveValidFieldId": "respondentEmail",
+            "reason": "READ_ONLY",
+            "reject": true
+          },
+          {
+            "accessibleErrorLinked": true,
+            "caseId": "out-of-range-decimal",
+            "failureAddress": {
+              "fieldId": "temperature",
+              "rowPath": []
+            },
+            "failureCode": "validation.invalid",
+            "preserveValidFieldId": "respondentEmail",
+            "reason": "RANGE_MAXIMUM",
+            "reject": true
+          },
+          {
+            "accessibleErrorLinked": true,
+            "caseId": "invalid-nested-row",
+            "failureAddress": {
+              "fieldId": "quantity",
+              "rowPath": [
+                {
+                  "itemId": "eval-item-01",
+                  "listFieldId": "equipment"
+                }
+              ]
+            },
+            "failureCode": "validation.invalid",
+            "preserveValidFieldId": "respondentEmail",
+            "reason": "RANGE_MINIMUM",
+            "reject": true
+          }
+        ],
+        "responseContract": {
+          "diagnosticMembers": [
+            "code",
+            "severity",
+            "fieldId",
+            "rowPath",
+            "jsonPointer"
+          ],
+          "mediaType": "application/problem+json",
+          "noRawMalformedInput": true,
+          "requiredProblemMembers": [
+            "status",
+            "code",
+            "diagnostics"
+          ]
+        }
+      },
+      "assetPreState": {
+        "packageHandle": "eval-package-hc-v1",
+        "priorAcceptedUnrelatedMutation": {
+          "expectedAcceptedRevision": 8,
+          "expectedCode": "ACCEPTED",
+          "expectedCurrentRevision": 8,
+          "expectedHttpStatus": 200,
+          "expectedReplayed": false,
+          "requestSha256": "f674f1245fed7308320100ff2c73f1c3e7417b257bd60a3527e9f0f68d53be49",
+          "requestUtf8Hex": "7b22626173655265766973696f6e223a372c22636c69656e744d75746174696f6e4964223a2230303030303030302d303030302d343030302d383030302d303030303030303030373031222c226f7065726174696f6e73223a5b7b226f70223a22736574222c226669656c644964223a22726573706f6e64656e74456d61696c222c22726f7750617468223a5b5d2c22616e73776572223a7b22737461747573223a22616e737765726564222c2276616c7565223a2276616c6964406578616d706c652e74657374227d7d5d7d"
+        },
+        "releaseHandle": "eval-release-hc-v1",
+        "sessionHandle": "eval-session-t08",
+        "sessionRevisionBeforeUnrelatedMutation": 7,
+        "tenantHandle": "eval-tenant-a",
+        "unrelatedValidField": {
+          "fieldId": "respondentEmail",
+          "rowPath": [],
+          "typedAnswer": {
+            "status": "answered",
+            "value": "valid@example.test"
+          }
+        },
+        "workspaceHandle": "eval-workspace-a"
+      },
+      "evidence": {
+        "required": [
+          "eight asset-exact PATCH requests",
+          "HTTP 422 problem bodies",
+          "post-rejection session snapshots",
+          "screen-reader linked-error trace"
+        ]
+      },
+      "fixture": "T08",
+      "id": "EVAL-ORACLE-T08",
+      "preState": {
+        "acceptedUnrelatedAnswer": {
+          "fieldId": "respondentEmail",
+          "rowPath": [],
+          "value": "valid@example.test"
+        },
+        "asset": "assets/t08-validation-errors.json#/frozenInputProtocol",
+        "packageIdentity": {
+          "definitionVersion": "4.0.0",
+          "formKey": "healthcare-intake",
+          "source": "frozen canonical package graph"
+        },
+        "release": "eval-release-hc-v1",
+        "revision": 8,
+        "session": "eval-session-t08",
+        "tenant": "eval-tenant-a",
+        "workspace": "eval-workspace-a"
+      },
+      "requirements": [
+        "SF-VAL-01",
+        "SF-VAL-02",
+        "SF-VAL-03",
+        "SF-UX-01"
+      ],
+      "sourceCitations": [
+        {
+          "lines": "317",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "327-329",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "582",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "807",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        }
+      ],
+      "status": "not-run"
+    },
+    {
+      "actions": [
+        {
+          "actor": {
+            "device": "browser:A",
+            "kind": "respondent"
+          },
+          "evidence": {
+            "captures": [
+              "revision-timeline",
+              "restart-resume-record"
+            ],
+            "level": "E2"
+          },
+          "expected": {
+            "code": "ACCEPTED",
+            "httpStatus": 200,
+            "state": {
+              "answer": "Asha",
+              "currentRevision": 13,
+              "saveIndicator": "Saved"
+            }
+          },
+          "forbiddenSideEffects": {
+            "noLostAcknowledgedValue": true
+          },
+          "id": "T09-idle-save-acknowledged",
+          "input": {
+            "baseRevision": 12,
+            "clientMutationId": "t09-idle-001",
+            "fieldId": "respondentName",
+            "value": "Asha"
+          },
+          "inputRef": "#/records/T09/actions/T09-idle-save-acknowledged/input",
+          "request": {
+            "body": {
+              "baseRevision": 12,
+              "clientMutationId": "t09-idle-001",
+              "operations": [
+                {
+                  "answer": {
+                    "status": "answered",
+                    "value": "Asha"
+                  },
+                  "fieldId": "respondentName",
+                  "op": "set",
+                  "rowPath": []
+                }
+              ]
+            },
+            "method": "PATCH",
+            "path": "/v1/sessions/session:respondent-a"
+          },
+          "resource": {
+            "session": "session:respondent-a"
+          }
+        },
+        {
+          "actor": {
+            "device": "browser:A",
+            "kind": "respondent"
+          },
+          "evidence": {
+            "captures": [
+              "network-waterfall",
+              "revision-timeline",
+              "focus-and-scroll-trace"
+            ],
+            "level": "E2"
+          },
+          "expected": {
+            "firstResponse": {
+              "code": "STALE_REVISION",
+              "httpStatus": 409,
+              "state": "draft-unchanged-by-stale-write"
+            },
+            "middleResponse": {
+              "code": "STALE_REVISION",
+              "httpStatus": 409,
+              "state": "draft-unchanged-by-stale-write"
+            },
+            "secondResponse": {
+              "code": "ACCEPTED",
+              "currentRevision": 14,
+              "httpStatus": 200
+            },
+            "ui": {
+              "focusedField": "email",
+              "formNotCollapsed": true,
+              "scrollAnchor": "equipment-heading",
+              "unrelatedFieldVisible": true
+            }
+          },
+          "forbiddenSideEffects": {
+            "noOverwriteOfRevision14": true,
+            "noVisibilityChangeWithoutRuleDependency": true
+          },
+          "id": "T09-out-of-order-hi-ar-en",
+          "input": {
+            "deliveryOrder": [
+              "t09-ar-015",
+              "t09-hi-014",
+              "t09-en-013"
+            ],
+            "first": {
+              "baseRevision": 13,
+              "clientMutationId": "t09-en-013",
+              "fieldId": "respondentName",
+              "locale": "en",
+              "value": "Asha"
+            },
+            "middle": {
+              "baseRevision": 13,
+              "clientMutationId": "t09-hi-014",
+              "fieldId": "respondentName",
+              "locale": "hi",
+              "value": "आशा"
+            },
+            "second": {
+              "baseRevision": 13,
+              "clientMutationId": "t09-ar-015",
+              "fieldId": "riskLevel",
+              "locale": "ar",
+              "value": "high"
+            }
+          },
+          "inputRef": "#/records/T09/actions/T09-out-of-order-hi-ar-en/input",
+          "request": {
+            "faultSchedule": "deliver t09-ar-015 before t09-hi-014",
+            "method": "PATCH",
+            "path": "/v1/sessions/session:respondent-a"
+          },
+          "resource": {
+            "focusedField": "email",
+            "revision": 13,
+            "scrollAnchor": "equipment-heading",
+            "session": "session:respondent-a"
+          }
+        },
+        {
+          "actor": {
+            "device": "browser:A",
+            "kind": "respondent"
+          },
+          "evidence": {
+            "captures": [
+              "fault-injection-log",
+              "retry-request-pair",
+              "session-snapshot"
+            ],
+            "level": "E2"
+          },
+          "expected": {
+            "final": {
+              "code": "ACCEPTED",
+              "currentRevision": 15,
+              "httpStatus": 200,
+              "value": "saved after retry"
+            },
+            "replay": {
+              "currentRevision": 15,
+              "replayed": true,
+              "sameClientMutationId": true
+            },
+            "uiStates": [
+              "Retrying",
+              "Saved"
+            ]
+          },
+          "forbiddenSideEffects": {
+            "noAcknowledgedLoss": true,
+            "noDuplicateMutation": true
+          },
+          "id": "T09-offline-500-retry",
+          "input": {
+            "mutationId": "t09-retry-016",
+            "operation": {
+              "fieldId": "notes",
+              "value": "saved after retry"
+            },
+            "responses": [
+              {
+                "transport": "offline"
+              },
+              {
+                "code": "INTERNAL_ERROR",
+                "httpStatus": 500
+              },
+              {
+                "code": "ACCEPTED",
+                "httpStatus": 200
+              }
+            ]
+          },
+          "inputRef": "#/records/T09/actions/T09-offline-500-retry/input",
+          "request": {
+            "clientMutationId": "t09-retry-016",
+            "method": "PATCH",
+            "path": "/v1/sessions/session:respondent-a"
+          },
+          "resource": {
+            "revision": 14,
+            "session": "session:respondent-a"
+          }
+        },
+        {
+          "actor": {
+            "device": "browser:B",
+            "kind": "respondent"
+          },
+          "evidence": {
+            "captures": [
+              "authorization-trace",
+              "expiry-response",
+              "fresh-session-record"
+            ],
+            "level": "E2"
+          },
+          "expected": {
+            "attempts": [
+              {
+                "code": "SESSION_DEVICE_MISMATCH",
+                "httpStatus": 403,
+                "noAnswerBody": true
+              },
+              {
+                "code": "SESSION_EXPIRED",
+                "httpStatus": 410,
+                "state": "EXPIRED"
+              }
+            ],
+            "freshStart": {
+              "httpStatus": 201,
+              "sessionNotEqual": "session:respondent-a",
+              "state": "ACTIVE"
+            }
+          },
+          "forbiddenSideEffects": {
+            "noOtherRespondentAnswersExposed": true
+          },
+          "id": "T09-stale-expired-shared-device",
+          "input": {
+            "attempts": [
+              {
+                "authorization": "browser:B",
+                "session": "session:respondent-a"
+              },
+              {
+                "authorization": "browser:A",
+                "session": "session:expired-a"
+              }
+            ]
+          },
+          "inputRef": "#/records/T09/actions/T09-stale-expired-shared-device/input",
+          "request": {
+            "method": "GET",
+            "path": "/v1/sessions/{session}"
+          },
+          "resource": {
+            "expiredSession": "session:expired-a",
+            "ownerDevice": "browser:A",
+            "session": "session:respondent-a"
+          }
+        }
+      ],
+      "evidence": {
+        "required": [
+          "autosave revision timeline",
+          "out-of-order network trace for en/hi/ar text and choice",
+          "offline/500 retry trace",
+          "restart/shared-device recording"
+        ]
+      },
+      "fixture": "T09",
+      "id": "EVAL-ORACLE-T09",
+      "preState": {
+        "clock": "2026-09-14T10:00:00Z",
+        "packageIdentity": {
+          "definitionVersion": "4.0.0",
+          "formKey": "fleet-maintenance-intake",
+          "source": "frozen canonical package graph"
+        },
+        "release": "release:fleet-v1",
+        "session": "session:respondent-a",
+        "tenant": "tenant:atlas",
+        "workspace": "workspace:intake"
+      },
+      "requirements": [
+        "SF-AUT-04",
+        "SF-RES-02",
+        "SF-RES-03",
+        "SF-API-03",
+        "SF-UX-01"
+      ],
+      "sourceCitations": [
+        {
+          "lines": "373",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "402-403",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "582",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "808",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "1462",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        }
+      ],
+      "status": "not-run"
+    },
+    {
+      "actions": [
+        {
+          "actor": {
+            "kind": "reviewer",
+            "workspaceRole": "reviewer"
+          },
+          "evidence": {
+            "captures": [
+              "review-audit-trail",
+              "draft-revision-diff"
+            ],
+            "level": "E2"
+          },
+          "expected": {
+            "approve": {
+              "httpStatus": 200,
+              "state": "APPROVED"
+            },
+            "edit": {
+              "approvalIdAbsent": true,
+              "approvalState": "INVALIDATED",
+              "httpStatus": 200,
+              "state": "DRAFT"
+            },
+            "requestReview": {
+              "httpStatus": 201,
+              "state": "IN_REVIEW"
+            }
+          },
+          "forbiddenSideEffects": {
+            "noPublishedReleaseChanged": true
+          },
+          "id": "T10-review-edit-invalidates-approval",
+          "input": {
+            "edit": {
+              "fieldId": "riskLevel",
+              "label": "Risk level (revised)"
+            }
+          },
+          "inputRef": "#/records/T10/actions/T10-review-edit-invalidates-approval/input",
+          "request": {
+            "method": "PUT",
+            "path": "/v1/workspaces/ws-fleet/forms/form:fleet/drafts/draft:fleet-v1"
+          },
+          "resource": {
+            "approval": "approval:v1",
+            "draft": "draft:fleet-v1"
+          }
+        },
+        {
+          "actor": {
+            "kind": "publisher",
+            "workspaceRole": "publisher"
+          },
+          "evidence": {
+            "captures": [
+              "release-manifest-hashes",
+              "existing-and-new-session-snapshots"
+            ],
+            "level": "E2"
+          },
+          "expected": {
+            "existingSession": {
+              "locale": "en",
+              "packageHash": "sha256:release-v1",
+              "pageOrder": [
+                "about",
+                "equipment"
+              ],
+              "release": "release:fleet-v1"
+            },
+            "newSession": {
+              "locale": "ar",
+              "packageHash": "sha256:release-v2",
+              "pageOrder": [
+                "equipment",
+                "about"
+              ],
+              "release": "release:fleet-v2"
+            },
+            "publishV1": {
+              "httpStatus": 201,
+              "release": "release:fleet-v1",
+              "state": "PUBLISHED"
+            }
+          },
+          "forbiddenSideEffects": {
+            "existingSessionUnchanged": true
+          },
+          "id": "T10-publish-pin-reordered-translated-v2",
+          "input": {
+            "publishV1": {
+              "locale": "en",
+              "packageHash": "sha256:release-v1"
+            },
+            "publishV2": {
+              "locale": "ar",
+              "packageHash": "sha256:release-v2",
+              "pageOrder": [
+                "equipment",
+                "about"
+              ]
+            }
+          },
+          "inputRef": "#/records/T10/actions/T10-publish-pin-reordered-translated-v2/input",
+          "request": {
+            "method": "POST",
+            "path": "/v1/workspaces/ws-fleet/forms/form:fleet/releases"
+          },
+          "resource": {
+            "draft": "draft:fleet-v1",
+            "session": "session:pinned-v1"
+          }
+        },
+        {
+          "actor": {
+            "kind": "publisher",
+            "workspaceRole": "publisher"
+          },
+          "evidence": {
+            "captures": [
+              "lifecycle-audit-events",
+              "new-existing-session-response-pairs"
+            ],
+            "level": "E2"
+          },
+          "expected": {
+            "emergencyClose": {
+              "existingSession": {
+                "nextMutation": {
+                  "code": "CHANNEL_CLOSED",
+                  "httpStatus": 409
+                },
+                "state": "CANCELLED"
+              },
+              "httpStatus": 200
+            },
+            "retire": {
+              "existingSessionState": "ACTIVE",
+              "httpStatus": 200,
+              "newSession": {
+                "code": "RELEASE_RETIRED",
+                "httpStatus": 409
+              }
+            },
+            "rollback": {
+              "existingSessionState": "ACTIVE",
+              "httpStatus": 200,
+              "newSessionRelease": "release:fleet-v1"
+            }
+          },
+          "forbiddenSideEffects": {
+            "rollbackDoesNotAlterExistingSession": true
+          },
+          "id": "T10-rollback-retire-emergency-close",
+          "input": {
+            "operations": [
+              "rollback:release:fleet-v1",
+              "retire:release:fleet-v2",
+              "emergencyClose:form:fleet"
+            ]
+          },
+          "inputRef": "#/records/T10/actions/T10-rollback-retire-emergency-close/input",
+          "request": {
+            "method": "POST",
+            "path": "/v1/workspaces/ws-fleet/forms/form:fleet/activation"
+          },
+          "resource": {
+            "activeRelease": "release:fleet-v2",
+            "existingSession": "session:pinned-v2"
+          }
+        },
+        {
+          "actor": {
+            "kind": "publisher",
+            "workspaceRole": "publisher"
+          },
+          "evidence": {
+            "captures": [
+              "channel-configuration",
+              "QR payload",
+              "lifecycle audit event",
+              "new/existing session responses"
+            ],
+            "level": "E2"
+          },
+          "expected": {
+            "emergencyClose": {
+              "activeSessionMutation": {
+                "code": "CHANNEL_CLOSED",
+                "httpStatus": 409
+              },
+              "httpStatus": 200,
+              "state": "EMERGENCY_CLOSED"
+            },
+            "publish": {
+              "httpStatus": 201,
+              "publicUrl": "present",
+              "qrPayload": "present",
+              "states": {
+                "channel:embed-v2": "ACTIVE",
+                "channel:public-v2": "ACTIVE"
+              }
+            },
+            "revoke": {
+              "httpStatus": 200,
+              "newSession": {
+                "code": "CHANNEL_CLOSED",
+                "httpStatus": 409
+              },
+              "state": "REVOKED"
+            }
+          },
+          "forbiddenSideEffects": {
+            "noNewSessionAfterEmergencyClose": true,
+            "revokedPublicChannelDoesNotRevokeEmbedChannel": true
+          },
+          "id": "T10-share-revoke-and-close-channels",
+          "input": {
+            "publishChannels": [
+              {
+                "channel": "channel:public-v2",
+                "responseCap": 2,
+                "type": "public-link",
+                "window": "2026-09-14T09:00:00Z/2026-09-14T17:00:00Z"
+              },
+              {
+                "allowedOrigins": [
+                  "https://partner.example.test"
+                ],
+                "channel": "channel:embed-v2",
+                "type": "iframe"
+              }
+            ],
+            "then": [
+              "revoke channel:public-v2",
+              "emergency-close form:fleet"
+            ]
+          },
+          "inputRef": "#/records/T10/actions/T10-share-revoke-and-close-channels/input",
+          "request": {
+            "method": "POST",
+            "path": "/v1/workspaces/ws-fleet/forms/form:fleet/share-channels"
+          },
+          "resource": {
+            "channels": [
+              "channel:public-v2",
+              "channel:embed-v2"
+            ],
+            "form": "form:fleet",
+            "release": "release:fleet-v2"
+          }
+        }
+      ],
+      "evidence": {
+        "required": [
+          "release/manifest hashes",
+          "approval invalidation audit",
+          "new versus pinned session assertions",
+          "lifecycle audit events"
+        ]
+      },
+      "fixture": "T10",
+      "id": "EVAL-ORACLE-T10",
+      "preState": {
+        "clock": "2026-09-14T10:00:00Z",
+        "packageIdentity": {
+          "definitionVersion": "4.0.0",
+          "formKey": "fleet-maintenance-intake",
+          "source": "frozen canonical package graph"
+        },
+        "release": "release:fleet-v1",
+        "session": "session:respondent-a",
+        "tenant": "tenant:atlas",
+        "workspace": "workspace:intake"
+      },
+      "requirements": [
+        "SF-PUB-01",
+        "SF-PUB-02",
+        "SF-PUB-03",
+        "SF-PUB-04",
+        "SF-CON-01"
+      ],
+      "sourceCitations": [
+        {
+          "lines": "397-400",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "809",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "1206",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        }
+      ],
+      "status": "not-run"
+    },
+    {
+      "actions": [
+        {
+          "actor": {
+            "kind": "respondent",
+            "sessionAuthorization": "same-device"
+          },
+          "evidence": {
+            "captures": [
+              "accessibility-tree",
+              "provider-request-redacted",
+              "audio-transcript"
+            ],
+            "level": "E3"
+          },
+          "expected": {
+            "audioTranscript": "Equipment questions",
+            "providerRequest": {
+              "contentKey": "guidance.equipment.narration",
+              "locale": "en",
+              "locales": [
+                "en",
+                "hi",
+                "ar"
+              ],
+              "text": "Equipment questions"
+            },
+            "ui": {
+              "afterPlay": "Pause",
+              "passiveText": "Equipment questions",
+              "permanentVoiceActions": [
+                "Play/Pause",
+                "Click to Ask"
+              ]
+            }
+          },
+          "forbiddenSideEffects": {
+            "noAnswerMutation": true,
+            "noAutoplay": true,
+            "noDictationControl": true,
+            "noSubmit": true,
+            "noTypedQuestionControl": true
+          },
+          "id": "T11-approved-text-audio-parity",
+          "input": {
+            "approvedContentKey": "guidance.equipment.narration",
+            "control": "Play",
+            "locales": [
+              "en",
+              "hi",
+              "ar"
+            ],
+            "text": "Equipment questions"
+          },
+          "inputRef": "#/records/T11/actions/T11-approved-text-audio-parity/input",
+          "manualAction": {
+            "steps": [
+              {
+                "control": "Play",
+                "op": "activate"
+              },
+              {
+                "op": "inspect",
+                "target": "passive-narration-text"
+              }
+            ],
+            "surface": "respondent-voice-bar"
+          },
+          "resource": {
+            "locale": "en",
+            "session": "session:respondent-a",
+            "visibleScope": [
+              "page:equipment",
+              "field:estimate"
+            ]
+          }
+        },
+        {
+          "actor": {
+            "kind": "respondent",
+            "sessionAuthorization": "same-device"
+          },
+          "evidence": {
+            "captures": [
+              "scope-selection-log",
+              "passive-answer-text",
+              "redacted-provider-log"
+            ],
+            "level": "E3"
+          },
+          "expected": {
+            "answersUnchanged": true,
+            "first": {
+              "audioTranscript": "A best available value.",
+              "matchedScope": "field:estimate",
+              "passiveText": "A best available value.",
+              "state": "speaking"
+            },
+            "second": {
+              "passiveText": "No approved answer is available for this question.",
+              "state": "unavailable"
+            },
+            "submissionState": "ACTIVE"
+          },
+          "forbiddenSideEffects": {
+            "noAcknowledgment": true,
+            "noOutOfScopeGuidance": true,
+            "noRawTranscriptPersisted": true
+          },
+          "id": "T11-ask-scoped-answer-no-match",
+          "input": {
+            "questions": [
+              "Does an estimate take a payment?",
+              "Can you recommend a supplier?"
+            ]
+          },
+          "inputRef": "#/records/T11/actions/T11-ask-scoped-answer-no-match/input",
+          "manualAction": {
+            "steps": [
+              {
+                "control": "Click to Ask",
+                "op": "activate"
+              },
+              {
+                "op": "speak",
+                "text": "Does an estimate take a payment?"
+              },
+              {
+                "op": "finish-capture"
+              },
+              {
+                "op": "speak",
+                "text": "Can you recommend a supplier?"
+              }
+            ],
+            "surface": "respondent-voice-bar"
+          },
+          "resource": {
+            "session": "session:respondent-a",
+            "visibleScope": [
+              "page:equipment",
+              "field:estimate"
+            ]
+          }
+        },
+        {
+          "actor": {
+            "kind": "respondent",
+            "sessionAuthorization": "same-device"
+          },
+          "evidence": {
+            "captures": [
+              "timeout-metric",
+              "redacted-log",
+              "visible-scope-snapshot"
+            ],
+            "level": "E3"
+          },
+          "expected": {
+            "guidanceSelection": {
+              "mustNotContain": "field:supplierInternalNotes"
+            },
+            "providerMetric": {
+              "outcome": "timeout",
+              "rawSpeechAbsent": true
+            },
+            "ui": {
+              "fallbackTextVisible": true,
+              "navigationEnabled": true,
+              "state": "unavailable"
+            }
+          },
+          "forbiddenSideEffects": {
+            "answersUnchanged": true,
+            "noSecretInLog": true,
+            "noSubmission": true
+          },
+          "id": "T11-provider-failure-and-hidden-scope",
+          "input": {
+            "fault": "provider timeout after explicit Click to Ask",
+            "question": "supplier policy"
+          },
+          "inputRef": "#/records/T11/actions/T11-provider-failure-and-hidden-scope/input",
+          "manualAction": {
+            "steps": [
+              {
+                "control": "Click to Ask",
+                "op": "activate"
+              },
+              {
+                "op": "deny-microphone-or-timeout-provider"
+              }
+            ],
+            "surface": "respondent-voice-bar"
+          },
+          "resource": {
+            "hiddenScope": [
+              "field:supplierInternalNotes"
+            ],
+            "locale": "ar",
+            "session": "session:respondent-a"
+          }
+        }
+      ],
+      "evidence": {
+        "required": [
+          "browser control inspection",
+          "real provider request/playback for en/hi/ar",
+          "exact text/audio transcript comparison",
+          "redacted provider failure log"
+        ]
+      },
+      "fixture": "T11",
+      "id": "EVAL-ORACLE-T11",
+      "preState": {
+        "clock": "2026-09-14T10:00:00Z",
+        "packageIdentity": {
+          "definitionVersion": "4.0.0",
+          "formKey": "fleet-maintenance-intake",
+          "source": "frozen canonical package graph"
+        },
+        "release": "release:fleet-v1",
+        "session": "session:respondent-a",
+        "tenant": "tenant:atlas",
+        "workspace": "workspace:intake"
+      },
+      "requirements": [
+        "SF-GUD-01",
+        "SF-GUD-02",
+        "SF-GUD-03",
+        "SF-GUD-04",
+        "SF-GUD-05",
+        "SF-SEC-04"
+      ],
+      "sourceCitations": [
+        {
+          "lines": "335",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "341",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "347-351",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "810",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "1083",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "1113-1115",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        }
+      ],
+      "status": "not-run"
+    },
+    {
+      "actions": [
+        {
+          "actor": {
+            "kind": "translator",
+            "workspaceRole": "translator"
+          },
+          "evidence": {
+            "captures": [
+              "import-report",
+              "key-diff",
+              "rtl-screenshot"
+            ],
+            "level": "E2"
+          },
+          "expected": {
+            "ar": {
+              "approvalRequest": {
+                "nativeReviewRequiredBeforeLinguisticAcceptance": true,
+                "state": "APPROVED_FOR_RELEASE"
+              },
+              "direction": "rtl",
+              "nativeReview": "pending",
+              "state": "COMPLETE"
+            },
+            "hi": {
+              "direction": "ltr",
+              "nativeReview": "pending",
+              "state": "COMPLETE"
+            },
+            "stableIdsUnchanged": true
+          },
+          "forbiddenSideEffects": {
+            "noEnglishFallbackForAdvertisedLocale": true
+          },
+          "id": "T12-import-complete-hi-ar",
+          "input": {
+            "approveAttempt": {
+              "allMandatoryKeysPresent": true,
+              "locale": "ar",
+              "reviewer": "translator:ar"
+            },
+            "imports": [
+              {
+                "locale": "hi",
+                "path": "locales/key-inventory.json#/localePacks/hi"
+              },
+              {
+                "locale": "ar",
+                "path": "locales/key-inventory.json#/localePacks/ar"
+              }
+            ]
+          },
+          "inputRef": "#/records/T12/actions/T12-import-complete-hi-ar/input",
+          "manualAction": {
+            "instruction": "In Locale management, import the frozen Hindi and Arabic bundles and request the Arabic approval review.",
+            "kind": "manual-ui",
+            "materializationState": "m2-endpoint-unspecified",
+            "sourceCitation": "PRD:414-423",
+            "surface": "Form editor > Locales"
+          },
+          "resource": {
+            "draft": "draft:fleet-v1",
+            "localeKeys": "locales/key-inventory.json"
+          }
+        },
+        {
+          "actor": {
+            "kind": "translator",
+            "workspaceRole": "translator"
+          },
+          "evidence": {
+            "captures": [
+              "validation-problem-json",
+              "locale-editor-error-links"
+            ],
+            "level": "E2"
+          },
+          "expected": {
+            "code": "LOCALE_VALIDATION_FAILED",
+            "diagnostics": [
+              {
+                "code": "MISSING_MANDATORY_KEY",
+                "jsonPointer": "/values/ack.review"
+              },
+              {
+                "code": "STALE_KEY",
+                "jsonPointer": "/values/q.removedField"
+              }
+            ],
+            "state": "DRAFT_NOT_PUBLISHABLE"
+          },
+          "forbiddenSideEffects": {
+            "noLocaleApproval": true,
+            "noReleasePublished": true
+          },
+          "id": "T12-missing-stale-mandatory-key",
+          "input": {
+            "locale": "ar",
+            "removedKey": "ack.review",
+            "staleKey": "q.removedField"
+          },
+          "inputRef": "#/records/T12/actions/T12-missing-stale-mandatory-key/input",
+          "manualAction": {
+            "instruction": "In Locale management, validate the frozen invalid Arabic variant and follow both diagnostic links.",
+            "kind": "manual-ui",
+            "materializationState": "m2-endpoint-unspecified",
+            "sourceCitation": "PRD:414-423",
+            "surface": "Form editor > Locales"
+          },
+          "resource": {
+            "draft": "draft:fleet-v1",
+            "invalidVariant": "locales/invalid-variant.json"
+          }
+        },
+        {
+          "actor": {
+            "kind": "respondent",
+            "sessionAuthorization": "same-device"
+          },
+          "evidence": {
+            "captures": [
+              "three-locale-screenshots",
+              "session-revisions",
+              "plural-renderings"
+            ],
+            "level": "E2"
+          },
+          "expected": {
+            "ar": {
+              "currentRevision": 22,
+              "dir": "rtl",
+              "httpStatus": 200,
+              "lang": "ar"
+            },
+            "canonicalValuesUnchanged": true,
+            "en": {
+              "currentRevision": 23,
+              "dir": "ltr",
+              "httpStatus": 200,
+              "lang": "en"
+            },
+            "hi": {
+              "currentRevision": 21,
+              "dir": "ltr",
+              "httpStatus": 200,
+              "lang": "hi"
+            },
+            "pluralSamples": {
+              "ar": [
+                "عنصر واحد",
+                "2 عناصر"
+              ],
+              "en": [
+                "1 item",
+                "2 items"
+              ],
+              "hi": [
+                "1 आइटम",
+                "2 आइटम"
+              ]
+            },
+            "reviewAcknowledgment": "invalidated"
+          },
+          "forbiddenSideEffects": {
+            "noDateOrDecimalCanonicalChange": true,
+            "noStableIdChange": true
+          },
+          "id": "T12-switch-preserves-canonical-values",
+          "input": {
+            "sequence": [
+              "hi",
+              "ar",
+              "en"
+            ]
+          },
+          "inputRef": "#/records/T12/actions/T12-switch-preserves-canonical-values/input",
+          "request": {
+            "body": {
+              "locale": "hi"
+            },
+            "method": "PATCH",
+            "path": "/v1/sessions/session:respondent-a"
+          },
+          "resource": {
+            "canonical": {
+              "priority": "4",
+              "referenceCode": "00123",
+              "riskLevel": "high",
+              "visitDate": "2026-09-05"
+            },
+            "reviewAcknowledgment": "ack-20",
+            "revision": 20,
+            "session": "session:respondent-a"
+          }
+        }
+      ],
+      "evidence": {
+        "required": [
+          "en/hi/ar import reports",
+          "missing/stale problem response",
+          "RTL/mixed-direction screenshots",
+          "plural renderings",
+          "native reviewer approval record when execution occurs"
+        ]
+      },
+      "fixture": "T12",
+      "id": "EVAL-ORACLE-T12",
+      "preState": {
+        "clock": "2026-09-14T10:00:00Z",
+        "packageIdentity": {
+          "definitionVersion": "4.0.0",
+          "formKey": "fleet-maintenance-intake",
+          "source": "frozen canonical package graph"
+        },
+        "release": "release:fleet-v1",
+        "session": "session:respondent-a",
+        "tenant": "tenant:atlas",
+        "workspace": "workspace:intake"
+      },
+      "requirements": [
+        "SF-LOC-01",
+        "SF-LOC-02",
+        "SF-LOC-03"
+      ],
+      "sourceCitations": [
+        {
+          "lines": "352-354",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "811",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "1342",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "1399",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        }
+      ],
+      "status": "not-run"
+    },
+    {
+      "actions": [
+        {
+          "actor": {
+            "kind": "respondent",
+            "workspaceRole": null
+          },
+          "evidence": {
+            "captures": [
+              "browser-screenshot",
+              "keyboard-trace",
+              "screen-reader-task-log",
+              "automated-scan-result"
+            ],
+            "level": "Human"
+          },
+          "expected": {
+            "allRequiredControlsOperable": true,
+            "focusNotCovered": true,
+            "horizontalScrollAllowedOnlyFor": "wide-data-table"
+          },
+          "forbiddenSideEffects": {
+            "noSpeechRequired": true
+          },
+          "id": "T13-320-400-reflow",
+          "input": {
+            "preferences": [
+              "reduced-motion",
+              "high-contrast"
+            ],
+            "widthCssPx": 320,
+            "zoomPercent": 400
+          },
+          "inputRef": "#/records/T13/actions/T13-320-400-reflow/input",
+          "manualAction": {
+            "steps": [
+              {
+                "op": "set viewport",
+                "value": "320x900 CSS px"
+              },
+              {
+                "op": "set zoom",
+                "value": "400%"
+              },
+              {
+                "op": "enable",
+                "value": "reduced motion and high contrast"
+              },
+              {
+                "controls": [
+                  "Previous",
+                  "Next",
+                  "Play/Pause",
+                  "Click to Ask",
+                  "Submit"
+                ],
+                "op": "tab"
+              },
+              {
+                "op": "capture",
+                "target": "layout-and-focus"
+              }
+            ],
+            "surface": "respondent"
+          },
+          "resource": {
+            "surface": "respondent"
+          }
+        },
+        {
+          "actor": {
+            "kind": "author",
+            "workspaceRole": "author"
+          },
+          "evidence": {
+            "captures": [
+              "browser-screenshot",
+              "keyboard-trace",
+              "screen-reader-task-log",
+              "automated-scan-result"
+            ],
+            "level": "Human"
+          },
+          "expected": {
+            "dialogFocusRestoredTo": "trigger",
+            "focusOrder": [
+              "page title",
+              "field label",
+              "input",
+              "inline error",
+              "Next"
+            ],
+            "repeaterItemIdentityPreserved": true,
+            "uploadControlAccessibleName": "Add file"
+          },
+          "forbiddenSideEffects": {
+            "noSpeechRequired": true
+          },
+          "id": "T13-keyboard-dialog-repeater-upload",
+          "input": {
+            "sequence": [
+              "Tab",
+              "Enter add repeater item",
+              "Arrow move item",
+              "open dialog",
+              "Escape",
+              "upload choose file"
+            ]
+          },
+          "inputRef": "#/records/T13/actions/T13-keyboard-dialog-repeater-upload/input",
+          "manualAction": {
+            "steps": [
+              {
+                "op": "Tab",
+                "target": "Add equipment"
+              },
+              {
+                "op": "Enter",
+                "target": "Add equipment"
+              },
+              {
+                "op": "Tab",
+                "target": "Move item up"
+              },
+              {
+                "op": "Enter",
+                "target": "Move item up"
+              },
+              {
+                "op": "Enter",
+                "target": "Open help dialog"
+              },
+              {
+                "op": "Escape",
+                "target": "help dialog"
+              },
+              {
+                "op": "Tab",
+                "target": "Add file"
+              }
+            ],
+            "surface": "author"
+          },
+          "resource": {
+            "surface": "author"
+          }
+        },
+        {
+          "actor": {
+            "kind": "respondent",
+            "workspaceRole": null
+          },
+          "evidence": {
+            "captures": [
+              "browser-screenshot",
+              "keyboard-trace",
+              "screen-reader-task-log",
+              "automated-scan-result"
+            ],
+            "level": "Human"
+          },
+          "expected": {
+            "ariaDescribedBy": "error-respondentName",
+            "errorSummaryLink": "#respondentName",
+            "hiddenFieldAbsentFromAccessibilityTree": true,
+            "reviewStatusLabels": [
+              "No",
+              "0",
+              "Unknown",
+              "Not answered"
+            ]
+          },
+          "forbiddenSideEffects": {
+            "noSpeechRequired": true
+          },
+          "id": "T13-screen-reader-errors-review",
+          "input": {
+            "invalidField": "respondentName",
+            "reviewRows": [
+              "false",
+              "0",
+              "Unknown",
+              "Not answered"
+            ]
+          },
+          "inputRef": "#/records/T13/actions/T13-screen-reader-errors-review/input",
+          "manualAction": {
+            "steps": [
+              {
+                "op": "leave field",
+                "target": "respondentName"
+              },
+              {
+                "op": "activate",
+                "target": "error summary link for respondentName"
+              },
+              {
+                "op": "read",
+                "target": "inline error and review status rows"
+              },
+              {
+                "op": "inspect absence",
+                "target": "hidden conditional field"
+              }
+            ],
+            "surface": "respondent"
+          },
+          "resource": {
+            "surface": "respondent"
+          }
+        },
+        {
+          "actor": {
+            "kind": "author",
+            "workspaceRole": "author"
+          },
+          "evidence": {
+            "captures": [
+              "browser-screenshot",
+              "keyboard-trace",
+              "screen-reader-task-log",
+              "automated-scan-result"
+            ],
+            "level": "Human"
+          },
+          "expected": {
+            "code": "THEME_CONTRAST_FAILED",
+            "httpStatus": 422,
+            "jsonPointer": "/tokens/foreground",
+            "publishBlocked": true
+          },
+          "forbiddenSideEffects": {
+            "noSpeechRequired": true
+          },
+          "id": "T13-theme-preflight",
+          "input": {
+            "themeTokens": {
+              "background": "#ffffff",
+              "foreground": "#777777"
+            }
+          },
+          "inputRef": "#/records/T13/actions/T13-theme-preflight/input",
+          "manualAction": {
+            "steps": [
+              {
+                "op": "set token",
+                "target": "foreground",
+                "value": "#777777"
+              },
+              {
+                "op": "set token",
+                "target": "background",
+                "value": "#ffffff"
+              },
+              {
+                "op": "activate",
+                "target": "Publish"
+              },
+              {
+                "op": "capture",
+                "target": "preflight problem response"
+              }
+            ],
+            "surface": "author"
+          },
+          "resource": {
+            "surface": "author"
+          }
+        }
+      ],
+      "evidence": {
+        "required": [
+          "320/200/400 screenshots",
+          "keyboard trace",
+          "three AT task logs",
+          "automated scan plus manual log",
+          "contrast preflight response"
+        ]
+      },
+      "fixture": "T13",
+      "id": "EVAL-ORACLE-T13",
+      "preState": {
+        "clock": "2026-09-14T10:00:00Z",
+        "packageIdentity": {
+          "definitionVersion": "4.0.0",
+          "formKey": "fleet-maintenance-intake",
+          "source": "frozen canonical package graph"
+        },
+        "release": "release:fleet-v1",
+        "session": "session:respondent-a",
+        "tenant": "tenant:atlas",
+        "workspace": "workspace:intake"
+      },
+      "requirements": [
+        "SF-THM-01",
+        "SF-THM-02",
+        "SF-ACC-01",
+        "SF-ACC-02",
+        "SF-ACC-03",
+        "SF-VAL-02"
+      ],
+      "sourceCitations": [
+        {
+          "lines": "214-216",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "328",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "355-357",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "812",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "1427-1440",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        }
+      ],
+      "status": "not-run"
+    },
+    {
+      "actions": [
+        {
+          "actor": {
+            "kind": "anonymous-respondent"
+          },
+          "evidence": {
+            "captures": [
+              "channel-config",
+              "session-start-responses"
+            ],
+            "level": "E2"
+          },
+          "expected": {
+            "afterWindow": {
+              "code": "CHANNEL_CLOSED",
+              "httpStatus": 409
+            },
+            "capReached": {
+              "code": "RESPONSE_CAP_REACHED",
+              "httpStatus": 409
+            },
+            "withinWindow": {
+              "httpStatus": 201,
+              "state": "ACTIVE"
+            }
+          },
+          "forbiddenSideEffects": {
+            "noStaffSignInRequired": true
+          },
+          "id": "T14-public-link-window-cap",
+          "input": {
+            "startAt": "2026-09-14T10:00:00Z",
+            "thenAt": "2026-09-14T17:01:00Z"
+          },
+          "inputRef": "#/records/T14/actions/T14-public-link-window-cap/input",
+          "request": {
+            "method": "POST",
+            "path": "/v1/public/forms/share-fleet-public/sessions"
+          },
+          "resource": {
+            "acceptedResponses": 2,
+            "cap": 2,
+            "channel": "channel:public",
+            "window": "2026-09-14T09:00:00Z/2026-09-14T17:00:00Z"
+          }
+        },
+        {
+          "actor": {
+            "kind": "anonymous-respondent",
+            "parentOrigin": "https://partner.example.test"
+          },
+          "evidence": {
+            "captures": [
+              "origin-test-log",
+              "postMessage-capture",
+              "cookie-blocked-screenshot"
+            ],
+            "level": "E2"
+          },
+          "expected": {
+            "allowed": {
+              "messageTypes": [
+                "smartintake.ready",
+                "smartintake.resize"
+              ],
+              "rawAnswersInMessages": false
+            },
+            "blocked": {
+              "code": "EMBED_ORIGIN_DENIED"
+            },
+            "cookieBlocked": {
+              "draftAuthorizationNotInQuery": true,
+              "state": "CONTINUE_IN_THIS_BROWSER"
+            }
+          },
+          "forbiddenSideEffects": {
+            "noRawAnswerLeakToParent": true
+          },
+          "id": "T14-embed-origin-cookie-fallback",
+          "input": {
+            "cookies": "blocked",
+            "parents": [
+              "https://partner.example.test",
+              "https://evil.example.test"
+            ]
+          },
+          "inputRef": "#/records/T14/actions/T14-embed-origin-cookie-fallback/input",
+          "manualAction": {
+            "instruction": "Load the published form in the allowed and blocked parent origins with cookies disabled for the frozen fallback check.",
+            "kind": "manual-ui",
+            "materializationState": "m2-endpoint-unspecified",
+            "sourceCitation": "PRD:371-376",
+            "surface": "Embedded respondent form"
+          },
+          "resource": {
+            "allowedOrigins": [
+              "https://partner.example.test"
+            ],
+            "channel": "channel:embed"
+          }
+        },
+        {
+          "actor": {
+            "kind": "anonymous-respondent",
+            "sessionAuthorization": "same-device"
+          },
+          "evidence": {
+            "captures": [
+              "navigation-history",
+              "review-screenshot",
+              "submission-envelope",
+              "durable-receipt"
+            ],
+            "level": "E2"
+          },
+          "expected": {
+            "navigation": {
+              "historySupportsBack": true,
+              "progressAfterFirstNext": "1/2",
+              "reviewProgress": "2/2"
+            },
+            "noReceiptSubstitutes": [
+              "progress label",
+              "narration completion",
+              "URL change"
+            ],
+            "review": {
+              "attachmentState": "Ready",
+              "extraAttendees": "0",
+              "hiddenSetupAbsent": true,
+              "referenceCode": "00123",
+              "services": [
+                "opt_collection"
+              ],
+              "total": "44.75"
+            },
+            "submit": {
+              "httpStatus": 201,
+              "receipt": {
+                "fields": [
+                  "submissionId",
+                  "submittedAt",
+                  "requestId"
+                ],
+                "status": "accepted"
+              },
+              "state": "SUBMITTED"
+            }
+          },
+          "forbiddenSideEffects": {
+            "noVoiceCommandSubmit": true,
+            "unknownDistinctFromBlank": true
+          },
+          "id": "T14-respondent-navigation-review-receipt",
+          "input": {
+            "steps": [
+              "Alex Morgan",
+              "00123",
+              "alex.morgan@example.test",
+              "needsSetup Yes then No",
+              "services Other/None/Collection",
+              "date 2026-09-05",
+              "attendees 0",
+              "priority 4",
+              "rank Reliability/Price/Portability",
+              "reorder equipment B before A",
+              "review edit original A quantity 3",
+              "acknowledge exact text",
+              "explicit submit"
+            ]
+          },
+          "inputRef": "#/records/T14/actions/T14-respondent-navigation-review-receipt/input",
+          "manualAction": {
+            "steps": [
+              {
+                "op": "enter",
+                "target": "named Appendix C values"
+              },
+              {
+                "control": "Next/Back/review edit link",
+                "op": "navigate"
+              },
+              {
+                "control": "review acknowledgment",
+                "op": "check"
+              },
+              {
+                "control": "Submit",
+                "op": "activate"
+              }
+            ],
+            "surface": "respondent-form"
+          },
+          "resource": {
+            "release": "release:fleet-v1",
+            "session": "session:respondent-a"
+          }
+        }
+      ],
+      "evidence": {
+        "required": [
+          "browser/origin test",
+          "channel window/cap responses",
+          "Appendix C navigation recording",
+          "review projection",
+          "durable receipt"
+        ]
+      },
+      "fixture": "T14",
+      "id": "EVAL-ORACLE-T14",
+      "preState": {
+        "clock": "2026-09-14T10:00:00Z",
+        "packageIdentity": {
+          "definitionVersion": "4.0.0",
+          "formKey": "fleet-maintenance-intake",
+          "source": "frozen canonical package graph"
+        },
+        "release": "release:fleet-v1",
+        "session": "session:respondent-a",
+        "tenant": "tenant:atlas",
+        "workspace": "workspace:intake"
+      },
+      "requirements": [
+        "SF-RES-01",
+        "SF-SHR-01",
+        "SF-SHR-02",
+        "SF-PUB-03",
+        "SF-UX-01"
+      ],
+      "sourceCitations": [
+        {
+          "lines": "401",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "405-406",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "809",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "813",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "1206",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "1352-1361",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "1399",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        }
+      ],
+      "status": "not-run"
+    },
+    {
+      "actions": [
+        {
+          "actor": {
+            "kind": "respondent"
+          },
+          "evidence": {
+            "captures": [
+              "storage-scan-state",
+              "browser-upload-trace",
+              "authorized-download-trace",
+              "attachment-manifest"
+            ],
+            "level": "E2"
+          },
+          "expected": {
+            "answerReference": "ready attachment IDs only",
+            "complete": {
+              "httpStatus": 200,
+              "states": [
+                "processing",
+                "ready"
+              ]
+            },
+            "initiate": {
+              "httpStatus": 201,
+              "state": "issued"
+            },
+            "pdfProcessingInvoked": false
+          },
+          "forbiddenSideEffects": {
+            "noBase64InAnswerJson": true
+          },
+          "id": "T15-ordinary-pdf-and-text-ready",
+          "input": {
+            "files": [
+              {
+                "mediaType": "application/pdf",
+                "name": "ordinary.pdf",
+                "sha256": "sha256:pdf-1024",
+                "sizeBytes": 1024
+              },
+              {
+                "mediaType": "text/plain",
+                "name": "equipment-note.txt",
+                "sha256": "sha256:fixture-lf",
+                "sizeBytes": 8
+              }
+            ]
+          },
+          "inputRef": "#/records/T15/actions/T15-ordinary-pdf-and-text-ready/input",
+          "request": {
+            "method": "POST",
+            "path": "/v1/sessions/session:respondent-a/attachments"
+          },
+          "resource": {
+            "attachmentPolicy": {
+              "perFileBytes": 26214400,
+              "perQuestionFiles": 10
+            },
+            "session": "session:respondent-a"
+          }
+        },
+        {
+          "actor": {
+            "kind": "respondent"
+          },
+          "evidence": {
+            "captures": [
+              "storage-scan-state",
+              "browser-upload-trace",
+              "authorized-download-trace",
+              "attachment-manifest"
+            ],
+            "level": "E2"
+          },
+          "expected": {
+            "submit": {
+              "code": "ATTACHMENT_NOT_READY",
+              "httpStatus": 422,
+              "jsonPointer": "/answers/supportingFiles"
+            },
+            "ui": {
+              "pendingShowsProgress": true,
+              "rejectedShowsReason": "MALWARE_DETECTED",
+              "retryAndRemoveAvailable": true
+            }
+          },
+          "forbiddenSideEffects": {
+            "noAcceptedAttachmentReference": true
+          },
+          "id": "T15-pending-quarantined-required-gate",
+          "input": {
+            "attachments": [
+              {
+                "id": "upload:pending",
+                "state": "processing"
+              },
+              {
+                "id": "upload:quarantine",
+                "reason": "MALWARE_DETECTED",
+                "state": "rejected"
+              }
+            ]
+          },
+          "inputRef": "#/records/T15/actions/T15-pending-quarantined-required-gate/input",
+          "request": {
+            "method": "POST",
+            "path": "/v1/sessions/session:respondent-a/attachments"
+          },
+          "resource": {
+            "attachmentPolicy": {
+              "perFileBytes": 26214400,
+              "perQuestionFiles": 10
+            },
+            "session": "session:respondent-a"
+          }
+        },
+        {
+          "actor": {
+            "kind": "respondent"
+          },
+          "evidence": {
+            "captures": [
+              "storage-scan-state",
+              "browser-upload-trace",
+              "authorized-download-trace",
+              "attachment-manifest"
+            ],
+            "level": "E2"
+          },
+          "expected": {
+            "cancel": {
+              "httpStatus": 200,
+              "state": "cancelled"
+            },
+            "digest": {
+              "code": "ATTACHMENT_DIGEST_MISMATCH",
+              "httpStatus": 422,
+              "jsonPointer": "/sha256"
+            },
+            "lateComplete": {
+              "code": "ATTACHMENT_TERMINAL",
+              "httpStatus": 409
+            },
+            "oversize": {
+              "code": "ATTACHMENT_SIZE_LIMIT",
+              "httpStatus": 422,
+              "jsonPointer": "/sizeBytes"
+            },
+            "retry": {
+              "httpStatus": 201,
+              "state": "issued"
+            },
+            "type": {
+              "code": "ATTACHMENT_MEDIA_TYPE_DENIED",
+              "httpStatus": 422,
+              "jsonPointer": "/mediaType"
+            }
+          },
+          "forbiddenSideEffects": {
+            "cancelledUploadNotRevived": true
+          },
+          "id": "T15-policy-digest-cancel-retry",
+          "input": {
+            "attempts": [
+              {
+                "mediaType": "application/pdf",
+                "name": "oversize.pdf",
+                "sizeBytes": 26214401
+              },
+              {
+                "mediaType": "application/x-msdownload",
+                "name": "script.exe",
+                "sizeBytes": 12
+              },
+              {
+                "name": "ordinary.pdf",
+                "sha256": "sha256:wrong"
+              }
+            ],
+            "cancel": "upload:cancelled",
+            "retry": "upload:retry"
+          },
+          "inputRef": "#/records/T15/actions/T15-policy-digest-cancel-retry/input",
+          "manualAction": {
+            "instruction": "Cancel the issued upload, retry it, and observe the terminal scan/digest/type/size states.",
+            "kind": "manual-ui",
+            "materializationState": "m2-endpoint-unspecified",
+            "sourceCitation": "PRD:583-588",
+            "surface": "Respondent attachment control"
+          },
+          "request": {
+            "method": "POST",
+            "path": "/v1/sessions/session:respondent-a/attachments"
+          },
+          "resource": {
+            "attachmentPolicy": {
+              "perFileBytes": 26214400,
+              "perQuestionFiles": 10
+            },
+            "session": "session:respondent-a"
+          }
+        },
+        {
+          "actor": {
+            "kind": "respondent"
+          },
+          "evidence": {
+            "captures": [
+              "storage-scan-state",
+              "browser-upload-trace",
+              "authorized-download-trace",
+              "attachment-manifest"
+            ],
+            "level": "E2"
+          },
+          "expected": {
+            "acceptedSnapshotReference": {
+              "sealedBytesRetained": true
+            },
+            "authorized": {
+              "capabilityExpiresAt": "2026-09-14T10:05:00Z",
+              "httpStatus": 200
+            },
+            "draftDelete": {
+              "httpStatus": 204,
+              "state": "safe-deletion-scheduled"
+            },
+            "expired": {
+              "code": "ATTACHMENT_CAPABILITY_EXPIRED",
+              "httpStatus": 410
+            },
+            "unauthorized": {
+              "code": "ATTACHMENT_ACCESS_DENIED",
+              "httpStatus": 403
+            }
+          },
+          "forbiddenSideEffects": {
+            "noDurableBearerUrl": true
+          },
+          "id": "T15-download-expiry-retention",
+          "input": {
+            "deleteDraftReference": "attachment:ready",
+            "downloadRequests": [
+              {
+                "actor": "other-respondent",
+                "attachment": "attachment:ready"
+              },
+              {
+                "actor": "response-viewer",
+                "at": "2026-09-14T10:00:00Z",
+                "attachment": "attachment:ready"
+              },
+              {
+                "actor": "response-viewer",
+                "at": "2026-09-14T10:05:01Z",
+                "attachment": "attachment:ready"
+              }
+            ]
+          },
+          "inputRef": "#/records/T15/actions/T15-download-expiry-retention/input",
+          "request": {
+            "method": "GET",
+            "path": "/v1/workspaces/ws-fleet/attachments/attachment:ready/download"
+          },
+          "resource": {
+            "attachmentPolicy": {
+              "perFileBytes": 26214400,
+              "perQuestionFiles": 10
+            },
+            "session": "session:respondent-a"
+          }
+        }
+      ],
+      "evidence": {
+        "required": [
+          "real object storage/scan trace",
+          "ordinary PDF and permitted-file evidence",
+          "state-transition timeline",
+          "authorized/expired download traces",
+          "reference-aware deletion evidence"
+        ]
+      },
+      "fixture": "T15",
+      "id": "EVAL-ORACLE-T15",
+      "preState": {
+        "clock": "2026-09-14T10:00:00Z",
+        "packageIdentity": {
+          "definitionVersion": "4.0.0",
+          "formKey": "fleet-maintenance-intake",
+          "source": "frozen canonical package graph"
+        },
+        "release": "release:fleet-v1",
+        "session": "session:respondent-a",
+        "tenant": "tenant:atlas",
+        "workspace": "workspace:intake"
+      },
+      "requirements": [
+        "SF-FLD-06",
+        "SF-API-05",
+        "SF-SEC-06"
+      ],
+      "sourceCitations": [
+        {
+          "lines": "238",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "250",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "504",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "583-585",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "599",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "624",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "649",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "666",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "814",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        },
+        {
+          "lines": "1222-1228",
+          "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        }
+      ],
+      "status": "not-run"
+    }
+  ]
+}

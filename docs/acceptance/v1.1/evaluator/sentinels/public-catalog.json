@@ -14,23 +14,35 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T14"
+        "T05",
+        "T31"
       ],
+      "gateScope": "cross-fixture",
       "id": "EVAL-SNT-01",
       "milestoneGates": [
         "M0",
         "M3",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
           "lines": "841",
-          "quote": "Full product completion requires all C and E requirements and their fixtures to pass at the appropriate evidence level. The following failures block release regardless of weighted score: cross-tenant/unauthorized data access; loss of acknowledged answers; silent truncation or changed answer meaning; acceptance of invalid/forged protected data; false submission success; arbitrary executable definitions; a UI-only authoring model; use of a prebuilt engine for owned-core responsibilities; and inability to complete the required keyboard/text-only respondent journey."
+          "quote": "Full product completion requires all C and E requirements and their fixtures to pass at the appropriate evidence level. The following failures block release regardless of weighted score: cross-tenant/unauthorized data access; loss of acknowledged answers; silent truncation or changed answer meaning; acceptance of invalid/forged protected data; false submission success; arbitrary executable definitions; a UI-only authoring model; use of a prebuilt engine for owned-core responsibilities; and inability to complete the required keyboard/text-only respondent journey.",
+          "rangeSha256": "320d4019b4c76eb111df9516ffcfc67ab9b9278958cecd452f23ece03e8c52e0",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-CON-01",
+        "SF-RUL-01"
+      ],
       "status": "not-run"
     },
     {
@@ -47,23 +59,35 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T14"
+        "T04",
+        "T05"
       ],
+      "gateScope": "cross-fixture",
       "id": "EVAL-SNT-02",
       "milestoneGates": [
         "M0",
         "M3",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
           "lines": "841",
-          "quote": "Full product completion requires all C and E requirements and their fixtures to pass at the appropriate evidence level. The following failures block release regardless of weighted score: cross-tenant/unauthorized data access; loss of acknowledged answers; silent truncation or changed answer meaning; acceptance of invalid/forged protected data; false submission success; arbitrary executable definitions; a UI-only authoring model; use of a prebuilt engine for owned-core responsibilities; and inability to complete the required keyboard/text-only respondent journey."
+          "quote": "Full product completion requires all C and E requirements and their fixtures to pass at the appropriate evidence level. The following failures block release regardless of weighted score: cross-tenant/unauthorized data access; loss of acknowledged answers; silent truncation or changed answer meaning; acceptance of invalid/forged protected data; false submission success; arbitrary executable definitions; a UI-only authoring model; use of a prebuilt engine for owned-core responsibilities; and inability to complete the required keyboard/text-only respondent journey.",
+          "rangeSha256": "320d4019b4c76eb111df9516ffcfc67ab9b9278958cecd452f23ece03e8c52e0",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-RUL-02",
+        "SF-VAL-01"
+      ],
       "status": "not-run"
     },
     {
@@ -80,23 +104,35 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T14"
+        "T04",
+        "T31"
       ],
+      "gateScope": "cross-fixture",
       "id": "EVAL-SNT-03",
       "milestoneGates": [
         "M3",
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
           "lines": "841",
-          "quote": "Full product completion requires all C and E requirements and their fixtures to pass at the appropriate evidence level. The following failures block release regardless of weighted score: cross-tenant/unauthorized data access; loss of acknowledged answers; silent truncation or changed answer meaning; acceptance of invalid/forged protected data; false submission success; arbitrary executable definitions; a UI-only authoring model; use of a prebuilt engine for owned-core responsibilities; and inability to complete the required keyboard/text-only respondent journey."
+          "quote": "Full product completion requires all C and E requirements and their fixtures to pass at the appropriate evidence level. The following failures block release regardless of weighted score: cross-tenant/unauthorized data access; loss of acknowledged answers; silent truncation or changed answer meaning; acceptance of invalid/forged protected data; false submission success; arbitrary executable definitions; a UI-only authoring model; use of a prebuilt engine for owned-core responsibilities; and inability to complete the required keyboard/text-only respondent journey.",
+          "rangeSha256": "320d4019b4c76eb111df9516ffcfc67ab9b9278958cecd452f23ece03e8c52e0",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-CON-02",
+        "SF-FLD-01"
+      ],
       "status": "not-run"
     },
     {
@@ -113,22 +149,33 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T14"
+        "T20"
       ],
+      "gateScope": "cross-fixture",
       "id": "EVAL-SNT-04",
       "milestoneGates": [
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
           "lines": "841",
-          "quote": "Full product completion requires all C and E requirements and their fixtures to pass at the appropriate evidence level. The following failures block release regardless of weighted score: cross-tenant/unauthorized data access; loss of acknowledged answers; silent truncation or changed answer meaning; acceptance of invalid/forged protected data; false submission success; arbitrary executable definitions; a UI-only authoring model; use of a prebuilt engine for owned-core responsibilities; and inability to complete the required keyboard/text-only respondent journey."
+          "quote": "Full product completion requires all C and E requirements and their fixtures to pass at the appropriate evidence level. The following failures block release regardless of weighted score: cross-tenant/unauthorized data access; loss of acknowledged answers; silent truncation or changed answer meaning; acceptance of invalid/forged protected data; false submission success; arbitrary executable definitions; a UI-only authoring model; use of a prebuilt engine for owned-core responsibilities; and inability to complete the required keyboard/text-only respondent journey.",
+          "rangeSha256": "320d4019b4c76eb111df9516ffcfc67ab9b9278958cecd452f23ece03e8c52e0",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-SEC-01",
+        "SF-SEC-02"
+      ],
       "status": "not-run"
     },
     {
@@ -145,22 +192,35 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T14"
+        "T09",
+        "T17"
       ],
+      "gateScope": "cross-fixture",
       "id": "EVAL-SNT-05",
       "milestoneGates": [
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
           "lines": "841",
-          "quote": "Full product completion requires all C and E requirements and their fixtures to pass at the appropriate evidence level. The following failures block release regardless of weighted score: cross-tenant/unauthorized data access; loss of acknowledged answers; silent truncation or changed answer meaning; acceptance of invalid/forged protected data; false submission success; arbitrary executable definitions; a UI-only authoring model; use of a prebuilt engine for owned-core responsibilities; and inability to complete the required keyboard/text-only respondent journey."
+          "quote": "Full product completion requires all C and E requirements and their fixtures to pass at the appropriate evidence level. The following failures block release regardless of weighted score: cross-tenant/unauthorized data access; loss of acknowledged answers; silent truncation or changed answer meaning; acceptance of invalid/forged protected data; false submission success; arbitrary executable definitions; a UI-only authoring model; use of a prebuilt engine for owned-core responsibilities; and inability to complete the required keyboard/text-only respondent journey.",
+          "rangeSha256": "320d4019b4c76eb111df9516ffcfc67ab9b9278958cecd452f23ece03e8c52e0",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-API-03",
+        "SF-NFR-03",
+        "SF-RES-04"
+      ],
       "status": "not-run"
     },
     {
@@ -177,21 +237,32 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T14"
+        "T23"
       ],
+      "gateScope": "cross-fixture",
       "id": "EVAL-SNT-06",
       "milestoneGates": [
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
           "lines": "841",
-          "quote": "Full product completion requires all C and E requirements and their fixtures to pass at the appropriate evidence level. The following failures block release regardless of weighted score: cross-tenant/unauthorized data access; loss of acknowledged answers; silent truncation or changed answer meaning; acceptance of invalid/forged protected data; false submission success; arbitrary executable definitions; a UI-only authoring model; use of a prebuilt engine for owned-core responsibilities; and inability to complete the required keyboard/text-only respondent journey."
+          "quote": "Full product completion requires all C and E requirements and their fixtures to pass at the appropriate evidence level. The following failures block release regardless of weighted score: cross-tenant/unauthorized data access; loss of acknowledged answers; silent truncation or changed answer meaning; acceptance of invalid/forged protected data; false submission success; arbitrary executable definitions; a UI-only authoring model; use of a prebuilt engine for owned-core responsibilities; and inability to complete the required keyboard/text-only respondent journey.",
+          "rangeSha256": "320d4019b4c76eb111df9516ffcfc67ab9b9278958cecd452f23ece03e8c52e0",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-NFR-04",
+        "SF-SEC-03"
+      ],
       "status": "not-run"
     },
     {
@@ -208,22 +279,34 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T14"
+        "T12",
+        "T13"
       ],
+      "gateScope": "cross-fixture",
       "id": "EVAL-SNT-07",
       "milestoneGates": [
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
           "lines": "841",
-          "quote": "Full product completion requires all C and E requirements and their fixtures to pass at the appropriate evidence level. The following failures block release regardless of weighted score: cross-tenant/unauthorized data access; loss of acknowledged answers; silent truncation or changed answer meaning; acceptance of invalid/forged protected data; false submission success; arbitrary executable definitions; a UI-only authoring model; use of a prebuilt engine for owned-core responsibilities; and inability to complete the required keyboard/text-only respondent journey."
+          "quote": "Full product completion requires all C and E requirements and their fixtures to pass at the appropriate evidence level. The following failures block release regardless of weighted score: cross-tenant/unauthorized data access; loss of acknowledged answers; silent truncation or changed answer meaning; acceptance of invalid/forged protected data; false submission success; arbitrary executable definitions; a UI-only authoring model; use of a prebuilt engine for owned-core responsibilities; and inability to complete the required keyboard/text-only respondent journey.",
+          "rangeSha256": "320d4019b4c76eb111df9516ffcfc67ab9b9278958cecd452f23ece03e8c52e0",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-ACC-01",
+        "SF-LOC-03"
+      ],
       "status": "not-run"
     }
   ]

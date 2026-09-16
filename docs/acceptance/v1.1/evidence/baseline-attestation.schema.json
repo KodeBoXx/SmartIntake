@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodeboxx.example/smart-intake/acceptance/v1.1/baseline-attestation.schema.json",
+  "title": "Smart Form Builder Lite v1.1 baseline evidence attestation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "attestationVersion",
+    "recordLocation",
+    "recordSha256",
+    "recordStatus",
+    "candidate",
+    "createdAtUtc",
+    "reviewer",
+    "reviewerAuthority",
+    "reviewStatus",
+    "acceptanceBoundary"
+  ],
+  "properties": {
+    "attestationVersion": { "const": "1.1.0" },
+    "recordLocation": {
+      "type": "string",
+      "minLength": 1,
+      "allOf": [
+        { "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*$" },
+        { "not": { "pattern": "^/" } },
+        { "not": { "pattern": "^[A-Za-z]:[\\\\/]" } },
+        { "not": { "pattern": "^\\\\" } },
+        { "not": { "pattern": "(^|/)\\.\\.?(/|$)" } },
+        { "not": { "pattern": "//" } }
+      ]
+    },
+    "recordSha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "recordStatus": { "enum": ["provisional", "retained", "finalized", "superseded", "revoked"] },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sha", "treeSha", "dirty"],
+      "properties": {
+        "sha": { "type": ["string", "null"], "pattern": "^[0-9a-f]{40}$" },
+        "treeSha": { "type": ["string", "null"], "pattern": "^[0-9a-f]{40}$" },
+        "dirty": { "type": "boolean" }
+      }
+    },
+    "createdAtUtc": { "type": "string", "format": "date-time" },
+    "reviewer": { "type": "string", "minLength": 1 },
+    "reviewerAuthority": { "type": "string", "minLength": 1 },
+    "reviewStatus": { "const": "approved" },
+    "acceptanceBoundary": {
+      "const": "Attestation preserves a baseline observation; it grants no acceptance credit."
+    }
+  }
+}

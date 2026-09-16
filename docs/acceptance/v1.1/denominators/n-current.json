@@ -7,10 +7,10 @@
     {
       "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
       "citation": {
-        "lines": "plan M1; PRD \u00a7\u00a79\u201313",
-        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        "lines": "7-27",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "N-01",
+      "id": "N-auth-bootstrap-a4aa5665b9",
       "owner": "characterization",
       "status": "not-run",
       "surface": "auth-bootstrap",
@@ -19,10 +19,10 @@
     {
       "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
       "citation": {
-        "lines": "plan M1; PRD \u00a7\u00a79\u201313",
-        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        "lines": "15-45",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
       },
-      "id": "N-02",
+      "id": "N-auth-session-lifecycle-10a825b039",
       "owner": "characterization",
       "status": "not-run",
       "surface": "auth-session-lifecycle",
@@ -31,10 +31,10 @@
     {
       "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
       "citation": {
-        "lines": "plan M1; PRD \u00a7\u00a79\u201313",
+        "lines": "657",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "N-03",
+      "id": "N-catalog-652f550162",
       "owner": "characterization",
       "status": "not-run",
       "surface": "catalog",
@@ -43,10 +43,10 @@
     {
       "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
       "citation": {
-        "lines": "plan M1; PRD \u00a7\u00a79\u201313",
+        "lines": "373-379",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "N-04",
+      "id": "N-draft-save-ba893790cd",
       "owner": "characterization",
       "status": "not-run",
       "surface": "draft-save",
@@ -55,10 +55,10 @@
     {
       "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
       "citation": {
-        "lines": "plan M1; PRD \u00a7\u00a79\u201313",
+        "lines": "568-604",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "N-05",
+      "id": "N-definition-import-export-9f1861c342",
       "owner": "characterization",
       "status": "not-run",
       "surface": "definition-import-export",
@@ -67,10 +67,10 @@
     {
       "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
       "citation": {
-        "lines": "plan M1; PRD \u00a7\u00a79\u201313",
+        "lines": "365-369",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "N-06",
+      "id": "N-publish-release-db30a3dace",
       "owner": "characterization",
       "status": "not-run",
       "surface": "publish-release",
@@ -79,10 +79,10 @@
     {
       "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
       "citation": {
-        "lines": "plan M1; PRD \u00a7\u00a79\u201313",
+        "lines": "371-385",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "N-07",
+      "id": "N-public-session-start-87fcb2cbdc",
       "owner": "characterization",
       "status": "not-run",
       "surface": "public-session-start",
@@ -91,10 +91,10 @@
     {
       "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
       "citation": {
-        "lines": "plan M1; PRD \u00a7\u00a79\u201313",
+        "lines": "371-379",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "N-08",
+      "id": "N-session-read-e732408eaa",
       "owner": "characterization",
       "status": "not-run",
       "surface": "session-read",
@@ -103,10 +103,10 @@
     {
       "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
       "citation": {
-        "lines": "plan M1; PRD \u00a7\u00a79\u201313",
+        "lines": "373-379",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "N-09",
+      "id": "N-session-mutation-18afec79d2",
       "owner": "characterization",
       "status": "not-run",
       "surface": "session-mutation",
@@ -115,10 +115,10 @@
     {
       "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
       "citation": {
-        "lines": "plan M1; PRD \u00a7\u00a79\u201313",
+        "lines": "313-329",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "N-10",
+      "id": "N-session-validation-8915d17e9e",
       "owner": "characterization",
       "status": "not-run",
       "surface": "session-validation",
@@ -127,10 +127,10 @@
     {
       "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
       "citation": {
-        "lines": "plan M1; PRD \u00a7\u00a79\u201313",
+        "lines": "371-377",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "N-11",
+      "id": "N-submission-receipt-e4f74c0993",
       "owner": "characterization",
       "status": "not-run",
       "surface": "submission-receipt",
@@ -139,10 +139,10 @@
     {
       "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
       "citation": {
-        "lines": "plan M1; PRD \u00a7\u00a79\u201313",
+        "lines": "387-393",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "N-12",
+      "id": "N-response-list-86c87f7af9",
       "owner": "characterization",
       "status": "not-run",
       "surface": "response-list",
@@ -151,10 +151,10 @@
     {
       "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
       "citation": {
-        "lines": "plan M1; PRD \u00a7\u00a79\u201313",
+        "lines": "387-393",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "N-13",
+      "id": "N-response-detail-69fdcd144d",
       "owner": "characterization",
       "status": "not-run",
       "surface": "response-detail",
@@ -163,10 +163,10 @@
     {
       "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
       "citation": {
-        "lines": "plan M1; PRD \u00a7\u00a79\u201313",
+        "lines": "391-393",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "N-14",
+      "id": "N-response-export-5a030de2fc",
       "owner": "characterization",
       "status": "not-run",
       "surface": "response-export",
@@ -175,10 +175,10 @@
     {
       "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
       "citation": {
-        "lines": "plan M1; PRD \u00a7\u00a79\u201313",
+        "lines": "678-709",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "N-15",
+      "id": "N-frontend-entry-ea92177474",
       "owner": "characterization",
       "status": "not-run",
       "surface": "frontend-entry",
@@ -187,10 +187,10 @@
     {
       "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
       "citation": {
-        "lines": "plan M1; PRD \u00a7\u00a79\u201313",
+        "lines": "678-709",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "N-16",
+      "id": "N-frontend-authoring-29aa0ad6be",
       "owner": "characterization",
       "status": "not-run",
       "surface": "frontend-authoring",
@@ -199,10 +199,10 @@
     {
       "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
       "citation": {
-        "lines": "plan M1; PRD \u00a7\u00a79\u201313",
-        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        "lines": "191",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Lite-Evaluator-Protocol.md"
       },
-      "id": "N-17",
+      "id": "N-frontend-preview-71d0b89215",
       "owner": "characterization",
       "status": "not-run",
       "surface": "frontend-preview",
@@ -211,10 +211,10 @@
     {
       "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
       "citation": {
-        "lines": "plan M1; PRD \u00a7\u00a79\u201313",
+        "lines": "371-385",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "N-18",
+      "id": "N-frontend-respondent-a40feb8221",
       "owner": "characterization",
       "status": "not-run",
       "surface": "frontend-respondent",
@@ -223,10 +223,10 @@
     {
       "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
       "citation": {
-        "lines": "plan M1; PRD \u00a7\u00a79\u201313",
-        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        "lines": "189",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Lite-Evaluator-Protocol.md"
       },
-      "id": "N-19",
+      "id": "N-frontend-response-admin-dd3f562345",
       "owner": "characterization",
       "status": "not-run",
       "surface": "frontend-response-admin",
@@ -235,10 +235,10 @@
     {
       "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
       "citation": {
-        "lines": "plan M1; PRD \u00a7\u00a79\u201313",
+        "lines": "653-675",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "N-20",
+      "id": "N-database-v1-v4-b20f5a5bde",
       "owner": "characterization",
       "status": "not-run",
       "surface": "database-v1-v4",
@@ -247,10 +247,10 @@
     {
       "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
       "citation": {
-        "lines": "plan M1; PRD \u00a7\u00a79\u201313",
-        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+        "lines": "204",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Lite-Evaluator-Protocol.md"
       },
-      "id": "N-21",
+      "id": "N-compose-clean-start-b6aa5f23de",
       "owner": "characterization",
       "status": "not-run",
       "surface": "compose-clean-start",
@@ -261,10 +261,18 @@
   "selection": "plan-selected characterization inventory",
   "source_citations": [
     {
-      "lines": "plan M1; PRD \u00a7\u00a79\u201313",
+      "lines": "361-409,517-675",
       "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+    },
+    {
+      "lines": "7-45",
+      "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+    },
+    {
+      "lines": "189-204",
+      "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Lite-Evaluator-Protocol.md"
     }
   ],
   "total": 21,
-  "version": "1.0.0-m0"
+  "version": "2.0.0-m0"
 }

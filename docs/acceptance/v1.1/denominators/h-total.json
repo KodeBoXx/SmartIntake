@@ -6,10 +6,10 @@
   "members": [
     {
       "citation": {
-        "lines": "\u00a711.3 lines 568\u2013572",
+        "lines": "568-572",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "H-01",
+      "id": "H-duplicate-json-keys-8001696c8d",
       "import_class": "duplicate-json-keys",
       "owner": "import/security",
       "status": "not-run",
@@ -17,10 +17,10 @@
     },
     {
       "citation": {
-        "lines": "\u00a711.3 lines 568\u2013572",
+        "lines": "568-572",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "H-02",
+      "id": "H-malformed-unicode-a3b44f6ff9",
       "import_class": "malformed-unicode",
       "owner": "import/security",
       "status": "not-run",
@@ -28,10 +28,10 @@
     },
     {
       "citation": {
-        "lines": "\u00a711.3 lines 568\u2013572",
+        "lines": "568-572",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "H-03",
+      "id": "H-excessive-nesting-812046494c",
       "import_class": "excessive-nesting",
       "owner": "import/security",
       "status": "not-run",
@@ -39,10 +39,10 @@
     },
     {
       "citation": {
-        "lines": "\u00a711.3 lines 568\u2013572",
+        "lines": "568-572",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "H-04",
+      "id": "H-prototype-style-key-48fe95b93b",
       "import_class": "prototype-style-key",
       "owner": "import/security",
       "status": "not-run",
@@ -50,10 +50,10 @@
     },
     {
       "citation": {
-        "lines": "\u00a711.3 lines 568\u2013572",
+        "lines": "568-572",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "H-05",
+      "id": "H-raw-executable-content-c398e6da07",
       "import_class": "raw-executable-content",
       "owner": "import/security",
       "status": "not-run",
@@ -61,10 +61,10 @@
     },
     {
       "citation": {
-        "lines": "\u00a711.3 lines 568\u2013572",
+        "lines": "568-572",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "H-06",
+      "id": "H-unsupported-type-or-operator-ae3ec89958",
       "import_class": "unsupported-type-or-operator",
       "owner": "import/security",
       "status": "not-run",
@@ -72,10 +72,10 @@
     },
     {
       "citation": {
-        "lines": "\u00a711.3 lines 568\u2013572",
+        "lines": "568-572",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "H-07",
+      "id": "H-remote-reference-6d5a5d7c74",
       "import_class": "remote-reference",
       "owner": "import/security",
       "status": "not-run",
@@ -83,10 +83,10 @@
     },
     {
       "citation": {
-        "lines": "\u00a711.3 lines 568\u2013572",
+        "lines": "568-572",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "H-08",
+      "id": "H-secret-like-provider-field-55e7102f66",
       "import_class": "secret-like-provider-field",
       "owner": "import/security",
       "status": "not-run",
@@ -94,10 +94,10 @@
     },
     {
       "citation": {
-        "lines": "\u00a711.3 lines 568\u2013572",
+        "lines": "568-572",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "H-09",
+      "id": "H-oversize-json-0e51b11355",
       "import_class": "oversize-json",
       "owner": "import/security",
       "status": "not-run",
@@ -105,10 +105,10 @@
     },
     {
       "citation": {
-        "lines": "\u00a711.3 lines 568\u2013572",
+        "lines": "568-572",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
-      "id": "H-10",
+      "id": "H-candidate-cross-tenant-commit-ad064f3935",
       "import_class": "candidate-cross-tenant-commit",
       "owner": "import/security",
       "status": "not-run",
@@ -124,5 +124,5 @@
     }
   ],
   "total": 10,
-  "version": "1.0.0-m0"
+  "version": "2.0.0-m0"
 }

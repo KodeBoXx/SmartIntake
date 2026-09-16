@@ -8,22 +8,32 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T04"
+        "T02"
       ],
       "id": "EVAL-AUTH-A1",
       "milestoneGates": [
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
           "lines": "1338",
-          "quote": "1. Create the fields/layout/rules through visual controls. Configure and test both equipment entry modes, the fixed-row detail rule, nested repeaters and total. Shared fields must not become duplicated answer definitions."
+          "quote": "1. Create the fields/layout/rules through visual controls. Configure and test both equipment entry modes, the fixed-row detail rule, nested repeaters and total. Shared fields must not become duplicated answer definitions.",
+          "rangeSha256": "9f07ed6b28023892ef81ca9d4c957dfd902f0b135e15086bb3fcc83d66a3022e",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-AUT-01",
+        "SF-UX-01"
+      ],
       "status": "not-run"
     },
     {
@@ -34,22 +44,32 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T04"
+        "T11"
       ],
       "id": "EVAL-AUTH-A2",
       "milestoneGates": [
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
           "lines": "1339",
-          "quote": "2. Add semantic rich instructions with a heading, two-item list and safe email placeholder. Add short help, detailed help, glossary term **Estimate**, and approved Q&A: “Does an estimate take a payment?” → “No. This form only collects information.” Attach this approved Q&A to both About and Equipment scopes through a shared guidance reference or explicitly identical approved content. Declare one paraphrase: “Will this charge me?” The no-match script is “Can you recommend a supplier?” and must produce an honest no-approved-answer state."
+          "quote": "2. Add semantic rich instructions with a heading, two-item list and safe email placeholder. Add short help, detailed help, glossary term **Estimate**, and approved Q&A: “Does an estimate take a payment?” → “No. This form only collects information.” Attach this approved Q&A to both About and Equipment scopes through a shared guidance reference or explicitly identical approved content. Declare one paraphrase: “Will this charge me?” The no-match script is “Can you recommend a supplier?” and must produce an honest no-approved-answer state.",
+          "rangeSha256": "cd3fc24a1cc6d5736c2f73dfce8b770ce292896d43ac48404e439110cd57ce16",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-GUD-01",
+        "SF-GUD-02"
+      ],
       "status": "not-run"
     },
     {
@@ -60,22 +80,32 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T04"
+        "T11"
       ],
       "id": "EVAL-AUTH-A3",
       "milestoneGates": [
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
           "lines": "1340",
-          "quote": "3. Add visible/selectable narration text: “Enter the equipment you need. The estimate only records information. You can stop narration at any time.” Enable opt-in narration; never autoplay. The provider uses the approved real reference adapter in its separate E3 check."
+          "quote": "3. Add visible/selectable narration text: “Enter the equipment you need. The estimate only records information. You can stop narration at any time.” Enable opt-in narration; never autoplay. The provider uses the approved real reference adapter in its separate E3 check.",
+          "rangeSha256": "06cbf7cc669a3e441fffde60b583d3645be9855ec3a966e98bcb5a3b952a05c0",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-GUD-03",
+        "SF-SEC-04"
+      ],
       "status": "not-run"
     },
     {
@@ -86,22 +116,33 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T04"
+        "T07"
       ],
       "id": "EVAL-AUTH-A4",
       "milestoneGates": [
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
           "lines": "1341",
-          "quote": "4. Create a reusable block from the shipping object and its guidance; insert it into a temporary scratch area to inspect the ID remap, then remove the temporary insertion so the final package still has 30 definitions. Update the block in a separate draft and show the impact diff without silently updating a published session."
+          "quote": "4. Create a reusable block from the shipping object and its guidance; insert it into a temporary scratch area to inspect the ID remap, then remove the temporary insertion so the final package still has 30 definitions. Update the block in a separate draft and show the impact diff without silently updating a published session.",
+          "rangeSha256": "b7bba180e11ae1b361b3c13631c891ea39b5d5a5067c1cb2c6aba7e04b65d08d",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-AUT-08",
+        "SF-IMP-03",
+        "SF-PUB-04"
+      ],
       "status": "not-run"
     },
     {
@@ -112,22 +153,32 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T04"
+        "T12"
       ],
       "id": "EVAL-AUTH-A5",
       "milestoneGates": [
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
           "lines": "1342",
-          "quote": "5. Import the evaluator-supplied complete Hindi content pack and Arabic RTL test pack using the locale UI, inspect a deliberately missing mandatory acknowledgment key in a separate invalid variant, and approve only the complete pack. Full native-script packs are required evaluator assets; Roman Hindi or English text labeled Hindi is not a substitute."
+          "quote": "5. Import the evaluator-supplied complete Hindi content pack and Arabic RTL test pack using the locale UI, inspect a deliberately missing mandatory acknowledgment key in a separate invalid variant, and approve only the complete pack. Full native-script packs are required evaluator assets; Roman Hindi or English text labeled Hindi is not a substitute.",
+          "rangeSha256": "cc88309e18732c43709a2d6920c01f7f7cad4c60884733ad1aedb511eca4876d",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-LOC-01",
+        "SF-LOC-03"
+      ],
       "status": "not-run"
     },
     {
@@ -138,22 +189,33 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T04"
+        "T03"
       ],
       "id": "EVAL-AUTH-A6",
       "milestoneGates": [
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
           "lines": "1343",
-          "quote": "6. Preview the supplied complete, setup-detail, Other-detail and invalid input cases in ordinary preview. The invalid input case has whitespace-only name, quantity 0 and a false fixed row without detail. Diagnostics must link to those exact objects; preview creates no real events or messages."
+          "quote": "6. Preview the supplied complete, setup-detail, Other-detail and invalid input cases in ordinary preview. The invalid input case has whitespace-only name, quantity 0 and a false fixed row without detail. Diagnostics must link to those exact objects; preview creates no real events or messages.",
+          "rangeSha256": "16ab935b213c106e8e7cff2afecfb92b1f9972a42544a5eb7d7ca5c200ead117",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-ACC-03",
+        "SF-AUT-06",
+        "SF-VAL-03"
+      ],
       "status": "not-run"
     },
     {
@@ -164,22 +226,34 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T04"
+        "T10"
       ],
       "id": "EVAL-AUTH-A7",
       "milestoneGates": [
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
           "lines": "1344",
-          "quote": "7. Publish v1, open a pinned synthetic test session, start v2, rename a heading and reorder a question, inspect stale approval, reapprove and publish. Verify the v1 session is unchanged. Export the final v1 package for the staff-authorized import equivalence check."
+          "quote": "7. Publish v1, open a pinned synthetic test session, start v2, rename a heading and reorder a question, inspect stale approval, reapprove and publish. Verify the v1 session is unchanged. Export the final v1 package for the staff-authorized import equivalence check.",
+          "rangeSha256": "aea636cc00e06a00e1bad700a292f5328ec7dd35537587211a1386aefe72a97e",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-PUB-01",
+        "SF-PUB-02",
+        "SF-PUB-03",
+        "SF-PUB-04"
+      ],
       "status": "not-run"
     },
     {
@@ -191,22 +265,34 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T04"
+        "T24"
       ],
       "id": "EVAL-AUTH-A8",
       "milestoneGates": [
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
           "lines": "1346",
-          "quote": "The evaluator's HTTP check under an ordinary staff workspace role imports the UI-created package preserving its generated IDs, edits a composite setting through the imported draft's properties panel and restores it, then compares normalized package hash and golden outputs. A separate interpreter/runner verifies the expected output independently; the tool's own serializer is not the sole oracle. T04 still needs separate coverage of all catalog controls not used by this bounded usability task."
+          "quote": "The evaluator's HTTP check under an ordinary staff workspace role imports the UI-created package preserving its generated IDs, edits a composite setting through the imported draft's properties panel and restores it, then compares normalized package hash and golden outputs. A separate interpreter/runner verifies the expected output independently; the tool's own serializer is not the sole oracle. T04 still needs separate coverage of all catalog controls not used by this bounded usability task.",
+          "rangeSha256": "90f180b7b2ab88fd79ae9df5c711d99b903bc8c3ff338d61fbf42646d9cb51fb",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-API-01",
+        "SF-CON-01",
+        "SF-IMP-01",
+        "SF-IMP-03"
+      ],
       "status": "not-run"
     }
   ],
@@ -229,6 +315,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T02",
         "T04"
       ],
       "id": "EVAL-AUTH-F01",
@@ -236,15 +323,26 @@
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1297",
-          "quote": "1. **About your request / About**: fields 1–12 below, relevant instructions and scoped help."
+          "lines": "1305",
+          "quote": "| 1 | `respondentName` | text / short text | Required, maximum 120 characters. |",
+          "rangeSha256": "cdb590ca7fb372f1e12c824d1fa99b88964db35f1cf1eefbb02b0b1bf469589a",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-AUT-01",
+        "SF-AUT-02",
+        "SF-FLD-01"
+      ],
       "status": "not-run"
     },
     {
@@ -264,6 +362,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T02",
         "T04"
       ],
       "id": "EVAL-AUTH-F02",
@@ -271,15 +370,26 @@
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1298",
-          "quote": "2. **Equipment / Equipment**: fields 13, 21, 24 and 27–29, their typed descendants, and a second read-only instance of field 3."
+          "lines": "1306",
+          "quote": "| 2 | `referenceCode` | text / identifier | Required, maximum 20; preserve leading zeros. |",
+          "rangeSha256": "d3f3637e6fed7b25bc4601ae169f888ca2fec7e42e88b9e8247a7c75b08288cd",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-AUT-01",
+        "SF-AUT-02",
+        "SF-FLD-01"
+      ],
       "status": "not-run"
     },
     {
@@ -308,22 +418,36 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T04"
+        "T02",
+        "T04",
+        "T24"
       ],
       "id": "EVAL-AUTH-F03",
       "milestoneGates": [
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1299",
-          "quote": "3. **Review / Review and submit**: a review node followed by field 30. Review is not an answer-progress page."
+          "lines": "1307",
+          "quote": "| 3 | `email` | text / email | Required; editable on About and shared read-only instance on Equipment. |",
+          "rangeSha256": "41cdebc5014f303be7fe6374038b39214cfbac131c8a9e9745a36f6157f91b3b",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-AUT-01",
+        "SF-AUT-02",
+        "SF-FLD-01",
+        "SF-FLD-02"
+      ],
       "status": "not-run"
     },
     {
@@ -342,6 +466,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T02",
         "T04"
       ],
       "id": "EVAL-AUTH-F04",
@@ -349,15 +474,26 @@
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1301",
-          "quote": "Use exactly these 30 canonical field definitions, including children. Field keys are stable human-readable integration keys. The evaluator records generated field IDs from the author's first valid export and checks all later identity assertions against those IDs; authors need no developer ID picker. Labels can be the readable form of these names. Do not accept raw JSON editing as visual-authoring success."
+          "lines": "1308",
+          "quote": "| 4 | `needsSetup` | boolean / yes-no | Required; false is a valid answer. |",
+          "rangeSha256": "923b4c2a9829d2066ce352966015cab4a3e11619ad8cc82a0faddbf53a5fdfa7",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-AUT-01",
+        "SF-AUT-02",
+        "SF-FLD-01"
+      ],
       "status": "not-run"
     },
     {
@@ -377,6 +513,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T02",
         "T04"
       ],
       "id": "EVAL-AUTH-F05",
@@ -384,15 +521,26 @@
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1301",
-          "quote": "Use exactly these 30 canonical field definitions, including children. Field keys are stable human-readable integration keys. The evaluator records generated field IDs from the author's first valid export and checks all later identity assertions against those IDs; authors need no developer ID picker. Labels can be the readable form of these names. Do not accept raw JSON editing as visual-authoring success."
+          "lines": "1309",
+          "quote": "| 5 | `setupDetails` | text / long text | Required only while field 4 is true; sensitive, hidden retention clear. |",
+          "rangeSha256": "8dde8cc621931a1ca7cda52dcdf56911adfc7e20d342ea5ef2b30e7f945ddc7b",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-AUT-01",
+        "SF-AUT-02",
+        "SF-FLD-01"
+      ],
       "status": "not-run"
     },
     {
@@ -419,22 +567,36 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T04"
+        "T02",
+        "T04",
+        "T05"
       ],
       "id": "EVAL-AUTH-F06",
       "milestoneGates": [
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1303",
-          "quote": "| # | Key / parent | Canonical type / control | Required configuration |"
+          "lines": "1310",
+          "quote": "| 6 | `services` | multiChoice / chips | Options `opt_collection`, `opt_setup`, `opt_other`, `opt_none`; at least one; `opt_none` exclusive. |",
+          "rangeSha256": "816d4ebfb4897ace6809c969edeb0309af23706beb32f7abeb1b472b50bafe48",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-AUT-01",
+        "SF-AUT-02",
+        "SF-FLD-01",
+        "SF-FLD-07"
+      ],
       "status": "not-run"
     },
     {
@@ -453,22 +615,36 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T04"
+        "T02",
+        "T04",
+        "T05"
       ],
       "id": "EVAL-AUTH-F07",
       "milestoneGates": [
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1303",
-          "quote": "| # | Key / parent | Canonical type / control | Required configuration |"
+          "lines": "1311",
+          "quote": "| 7 | `otherServiceDetails` | text / text | Required while `opt_other` is selected; hidden retention clear. |",
+          "rangeSha256": "e1bab18914d9009207f0dd76c648663d1c5532a3815347fd231629e329881562",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-AUT-01",
+        "SF-AUT-02",
+        "SF-FLD-01",
+        "SF-FLD-07"
+      ],
       "status": "not-run"
     },
     {
@@ -488,6 +664,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T02",
         "T04"
       ],
       "id": "EVAL-AUTH-F08",
@@ -495,15 +672,26 @@
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "100",
-          "quote": "|---|---|---|---|"
+          "lines": "1312",
+          "quote": "| 8 | `visitDate` | date / date | Required ISO calendar date; this records information only. |",
+          "rangeSha256": "f29b089c6c51e0a58e2b269bb51f3fd2ac0def9f3ce6928e7a06140258d4a5ad",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-AUT-01",
+        "SF-AUT-02",
+        "SF-FLD-01"
+      ],
       "status": "not-run"
     },
     {
@@ -524,22 +712,36 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T04"
+        "T02",
+        "T04",
+        "T05"
       ],
       "id": "EVAL-AUTH-F09",
       "milestoneGates": [
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1305",
-          "quote": "| 1 | `respondentName` | text / short text | Required, maximum 120 characters. |"
+          "lines": "1313",
+          "quote": "| 9 | `extraAttendees` | integer / number | Required, minimum 0, maximum 10, step 1. |",
+          "rangeSha256": "3cb034a4ae299785a281bcf3c9eb7c1fb306607841c0055fb0bb931c3f510909",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-AUT-01",
+        "SF-AUT-02",
+        "SF-FLD-01",
+        "SF-FLD-07"
+      ],
       "status": "not-run"
     },
     {
@@ -563,22 +765,36 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T04"
+        "T02",
+        "T04",
+        "T05"
       ],
       "id": "EVAL-AUTH-F10",
       "milestoneGates": [
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1306",
-          "quote": "| 2 | `referenceCode` | text / identifier | Required, maximum 20; preserve leading zeros. |"
+          "lines": "1314",
+          "quote": "| 10 | `priority` | integer / rating | Required, 1–5; endpoints labeled Low priority and High priority. |",
+          "rangeSha256": "edcc6bd9d4a9e4dba2c06258eee4ed591f668c89f5b43f017074883bf8e17111",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-AUT-01",
+        "SF-AUT-02",
+        "SF-FLD-01",
+        "SF-FLD-07"
+      ],
       "status": "not-run"
     },
     {
@@ -602,22 +818,36 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T04"
+        "T02",
+        "T04",
+        "T05"
       ],
       "id": "EVAL-AUTH-F11",
       "milestoneGates": [
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1307",
-          "quote": "| 3 | `email` | text / email | Required; editable on About and shared read-only instance on Equipment. |"
+          "lines": "1315",
+          "quote": "| 11 | `priorityOrder` | ordered multiChoice / ranking | Rank exactly `opt_reliability`, `opt_portability`, `opt_price`; keyboard move controls. |",
+          "rangeSha256": "5914c668f935754e6bb6cc1ad3e0fe14030687f183c950e53cda7c0bea844593",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-AUT-01",
+        "SF-AUT-02",
+        "SF-FLD-01",
+        "SF-FLD-07"
+      ],
       "status": "not-run"
     },
     {
@@ -640,6 +870,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T02",
         "T04"
       ],
       "id": "EVAL-AUTH-F12",
@@ -647,15 +878,26 @@
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1308",
-          "quote": "| 4 | `needsSetup` | boolean / yes-no | Required; false is a valid answer. |"
+          "lines": "1316",
+          "quote": "| 12 | `entryMode` | choice / mode selector | Required, options `opt_cards`, `opt_table`; default cards. |",
+          "rangeSha256": "e3fde5f7ca67232f2bd4e14e62740937962c48d18b2252c2ebf8e75a6055bb64",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-AUT-01",
+        "SF-AUT-02",
+        "SF-FLD-01"
+      ],
       "status": "not-run"
     },
     {
@@ -682,22 +924,38 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T04"
+        "T02",
+        "T04",
+        "T06"
       ],
       "id": "EVAL-AUTH-F13",
       "milestoneGates": [
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1309",
-          "quote": "| 5 | `setupDetails` | text / long text | Required only while field 4 is true; sensitive, hidden retention clear. |"
+          "lines": "1317",
+          "quote": "| 13 | `equipment` | list / repeating cards or dynamic matrix | 1–50 items; alternate instances bind the same field; allow add/remove/reorder; summaries use equipmentName and quantity. |",
+          "rangeSha256": "75e238dc6437a57c8bf8884a7e98aefb5922c775471c6e30b9c4ecea9f79d418",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-AUT-01",
+        "SF-AUT-02",
+        "SF-FLD-01",
+        "SF-FLD-03",
+        "SF-FLD-04",
+        "SF-RUL-03"
+      ],
       "status": "not-run"
     },
     {
@@ -716,22 +974,38 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T04"
+        "T02",
+        "T04",
+        "T06"
       ],
       "id": "EVAL-AUTH-F14",
       "milestoneGates": [
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1310",
-          "quote": "| 6 | `services` | multiChoice / chips | Options `opt_collection`, `opt_setup`, `opt_other`, `opt_none`; at least one; `opt_none` exclusive. |"
+          "lines": "1318",
+          "quote": "| 14 | `equipment.equipmentName` | text / short text | Required, maximum 80. |",
+          "rangeSha256": "4280c93f67cf5697cdd47412d1930921ac8aef9a0178090ed6bc7b3379982166",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-AUT-01",
+        "SF-AUT-02",
+        "SF-FLD-01",
+        "SF-FLD-03",
+        "SF-FLD-04",
+        "SF-RUL-03"
+      ],
       "status": "not-run"
     },
     {
@@ -751,22 +1025,38 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T04"
+        "T02",
+        "T04",
+        "T06"
       ],
       "id": "EVAL-AUTH-F15",
       "milestoneGates": [
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1311",
-          "quote": "| 7 | `otherServiceDetails` | text / text | Required while `opt_other` is selected; hidden retention clear. |"
+          "lines": "1319",
+          "quote": "| 15 | `equipment.quantity` | integer / number | Required, minimum 1, maximum 10. |",
+          "rangeSha256": "b744b4f1e99612911f1463ad0f7ff1cec8720692b0c7e81fc759450bfce1adcd",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-AUT-01",
+        "SF-AUT-02",
+        "SF-FLD-01",
+        "SF-FLD-03",
+        "SF-FLD-04",
+        "SF-RUL-03"
+      ],
       "status": "not-run"
     },
     {
@@ -788,22 +1078,38 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T04"
+        "T02",
+        "T04",
+        "T06"
       ],
       "id": "EVAL-AUTH-F16",
       "milestoneGates": [
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1312",
-          "quote": "| 8 | `visitDate` | date / date | Required ISO calendar date; this records information only. |"
+          "lines": "1320",
+          "quote": "| 16 | `equipment.unitCost` | decimal / currency | Required, USD, scale 2, minimum 0, maximum 1000000. |",
+          "rangeSha256": "c2f6392b74011fbb2ec6fd10f74b9ded2bc42e93ad18f85f76743c27cab4127e",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-AUT-01",
+        "SF-AUT-02",
+        "SF-FLD-01",
+        "SF-FLD-03",
+        "SF-FLD-04",
+        "SF-RUL-03"
+      ],
       "status": "not-run"
     },
     {
@@ -823,22 +1129,38 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T04"
+        "T02",
+        "T04",
+        "T06"
       ],
       "id": "EVAL-AUTH-F17",
       "milestoneGates": [
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1313",
-          "quote": "| 9 | `extraAttendees` | integer / number | Required, minimum 0, maximum 10, step 1. |"
+          "lines": "1321",
+          "quote": "| 17 | `equipment.accessories` | list / repeating cards | Optional, maximum 10 per equipment item; second repeater level. |",
+          "rangeSha256": "5d1a779f3031616440b7acf802df28ad26d5230deee3696b9c098753cd9d2477",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-AUT-01",
+        "SF-AUT-02",
+        "SF-FLD-01",
+        "SF-FLD-03",
+        "SF-FLD-04",
+        "SF-RUL-03"
+      ],
       "status": "not-run"
     },
     {
@@ -856,22 +1178,38 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T04"
+        "T02",
+        "T04",
+        "T06"
       ],
       "id": "EVAL-AUTH-F18",
       "milestoneGates": [
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1314",
-          "quote": "| 10 | `priority` | integer / rating | Required, 1–5; endpoints labeled Low priority and High priority. |"
+          "lines": "1322",
+          "quote": "| 18 | `equipment.accessories.accessoryName` | text / short text | Required within an existing accessory. |",
+          "rangeSha256": "af47426afcc500dbb3a7330091f90e6a6edb2c26f3f5f26542ca779bf8d11e8f",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-AUT-01",
+        "SF-AUT-02",
+        "SF-FLD-01",
+        "SF-FLD-03",
+        "SF-FLD-04",
+        "SF-RUL-03"
+      ],
       "status": "not-run"
     },
     {
@@ -891,22 +1229,38 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T04"
+        "T02",
+        "T04",
+        "T06"
       ],
       "id": "EVAL-AUTH-F19",
       "milestoneGates": [
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1315",
-          "quote": "| 11 | `priorityOrder` | ordered multiChoice / ranking | Rank exactly `opt_reliability`, `opt_portability`, `opt_price`; keyboard move controls. |"
+          "lines": "1323",
+          "quote": "| 19 | `equipment.accessories.tests` | list / repeating cards | Optional, maximum 5; third repeater level. |",
+          "rangeSha256": "00de8a19fc4dc334e826f4869bdfc689d91ecdb29c0e0f6ff520617c138c1421",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-AUT-01",
+        "SF-AUT-02",
+        "SF-FLD-01",
+        "SF-FLD-03",
+        "SF-FLD-04",
+        "SF-RUL-03"
+      ],
       "status": "not-run"
     },
     {
@@ -929,22 +1283,38 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T04"
+        "T02",
+        "T04",
+        "T06"
       ],
       "id": "EVAL-AUTH-F20",
       "milestoneGates": [
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1316",
-          "quote": "| 12 | `entryMode` | choice / mode selector | Required, options `opt_cards`, `opt_table`; default cards. |"
+          "lines": "1324",
+          "quote": "| 20 | `equipment.accessories.tests.testResult` | choice / radio | Required within a test; options `opt_pass`, `opt_fail`. Show this node only when the parentItem accessoryName is answered, exercising an explicit parent-scoped expression. |",
+          "rangeSha256": "ed337499b40737466ca771fb2b1bc67c9b3aa8ff66e6537295b91d6eeb7af965",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-AUT-01",
+        "SF-AUT-02",
+        "SF-FLD-01",
+        "SF-FLD-03",
+        "SF-FLD-04",
+        "SF-RUL-03"
+      ],
       "status": "not-run"
     },
     {
@@ -971,22 +1341,36 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T04"
+        "T02",
+        "T04",
+        "T06"
       ],
       "id": "EVAL-AUTH-F21",
       "milestoneGates": [
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1317",
-          "quote": "| 13 | `equipment` | list / repeating cards or dynamic matrix | 1–50 items; alternate instances bind the same field; allow add/remove/reorder; summaries use equipmentName and quantity. |"
+          "lines": "1325",
+          "quote": "| 21 | `checks` | list / fixed yes-no matrix | Fixed row IDs `row_power`, `row_space`, labels Power available and Space available; no add/remove. |",
+          "rangeSha256": "53db9a4a522562489cff02d988049f19e2b30800496cc016a48b9b9e8133fe60",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-AUT-01",
+        "SF-AUT-02",
+        "SF-FLD-01",
+        "SF-FLD-04"
+      ],
       "status": "not-run"
     },
     {
@@ -1005,22 +1389,36 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T04"
+        "T02",
+        "T04",
+        "T06"
       ],
       "id": "EVAL-AUTH-F22",
       "milestoneGates": [
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1318",
-          "quote": "| 14 | `equipment.equipmentName` | text / short text | Required, maximum 80. |"
+          "lines": "1326",
+          "quote": "| 22 | `checks.checkResult` | boolean / yes-no | Required in each fixed row; rows initialize unanswered. |",
+          "rangeSha256": "a20b7dbdbeb3565469a8fd39646042200f5999487af546f2109190bccc40e538",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-AUT-01",
+        "SF-AUT-02",
+        "SF-FLD-01",
+        "SF-FLD-04"
+      ],
       "status": "not-run"
     },
     {
@@ -1040,22 +1438,36 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T04"
+        "T02",
+        "T04",
+        "T06"
       ],
       "id": "EVAL-AUTH-F23",
       "milestoneGates": [
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1319",
-          "quote": "| 15 | `equipment.quantity` | integer / number | Required, minimum 1, maximum 10. |"
+          "lines": "1327",
+          "quote": "| 23 | `checks.checkDetails` | text / row detail | Required when that same row's checkResult is false; clear when hidden; item-scoped rule. |",
+          "rangeSha256": "19c710418c96ec2c3dc9d1f2c2c5a3886a91ce791b8537f0319c9573d0352159",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-AUT-01",
+        "SF-AUT-02",
+        "SF-FLD-01",
+        "SF-FLD-04"
+      ],
       "status": "not-run"
     },
     {
@@ -1077,6 +1489,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T02",
         "T04"
       ],
       "id": "EVAL-AUTH-F24",
@@ -1084,15 +1497,26 @@
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1320",
-          "quote": "| 16 | `equipment.unitCost` | decimal / currency | Required, USD, scale 2, minimum 0, maximum 1000000. |"
+          "lines": "1328",
+          "quote": "| 24 | `shipping` | object / address composite | Explicit child roles postalCode and country; no implicit state/region requirements. |",
+          "rangeSha256": "4dbe2aeaa8c08584aae2de0858ce65992991f561848eca27db72c3e868b80a73",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-AUT-01",
+        "SF-AUT-02",
+        "SF-FLD-01"
+      ],
       "status": "not-run"
     },
     {
@@ -1112,6 +1536,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T02",
         "T04"
       ],
       "id": "EVAL-AUTH-F25",
@@ -1119,15 +1544,26 @@
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1321",
-          "quote": "| 17 | `equipment.accessories` | list / repeating cards | Optional, maximum 10 per equipment item; second repeater level. |"
+          "lines": "1329",
+          "quote": "| 25 | `shipping.postalCode` | text / identifier | Required, preserve leading zeros; no US-only format rule. |",
+          "rangeSha256": "07c19e9eb5b648f0952c2ed4195bb16103b5555cd57431c03ce95e83d4906ea5",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-AUT-01",
+        "SF-AUT-02",
+        "SF-FLD-01"
+      ],
       "status": "not-run"
     },
     {
@@ -1153,6 +1589,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T02",
         "T04"
       ],
       "id": "EVAL-AUTH-F26",
@@ -1160,15 +1597,26 @@
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1322",
-          "quote": "| 18 | `equipment.accessories.accessoryName` | text / short text | Required within an existing accessory. |"
+          "lines": "1330",
+          "quote": "| 26 | `shipping.country` | choice / searchable combobox | Required, options `opt_in`, `opt_gb`; labels India and United Kingdom. |",
+          "rangeSha256": "d9e5de1c472e045e0a5b6bc5e73d0ec4cd9c20f8367489d6e516197d6c4f0067",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-AUT-01",
+        "SF-AUT-02",
+        "SF-FLD-01"
+      ],
       "status": "not-run"
     },
     {
@@ -1189,6 +1637,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T02",
         "T04"
       ],
       "id": "EVAL-AUTH-F27",
@@ -1196,15 +1645,26 @@
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1323",
-          "quote": "| 19 | `equipment.accessories.tests` | list / repeating cards | Optional, maximum 5; third repeater level. |"
+          "lines": "1331",
+          "quote": "| 27 | `note` | text / text with status choice | Optional; allow explicit unknown and declined separately from unanswered. |",
+          "rangeSha256": "1ce2009cd60c552070ee65b667454ac5020343172b1a6d4f8aa34c3d73029471",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-AUT-01",
+        "SF-AUT-02",
+        "SF-FLD-01"
+      ],
       "status": "not-run"
     },
     {
@@ -1227,22 +1687,37 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T04"
+        "T02",
+        "T04",
+        "T05"
       ],
       "id": "EVAL-AUTH-F28",
       "milestoneGates": [
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1324",
-          "quote": "| 20 | `equipment.accessories.tests.testResult` | choice / radio | Required within a test; options `opt_pass`, `opt_fail`. Show this node only when the parentItem accessoryName is answered, exercising an explicit parent-scoped expression. |"
+          "lines": "1332",
+          "quote": "| 28 | `total` | decimal / read-only calculated | USD scale 2; sum each applicable equipment quantity multiplied by unitCost. Server recomputes. |",
+          "rangeSha256": "17d17e14cf51e56d6dd0b316c23498d085a6feb86a7b4cf61a8c66c276997889",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-AUT-01",
+        "SF-AUT-02",
+        "SF-FLD-01",
+        "SF-RUL-05",
+        "SF-RUL-06"
+      ],
       "status": "not-run"
     },
     {
@@ -1265,22 +1740,36 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T04"
+        "T02",
+        "T04",
+        "T15"
       ],
       "id": "EVAL-AUTH-F29",
       "milestoneGates": [
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1325",
-          "quote": "| 21 | `checks` | list / fixed yes-no matrix | Fixed row IDs `row_power`, `row_space`, labels Power available and Space available; no add/remove. |"
+          "lines": "1333",
+          "quote": "| 29 | `supportingFiles` | attachments / file upload | Optional, maximum 2 files, text/plain allowed, normal scan/readiness behavior. |",
+          "rangeSha256": "256430e385ee6a3e0df2afb386256814b5c58969da6a54ee0d58a315be1db760",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-AUT-01",
+        "SF-AUT-02",
+        "SF-FLD-01",
+        "SF-FLD-06"
+      ],
       "status": "not-run"
     },
     {
@@ -1300,22 +1789,36 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T04"
+        "T02",
+        "T04",
+        "T14"
       ],
       "id": "EVAL-AUTH-F30",
       "milestoneGates": [
         "M3",
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1326",
-          "quote": "| 22 | `checks.checkResult` | boolean / yes-no | Required in each fixed row; rows initialize unanswered. |"
+          "lines": "1334",
+          "quote": "| 30 | `reviewAcknowledged` | boolean / acknowledgment | Required requireTrue; displayed on final review only. Cannot be supplied by voice. |",
+          "rangeSha256": "661271f64d595ad5fd6efb0dfd479109c42d67ce39f2a5b4efd237480723dbdf",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-AUT-01",
+        "SF-AUT-02",
+        "SF-FLD-01",
+        "SF-RES-01"
+      ],
       "status": "not-run"
     }
   ],

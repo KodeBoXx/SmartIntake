@@ -15,15 +15,25 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
           "lines": "1397",
-          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question."
+          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question.",
+          "rangeSha256": "39c7289ce3f2c4a6c0d84bef1291f329c7a1714b837c5c41f227a91593d000a8",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-RES-01",
+        "SF-UX-01"
+      ],
       "status": "not-run"
     },
     {
@@ -41,15 +51,25 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
           "lines": "1397",
-          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question."
+          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question.",
+          "rangeSha256": "39c7289ce3f2c4a6c0d84bef1291f329c7a1714b837c5c41f227a91593d000a8",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-RES-01",
+        "SF-UX-01"
+      ],
       "status": "not-run"
     },
     {
@@ -67,15 +87,25 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
           "lines": "1397",
-          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question."
+          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question.",
+          "rangeSha256": "39c7289ce3f2c4a6c0d84bef1291f329c7a1714b837c5c41f227a91593d000a8",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-RES-01",
+        "SF-UX-01"
+      ],
       "status": "not-run"
     },
     {
@@ -93,15 +123,25 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
           "lines": "1397",
-          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question."
+          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question.",
+          "rangeSha256": "39c7289ce3f2c4a6c0d84bef1291f329c7a1714b837c5c41f227a91593d000a8",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-RES-01",
+        "SF-UX-01"
+      ],
       "status": "not-run"
     },
     {
@@ -119,15 +159,25 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
           "lines": "1397",
-          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question."
+          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question.",
+          "rangeSha256": "39c7289ce3f2c4a6c0d84bef1291f329c7a1714b837c5c41f227a91593d000a8",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-RES-01",
+        "SF-UX-01"
+      ],
       "status": "not-run"
     },
     {
@@ -145,15 +195,25 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
           "lines": "1397",
-          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question."
+          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question.",
+          "rangeSha256": "39c7289ce3f2c4a6c0d84bef1291f329c7a1714b837c5c41f227a91593d000a8",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-RES-01",
+        "SF-UX-01"
+      ],
       "status": "not-run"
     },
     {
@@ -171,15 +231,25 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1397",
-          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question."
+          "lines": "1399",
+          "quote": "Show localized field/option labels while retaining value meaning. Show false as No, zero as 0, unanswered as Not answered, explicit unknown as Unknown, declined as Prefer not to answer, and explicitly allowed `respondentNotApplicable` as Not applicable (respondent answer) using the approved locale pack. `respondentNotApplicable` remains an applicable respondent-selected status with no value; it is distinct from system-hidden `notApplicable`, which is omitted from review. A selected option named None remains a selected option, not an answer-status synonym. Preserve ranked option order. Show unit/currency and derived labeling. For repeated items with identical labels include an unambiguous item position plus distinguishing configured summary values. Show attachment name, size and readiness through authorized metadata; do not expose a durable download token. Drawing/typed-name values, when a different fixture uses them, remain ordinary captured data with no e-sign claim.",
+          "rangeSha256": "05b59b435fa409bae0e3d45d0ec5f1a467a2daaae92d26d7d1eed5fe2533facf",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-RES-01",
+        "SF-UX-01"
+      ],
       "status": "not-run"
     },
     {
@@ -197,15 +267,25 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1397",
-          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question."
+          "lines": "1399",
+          "quote": "Show localized field/option labels while retaining value meaning. Show false as No, zero as 0, unanswered as Not answered, explicit unknown as Unknown, declined as Prefer not to answer, and explicitly allowed `respondentNotApplicable` as Not applicable (respondent answer) using the approved locale pack. `respondentNotApplicable` remains an applicable respondent-selected status with no value; it is distinct from system-hidden `notApplicable`, which is omitted from review. A selected option named None remains a selected option, not an answer-status synonym. Preserve ranked option order. Show unit/currency and derived labeling. For repeated items with identical labels include an unambiguous item position plus distinguishing configured summary values. Show attachment name, size and readiness through authorized metadata; do not expose a durable download token. Drawing/typed-name values, when a different fixture uses them, remain ordinary captured data with no e-sign claim.",
+          "rangeSha256": "05b59b435fa409bae0e3d45d0ec5f1a467a2daaae92d26d7d1eed5fe2533facf",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-RES-01",
+        "SF-UX-01"
+      ],
       "status": "not-run"
     },
     {
@@ -216,6 +296,8 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T12",
+        "T13",
         "T14"
       ],
       "id": "EVAL-RVW-R09",
@@ -223,15 +305,26 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1397",
-          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question."
+          "lines": "1399",
+          "quote": "Show localized field/option labels while retaining value meaning. Show false as No, zero as 0, unanswered as Not answered, explicit unknown as Unknown, declined as Prefer not to answer, and explicitly allowed `respondentNotApplicable` as Not applicable (respondent answer) using the approved locale pack. `respondentNotApplicable` remains an applicable respondent-selected status with no value; it is distinct from system-hidden `notApplicable`, which is omitted from review. A selected option named None remains a selected option, not an answer-status synonym. Preserve ranked option order. Show unit/currency and derived labeling. For repeated items with identical labels include an unambiguous item position plus distinguishing configured summary values. Show attachment name, size and readiness through authorized metadata; do not expose a durable download token. Drawing/typed-name values, when a different fixture uses them, remain ordinary captured data with no e-sign claim.",
+          "rangeSha256": "05b59b435fa409bae0e3d45d0ec5f1a467a2daaae92d26d7d1eed5fe2533facf",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-LOC-03",
+        "SF-RES-01",
+        "SF-UX-01"
+      ],
       "status": "not-run"
     },
     {
@@ -242,6 +335,8 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T12",
+        "T13",
         "T14"
       ],
       "id": "EVAL-RVW-R10",
@@ -249,15 +344,26 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1397",
-          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question."
+          "lines": "1399",
+          "quote": "Show localized field/option labels while retaining value meaning. Show false as No, zero as 0, unanswered as Not answered, explicit unknown as Unknown, declined as Prefer not to answer, and explicitly allowed `respondentNotApplicable` as Not applicable (respondent answer) using the approved locale pack. `respondentNotApplicable` remains an applicable respondent-selected status with no value; it is distinct from system-hidden `notApplicable`, which is omitted from review. A selected option named None remains a selected option, not an answer-status synonym. Preserve ranked option order. Show unit/currency and derived labeling. For repeated items with identical labels include an unambiguous item position plus distinguishing configured summary values. Show attachment name, size and readiness through authorized metadata; do not expose a durable download token. Drawing/typed-name values, when a different fixture uses them, remain ordinary captured data with no e-sign claim.",
+          "rangeSha256": "05b59b435fa409bae0e3d45d0ec5f1a467a2daaae92d26d7d1eed5fe2533facf",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-LOC-03",
+        "SF-RES-01",
+        "SF-UX-01"
+      ],
       "status": "not-run"
     },
     {
@@ -268,6 +374,8 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T12",
+        "T13",
         "T14"
       ],
       "id": "EVAL-RVW-R11",
@@ -275,15 +383,26 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1397",
-          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question."
+          "lines": "1399",
+          "quote": "Show localized field/option labels while retaining value meaning. Show false as No, zero as 0, unanswered as Not answered, explicit unknown as Unknown, declined as Prefer not to answer, and explicitly allowed `respondentNotApplicable` as Not applicable (respondent answer) using the approved locale pack. `respondentNotApplicable` remains an applicable respondent-selected status with no value; it is distinct from system-hidden `notApplicable`, which is omitted from review. A selected option named None remains a selected option, not an answer-status synonym. Preserve ranked option order. Show unit/currency and derived labeling. For repeated items with identical labels include an unambiguous item position plus distinguishing configured summary values. Show attachment name, size and readiness through authorized metadata; do not expose a durable download token. Drawing/typed-name values, when a different fixture uses them, remain ordinary captured data with no e-sign claim.",
+          "rangeSha256": "05b59b435fa409bae0e3d45d0ec5f1a467a2daaae92d26d7d1eed5fe2533facf",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-LOC-03",
+        "SF-RES-01",
+        "SF-UX-01"
+      ],
       "status": "not-run"
     },
     {
@@ -294,6 +413,8 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T12",
+        "T13",
         "T14"
       ],
       "id": "EVAL-RVW-R12",
@@ -301,15 +422,26 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1397",
-          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question."
+          "lines": "1399",
+          "quote": "Show localized field/option labels while retaining value meaning. Show false as No, zero as 0, unanswered as Not answered, explicit unknown as Unknown, declined as Prefer not to answer, and explicitly allowed `respondentNotApplicable` as Not applicable (respondent answer) using the approved locale pack. `respondentNotApplicable` remains an applicable respondent-selected status with no value; it is distinct from system-hidden `notApplicable`, which is omitted from review. A selected option named None remains a selected option, not an answer-status synonym. Preserve ranked option order. Show unit/currency and derived labeling. For repeated items with identical labels include an unambiguous item position plus distinguishing configured summary values. Show attachment name, size and readiness through authorized metadata; do not expose a durable download token. Drawing/typed-name values, when a different fixture uses them, remain ordinary captured data with no e-sign claim.",
+          "rangeSha256": "05b59b435fa409bae0e3d45d0ec5f1a467a2daaae92d26d7d1eed5fe2533facf",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-LOC-03",
+        "SF-RES-01",
+        "SF-UX-01"
+      ],
       "status": "not-run"
     },
     {
@@ -327,15 +459,25 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1397",
-          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question."
+          "lines": "1399",
+          "quote": "Show localized field/option labels while retaining value meaning. Show false as No, zero as 0, unanswered as Not answered, explicit unknown as Unknown, declined as Prefer not to answer, and explicitly allowed `respondentNotApplicable` as Not applicable (respondent answer) using the approved locale pack. `respondentNotApplicable` remains an applicable respondent-selected status with no value; it is distinct from system-hidden `notApplicable`, which is omitted from review. A selected option named None remains a selected option, not an answer-status synonym. Preserve ranked option order. Show unit/currency and derived labeling. For repeated items with identical labels include an unambiguous item position plus distinguishing configured summary values. Show attachment name, size and readiness through authorized metadata; do not expose a durable download token. Drawing/typed-name values, when a different fixture uses them, remain ordinary captured data with no e-sign claim.",
+          "rangeSha256": "05b59b435fa409bae0e3d45d0ec5f1a467a2daaae92d26d7d1eed5fe2533facf",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-RES-01",
+        "SF-UX-01"
+      ],
       "status": "not-run"
     },
     {
@@ -353,15 +495,25 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1397",
-          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question."
+          "lines": "1399",
+          "quote": "Show localized field/option labels while retaining value meaning. Show false as No, zero as 0, unanswered as Not answered, explicit unknown as Unknown, declined as Prefer not to answer, and explicitly allowed `respondentNotApplicable` as Not applicable (respondent answer) using the approved locale pack. `respondentNotApplicable` remains an applicable respondent-selected status with no value; it is distinct from system-hidden `notApplicable`, which is omitted from review. A selected option named None remains a selected option, not an answer-status synonym. Preserve ranked option order. Show unit/currency and derived labeling. For repeated items with identical labels include an unambiguous item position plus distinguishing configured summary values. Show attachment name, size and readiness through authorized metadata; do not expose a durable download token. Drawing/typed-name values, when a different fixture uses them, remain ordinary captured data with no e-sign claim.",
+          "rangeSha256": "05b59b435fa409bae0e3d45d0ec5f1a467a2daaae92d26d7d1eed5fe2533facf",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-RES-01",
+        "SF-UX-01"
+      ],
       "status": "not-run"
     },
     {
@@ -379,15 +531,25 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1397",
-          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question."
+          "lines": "1399",
+          "quote": "Show localized field/option labels while retaining value meaning. Show false as No, zero as 0, unanswered as Not answered, explicit unknown as Unknown, declined as Prefer not to answer, and explicitly allowed `respondentNotApplicable` as Not applicable (respondent answer) using the approved locale pack. `respondentNotApplicable` remains an applicable respondent-selected status with no value; it is distinct from system-hidden `notApplicable`, which is omitted from review. A selected option named None remains a selected option, not an answer-status synonym. Preserve ranked option order. Show unit/currency and derived labeling. For repeated items with identical labels include an unambiguous item position plus distinguishing configured summary values. Show attachment name, size and readiness through authorized metadata; do not expose a durable download token. Drawing/typed-name values, when a different fixture uses them, remain ordinary captured data with no e-sign claim.",
+          "rangeSha256": "05b59b435fa409bae0e3d45d0ec5f1a467a2daaae92d26d7d1eed5fe2533facf",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-RES-01",
+        "SF-UX-01"
+      ],
       "status": "not-run"
     },
     {
@@ -405,15 +567,25 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
-          "lines": "1397",
-          "quote": "Review is a projection of the effective typed answer snapshot under the pinned release, not a second independent form or PDF preview. Traverse declared phase/page/section order, deduplicate canonical fields, and preserve object children and list item order/IDs. Display each applicable canonical field once; omit system-hidden notApplicable fields and descendants. Final review-gate controls render separately after the summary, so their acknowledgment is not duplicated as a second summary question."
+          "lines": "1401",
+          "quote": "For a shared field, the edit link selects the first currently applicable editable instance in declared route order; if none is editable, display it as read-only without a misleading edit action. A nested link locates by stable row path, opens all relevant disclosures/containers, activates the required input mode if necessary, and focuses the actual field. Returning to review preserves scroll/focus near the edited summary row while announcing changed totals/errors. Removed/reordered rows cannot redirect the edit to another record.",
+          "rangeSha256": "e7062b201ac0ebcf7cc81417ddff1e20c783a858f8f876b60c1c1375c37217fd",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-RES-01",
+        "SF-UX-01"
+      ],
       "status": "not-run"
     },
     {
@@ -425,21 +597,33 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T13"
+        "T13",
+        "T14"
       ],
       "id": "EVAL-RVW-E01",
       "milestoneGates": [
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
           "lines": "1401",
-          "quote": "For a shared field, the edit link selects the first currently applicable editable instance in declared route order; if none is editable, display it as read-only without a misleading edit action. A nested link locates by stable row path, opens all relevant disclosures/containers, activates the required input mode if necessary, and focuses the actual field. Returning to review preserves scroll/focus near the edited summary row while announcing changed totals/errors. Removed/reordered rows cannot redirect the edit to another record."
+          "quote": "For a shared field, the edit link selects the first currently applicable editable instance in declared route order; if none is editable, display it as read-only without a misleading edit action. A nested link locates by stable row path, opens all relevant disclosures/containers, activates the required input mode if necessary, and focuses the actual field. Returning to review preserves scroll/focus near the edited summary row while announcing changed totals/errors. Removed/reordered rows cannot redirect the edit to another record.",
+          "rangeSha256": "e7062b201ac0ebcf7cc81417ddff1e20c783a858f8f876b60c1c1375c37217fd",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-ACC-01",
+        "SF-RES-01",
+        "SF-VAL-02"
+      ],
       "status": "not-run"
     },
     {
@@ -451,21 +635,33 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T13"
+        "T13",
+        "T14"
       ],
       "id": "EVAL-RVW-E02",
       "milestoneGates": [
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
           "lines": "1401",
-          "quote": "For a shared field, the edit link selects the first currently applicable editable instance in declared route order; if none is editable, display it as read-only without a misleading edit action. A nested link locates by stable row path, opens all relevant disclosures/containers, activates the required input mode if necessary, and focuses the actual field. Returning to review preserves scroll/focus near the edited summary row while announcing changed totals/errors. Removed/reordered rows cannot redirect the edit to another record."
+          "quote": "For a shared field, the edit link selects the first currently applicable editable instance in declared route order; if none is editable, display it as read-only without a misleading edit action. A nested link locates by stable row path, opens all relevant disclosures/containers, activates the required input mode if necessary, and focuses the actual field. Returning to review preserves scroll/focus near the edited summary row while announcing changed totals/errors. Removed/reordered rows cannot redirect the edit to another record.",
+          "rangeSha256": "e7062b201ac0ebcf7cc81417ddff1e20c783a858f8f876b60c1c1375c37217fd",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-ACC-01",
+        "SF-RES-01",
+        "SF-VAL-02"
+      ],
       "status": "not-run"
     },
     {
@@ -477,21 +673,33 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T13"
+        "T13",
+        "T14"
       ],
       "id": "EVAL-RVW-E03",
       "milestoneGates": [
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
           "lines": "1401",
-          "quote": "For a shared field, the edit link selects the first currently applicable editable instance in declared route order; if none is editable, display it as read-only without a misleading edit action. A nested link locates by stable row path, opens all relevant disclosures/containers, activates the required input mode if necessary, and focuses the actual field. Returning to review preserves scroll/focus near the edited summary row while announcing changed totals/errors. Removed/reordered rows cannot redirect the edit to another record."
+          "quote": "For a shared field, the edit link selects the first currently applicable editable instance in declared route order; if none is editable, display it as read-only without a misleading edit action. A nested link locates by stable row path, opens all relevant disclosures/containers, activates the required input mode if necessary, and focuses the actual field. Returning to review preserves scroll/focus near the edited summary row while announcing changed totals/errors. Removed/reordered rows cannot redirect the edit to another record.",
+          "rangeSha256": "e7062b201ac0ebcf7cc81417ddff1e20c783a858f8f876b60c1c1375c37217fd",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-ACC-01",
+        "SF-RES-01",
+        "SF-VAL-02"
+      ],
       "status": "not-run"
     },
     {
@@ -503,21 +711,33 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T13"
+        "T13",
+        "T14"
       ],
       "id": "EVAL-RVW-E04",
       "milestoneGates": [
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
           "lines": "1401",
-          "quote": "For a shared field, the edit link selects the first currently applicable editable instance in declared route order; if none is editable, display it as read-only without a misleading edit action. A nested link locates by stable row path, opens all relevant disclosures/containers, activates the required input mode if necessary, and focuses the actual field. Returning to review preserves scroll/focus near the edited summary row while announcing changed totals/errors. Removed/reordered rows cannot redirect the edit to another record."
+          "quote": "For a shared field, the edit link selects the first currently applicable editable instance in declared route order; if none is editable, display it as read-only without a misleading edit action. A nested link locates by stable row path, opens all relevant disclosures/containers, activates the required input mode if necessary, and focuses the actual field. Returning to review preserves scroll/focus near the edited summary row while announcing changed totals/errors. Removed/reordered rows cannot redirect the edit to another record.",
+          "rangeSha256": "e7062b201ac0ebcf7cc81417ddff1e20c783a858f8f876b60c1c1375c37217fd",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-ACC-01",
+        "SF-RES-01",
+        "SF-VAL-02"
+      ],
       "status": "not-run"
     },
     {
@@ -529,21 +749,33 @@
       },
       "expectedSource": "prd",
       "fixtures": [
-        "T13"
+        "T13",
+        "T14"
       ],
       "id": "EVAL-RVW-E05",
       "milestoneGates": [
         "M8"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
           "lines": "1401",
-          "quote": "For a shared field, the edit link selects the first currently applicable editable instance in declared route order; if none is editable, display it as read-only without a misleading edit action. A nested link locates by stable row path, opens all relevant disclosures/containers, activates the required input mode if necessary, and focuses the actual field. Returning to review preserves scroll/focus near the edited summary row while announcing changed totals/errors. Removed/reordered rows cannot redirect the edit to another record."
+          "quote": "For a shared field, the edit link selects the first currently applicable editable instance in declared route order; if none is editable, display it as read-only without a misleading edit action. A nested link locates by stable row path, opens all relevant disclosures/containers, activates the required input mode if necessary, and focuses the actual field. Returning to review preserves scroll/focus near the edited summary row while announcing changed totals/errors. Removed/reordered rows cannot redirect the edit to another record.",
+          "rangeSha256": "e7062b201ac0ebcf7cc81417ddff1e20c783a858f8f876b60c1c1375c37217fd",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-ACC-01",
+        "SF-RES-01",
+        "SF-VAL-02"
+      ],
       "status": "not-run"
     },
     {
@@ -554,6 +786,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T09",
         "T14"
       ],
       "id": "EVAL-RVW-S01",
@@ -561,15 +794,26 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
           "lines": "1403",
-          "quote": "Any relevant answer, applicability, acknowledgment locale/text or displayed summary change invalidates the review digest and final review acceptance. The respondent returns to the refreshed review and explicitly acknowledges current content before submission. A server `REVIEW_STALE` response preserves valid draft data, announces the stale review and returns a review action; it is not a generic retry that submits a different unseen snapshot. Earlier accepted submissions remain immutable."
+          "quote": "Any relevant answer, applicability, acknowledgment locale/text or displayed summary change invalidates the review digest and final review acceptance. The respondent returns to the refreshed review and explicitly acknowledges current content before submission. A server `REVIEW_STALE` response preserves valid draft data, announces the stale review and returns a review action; it is not a generic retry that submits a different unseen snapshot. Earlier accepted submissions remain immutable.",
+          "rangeSha256": "36559e1acf71502ee7a4f7a96e1f99d5cdb8cc690e94d0961670a2a67b61e80c",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-API-03",
+        "SF-RES-01",
+        "SF-RES-02"
+      ],
       "status": "not-run"
     },
     {
@@ -580,6 +824,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T09",
         "T14"
       ],
       "id": "EVAL-RVW-S02",
@@ -587,15 +832,26 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
           "lines": "1403",
-          "quote": "Any relevant answer, applicability, acknowledgment locale/text or displayed summary change invalidates the review digest and final review acceptance. The respondent returns to the refreshed review and explicitly acknowledges current content before submission. A server `REVIEW_STALE` response preserves valid draft data, announces the stale review and returns a review action; it is not a generic retry that submits a different unseen snapshot. Earlier accepted submissions remain immutable."
+          "quote": "Any relevant answer, applicability, acknowledgment locale/text or displayed summary change invalidates the review digest and final review acceptance. The respondent returns to the refreshed review and explicitly acknowledges current content before submission. A server `REVIEW_STALE` response preserves valid draft data, announces the stale review and returns a review action; it is not a generic retry that submits a different unseen snapshot. Earlier accepted submissions remain immutable.",
+          "rangeSha256": "36559e1acf71502ee7a4f7a96e1f99d5cdb8cc690e94d0961670a2a67b61e80c",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-API-03",
+        "SF-RES-01",
+        "SF-RES-02"
+      ],
       "status": "not-run"
     },
     {
@@ -606,6 +862,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T09",
         "T14"
       ],
       "id": "EVAL-RVW-S03",
@@ -613,15 +870,26 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
           "lines": "1403",
-          "quote": "Any relevant answer, applicability, acknowledgment locale/text or displayed summary change invalidates the review digest and final review acceptance. The respondent returns to the refreshed review and explicitly acknowledges current content before submission. A server `REVIEW_STALE` response preserves valid draft data, announces the stale review and returns a review action; it is not a generic retry that submits a different unseen snapshot. Earlier accepted submissions remain immutable."
+          "quote": "Any relevant answer, applicability, acknowledgment locale/text or displayed summary change invalidates the review digest and final review acceptance. The respondent returns to the refreshed review and explicitly acknowledges current content before submission. A server `REVIEW_STALE` response preserves valid draft data, announces the stale review and returns a review action; it is not a generic retry that submits a different unseen snapshot. Earlier accepted submissions remain immutable.",
+          "rangeSha256": "36559e1acf71502ee7a4f7a96e1f99d5cdb8cc690e94d0961670a2a67b61e80c",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-API-03",
+        "SF-RES-01",
+        "SF-RES-02"
+      ],
       "status": "not-run"
     },
     {
@@ -632,6 +900,7 @@
       },
       "expectedSource": "prd",
       "fixtures": [
+        "T09",
         "T14"
       ],
       "id": "EVAL-RVW-S04",
@@ -639,15 +908,26 @@
         "M8",
         "M12"
       ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
       "prdCitations": [
         {
           "file": "PRD",
           "lines": "1403",
-          "quote": "Any relevant answer, applicability, acknowledgment locale/text or displayed summary change invalidates the review digest and final review acceptance. The respondent returns to the refreshed review and explicitly acknowledges current content before submission. A server `REVIEW_STALE` response preserves valid draft data, announces the stale review and returns a review action; it is not a generic retry that submits a different unseen snapshot. Earlier accepted submissions remain immutable."
+          "quote": "Any relevant answer, applicability, acknowledgment locale/text or displayed summary change invalidates the review digest and final review acceptance. The respondent returns to the refreshed review and explicitly acknowledges current content before submission. A server `REVIEW_STALE` response preserves valid draft data, announces the stale review and returns a review action; it is not a generic retry that submits a different unseen snapshot. Earlier accepted submissions remain immutable.",
+          "rangeSha256": "36559e1acf71502ee7a4f7a96e1f99d5cdb8cc690e94d0961670a2a67b61e80c",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
         }
       ],
       "rationale": "PRD contract text has no individually assigned SF-ID.",
-      "requirements": [],
+      "requirements": [
+        "SF-API-03",
+        "SF-RES-01",
+        "SF-RES-02"
+      ],
       "status": "not-run"
     }
   ]

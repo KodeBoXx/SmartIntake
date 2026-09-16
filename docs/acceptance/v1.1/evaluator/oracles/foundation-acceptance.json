@@ -1,0 +1,349 @@
+{
+  "records": [
+    {
+      "assertionType": "oracle",
+      "evidenceLevel": "E2",
+      "expected": {
+        "authorTaskPrecondition": "real sign-in with an author role",
+        "doesNotEstablishOnboarding": [
+          "development identity header",
+          "SQL-created memberships"
+        ],
+        "includes": [
+          "multiple-tenant membership",
+          "shared-account recovery boundaries"
+        ],
+        "orderedEvidence": [
+          "email-disabled temporary-password",
+          "invitation-copy",
+          "configured email"
+        ],
+        "staffInvitesAreNotRespondentInvitations": true,
+        "usesFullAuthenticationCompanion": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T27",
+        "T28",
+        "T29",
+        "T30"
+      ],
+      "id": "EVAL-FND-01",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1458",
+          "quote": "T27–T30 use the full authentication companion, including multiple-tenant membership and shared-account recovery boundaries. Run the ordinary author task after real sign-in with an author role; neither a development identity header nor SQL-created memberships establishes usable onboarding. Run email-disabled temporary-password and invitation-copy flows before adding configured email evidence. Staff invites do not become respondent invitations.",
+          "rangeSha256": "e416f8ea867909a8ac7e729a597a6d66d6295729e99f386dc5e48bcc7b77f8b9",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Appendix C §9 freezes this expected outcome without reporting product execution.",
+      "requirements": [
+        "SF-AUTH-01",
+        "SF-AUTH-02",
+        "SF-AUTH-03",
+        "SF-AUTH-04",
+        "SF-AUTH-05",
+        "SF-AUTH-06",
+        "SF-AUTH-07",
+        "SF-ORG-05",
+        "SF-PLT-01",
+        "SF-PLT-02",
+        "SF-PLT-03",
+        "SF-UI-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "oracle",
+      "evidenceLevel": "E2",
+      "expected": {
+        "formatError": "INTEGER_ENCODING",
+        "humanTaskNumbersRemainQuantitiesShown": true,
+        "int64Max": "9223372036854775807",
+        "int64Min": "-9223372036854775808",
+        "invalidEncodingsRejected": true,
+        "paths": [
+          "create",
+          "save",
+          "reload",
+          "JSON",
+          "CSV"
+        ],
+        "pow2_53": "9007199254740992",
+        "pow2_53_plus_1": "9007199254740993",
+        "rangeError": "INTEGER_RANGE",
+        "serverAndBrowserResultsIdentical": true,
+        "wireForm": "canonical base-10 string"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04",
+        "T18",
+        "T24",
+        "T31"
+      ],
+      "id": "EVAL-FND-02",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1460",
+          "quote": "T31 additionally covers the signed integer extrema, 2^53 and 2^53+1, typed wire strings through create/save/reload/JSON/CSV, invalid encodings and the same server/browser results. Numeric values in the human task remain the quantities shown; their canonical integer wire values are strings. Run every retained and new expression vector under profile 4.0.0. Refuse unstamped/mismatched/unsupported package contracts. Test a derived total revealing a later page in one pass, the second of two placements being the visible one, typed empty aggregates, legal self-validation, genuine applicability cycles, date bounds, literal zero division and limits before expensive row execution.",
+          "rangeSha256": "7c5bf75e6a178256c7abe3e55c071346ba4fca7dd07879ad081e22c4b728b8c9",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        {
+          "file": "PRD",
+          "lines": "1244",
+          "quote": "All typed integer values, input answers/defaults, integer literals/arrays, integer-field min/max/step and integer result cells use canonical base-10 strings: `\"0\"`, `\"-1\"`, `\"9223372036854775807\"`. Valid range is -9223372036854775808 through 9223372036854775807. Reject JSON-number transport for these typed values, a plus sign, exponent, fractional part, leading zeros, negative zero and out-of-range values. Format errors are INTEGER_ENCODING; range failures are INTEGER_RANGE. Human-facing input can accept localized digits through an explicit locale-aware parser, then emits this canonical ASCII representation or a parse-invalid marker; no binary-number intermediate may round the input.",
+          "rangeSha256": "49e92422669daeda560ea0820a0ad049fc93897f29b2f6560ee779dfa3b38e78",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        {
+          "file": "PRD",
+          "lines": "1246",
+          "quote": "Structural properties such as revision counters, field-count limits, scale, item positions and AST depth remain bounded safe JSON integers as their schemas require. A field ID supplies the type for InputAnswer: `{status:\"answered\",value:\"9007199254740993\"}` is an integer only when bound to an integer field. No inference from text contents is permitted. CSV preserves the exact digits; the dictionary declares integer type and warns that spreadsheet applications may coerce large numbers when opening a CSV. JSON/dictionary is the exact machine interchange; CSV byte fidelity must not be confused with an external spreadsheet's display fidelity.",
+          "rangeSha256": "33ee67257d5a8c7e0ab9a258226b18dc558260b78bbe37ba07d6a74be8912c41",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        {
+          "file": "PRD",
+          "lines": "387",
+          "quote": "### 9.4 Submitted responses and simple exports",
+          "rangeSha256": "acb68c3c5fd390ec8c81705a9140ba32667a3a65d7ea41bf86550cf1e8d2dd3b",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        {
+          "file": "PRD",
+          "lines": "592",
+          "quote": "### 11.5 Response, export and event APIs",
+          "rangeSha256": "b1bc7b4ca4486f03ff140a32ded0aa8e2a2891c180606fa59eca50ecd1457d84",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Appendix C §9 freezes this expected outcome without reporting product execution.",
+      "requirements": [
+        "SF-CON-01",
+        "SF-CON-02"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "oracle",
+      "evidenceLevel": "E2",
+      "expected": {
+        "refuse": [
+          "unstamped package contract",
+          "mismatched contract",
+          "unsupported contract"
+        ],
+        "runEveryRetainedAndNewVectorUnderProfile": "4.0.0"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T05",
+        "T31"
+      ],
+      "id": "EVAL-FND-03",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1460",
+          "quote": "T31 additionally covers the signed integer extrema, 2^53 and 2^53+1, typed wire strings through create/save/reload/JSON/CSV, invalid encodings and the same server/browser results. Numeric values in the human task remain the quantities shown; their canonical integer wire values are strings. Run every retained and new expression vector under profile 4.0.0. Refuse unstamped/mismatched/unsupported package contracts. Test a derived total revealing a later page in one pass, the second of two placements being the visible one, typed empty aggregates, legal self-validation, genuine applicability cycles, date bounds, literal zero division and limits before expensive row execution.",
+          "rangeSha256": "7c5bf75e6a178256c7abe3e55c071346ba4fca7dd07879ad081e22c4b728b8c9",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Appendix C §9 freezes this expected outcome without reporting product execution.",
+      "requirements": [
+        "SF-CON-01",
+        "SF-RUL-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "oracle",
+      "evidenceLevel": "E2",
+      "expected": {
+        "cases": [
+          "derived total revealing a later page in one pass",
+          "second of two placements is the visible one",
+          "typed empty aggregates",
+          "legal self-validation",
+          "genuine applicability cycles",
+          "date bounds",
+          "literal zero division",
+          "limits enforced before expensive row execution"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04",
+        "T05",
+        "T31"
+      ],
+      "id": "EVAL-FND-04",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1460",
+          "quote": "T31 additionally covers the signed integer extrema, 2^53 and 2^53+1, typed wire strings through create/save/reload/JSON/CSV, invalid encodings and the same server/browser results. Numeric values in the human task remain the quantities shown; their canonical integer wire values are strings. Run every retained and new expression vector under profile 4.0.0. Refuse unstamped/mismatched/unsupported package contracts. Test a derived total revealing a later page in one pass, the second of two placements being the visible one, typed empty aggregates, legal self-validation, genuine applicability cycles, date bounds, literal zero division and limits before expensive row execution.",
+          "rangeSha256": "7c5bf75e6a178256c7abe3e55c071346ba4fca7dd07879ad081e22c4b728b8c9",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Appendix C §9 freezes this expected outcome without reporting product execution.",
+      "requirements": [
+        "SF-FLD-02",
+        "SF-RUL-02",
+        "SF-RUL-05",
+        "SF-RUL-06"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "oracle",
+      "evidenceLevel": "E2",
+      "expected": {
+        "autosaveResponses": [
+          "slow",
+          "out-of-order"
+        ],
+        "noSavingFlagCollapsesTheForm": true,
+        "stable": [
+          "unrelated questions",
+          "scroll",
+          "focus"
+        ],
+        "visibilityChangesOnlyFrom": "a real rule dependency",
+        "whileEditing": {
+          "crossProductRequired": true,
+          "fieldKinds": [
+            "text",
+            "choice"
+          ],
+          "languages": [
+            "English",
+            "Hindi",
+            "Arabic"
+          ]
+        }
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T09",
+        "T12"
+      ],
+      "id": "EVAL-FND-05",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1462",
+          "quote": "Extend T09 with slow/out-of-order autosave responses while editing English, Hindi and Arabic text and choice fields. Unrelated questions, scroll and focus remain stable. Only a real rule dependency can change visibility; no saving flag collapses the form.",
+          "rangeSha256": "6451a1b8791f2f71ecf3003b75bf18e008a51132651d87514ab54b8581bfa045",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Appendix C §9 freezes this expected outcome without reporting product execution.",
+      "requirements": [
+        "SF-API-03",
+        "SF-AUT-04",
+        "SF-LOC-02",
+        "SF-RES-02",
+        "SF-RES-03",
+        "SF-UX-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "oracle",
+      "evidenceLevel": "E2",
+      "expected": {
+        "allProductFixtureExecutionInThisRevision": "not run",
+        "historicalWorkOrderTotalsAreNotResults": true,
+        "newDeveloperOrAgentReceives": [
+          "same UI asset bundle",
+          "current PRD",
+          "expression profile",
+          "acceptance requirements"
+        ],
+        "proves": [
+          "clean local start through first real user",
+          "restart",
+          "restore"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T23",
+        "T32"
+      ],
+      "id": "EVAL-FND-06",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1464",
+          "quote": "T32 proves a clean local start through first real user and restart/restore. The new developer/agent receives the same UI asset bundle, current PRD, expression profile and acceptance requirements. Work-order test totals quoted in historical review logs are not results for these fixtures. All product fixture execution in this PRD revision remains not run.",
+          "rangeSha256": "b3345d83e171155cec4841e9a13801f65681fd88bd9920416aef65803f4e9fdd",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Appendix C §9 freezes this expected outcome without reporting product execution.",
+      "requirements": [
+        "SF-NFR-03",
+        "SF-NFR-04",
+        "SF-OPS-01"
+      ],
+      "status": "not-run"
+    }
+  ]
+}

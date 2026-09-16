@@ -1,0 +1,124 @@
+{
+  "$id": "urn:smartintake:evaluator:allowlist-approval:v1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "approvalStatus": {
+            "const": "approved"
+          }
+        },
+        "required": [
+          "approvalStatus"
+        ]
+      },
+      "then": {
+        "required": [
+          "approval"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "approvalStatus": {
+            "const": "pending-independent-review"
+          }
+        },
+        "required": [
+          "approvalStatus"
+        ]
+      },
+      "then": {
+        "not": {
+          "required": [
+            "approval"
+          ]
+        }
+      }
+    }
+  ],
+  "properties": {
+    "allowlistId": {
+      "const": "evaluator-selected-v1"
+    },
+    "approval": {
+      "additionalProperties": false,
+      "properties": {
+        "approvedAt": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+          "type": "string"
+        },
+        "decision": {
+          "const": "approved"
+        },
+        "reviewer": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "signature": {
+          "additionalProperties": false,
+          "properties": {
+            "algorithm": {
+              "const": "ed25519"
+            },
+            "keyId": {
+              "type": "string"
+            },
+            "payloadDigest": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "value": {
+              "pattern": "^[A-Za-z0-9_-]{86}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "algorithm",
+            "keyId",
+            "payloadDigest",
+            "value"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "decision",
+        "reviewer",
+        "approvedAt",
+        "signature"
+      ],
+      "type": "object"
+    },
+    "approvalStatus": {
+      "enum": [
+        "pending-independent-review",
+        "approved"
+      ]
+    },
+    "corpusVersion": {
+      "type": "string"
+    },
+    "purpose": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "recordIds": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "allowlistId",
+    "corpusVersion",
+    "recordIds",
+    "approvalStatus",
+    "purpose"
+  ],
+  "type": "object"
+}

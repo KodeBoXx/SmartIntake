@@ -7,7 +7,7 @@
     {
       "artifact": "package",
       "citation": {
-        "lines": "\u00a710/\u00a711 and plan M2",
+        "lines": "413,417-435",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "examples": [
@@ -23,7 +23,7 @@
     {
       "artifact": "expression",
       "citation": {
-        "lines": "\u00a710/\u00a711 and plan M2",
+        "lines": "269-292,424",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "examples": [
@@ -39,7 +39,7 @@
     {
       "artifact": "input-answer",
       "citation": {
-        "lines": "\u00a710/\u00a711 and plan M2",
+        "lines": "479-481",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "examples": [
@@ -55,7 +55,7 @@
     {
       "artifact": "typed-answer",
       "citation": {
-        "lines": "\u00a710/\u00a711 and plan M2",
+        "lines": "477-504",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "examples": [
@@ -71,7 +71,7 @@
     {
       "artifact": "runtime-manifest",
       "citation": {
-        "lines": "\u00a710/\u00a711 and plan M2",
+        "lines": "365,369,413",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "examples": [
@@ -87,7 +87,7 @@
     {
       "artifact": "submission-envelope",
       "citation": {
-        "lines": "\u00a710/\u00a711 and plan M2",
+        "lines": "477-504",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "examples": [
@@ -103,7 +103,7 @@
     {
       "artifact": "event",
       "citation": {
-        "lines": "\u00a710/\u00a711 and plan M2",
+        "lines": "606-616",
         "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
       },
       "examples": [
@@ -121,14 +121,10 @@
   "selection": "plan-selected",
   "source_citations": [
     {
-      "lines": "\u00a710\u2013\u00a711",
-      "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
-    },
-    {
-      "lines": "approved plan M2",
+      "lines": "413-435,477-504,606-616",
       "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
     }
   ],
   "total": 7,
-  "version": "1.0.0-m0"
+  "version": "2.0.0-m0"
 }
