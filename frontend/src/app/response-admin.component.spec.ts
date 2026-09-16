@@ -9,7 +9,7 @@ describe('ResponseAdminComponent', () => {
     const queryChange = vi.fn();
     const opened = vi.fn();
     fixture.componentInstance.responseQueryChange.subscribe(queryChange);
-    fixture.componentInstance.open.subscribe(opened);
+    fixture.componentInstance.responseOpen.subscribe(opened);
     fixture.detectChanges();
 
     const search = fixture.nativeElement.querySelector('input[placeholder="Search receipt or form"]') as HTMLInputElement;

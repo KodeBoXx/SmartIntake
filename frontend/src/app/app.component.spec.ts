@@ -17,7 +17,7 @@ describe('AppComponent journeys', () => {
       startSession: vi.fn(() => of({ sessionId: 'session-1', respondentSession: 'respondent-token', revision: 3 })),
       patchSession: vi.fn(() => of({ acceptedRevision: 4 })),
       submitSession: vi.fn(() => of({ receiptId: 'receipt-1' })),
-      listResponses: vi.fn(() => of([])),
+      listResponses: vi.fn(() => of([] as Array<{ id: string; submittedAt?: string }>)),
       responseDetail: vi.fn(() => of({})),
       exportDefinition: vi.fn(() => of({})),
       importDefinition: vi.fn(() => of({ revision: 3 })),
@@ -61,6 +61,10 @@ describe('AppComponent journeys', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const component = fixture.componentInstance;
+    const toolbar = fixture.nativeElement.querySelector('nav[appToolbar]') as HTMLElement;
+    expect(toolbar.classList.contains('flex')).toBe(true);
+    expect(toolbar.classList.contains('flex-wrap')).toBe(true);
+    expect(toolbar.classList.contains('w-full')).toBe(true);
 
     toolbarButton(fixture, 'Save draft').click();
     expect(api.createForm).toHaveBeenCalledWith('bootstrapped', 'responsive-intake', 'Responsive intake');
@@ -99,6 +103,25 @@ describe('AppComponent journeys', () => {
     importInput.dispatchEvent(new Event('change'));
     await Promise.resolve();
     expect(api.importDefinition).toHaveBeenCalledWith('existing-token', 'form-1', 7, { contractVersion: '4.0.0' });
+  });
+
+  it('opens an authorized response detail after a rendered response row click', () => {
+    localStorage.setItem('smartintake.staffSession', 'existing-token');
+    const api = createApi();
+    api.listResponses.mockReturnValue(of([{ id: 'receipt-1', submittedAt: '2026-09-16' }]));
+    api.responseDetail.mockReturnValue(of({ id: 'receipt-1', answers: { name: 'Ada' } }));
+    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+
+    toolbarButton(fixture, 'Response admin').click();
+    fixture.detectChanges();
+    const responseRow = fixture.nativeElement.querySelector('section[appResponseAdmin] .field-card') as HTMLButtonElement;
+    responseRow.click();
+    fixture.detectChanges();
+
+    expect(api.responseDetail).toHaveBeenCalledWith('existing-token', 'receipt-1');
+    expect(fixture.nativeElement.textContent).toContain('Authorized response detail');
   });
 
   it('preserves draft, publish, and session failure messages', () => {
