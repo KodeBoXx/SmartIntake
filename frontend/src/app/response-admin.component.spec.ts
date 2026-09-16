@@ -3,13 +3,13 @@ import { describe, expect, it, vi } from 'vitest';
 import { ResponseAdminComponent } from './response-admin.component';
 
 describe('ResponseAdminComponent', () => {
-  it('filters from its rendered search control and emits selected receipts', () => {
+  it('filters from its rendered search control and calls its selected-receipt callback', () => {
     const fixture: ComponentFixture<ResponseAdminComponent> = TestBed.createComponent(ResponseAdminComponent);
     fixture.componentRef.setInput('responses', [{ id: 'receipt-1', submittedAt: '2026-09-16' }, { id: 'receipt-2', formKey: 'other' }]);
     const queryChange = vi.fn();
     const opened = vi.fn();
+    fixture.componentRef.setInput('openResponse', opened);
     fixture.componentInstance.responseQueryChange.subscribe(queryChange);
-    fixture.componentInstance.responseOpen.subscribe(opened);
     fixture.detectChanges();
 
     const search = fixture.nativeElement.querySelector('input[placeholder="Search receipt or form"]') as HTMLInputElement;

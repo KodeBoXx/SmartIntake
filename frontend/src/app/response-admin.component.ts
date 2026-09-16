@@ -13,7 +13,7 @@ import { ResponseSummary } from './models/form-definition.models';
       <input placeholder="Search receipt or form" [ngModel]="responseQuery" (ngModelChange)="responseQueryChange.emit($event)">
     </div>
     <div class="mt-3 grid gap-2">
-      <button class="field-card text-left" *ngFor="let r of filteredResponses()" (click)="responseOpen.emit(r.id)">
+      <button class="field-card text-left" *ngFor="let r of filteredResponses()" (click)="openResponse(r.id)">
         <span>{{r.id}}</span>
         <span>{{r.submittedAt}}</span>
       </button>
@@ -23,8 +23,8 @@ import { ResponseSummary } from './models/form-definition.models';
 export class ResponseAdminComponent {
   @Input() responses: ResponseSummary[] = [];
   @Input() responseQuery = '';
+  @Input({ required: true }) openResponse!: (id: string) => void;
   @Output() responseQueryChange = new EventEmitter<string>();
-  @Output() responseOpen = new EventEmitter<string>();
 
   filteredResponses(): ResponseSummary[] {
     const query = this.responseQuery.toLowerCase();
