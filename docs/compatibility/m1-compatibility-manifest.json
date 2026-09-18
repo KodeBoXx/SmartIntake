@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "1.1",
+  "milestone": "M1",
+  "classification": "bounded-additive-compatibility",
+  "immutableMigrationSha256": {
+    "V1__smart_intake.sql": "da622444bfe419c93f5276af76d9a3c5063711d35e4fc2e1d6e86eab6566f1e2",
+    "V2__identity_workspaces_and_release_binding.sql": "b1025c6cc1e3829ae4b1bc0375964775fe4ce69ee9dbd977e6fd576117b72f8b",
+    "V3__respondent_session_secret.sql": "cfb30d4fbddab1bff009d1901956803871bdcdc7858f881dcadc2390fc6b55d1",
+    "V4__session_mutation_replay.sql": "d535f190c37efdc29f74b51815cdfad8e1f525fddbea27fb3e805e5c0cf1754f"
+  },
+  "profiles": [
+    {
+      "key": "legacy-prototype",
+      "contractVersionObservation": "4.0.0",
+      "readOnly": true,
+      "newWriteAllowed": false,
+      "normativeFullProfile": false
+    },
+    {
+      "key": "m1-current-prototype",
+      "contractVersionObservation": "4.0.0",
+      "readOnly": false,
+      "newWriteAllowed": true,
+      "normativeFullProfile": false
+    }
+  ],
+  "quarantineReasons": [
+    "TENANT_MISSING",
+    "RELEASE_MISSING",
+    "UNSUPPORTED_DEFINITION_SHAPE",
+    "SESSION_FORM_RELEASE_FORM_MISMATCH",
+    "SESSION_RELEASE_WORKSPACE_MISMATCH",
+    "SUBMISSION_FORM_SESSION_FORM_MISMATCH"
+  ],
+  "guarantees": [
+    "V1-V6 are immutable; V7 is additive only.",
+    "Every profile classification parses and validates the full known Lite prototype source; a current-profile tag is never trusted.",
+    "Reconciliation persists source and target digests without rewriting definitions, releases, answers, mutation responses, submission envelopes, or respondent hashes.",
+    "Unsupported and relationship-quarantined records cascade to dependent compatibility state without inferred links; session/release and submission/session form mismatches retain both sides as evidence.",
+    "New bearer secrets differ from V3 placeholders and are stored only as digests; reconciliation does not hash legacy rows, and authorization uses retained-token verification plus atomic null-only backfill.",
+    "Publish and public session start require the writable non-normative M1 profile and reject quarantined records."
+  ]
+}
