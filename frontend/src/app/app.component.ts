@@ -203,10 +203,10 @@ export class AppComponent {
   }
 
   retryDraftRehydration() {
-    if (!this.staffToken) return;
     this.rehydrating.set(true);
     this.rehydrationFailed.set(false);
-    this.rehydrateDefaultForm();
+    if (this.staffToken) this.rehydrateDefaultForm();
+    else this.bootstrap();
   }
 
   private completeRehydration() {

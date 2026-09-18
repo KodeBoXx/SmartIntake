@@ -56,6 +56,65 @@ describe('AppComponent journeys', () => {
     expect(component.message()).toBe('Unable to start a staff session.');
   });
 
+  it('retries empty-token authentication before authoritative draft rehydration', () => {
+    localStorage.removeItem('smartintake.staffSession');
+    const api = createApi();
+    const firstSignIn = new Subject<{ staffSession: string }>();
+    const retrySignIn = new Subject<{ staffSession: string }>();
+    const forms = new Subject<Array<{ id: string; formKey: string; title: string; status: string; revision: number; updatedAt: string }>>();
+    const draft = new Subject<{ id: string; revision: number; definition: ReturnType<typeof createDefaultDefinition>; diagnostics: never[] }>();
+    api.bootstrap.mockReturnValue(throwError(() => new Error('bootstrap unavailable')));
+    api.signIn.mockReturnValueOnce(firstSignIn.asObservable()).mockReturnValueOnce(retrySignIn.asObservable());
+    api.listForms.mockReturnValue(forms.asObservable());
+    api.currentDraft.mockReturnValue(draft.asObservable());
+    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
+    const component = TestBed.createComponent(AppComponent).componentInstance;
+
+    firstSignIn.error(new Error('sign-in unavailable'));
+    expect(component.staffToken).toBe('');
+    expect(component.rehydrationFailed()).toBe(true);
+    expect(component.editorLocked()).toBe(true);
+
+    component.retryDraftRehydration();
+    expect(api.bootstrap).toHaveBeenCalledTimes(2);
+    expect(api.signIn).toHaveBeenCalledTimes(2);
+    expect(component.rehydrating()).toBe(true);
+
+    retrySignIn.next({ staffSession: 'retry-token' });
+    expect(api.listForms).toHaveBeenCalledWith('retry-token');
+    forms.next([{ id: 'form-1', formKey: 'responsive-intake', title: 'Responsive intake', status: 'DRAFT', revision: 4, updatedAt: '2026-09-18' }]);
+    expect(api.currentDraft).toHaveBeenCalledWith('retry-token', 'form-1', 'form-1');
+    draft.next({ id: 'draft-1', revision: 4, definition: createDefaultDefinition(), diagnostics: [] });
+
+    expect(component.rehydrating()).toBe(false);
+    expect(component.rehydrationFailed()).toBe(false);
+    expect(component.editorLocked()).toBe(false);
+  });
+
+  it('keeps authoring locked when empty-token retry authentication fails again', () => {
+    localStorage.removeItem('smartintake.staffSession');
+    const api = createApi();
+    const firstSignIn = new Subject<{ staffSession: string }>();
+    const retrySignIn = new Subject<{ staffSession: string }>();
+    api.bootstrap.mockReturnValue(throwError(() => new Error('bootstrap unavailable')));
+    api.signIn.mockReturnValueOnce(firstSignIn.asObservable()).mockReturnValueOnce(retrySignIn.asObservable());
+    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
+    const component = TestBed.createComponent(AppComponent).componentInstance;
+
+    firstSignIn.error(new Error('sign-in unavailable'));
+    component.retryDraftRehydration();
+    retrySignIn.error(new Error('sign-in unavailable again'));
+
+    expect(api.bootstrap).toHaveBeenCalledTimes(2);
+    expect(api.signIn).toHaveBeenCalledTimes(2);
+    expect(component.staffToken).toBe('');
+    expect(component.rehydrating()).toBe(false);
+    expect(component.rehydrationFailed()).toBe(true);
+    expect(component.editorLocked()).toBe(true);
+    expect(component.message()).toBe('Unable to start a staff session.');
+    expect(api.listForms).not.toHaveBeenCalled();
+  });
+
   it('clears a stale stored staff token and recovers through bootstrap then sign-in', () => {
     localStorage.setItem('smartintake.staffSession', 'stale-token');
     const api = createApi();
