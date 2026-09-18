@@ -15,7 +15,7 @@ import {
   visibilityRule,
 } from './editor-state.helpers';
 import { FIELD_TYPES, Field, FormDefinition, RepeaterItem, ResponseSummary, createDefaultDefinition } from './models/form-definition.models';
-import { SmartIntakeApiService } from './smart-intake-api.service';
+import { CurrentDraft, FormSummary, SmartIntakeApiService } from './smart-intake-api.service';
 
 @Component({
   selector: 'app-root',
@@ -24,20 +24,21 @@ import { SmartIntakeApiService } from './smart-intake-api.service';
   template: `
 <header class="border-b border-stone-200 bg-white"><div class="mx-auto flex max-w-7xl items-center justify-between px-5 py-4"><div><p class="type-caption-bold text-emerald-700">SMART INTAKE</p><h1 class="type-h3">Form Builder Lite</h1></div><span class="type-caption">{{staffToken?'Staff session active':'Local bootstrap/sign-in required'}}</span></div></header>
 <main class="mx-auto max-w-7xl px-5 py-6">
-<nav appToolbar class="mb-5 flex w-full flex-wrap gap-2" [staffToken]="staffToken" (author)="mode.set('editor')" (preview)="startPreview()" (save)="save()" (publish)="publish()" (definitionExport)="exportDefinition()" (definitionImport)="importDefinition($event)" (responsesExport)="exportResponses()" (responseAdmin)="loadResponses()"></nav>
+<nav appToolbar class="mb-5 flex w-full flex-wrap gap-2" [staffToken]="staffToken" [publishDisabled]="saving() || publishing() || draftReloadRequired()" (author)="mode.set('editor')" (preview)="startPreview()" (save)="save()" (publish)="publish()" (definitionExport)="exportDefinition()" (definitionImport)="importDefinition($event)" (responsesExport)="exportResponses()" (responseAdmin)="loadResponses()"></nav>
+<p *ngIf="message()" class="notice" role="status">{{message()}}</p>
 <section *ngIf="mode()==='editor'" class="grid gap-5 lg:grid-cols-[15rem_1fr_19rem]"><aside class="card"><p class="type-label">PAGES</p><button *ngFor="let page of definition().pages;let i=index" class="outline" [class.active]="pageIndex()===i" (click)="selectPage(i)">{{i+1}}. {{page.title}}</button><button class="pill" (click)="addPage()">+ Page</button><hr><p class="type-label">FIELDS</p><button *ngFor="let f of page().fields;let i=index" class="outline" [class.active]="fieldIndex()===i" (click)="fieldIndex.set(i)">{{f.label}}</button><button class="pill" (click)="addField('text')">+ Field</button></aside>
 <div class="card"><div class="flex items-center justify-between"><div><p class="type-caption text-emerald-700">MULTI-PAGE DRAFT</p><input class="title-input" [(ngModel)]="definition().title" (ngModelChange)="touch()"></div><button class="pill" (click)="addPage()">Add page</button></div><label class="label">Page title<input [(ngModel)]="page().title" (ngModelChange)="touch()"></label><div class="mt-5 space-y-3"><article *ngFor="let f of page().fields;let i=index" class="field-card" [class.selected]="fieldIndex()===i" (click)="fieldIndex.set(i)"><div><b>{{f.label}}</b><p class="type-caption">{{f.type}} · {{f.id}}</p></div><div class="flex gap-2"><button class="icon" (click)="moveField(i,-1);$event.stopPropagation()">↑</button><button class="icon" (click)="moveField(i,1);$event.stopPropagation()">↓</button></div></article></div></div>
-<aside class="card" *ngIf="field() as f"><p class="type-label">FIELD PROPERTIES</p><label class="label">Label<input [(ngModel)]="f.label" (ngModelChange)="touch()"></label><label class="label">Type<select [(ngModel)]="f.type" (ngModelChange)="normalize(f)"><option *ngFor="let type of types" [value]="type">{{type}}</option></select></label><label class="check"><input type="checkbox" [(ngModel)]="f.required" (ngModelChange)="touch()"> Required</label><ng-container *ngIf="f.type==='text'"><label class="label">Minimum length<input type="number" [(ngModel)]="f.constraints!.minLength"></label><label class="label">Maximum length<input type="number" [(ngModel)]="f.constraints!.maxLength"></label></ng-container><ng-container *ngIf="f.type==='choice'||f.type==='multiChoice'"><p class="type-label">OPTIONS</p><div *ngFor="let option of f.options;let i=index" class="flex gap-1"><input [(ngModel)]="option.label"><button class="icon" (click)="removeOption(f,i)">×</button></div><button class="pill" (click)="addOption(f)">+ option</button></ng-container><p class="type-label mt-4">VISIBILITY RULE</p><select [ngModel]="visibilityFieldId(f)" (ngModelChange)="setVisibilityRuleField(f,$any($event))"><option value="">Always visible</option><option *ngFor="let other of allFields()" [value]="other.id">{{other.label}}</option></select><input *ngIf="f.visibleWhen?.fieldId" placeholder="equals value" [(ngModel)]="f.visibleWhen!.equals" (ngModelChange)="syncRules(f)"><p class="type-label mt-4">REQUIREDNESS RULE</p><select [(ngModel)]="f.requiredRuleField" (ngModelChange)="syncRequiredRule(f,$any($event))"><option value="">Use checkbox</option><option *ngFor="let other of allFields()" [value]="other.id">Required when {{other.label}} equals…</option></select><input *ngIf="f.requiredRuleField" placeholder="equals value" [(ngModel)]="f.requiredRuleValue" (ngModelChange)="syncRequiredRule(f,f.requiredRuleField)"><button class="pill danger mt-5" (click)="removeField()">Remove field</button></aside></section>
-<section *ngIf="mode()==='preview'" class="mx-auto max-w-2xl card"><p class="type-caption text-emerald-700">PUBLIC RUNTIME · PAGE {{previewPage()+1}}/{{definition().pages.length}}</p><h2 class="type-h3">{{definition().title}}</h2><h3 class="type-h4">{{definition().pages[previewPage()].title}}</h3><div *ngFor="let f of definition().pages[previewPage()].fields" class="mt-5" [hidden]="!visible(f)"><label class="label">{{f.label}} <span *ngIf="isRequired(f)">*</span><input *ngIf="['text','integer','decimal','date'].includes(f.type)" [type]="f.type==='date'?'date':f.type==='text'?'text':'number'" [(ngModel)]="answers[f.id]"><input *ngIf="f.type==='boolean'" type="checkbox" [(ngModel)]="answers[f.id]"><select *ngIf="f.type==='choice'" [(ngModel)]="answers[f.id]"><option value="">Choose one</option><option *ngFor="let o of f.options" [value]="o.id">{{o.label}}</option></select><select *ngIf="f.type==='multiChoice'" multiple [(ngModel)]="answers[f.id]"><option *ngFor="let o of f.options" [value]="o.id">{{o.label}}</option></select><div *ngIf="f.type==='calculated'||f.type==='readOnly'" class="rounded-lg bg-stone-100 p-3">{{displayValue(f)}}</div><div *ngIf="f.type==='repeater'" class="space-y-2"><div *ngFor="let item of repeater(f);let i=index" class="flex gap-2"><input [(ngModel)]="item.value" placeholder="Item value"><button class="icon" (click)="removeItem(f,i)">×</button><button class="icon" (click)="moveItem(f,i,-1)">↑</button><button class="icon" (click)="moveItem(f,i,1)">↓</button></div><button class="pill" (click)="addItem(f)">+ item</button></div></label></div><div class="mt-6 flex justify-between"><button class="pill" [disabled]="previewPage()===0" (click)="previousPage()">Back</button><button class="pill" *ngIf="previewPage()<definition().pages.length-1" (click)="persistPage()">Next page</button><button class="pill primary" *ngIf="previewPage()===definition().pages.length-1" (click)="submit()">Submit</button></div><p *ngIf="message()" class="notice">{{message()}}</p></section>
+<aside class="card" *ngIf="field() as f"><p class="type-label">FIELD PROPERTIES</p><label class="label">Label<input [(ngModel)]="f.label" (ngModelChange)="touch()"></label><label class="label">Type<select [(ngModel)]="f.type" (ngModelChange)="normalize(f)"><option *ngFor="let type of types" [value]="type">{{type}}</option></select></label><label class="check"><input type="checkbox" [(ngModel)]="f.required" (ngModelChange)="touch()"> Required</label><ng-container *ngIf="f.type==='text'"><label class="label">Minimum length<input type="number" [(ngModel)]="f.constraints!.minLength" (ngModelChange)="touch()"></label><label class="label">Maximum length<input type="number" [(ngModel)]="f.constraints!.maxLength" (ngModelChange)="touch()"></label></ng-container><ng-container *ngIf="f.type==='choice'||f.type==='multiChoice'"><p class="type-label">OPTIONS</p><div *ngFor="let option of f.options;let i=index" class="flex gap-1"><input [(ngModel)]="option.label" (ngModelChange)="touch()"><button class="icon" (click)="removeOption(f,i)">×</button></div><button class="pill" (click)="addOption(f)">+ option</button></ng-container><p class="type-label mt-4">VISIBILITY RULE</p><select [ngModel]="visibilityFieldId(f)" (ngModelChange)="setVisibilityRuleField(f,$any($event))"><option value="">Always visible</option><option *ngFor="let other of allFields()" [value]="other.id">{{other.label}}</option></select><input *ngIf="f.visibleWhen?.fieldId" placeholder="equals value" [(ngModel)]="f.visibleWhen!.equals" (ngModelChange)="syncRules(f)"><p class="type-label mt-4">REQUIREDNESS RULE</p><select [(ngModel)]="f.requiredRuleField" (ngModelChange)="syncRequiredRule(f,$any($event))"><option value="">Use checkbox</option><option *ngFor="let other of allFields()" [value]="other.id">Required when {{other.label}} equals…</option></select><input *ngIf="f.requiredRuleField" placeholder="equals value" [(ngModel)]="f.requiredRuleValue" (ngModelChange)="syncRequiredRule(f,f.requiredRuleField)"><button class="pill danger mt-5" (click)="removeField()">Remove field</button></aside></section>
+<section *ngIf="mode()==='preview'" class="mx-auto max-w-2xl card"><p class="type-caption text-emerald-700">PUBLIC RUNTIME · PAGE {{previewPage()+1}}/{{definition().pages.length}}</p><h2 class="type-h3">{{definition().title}}</h2><h3 class="type-h4">{{definition().pages[previewPage()].title}}</h3><div *ngFor="let f of definition().pages[previewPage()].fields" class="mt-5" [hidden]="!visible(f)"><label class="label">{{f.label}} <span *ngIf="isRequired(f)">*</span><input *ngIf="['text','integer','decimal','date'].includes(f.type)" [type]="f.type==='date'?'date':f.type==='text'?'text':'number'" [(ngModel)]="answers[f.id]"><input *ngIf="f.type==='boolean'" type="checkbox" [(ngModel)]="answers[f.id]"><select *ngIf="f.type==='choice'" [(ngModel)]="answers[f.id]"><option value="">Choose one</option><option *ngFor="let o of f.options" [value]="o.id">{{o.label}}</option></select><select *ngIf="f.type==='multiChoice'" multiple [(ngModel)]="answers[f.id]"><option *ngFor="let o of f.options" [value]="o.id">{{o.label}}</option></select><div *ngIf="f.type==='calculated'||f.type==='readOnly'" class="rounded-lg bg-stone-100 p-3">{{displayValue(f)}}</div><div *ngIf="f.type==='repeater'" class="space-y-2"><div *ngFor="let item of repeater(f);let i=index" class="flex gap-2"><input [(ngModel)]="item.value" placeholder="Item value"><button class="icon" (click)="removeItem(f,i)">×</button><button class="icon" (click)="moveItem(f,i,-1)">↑</button><button class="icon" (click)="moveItem(f,i,1)">↓</button></div><button class="pill" (click)="addItem(f)">+ item</button></div></label></div><div class="mt-6 flex justify-between"><button class="pill" [disabled]="previewPage()===0" (click)="previousPage()">Back</button><button class="pill" *ngIf="previewPage()<definition().pages.length-1" (click)="persistPage()">Next page</button><button class="pill primary" *ngIf="previewPage()===definition().pages.length-1" (click)="submit()">Submit</button></div></section>
 <section *ngIf="responses().length" class="mt-6 card" data-testid="response-admin">
-  <div class="flex justify-between">
-    <h2 class="type-h3">Response administration</h2>
-    <input placeholder="Search receipt or form" [(ngModel)]="responseQuery">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <h2 class="type-h3 min-w-0 break-words">Response administration</h2>
+    <input class="min-w-0 max-w-full flex-1" placeholder="Search receipt or form" [(ngModel)]="responseQuery">
   </div>
   <div class="mt-3 grid gap-2">
-    <button class="field-card text-left" *ngFor="let response of filteredResponses()" (click)="openResponse(response.id)">
-      <span>{{response.id}}</span>
-      <span>{{response.submittedAt}}</span>
+    <button class="field-card min-w-0 flex-wrap gap-2 text-left" *ngFor="let response of filteredResponses()" (click)="openResponse(response.id)">
+      <span class="min-w-0 break-all">{{response.id}}</span>
+      <span class="shrink-0">{{response.submittedAt}}</span>
     </button>
   </div>
 </section>
@@ -70,6 +71,10 @@ export class AppComponent {
   respondentRevision = 0;
   draftRevision = signal(1);
   definition = signal<FormDefinition>(createDefaultDefinition());
+  dirty = signal(false);
+  saving = signal(false);
+  publishing = signal(false);
+  draftReloadRequired = signal(false);
 
   constructor(private readonly api: SmartIntakeApiService) {
     this.bootstrap();
@@ -78,12 +83,13 @@ export class AppComponent {
   page() { return this.definition().pages[this.pageIndex()]; }
   field() { return this.page().fields[this.fieldIndex()]; }
   allFields() { return this.definition().pages.flatMap((page) => page.fields); }
-  touch() { this.definition.update((definition) => ({ ...definition, pages: [...definition.pages] })); }
+  touch() { this.definition.update((definition) => ({ ...definition, pages: [...definition.pages] })); this.dirty.set(true); }
   selectPage(index: number) { this.pageIndex.set(index); this.fieldIndex.set(0); }
 
   addPage() {
     const pages = [...this.definition().pages, createPage(`page-${Date.now()}`)];
     this.definition.update((definition) => ({ ...definition, pages }));
+    this.dirty.set(true);
     this.selectPage(pages.length - 1);
   }
 
@@ -91,12 +97,14 @@ export class AppComponent {
     const page = this.page();
     const fields = [...page.fields, createField(`field-${Date.now()}`, type)];
     this.definition.update((definition) => updatePage(definition, this.pageIndex(), { ...page, fields }));
+    this.dirty.set(true);
     this.fieldIndex.set(fields.length - 1);
   }
 
   removeField() {
     const page = this.page();
     this.definition.update((definition) => updatePage(definition, this.pageIndex(), { ...page, fields: removeAt(page.fields, this.fieldIndex()) }));
+    this.dirty.set(true);
     this.fieldIndex.set(0);
   }
 
@@ -105,6 +113,7 @@ export class AppComponent {
     const fields = moveItem(page.fields, index, delta);
     if (fields === page.fields) return;
     this.definition.update((definition) => updatePage(definition, this.pageIndex(), { ...page, fields }));
+    this.dirty.set(true);
     if (index + delta >= 0 && index + delta < fields.length) this.fieldIndex.set(index + delta);
   }
 
@@ -128,7 +137,10 @@ export class AppComponent {
   isRequired(field: Field) { return !!field.required || !!(field.requiredRule && this.answers[field.requiredRuleField ?? ''] === field.requiredRuleValue); }
 
   bootstrap() {
-    if (this.staffToken) return;
+    if (this.staffToken) {
+      this.validateStoredSession();
+      return;
+    }
     this.api.bootstrap().subscribe({ next: (response) => this.persistStaffSession(response.staffSession), error: () => this.signIn() });
   }
 
@@ -139,14 +151,67 @@ export class AppComponent {
   private persistStaffSession(token: string) {
     this.staffToken = token;
     localStorage.setItem('smartintake.staffSession', token);
+    this.rehydrateDefaultForm();
   }
 
-  loadResponses() { this.api.listResponses(this.staffToken).subscribe({ next: (response) => this.responses.set(response), error: () => this.message.set('Response list unavailable.') }); }
+  private validateStoredSession() {
+    this.api.listForms(this.staffToken).subscribe({
+      next: (forms) => this.rehydrateDefaultForm(forms),
+      error: (error) => {
+        if (error.status !== 401) {
+          this.message.set('Unable to validate the stored staff session.');
+          return;
+        }
+        this.staffToken = '';
+        localStorage.removeItem('smartintake.staffSession');
+        this.bootstrap();
+      },
+    });
+  }
+
+  private rehydrateDefaultForm(knownForms?: FormSummary[]) {
+    const load = (forms: FormSummary[]) => {
+      const form = forms.find((candidate) => candidate.formKey === this.definition().formKey);
+      if (!form) return;
+      this.api.currentDraft(this.staffToken, form.id, form.id).subscribe({
+        next: (draft) => this.applyDraft(form.id, draft),
+        error: () => this.message.set('Saved draft unavailable; starting a new form.'),
+      });
+    };
+    if (knownForms) load(knownForms);
+    else this.api.listForms(this.staffToken).subscribe({ next: load, error: () => this.message.set('Unable to load saved drafts.') });
+  }
+
+  private applyDraft(formId: string, draft: CurrentDraft) {
+    this.formId = formId;
+    this.draftId = draft.id || formId;
+    this.draftRevision.set(draft.revision);
+    this.definition.set(draft.definition);
+    this.pageIndex.set(0);
+    this.fieldIndex.set(0);
+    this.dirty.set(false);
+    this.draftReloadRequired.set(false);
+  }
+
+  loadResponses() {
+    this.responseDetail.set(null);
+    this.responses.set([]);
+    this.api.listResponses(this.staffToken).subscribe({
+      next: (response) => this.responses.set(response),
+      error: () => { this.responseDetail.set(null); this.message.set('Response list unavailable.'); },
+    });
+  }
   filteredResponses() {
     const query = this.responseQuery.toLowerCase();
     return this.responses().filter((response) => JSON.stringify(response).toLowerCase().includes(query));
   }
-  openResponse = (id: string) => this.api.responseDetail(this.staffToken, id).subscribe({ next: (response) => this.responseDetail.set(response), error: () => this.message.set('Response detail unavailable.') });
+  openResponse = (id: string) => {
+    this.responseDetail.set(null);
+    this.api.responseDetail(this.staffToken, id).subscribe({
+      next: (response) => this.responseDetail.set(response),
+      error: () => { this.responseDetail.set(null); this.message.set('Response detail unavailable.'); },
+    });
+  };
 
   exportDefinition() {
     if (!this.formId) { this.message.set('Save a form before export.'); return; }
@@ -156,16 +221,43 @@ export class AppComponent {
   importDefinition(event: Event) {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file || !this.formId) { this.message.set('Save a form before import.'); return; }
-    file.text().then((text) => this.api.importDefinition(this.staffToken, this.formId, this.draftRevision(), JSON.parse(text)).subscribe({ next: (response) => { this.draftRevision.set(response.revision); this.message.set(`Import committed at revision ${response.revision}`); }, error: (error) => this.message.set(error.error?.diagnostics?.[0]?.message || 'Import rejected.') }));
+    this.saving.set(true);
+    file.text().then((text) => this.api.importDefinition(this.staffToken, this.formId, this.draftRevision(), JSON.parse(text)).subscribe({
+      next: () => this.refetchImportedDraft(),
+      error: (error) => { this.saving.set(false); this.message.set(error.error?.diagnostics?.[0]?.message || 'Import rejected.'); },
+    })).catch(() => {
+      this.saving.set(false);
+      this.message.set('Import rejected.');
+    });
+  }
+
+  private refetchImportedDraft() {
+    this.draftReloadRequired.set(true);
+    this.api.currentDraft(this.staffToken, this.formId, this.draftId || this.formId).subscribe({
+      next: (draft) => {
+        this.applyDraft(this.formId, draft);
+        this.saving.set(false);
+        this.message.set(`Import committed at revision ${draft.revision}`);
+      },
+      error: () => {
+        this.saving.set(false);
+        this.message.set('Import committed, but the canonical draft could not be reloaded.');
+      },
+    });
   }
 
   exportResponses() { this.api.exportResponses(this.staffToken).subscribe({ next: (response) => this.download(response, 'smart-intake-responses.json'), error: () => this.message.set('Response export failed.') }); }
   download(value: unknown, name: string) { const anchor = document.createElement('a'); anchor.href = URL.createObjectURL(new Blob([JSON.stringify(value, null, 2)], { type: 'application/json' })); anchor.download = name; anchor.click(); URL.revokeObjectURL(anchor.href); }
 
-  save() {
+  save(afterSave?: () => void) {
     if (!this.staffToken) { this.message.set('Waiting for a staff session.'); return; }
+    if (this.saving() || this.draftReloadRequired()) {
+      this.message.set('Wait for the current draft operation to finish.');
+      return;
+    }
+    this.saving.set(true);
     if (this.formId) {
-      this.updateDraft();
+      this.updateDraft(afterSave);
       return;
     }
     this.api.createForm(this.staffToken, this.definition().formKey, this.definition().title).subscribe({
@@ -173,27 +265,40 @@ export class AppComponent {
         this.formId = created.id;
         this.draftId = created.draftId || created.id;
         this.draftRevision.set(created.revision);
-        this.updateDraft();
+        this.updateDraft(afterSave);
       },
-      error: () => this.message.set('Save failed: form key may already exist.'),
+      error: () => { this.saving.set(false); this.message.set('Save failed: form key may already exist.'); },
     });
   }
 
-  private updateDraft() {
+  private updateDraft(afterSave?: () => void) {
     this.api.updateDraft(this.staffToken, this.formId, this.draftId || this.formId, this.draftRevision(), this.definition()).subscribe({
       next: (saved) => {
         this.draftRevision.set(saved.revision);
+        this.definition.set(saved.definition);
+        this.dirty.set(false);
+        this.saving.set(false);
         this.message.set('Draft saved. Publish this form through the release API before public sharing.');
+        afterSave?.();
       },
-      error: () => this.message.set('Save failed: draft changed or is unavailable.'),
+      error: () => { this.saving.set(false); this.message.set('Save failed: draft changed or is unavailable.'); },
     });
   }
 
   publish() {
     if (!this.formId) { this.message.set('Save a form before publishing.'); return; }
+    if (this.saving() || this.publishing() || this.draftReloadRequired()) {
+      this.message.set('Wait for the current draft operation to finish before publishing.');
+      return;
+    }
+    if (this.dirty()) {
+      this.save(() => this.publish());
+      return;
+    }
+    this.publishing.set(true);
     this.api.publish(this.staffToken, this.formId).subscribe({
-      next: (release) => this.message.set(`Form published. Release ${release.releaseId}`),
-      error: () => this.message.set('Publish failed.'),
+      next: (release) => { this.publishing.set(false); this.message.set(`Form published. Release ${release.releaseId}`); },
+      error: () => { this.publishing.set(false); this.message.set('Publish failed.'); },
     });
   }
 

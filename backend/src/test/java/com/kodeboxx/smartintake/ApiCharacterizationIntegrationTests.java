@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kodeboxx.smartintake.compatibility.CompatibilityReconciliationService;
 import com.kodeboxx.smartintake.compatibility.RespondentSecretVerifier;
 import com.kodeboxx.smartintake.contract.PackageStamp;
 import java.util.*;
@@ -27,6 +28,7 @@ class ApiCharacterizationIntegrationTests {
   @Autowired JdbcTemplate db;
   @Autowired ObjectMapper json;
   @Autowired RespondentSecretVerifier respondentSecrets;
+  @Autowired CompatibilityReconciliationService reconciliation;
   UUID account, form, session;
   String workspace, staff, respondent;
 
@@ -449,9 +451,118 @@ class ApiCharacterizationIntegrationTests {
             .getStatusCode());
   }
 
+  @Test
+  void legacy_and_quarantined_forms_reject_draft_mutations_without_changing_source()
+      throws Exception {
+    HttpHeaders staffHeaders = headers(staff);
+    ResponseEntity<String> legacyCreated =
+        call(
+            "/workspaces/" + workspace + "/forms",
+            HttpMethod.POST,
+            staffHeaders,
+            Map.of(
+                "formKey", "immutable-legacy-" + UUID.randomUUID(), "title", "Legacy immutable"));
+    UUID legacyForm = UUID.fromString(object(legacyCreated.getBody()).get("id").toString());
+    @SuppressWarnings("unchecked")
+    Map<String, Object> legacyDefinition =
+        (Map<String, Object>) object(legacyCreated.getBody()).get("definition");
+    String legacySource =
+        db.queryForObject(
+            "select definition::text from forms where id=?", String.class, legacyForm);
+    db.update(
+        "update forms set compatibility_profile_key='legacy-prototype' where id=?", legacyForm);
+
+    HttpHeaders revisionOne = headers(staff);
+    revisionOne.setIfMatch("\"1\"");
+    assertEquals(
+        HttpStatus.UNPROCESSABLE_ENTITY,
+        call(
+                "/workspaces/" + workspace + "/forms/" + legacyForm + "/drafts/legacy-draft",
+                HttpMethod.PUT,
+                revisionOne,
+                Map.of("definition", legacyDefinition))
+            .getStatusCode());
+    assertEquals(
+        HttpStatus.UNPROCESSABLE_ENTITY,
+        call(
+                "/workspaces/" + workspace + "/forms/" + legacyForm + "/definition-import",
+                HttpMethod.PUT,
+                revisionOne,
+                stamped(legacyDefinition))
+            .getStatusCode());
+    assertEquals(
+        json.readTree(legacySource),
+        json.readTree(
+            db.queryForObject(
+                "select definition::text from forms where id=?", String.class, legacyForm)));
+    assertEquals(
+        1L, db.queryForObject("select revision from forms where id=?", Long.class, legacyForm));
+
+    ResponseEntity<String> quarantinedCreated =
+        call(
+            "/workspaces/" + workspace + "/forms",
+            HttpMethod.POST,
+            staffHeaders,
+            Map.of(
+                "formKey",
+                "immutable-quarantined-" + UUID.randomUUID(),
+                "title",
+                "Quarantined immutable"));
+    UUID quarantinedForm =
+        UUID.fromString(object(quarantinedCreated.getBody()).get("id").toString());
+    @SuppressWarnings("unchecked")
+    Map<String, Object> malformed =
+        copyDefinition(
+            (Map<String, Object>) object(quarantinedCreated.getBody()).get("definition"));
+    fields(malformed).get(0).remove("label");
+    String quarantinedSource = json.writeValueAsString(malformed);
+    db.update(
+        "update forms set definition=cast(? as jsonb) where id=?",
+        quarantinedSource,
+        quarantinedForm);
+    reconciliation.reconcile();
+
+    assertEquals(
+        HttpStatus.UNPROCESSABLE_ENTITY,
+        call(
+                "/workspaces/" + workspace + "/forms/" + quarantinedForm + "/drafts/legacy-draft",
+                HttpMethod.PUT,
+                revisionOne,
+                Map.of("definition", legacyDefinition))
+            .getStatusCode());
+    assertEquals(
+        HttpStatus.UNPROCESSABLE_ENTITY,
+        call(
+                "/workspaces/" + workspace + "/forms/" + quarantinedForm + "/definition-import",
+                HttpMethod.PUT,
+                revisionOne,
+                stamped(legacyDefinition))
+            .getStatusCode());
+    assertEquals(
+        json.readTree(quarantinedSource),
+        json.readTree(
+            db.queryForObject(
+                "select definition::text from forms where id=?", String.class, quarantinedForm)));
+    assertEquals(
+        "QUARANTINED",
+        db.queryForObject(
+            "select state from record_migration_state where record_type='FORM' and record_key=?",
+            String.class,
+            quarantinedForm.toString()));
+    assertEquals(
+        1L,
+        db.queryForObject("select revision from forms where id=?", Long.class, quarantinedForm));
+  }
+
   private Map<String, Object> copyDefinition(Map<String, Object> definition) {
     return json.convertValue(
         json.valueToTree(definition), new TypeReference<Map<String, Object>>() {});
+  }
+
+  private Map<String, Object> stamped(Map<String, Object> definition) {
+    return json.convertValue(
+        PackageStamp.attach(json.valueToTree(definition), "lite-expression-1", "tzdb-system"),
+        new TypeReference<Map<String, Object>>() {});
   }
 
   @SuppressWarnings("unchecked")

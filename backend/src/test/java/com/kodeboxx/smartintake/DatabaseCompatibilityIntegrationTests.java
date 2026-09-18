@@ -1,6 +1,7 @@
 package com.kodeboxx.smartintake;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -15,6 +16,7 @@ import com.kodeboxx.smartintake.compatibility.RespondentSecretVerifier;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.util.HexFormat;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -557,6 +559,9 @@ class DatabaseCompatibilityIntegrationTests {
     UUID submission = UUID.randomUUID();
     UUID submissionOnlySession = UUID.randomUUID();
     UUID submissionOnly = UUID.randomUUID();
+    UUID visibleSession = UUID.randomUUID();
+    UUID visibleSubmission = UUID.randomUUID();
+    UUID staff = UUID.randomUUID();
     String definition = validDefinition();
     db.update(
         "insert into accounts(id,email,password_hash) values(?,?,?)",
@@ -577,6 +582,21 @@ class DatabaseCompatibilityIntegrationTests {
         organization,
         "mismatch-b-" + workspaceB,
         "B");
+    db.update(
+        "insert into memberships(account_id,workspace_id,role) values(?,?,?)",
+        account,
+        workspaceA,
+        "OWNER");
+    db.update(
+        "insert into memberships(account_id,workspace_id,role) values(?,?,?)",
+        account,
+        workspaceB,
+        "OWNER");
+    db.update(
+        "insert into staff_sessions(token,account_id,expires_at) values(?,?,now()+interval '1"
+            + " hour')",
+        staff,
+        account);
     db.update(
         "insert into forms(id,workspace_id,form_key,title,definition,compatibility_profile_key)"
             + " values(?,?,?,?,cast(? as jsonb),?)",
@@ -642,6 +662,21 @@ class DatabaseCompatibilityIntegrationTests {
         submissionOnly,
         formB,
         submissionOnlySession);
+    db.update(
+        "insert into"
+            + " sessions(id,form_id,release_id,respondent_token,compatibility_profile_key,answers)"
+            + " values(?,?,?,?,?,cast('{}' as jsonb))",
+        visibleSession,
+        formA,
+        releaseA,
+        UUID.randomUUID(),
+        "m1-current-prototype");
+    db.update(
+        "insert into submissions(id,form_id,session_id,envelope) values(?,?,?,cast(? as jsonb))",
+        visibleSubmission,
+        formA,
+        visibleSession,
+        "{\"visible\":true}");
 
     reconciliation.reconcile();
 
@@ -684,6 +719,36 @@ class DatabaseCompatibilityIntegrationTests {
                 + " record_key=?",
             String.class,
             submissionOnly.toString()));
+    String workspaceKeyA = "mismatch-a-" + workspaceA;
+    String workspaceKeyB = "mismatch-b-" + workspaceB;
+    assertEquals(
+        List.of(visibleSubmission.toString()),
+        intake.submissions(workspaceKeyA, staff.toString()).stream()
+            .map(row -> row.get("id"))
+            .toList());
+    assertEquals(
+        Map.of("visible", true),
+        intake.submission(workspaceKeyA, visibleSubmission, staff.toString()));
+    assertEquals(
+        List.of(Map.of("visible", true)), intake.jsonExport(workspaceKeyA, staff.toString()));
+    String visibleCsv = intake.csv(workspaceKeyA, staff.toString());
+    assertTrue(visibleCsv.contains(visibleSubmission.toString()), visibleCsv);
+    assertFalse(visibleCsv.contains(submission.toString()), visibleCsv);
+    assertFalse(visibleCsv.contains(submissionOnly.toString()), visibleCsv);
+    for (UUID hidden : List.of(submission, submissionOnly)) {
+      assertEquals(
+          404,
+          assertThrows(
+                  ResponseStatusException.class,
+                  () -> intake.submission(workspaceKeyB, hidden, staff.toString()))
+              .getStatusCode()
+              .value());
+    }
+    assertTrue(intake.submissions(workspaceKeyB, staff.toString()).isEmpty());
+    assertTrue(intake.jsonExport(workspaceKeyB, staff.toString()).isEmpty());
+    assertEquals(
+        "submission_id,form_id,submitted_at,answers\n",
+        intake.csv(workspaceKeyB, staff.toString()));
     String mutationDigest =
         db.queryForObject(
             "select source_digest from record_migration_state where record_type='SESSION_MUTATION'"

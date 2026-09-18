@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { describe, expect, it, vi } from 'vitest';
 import { AppComponent } from './app.component';
 import { createDefaultDefinition } from './models/form-definition.models';
@@ -11,6 +11,8 @@ describe('AppComponent journeys', () => {
     return {
       bootstrap: vi.fn(() => of({ staffSession: 'bootstrapped' })),
       signIn: vi.fn(() => of({ staffSession: 'signed-in' })),
+      listForms: vi.fn(() => of([] as Array<{ id: string; formKey: string; title: string; status: string; revision: number; updatedAt: string }>)),
+      currentDraft: vi.fn(() => of({ id: 'form-1', revision: 2, definition, diagnostics: [] })),
       createForm: vi.fn(() => of({ id: 'form-1', draftId: 'draft-1', revision: 1, definition })),
       updateDraft: vi.fn(() => of({ revision: 2, definition, diagnostics: [] })),
       publish: vi.fn(() => of({ releaseId: 'release-1', version: 1, shareId: 'form-1', status: 'PUBLISHED' })),
@@ -54,6 +56,38 @@ describe('AppComponent journeys', () => {
     expect(component.message()).toBe('Unable to start a staff session.');
   });
 
+  it('clears a stale stored staff token and recovers through bootstrap then sign-in', () => {
+    localStorage.setItem('smartintake.staffSession', 'stale-token');
+    const api = createApi();
+    api.listForms.mockReturnValueOnce(throwError(() => ({ status: 401 }))).mockReturnValue(of([]));
+    api.bootstrap.mockReturnValue(throwError(() => new Error('already bootstrapped')));
+    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
+    const component = TestBed.createComponent(AppComponent).componentInstance;
+
+    expect(api.listForms).toHaveBeenNthCalledWith(1, 'stale-token');
+    expect(api.bootstrap).toHaveBeenCalledOnce();
+    expect(api.signIn).toHaveBeenCalledOnce();
+    expect(component.staffToken).toBe('signed-in');
+    expect(localStorage.getItem('smartintake.staffSession')).toBe('signed-in');
+  });
+
+  it('rehydrates the authoritative default draft after validating a stored session', () => {
+    localStorage.setItem('smartintake.staffSession', 'existing-token');
+    const api = createApi();
+    const restored = { ...createDefaultDefinition(), title: 'Restored intake' };
+    api.listForms.mockReturnValue(of([{ id: 'form-1', formKey: 'responsive-intake', title: 'Responsive intake', status: 'DRAFT', revision: 4, updatedAt: '2026-09-18' }]));
+    api.currentDraft.mockReturnValue(of({ id: 'draft-1', revision: 4, definition: restored, diagnostics: [] }));
+    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
+    const component = TestBed.createComponent(AppComponent).componentInstance;
+
+    expect(api.currentDraft).toHaveBeenCalledWith('existing-token', 'form-1', 'form-1');
+    expect(component.formId).toBe('form-1');
+    expect(component.draftId).toBe('draft-1');
+    expect(component.draftRevision()).toBe(4);
+    expect(component.definition().title).toBe('Restored intake');
+    expect(component.dirty()).toBe(false);
+  });
+
   it('creates then persists a draft, repeats with its current revision, publishes from the toolbar, and submits a session', () => {
     localStorage.removeItem('smartintake.staffSession');
     const api = createApi();
@@ -88,7 +122,41 @@ describe('AppComponent journeys', () => {
     expect(component.message()).toBe('Response received. Receipt receipt-1');
   });
 
-  it('uses its current revision when the rendered import control transfers a definition', async () => {
+  it('serializes a dirty draft save before publishing and guards an in-flight publish', () => {
+    localStorage.setItem('smartintake.staffSession', 'existing-token');
+    const api = createApi();
+    const saved = new Subject<{ revision: number; definition: ReturnType<typeof createDefaultDefinition>; diagnostics: never[] }>();
+    const published = new Subject<{ releaseId: string; version: number; shareId: string; status: string }>();
+    api.updateDraft.mockReturnValue(saved.asObservable());
+    api.publish.mockReturnValue(published.asObservable());
+    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
+    const fixture = TestBed.createComponent(AppComponent);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+    component.formId = 'form-1';
+    component.draftId = 'draft-1';
+    component.touch();
+
+    component.publish();
+    expect(api.updateDraft).toHaveBeenCalledOnce();
+    expect(api.publish).not.toHaveBeenCalled();
+    expect(component.saving()).toBe(true);
+    fixture.detectChanges();
+    expect(toolbarButton(fixture, 'Publish').disabled).toBe(true);
+
+    component.publish();
+    expect(api.updateDraft).toHaveBeenCalledOnce();
+    saved.next({ revision: 2, definition: component.definition(), diagnostics: [] });
+    expect(api.publish).toHaveBeenCalledWith('existing-token', 'form-1');
+    expect(component.publishing()).toBe(true);
+
+    component.publish();
+    expect(api.publish).toHaveBeenCalledOnce();
+    published.next({ releaseId: 'release-1', version: 1, shareId: 'form-1', status: 'PUBLISHED' });
+    expect(component.publishing()).toBe(false);
+  });
+
+  it('uses its current revision then replaces the editor with the canonical imported draft', async () => {
     localStorage.setItem('smartintake.staffSession', 'existing-token');
     const api = createApi();
     TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
@@ -96,13 +164,40 @@ describe('AppComponent journeys', () => {
     fixture.detectChanges();
     const component = fixture.componentInstance;
     component.formId = 'form-1';
+    component.draftId = 'draft-1';
     component.draftRevision.set(7);
+    const canonical = { ...createDefaultDefinition(), title: 'Canonical imported draft' };
+    api.currentDraft.mockReturnValue(of({ id: 'draft-1', revision: 8, definition: canonical, diagnostics: [] }));
     const importInput = fixture.nativeElement.querySelector('input[type="file"]') as HTMLInputElement;
     Object.defineProperty(importInput, 'files', { value: [{ text: () => Promise.resolve('{"contractVersion":"4.0.0"}') }] });
 
     importInput.dispatchEvent(new Event('change'));
     await Promise.resolve();
     expect(api.importDefinition).toHaveBeenCalledWith('existing-token', 'form-1', 7, { contractVersion: '4.0.0' });
+    expect(api.currentDraft).toHaveBeenCalledWith('existing-token', 'form-1', 'draft-1');
+    expect(component.draftRevision()).toBe(8);
+    expect(component.definition().title).toBe('Canonical imported draft');
+    expect(component.saving()).toBe(false);
+  });
+
+  it('recovers the saving state when an imported definition cannot be parsed', async () => {
+    localStorage.setItem('smartintake.staffSession', 'existing-token');
+    const api = createApi();
+    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+    component.formId = 'form-1';
+    const importInput = fixture.nativeElement.querySelector('input[type="file"]') as HTMLInputElement;
+    Object.defineProperty(importInput, 'files', { value: [{ text: () => Promise.resolve('{') }] });
+
+    importInput.dispatchEvent(new Event('change'));
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(api.importDefinition).not.toHaveBeenCalled();
+    expect(component.saving()).toBe(false);
+    expect(component.message()).toBe('Import rejected.');
   });
 
   it('filters the inlined response list from its rendered search control', () => {
@@ -120,6 +215,10 @@ describe('AppComponent journeys', () => {
     fixture.detectChanges();
     const responseAdmin = fixture.nativeElement.querySelector('[data-testid="response-admin"]') as HTMLElement;
     const search = responseAdmin.querySelector('input[placeholder="Search receipt or form"]') as HTMLInputElement;
+    const heading = responseAdmin.querySelector('h2') as HTMLElement;
+    expect(responseAdmin.firstElementChild?.classList.contains('flex-wrap')).toBe(true);
+    expect(heading.classList.contains('break-words')).toBe(true);
+    expect(search.classList.contains('min-w-0')).toBe(true);
     search.value = 'receipt-1';
     search.dispatchEvent(new Event('input'));
     fixture.detectChanges();
@@ -127,6 +226,8 @@ describe('AppComponent journeys', () => {
     const rows = responseAdmin.querySelectorAll('.field-card');
     expect(rows).toHaveLength(1);
     expect(rows[0].textContent).toContain('receipt-1');
+    expect(rows[0].classList.contains('flex-wrap')).toBe(true);
+    expect(rows[0].querySelector('span')?.classList.contains('break-all')).toBe(true);
   });
 
   it('opens an authorized response detail after an inlined response row click', () => {
@@ -155,6 +256,29 @@ describe('AppComponent journeys', () => {
     fixture.detectChanges();
     expect(component.responseDetail()).toBeNull();
     expect(fixture.nativeElement.textContent).not.toContain('Authorized response detail');
+  });
+
+  it('renders response failures globally and clears stale response detail', () => {
+    localStorage.setItem('smartintake.staffSession', 'existing-token');
+    const api = createApi();
+    api.listResponses.mockReturnValue(throwError(() => new Error('list failed')));
+    api.responseDetail.mockReturnValue(throwError(() => new Error('detail failed')));
+    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
+    const fixture = TestBed.createComponent(AppComponent);
+    const component = fixture.componentInstance;
+    component.responseDetail.set({ id: 'stale' });
+    fixture.detectChanges();
+
+    component.loadResponses();
+    fixture.detectChanges();
+    expect(component.responseDetail()).toBeNull();
+    expect(fixture.nativeElement.querySelector('[role="status"]')?.textContent).toContain('Response list unavailable.');
+
+    component.responseDetail.set({ id: 'stale' });
+    component.openResponse('receipt-1');
+    fixture.detectChanges();
+    expect(component.responseDetail()).toBeNull();
+    expect(fixture.nativeElement.querySelector('[role="status"]')?.textContent).toContain('Response detail unavailable.');
   });
 
   it('preserves draft, publish, and session failure messages', () => {

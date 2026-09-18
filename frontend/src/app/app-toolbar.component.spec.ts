@@ -57,4 +57,14 @@ describe('AppToolbarComponent', () => {
     expect(responsesExport).toHaveBeenCalledOnce();
     expect(responseAdmin).toHaveBeenCalledOnce();
   });
+
+  it('disables publishing while the parent reports an unsafe draft operation', () => {
+    const fixture: ComponentFixture<AppToolbarComponent> = TestBed.createComponent(AppToolbarComponent);
+    fixture.componentRef.setInput('publishDisabled', true);
+    fixture.detectChanges();
+
+    const publish = [...fixture.nativeElement.querySelectorAll('button')]
+      .find((button) => button.textContent?.trim() === 'Publish') as HTMLButtonElement;
+    expect(publish.disabled).toBe(true);
+  });
 });

@@ -7,6 +7,8 @@ type StaffSession = { staffSession: string; workspaceKey?: string };
 export type CreatedForm = { id: string; draftId: string; revision: number; definition: FormDefinition };
 export type SavedDraft = { revision: number; definition: FormDefinition; diagnostics: unknown[] };
 export type PublishedForm = { releaseId: string; version: number; shareId: string; status: string };
+export type FormSummary = { id: string; formKey: string; title: string; status: string; revision: number; updatedAt: string };
+export type CurrentDraft = { id: string; revision: number; definition: FormDefinition; diagnostics: unknown[] };
 
 @Injectable({ providedIn: 'root' })
 export class SmartIntakeApiService {
@@ -18,6 +20,14 @@ export class SmartIntakeApiService {
 
   signIn(): Observable<StaffSession> {
     return this.http.post<StaffSession>('/v1/auth/sign-in', this.localCredentials());
+  }
+
+  listForms(staffToken: string): Observable<FormSummary[]> {
+    return this.http.get<FormSummary[]>('/v1/workspaces/local/forms', this.staff(staffToken));
+  }
+
+  currentDraft(staffToken: string, formId: string, draftId: string): Observable<CurrentDraft> {
+    return this.http.get<CurrentDraft>(`/v1/workspaces/local/forms/${formId}/drafts/${draftId}`, this.staff(staffToken));
   }
 
   listResponses(staffToken: string): Observable<ResponseSummary[]> {

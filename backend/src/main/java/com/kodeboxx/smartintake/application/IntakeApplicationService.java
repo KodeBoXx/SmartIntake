@@ -224,6 +224,7 @@ public class IntakeApplicationService {
 
   public ResponseEntity<?> save(String workspace, UUID form, String token, String match, Draft in) {
     authorization.requireOwnedForm(workspace, token, form);
+    requireNewWriteAllowed("FORM", form);
     var row = formRow(form);
     if (match == null)
       throw new ResponseStatusException(HttpStatus.PRECONDITION_REQUIRED, "If-Match required");
@@ -256,6 +257,7 @@ public class IntakeApplicationService {
   public ResponseEntity<?> definitionImport(
       String workspace, UUID form, String token, String match, Map<String, Object> candidate) {
     authorization.requireOwnedForm(workspace, token, form);
+    requireNewWriteAllowed("FORM", form);
     var row = formRow(form);
     if (match == null || !match.equals(etag(row.revision())))
       throw new ResponseStatusException(
@@ -454,8 +456,9 @@ public class IntakeApplicationService {
   public List<Map<String, Object>> submissions(String workspace, String token) {
     UUID ws = authorization.authorize(workspace, token);
     return db.query(
-        "select s.id,s.form_id,s.submitted_at from submissions s join forms f on f.id=s.form_id"
-            + " where f.workspace_id=? order by s.submitted_at desc",
+        "select s.id,s.form_id,s.submitted_at"
+            + visibleSubmissionScope()
+            + " order by s.submitted_at desc",
         (rs, n) ->
             Map.of(
                 "id",
@@ -472,11 +475,10 @@ public class IntakeApplicationService {
     try {
       return parse(
           db.queryForObject(
-              "select s.envelope::text from submissions s join forms f on f.id=s.form_id where"
-                  + " s.id=? and f.workspace_id=?",
+              "select s.envelope::text" + visibleSubmissionScope() + " and s.id=?",
               String.class,
-              id,
-              ws));
+              ws,
+              id));
     } catch (Exception e) {
       throw missing();
     }
@@ -485,8 +487,7 @@ public class IntakeApplicationService {
   public List<Map<String, Object>> jsonExport(String workspace, String token) {
     UUID ws = authorization.authorize(workspace, token);
     return db.query(
-        "select s.envelope::text from submissions s join forms f on f.id=s.form_id where"
-            + " f.workspace_id=? order by s.submitted_at desc",
+        "select s.envelope::text" + visibleSubmissionScope() + " order by s.submitted_at desc",
         (rs, n) -> parse(rs.getString(1)),
         ws);
   }
@@ -495,8 +496,9 @@ public class IntakeApplicationService {
     UUID ws = authorization.authorize(workspace, token);
     StringBuilder b = new StringBuilder("submission_id,form_id,submitted_at,answers\n");
     db.query(
-        "select s.id,s.form_id,s.submitted_at,s.envelope->'answers' answers from submissions s join"
-            + " forms f on f.id=s.form_id where f.workspace_id=? order by s.submitted_at desc",
+        "select s.id,s.form_id,s.submitted_at,s.envelope->'answers' answers"
+            + visibleSubmissionScope()
+            + " order by s.submitted_at desc",
         (org.springframework.jdbc.core.RowCallbackHandler)
             rs ->
                 b.append(CsvSafety.cell(rs.getObject("id")))
@@ -512,6 +514,24 @@ public class IntakeApplicationService {
   }
 
   // Persistence and serialization helpers
+
+  private String visibleSubmissionScope() {
+    return " from submissions s"
+        + " join sessions ss on ss.id=s.session_id"
+        + " join form_releases r on r.id=ss.release_id"
+        + " join forms f on f.id=s.form_id"
+        + " where f.workspace_id=?"
+        + " and s.form_id=ss.form_id"
+        + " and ss.form_id=r.form_id"
+        + " and not exists(select 1 from record_migration_state rms where"
+        + " rms.record_type='SUBMISSION' and rms.record_key=s.id::text and rms.state='QUARANTINED')"
+        + " and not exists(select 1 from record_migration_state rms where"
+        + " rms.record_type='SESSION' and rms.record_key=ss.id::text and rms.state='QUARANTINED')"
+        + " and not exists(select 1 from record_migration_state rms where"
+        + " rms.record_type='RELEASE' and rms.record_key=r.id::text and rms.state='QUARANTINED')"
+        + " and not exists(select 1 from record_migration_state rms where"
+        + " rms.record_type='FORM' and rms.record_key=f.id::text and rms.state='QUARANTINED')";
+  }
 
   private record F(UUID id, long revision, String definition) {}
 

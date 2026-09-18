@@ -56,6 +56,20 @@ describe('SmartIntakeApiService', () => {
     publish.flush({ releaseId: 'release-1', version: 1, shareId: 'form-1', status: 'PUBLISHED' });
   });
 
+  it('validates staff sessions and reads the current draft through existing form routes', () => {
+    api.listForms('staff-token').subscribe();
+    const forms = http.expectOne('/v1/workspaces/local/forms');
+    expect(forms.request.method).toBe('GET');
+    expect(forms.request.headers.get('X-Staff-Session')).toBe('staff-token');
+    forms.flush([{ id: 'form-1', formKey: 'responsive-intake', title: 'Responsive intake', status: 'DRAFT', revision: 3, updatedAt: '2026-09-18' }]);
+
+    api.currentDraft('staff-token', 'form-1', 'draft-1').subscribe();
+    const draft = http.expectOne('/v1/workspaces/local/forms/form-1/drafts/draft-1');
+    expect(draft.request.method).toBe('GET');
+    expect(draft.request.headers.get('X-Staff-Session')).toBe('staff-token');
+    draft.flush({ id: 'draft-1', revision: 3, definition: createDefaultDefinition(), diagnostics: [] });
+  });
+
   it('keeps definition transfer paths, bodies, and current If-Match headers intact', () => {
     api.exportDefinition('staff-token', 'form-1').subscribe();
     const exported = http.expectOne('/v1/workspaces/local/forms/form-1/definition-export');
