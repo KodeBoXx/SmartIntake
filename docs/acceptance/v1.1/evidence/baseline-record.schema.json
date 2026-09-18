@@ -38,12 +38,16 @@
     "executionPolicy": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["maxAttemptsPerCommand", "retriesAllowed", "networkInstallAllowed", "logsRetained"],
+      "required": ["maxAttemptsPerCommand", "retriesAllowed", "networkInstallAllowed", "logsRetained", "mutationBoundary"],
       "properties": {
         "maxAttemptsPerCommand": { "const": 1 },
         "retriesAllowed": { "const": false },
         "networkInstallAllowed": { "const": false },
-        "logsRetained": { "type": "string" }
+        "logsRetained": { "type": "string" },
+        "mutationBoundary": {
+          "type": "string",
+          "pattern": "^Only caller-provisioned disposable PostgreSQL database 'smartintake_baseline_[a-z0-9_]+' at the explicit Spring datasource URL; no shared application database may be used, created, reset, or dropped\\.$"
+        }
       }
     },
     "acceptanceBoundary": {

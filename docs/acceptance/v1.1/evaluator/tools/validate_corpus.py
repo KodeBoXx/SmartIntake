@@ -454,8 +454,8 @@ def validate_frozen_assets(docs, actual, errors, root=ROOT, structural_assets=Fa
         or t22.get("browserDiscoveryProbe", {}).get("schemaVersion") != "t22-browser-discovery-probe/v3"
         or t22.get("browserDiscoveryProbe", {}).get("ownedProbe") != {
             "repoRelativePath": "assets/t22_browser_discovery_probe.py",
-            "sha256": "230e9061eff59895286d11d1f2ee3d2100320df6856395b9a0bda8afb4d4c9d2",
-            "invocation": ["{ownedProbePath}", "--config-id", "{configId}"],
+            "sha256": "bd62401febdc93ead55dce6a60b9d616a6619c23f87a20999385d6264533047c",
+            "invocation": ["{ownedProbePath}", "--config-id", "{configId}", "--lease-output", "{leaseOutput}"],
             "mode": 755,
         }
         or sha(root / "assets" / "t22_browser_discovery_probe.py") != t22.get("browserDiscoveryProbe", {}).get("ownedProbe", {}).get("sha256")

@@ -13,6 +13,7 @@ import datetime as dt
 import hashlib
 import importlib.metadata
 import json
+import os
 import platform
 import re
 import subprocess
@@ -33,6 +34,11 @@ STATUSES = {"pass", "fail", "blocked", "not-run"}
 LEVELS = {"E0", "E1", "E2", "E3", "Human"}
 RETAINED_RECORD_STATUSES = {"retained", "finalized"}
 MAX_SUMMARY_CHARS = 4_000
+DEFAULT_APPLICATION_DATABASE_URL = "jdbc:postgresql://localhost:5432/smartintake"
+BASELINE_DATABASE_PREFIX = "smartintake_baseline_"
+JDBC_POSTGRES_URL = re.compile(
+    r"^jdbc:postgresql://(?P<authority>[^/?#]+)/(?P<database>[A-Za-z0-9_]+)(?:\?[^#]*)?$"
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 HANDOFF = Path("docs/source-handoff/smart-form-builder-lite-prd-v1.1")
@@ -65,6 +71,14 @@ class CommandResult:
     cwd: str = "."
 
 
+@dataclass(frozen=True)
+class BaselineDatabase:
+    """A caller-provisioned database that is the runner's only mutation boundary."""
+
+    url: str
+    name: str
+
+
 CommandExecutor = Callable[[Sequence[str], Path], CommandResult]
 
 
@@ -87,6 +101,24 @@ def canonical_json(value: Any) -> str:
 def command_text(command: Sequence[str]) -> str:
     # JSON is unambiguous and avoids a shell or shell interpolation.
     return canonical_json(list(command))
+
+
+def baseline_database(url: str | None) -> BaselineDatabase:
+    """Require a named disposable database and reject either application database."""
+    if not isinstance(url, str) or not url:
+        raise ValueError("an explicit --baseline-database-url for a caller-provisioned disposable database is required")
+    parsed = JDBC_POSTGRES_URL.fullmatch(url)
+    if parsed is None or "@" in parsed.group("authority"):
+        raise ValueError("baseline database URL must be a credential-free jdbc:postgresql URL with one database name")
+    name = parsed.group("database")
+    current_url = os.environ.get("DATABASE_URL", DEFAULT_APPLICATION_DATABASE_URL)
+    current = JDBC_POSTGRES_URL.fullmatch(current_url)
+    current_name = current.group("database") if current else None
+    if name == current_name or name == "smartintake":
+        raise ValueError("baseline database must not be the default or current application database")
+    if not name.startswith(BASELINE_DATABASE_PREFIX):
+        raise ValueError(f"baseline database name must start with {BASELINE_DATABASE_PREFIX!r}")
+    return BaselineDatabase(url=url, name=name)
 
 
 def truncate_and_redact(value: str) -> str:
@@ -259,13 +291,13 @@ def version_record(root: Path, executor: CommandExecutor) -> dict[str, Any]:
     return versions
 
 
-def postgres_prerequisite(root: Path, executor: CommandExecutor, now: str) -> tuple[dict[str, Any], bool]:
+def postgres_prerequisite(root: Path, executor: CommandExecutor, now: str, database: BaselineDatabase) -> tuple[dict[str, Any], bool]:
     status_command = ("docker", "compose", "ps", "postgres")
     status_result = run(executor, root, status_command)
     status_summary = summarize_result(status_result)
     running = status_result.exit_code == 0 and bool(re.search(r"\b(running|up)\b", status_summary, re.IGNORECASE))
     attempts = [command_attempt(status_result)]
-    ready_command = ("docker", "compose", "exec", "-T", "postgres", "pg_isready", "-U", "smartintake", "-d", "smartintake")
+    ready_command = ("docker", "compose", "exec", "-T", "postgres", "pg_isready", "-U", "smartintake", "-d", database.name)
     if running:
         ready_result = run(executor, root, ready_command)
         attempts.append(command_attempt(ready_result))
@@ -279,7 +311,7 @@ def postgres_prerequisite(root: Path, executor: CommandExecutor, now: str) -> tu
         "pass" if ready else "blocked",
         "E2",
         {"numerator": 1 if ready else 0, "denominator": 1, "unit": "reachable repository PostgreSQL service"},
-        "PostgreSQL is a prerequisite for Maven integration and Flyway application observations; the runner never starts, resets, or mutates the service.",
+        f"PostgreSQL is checked only for caller-provisioned disposable database {database.name!r}. The runner never starts, creates, resets, drops, or otherwise mutates a shared service/database outside that declared boundary.",
         attempts,
         prerequisites=(),
     ), ready
@@ -308,14 +340,14 @@ def parse_surefire(root: Path, attempt_started_at: str) -> dict[str, int]:
     return totals
 
 
-def backend_task(root: Path, executor: CommandExecutor, now: str, postgres_ready: bool) -> tuple[dict[str, Any], bool]:
-    command = ("mvn", "-q", "clean", "test")
+def backend_task(root: Path, executor: CommandExecutor, now: str, postgres_ready: bool, database: BaselineDatabase) -> tuple[dict[str, Any], bool]:
+    command = ("mvn", "-q", "clean", "test", f"-Dspring.datasource.url={database.url}")
     prerequisite = {"id": "postgres-prerequisite", "status": "pass" if postgres_ready else "blocked"}
     if not postgres_ready:
         return task(
             "backend-maven-tests", "Backend Maven test observation", "blocked", "E2",
             {"numerator": 0, "denominator": 19, "unit": "reported Maven tests", "observedDenominator": "unknown because command did not run"},
-            "Maven was not run because the repository PostgreSQL prerequisite is blocked. This is not a skipped pass.",
+            "Maven was not run because the caller-provisioned disposable PostgreSQL prerequisite is blocked. This is not a skipped pass.",
             [unrun_attempt(command, now, "Blocked by postgres-prerequisite.", "backend")], prerequisites=[prerequisite],
         ), False
     result = run(executor, root / "backend", command)
@@ -332,7 +364,7 @@ def backend_task(root: Path, executor: CommandExecutor, now: str, postgres_ready
     return task(
         "backend-maven-tests", "Backend Maven test observation", "pass" if passed else "fail", "E2",
         {"numerator": totals["tests"] if passed else 0, "denominator": totals["tests"], "unit": "Surefire tests", "failures": totals["failures"], "errors": totals["errors"], "skipped": totals["skipped"], "reportFiles": totals["reports"], "staleReportFiles": totals["staleReports"]},
-        "Maven is run with clean test and report mtimes are bound to this attempt. A passing run remains an integrated baseline observation, not full PRD conformance.",
+        f"Maven is run with clean test and an explicit Spring datasource URL for disposable database {database.name!r}; report mtimes are bound to this attempt. This runner may mutate only that caller-provisioned database. A passing run remains an integrated baseline observation, not full PRD conformance.",
         [command_attempt(result)], prerequisites=[prerequisite],
     ), passed
 
@@ -349,8 +381,8 @@ def migration_inventory_task(root: Path, now: str) -> dict[str, Any]:
     )
 
 
-def flyway_application_task(root: Path, executor: CommandExecutor, now: str, backend_passed: bool) -> dict[str, Any]:
-    command = ("docker", "compose", "exec", "-T", "postgres", "psql", "-At", "-F", "|", "-U", "smartintake", "-d", "smartintake", "-c", "SELECT version, success FROM flyway_schema_history ORDER BY installed_rank;")
+def flyway_application_task(root: Path, executor: CommandExecutor, now: str, backend_passed: bool, database: BaselineDatabase) -> dict[str, Any]:
+    command = ("docker", "compose", "exec", "-T", "postgres", "psql", "-At", "-F", "|", "-U", "smartintake", "-d", database.name, "-c", "SELECT version, success FROM flyway_schema_history ORDER BY installed_rank;")
     prerequisite = {"id": "backend-maven-tests", "status": "pass" if backend_passed else "blocked"}
     if not backend_passed:
         return task("flyway-migration-application", "Flyway migration application observation", "blocked", "E2",
@@ -367,7 +399,7 @@ def flyway_application_task(root: Path, executor: CommandExecutor, now: str, bac
     passed = result.exit_code == 0 and expected.issubset(applied)
     return task("flyway-migration-application", "Flyway migration application observation", "pass" if passed else "fail", "E2",
                 {"numerator": len(expected & applied), "denominator": 4, "unit": "successful Flyway migrations", "versions": sorted(expected)},
-                "This read-only database-history observation is limited to V1-V4 and does not accept later schema scope.",
+                f"This read-only history observation is limited to V1-V4 in declared disposable database {database.name!r} and does not accept later schema scope.",
                 [command_attempt(result)], prerequisites=[prerequisite])
 
 
@@ -458,6 +490,8 @@ def load_baseline_schema(root: Path) -> tuple[dict[str, Any], dict[str, Any]]:
             or schema.get("properties", {}).get("schemaVersion", {}).get("const") != SCHEMA_VERSION
             or schema.get("properties", {}).get("recordType", {}).get("const") != "m0-baseline-observation"
             or schema.get("properties", {}).get("acceptanceBoundary", {}).get("const") != RECORD_ACCEPTANCE_BOUNDARY
+            or "mutationBoundary" not in schema.get("properties", {}).get("executionPolicy", {}).get("required", [])
+            or schema.get("properties", {}).get("executionPolicy", {}).get("properties", {}).get("mutationBoundary", {}).get("pattern") is None
             or schema.get("$defs", {}).get("task", {}).get("properties", {}).get("acceptance", {}).get("properties", {}).get("countsTowardAcceptance", {}).get("const") is not False):
         raise ValueError("runner/schema drift: baseline schema does not declare the runner record contract")
     try:
@@ -507,6 +541,12 @@ def structural_validate_record(record: dict[str, Any], schema_info: dict[str, An
         raise ValueError("unexpected record identity")
     if record["acceptanceBoundary"] != RECORD_ACCEPTANCE_BOUNDARY:
         raise ValueError("baseline record acceptance boundary may not grant acceptance")
+    mutation_boundary = record.get("executionPolicy", {}).get("mutationBoundary")
+    if not isinstance(mutation_boundary, str) or not re.fullmatch(
+        r"Only caller-provisioned disposable PostgreSQL database 'smartintake_baseline_[a-z0-9_]+' at the explicit Spring datasource URL; no shared application database may be used, created, reset, or dropped\.",
+        mutation_boundary,
+    ):
+        raise ValueError("baseline record mutation boundary is invalid")
     validation = record["recordValidation"]
     if not isinstance(validation, dict) or validation != schema_info:
         raise ValueError("runner/schema drift: record validation metadata does not match the checked-in schema")
@@ -760,8 +800,14 @@ def build_attestation(
     }
 
 
-def build_record(root: Path = ROOT, executor: CommandExecutor = default_executor, now: str | None = None) -> dict[str, Any]:
+def build_record(
+    root: Path = ROOT,
+    executor: CommandExecutor = default_executor,
+    now: str | None = None,
+    baseline_database_url: str | None = None,
+) -> dict[str, Any]:
     root = root.resolve()
+    database = baseline_database(baseline_database_url)
     observed_at = now or utc_now()
     _, schema_info = load_baseline_schema(root)
     candidate = git_candidate(root, executor)
@@ -773,10 +819,10 @@ def build_record(root: Path = ROOT, executor: CommandExecutor = default_executor
                       {"numerator": 14 if handoff_result.exit_code == 0 else 0, "denominator": 14, "unit": "manifested handoff files"},
                       "Manifest verification establishes preservation integrity only; it is not product acceptance.", [command_attempt(handoff_result)],
                       artifacts=[file_artifact(root, HANDOFF / "manifest.json"), file_artifact(root, HANDOFF / "verify-handoff.py")]))
-    postgres, postgres_ready = postgres_prerequisite(root, executor, observed_at)
+    postgres, postgres_ready = postgres_prerequisite(root, executor, observed_at, database)
     tasks.append(postgres)
-    backend, backend_passed = backend_task(root, executor, observed_at, postgres_ready)
-    tasks.extend([backend, migration_inventory_task(root, observed_at), flyway_application_task(root, executor, observed_at, backend_passed), expression_task(root, observed_at), frontend_build_task(root, executor), frontend_test_task(root, executor)])
+    backend, backend_passed = backend_task(root, executor, observed_at, postgres_ready, database)
+    tasks.extend([backend, migration_inventory_task(root, observed_at), flyway_application_task(root, executor, observed_at, backend_passed, database), expression_task(root, observed_at), frontend_build_task(root, executor), frontend_test_task(root, executor)])
     tasks.extend(json_schema_tasks(root, executor))
     tasks.extend(openapi_tasks(root, executor, observed_at))
     return {
@@ -785,7 +831,13 @@ def build_record(root: Path = ROOT, executor: CommandExecutor = default_executor
         "observedAtUtc": observed_at,
         "candidate": candidate,
         "environment": environment,
-        "executionPolicy": {"maxAttemptsPerCommand": 1, "retriesAllowed": False, "networkInstallAllowed": False, "logsRetained": "summaries only (maximum 4000 characters per command)"},
+        "executionPolicy": {
+            "maxAttemptsPerCommand": 1,
+            "retriesAllowed": False,
+            "networkInstallAllowed": False,
+            "logsRetained": "summaries only (maximum 4000 characters per command)",
+            "mutationBoundary": f"Only caller-provisioned disposable PostgreSQL database {database.name!r} at the explicit Spring datasource URL; no shared application database may be used, created, reset, or dropped.",
+        },
         "acceptanceBoundary": RECORD_ACCEPTANCE_BOUNDARY,
         "recordValidation": schema_info,
         "tasks": tasks,
@@ -797,6 +849,7 @@ def build_record(root: Path = ROOT, executor: CommandExecutor = default_executor
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo", type=Path, default=ROOT, help="repository root (default: inferred from this script)")
+    parser.add_argument("--baseline-database-url", required=True, help="caller-provisioned credential-free jdbc:postgresql URL for a disposable smartintake_baseline_* database")
     parser.add_argument("--output", type=Path, help="optional JSON output path; stdout is the default")
     parser.add_argument("--attestation-output", type=Path, help="optional attestation manifest; requires --output")
     parser.add_argument("--attestation-status", default="provisional", choices=("provisional", "retained", "finalized", "superseded", "revoked"), help="retention status for --attestation-output")
@@ -809,7 +862,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.attestation_output and (not args.attestation_reviewer or not args.attestation_reviewer_authority):
         parser.error("--attestation-reviewer and --attestation-reviewer-authority are required; the tool will not invent a reviewer")
     repository = resolved_repository_root(args.repo)
-    record = build_record(repository, now=args.now)
+    record = build_record(repository, now=args.now, baseline_database_url=args.baseline_database_url)
     validate_record(record, repository)
     rendered = json.dumps(record, indent=2, sort_keys=True) + "\n"
     if args.output:
