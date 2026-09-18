@@ -1,0 +1,17 @@
+{
+  "op": "add",
+  "args": [
+    {
+      "literal": {
+        "type": "integer",
+        "value": "1"
+      }
+    },
+    {
+      "literal": {
+        "type": "decimal",
+        "value": "2.5"
+      }
+    }
+  ]
+}

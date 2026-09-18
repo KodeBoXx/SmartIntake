@@ -1,0 +1,152 @@
+{
+  "schemaVersion": "4.0.0",
+  "contractVersion": "4.0.1",
+  "engineContract": "4.0.0",
+  "kind": "smart-form-package",
+  "formKey": "intake",
+  "definitionVersion": "1.0.0",
+  "titleKey": "title",
+  "defaultLocale": "en",
+  "supportedLocales": [
+    "en"
+  ],
+  "translations": {
+    "en": {
+      "title": "Intake",
+      "amount": "Amount",
+      "name": "Name",
+      "attendees": "Attendees",
+      "attendee_name": "Attendee name"
+    }
+  },
+  "data": {
+    "fields": [
+      {
+        "id": "name",
+        "key": "name",
+        "type": "text",
+        "labelKey": "name"
+      },
+      {
+        "id": "amount",
+        "key": "amount",
+        "type": "integer",
+        "labelKey": "amount",
+        "constraints": {
+          "min": "0",
+          "max": "9223372036854775807"
+        }
+      },
+      {
+        "id": "attendees",
+        "key": "attendees",
+        "type": "list",
+        "labelKey": "attendees",
+        "itemSchema": {
+          "fields": [
+            {
+              "id": "attendeeName",
+              "key": "attendee_name",
+              "type": "text",
+              "labelKey": "attendee_name"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "flow": {
+    "startPageId": "page1",
+    "phases": [
+      {
+        "id": "phase1",
+        "pages": [
+          {
+            "id": "page1",
+            "key": "page",
+            "labelKey": "title",
+            "sections": [
+              {
+                "id": "section1",
+                "key": "main",
+                "labelKey": "title",
+                "nodes": [
+                  {
+                    "id": "node1",
+                    "kind": "question",
+                    "fieldId": "name",
+                    "fieldType": "text",
+                    "control": "text",
+                    "labelKey": "name"
+                  },
+                  {
+                    "id": "node2",
+                    "kind": "question",
+                    "fieldId": "amount",
+                    "fieldType": "integer",
+                    "control": "integer",
+                    "labelKey": "amount"
+                  },
+                  {
+                    "id": "node3",
+                    "kind": "question",
+                    "fieldId": "attendees",
+                    "fieldType": "list",
+                    "control": "repeatingCards",
+                    "labelKey": "attendees",
+                    "presentation": {
+                      "settings": {
+                        "allowAdd": true,
+                        "allowRemove": false,
+                        "allowReorder": true
+                      }
+                    },
+                    "children": [
+                      {
+                        "id": "node4",
+                        "kind": "question",
+                        "fieldId": "attendeeName",
+                        "fieldType": "text",
+                        "control": "text",
+                        "labelKey": "attendee_name"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "expressions": {
+    "sum": {
+      "op": "add",
+      "args": [
+        {
+          "literal": {
+            "type": "integer",
+            "value": "1"
+          }
+        },
+        {
+          "literal": {
+            "type": "decimal",
+            "value": "2.5"
+          }
+        }
+      ]
+    }
+  },
+  "dependencies": [],
+  "policies": {
+    "attachmentsRequiredReady": true
+  },
+  "assets": [],
+  "extensions": {
+    "x-example.org": {
+      "profile": "representative"
+    }
+  }
+}

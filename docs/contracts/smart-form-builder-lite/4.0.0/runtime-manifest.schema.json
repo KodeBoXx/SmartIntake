@@ -1,0 +1,212 @@
+{
+  "title": "Smart Form Builder Lite immutable runtime manifest 4.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "contractVersion",
+    "engineContract",
+    "runtimeManifestVersion",
+    "runtimeManifestHash",
+    "packageHash",
+    "policyVersion",
+    "timeZoneDatabaseVersion",
+    "resolvedComponents",
+    "resolvedAssets",
+    "extensions"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "4.0.0"
+    },
+    "contractVersion": {
+      "const": "4.0.0"
+    },
+    "engineContract": {
+      "const": "4.0.0"
+    },
+    "runtimeManifestVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "runtimeManifestHash": {
+      "$ref": "#/$defs/sha256"
+    },
+    "packageHash": {
+      "$ref": "#/$defs/sha256"
+    },
+    "policyVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "timeZoneDatabaseVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "resolvedComponents": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/component"
+      },
+      "uniqueItems": true
+    },
+    "resolvedAssets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/asset"
+      },
+      "uniqueItems": true
+    },
+    "extensions": {
+      "$ref": "#/$defs/extensionNamespaces"
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,127}$"
+    },
+    "key": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]{0,63}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "int64": {
+      "type": "string",
+      "pattern": "^(0|-[1-9][0-9]*|[1-9][0-9]*)$",
+      "format": "canonical-int64"
+    },
+    "decimal": {
+      "type": "string",
+      "pattern": "^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\\.[0-9]*[1-9])?$",
+      "format": "canonical-decimal"
+    },
+    "date": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "format": "date"
+    },
+    "time": {
+      "type": "string",
+      "pattern": "^(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.\\d{1,9})?$"
+    },
+    "instant": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,9})?Z$",
+      "format": "date-time"
+    },
+    "extensionNamespaces": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^x-[a-z0-9]+(?:[.-][a-z0-9]+)+$"
+      },
+      "additionalProperties": {
+        "type": [
+          "string",
+          "number",
+          "boolean",
+          "array",
+          "object",
+          "null"
+        ]
+      }
+    },
+    "rowPath": {
+      "type": "array",
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "listFieldId": {
+            "$ref": "#/$defs/id"
+          },
+          "itemId": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "required": [
+          "listFieldId",
+          "itemId"
+        ]
+      }
+    },
+    "dateTime": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "instant": {
+          "$ref": "#/$defs/instant"
+        },
+        "timeZone": {
+          "type": "string",
+          "pattern": "^[A-Za-z]+(?:[_+-][A-Za-z]+)*(?:/[A-Za-z_+-]+)+$"
+        }
+      },
+      "required": [
+        "instant",
+        "timeZone"
+      ]
+    },
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "digest": {
+          "$ref": "#/$defs/sha256"
+        },
+        "mediaType": {
+          "type": "string",
+          "pattern": "^[\\w.+-]+/[\\w.+-]+$"
+        },
+        "altKey": {
+          "$ref": "#/$defs/key"
+        }
+      },
+      "required": [
+        "id",
+        "digest",
+        "mediaType"
+      ]
+    },
+    "component": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "fieldControl",
+            "operator",
+            "extension",
+            "theme",
+            "locale"
+          ]
+        },
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "digest": {
+          "$ref": "#/$defs/sha256"
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "version",
+        "digest"
+      ]
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/runtime-manifest.schema.json"
+}

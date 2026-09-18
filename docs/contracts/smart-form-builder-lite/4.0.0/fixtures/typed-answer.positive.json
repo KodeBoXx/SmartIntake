@@ -1,0 +1,26 @@
+{
+  "status": "answered",
+  "type": "list",
+  "value": {
+    "items": [
+      {
+        "itemId": "item-1",
+        "fields": {
+          "amount": {
+            "status": "answered",
+            "type": "decimal",
+            "value": "44.75",
+            "provenance": {
+              "source": "respondent",
+              "changedAt": "2026-09-05T10:00:00Z"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "provenance": {
+    "source": "respondent",
+    "changedAt": "2026-09-05T10:00:00Z"
+  }
+}

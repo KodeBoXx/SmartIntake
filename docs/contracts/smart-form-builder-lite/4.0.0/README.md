@@ -1,21 +1,65 @@
-# Smart Form Builder Lite canonical contract foundation — 4.0.0
+# Smart Form Builder Lite normative schemas — 4.0.0
 
-This directory is the versioned, transport-level contract foundation. It is intentionally independent from the current controllers, persistence lifecycle, and UI.
+This directory contains the seven closed JSON Schema Draft 2020-12 transport
+contracts for the Smart Form Builder Lite public profile. They are an additive
+M2 contract surface, independent from the current prototype runtime, OpenAPI,
+and M0 acceptance evaluator. They are not a product-acceptance claim.
 
-## Package stamp
+## Stable artifacts
 
-A publishable package has `contractVersion: "4.0.0"` and a `packageStamp`. `canonicalSha256` is `sha256:` plus the lowercase SHA-256 digest of the UTF-8 canonical JSON body after removing `packageStamp`. Canonical JSON recursively sorts object keys and preserves array order. This avoids a self-referential digest while making equivalent object-member orders hash identically.
+`index.json` is the machine-readable inventory. Every schema has a stable
+`https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/` `$id`.
 
-`evaluatorContract` is pinned to `4.0.0`. `timeZoneDatabaseVersion` is optional in this foundation but should be present when date-time evaluation is enabled in a release.
+| Kind | Artifact | Purpose |
+| --- | --- | --- |
+| package | `package.schema.json` | Resolved portable definition: recursive object/list fields, flow nodes, all 17 catalog rows/control metadata, dependencies, policies, assets and namespaced extensions. |
+| expression | `expression.schema.json` | Closed recursive AST with literals, references, contexts and all 34 named operations. |
+| input answer | `input-answer.schema.json` | Recursive client/default `{status,value?}` wrapper without type, provenance, actor or authority metadata. |
+| typed answer | `typed-answer.schema.json` | Server-side resolved cell type, recursive values and server provenance. |
+| runtime manifest | `runtime-manifest.schema.json` | Immutable package/policy/component/asset/tzdb interpretation binding. |
+| submission envelope | `submission-envelope.schema.json` | Immutable accepted response, trusted authority fields, recursive answers, sealed attachment metadata and acknowledgments. |
+| event | `event.schema.json` | Closed outbound event envelope for `form.published`, `form.retired`, `submission.created`, `submission.deleted`, and `attachment.rejected`. |
 
-## Typed values
+All normative named object shapes use `additionalProperties: false`. The only
+open maps are explicit identity/locale maps and `extensions`, whose keys must
+be an explicit extension namespace (`x-<namespace>.<name>`). Unknown core
+properties therefore fail schema validation.
 
-Typed integers are JSON **strings** matching `^(0|-?[1-9][0-9]*)$` and are range checked as exact signed int64 values. JSON numeric integers, `-0`, leading zeros, plus signs, and exponent notation are rejected. Decimal values are strings with no exponent or plus sign; their canonical output removes trailing fractional zeroes and never has negative zero. Exact decimal results are restricted to 34 significant digits and adjusted exponent -6143 through 6144.
+## Normative wire rules represented here
 
-The JSON Schema describes wire shape. `ContractValue` supplies the stricter semantic range and decimal checks that JSON Schema cannot express portably.
+- `schemaVersion`, `contractVersion`, and `engineContract` are exactly `4.0.0`.
+- Integers use canonical signed-int64 decimal strings. Decimal strings have no
+  exponent, leading plus, negative zero, or noncanonical trailing fractional
+  zero. The validator enforces int64 range and the 34-significant-digit bound.
+- Date and time values are canonical strings; date-time is the explicit
+  `{instant,timeZone}` object. UTC server timestamps use RFC 3339 `Z` form.
+- The six statuses are `answered`, `unanswered`, `unknown`, `declined`,
+  `respondentNotApplicable`, and `notApplicable`; only `answered` carries a
+  value. Input answers deliberately omit provenance, while typed envelope cells
+  require server provenance.
+- Recursive list records use stable `itemId` and fields; row paths are ordered
+  `{listFieldId,itemId}` ancestor addresses (maximum supported depth three).
+  Identity resolution, uniqueness across a session, option/field-reference
+  resolution, and semantic control-to-field binding remain compiler/runtime
+  checks rather than JSON Schema assertions.
 
-## Evaluator boundary
+The authority is the PRD v1.1 and `Lite-Contract-Details.md`; evaluator
+packages/examples are only observational inputs and are not imported as this
+contract's authority.
 
-`ExpressionEngine` accepts closed JSON ASTs and has no dynamic code, clock, network, or host-timezone access. It supports scalar literals, frozen `sessionDate` / `sessionTimeZone`, scalar operators, three-valued boolean logic, and a bounded evaluation budget. It is an intentionally isolated foundation, not a claim that the entire PRD evaluator (notably list/item scopes and aggregate operators) is production-integrated.
+## Validation
 
-The test harness reads `docs/source-handoff/.../expression-contract.json`, executes applicable scalar/context vectors, and reports skipped vectors by ID. It must not be interpreted as full evaluator acceptance unless every source vector is executed and passing.
+The schema harness does not load OpenAPI or application code. It compiles every
+indexed schema and validates every checked-in fixture:
+
+```sh
+python3 tools/contracts/validate_schemas.py --verbose
+# or
+sh tools/contracts/test_schemas.sh
+```
+
+It uses `jsonschema==4.10.3` (`tools/contracts/requirements.txt`), which is
+available in the repository environment. Each schema has an independent
+representative positive fixture and a negative fixture under `fixtures/`; the
+harness requires positives to pass and negatives to fail. Run `git diff --check`
+after validation when changing this corpus.

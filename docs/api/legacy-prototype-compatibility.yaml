@@ -1,0 +1,37 @@
+openapi: 3.1.0
+info:
+  title: Smart Intake prototype compatibility routes
+  version: legacy-prototype
+  description: >-
+    Observational compatibility inventory for the pre-M2 prototype only. These routes
+    are not part of the normative Smart Form Builder Lite 4.0.0 API, are not
+    O_named/O_total members, and must never be substituted for a counted operation.
+paths:
+  /v1/auth/bootstrap:
+    post:
+      operationId: legacyPrototypeBootstrap
+      x-legacy: true
+      x-m0-counted: false
+      summary: Prototype bootstrap compatibility route
+      responses: {'200': {description: Observed prototype response only}}
+  /v1/workspaces/{workspace}/forms/{formId}/definition-export:
+    get:
+      operationId: legacyPrototypeDefinitionExport
+      x-legacy: true
+      x-m0-counted: false
+      summary: Prototype definition export compatibility route
+      responses: {'200': {description: Observed prototype response only}}
+  /v1/workspaces/{workspace}/forms/{formId}/definition-import:
+    put:
+      operationId: legacyPrototypeDefinitionImport
+      x-legacy: true
+      x-m0-counted: false
+      summary: Prototype definition import compatibility route
+      responses: {'200': {description: Observed prototype response only}}
+  /v1/workspaces/{workspace}/forms/{formId}/releases:
+    post:
+      operationId: legacyPrototypePublish
+      x-legacy: true
+      x-m0-counted: false
+      summary: Prototype publication compatibility route
+      responses: {'201': {description: Observed prototype response only}}

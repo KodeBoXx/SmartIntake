@@ -2,6 +2,12 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { FormDefinition, ResponseSummary } from './models/form-definition.models';
+import type { operations } from './generated/api';
+import type { PackageDocument } from './generated/contracts';
+
+export { AjvContractValidationAdapter } from './ajv-contract-validation.adapter';
+export type { ContractDiagnostic, ContractValidationResult } from './ajv-contract-validation.adapter';
+export type { CanonicalDecimal, CanonicalInt64 } from './generated/contracts';
 
 type StaffSession = { staffSession: string; workspaceKey?: string };
 export type CreatedForm = { id: string; draftId: string; revision: number; definition: FormDefinition };
@@ -9,6 +15,7 @@ export type SavedDraft = { revision: number; definition: FormDefinition; diagnos
 export type PublishedForm = { releaseId: string; version: number; shareId: string; status: string };
 export type FormSummary = { id: string; formKey: string; title: string; status: string; revision: number; updatedAt: string };
 export type CurrentDraft = { id: string; revision: number; definition: FormDefinition; diagnostics: unknown[] };
+export type PublishedSchema = operations['ON-get-v1-schemas-kind-version-4c108bde88']['responses'][200]['content']['application/schema+json'];
 
 @Injectable({ providedIn: 'root' })
 export class SmartIntakeApiService {
@@ -51,6 +58,13 @@ export class SmartIntakeApiService {
   exportResponses(staffToken: string): Observable<ResponseSummary[]> {
     return this.http.get<ResponseSummary[]>('/v1/workspaces/local/exports.json', this.staff(staffToken));
   }
+
+  /** M2 publication route; use the generated OpenAPI operation response type. */
+  publishedSchema(kind: string, version = '4.0.0'): Observable<PublishedSchema> {
+    return this.http.get<PublishedSchema>(`/v1/schemas/${encodeURIComponent(kind)}/${encodeURIComponent(version)}`);
+  }
+
+  asContractPackage(definition: PackageDocument): PackageDocument { return definition; }
 
   createForm(staffToken: string, formKey: string, title: string): Observable<CreatedForm> {
     return this.http.post<CreatedForm>('/v1/workspaces/local/forms', { formKey, title }, this.staff(staffToken));

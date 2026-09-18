@@ -1,0 +1,77 @@
+{
+  "contractVersion": "4.0.0",
+  "schemas": [
+    {
+      "kind": "package",
+      "file": "package.schema.json",
+      "id": "https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/package.schema.json"
+    },
+    {
+      "kind": "expression",
+      "file": "expression.schema.json",
+      "id": "https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/expression.schema.json"
+    },
+    {
+      "kind": "input-answer",
+      "file": "input-answer.schema.json",
+      "id": "https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/input-answer.schema.json"
+    },
+    {
+      "kind": "typed-answer",
+      "file": "typed-answer.schema.json",
+      "id": "https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/typed-answer.schema.json"
+    },
+    {
+      "kind": "runtime-manifest",
+      "file": "runtime-manifest.schema.json",
+      "id": "https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/runtime-manifest.schema.json"
+    },
+    {
+      "kind": "submission-envelope",
+      "file": "submission-envelope.schema.json",
+      "id": "https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/submission-envelope.schema.json"
+    },
+    {
+      "kind": "event",
+      "file": "event.schema.json",
+      "id": "https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/event.schema.json"
+    }
+  ],
+  "fixtures": [
+    {
+      "schema": "package",
+      "positive": "fixtures/package.positive.json",
+      "negative": "fixtures/package.negative.json"
+    },
+    {
+      "schema": "expression",
+      "positive": "fixtures/expression.positive.json",
+      "negative": "fixtures/expression.negative.json"
+    },
+    {
+      "schema": "input-answer",
+      "positive": "fixtures/input-answer.positive.json",
+      "negative": "fixtures/input-answer.negative.json"
+    },
+    {
+      "schema": "typed-answer",
+      "positive": "fixtures/typed-answer.positive.json",
+      "negative": "fixtures/typed-answer.negative.json"
+    },
+    {
+      "schema": "runtime-manifest",
+      "positive": "fixtures/runtime-manifest.positive.json",
+      "negative": "fixtures/runtime-manifest.negative.json"
+    },
+    {
+      "schema": "submission-envelope",
+      "positive": "fixtures/submission-envelope.positive.json",
+      "negative": "fixtures/submission-envelope.negative.json"
+    },
+    {
+      "schema": "event",
+      "positive": "fixtures/event.positive.json",
+      "negative": "fixtures/event.negative.json"
+    }
+  ]
+}

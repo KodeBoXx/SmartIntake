@@ -1,0 +1,2 @@
+# Standalone schema validation dependency; compatible with the checked-in harness.
+jsonschema==4.10.3

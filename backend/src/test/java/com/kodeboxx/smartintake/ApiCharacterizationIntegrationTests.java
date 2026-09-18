@@ -3,6 +3,7 @@ package com.kodeboxx.smartintake;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kodeboxx.smartintake.compatibility.CompatibilityReconciliationService;
 import com.kodeboxx.smartintake.compatibility.RespondentSecretVerifier;
@@ -97,7 +98,29 @@ class ApiCharacterizationIntegrationTests {
     assertEquals("4.0.0", object(health.getBody()).get("contractVersion"));
     ResponseEntity<String> capabilities = http.getForEntity(u("/capabilities"), String.class);
     assertEquals(HttpStatus.OK, capabilities.getStatusCode());
-    assertTrue(capabilities.getBody().contains("fieldTypes"));
+    assertTrue(capabilities.getHeaders().getContentType().isCompatibleWith(MediaType.APPLICATION_JSON));
+    assertTrue(capabilities.getBody().contains("fieldCatalog"));
+    assertTrue(capabilities.getBody().contains("\"count\":82"));
+    JsonNode capabilityDocument = json.readTree(capabilities.getBody());
+    for (String required : List.of("registryVersion", "contractVersion", "versions", "schemas", "fieldCatalog", "controlValueCompatibility", "operatorSignatures", "limits", "operations", "assetSupplement", "openapi", "generation")) {
+      assertTrue(capabilityDocument.has(required), "missing OpenAPI CapabilityRegistry field " + required);
+    }
+    assertEquals(2, capabilityDocument.at("/operations/items").findValues("implementationStatus").stream()
+        .filter(status -> "implemented".equals(status.asText())).count());
+    HttpHeaders schemaAccept = new HttpHeaders();
+    schemaAccept.setAccept(List.of(MediaType.parseMediaType("application/schema+json")));
+    ResponseEntity<String> publishedSchema = http.exchange(
+        u("/schemas/package/4.0.0"), HttpMethod.GET, new HttpEntity<>(schemaAccept), String.class);
+    assertEquals(HttpStatus.OK, publishedSchema.getStatusCode());
+    assertTrue(publishedSchema.getHeaders().getContentType().isCompatibleWith(MediaType.parseMediaType("application/schema+json")));
+    assertNotNull(publishedSchema.getHeaders().getETag());
+    assertNotNull(publishedSchema.getHeaders().getFirst("Digest"));
+    assertNotNull(publishedSchema.getHeaders().getFirst("X-Contract-SHA256"));
+    assertTrue(publishedSchema.getHeaders().getCacheControl().contains("immutable"));
+    JsonNode schemaDocument = json.readTree(publishedSchema.getBody());
+    assertEquals("https://json-schema.org/draft/2020-12/schema", schemaDocument.path("$schema").asText());
+    assertTrue(schemaDocument.path("$id").asText().contains("package.schema.json"));
+    assertEquals("object", schemaDocument.path("type").asText());
     Map<String, Object> credentials =
         Map.of("email", "m1-" + account + "@example.test", "password", "correct-horse-battery");
     ResponseEntity<String> signIn =
