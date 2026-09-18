@@ -20,80 +20,78 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.kodeboxx.smartintake.generated.contract.ExpressionDocumentDateTime;
-import java.time.LocalDate;
-import java.time.OffsetDateTime;
+import com.kodeboxx.smartintake.generated.contract.PlatformRecovery;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
- * ExpressionDocumentLiteralValue
+ * PlatformRecoveryResponse
  */
 @JsonPropertyOrder({
-  ExpressionDocumentLiteralValue.JSON_PROPERTY_INSTANT,
-  ExpressionDocumentLiteralValue.JSON_PROPERTY_TIME_ZONE
+  PlatformRecoveryResponse.JSON_PROPERTY_REQUEST_ID,
+  PlatformRecoveryResponse.JSON_PROPERTY_PLATFORM_RECOVERY
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class ExpressionDocumentLiteralValue {
-  public static final String JSON_PROPERTY_INSTANT = "instant";
+public class PlatformRecoveryResponse {
+  public static final String JSON_PROPERTY_REQUEST_ID = "requestId";
   @jakarta.annotation.Nonnull
-  private OffsetDateTime instant;
+  private String requestId;
 
-  public static final String JSON_PROPERTY_TIME_ZONE = "timeZone";
+  public static final String JSON_PROPERTY_PLATFORM_RECOVERY = "platformRecovery";
   @jakarta.annotation.Nonnull
-  private String timeZone;
+  private PlatformRecovery platformRecovery;
 
-  public ExpressionDocumentLiteralValue() {
+  public PlatformRecoveryResponse() {
   }
 
-  public ExpressionDocumentLiteralValue instant(@jakarta.annotation.Nonnull OffsetDateTime instant) {
+  public PlatformRecoveryResponse requestId(@jakarta.annotation.Nonnull String requestId) {
     
-    this.instant = instant;
+    this.requestId = requestId;
     return this;
   }
 
   /**
-   * Get instant
-   * @return instant
+   * Get requestId
+   * @return requestId
    */
   @jakarta.annotation.Nonnull
-  @JsonProperty(JSON_PROPERTY_INSTANT)
+  @JsonProperty(JSON_PROPERTY_REQUEST_ID)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public OffsetDateTime getInstant() {
-    return instant;
+  public String getRequestId() {
+    return requestId;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_INSTANT)
+  @JsonProperty(JSON_PROPERTY_REQUEST_ID)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setInstant(@jakarta.annotation.Nonnull OffsetDateTime instant) {
-    this.instant = instant;
+  public void setRequestId(@jakarta.annotation.Nonnull String requestId) {
+    this.requestId = requestId;
   }
 
-  public ExpressionDocumentLiteralValue timeZone(@jakarta.annotation.Nonnull String timeZone) {
+  public PlatformRecoveryResponse platformRecovery(@jakarta.annotation.Nonnull PlatformRecovery platformRecovery) {
     
-    this.timeZone = timeZone;
+    this.platformRecovery = platformRecovery;
     return this;
   }
 
   /**
-   * Get timeZone
-   * @return timeZone
+   * Get platformRecovery
+   * @return platformRecovery
    */
   @jakarta.annotation.Nonnull
-  @JsonProperty(JSON_PROPERTY_TIME_ZONE)
+  @JsonProperty(JSON_PROPERTY_PLATFORM_RECOVERY)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public String getTimeZone() {
-    return timeZone;
+  public PlatformRecovery getPlatformRecovery() {
+    return platformRecovery;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_TIME_ZONE)
+  @JsonProperty(JSON_PROPERTY_PLATFORM_RECOVERY)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setTimeZone(@jakarta.annotation.Nonnull String timeZone) {
-    this.timeZone = timeZone;
+  public void setPlatformRecovery(@jakarta.annotation.Nonnull PlatformRecovery platformRecovery) {
+    this.platformRecovery = platformRecovery;
   }
 
   @Override
@@ -104,22 +102,22 @@ public class ExpressionDocumentLiteralValue {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ExpressionDocumentLiteralValue expressionDocumentLiteralValue = (ExpressionDocumentLiteralValue) o;
-    return Objects.equals(this.instant, expressionDocumentLiteralValue.instant) &&
-        Objects.equals(this.timeZone, expressionDocumentLiteralValue.timeZone);
+    PlatformRecoveryResponse platformRecoveryResponse = (PlatformRecoveryResponse) o;
+    return Objects.equals(this.requestId, platformRecoveryResponse.requestId) &&
+        Objects.equals(this.platformRecovery, platformRecoveryResponse.platformRecovery);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(instant, timeZone);
+    return Objects.hash(requestId, platformRecovery);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class ExpressionDocumentLiteralValue {\n");
-    sb.append("    instant: ").append(toIndentedString(instant)).append("\n");
-    sb.append("    timeZone: ").append(toIndentedString(timeZone)).append("\n");
+    sb.append("class PlatformRecoveryResponse {\n");
+    sb.append("    requestId: ").append(toIndentedString(requestId)).append("\n");
+    sb.append("    platformRecovery: ").append(toIndentedString(platformRecovery)).append("\n");
     sb.append("}");
     return sb.toString();
   }

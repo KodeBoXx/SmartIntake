@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "4.0.0",
+  "eventId": "event1",
+  "type": "submission.deleted",
+  "occurredAt": "2026-09-05T10:00:01Z",
+  "tenantId": "tenant1",
+  "workspaceId": "workspace1",
+  "formSequence": 1,
+  "dataMode": "reference",
+  "resource": {
+    "formId": "form1",
+    "submissionId": "submission1",
+    "deletionId": "delete1",
+    "accessRevokedAt": "2026-09-06T10:00:00Z"
+  },
+  "extensions": {}
+}

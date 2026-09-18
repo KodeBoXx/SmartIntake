@@ -20,7 +20,9 @@
     "dependencies",
     "policies",
     "assets",
-    "extensions"
+    "extensions",
+    "guidance",
+    "theme"
   ],
   "properties": {
     "schemaVersion": {
@@ -65,13 +67,7 @@
       "type": "object",
       "minProperties": 1,
       "additionalProperties": {
-        "type": "object",
-        "propertyNames": {
-          "pattern": "^[a-z][a-z0-9_]{0,63}$"
-        },
-        "additionalProperties": {
-          "$ref": "#/$defs/translation"
-        }
+        "$ref": "#/$defs/localeBundle"
       }
     },
     "data": {
@@ -128,26 +124,7 @@
       "uniqueItems": true
     },
     "policies": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "retention": {
-          "enum": [
-            "clear",
-            "memory",
-            "draft"
-          ]
-        },
-        "attachmentsRequiredReady": {
-          "type": "boolean"
-        },
-        "extensions": {
-          "$ref": "#/$defs/extensionNamespaces"
-        }
-      },
-      "required": [
-        "attachmentsRequiredReady"
-      ]
+      "$ref": "#/$defs/policies"
     },
     "assets": {
       "type": "array",
@@ -158,6 +135,12 @@
     },
     "extensions": {
       "$ref": "#/$defs/extensionNamespaces"
+    },
+    "guidance": {
+      "$ref": "#/$defs/guidance"
+    },
+    "theme": {
+      "$ref": "#/$defs/theme"
     }
   },
   "x-catalogRows": [
@@ -492,8 +475,8 @@
     },
     "decimal": {
       "type": "string",
-      "pattern": "^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\\.[0-9]*[1-9])?$",
-      "format": "canonical-decimal"
+      "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+      "format": "stored-decimal"
     },
     "date": {
       "type": "string",
@@ -502,7 +485,8 @@
     },
     "time": {
       "type": "string",
-      "pattern": "^(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.\\d{1,9})?$"
+      "pattern": "^(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.\\d{1,9})?$",
+      "format": "time"
     },
     "instant": {
       "type": "string",
@@ -515,15 +499,9 @@
         "pattern": "^x-[a-z0-9]+(?:[.-][a-z0-9]+)+$"
       },
       "additionalProperties": {
-        "type": [
-          "string",
-          "number",
-          "boolean",
-          "array",
-          "object",
-          "null"
-        ]
-      }
+        "$ref": "#/$defs/extensionValue"
+      },
+      "description": "Closed, dependency-bound extension descriptor; unregistered bindings are compiler errors."
     },
     "rowPath": {
       "type": "array",
@@ -748,6 +726,18 @@
         },
         "extensions": {
           "$ref": "#/$defs/extensionNamespaces"
+        },
+        "guidanceId": {
+          "$ref": "#/$defs/id"
+        },
+        "visibilityExpressionId": {
+          "$ref": "#/$defs/id"
+        },
+        "requiredExpressionId": {
+          "$ref": "#/$defs/id"
+        },
+        "validationExpressionId": {
+          "$ref": "#/$defs/id"
         }
       },
       "required": [
@@ -903,6 +893,15 @@
         },
         "extensions": {
           "$ref": "#/$defs/extensionNamespaces"
+        },
+        "visibilityExpressionId": {
+          "$ref": "#/$defs/id"
+        },
+        "requiredExpressionId": {
+          "$ref": "#/$defs/id"
+        },
+        "validationExpressionId": {
+          "$ref": "#/$defs/id"
         }
       },
       "required": [
@@ -1788,6 +1787,18 @@
         },
         "extensions": {
           "$ref": "#/$defs/extensionNamespaces"
+        },
+        "guidanceId": {
+          "$ref": "#/$defs/id"
+        },
+        "layout": {
+          "enum": [
+            "stack",
+            "grid"
+          ]
+        },
+        "titleKey": {
+          "$ref": "#/$defs/key"
         }
       },
       "required": [
@@ -1819,6 +1830,22 @@
         },
         "extensions": {
           "$ref": "#/$defs/extensionNamespaces"
+        },
+        "titleKey": {
+          "$ref": "#/$defs/key"
+        },
+        "guidanceId": {
+          "$ref": "#/$defs/id"
+        },
+        "defaultNextPageId": {
+          "$ref": "#/$defs/id"
+        },
+        "routes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/route"
+          },
+          "uniqueItems": true
         }
       },
       "required": [
@@ -1895,6 +1922,18 @@
                 "required": [
                   "value"
                 ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "plural": {
+                    "$ref": "#/$defs/pluralPart"
+                  }
+                },
+                "required": [
+                  "plural"
+                ]
               }
             ]
           }
@@ -1914,7 +1953,9 @@
             "block",
             "theme",
             "locale",
-            "asset"
+            "asset",
+            "component",
+            "extension"
           ]
         },
         "id": {
@@ -1957,6 +1998,345 @@
         "id",
         "digest",
         "mediaType"
+      ]
+    },
+    "decimalStorage": {
+      "type": "string",
+      "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+      "format": "stored-decimal"
+    },
+    "expressionResultDecimal": {
+      "type": "string",
+      "pattern": "^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\\.[0-9]*[1-9])?$",
+      "format": "canonical-decimal"
+    },
+    "extensionValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "dependencyId": {
+          "$ref": "#/$defs/id"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "digest": {
+          "$ref": "#/$defs/sha256"
+        },
+        "value": {
+          "type": [
+            "string",
+            "number",
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "dependencyId",
+        "version",
+        "digest",
+        "value"
+      ]
+    },
+    "guidanceEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "messageKey": {
+          "$ref": "#/$defs/key"
+        }
+      },
+      "required": [
+        "id",
+        "messageKey"
+      ]
+    },
+    "guidance": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,127}$"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/guidanceEntry"
+      }
+    },
+    "themeTokens": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "accent": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "background": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "text": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "fontFamily": {
+          "enum": [
+            "system",
+            "sans",
+            "serif"
+          ]
+        },
+        "density": {
+          "enum": [
+            "compact",
+            "comfortable"
+          ]
+        },
+        "radius": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 32
+        },
+        "fieldGap": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 96
+        },
+        "sectionGap": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 128
+        },
+        "pagePadding": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 128
+        },
+        "responsive": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "compactMaxWidth": {
+              "const": 639
+            },
+            "mediumMaxWidth": {
+              "const": 1023
+            },
+            "wideColumns": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 3
+            }
+          },
+          "required": [
+            "compactMaxWidth",
+            "mediumMaxWidth",
+            "wideColumns"
+          ]
+        }
+      },
+      "required": [
+        "accent",
+        "background",
+        "text",
+        "fontFamily",
+        "density",
+        "radius"
+      ]
+    },
+    "theme": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "themeKey": {
+          "$ref": "#/$defs/key"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tokens": {
+          "$ref": "#/$defs/themeTokens"
+        }
+      },
+      "required": [
+        "themeKey",
+        "version",
+        "tokens"
+      ]
+    },
+    "pluralPart": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "count": {
+          "$ref": "expression.schema.json"
+        },
+        "cases": {
+          "type": "object",
+          "propertyNames": {
+            "enum": [
+              "zero",
+              "one",
+              "two",
+              "few",
+              "many",
+              "other"
+            ]
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/message"
+          },
+          "required": [
+            "other"
+          ]
+        }
+      },
+      "required": [
+        "count",
+        "cases"
+      ]
+    },
+    "localeBundle": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "direction": {
+          "enum": [
+            "ltr",
+            "rtl"
+          ]
+        },
+        "messages": {
+          "type": "object",
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,127}$"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/translation"
+          }
+        },
+        "pronunciations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "reviewState": {
+          "enum": [
+            "approved-prd-fixed-values",
+            "approved"
+          ]
+        }
+      },
+      "required": [
+        "direction",
+        "messages"
+      ]
+    },
+    "route": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "targetPageId": {
+          "$ref": "#/$defs/id"
+        },
+        "whenExpressionId": {
+          "$ref": "#/$defs/id"
+        }
+      },
+      "required": [
+        "id",
+        "targetPageId",
+        "whenExpressionId"
+      ]
+    },
+    "policyRetention": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "policyKey": {
+          "$ref": "#/$defs/key"
+        },
+        "submissionDays": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 36500
+        },
+        "draftDays": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 36500
+        }
+      },
+      "required": [
+        "policyKey"
+      ]
+    },
+    "policies": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "attachmentsRequiredReady": {
+          "type": "boolean"
+        },
+        "allowVoiceQuestions": {
+          "type": "boolean"
+        },
+        "confirmationKey": {
+          "$ref": "#/$defs/key"
+        },
+        "draftExpiryDays": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3650
+        },
+        "guidanceMode": {
+          "enum": [
+            "text",
+            "voice",
+            "none"
+          ]
+        },
+        "narrationAutoplay": {
+          "type": "boolean"
+        },
+        "presentation": {
+          "enum": [
+            "grouped",
+            "linear"
+          ]
+        },
+        "responseAccess": {
+          "enum": [
+            "anonymous",
+            "authenticated"
+          ]
+        },
+        "retentionPolicyKey": {
+          "$ref": "#/$defs/key"
+        },
+        "retention": {
+          "$ref": "#/$defs/policyRetention"
+        },
+        "reviewBeforeSubmit": {
+          "type": "boolean"
+        },
+        "showProgress": {
+          "type": "boolean"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensionNamespaces"
+        }
+      },
+      "required": [
+        "attachmentsRequiredReady"
       ]
     }
   },
@@ -2080,5 +2460,9 @@
     }
   ],
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/package.schema.json"
+  "$id": "https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/package.schema.json",
+  "x-extensionDependencyBinding": {
+    "mode": "compiler-enforced",
+    "rule": "Every extensions entry must identify a declared dependency whose kind is extension and whose id/version/digest exactly match; otherwise reject compilation."
+  }
 }

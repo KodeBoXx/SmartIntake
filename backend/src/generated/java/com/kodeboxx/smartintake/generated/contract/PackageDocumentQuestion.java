@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.kodeboxx.smartintake.generated.contract.PackageDocumentExtensionNamespacesValue;
+import com.kodeboxx.smartintake.generated.contract.PackageDocumentExtensionValue;
 import com.kodeboxx.smartintake.generated.contract.PackageDocumentQuestion;
 import com.kodeboxx.smartintake.generated.contract.PackageDocumentSettings;
 import java.util.ArrayList;
@@ -51,7 +51,10 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   PackageDocumentQuestion.JSON_PROPERTY_ROLES,
   PackageDocumentQuestion.JSON_PROPERTY_SUMMARY_FIELD_IDS,
   PackageDocumentQuestion.JSON_PROPERTY_FIXED_ROW_LABELS,
-  PackageDocumentQuestion.JSON_PROPERTY_EXTENSIONS
+  PackageDocumentQuestion.JSON_PROPERTY_EXTENSIONS,
+  PackageDocumentQuestion.JSON_PROPERTY_VISIBILITY_EXPRESSION_ID,
+  PackageDocumentQuestion.JSON_PROPERTY_REQUIRED_EXPRESSION_ID,
+  PackageDocumentQuestion.JSON_PROPERTY_VALIDATION_EXPRESSION_ID
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
 public class PackageDocumentQuestion extends HashMap<String, Object> {
@@ -273,7 +276,19 @@ public class PackageDocumentQuestion extends HashMap<String, Object> {
 
   public static final String JSON_PROPERTY_EXTENSIONS = "extensions";
   @jakarta.annotation.Nullable
-  private Map<String, PackageDocumentExtensionNamespacesValue> extensions = new HashMap<>();
+  private Map<String, PackageDocumentExtensionValue> extensions = new HashMap<>();
+
+  public static final String JSON_PROPERTY_VISIBILITY_EXPRESSION_ID = "visibilityExpressionId";
+  @jakarta.annotation.Nullable
+  private String visibilityExpressionId;
+
+  public static final String JSON_PROPERTY_REQUIRED_EXPRESSION_ID = "requiredExpressionId";
+  @jakarta.annotation.Nullable
+  private String requiredExpressionId;
+
+  public static final String JSON_PROPERTY_VALIDATION_EXPRESSION_ID = "validationExpressionId";
+  @jakarta.annotation.Nullable
+  private String validationExpressionId;
 
   public PackageDocumentQuestion() {
 
@@ -637,13 +652,13 @@ public class PackageDocumentQuestion extends HashMap<String, Object> {
     this.fixedRowLabels = fixedRowLabels;
   }
 
-  public PackageDocumentQuestion extensions(@jakarta.annotation.Nullable Map<String, PackageDocumentExtensionNamespacesValue> extensions) {
+  public PackageDocumentQuestion extensions(@jakarta.annotation.Nullable Map<String, PackageDocumentExtensionValue> extensions) {
     
     this.extensions = extensions;
     return this;
   }
 
-  public PackageDocumentQuestion putExtensionsItem(String key, PackageDocumentExtensionNamespacesValue extensionsItem) {
+  public PackageDocumentQuestion putExtensionsItem(String key, PackageDocumentExtensionValue extensionsItem) {
     if (this.extensions == null) {
       this.extensions = new HashMap<>();
     }
@@ -652,22 +667,97 @@ public class PackageDocumentQuestion extends HashMap<String, Object> {
   }
 
   /**
-   * Get extensions
+   * Closed, dependency-bound extension descriptor; unregistered bindings are compiler errors.
    * @return extensions
    */
   @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_EXTENSIONS)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
-  public Map<String, PackageDocumentExtensionNamespacesValue> getExtensions() {
+  public Map<String, PackageDocumentExtensionValue> getExtensions() {
     return extensions;
   }
 
 
   @JsonProperty(JSON_PROPERTY_EXTENSIONS)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
-  public void setExtensions(@jakarta.annotation.Nullable Map<String, PackageDocumentExtensionNamespacesValue> extensions) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setExtensions(@jakarta.annotation.Nullable Map<String, PackageDocumentExtensionValue> extensions) {
     this.extensions = extensions;
+  }
+
+  public PackageDocumentQuestion visibilityExpressionId(@jakarta.annotation.Nullable String visibilityExpressionId) {
+    
+    this.visibilityExpressionId = visibilityExpressionId;
+    return this;
+  }
+
+  /**
+   * Get visibilityExpressionId
+   * @return visibilityExpressionId
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_VISIBILITY_EXPRESSION_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public String getVisibilityExpressionId() {
+    return visibilityExpressionId;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_VISIBILITY_EXPRESSION_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setVisibilityExpressionId(@jakarta.annotation.Nullable String visibilityExpressionId) {
+    this.visibilityExpressionId = visibilityExpressionId;
+  }
+
+  public PackageDocumentQuestion requiredExpressionId(@jakarta.annotation.Nullable String requiredExpressionId) {
+    
+    this.requiredExpressionId = requiredExpressionId;
+    return this;
+  }
+
+  /**
+   * Get requiredExpressionId
+   * @return requiredExpressionId
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_REQUIRED_EXPRESSION_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public String getRequiredExpressionId() {
+    return requiredExpressionId;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_REQUIRED_EXPRESSION_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setRequiredExpressionId(@jakarta.annotation.Nullable String requiredExpressionId) {
+    this.requiredExpressionId = requiredExpressionId;
+  }
+
+  public PackageDocumentQuestion validationExpressionId(@jakarta.annotation.Nullable String validationExpressionId) {
+    
+    this.validationExpressionId = validationExpressionId;
+    return this;
+  }
+
+  /**
+   * Get validationExpressionId
+   * @return validationExpressionId
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_VALIDATION_EXPRESSION_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public String getValidationExpressionId() {
+    return validationExpressionId;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_VALIDATION_EXPRESSION_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setValidationExpressionId(@jakarta.annotation.Nullable String validationExpressionId) {
+    this.validationExpressionId = validationExpressionId;
   }
 
   @Override
@@ -693,12 +783,15 @@ public class PackageDocumentQuestion extends HashMap<String, Object> {
         Objects.equals(this.summaryFieldIds, packageDocumentQuestion.summaryFieldIds) &&
         Objects.equals(this.fixedRowLabels, packageDocumentQuestion.fixedRowLabels) &&
         Objects.equals(this.extensions, packageDocumentQuestion.extensions) &&
+        Objects.equals(this.visibilityExpressionId, packageDocumentQuestion.visibilityExpressionId) &&
+        Objects.equals(this.requiredExpressionId, packageDocumentQuestion.requiredExpressionId) &&
+        Objects.equals(this.validationExpressionId, packageDocumentQuestion.validationExpressionId) &&
         super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, kind, fieldId, fieldType, control, labelKey, guidanceId, acknowledgmentContentKey, presentation, children, roles, summaryFieldIds, fixedRowLabels, extensions, super.hashCode());
+    return Objects.hash(id, kind, fieldId, fieldType, control, labelKey, guidanceId, acknowledgmentContentKey, presentation, children, roles, summaryFieldIds, fixedRowLabels, extensions, visibilityExpressionId, requiredExpressionId, validationExpressionId, super.hashCode());
   }
 
   @Override
@@ -720,6 +813,9 @@ public class PackageDocumentQuestion extends HashMap<String, Object> {
     sb.append("    summaryFieldIds: ").append(toIndentedString(summaryFieldIds)).append("\n");
     sb.append("    fixedRowLabels: ").append(toIndentedString(fixedRowLabels)).append("\n");
     sb.append("    extensions: ").append(toIndentedString(extensions)).append("\n");
+    sb.append("    visibilityExpressionId: ").append(toIndentedString(visibilityExpressionId)).append("\n");
+    sb.append("    requiredExpressionId: ").append(toIndentedString(requiredExpressionId)).append("\n");
+    sb.append("    validationExpressionId: ").append(toIndentedString(validationExpressionId)).append("\n");
     sb.append("}");
     return sb.toString();
   }

@@ -12,11 +12,16 @@
   ],
   "translations": {
     "en": {
-      "title": "Intake",
-      "amount": "Amount",
-      "name": "Name",
-      "attendees": "Attendees",
-      "attendee_name": "Attendee name"
+      "direction": "ltr",
+      "messages": {
+        "title": "Intake",
+        "amount": "Amount",
+        "name": "Name",
+        "attendees": "Attendees",
+        "attendee_name": "Attendee name"
+      },
+      "pronunciations": [],
+      "reviewState": "approved"
     }
   },
   "data": {
@@ -139,14 +144,42 @@
       ]
     }
   },
-  "dependencies": [],
+  "dependencies": [
+    {
+      "kind": "extension",
+      "id": "exampleExtension",
+      "version": "1.0.0",
+      "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  ],
   "policies": {
     "attachmentsRequiredReady": true
   },
   "assets": [],
   "extensions": {
     "x-example.org": {
-      "profile": "representative"
+      "dependencyId": "exampleExtension",
+      "version": "1.0.0",
+      "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "value": "representative"
+    }
+  },
+  "guidance": {},
+  "theme": {
+    "themeKey": "accessible_default",
+    "version": "1.0.0",
+    "tokens": {
+      "accent": "#175CD3",
+      "background": "#FFFFFF",
+      "text": "#182230",
+      "fontFamily": "system",
+      "density": "comfortable",
+      "radius": 8,
+      "responsive": {
+        "compactMaxWidth": 639,
+        "mediumMaxWidth": 1023,
+        "wideColumns": 2
+      }
     }
   }
 }

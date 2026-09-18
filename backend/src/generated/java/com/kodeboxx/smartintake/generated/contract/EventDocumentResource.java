@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import java.time.OffsetDateTime;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -31,7 +32,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   EventDocumentResource.JSON_PROPERTY_RELEASE_ID,
   EventDocumentResource.JSON_PROPERTY_SUBMISSION_ID,
   EventDocumentResource.JSON_PROPERTY_ATTACHMENT_ID,
-  EventDocumentResource.JSON_PROPERTY_DELETION_ID
+  EventDocumentResource.JSON_PROPERTY_DELETION_ID,
+  EventDocumentResource.JSON_PROPERTY_ACCESS_REVOKED_AT
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
 public class EventDocumentResource {
@@ -54,6 +56,10 @@ public class EventDocumentResource {
   public static final String JSON_PROPERTY_DELETION_ID = "deletionId";
   @jakarta.annotation.Nullable
   private String deletionId;
+
+  public static final String JSON_PROPERTY_ACCESS_REVOKED_AT = "accessRevokedAt";
+  @jakarta.annotation.Nullable
+  private OffsetDateTime accessRevokedAt;
 
   public EventDocumentResource() {
   }
@@ -183,6 +189,31 @@ public class EventDocumentResource {
     this.deletionId = deletionId;
   }
 
+  public EventDocumentResource accessRevokedAt(@jakarta.annotation.Nullable OffsetDateTime accessRevokedAt) {
+    
+    this.accessRevokedAt = accessRevokedAt;
+    return this;
+  }
+
+  /**
+   * Get accessRevokedAt
+   * @return accessRevokedAt
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_ACCESS_REVOKED_AT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public OffsetDateTime getAccessRevokedAt() {
+    return accessRevokedAt;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_ACCESS_REVOKED_AT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setAccessRevokedAt(@jakarta.annotation.Nullable OffsetDateTime accessRevokedAt) {
+    this.accessRevokedAt = accessRevokedAt;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -196,12 +227,13 @@ public class EventDocumentResource {
         Objects.equals(this.releaseId, eventDocumentResource.releaseId) &&
         Objects.equals(this.submissionId, eventDocumentResource.submissionId) &&
         Objects.equals(this.attachmentId, eventDocumentResource.attachmentId) &&
-        Objects.equals(this.deletionId, eventDocumentResource.deletionId);
+        Objects.equals(this.deletionId, eventDocumentResource.deletionId) &&
+        Objects.equals(this.accessRevokedAt, eventDocumentResource.accessRevokedAt);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(formId, releaseId, submissionId, attachmentId, deletionId);
+    return Objects.hash(formId, releaseId, submissionId, attachmentId, deletionId, accessRevokedAt);
   }
 
   @Override
@@ -213,6 +245,7 @@ public class EventDocumentResource {
     sb.append("    submissionId: ").append(toIndentedString(submissionId)).append("\n");
     sb.append("    attachmentId: ").append(toIndentedString(attachmentId)).append("\n");
     sb.append("    deletionId: ").append(toIndentedString(deletionId)).append("\n");
+    sb.append("    accessRevokedAt: ").append(toIndentedString(accessRevokedAt)).append("\n");
     sb.append("}");
     return sb.toString();
   }

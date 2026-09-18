@@ -3,7 +3,6 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { FormDefinition, ResponseSummary } from './models/form-definition.models';
 import type { operations } from './generated/api';
-import type { PackageDocument } from './generated/contracts';
 
 export { AjvContractValidationAdapter } from './ajv-contract-validation.adapter';
 export type { ContractDiagnostic, ContractValidationResult } from './ajv-contract-validation.adapter';
@@ -63,8 +62,6 @@ export class SmartIntakeApiService {
   publishedSchema(kind: string, version = '4.0.0'): Observable<PublishedSchema> {
     return this.http.get<PublishedSchema>(`/v1/schemas/${encodeURIComponent(kind)}/${encodeURIComponent(version)}`);
   }
-
-  asContractPackage(definition: PackageDocument): PackageDocument { return definition; }
 
   createForm(staffToken: string, formKey: string, title: string): Observable<CreatedForm> {
     return this.http.post<CreatedForm>('/v1/workspaces/local/forms', { formKey, title }, this.staff(staffToken));

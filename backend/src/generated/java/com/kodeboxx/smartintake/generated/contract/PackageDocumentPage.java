@@ -20,13 +20,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.kodeboxx.smartintake.generated.contract.PackageDocumentExtensionNamespacesValue;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.kodeboxx.smartintake.generated.contract.PackageDocumentExtensionValue;
+import com.kodeboxx.smartintake.generated.contract.PackageDocumentRoute;
 import com.kodeboxx.smartintake.generated.contract.PackageDocumentSection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -38,7 +42,11 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   PackageDocumentPage.JSON_PROPERTY_KEY,
   PackageDocumentPage.JSON_PROPERTY_LABEL_KEY,
   PackageDocumentPage.JSON_PROPERTY_SECTIONS,
-  PackageDocumentPage.JSON_PROPERTY_EXTENSIONS
+  PackageDocumentPage.JSON_PROPERTY_EXTENSIONS,
+  PackageDocumentPage.JSON_PROPERTY_TITLE_KEY,
+  PackageDocumentPage.JSON_PROPERTY_GUIDANCE_ID,
+  PackageDocumentPage.JSON_PROPERTY_DEFAULT_NEXT_PAGE_ID,
+  PackageDocumentPage.JSON_PROPERTY_ROUTES
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
 public class PackageDocumentPage {
@@ -60,7 +68,23 @@ public class PackageDocumentPage {
 
   public static final String JSON_PROPERTY_EXTENSIONS = "extensions";
   @jakarta.annotation.Nullable
-  private Map<String, PackageDocumentExtensionNamespacesValue> extensions = new HashMap<>();
+  private Map<String, PackageDocumentExtensionValue> extensions = new HashMap<>();
+
+  public static final String JSON_PROPERTY_TITLE_KEY = "titleKey";
+  @jakarta.annotation.Nullable
+  private String titleKey;
+
+  public static final String JSON_PROPERTY_GUIDANCE_ID = "guidanceId";
+  @jakarta.annotation.Nullable
+  private String guidanceId;
+
+  public static final String JSON_PROPERTY_DEFAULT_NEXT_PAGE_ID = "defaultNextPageId";
+  @jakarta.annotation.Nullable
+  private String defaultNextPageId;
+
+  public static final String JSON_PROPERTY_ROUTES = "routes";
+  @jakarta.annotation.Nullable
+  private Set<PackageDocumentRoute> routes = new LinkedHashSet<>();
 
   public PackageDocumentPage() {
   }
@@ -173,13 +197,13 @@ public class PackageDocumentPage {
     this.sections = sections;
   }
 
-  public PackageDocumentPage extensions(@jakarta.annotation.Nullable Map<String, PackageDocumentExtensionNamespacesValue> extensions) {
+  public PackageDocumentPage extensions(@jakarta.annotation.Nullable Map<String, PackageDocumentExtensionValue> extensions) {
     
     this.extensions = extensions;
     return this;
   }
 
-  public PackageDocumentPage putExtensionsItem(String key, PackageDocumentExtensionNamespacesValue extensionsItem) {
+  public PackageDocumentPage putExtensionsItem(String key, PackageDocumentExtensionValue extensionsItem) {
     if (this.extensions == null) {
       this.extensions = new HashMap<>();
     }
@@ -188,22 +212,131 @@ public class PackageDocumentPage {
   }
 
   /**
-   * Get extensions
+   * Closed, dependency-bound extension descriptor; unregistered bindings are compiler errors.
    * @return extensions
    */
   @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_EXTENSIONS)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
-  public Map<String, PackageDocumentExtensionNamespacesValue> getExtensions() {
+  public Map<String, PackageDocumentExtensionValue> getExtensions() {
     return extensions;
   }
 
 
   @JsonProperty(JSON_PROPERTY_EXTENSIONS)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
-  public void setExtensions(@jakarta.annotation.Nullable Map<String, PackageDocumentExtensionNamespacesValue> extensions) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setExtensions(@jakarta.annotation.Nullable Map<String, PackageDocumentExtensionValue> extensions) {
     this.extensions = extensions;
+  }
+
+  public PackageDocumentPage titleKey(@jakarta.annotation.Nullable String titleKey) {
+    
+    this.titleKey = titleKey;
+    return this;
+  }
+
+  /**
+   * Get titleKey
+   * @return titleKey
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_TITLE_KEY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public String getTitleKey() {
+    return titleKey;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_TITLE_KEY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setTitleKey(@jakarta.annotation.Nullable String titleKey) {
+    this.titleKey = titleKey;
+  }
+
+  public PackageDocumentPage guidanceId(@jakarta.annotation.Nullable String guidanceId) {
+    
+    this.guidanceId = guidanceId;
+    return this;
+  }
+
+  /**
+   * Get guidanceId
+   * @return guidanceId
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_GUIDANCE_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public String getGuidanceId() {
+    return guidanceId;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_GUIDANCE_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setGuidanceId(@jakarta.annotation.Nullable String guidanceId) {
+    this.guidanceId = guidanceId;
+  }
+
+  public PackageDocumentPage defaultNextPageId(@jakarta.annotation.Nullable String defaultNextPageId) {
+    
+    this.defaultNextPageId = defaultNextPageId;
+    return this;
+  }
+
+  /**
+   * Get defaultNextPageId
+   * @return defaultNextPageId
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_DEFAULT_NEXT_PAGE_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public String getDefaultNextPageId() {
+    return defaultNextPageId;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_DEFAULT_NEXT_PAGE_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setDefaultNextPageId(@jakarta.annotation.Nullable String defaultNextPageId) {
+    this.defaultNextPageId = defaultNextPageId;
+  }
+
+  public PackageDocumentPage routes(@jakarta.annotation.Nullable Set<PackageDocumentRoute> routes) {
+    
+    this.routes = routes;
+    return this;
+  }
+
+  public PackageDocumentPage addRoutesItem(PackageDocumentRoute routesItem) {
+    if (this.routes == null) {
+      this.routes = new LinkedHashSet<>();
+    }
+    this.routes.add(routesItem);
+    return this;
+  }
+
+  /**
+   * Get routes
+   * @return routes
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_ROUTES)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public Set<PackageDocumentRoute> getRoutes() {
+    return routes;
+  }
+
+
+  @JsonDeserialize(as = LinkedHashSet.class)
+  @JsonProperty(JSON_PROPERTY_ROUTES)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setRoutes(@jakarta.annotation.Nullable Set<PackageDocumentRoute> routes) {
+    this.routes = routes;
   }
 
   @Override
@@ -219,12 +352,16 @@ public class PackageDocumentPage {
         Objects.equals(this.key, packageDocumentPage.key) &&
         Objects.equals(this.labelKey, packageDocumentPage.labelKey) &&
         Objects.equals(this.sections, packageDocumentPage.sections) &&
-        Objects.equals(this.extensions, packageDocumentPage.extensions);
+        Objects.equals(this.extensions, packageDocumentPage.extensions) &&
+        Objects.equals(this.titleKey, packageDocumentPage.titleKey) &&
+        Objects.equals(this.guidanceId, packageDocumentPage.guidanceId) &&
+        Objects.equals(this.defaultNextPageId, packageDocumentPage.defaultNextPageId) &&
+        Objects.equals(this.routes, packageDocumentPage.routes);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, key, labelKey, sections, extensions);
+    return Objects.hash(id, key, labelKey, sections, extensions, titleKey, guidanceId, defaultNextPageId, routes);
   }
 
   @Override
@@ -236,6 +373,10 @@ public class PackageDocumentPage {
     sb.append("    labelKey: ").append(toIndentedString(labelKey)).append("\n");
     sb.append("    sections: ").append(toIndentedString(sections)).append("\n");
     sb.append("    extensions: ").append(toIndentedString(extensions)).append("\n");
+    sb.append("    titleKey: ").append(toIndentedString(titleKey)).append("\n");
+    sb.append("    guidanceId: ").append(toIndentedString(guidanceId)).append("\n");
+    sb.append("    defaultNextPageId: ").append(toIndentedString(defaultNextPageId)).append("\n");
+    sb.append("    routes: ").append(toIndentedString(routes)).append("\n");
     sb.append("}");
     return sb.toString();
   }

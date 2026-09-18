@@ -8,7 +8,9 @@ checked-in positive fixture passes while its paired negative fixture fails.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -38,8 +40,19 @@ def is_canonical_int64(value: object) -> bool:
 def is_canonical_decimal(value: object) -> bool:
     if not isinstance(value, str):
         return False
-    digits = value.removeprefix("-").replace(".", "")
-    return 1 <= len(digits) <= 34
+    return bool(re.fullmatch(r"(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?", value)) and digits(value) <= 34
+
+
+@FORMAT_CHECKER.checks("stored-decimal")
+def is_stored_decimal(value: object) -> bool:
+    """Destination values retain declared scale, unlike expression results."""
+    if not isinstance(value, str):
+        return False
+    return bool(re.fullmatch(r"-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?", value)) and digits(value) <= 34
+
+
+def digits(value: str) -> int:
+    return len(value.removeprefix("-").replace(".", ""))
 
 
 def load_json(path: Path) -> Any:
@@ -83,6 +96,60 @@ def assert_closed_normative_objects(schema: Any, path: str = "$", parent_key: st
     return problems
 
 
+def extension_binding_errors(package: dict[str, Any]) -> list[str]:
+    """Apply the package compiler rule that JSON Schema cannot cross-reference.
+
+    An extension value is a closed descriptor, but JSON Schema cannot compare its
+    id/version/digest to another array item. Treat a mismatch as a compilation
+    rejection here, so the source contract has no unbounded extension escape.
+    """
+    registered = {
+        (entry["id"], entry["version"], entry["digest"])
+        for entry in package.get("dependencies", [])
+        if entry.get("kind") == "extension"
+    }
+    failures: list[str] = []
+
+    def walk(value: Any, path: str) -> None:
+        if isinstance(value, dict):
+            if "extensions" in value:
+                for namespace, descriptor in value["extensions"].items():
+                    binding = tuple(descriptor.get(key) for key in ("dependencyId", "version", "digest"))
+                    if binding not in registered:
+                        failures.append(f"{path}/extensions/{namespace}: unregistered extension dependency")
+            for key, child in value.items():
+                if key != "extensions":
+                    walk(child, f"{path}/{key}")
+        elif isinstance(value, list):
+            for index, child in enumerate(value):
+                walk(child, f"{path}/{index}")
+
+    walk(package, "$")
+    return failures
+
+
+def validate_authoritative_expression_vectors(validator: Draft202012Validator) -> list[str]:
+    fixture_path = CONTRACT_ROOT / "fixtures/expression-authoritative-vectors.json"
+    fixture = load_json(fixture_path)
+    source_path = ROOT / fixture["source"]
+    expected_hash = fixture["sourceSha256"]
+    actual_hash = "sha256:" + hashlib.sha256(source_path.read_bytes()).hexdigest()
+    failures: list[str] = []
+    if actual_hash != expected_hash:
+        return [f"{fixture_path}: source hash does not match authoritative expression contract"]
+    source_vectors = {vector["id"]: vector for vector in load_json(source_path)["vectors"]}
+    for vector in fixture["vectors"]:
+        source = source_vectors.get(vector["id"])
+        if source is None or source.get("expression") != vector["expression"]:
+            failures.append(f"{fixture_path}: {vector['id']} is not frozen from the authoritative source")
+            continue
+        errors = list(validator.iter_errors(vector["expression"]))
+        if bool(errors) == vector["schemaValid"]:
+            expectation = "validate" if vector["schemaValid"] else "be rejected"
+            failures.append(f"{fixture_path}: {vector['id']} should {expectation}")
+    return failures
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--verbose", action="store_true")
@@ -124,17 +191,56 @@ def main() -> int:
         negative_errors = sorted(validator.iter_errors(negative), key=lambda error: list(error.path))
         if positive_errors:
             failures.append(f"{entry['positive']} should validate: {positive_errors[0].message}")
+        if kind == "package" and not positive_errors:
+            failures.extend(extension_binding_errors(positive))
         if not negative_errors:
             failures.append(f"{entry['negative']} should be rejected")
         if args.verbose:
             print(f"{kind}: positive={'PASS' if not positive_errors else 'FAIL'}, negative={'PASS' if negative_errors else 'FAIL'}")
+
+    supplemental = [
+        ("package", "fixtures/package-prd-minimal.positive.json", True),
+        ("package", "fixtures/package-prd-rich.positive.json", True),
+        ("package", "fixtures/package-extension-binding.negative.json", False),
+        ("typed-answer", "fixtures/typed-answer-decimal-storage.positive.json", True),
+        ("typed-answer", "fixtures/typed-answer-decimal-storage.negative.json", False),
+        ("event", "fixtures/event-submission-deleted.positive.json", True),
+        ("event", "fixtures/event-submission-deleted.negative.json", False),
+    ]
+    for kind, path, should_validate in supplemental:
+        validator = validators.get(kind)
+        if validator is None:
+            continue
+        value = load_json(CONTRACT_ROOT / path)
+        errors = list(validator.iter_errors(value))
+        if kind == "package" and not errors:
+            errors = extension_binding_errors(value)
+        if (not errors) != should_validate:
+            expectation = "validate" if should_validate else "be rejected"
+            failures.append(f"{path} should {expectation}")
+        if args.verbose:
+            print(f"{path}: {'PASS' if (not errors) == should_validate else 'FAIL'}")
+    if validators.get("expression"):
+        failures.extend(validate_authoritative_expression_vectors(validators["expression"]))
+        decimal_fixture = load_json(CONTRACT_ROOT / "fixtures/expression-result-decimal.json")
+        result_validator = Draft202012Validator(
+            schemas["expression"]["$defs"]["decimalResult"], format_checker=FORMAT_CHECKER
+        )
+        if list(result_validator.iter_errors(decimal_fixture["valid"])):
+            failures.append("expression result decimal fixture should accept canonical 12.5")
+        if not list(result_validator.iter_errors(decimal_fixture["invalid"])):
+            failures.append("expression result decimal fixture should reject scale-preserving 12.50")
+        event_coverage = load_json(CONTRACT_ROOT / "fixtures/event-type-coverage.positive.json")
+        for event in event_coverage:
+            if list(validators["event"].iter_errors(event)):
+                failures.append(f"event type coverage should validate {event['type']}")
 
     if failures:
         print("Schema validation failed:", file=sys.stderr)
         for failure in failures:
             print(f"- {failure}", file=sys.stderr)
         return 1
-    print("Validated 7 closed Draft 2020-12 schemas and 14 fixtures.")
+    print("Validated 7 closed Draft 2020-12 schemas, primary fixtures, PRD package examples, and frozen expression vectors.")
     return 0
 
 

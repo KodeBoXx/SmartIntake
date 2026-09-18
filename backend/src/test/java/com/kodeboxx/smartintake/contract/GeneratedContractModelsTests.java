@@ -53,4 +53,15 @@ class GeneratedContractModelsTests {
     assertThat(typed.at("/value/items/0/fields/amount/value").asText()).isEqualTo("44.75");
     assertThat((JsonNode) json.valueToTree(recursive)).isEqualTo(input);
   }
+
+  @Test
+  void contract_registry_rejects_invalid_json_before_transport_dto_deserialization() throws Exception {
+    ContractRegistry registry = new ContractRegistry(json);
+    JsonNode valid = json.readTree("{\"literal\":{\"type\":\"integer\",\"value\":\"9223372036854775807\"}}");
+    JsonNode invalid = json.readTree("{\"literal\":{\"type\":\"integer\",\"value\":\"9223372036854775808\"}}");
+    assertThat(json.treeToValue(registry.requireValid("expression", "4.0.0", valid), ExpressionDocument.class)).isNotNull();
+    org.assertj.core.api.Assertions.assertThatThrownBy(() -> registry.requireValid("expression", "4.0.0", invalid))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("Contract validation failed");
+  }
 }

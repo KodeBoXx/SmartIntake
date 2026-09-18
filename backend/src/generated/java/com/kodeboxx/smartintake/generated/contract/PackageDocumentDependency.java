@@ -44,7 +44,11 @@ public class PackageDocumentDependency {
     
     LOCALE(String.valueOf("locale")),
     
-    ASSET(String.valueOf("asset"));
+    ASSET(String.valueOf("asset")),
+    
+    COMPONENT(String.valueOf("component")),
+    
+    EXTENSION(String.valueOf("extension"));
 
     private String value;
 

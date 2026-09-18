@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.HashMap;
+import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -27,140 +29,41 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
  * ExpressionDocumentReference
  */
 @JsonPropertyOrder({
-  ExpressionDocumentReference.JSON_PROPERTY_FIELD_ID,
-  ExpressionDocumentReference.JSON_PROPERTY_SCOPE,
-  ExpressionDocumentReference.JSON_PROPERTY_ANCESTOR_DEPTH
+  ExpressionDocumentReference.JSON_PROPERTY_REF
 })
-@JsonTypeName("ExpressionDocument_reference")
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class ExpressionDocumentReference {
-  public static final String JSON_PROPERTY_FIELD_ID = "fieldId";
+public class ExpressionDocumentReference extends HashMap<String, Object> {
+  public static final String JSON_PROPERTY_REF = "ref";
   @jakarta.annotation.Nonnull
-  private String fieldId;
-
-  /**
-   * Gets or Sets scope
-   */
-  public enum ScopeEnum {
-    ROOT(String.valueOf("root")),
-    
-    ITEM(String.valueOf("item")),
-    
-    PARENT_ITEM(String.valueOf("parentItem"));
-
-    private String value;
-
-    ScopeEnum(String value) {
-      this.value = value;
-    }
-
-    @JsonValue
-    public String getValue() {
-      return value;
-    }
-
-    @Override
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    @JsonCreator
-    public static ScopeEnum fromValue(String value) {
-      for (ScopeEnum b : ScopeEnum.values()) {
-        if (b.value.equals(value)) {
-          return b;
-        }
-      }
-      throw new IllegalArgumentException("Unexpected value '" + value + "'");
-    }
-  }
-
-  public static final String JSON_PROPERTY_SCOPE = "scope";
-  @jakarta.annotation.Nonnull
-  private ScopeEnum scope;
-
-  public static final String JSON_PROPERTY_ANCESTOR_DEPTH = "ancestorDepth";
-  @jakarta.annotation.Nullable
-  private Integer ancestorDepth;
+  private Map ref;
 
   public ExpressionDocumentReference() {
+
   }
 
-  public ExpressionDocumentReference fieldId(@jakarta.annotation.Nonnull String fieldId) {
+  public ExpressionDocumentReference ref(@jakarta.annotation.Nonnull Map ref) {
     
-    this.fieldId = fieldId;
+    this.ref = ref;
     return this;
   }
 
   /**
-   * Get fieldId
-   * @return fieldId
+   * Get ref
+   * @return ref
    */
   @jakarta.annotation.Nonnull
-  @JsonProperty(JSON_PROPERTY_FIELD_ID)
+  @JsonProperty(JSON_PROPERTY_REF)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public String getFieldId() {
-    return fieldId;
+  public Map getRef() {
+    return ref;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_FIELD_ID)
+  @JsonProperty(JSON_PROPERTY_REF)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setFieldId(@jakarta.annotation.Nonnull String fieldId) {
-    this.fieldId = fieldId;
-  }
-
-  public ExpressionDocumentReference scope(@jakarta.annotation.Nonnull ScopeEnum scope) {
-    
-    this.scope = scope;
-    return this;
-  }
-
-  /**
-   * Get scope
-   * @return scope
-   */
-  @jakarta.annotation.Nonnull
-  @JsonProperty(JSON_PROPERTY_SCOPE)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-
-  public ScopeEnum getScope() {
-    return scope;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_SCOPE)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setScope(@jakarta.annotation.Nonnull ScopeEnum scope) {
-    this.scope = scope;
-  }
-
-  public ExpressionDocumentReference ancestorDepth(@jakarta.annotation.Nullable Integer ancestorDepth) {
-    
-    this.ancestorDepth = ancestorDepth;
-    return this;
-  }
-
-  /**
-   * Get ancestorDepth
-   * minimum: 0
-   * maximum: 2
-   * @return ancestorDepth
-   */
-  @jakarta.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_ANCESTOR_DEPTH)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-
-  public Integer getAncestorDepth() {
-    return ancestorDepth;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_ANCESTOR_DEPTH)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setAncestorDepth(@jakarta.annotation.Nullable Integer ancestorDepth) {
-    this.ancestorDepth = ancestorDepth;
+  public void setRef(@jakarta.annotation.Nonnull Map ref) {
+    this.ref = ref;
   }
 
   @Override
@@ -172,23 +75,21 @@ public class ExpressionDocumentReference {
       return false;
     }
     ExpressionDocumentReference expressionDocumentReference = (ExpressionDocumentReference) o;
-    return Objects.equals(this.fieldId, expressionDocumentReference.fieldId) &&
-        Objects.equals(this.scope, expressionDocumentReference.scope) &&
-        Objects.equals(this.ancestorDepth, expressionDocumentReference.ancestorDepth);
+    return Objects.equals(this.ref, expressionDocumentReference.ref) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(fieldId, scope, ancestorDepth);
+    return Objects.hash(ref, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class ExpressionDocumentReference {\n");
-    sb.append("    fieldId: ").append(toIndentedString(fieldId)).append("\n");
-    sb.append("    scope: ").append(toIndentedString(scope)).append("\n");
-    sb.append("    ancestorDepth: ").append(toIndentedString(ancestorDepth)).append("\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
+    sb.append("    ref: ").append(toIndentedString(ref)).append("\n");
     sb.append("}");
     return sb.toString();
   }

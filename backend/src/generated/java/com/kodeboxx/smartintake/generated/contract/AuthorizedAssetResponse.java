@@ -21,8 +21,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.kodeboxx.smartintake.generated.contract.AuthorizedAsset;
-import java.util.HashMap;
-import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -34,7 +32,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   AuthorizedAssetResponse.JSON_PROPERTY_AUTHORIZED_ASSET
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class AuthorizedAssetResponse extends HashMap<String, Object> {
+public class AuthorizedAssetResponse {
   public static final String JSON_PROPERTY_REQUEST_ID = "requestId";
   @jakarta.annotation.Nonnull
   private String requestId;
@@ -44,7 +42,6 @@ public class AuthorizedAssetResponse extends HashMap<String, Object> {
   private AuthorizedAsset authorizedAsset;
 
   public AuthorizedAssetResponse() {
-
   }
 
   public AuthorizedAssetResponse requestId(@jakarta.annotation.Nonnull String requestId) {
@@ -107,20 +104,18 @@ public class AuthorizedAssetResponse extends HashMap<String, Object> {
     }
     AuthorizedAssetResponse authorizedAssetResponse = (AuthorizedAssetResponse) o;
     return Objects.equals(this.requestId, authorizedAssetResponse.requestId) &&
-        Objects.equals(this.authorizedAsset, authorizedAssetResponse.authorizedAsset) &&
-        super.equals(o);
+        Objects.equals(this.authorizedAsset, authorizedAssetResponse.authorizedAsset);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(requestId, authorizedAsset, super.hashCode());
+    return Objects.hash(requestId, authorizedAsset);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class AuthorizedAssetResponse {\n");
-    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    requestId: ").append(toIndentedString(requestId)).append("\n");
     sb.append("    authorizedAsset: ").append(toIndentedString(authorizedAsset)).append("\n");
     sb.append("}");

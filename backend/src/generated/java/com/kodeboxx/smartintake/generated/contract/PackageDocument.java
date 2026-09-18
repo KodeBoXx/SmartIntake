@@ -24,10 +24,13 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.kodeboxx.smartintake.generated.contract.ExpressionDocument;
 import com.kodeboxx.smartintake.generated.contract.PackageDocumentAsset;
 import com.kodeboxx.smartintake.generated.contract.PackageDocumentDependency;
-import com.kodeboxx.smartintake.generated.contract.PackageDocumentExtensionNamespacesValue;
+import com.kodeboxx.smartintake.generated.contract.PackageDocumentExtensionValue;
 import com.kodeboxx.smartintake.generated.contract.PackageDocumentField;
+import com.kodeboxx.smartintake.generated.contract.PackageDocumentGuidanceEntry;
+import com.kodeboxx.smartintake.generated.contract.PackageDocumentLocaleBundle;
 import com.kodeboxx.smartintake.generated.contract.PackageDocumentPhase;
-import com.kodeboxx.smartintake.generated.contract.PackageDocumentTranslation;
+import com.kodeboxx.smartintake.generated.contract.PackageDocumentPolicies;
+import com.kodeboxx.smartintake.generated.contract.PackageDocumentTheme;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -57,7 +60,9 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   PackageDocument.JSON_PROPERTY_DEPENDENCIES,
   PackageDocument.JSON_PROPERTY_POLICIES,
   PackageDocument.JSON_PROPERTY_ASSETS,
-  PackageDocument.JSON_PROPERTY_EXTENSIONS
+  PackageDocument.JSON_PROPERTY_EXTENSIONS,
+  PackageDocument.JSON_PROPERTY_GUIDANCE,
+  PackageDocument.JSON_PROPERTY_THEME
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
 public class PackageDocument extends HashMap<String, Object> {
@@ -103,7 +108,7 @@ public class PackageDocument extends HashMap<String, Object> {
 
   public static final String JSON_PROPERTY_TRANSLATIONS = "translations";
   @jakarta.annotation.Nonnull
-  private Map<String, Map<String, PackageDocumentTranslation>> translations = new HashMap<>();
+  private Map<String, PackageDocumentLocaleBundle> translations = new HashMap<>();
 
   public static final String JSON_PROPERTY_DATA = "data";
   @jakarta.annotation.Nonnull
@@ -123,7 +128,7 @@ public class PackageDocument extends HashMap<String, Object> {
 
   public static final String JSON_PROPERTY_POLICIES = "policies";
   @jakarta.annotation.Nonnull
-  private Object policies;
+  private PackageDocumentPolicies policies;
 
   public static final String JSON_PROPERTY_ASSETS = "assets";
   @jakarta.annotation.Nonnull
@@ -131,7 +136,15 @@ public class PackageDocument extends HashMap<String, Object> {
 
   public static final String JSON_PROPERTY_EXTENSIONS = "extensions";
   @jakarta.annotation.Nonnull
-  private Map<String, PackageDocumentExtensionNamespacesValue> extensions = new HashMap<>();
+  private Map<String, PackageDocumentExtensionValue> extensions = new HashMap<>();
+
+  public static final String JSON_PROPERTY_GUIDANCE = "guidance";
+  @jakarta.annotation.Nonnull
+  private Map<String, PackageDocumentGuidanceEntry> guidance = new HashMap<>();
+
+  public static final String JSON_PROPERTY_THEME = "theme";
+  @jakarta.annotation.Nonnull
+  private PackageDocumentTheme theme;
 
   public PackageDocument() {
 
@@ -396,13 +409,13 @@ public class PackageDocument extends HashMap<String, Object> {
     this.supportedLocales = supportedLocales;
   }
 
-  public PackageDocument translations(@jakarta.annotation.Nonnull Map<String, Map<String, PackageDocumentTranslation>> translations) {
+  public PackageDocument translations(@jakarta.annotation.Nonnull Map<String, PackageDocumentLocaleBundle> translations) {
     
     this.translations = translations;
     return this;
   }
 
-  public PackageDocument putTranslationsItem(String key, Map<String, PackageDocumentTranslation> translationsItem) {
+  public PackageDocument putTranslationsItem(String key, PackageDocumentLocaleBundle translationsItem) {
     this.translations.put(key, translationsItem);
     return this;
   }
@@ -415,14 +428,14 @@ public class PackageDocument extends HashMap<String, Object> {
   @JsonProperty(JSON_PROPERTY_TRANSLATIONS)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public Map<String, Map<String, PackageDocumentTranslation>> getTranslations() {
+  public Map<String, PackageDocumentLocaleBundle> getTranslations() {
     return translations;
   }
 
 
   @JsonProperty(JSON_PROPERTY_TRANSLATIONS)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setTranslations(@jakarta.annotation.Nonnull Map<String, Map<String, PackageDocumentTranslation>> translations) {
+  public void setTranslations(@jakarta.annotation.Nonnull Map<String, PackageDocumentLocaleBundle> translations) {
     this.translations = translations;
   }
 
@@ -540,7 +553,7 @@ public class PackageDocument extends HashMap<String, Object> {
     this.dependencies = dependencies;
   }
 
-  public PackageDocument policies(@jakarta.annotation.Nonnull Object policies) {
+  public PackageDocument policies(@jakarta.annotation.Nonnull PackageDocumentPolicies policies) {
     
     this.policies = policies;
     return this;
@@ -554,14 +567,14 @@ public class PackageDocument extends HashMap<String, Object> {
   @JsonProperty(JSON_PROPERTY_POLICIES)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public Object getPolicies() {
+  public PackageDocumentPolicies getPolicies() {
     return policies;
   }
 
 
   @JsonProperty(JSON_PROPERTY_POLICIES)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setPolicies(@jakarta.annotation.Nonnull Object policies) {
+  public void setPolicies(@jakarta.annotation.Nonnull PackageDocumentPolicies policies) {
     this.policies = policies;
   }
 
@@ -599,34 +612,89 @@ public class PackageDocument extends HashMap<String, Object> {
     this.assets = assets;
   }
 
-  public PackageDocument extensions(@jakarta.annotation.Nonnull Map<String, PackageDocumentExtensionNamespacesValue> extensions) {
+  public PackageDocument extensions(@jakarta.annotation.Nonnull Map<String, PackageDocumentExtensionValue> extensions) {
     
     this.extensions = extensions;
     return this;
   }
 
-  public PackageDocument putExtensionsItem(String key, PackageDocumentExtensionNamespacesValue extensionsItem) {
+  public PackageDocument putExtensionsItem(String key, PackageDocumentExtensionValue extensionsItem) {
     this.extensions.put(key, extensionsItem);
     return this;
   }
 
   /**
-   * Get extensions
+   * Closed, dependency-bound extension descriptor; unregistered bindings are compiler errors.
    * @return extensions
    */
   @jakarta.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_EXTENSIONS)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public Map<String, PackageDocumentExtensionNamespacesValue> getExtensions() {
+  public Map<String, PackageDocumentExtensionValue> getExtensions() {
     return extensions;
   }
 
 
   @JsonProperty(JSON_PROPERTY_EXTENSIONS)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.ALWAYS)
-  public void setExtensions(@jakarta.annotation.Nonnull Map<String, PackageDocumentExtensionNamespacesValue> extensions) {
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setExtensions(@jakarta.annotation.Nonnull Map<String, PackageDocumentExtensionValue> extensions) {
     this.extensions = extensions;
+  }
+
+  public PackageDocument guidance(@jakarta.annotation.Nonnull Map<String, PackageDocumentGuidanceEntry> guidance) {
+    
+    this.guidance = guidance;
+    return this;
+  }
+
+  public PackageDocument putGuidanceItem(String key, PackageDocumentGuidanceEntry guidanceItem) {
+    this.guidance.put(key, guidanceItem);
+    return this;
+  }
+
+  /**
+   * Get guidance
+   * @return guidance
+   */
+  @jakarta.annotation.Nonnull
+  @JsonProperty(JSON_PROPERTY_GUIDANCE)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+
+  public Map<String, PackageDocumentGuidanceEntry> getGuidance() {
+    return guidance;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_GUIDANCE)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setGuidance(@jakarta.annotation.Nonnull Map<String, PackageDocumentGuidanceEntry> guidance) {
+    this.guidance = guidance;
+  }
+
+  public PackageDocument theme(@jakarta.annotation.Nonnull PackageDocumentTheme theme) {
+    
+    this.theme = theme;
+    return this;
+  }
+
+  /**
+   * Get theme
+   * @return theme
+   */
+  @jakarta.annotation.Nonnull
+  @JsonProperty(JSON_PROPERTY_THEME)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+
+  public PackageDocumentTheme getTheme() {
+    return theme;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_THEME)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setTheme(@jakarta.annotation.Nonnull PackageDocumentTheme theme) {
+    this.theme = theme;
   }
 
   @Override
@@ -656,12 +724,14 @@ public class PackageDocument extends HashMap<String, Object> {
         Objects.equals(this.policies, packageDocument.policies) &&
         Objects.equals(this.assets, packageDocument.assets) &&
         Objects.equals(this.extensions, packageDocument.extensions) &&
+        Objects.equals(this.guidance, packageDocument.guidance) &&
+        Objects.equals(this.theme, packageDocument.theme) &&
         super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(schemaVersion, contractVersion, engineContract, kind, formKey, definitionVersion, titleKey, descriptionKey, defaultLocale, supportedLocales, translations, data, flow, expressions, dependencies, policies, assets, extensions, super.hashCode());
+    return Objects.hash(schemaVersion, contractVersion, engineContract, kind, formKey, definitionVersion, titleKey, descriptionKey, defaultLocale, supportedLocales, translations, data, flow, expressions, dependencies, policies, assets, extensions, guidance, theme, super.hashCode());
   }
 
   @Override
@@ -687,6 +757,8 @@ public class PackageDocument extends HashMap<String, Object> {
     sb.append("    policies: ").append(toIndentedString(policies)).append("\n");
     sb.append("    assets: ").append(toIndentedString(assets)).append("\n");
     sb.append("    extensions: ").append(toIndentedString(extensions)).append("\n");
+    sb.append("    guidance: ").append(toIndentedString(guidance)).append("\n");
+    sb.append("    theme: ").append(toIndentedString(theme)).append("\n");
     sb.append("}");
     return sb.toString();
   }

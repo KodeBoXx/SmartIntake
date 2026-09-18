@@ -64,20 +64,146 @@
     {
       "if": {
         "properties": {
-          "dataMode": {
-            "const": "full"
+          "type": {
+            "const": "form.published"
           }
         },
         "required": [
-          "dataMode"
+          "type"
         ]
       },
       "then": {
+        "properties": {
+          "dataMode": {
+            "const": "reference"
+          },
+          "resource": {
+            "required": [
+              "formId",
+              "releaseId"
+            ]
+          }
+        },
+        "not": {
+          "required": [
+            "envelope"
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "form.retired"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "dataMode": {
+            "const": "reference"
+          },
+          "resource": {
+            "required": [
+              "formId",
+              "releaseId"
+            ]
+          }
+        },
+        "not": {
+          "required": [
+            "envelope"
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "submission.created"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "dataMode": {
+            "const": "full"
+          },
+          "resource": {
+            "required": [
+              "formId",
+              "submissionId"
+            ]
+          }
+        },
         "required": [
           "envelope"
         ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "submission.deleted"
+          }
+        },
+        "required": [
+          "type"
+        ]
       },
-      "else": {
+      "then": {
+        "properties": {
+          "dataMode": {
+            "const": "reference"
+          },
+          "resource": {
+            "required": [
+              "formId",
+              "submissionId",
+              "deletionId",
+              "accessRevokedAt"
+            ]
+          }
+        },
+        "not": {
+          "required": [
+            "envelope"
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "attachment.rejected"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "dataMode": {
+            "const": "reference"
+          },
+          "resource": {
+            "required": [
+              "formId",
+              "attachmentId"
+            ]
+          }
+        },
         "not": {
           "required": [
             "envelope"
@@ -116,7 +242,8 @@
     },
     "time": {
       "type": "string",
-      "pattern": "^(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.\\d{1,9})?$"
+      "pattern": "^(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.\\d{1,9})?$",
+      "format": "time"
     },
     "instant": {
       "type": "string",
@@ -129,15 +256,9 @@
         "pattern": "^x-[a-z0-9]+(?:[.-][a-z0-9]+)+$"
       },
       "additionalProperties": {
-        "type": [
-          "string",
-          "number",
-          "boolean",
-          "array",
-          "object",
-          "null"
-        ]
-      }
+        "$ref": "#/$defs/extensionValue"
+      },
+      "description": "Closed, dependency-bound extension descriptor; unregistered bindings are compiler errors."
     },
     "rowPath": {
       "type": "array",
@@ -194,6 +315,9 @@
         },
         "deletionId": {
           "$ref": "#/$defs/id"
+        },
+        "accessRevokedAt": {
+          "$ref": "#/$defs/instant"
         }
       },
       "required": [
@@ -202,6 +326,36 @@
     },
     "fullEnvelope": {
       "$ref": "submission-envelope.schema.json"
+    },
+    "extensionValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "dependencyId": {
+          "$ref": "#/$defs/id"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "digest": {
+          "$ref": "#/$defs/sha256"
+        },
+        "value": {
+          "type": [
+            "string",
+            "number",
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "dependencyId",
+        "version",
+        "digest",
+        "value"
+      ]
     }
   },
   "$schema": "https://json-schema.org/draft/2020-12/schema",

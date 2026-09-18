@@ -78,7 +78,9 @@
         "acceptedAt": "2026-09-05T10:00:00Z"
       }
     ],
-    "extensions": {}
+    "extensions": {},
+    "startedAt": "2026-09-05T09:30:00Z",
+    "receivedAt": "2026-09-05T10:00:01Z"
   },
   "extensions": {}
 }

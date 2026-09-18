@@ -121,6 +121,8 @@ class ApiCharacterizationIntegrationTests {
     assertEquals("https://json-schema.org/draft/2020-12/schema", schemaDocument.path("$schema").asText());
     assertTrue(schemaDocument.path("$id").asText().contains("package.schema.json"));
     assertEquals("object", schemaDocument.path("type").asText());
+    assertEquals(HttpStatus.NOT_FOUND, http.getForEntity(u("/openapi"), String.class).getStatusCode());
+    assertEquals(HttpStatus.NOT_FOUND, call("/schemas/package/4.0.0/validate", HttpMethod.POST, headers(null), "{}").getStatusCode());
     Map<String, Object> credentials =
         Map.of("email", "m1-" + account + "@example.test", "password", "correct-horse-battery");
     ResponseEntity<String> signIn =

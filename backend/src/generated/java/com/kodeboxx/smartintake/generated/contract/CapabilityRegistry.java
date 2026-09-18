@@ -50,6 +50,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   CapabilityRegistry.JSON_PROPERTY_ASSET_SUPPLEMENT,
   CapabilityRegistry.JSON_PROPERTY_OPENAPI,
   CapabilityRegistry.JSON_PROPERTY_GENERATION,
+  CapabilityRegistry.JSON_PROPERTY_FIELD_TYPES,
+  CapabilityRegistry.JSON_PROPERTY_OPERATORS,
   CapabilityRegistry.JSON_PROPERTY_X_GENERATED_EVENT_MODEL
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
@@ -101,6 +103,14 @@ public class CapabilityRegistry extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_GENERATION = "generation";
   @jakarta.annotation.Nonnull
   private Map<String, String> generation = new HashMap<>();
+
+  public static final String JSON_PROPERTY_FIELD_TYPES = "fieldTypes";
+  @jakarta.annotation.Nonnull
+  private List<String> fieldTypes = new ArrayList<>();
+
+  public static final String JSON_PROPERTY_OPERATORS = "operators";
+  @jakarta.annotation.Nonnull
+  private List<String> operators = new ArrayList<>();
 
   public static final String JSON_PROPERTY_X_GENERATED_EVENT_MODEL = "xGeneratedEventModel";
   @jakarta.annotation.Nullable
@@ -457,6 +467,76 @@ public class CapabilityRegistry extends HashMap<String, Object> {
     this.generation = generation;
   }
 
+  public CapabilityRegistry fieldTypes(@jakarta.annotation.Nonnull List<String> fieldTypes) {
+    
+    this.fieldTypes = fieldTypes;
+    return this;
+  }
+
+  public CapabilityRegistry addFieldTypesItem(String fieldTypesItem) {
+    if (this.fieldTypes == null) {
+      this.fieldTypes = new ArrayList<>();
+    }
+    this.fieldTypes.add(fieldTypesItem);
+    return this;
+  }
+
+  /**
+   * M1 compatibility alias derived from fieldCatalog; use fieldCatalog for catalog metadata.
+   * @return fieldTypes
+   * @deprecated
+   */
+  @Deprecated
+  @jakarta.annotation.Nonnull
+  @JsonProperty(JSON_PROPERTY_FIELD_TYPES)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+
+  public List<String> getFieldTypes() {
+    return fieldTypes;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_FIELD_TYPES)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setFieldTypes(@jakarta.annotation.Nonnull List<String> fieldTypes) {
+    this.fieldTypes = fieldTypes;
+  }
+
+  public CapabilityRegistry operators(@jakarta.annotation.Nonnull List<String> operators) {
+    
+    this.operators = operators;
+    return this;
+  }
+
+  public CapabilityRegistry addOperatorsItem(String operatorsItem) {
+    if (this.operators == null) {
+      this.operators = new ArrayList<>();
+    }
+    this.operators.add(operatorsItem);
+    return this;
+  }
+
+  /**
+   * M1 compatibility alias derived from operatorSignatures; use operatorSignatures for arity metadata.
+   * @return operators
+   * @deprecated
+   */
+  @Deprecated
+  @jakarta.annotation.Nonnull
+  @JsonProperty(JSON_PROPERTY_OPERATORS)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+
+  public List<String> getOperators() {
+    return operators;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_OPERATORS)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setOperators(@jakarta.annotation.Nonnull List<String> operators) {
+    this.operators = operators;
+  }
+
   public CapabilityRegistry xGeneratedEventModel(@jakarta.annotation.Nullable EventDocument xGeneratedEventModel) {
     
     this.xGeneratedEventModel = xGeneratedEventModel;
@@ -503,13 +583,15 @@ public class CapabilityRegistry extends HashMap<String, Object> {
         Objects.equals(this.assetSupplement, capabilityRegistry.assetSupplement) &&
         Objects.equals(this.openapi, capabilityRegistry.openapi) &&
         Objects.equals(this.generation, capabilityRegistry.generation) &&
+        Objects.equals(this.fieldTypes, capabilityRegistry.fieldTypes) &&
+        Objects.equals(this.operators, capabilityRegistry.operators) &&
         Objects.equals(this.xGeneratedEventModel, capabilityRegistry.xGeneratedEventModel) &&
         super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(registryVersion, contractVersion, versions, schemas, fieldCatalog, controlValueCompatibility, operatorSignatures, limits, operations, assetSupplement, openapi, generation, xGeneratedEventModel, super.hashCode());
+    return Objects.hash(registryVersion, contractVersion, versions, schemas, fieldCatalog, controlValueCompatibility, operatorSignatures, limits, operations, assetSupplement, openapi, generation, fieldTypes, operators, xGeneratedEventModel, super.hashCode());
   }
 
   @Override
@@ -529,6 +611,8 @@ public class CapabilityRegistry extends HashMap<String, Object> {
     sb.append("    assetSupplement: ").append(toIndentedString(assetSupplement)).append("\n");
     sb.append("    openapi: ").append(toIndentedString(openapi)).append("\n");
     sb.append("    generation: ").append(toIndentedString(generation)).append("\n");
+    sb.append("    fieldTypes: ").append(toIndentedString(fieldTypes)).append("\n");
+    sb.append("    operators: ").append(toIndentedString(operators)).append("\n");
     sb.append("    xGeneratedEventModel: ").append(toIndentedString(xGeneratedEventModel)).append("\n");
     sb.append("}");
     return sb.toString();

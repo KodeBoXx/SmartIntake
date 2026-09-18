@@ -1,2 +1,3 @@
 # Standalone schema validation dependency; compatible with the checked-in harness.
 jsonschema==4.10.3
+PyYAML==6.0.2

@@ -22,8 +22,6 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.net.URI;
 import java.time.OffsetDateTime;
-import java.util.HashMap;
-import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -37,7 +35,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   AuthorizedAsset.JSON_PROPERTY_CONTENT_TYPE
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class AuthorizedAsset extends HashMap<String, Object> {
+public class AuthorizedAsset {
   public static final String JSON_PROPERTY_ID = "id";
   @jakarta.annotation.Nonnull
   private String id;
@@ -55,7 +53,6 @@ public class AuthorizedAsset extends HashMap<String, Object> {
   private String contentType;
 
   public AuthorizedAsset() {
-
   }
 
   public AuthorizedAsset id(@jakarta.annotation.Nonnull String id) {
@@ -170,20 +167,18 @@ public class AuthorizedAsset extends HashMap<String, Object> {
     return Objects.equals(this.id, authorizedAsset.id) &&
         Objects.equals(this.downloadUrl, authorizedAsset.downloadUrl) &&
         Objects.equals(this.expiresAt, authorizedAsset.expiresAt) &&
-        Objects.equals(this.contentType, authorizedAsset.contentType) &&
-        super.equals(o);
+        Objects.equals(this.contentType, authorizedAsset.contentType);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, downloadUrl, expiresAt, contentType, super.hashCode());
+    return Objects.hash(id, downloadUrl, expiresAt, contentType);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class AuthorizedAsset {\n");
-    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    downloadUrl: ").append(toIndentedString(downloadUrl)).append("\n");
     sb.append("    expiresAt: ").append(toIndentedString(expiresAt)).append("\n");

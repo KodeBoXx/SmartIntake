@@ -20,8 +20,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.kodeboxx.smartintake.generated.contract.EventDocumentExtensionValue;
 import com.kodeboxx.smartintake.generated.contract.EventDocumentResource;
-import com.kodeboxx.smartintake.generated.contract.PackageDocumentExtensionNamespacesValue;
 import com.kodeboxx.smartintake.generated.contract.SubmissionEnvelopeDocument;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
@@ -46,7 +46,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   EventDocument.JSON_PROPERTY_EXTENSIONS
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class EventDocument {
+public class EventDocument extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_SCHEMA_VERSION = "schemaVersion";
   @jakarta.annotation.Nullable
   private Object schemaVersion = null;
@@ -165,9 +165,10 @@ public class EventDocument {
 
   public static final String JSON_PROPERTY_EXTENSIONS = "extensions";
   @jakarta.annotation.Nonnull
-  private Map<String, PackageDocumentExtensionNamespacesValue> extensions = new HashMap<>();
+  private Map<String, EventDocumentExtensionValue> extensions = new HashMap<>();
 
   public EventDocument() {
+
   }
 
   public EventDocument schemaVersion(@jakarta.annotation.Nullable Object schemaVersion) {
@@ -422,33 +423,33 @@ public class EventDocument {
     this.envelope = envelope;
   }
 
-  public EventDocument extensions(@jakarta.annotation.Nonnull Map<String, PackageDocumentExtensionNamespacesValue> extensions) {
+  public EventDocument extensions(@jakarta.annotation.Nonnull Map<String, EventDocumentExtensionValue> extensions) {
     
     this.extensions = extensions;
     return this;
   }
 
-  public EventDocument putExtensionsItem(String key, PackageDocumentExtensionNamespacesValue extensionsItem) {
+  public EventDocument putExtensionsItem(String key, EventDocumentExtensionValue extensionsItem) {
     this.extensions.put(key, extensionsItem);
     return this;
   }
 
   /**
-   * Get extensions
+   * Closed, dependency-bound extension descriptor; unregistered bindings are compiler errors.
    * @return extensions
    */
   @jakarta.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_EXTENSIONS)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public Map<String, PackageDocumentExtensionNamespacesValue> getExtensions() {
+  public Map<String, EventDocumentExtensionValue> getExtensions() {
     return extensions;
   }
 
 
   @JsonProperty(JSON_PROPERTY_EXTENSIONS)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.ALWAYS)
-  public void setExtensions(@jakarta.annotation.Nonnull Map<String, PackageDocumentExtensionNamespacesValue> extensions) {
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setExtensions(@jakarta.annotation.Nonnull Map<String, EventDocumentExtensionValue> extensions) {
     this.extensions = extensions;
   }
 
@@ -471,18 +472,20 @@ public class EventDocument {
         Objects.equals(this.dataMode, eventDocument.dataMode) &&
         Objects.equals(this.resource, eventDocument.resource) &&
         Objects.equals(this.envelope, eventDocument.envelope) &&
-        Objects.equals(this.extensions, eventDocument.extensions);
+        Objects.equals(this.extensions, eventDocument.extensions) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(schemaVersion, eventId, type, occurredAt, tenantId, workspaceId, formSequence, dataMode, resource, envelope, extensions);
+    return Objects.hash(schemaVersion, eventId, type, occurredAt, tenantId, workspaceId, formSequence, dataMode, resource, envelope, extensions, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class EventDocument {\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    schemaVersion: ").append(toIndentedString(schemaVersion)).append("\n");
     sb.append("    eventId: ").append(toIndentedString(eventId)).append("\n");
     sb.append("    type: ").append(toIndentedString(type)).append("\n");

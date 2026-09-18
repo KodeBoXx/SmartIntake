@@ -23,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.kodeboxx.smartintake.generated.contract.InputAnswerDocument;
 import com.kodeboxx.smartintake.generated.contract.PackageDocumentConstraints;
-import com.kodeboxx.smartintake.generated.contract.PackageDocumentExtensionNamespacesValue;
+import com.kodeboxx.smartintake.generated.contract.PackageDocumentExtensionValue;
 import com.kodeboxx.smartintake.generated.contract.PackageDocumentFieldItemSchema;
 import com.kodeboxx.smartintake.generated.contract.PackageDocumentOption;
 import java.util.HashMap;
@@ -55,7 +55,11 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   PackageDocumentField.JSON_PROPERTY_CONSTRAINTS,
   PackageDocumentField.JSON_PROPERTY_DEFAULT,
   PackageDocumentField.JSON_PROPERTY_ITEM_SCHEMA,
-  PackageDocumentField.JSON_PROPERTY_EXTENSIONS
+  PackageDocumentField.JSON_PROPERTY_EXTENSIONS,
+  PackageDocumentField.JSON_PROPERTY_GUIDANCE_ID,
+  PackageDocumentField.JSON_PROPERTY_VISIBILITY_EXPRESSION_ID,
+  PackageDocumentField.JSON_PROPERTY_REQUIRED_EXPRESSION_ID,
+  PackageDocumentField.JSON_PROPERTY_VALIDATION_EXPRESSION_ID
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
 public class PackageDocumentField extends HashMap<String, Object> {
@@ -227,7 +231,23 @@ public class PackageDocumentField extends HashMap<String, Object> {
 
   public static final String JSON_PROPERTY_EXTENSIONS = "extensions";
   @jakarta.annotation.Nullable
-  private Map<String, PackageDocumentExtensionNamespacesValue> extensions = new HashMap<>();
+  private Map<String, PackageDocumentExtensionValue> extensions = new HashMap<>();
+
+  public static final String JSON_PROPERTY_GUIDANCE_ID = "guidanceId";
+  @jakarta.annotation.Nullable
+  private String guidanceId;
+
+  public static final String JSON_PROPERTY_VISIBILITY_EXPRESSION_ID = "visibilityExpressionId";
+  @jakarta.annotation.Nullable
+  private String visibilityExpressionId;
+
+  public static final String JSON_PROPERTY_REQUIRED_EXPRESSION_ID = "requiredExpressionId";
+  @jakarta.annotation.Nullable
+  private String requiredExpressionId;
+
+  public static final String JSON_PROPERTY_VALIDATION_EXPRESSION_ID = "validationExpressionId";
+  @jakarta.annotation.Nullable
+  private String validationExpressionId;
 
   public PackageDocumentField() {
 
@@ -692,13 +712,13 @@ public class PackageDocumentField extends HashMap<String, Object> {
     this.itemSchema = itemSchema;
   }
 
-  public PackageDocumentField extensions(@jakarta.annotation.Nullable Map<String, PackageDocumentExtensionNamespacesValue> extensions) {
+  public PackageDocumentField extensions(@jakarta.annotation.Nullable Map<String, PackageDocumentExtensionValue> extensions) {
     
     this.extensions = extensions;
     return this;
   }
 
-  public PackageDocumentField putExtensionsItem(String key, PackageDocumentExtensionNamespacesValue extensionsItem) {
+  public PackageDocumentField putExtensionsItem(String key, PackageDocumentExtensionValue extensionsItem) {
     if (this.extensions == null) {
       this.extensions = new HashMap<>();
     }
@@ -707,22 +727,122 @@ public class PackageDocumentField extends HashMap<String, Object> {
   }
 
   /**
-   * Get extensions
+   * Closed, dependency-bound extension descriptor; unregistered bindings are compiler errors.
    * @return extensions
    */
   @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_EXTENSIONS)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
-  public Map<String, PackageDocumentExtensionNamespacesValue> getExtensions() {
+  public Map<String, PackageDocumentExtensionValue> getExtensions() {
     return extensions;
   }
 
 
   @JsonProperty(JSON_PROPERTY_EXTENSIONS)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
-  public void setExtensions(@jakarta.annotation.Nullable Map<String, PackageDocumentExtensionNamespacesValue> extensions) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setExtensions(@jakarta.annotation.Nullable Map<String, PackageDocumentExtensionValue> extensions) {
     this.extensions = extensions;
+  }
+
+  public PackageDocumentField guidanceId(@jakarta.annotation.Nullable String guidanceId) {
+    
+    this.guidanceId = guidanceId;
+    return this;
+  }
+
+  /**
+   * Get guidanceId
+   * @return guidanceId
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_GUIDANCE_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public String getGuidanceId() {
+    return guidanceId;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_GUIDANCE_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setGuidanceId(@jakarta.annotation.Nullable String guidanceId) {
+    this.guidanceId = guidanceId;
+  }
+
+  public PackageDocumentField visibilityExpressionId(@jakarta.annotation.Nullable String visibilityExpressionId) {
+    
+    this.visibilityExpressionId = visibilityExpressionId;
+    return this;
+  }
+
+  /**
+   * Get visibilityExpressionId
+   * @return visibilityExpressionId
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_VISIBILITY_EXPRESSION_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public String getVisibilityExpressionId() {
+    return visibilityExpressionId;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_VISIBILITY_EXPRESSION_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setVisibilityExpressionId(@jakarta.annotation.Nullable String visibilityExpressionId) {
+    this.visibilityExpressionId = visibilityExpressionId;
+  }
+
+  public PackageDocumentField requiredExpressionId(@jakarta.annotation.Nullable String requiredExpressionId) {
+    
+    this.requiredExpressionId = requiredExpressionId;
+    return this;
+  }
+
+  /**
+   * Get requiredExpressionId
+   * @return requiredExpressionId
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_REQUIRED_EXPRESSION_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public String getRequiredExpressionId() {
+    return requiredExpressionId;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_REQUIRED_EXPRESSION_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setRequiredExpressionId(@jakarta.annotation.Nullable String requiredExpressionId) {
+    this.requiredExpressionId = requiredExpressionId;
+  }
+
+  public PackageDocumentField validationExpressionId(@jakarta.annotation.Nullable String validationExpressionId) {
+    
+    this.validationExpressionId = validationExpressionId;
+    return this;
+  }
+
+  /**
+   * Get validationExpressionId
+   * @return validationExpressionId
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_VALIDATION_EXPRESSION_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public String getValidationExpressionId() {
+    return validationExpressionId;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_VALIDATION_EXPRESSION_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setValidationExpressionId(@jakarta.annotation.Nullable String validationExpressionId) {
+    this.validationExpressionId = validationExpressionId;
   }
 
   @Override
@@ -753,12 +873,16 @@ public class PackageDocumentField extends HashMap<String, Object> {
         Objects.equals(this._default, packageDocumentField._default) &&
         Objects.equals(this.itemSchema, packageDocumentField.itemSchema) &&
         Objects.equals(this.extensions, packageDocumentField.extensions) &&
+        Objects.equals(this.guidanceId, packageDocumentField.guidanceId) &&
+        Objects.equals(this.visibilityExpressionId, packageDocumentField.visibilityExpressionId) &&
+        Objects.equals(this.requiredExpressionId, packageDocumentField.requiredExpressionId) &&
+        Objects.equals(this.validationExpressionId, packageDocumentField.validationExpressionId) &&
         super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, key, type, labelKey, descriptionKey, required, readOnly, calculated, hiddenRetention, allowUnknown, allowDeclined, allowNotApplicable, ordered, unit, options, constraints, _default, itemSchema, extensions, super.hashCode());
+    return Objects.hash(id, key, type, labelKey, descriptionKey, required, readOnly, calculated, hiddenRetention, allowUnknown, allowDeclined, allowNotApplicable, ordered, unit, options, constraints, _default, itemSchema, extensions, guidanceId, visibilityExpressionId, requiredExpressionId, validationExpressionId, super.hashCode());
   }
 
   @Override
@@ -785,6 +909,10 @@ public class PackageDocumentField extends HashMap<String, Object> {
     sb.append("    _default: ").append(toIndentedString(_default)).append("\n");
     sb.append("    itemSchema: ").append(toIndentedString(itemSchema)).append("\n");
     sb.append("    extensions: ").append(toIndentedString(extensions)).append("\n");
+    sb.append("    guidanceId: ").append(toIndentedString(guidanceId)).append("\n");
+    sb.append("    visibilityExpressionId: ").append(toIndentedString(visibilityExpressionId)).append("\n");
+    sb.append("    requiredExpressionId: ").append(toIndentedString(requiredExpressionId)).append("\n");
+    sb.append("    validationExpressionId: ").append(toIndentedString(validationExpressionId)).append("\n");
     sb.append("}");
     return sb.toString();
   }

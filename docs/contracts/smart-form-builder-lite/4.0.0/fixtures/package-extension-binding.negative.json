@@ -1,0 +1,275 @@
+{
+  "schemaVersion": "4.0.0",
+  "contractVersion": "4.0.0",
+  "engineContract": "4.0.0",
+  "kind": "smart-form-package",
+  "formKey": "intake",
+  "definitionVersion": "1.0.0",
+  "titleKey": "title",
+  "defaultLocale": "en",
+  "supportedLocales": [
+    "en"
+  ],
+  "translations": {
+    "en": {
+      "direction": "ltr",
+      "messages": {
+        "title": "Intake",
+        "amount": "Amount",
+        "name": "Name",
+        "attendees": "Attendees",
+        "attendee_name": "Attendee name",
+        "plural_notice": {
+          "grammar": "smartforms-message-1",
+          "parts": [
+            {
+              "text": "You have "
+            },
+            {
+              "plural": {
+                "count": {
+                  "literal": {
+                    "type": "integer",
+                    "value": "1"
+                  }
+                },
+                "cases": {
+                  "one": {
+                    "grammar": "smartforms-message-1",
+                    "parts": [
+                      {
+                        "text": "one item"
+                      }
+                    ]
+                  },
+                  "other": {
+                    "grammar": "smartforms-message-1",
+                    "parts": [
+                      {
+                        "text": "many items"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "pronunciations": [],
+      "reviewState": "approved"
+    }
+  },
+  "data": {
+    "fields": [
+      {
+        "id": "name",
+        "key": "name",
+        "type": "text",
+        "labelKey": "name"
+      },
+      {
+        "id": "amount",
+        "key": "amount",
+        "type": "integer",
+        "labelKey": "amount",
+        "constraints": {
+          "min": "0",
+          "max": "9223372036854775807"
+        }
+      },
+      {
+        "id": "attendees",
+        "key": "attendees",
+        "type": "list",
+        "labelKey": "attendees",
+        "itemSchema": {
+          "fields": [
+            {
+              "id": "attendeeName",
+              "key": "attendee_name",
+              "type": "text",
+              "labelKey": "attendee_name"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "flow": {
+    "startPageId": "page1",
+    "phases": [
+      {
+        "id": "phase1",
+        "pages": [
+          {
+            "id": "page1",
+            "key": "page",
+            "labelKey": "title",
+            "sections": [
+              {
+                "id": "section1",
+                "key": "main",
+                "labelKey": "title",
+                "nodes": [
+                  {
+                    "id": "node1",
+                    "kind": "question",
+                    "fieldId": "name",
+                    "fieldType": "text",
+                    "control": "text",
+                    "labelKey": "name"
+                  },
+                  {
+                    "id": "node2",
+                    "kind": "question",
+                    "fieldId": "amount",
+                    "fieldType": "integer",
+                    "control": "integer",
+                    "labelKey": "amount"
+                  },
+                  {
+                    "id": "node3",
+                    "kind": "question",
+                    "fieldId": "attendees",
+                    "fieldType": "list",
+                    "control": "repeatingCards",
+                    "labelKey": "attendees",
+                    "presentation": {
+                      "settings": {
+                        "allowAdd": true,
+                        "allowRemove": false,
+                        "allowReorder": true
+                      }
+                    },
+                    "children": [
+                      {
+                        "id": "node4",
+                        "kind": "question",
+                        "fieldId": "attendeeName",
+                        "fieldType": "text",
+                        "control": "text",
+                        "labelKey": "attendee_name"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "defaultNextPageId": "page2",
+            "routes": [
+              {
+                "id": "route1",
+                "targetPageId": "page2",
+                "whenExpressionId": "sum"
+              }
+            ],
+            "guidanceId": "pageHelp"
+          },
+          {
+            "id": "page2",
+            "key": "review",
+            "labelKey": "title",
+            "sections": [
+              {
+                "id": "section2",
+                "key": "review",
+                "labelKey": "title",
+                "layout": "stack",
+                "guidanceId": "pageHelp",
+                "nodes": [
+                  {
+                    "id": "node3",
+                    "kind": "question",
+                    "fieldId": "name",
+                    "fieldType": "text",
+                    "control": "text",
+                    "labelKey": "name",
+                    "visibilityExpressionId": "sum"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "expressions": {
+    "sum": {
+      "op": "add",
+      "args": [
+        {
+          "literal": {
+            "type": "integer",
+            "value": "1"
+          }
+        },
+        {
+          "literal": {
+            "type": "decimal",
+            "value": "2.5"
+          }
+        }
+      ]
+    }
+  },
+  "dependencies": [
+    {
+      "kind": "extension",
+      "id": "exampleExtension",
+      "version": "1.0.0",
+      "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  ],
+  "policies": {
+    "attachmentsRequiredReady": true,
+    "allowVoiceQuestions": false,
+    "confirmationKey": "title",
+    "draftExpiryDays": 30,
+    "guidanceMode": "text",
+    "narrationAutoplay": false,
+    "presentation": "grouped",
+    "responseAccess": "anonymous",
+    "retentionPolicyKey": "standard_intake",
+    "retention": {
+      "policyKey": "standard_intake",
+      "submissionDays": 365,
+      "draftDays": 30
+    },
+    "reviewBeforeSubmit": true,
+    "showProgress": true
+  },
+  "assets": [],
+  "extensions": {
+    "x-example.org": {
+      "dependencyId": "exampleExtension",
+      "version": "1.0.0",
+      "digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "value": "representative"
+    }
+  },
+  "guidance": {
+    "pageHelp": {
+      "id": "pageHelp",
+      "messageKey": "plural_notice"
+    }
+  },
+  "theme": {
+    "themeKey": "accessible_default",
+    "version": "1.0.0",
+    "tokens": {
+      "accent": "#175CD3",
+      "background": "#FFFFFF",
+      "text": "#182230",
+      "fontFamily": "system",
+      "density": "comfortable",
+      "radius": 8,
+      "responsive": {
+        "compactMaxWidth": 639,
+        "mediumMaxWidth": 1023,
+        "wideColumns": 2
+      }
+    }
+  }
+}

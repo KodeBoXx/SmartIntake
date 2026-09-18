@@ -1360,6 +1360,16 @@ export interface components {
             generation: {
                 [key: string]: string | Record<string, never> | unknown[];
             };
+            /**
+             * @deprecated
+             * @description M1 compatibility alias derived from fieldCatalog; use fieldCatalog for catalog metadata.
+             */
+            fieldTypes: string[];
+            /**
+             * @deprecated
+             * @description M1 compatibility alias derived from operatorSignatures; use operatorSignatures for arity metadata.
+             */
+            operators: string[];
         };
         InvitationAcceptanceRequest: {
             invitationToken: string;
@@ -1463,6 +1473,40 @@ export interface components {
         InvitationCreateRequest: {
             name: string;
         };
+        OrganizationRecoveryRequest: {
+            reason: string;
+            /** @enum {unknown} */
+            safeDelivery: "verified-email" | "administrator-assisted";
+            revokeExistingSessions?: boolean;
+            /** @constant */
+            ownerSafetyConfirmed?: true;
+            /** @enum {unknown} */
+            idempotencyReplay?: "redacted";
+        };
+        /** @description Concrete OrganizationRecovery resource representation. */
+        OrganizationRecovery: {
+            id: components["schemas"]["OpaqueId"];
+            /** @constant */
+            kind: "OrganizationRecovery";
+            revision: number;
+            status: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            /** @enum {unknown} */
+            safeDelivery: "verified-email" | "administrator-assisted";
+            /** @constant */
+            revocation: "sessions-revoked";
+            /** @constant */
+            ownerSafety: "confirmed";
+            /** @constant */
+            idempotencyReplay: "redacted";
+        };
+        OrganizationRecoveryResponse: {
+            requestId: components["schemas"]["OpaqueId"];
+            organizationRecovery: components["schemas"]["OrganizationRecovery"];
+        };
         PlatformAccountUpdateRequest: {
             /** @enum {unknown} */
             accountStatus: "active" | "suspended";
@@ -1484,9 +1528,39 @@ export interface components {
             requestId: components["schemas"]["OpaqueId"];
             platformAccount: components["schemas"]["PlatformAccount"];
         };
-        PlatformAccountCreateRequest: {
+        PlatformRecoveryRequest: {
+            reason: string;
             /** @enum {unknown} */
-            accountStatus: "active" | "suspended";
+            safeDelivery: "verified-email" | "manual-security-review";
+            revokeExistingSessions?: boolean;
+            /** @constant */
+            ownerSafetyConfirmed: true;
+            /** @enum {unknown} */
+            idempotencyReplay?: "redacted";
+        };
+        /** @description Concrete PlatformRecovery resource representation. */
+        PlatformRecovery: {
+            id: components["schemas"]["OpaqueId"];
+            /** @constant */
+            kind: "PlatformRecovery";
+            revision: number;
+            status: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            /** @enum {unknown} */
+            safeDelivery: "verified-email" | "manual-security-review";
+            /** @constant */
+            revocation: "sessions-revoked";
+            /** @constant */
+            ownerSafety: "confirmed";
+            /** @constant */
+            idempotencyReplay: "redacted";
+        };
+        PlatformRecoveryResponse: {
+            requestId: components["schemas"]["OpaqueId"];
+            platformRecovery: components["schemas"]["PlatformRecovery"];
         };
         /** @description Concrete Organization resource representation. */
         Organization: {
@@ -1543,15 +1617,21 @@ export interface components {
             requestId: components["schemas"]["OpaqueId"];
             respondentSession: components["schemas"]["RespondentSession"];
         };
+        /** @description A complete Draft 2020-12 schema document. Keywords, $defs, recursive references and extension annotations are intentionally preserved. */
         PublishedSchema: {
             /** @constant */
             $schema: "https://json-schema.org/draft/2020-12/schema";
             /** Format: uri */
             $id: string;
-            type: string;
-            title?: string;
         };
         id: string;
+        sha256: string;
+        extensionValue: {
+            dependencyId: components["schemas"]["id"];
+            version: string;
+            digest: components["schemas"]["sha256"];
+            value: string | number | boolean | null;
+        };
         /** Format: date-time */
         instant: string;
         /**
@@ -1569,11 +1649,13 @@ export interface components {
                 decimal: string;
                 /** Format: date */
                 date: string;
+                /** Format: time */
                 time: string;
                 /** Format: date-time */
                 instant: string;
+                /** @description Closed, dependency-bound extension descriptor; unregistered bindings are compiler errors. */
                 extensionNamespaces: {
-                    [key: string]: string | number | boolean | unknown[] | Record<string, never> | null;
+                    [key: string]: components["schemas"]["extensionValue"];
                 };
                 rowPath: {
                     listFieldId: components["schemas"]["id"];
@@ -1608,6 +1690,12 @@ export interface components {
                     /** @enum {unknown} */
                     status: "unanswered" | "unknown" | "declined" | "respondentNotApplicable";
                 };
+                extensionValue: {
+                    dependencyId: components["schemas"]["id"];
+                    version: string;
+                    digest: components["schemas"]["sha256"];
+                    value: string | number | boolean | null;
+                };
             };
         } & (components["schemas"]["answered"] | components["schemas"]["nonAnswered"]);
         item: {
@@ -1638,9 +1726,15 @@ export interface components {
             /** @enum {unknown} */
             status: "unanswered" | "unknown" | "declined" | "respondentNotApplicable";
         };
-        /** @description Canonical base-10 int64 string; JSON number is forbidden. */
+        /**
+         * Format: canonical-int64
+         * @description Canonical signed int64 base-10 string; JSON number is forbidden.
+         */
         CanonicalInt64: string;
-        /** @description Canonical base-10 decimal string; JSON number is forbidden. */
+        /**
+         * Format: canonical-decimal
+         * @description Canonical expression-result decimal string with no redundant fractional zeroes; JSON number is forbidden.
+         */
         CanonicalDecimal: string;
         SessionMutation: {
             /** @constant */
@@ -1764,23 +1858,17 @@ export interface components {
             requestId: components["schemas"]["OpaqueId"];
             validationReport: components["schemas"]["ValidationReport"];
         };
-        /** @description Concrete Form resource representation. */
-        Form: {
+        AuthorizedAsset: {
             id: components["schemas"]["OpaqueId"];
-            /** @constant */
-            kind: "Form";
-            revision: number;
-            status: string;
+            /** Format: uri */
+            downloadUrl: string;
             /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-            formKey: string;
-            title: string;
+            expiresAt: string;
+            contentType: string;
         };
-        FormResponse: {
+        AuthorizedAssetResponse: {
             requestId: components["schemas"]["OpaqueId"];
-            form: components["schemas"]["Form"];
+            authorizedAsset: components["schemas"]["AuthorizedAsset"];
         };
         /** @description Concrete Block resource representation. */
         Block: {
@@ -1888,6 +1976,20 @@ export interface components {
             name: string;
             parentId?: components["schemas"]["OpaqueId"] | null;
         };
+        /** @description Concrete Form resource representation. */
+        Form: {
+            id: components["schemas"]["OpaqueId"];
+            /** @constant */
+            kind: "Form";
+            revision: number;
+            status: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            formKey: string;
+            title: string;
+        };
         FormCollection: {
             requestId: components["schemas"]["OpaqueId"];
             items: components["schemas"]["Form"][];
@@ -1899,6 +2001,10 @@ export interface components {
         FormCreateRequest: {
             formKey: string;
             title?: string;
+        };
+        FormResponse: {
+            requestId: components["schemas"]["OpaqueId"];
+            form: components["schemas"]["Form"];
         };
         ActivationRequest: {
             releaseId: components["schemas"]["OpaqueId"];
@@ -1947,15 +2053,20 @@ export interface components {
                 sha256: string;
                 /** Format: canonical-int64 */
                 int64: string;
-                /** Format: canonical-decimal */
+                /**
+                 * Format: stored-decimal
+                 * @description Destination storage preserves declared scale, e.g. 12.50.
+                 */
                 decimal: string;
                 /** Format: date */
                 date: string;
+                /** Format: time */
                 time: string;
                 /** Format: date-time */
                 instant: string;
+                /** @description Closed, dependency-bound extension descriptor; unregistered bindings are compiler errors. */
                 extensionNamespaces: {
-                    [key: string]: string | number | boolean | unknown[] | Record<string, never> | null;
+                    [key: string]: components["schemas"]["extensionValue"];
                 };
                 rowPath: {
                     listFieldId: components["schemas"]["id"];
@@ -1966,59 +2077,81 @@ export interface components {
                     timeZone: string;
                 };
                 expression: components["schemas"]["expression.schema"];
-                literalValue: string | boolean | components["schemas"]["int64"] | components["schemas"]["decimal"] | components["schemas"]["date"] | components["schemas"]["time"] | components["schemas"]["dateTime"];
                 literal: {
                     literal: {
                         /** @enum {unknown} */
-                        type: "text" | "integer" | "decimal" | "boolean" | "date" | "time" | "dateTime" | "choice";
-                        value: components["schemas"]["literalValue"];
-                    };
+                        type: "text" | "integer" | "decimal" | "boolean" | "date" | "time" | "dateTime" | "choice" | "array";
+                        /** @enum {unknown} */
+                        itemType?: "text" | "integer" | "decimal" | "boolean" | "date" | "time" | "dateTime" | "choice";
+                        value: unknown;
+                    } & (unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown);
                 };
                 reference: {
-                    reference: {
+                    ref: {
                         fieldId: components["schemas"]["id"];
                         /** @enum {unknown} */
                         scope: "root" | "item" | "parentItem";
-                        ancestorDepth?: number;
-                    };
+                        parentDepth?: number;
+                    } & unknown;
                 };
                 context: {
                     /** @enum {unknown} */
-                    context: "sessionDate" | "sessionTimeZone" | "item" | "parentItem";
+                    context: "sessionDate" | "sessionTimeZone";
                 };
                 apply: {
                     /** @enum {unknown} */
                     op: "and" | "or" | "not" | "eq" | "ne" | "lt" | "lte" | "gt" | "gte" | "in" | "contains" | "containsAll" | "exists" | "isAnswered" | "statusIs" | "add" | "subtract" | "multiply" | "divide" | "round" | "min" | "max" | "sum" | "count" | "any" | "all" | "concat" | "length" | "coalesce" | "if" | "dateDiffDays" | "ageYears" | "dateAddDays" | "today";
                     args: components["schemas"]["expression.schema"][];
                 };
+                /**
+                 * Format: stored-decimal
+                 * @description Destination storage preserves declared scale, e.g. 12.50.
+                 */
+                decimalStorage: string;
+                /**
+                 * Format: canonical-decimal
+                 * @description Exact expression result; no redundant trailing fractional zeroes.
+                 */
+                decimalResult: string;
+                extensionValue: {
+                    dependencyId: components["schemas"]["id"];
+                    version: string;
+                    digest: components["schemas"]["sha256"];
+                    value: string | number | boolean | null;
+                };
             };
         } & (unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown)) & (components["schemas"]["literal"] | components["schemas"]["reference"] | components["schemas"]["context"] | components["schemas"]["apply"]);
         /** Format: canonical-int64 */
         int64: string;
-        /** Format: canonical-decimal */
-        decimal: string;
+        /**
+         * Format: stored-decimal
+         * @description Destination storage preserves declared scale, e.g. 12.50.
+         */
+        decimalStorage: string;
         /** Format: date */
         date: string;
+        /** Format: time */
         time: string;
-        literalValue: string | boolean | components["schemas"]["int64"] | components["schemas"]["decimal"] | components["schemas"]["date"] | components["schemas"]["time"] | components["schemas"]["dateTime"];
         literal: {
             literal: {
                 /** @enum {unknown} */
-                type: "text" | "integer" | "decimal" | "boolean" | "date" | "time" | "dateTime" | "choice";
-                value: components["schemas"]["literalValue"];
-            };
+                type: "text" | "integer" | "decimal" | "boolean" | "date" | "time" | "dateTime" | "choice" | "array";
+                /** @enum {unknown} */
+                itemType?: "text" | "integer" | "decimal" | "boolean" | "date" | "time" | "dateTime" | "choice";
+                value: unknown;
+            } & (unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown);
         };
         reference: {
-            reference: {
+            ref: {
                 fieldId: components["schemas"]["id"];
                 /** @enum {unknown} */
                 scope: "root" | "item" | "parentItem";
-                ancestorDepth?: number;
-            };
+                parentDepth?: number;
+            } & unknown;
         };
         context: {
             /** @enum {unknown} */
-            context: "sessionDate" | "sessionTimeZone" | "item" | "parentItem";
+            context: "sessionDate" | "sessionTimeZone";
         };
         apply: {
             /** @enum {unknown} */
@@ -2026,6 +2159,8 @@ export interface components {
             args: components["schemas"]["expression.schema"][];
         };
         key: string;
+        /** Format: stored-decimal */
+        decimal: string;
         option: {
             id: components["schemas"]["id"];
             labelKey: components["schemas"]["key"];
@@ -2065,9 +2200,14 @@ export interface components {
                 fields: components["schemas"]["field"][];
             };
             extensions?: components["schemas"]["extensionNamespaces"];
+            guidanceId?: components["schemas"]["id"];
+            visibilityExpressionId?: components["schemas"]["id"];
+            requiredExpressionId?: components["schemas"]["id"];
+            validationExpressionId?: components["schemas"]["id"];
         };
+        /** @description Closed, dependency-bound extension descriptor; unregistered bindings are compiler errors. */
         extensionNamespaces: {
-            [key: string]: string | number | boolean | unknown[] | Record<string, never> | null;
+            [key: string]: components["schemas"]["extensionValue"];
         };
         settings: {
             allowAdd?: boolean;
@@ -2101,6 +2241,9 @@ export interface components {
                 [key: string]: components["schemas"]["key"];
             };
             extensions?: components["schemas"]["extensionNamespaces"];
+            visibilityExpressionId?: components["schemas"]["id"];
+            requiredExpressionId?: components["schemas"]["id"];
+            validationExpressionId?: components["schemas"]["id"];
         } & (unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown);
         layout: {
             id: components["schemas"]["id"];
@@ -2117,6 +2260,15 @@ export interface components {
             labelKey: components["schemas"]["key"];
             nodes: components["schemas"]["node"][];
             extensions?: components["schemas"]["extensionNamespaces"];
+            guidanceId?: components["schemas"]["id"];
+            /** @enum {unknown} */
+            layout?: "stack" | "grid";
+            titleKey?: components["schemas"]["key"];
+        };
+        route: {
+            id: components["schemas"]["id"];
+            targetPageId: components["schemas"]["id"];
+            whenExpressionId: components["schemas"]["id"];
         };
         page: {
             id: components["schemas"]["id"];
@@ -2124,6 +2276,10 @@ export interface components {
             labelKey: components["schemas"]["key"];
             sections: components["schemas"]["section"][];
             extensions?: components["schemas"]["extensionNamespaces"];
+            titleKey?: components["schemas"]["key"];
+            guidanceId?: components["schemas"]["id"];
+            defaultNextPageId?: components["schemas"]["id"];
+            routes?: components["schemas"]["route"][];
         };
         message: {
             /** @constant */
@@ -2132,26 +2288,98 @@ export interface components {
                 text: string;
             } | {
                 value: components["schemas"]["expression.schema"];
+            } | {
+                plural: components["schemas"]["pluralPart"];
             })[];
         };
-        sha256: string;
+        pluralPart: {
+            count: components["schemas"]["expression.schema"];
+            cases: {
+                [key: string]: components["schemas"]["message"];
+            };
+        };
+        guidanceEntry: {
+            id: components["schemas"]["id"];
+            messageKey: components["schemas"]["key"];
+        };
+        themeTokens: {
+            accent: string;
+            background: string;
+            text: string;
+            /** @enum {unknown} */
+            fontFamily: "system" | "sans" | "serif";
+            /** @enum {unknown} */
+            density: "compact" | "comfortable";
+            radius: number;
+            fieldGap?: number;
+            sectionGap?: number;
+            pagePadding?: number;
+            responsive?: {
+                /** @constant */
+                compactMaxWidth: 639;
+                /** @constant */
+                mediumMaxWidth: 1023;
+                wideColumns: number;
+            };
+        };
         translation: string | components["schemas"]["message"];
+        policyRetention: {
+            policyKey: components["schemas"]["key"];
+            submissionDays?: number;
+            draftDays?: number;
+        };
+        localeBundle: {
+            /** @enum {unknown} */
+            direction: "ltr" | "rtl";
+            messages: {
+                [key: string]: components["schemas"]["translation"];
+            };
+            pronunciations?: string[];
+            /** @enum {unknown} */
+            reviewState?: "approved-prd-fixed-values" | "approved";
+        };
         phase: {
             id: components["schemas"]["id"];
             pages: components["schemas"]["page"][];
         };
         dependency: {
             /** @enum {unknown} */
-            kind: "block" | "theme" | "locale" | "asset";
+            kind: "block" | "theme" | "locale" | "asset" | "component" | "extension";
             id: components["schemas"]["id"];
             version: string;
             digest: components["schemas"]["sha256"];
+        };
+        policies: {
+            attachmentsRequiredReady: boolean;
+            allowVoiceQuestions?: boolean;
+            confirmationKey?: components["schemas"]["key"];
+            draftExpiryDays?: number;
+            /** @enum {unknown} */
+            guidanceMode?: "text" | "voice" | "none";
+            narrationAutoplay?: boolean;
+            /** @enum {unknown} */
+            presentation?: "grouped" | "linear";
+            /** @enum {unknown} */
+            responseAccess?: "anonymous" | "authenticated";
+            retentionPolicyKey?: components["schemas"]["key"];
+            retention?: components["schemas"]["policyRetention"];
+            reviewBeforeSubmit?: boolean;
+            showProgress?: boolean;
+            extensions?: components["schemas"]["extensionNamespaces"];
         };
         asset: {
             id: components["schemas"]["id"];
             digest: components["schemas"]["sha256"];
             mediaType: string;
             altKey?: components["schemas"]["key"];
+        };
+        guidance: {
+            [key: string]: components["schemas"]["guidanceEntry"];
+        };
+        theme: {
+            themeKey: components["schemas"]["key"];
+            version: string;
+            tokens: components["schemas"]["themeTokens"];
         };
         /**
          * Smart Form Builder Lite portable package 4.0.0
@@ -2173,9 +2401,7 @@ export interface components {
             defaultLocale: string;
             supportedLocales: string[];
             translations: {
-                [key: string]: {
-                    [key: string]: components["schemas"]["translation"];
-                };
+                [key: string]: components["schemas"]["localeBundle"];
             };
             data: {
                 fields: components["schemas"]["field"][];
@@ -2188,29 +2414,28 @@ export interface components {
                 [key: string]: components["schemas"]["expression.schema"];
             };
             dependencies: components["schemas"]["dependency"][];
-            policies: {
-                /** @enum {unknown} */
-                retention?: "clear" | "memory" | "draft";
-                attachmentsRequiredReady: boolean;
-                extensions?: components["schemas"]["extensionNamespaces"];
-            };
+            policies: components["schemas"]["policies"];
             assets: components["schemas"]["asset"][];
             extensions: components["schemas"]["extensionNamespaces"];
+            guidance: components["schemas"]["guidance"];
+            theme: components["schemas"]["theme"];
             $defs: {
                 id: string;
                 key: string;
                 sha256: string;
                 /** Format: canonical-int64 */
                 int64: string;
-                /** Format: canonical-decimal */
+                /** Format: stored-decimal */
                 decimal: string;
                 /** Format: date */
                 date: string;
+                /** Format: time */
                 time: string;
                 /** Format: date-time */
                 instant: string;
+                /** @description Closed, dependency-bound extension descriptor; unregistered bindings are compiler errors. */
                 extensionNamespaces: {
-                    [key: string]: string | number | boolean | unknown[] | Record<string, never> | null;
+                    [key: string]: components["schemas"]["extensionValue"];
                 };
                 rowPath: {
                     listFieldId: components["schemas"]["id"];
@@ -2261,6 +2486,10 @@ export interface components {
                         fields: components["schemas"]["field"][];
                     };
                     extensions?: components["schemas"]["extensionNamespaces"];
+                    guidanceId?: components["schemas"]["id"];
+                    visibilityExpressionId?: components["schemas"]["id"];
+                    requiredExpressionId?: components["schemas"]["id"];
+                    validationExpressionId?: components["schemas"]["id"];
                 };
                 settings: {
                     allowAdd?: boolean;
@@ -2294,6 +2523,9 @@ export interface components {
                         [key: string]: components["schemas"]["key"];
                     };
                     extensions?: components["schemas"]["extensionNamespaces"];
+                    visibilityExpressionId?: components["schemas"]["id"];
+                    requiredExpressionId?: components["schemas"]["id"];
+                    validationExpressionId?: components["schemas"]["id"];
                 } & (unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown);
                 layout: {
                     id: components["schemas"]["id"];
@@ -2310,6 +2542,10 @@ export interface components {
                     labelKey: components["schemas"]["key"];
                     nodes: components["schemas"]["node"][];
                     extensions?: components["schemas"]["extensionNamespaces"];
+                    guidanceId?: components["schemas"]["id"];
+                    /** @enum {unknown} */
+                    layout?: "stack" | "grid";
+                    titleKey?: components["schemas"]["key"];
                 };
                 page: {
                     id: components["schemas"]["id"];
@@ -2317,6 +2553,10 @@ export interface components {
                     labelKey: components["schemas"]["key"];
                     sections: components["schemas"]["section"][];
                     extensions?: components["schemas"]["extensionNamespaces"];
+                    titleKey?: components["schemas"]["key"];
+                    guidanceId?: components["schemas"]["id"];
+                    defaultNextPageId?: components["schemas"]["id"];
+                    routes?: components["schemas"]["route"][];
                 };
                 phase: {
                     id: components["schemas"]["id"];
@@ -2330,11 +2570,13 @@ export interface components {
                         text: string;
                     } | {
                         value: components["schemas"]["expression.schema"];
+                    } | {
+                        plural: components["schemas"]["pluralPart"];
                     })[];
                 };
                 dependency: {
                     /** @enum {unknown} */
-                    kind: "block" | "theme" | "locale" | "asset";
+                    kind: "block" | "theme" | "locale" | "asset" | "component" | "extension";
                     id: components["schemas"]["id"];
                     version: string;
                     digest: components["schemas"]["sha256"];
@@ -2344,6 +2586,92 @@ export interface components {
                     digest: components["schemas"]["sha256"];
                     mediaType: string;
                     altKey?: components["schemas"]["key"];
+                };
+                /** Format: stored-decimal */
+                decimalStorage: string;
+                /** Format: canonical-decimal */
+                expressionResultDecimal: string;
+                extensionValue: {
+                    dependencyId: components["schemas"]["id"];
+                    version: string;
+                    digest: components["schemas"]["sha256"];
+                    value: string | number | boolean | null;
+                };
+                guidanceEntry: {
+                    id: components["schemas"]["id"];
+                    messageKey: components["schemas"]["key"];
+                };
+                guidance: {
+                    [key: string]: components["schemas"]["guidanceEntry"];
+                };
+                themeTokens: {
+                    accent: string;
+                    background: string;
+                    text: string;
+                    /** @enum {unknown} */
+                    fontFamily: "system" | "sans" | "serif";
+                    /** @enum {unknown} */
+                    density: "compact" | "comfortable";
+                    radius: number;
+                    fieldGap?: number;
+                    sectionGap?: number;
+                    pagePadding?: number;
+                    responsive?: {
+                        /** @constant */
+                        compactMaxWidth: 639;
+                        /** @constant */
+                        mediumMaxWidth: 1023;
+                        wideColumns: number;
+                    };
+                };
+                theme: {
+                    themeKey: components["schemas"]["key"];
+                    version: string;
+                    tokens: components["schemas"]["themeTokens"];
+                };
+                pluralPart: {
+                    count: components["schemas"]["expression.schema"];
+                    cases: {
+                        [key: string]: components["schemas"]["message"];
+                    };
+                };
+                localeBundle: {
+                    /** @enum {unknown} */
+                    direction: "ltr" | "rtl";
+                    messages: {
+                        [key: string]: components["schemas"]["translation"];
+                    };
+                    pronunciations?: string[];
+                    /** @enum {unknown} */
+                    reviewState?: "approved-prd-fixed-values" | "approved";
+                };
+                route: {
+                    id: components["schemas"]["id"];
+                    targetPageId: components["schemas"]["id"];
+                    whenExpressionId: components["schemas"]["id"];
+                };
+                policyRetention: {
+                    policyKey: components["schemas"]["key"];
+                    submissionDays?: number;
+                    draftDays?: number;
+                };
+                policies: {
+                    attachmentsRequiredReady: boolean;
+                    allowVoiceQuestions?: boolean;
+                    confirmationKey?: components["schemas"]["key"];
+                    draftExpiryDays?: number;
+                    /** @enum {unknown} */
+                    guidanceMode?: "text" | "voice" | "none";
+                    narrationAutoplay?: boolean;
+                    /** @enum {unknown} */
+                    presentation?: "grouped" | "linear";
+                    /** @enum {unknown} */
+                    responseAccess?: "anonymous" | "authenticated";
+                    retentionPolicyKey?: components["schemas"]["key"];
+                    retention?: components["schemas"]["policyRetention"];
+                    reviewBeforeSubmit?: boolean;
+                    showProgress?: boolean;
+                    extensions?: components["schemas"]["extensionNamespaces"];
                 };
             };
         } & (unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown);
@@ -2763,6 +3091,7 @@ export interface components {
         /** @description Rate limit exceeded */
         RateLimited: {
             headers: {
+                "Retry-After": components["headers"]["RetryAfter"];
                 [name: string]: unknown;
             };
             content: {
@@ -2807,9 +3136,12 @@ export interface components {
         };
     };
     parameters: {
-        /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+        /**
+         * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+         * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+         */
         IdempotencyKey: components["schemas"]["OpaqueId"];
-        /** @description Opaque snapshot cursor. */
+        /** @description Opaque stable-snapshot cursor. Pages are stable-sorted, duplicate-free and collectively contain every item exactly once. */
         Cursor: string;
         Limit: number;
         /** @example "rev-7" */
@@ -2819,6 +3151,8 @@ export interface components {
     headers: {
         /** @description Strong entity tag. */
         ETag: string;
+        /** @description Seconds until the caller may retry a 429 response. */
+        RetryAfter: number;
         /** @description Content digest for immutable publication bytes. */
         Digest: string;
         /** @description Published contract SHA-256. */
@@ -3108,7 +3442,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -3148,7 +3485,7 @@ export interface operations {
     "OS-get-v1-organizations-o-policies-a6d63aef4b": {
         parameters: {
             query?: {
-                /** @description Opaque snapshot cursor. */
+                /** @description Opaque stable-snapshot cursor. Pages are stable-sorted, duplicate-free and collectively contain every item exactly once. */
                 cursor?: components["parameters"]["Cursor"];
                 limit?: components["parameters"]["Limit"];
             };
@@ -3186,7 +3523,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -3228,7 +3568,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -3266,7 +3609,10 @@ export interface operations {
             header: {
                 /** @example "rev-7" */
                 "If-Match": components["parameters"]["IfMatch"];
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -3309,7 +3655,7 @@ export interface operations {
     "ON-get-v1-organizations-o-users-987876371e": {
         parameters: {
             query?: {
-                /** @description Opaque snapshot cursor. */
+                /** @description Opaque stable-snapshot cursor. Pages are stable-sorted, duplicate-free and collectively contain every item exactly once. */
                 cursor?: components["parameters"]["Cursor"];
                 limit?: components["parameters"]["Limit"];
             };
@@ -3347,7 +3693,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -3389,7 +3738,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -3432,7 +3784,10 @@ export interface operations {
             header: {
                 /** @example "rev-7" */
                 "If-Match": components["parameters"]["IfMatch"];
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -3481,7 +3836,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -3528,7 +3886,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -3547,7 +3908,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["OrganizationUserCreateRequest"];
+                "application/json": components["schemas"]["OrganizationRecoveryRequest"];
             };
         };
         responses: {
@@ -3558,7 +3919,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["OrganizationUserResponse"];
+                    "application/json": components["schemas"]["OrganizationRecoveryResponse"];
                 };
             };
             400: components["responses"]["BadRequest"];
@@ -3577,7 +3938,10 @@ export interface operations {
             header: {
                 /** @example "rev-7" */
                 "If-Match": components["parameters"]["IfMatch"];
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -3621,7 +3985,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -3635,7 +4002,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["PlatformAccountCreateRequest"];
+                "application/json": components["schemas"]["PlatformRecoveryRequest"];
             };
         };
         responses: {
@@ -3646,7 +4013,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PlatformAccountResponse"];
+                    "application/json": components["schemas"]["PlatformRecoveryResponse"];
                 };
             };
             400: components["responses"]["BadRequest"];
@@ -3662,7 +4029,7 @@ export interface operations {
     "ON-get-v1-platform-organizations-69b54638c0": {
         parameters: {
             query?: {
-                /** @description Opaque snapshot cursor. */
+                /** @description Opaque stable-snapshot cursor. Pages are stable-sorted, duplicate-free and collectively contain every item exactly once. */
                 cursor?: components["parameters"]["Cursor"];
                 limit?: components["parameters"]["Limit"];
             };
@@ -3694,7 +4061,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path?: never;
@@ -3732,7 +4102,10 @@ export interface operations {
             header: {
                 /** @example "rev-7" */
                 "If-Match": components["parameters"]["IfMatch"];
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -3776,7 +4149,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -3818,7 +4194,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -3937,7 +4316,10 @@ export interface operations {
             header: {
                 /** @example "rev-7" */
                 "If-Match": components["parameters"]["IfMatch"];
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -3982,7 +4364,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -4025,7 +4410,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -4067,7 +4455,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -4149,7 +4540,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -4192,7 +4586,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -4258,7 +4655,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FormResponse"];
+                    "application/json": components["schemas"]["AuthorizedAssetResponse"];
                 };
             };
             400: components["responses"]["BadRequest"];
@@ -4310,7 +4707,7 @@ export interface operations {
     "OS-get-v1-workspaces-w-blocks-35b551084c": {
         parameters: {
             query?: {
-                /** @description Opaque snapshot cursor. */
+                /** @description Opaque stable-snapshot cursor. Pages are stable-sorted, duplicate-free and collectively contain every item exactly once. */
                 cursor?: components["parameters"]["Cursor"];
                 limit?: components["parameters"]["Limit"];
             };
@@ -4348,7 +4745,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -4390,7 +4790,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -4428,7 +4831,10 @@ export interface operations {
             header: {
                 /** @example "rev-7" */
                 "If-Match": components["parameters"]["IfMatch"];
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -4472,7 +4878,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -4513,7 +4922,7 @@ export interface operations {
     "OS-get-v1-workspaces-w-folders-33ea83deb0": {
         parameters: {
             query?: {
-                /** @description Opaque snapshot cursor. */
+                /** @description Opaque stable-snapshot cursor. Pages are stable-sorted, duplicate-free and collectively contain every item exactly once. */
                 cursor?: components["parameters"]["Cursor"];
                 limit?: components["parameters"]["Limit"];
             };
@@ -4551,7 +4960,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -4593,7 +5005,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -4631,7 +5046,10 @@ export interface operations {
             header: {
                 /** @example "rev-7" */
                 "If-Match": components["parameters"]["IfMatch"];
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -4674,7 +5092,7 @@ export interface operations {
     "ON-get-v1-workspaces-w-forms-2cc818d28d": {
         parameters: {
             query?: {
-                /** @description Opaque snapshot cursor. */
+                /** @description Opaque stable-snapshot cursor. Pages are stable-sorted, duplicate-free and collectively contain every item exactly once. */
                 cursor?: components["parameters"]["Cursor"];
                 limit?: components["parameters"]["Limit"];
             };
@@ -4712,7 +5130,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -4756,7 +5177,10 @@ export interface operations {
             header: {
                 /** @example "rev-7" */
                 "If-Match": components["parameters"]["IfMatch"];
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -4850,7 +5274,10 @@ export interface operations {
             header: {
                 /** @example "rev-7" */
                 "If-Match": components["parameters"]["IfMatch"];
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -4904,7 +5331,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -4956,7 +5386,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -5046,7 +5479,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -5135,7 +5571,7 @@ export interface operations {
     "OS-get-v1-workspaces-w-forms-f-share-channels-90d75f7164": {
         parameters: {
             query?: {
-                /** @description Opaque snapshot cursor. */
+                /** @description Opaque stable-snapshot cursor. Pages are stable-sorted, duplicate-free and collectively contain every item exactly once. */
                 cursor?: components["parameters"]["Cursor"];
                 limit?: components["parameters"]["Limit"];
             };
@@ -5178,7 +5614,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -5225,7 +5664,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -5268,7 +5710,10 @@ export interface operations {
             header: {
                 /** @example "rev-7" */
                 "If-Match": components["parameters"]["IfMatch"];
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -5317,7 +5762,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -5361,7 +5809,10 @@ export interface operations {
             header: {
                 /** @example "rev-7" */
                 "If-Match": components["parameters"]["IfMatch"];
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -5409,7 +5860,7 @@ export interface operations {
     "OS-get-v1-workspaces-w-locale-bundles-25f01aa1c4": {
         parameters: {
             query?: {
-                /** @description Opaque snapshot cursor. */
+                /** @description Opaque stable-snapshot cursor. Pages are stable-sorted, duplicate-free and collectively contain every item exactly once. */
                 cursor?: components["parameters"]["Cursor"];
                 limit?: components["parameters"]["Limit"];
             };
@@ -5449,7 +5900,10 @@ export interface operations {
             header: {
                 /** @example "rev-7" */
                 "If-Match": components["parameters"]["IfMatch"];
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -5493,7 +5947,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -5535,7 +5992,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -5570,7 +6030,7 @@ export interface operations {
     "ON-get-v1-workspaces-w-submissions-bd7aaa46e9": {
         parameters: {
             query?: {
-                /** @description Opaque snapshot cursor. */
+                /** @description Opaque stable-snapshot cursor. Pages are stable-sorted, duplicate-free and collectively contain every item exactly once. */
                 cursor?: components["parameters"]["Cursor"];
                 limit?: components["parameters"]["Limit"];
             };
@@ -5683,7 +6143,7 @@ export interface operations {
     "OS-get-v1-workspaces-w-tags-3f795dc7ec": {
         parameters: {
             query?: {
-                /** @description Opaque snapshot cursor. */
+                /** @description Opaque stable-snapshot cursor. Pages are stable-sorted, duplicate-free and collectively contain every item exactly once. */
                 cursor?: components["parameters"]["Cursor"];
                 limit?: components["parameters"]["Limit"];
             };
@@ -5721,7 +6181,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -5763,7 +6226,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -5801,7 +6267,10 @@ export interface operations {
             header: {
                 /** @example "rev-7" */
                 "If-Match": components["parameters"]["IfMatch"];
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -5844,7 +6313,7 @@ export interface operations {
     "OS-get-v1-workspaces-w-themes-e7f6771fc2": {
         parameters: {
             query?: {
-                /** @description Opaque snapshot cursor. */
+                /** @description Opaque stable-snapshot cursor. Pages are stable-sorted, duplicate-free and collectively contain every item exactly once. */
                 cursor?: components["parameters"]["Cursor"];
                 limit?: components["parameters"]["Limit"];
             };
@@ -5882,7 +6351,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -5924,7 +6396,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -5962,7 +6437,10 @@ export interface operations {
             header: {
                 /** @example "rev-7" */
                 "If-Match": components["parameters"]["IfMatch"];
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -6008,7 +6486,10 @@ export interface operations {
             header: {
                 /** @example "rev-7" */
                 "If-Match": components["parameters"]["IfMatch"];
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -6057,7 +6538,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -6097,7 +6581,7 @@ export interface operations {
     "ON-get-v1-workspaces-w-webhook-deliveries-f6b56d678f": {
         parameters: {
             query?: {
-                /** @description Opaque snapshot cursor. */
+                /** @description Opaque stable-snapshot cursor. Pages are stable-sorted, duplicate-free and collectively contain every item exactly once. */
                 cursor?: components["parameters"]["Cursor"];
                 limit?: components["parameters"]["Limit"];
             };
@@ -6135,7 +6619,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -6182,7 +6669,10 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @example idem-01J2W5RFR3K24SFWDX2C0N9VW3 */
+                /**
+                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
+                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
+                 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {

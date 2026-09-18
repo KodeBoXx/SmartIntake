@@ -257,7 +257,7 @@ public class Interpretation {
   }
 
   /**
-   * Canonical base-10 decimal string; JSON number is forbidden.
+   * Canonical expression-result decimal string with no redundant fractional zeroes; JSON number is forbidden.
    * @return score
    */
   @jakarta.annotation.Nonnull

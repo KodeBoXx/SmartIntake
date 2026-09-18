@@ -1,0 +1,90 @@
+{
+  "schemaVersion": "4.0.0",
+  "contractVersion": "4.0.0",
+  "engineContract": "4.0.0",
+  "kind": "smart-form-package",
+  "formKey": "minimal",
+  "definitionVersion": "1.0.0",
+  "titleKey": "title",
+  "defaultLocale": "en",
+  "supportedLocales": [
+    "en"
+  ],
+  "translations": {
+    "en": {
+      "direction": "ltr",
+      "messages": {
+        "title": "Minimal intake",
+        "name": "Name"
+      },
+      "pronunciations": []
+    }
+  },
+  "data": {
+    "fields": [
+      {
+        "id": "name",
+        "key": "name",
+        "type": "text",
+        "labelKey": "name"
+      }
+    ]
+  },
+  "flow": {
+    "startPageId": "page1",
+    "phases": [
+      {
+        "id": "phase1",
+        "pages": [
+          {
+            "id": "page1",
+            "key": "page",
+            "labelKey": "title",
+            "sections": [
+              {
+                "id": "section1",
+                "key": "main",
+                "labelKey": "title",
+                "nodes": [
+                  {
+                    "id": "node1",
+                    "kind": "question",
+                    "fieldId": "name",
+                    "fieldType": "text",
+                    "control": "text",
+                    "labelKey": "name"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "expressions": {},
+  "dependencies": [],
+  "policies": {
+    "attachmentsRequiredReady": true
+  },
+  "assets": [],
+  "extensions": {},
+  "guidance": {},
+  "theme": {
+    "themeKey": "accessible_default",
+    "version": "1.0.0",
+    "tokens": {
+      "accent": "#175CD3",
+      "background": "#FFFFFF",
+      "text": "#182230",
+      "fontFamily": "system",
+      "density": "comfortable",
+      "radius": 8,
+      "responsive": {
+        "compactMaxWidth": 639,
+        "mediumMaxWidth": 1023,
+        "wideColumns": 2
+      }
+    }
+  }
+}

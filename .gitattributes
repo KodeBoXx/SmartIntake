@@ -1,0 +1,3 @@
+# OpenAPI Generator 7.10.0 emits whitespace-only continuation lines in checked-in models.
+# Preserve exact pinned-generator output while keeping product-source whitespace checks strict.
+backend/src/generated/java/** -whitespace

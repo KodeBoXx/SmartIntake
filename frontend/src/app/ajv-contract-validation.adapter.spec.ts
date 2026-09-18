@@ -41,4 +41,19 @@ describe('AjvContractValidationAdapter', () => {
     expect(adapter.validate('input-answer', input as Record<string, unknown>).valid).toBe(true);
     expect(adapter.validate('typed-answer', typed as Record<string, unknown>).valid).toBe(true);
   });
+
+  it('matches contract scalar boundaries and calendar formats', () => {
+    const expression = (type: string, value: unknown) => ({ literal: { type, value } });
+    for (const value of ['-9223372036854775808', '9223372036854775807']) {
+      expect(adapter.validate('expression', expression('integer', value)).valid).toBe(true);
+    }
+    expect(adapter.validate('expression', expression('integer', '9223372036854775808')).valid).toBe(false);
+    expect(adapter.validate('expression', expression('decimal', '1234567890123456789012345678901234')).valid).toBe(true);
+    expect(adapter.validate('expression', expression('decimal', '12345678901234567890123456789012345')).valid).toBe(false);
+    // Storage values retain their declared scale while expression results do not.
+    expect(adapter.validate('expression', expression('decimal', '12.50')).valid).toBe(true);
+    expect(adapter.validate('expression', expression('date', '2026-02-30')).valid).toBe(false);
+    expect(adapter.validate('expression', expression('time', '24:00:00')).valid).toBe(false);
+    expect(adapter.validate('expression', expression('dateTime', { instant: '2026-02-30T10:00:00Z', timeZone: 'America/Toronto' })).valid).toBe(false);
+  });
 });

@@ -21,14 +21,14 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
- * PackageDocumentExtensionNamespacesValue
+ * PackageDocumentExtensionValueValue
  */
 @JsonPropertyOrder({
 })
-@JsonTypeName("PackageDocumentExtensionNamespaces_value")
+@JsonTypeName("PackageDocumentExtensionValue_value")
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class PackageDocumentExtensionNamespacesValue {
-  public PackageDocumentExtensionNamespacesValue() {
+public class PackageDocumentExtensionValueValue {
+  public PackageDocumentExtensionValueValue() {
   }
 
   @Override
@@ -50,7 +50,7 @@ public class PackageDocumentExtensionNamespacesValue {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class PackageDocumentExtensionNamespacesValue {\n");
+    sb.append("class PackageDocumentExtensionValueValue {\n");
     sb.append("}");
     return sb.toString();
   }

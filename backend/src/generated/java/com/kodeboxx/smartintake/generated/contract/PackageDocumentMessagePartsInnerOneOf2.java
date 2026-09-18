@@ -20,77 +20,49 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.kodeboxx.smartintake.generated.contract.PackageDocumentPluralPart;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
- * PublishedSchema
+ * PackageDocumentMessagePartsInnerOneOf2
  */
 @JsonPropertyOrder({
-  PublishedSchema.JSON_PROPERTY_TYPE,
-  PublishedSchema.JSON_PROPERTY_TITLE
+  PackageDocumentMessagePartsInnerOneOf2.JSON_PROPERTY_PLURAL
 })
+@JsonTypeName("PackageDocumentMessage_parts_inner_oneOf_2")
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class PublishedSchema {
-  public static final String JSON_PROPERTY_TYPE = "type";
+public class PackageDocumentMessagePartsInnerOneOf2 {
+  public static final String JSON_PROPERTY_PLURAL = "plural";
   @jakarta.annotation.Nonnull
-  private String type;
+  private PackageDocumentPluralPart plural;
 
-  public static final String JSON_PROPERTY_TITLE = "title";
-  @jakarta.annotation.Nullable
-  private String title;
-
-  public PublishedSchema() {
+  public PackageDocumentMessagePartsInnerOneOf2() {
   }
 
-  public PublishedSchema type(@jakarta.annotation.Nonnull String type) {
+  public PackageDocumentMessagePartsInnerOneOf2 plural(@jakarta.annotation.Nonnull PackageDocumentPluralPart plural) {
     
-    this.type = type;
+    this.plural = plural;
     return this;
   }
 
   /**
-   * Get type
-   * @return type
+   * Get plural
+   * @return plural
    */
   @jakarta.annotation.Nonnull
-  @JsonProperty(JSON_PROPERTY_TYPE)
+  @JsonProperty(JSON_PROPERTY_PLURAL)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public String getType() {
-    return type;
+  public PackageDocumentPluralPart getPlural() {
+    return plural;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_TYPE)
+  @JsonProperty(JSON_PROPERTY_PLURAL)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setType(@jakarta.annotation.Nonnull String type) {
-    this.type = type;
-  }
-
-  public PublishedSchema title(@jakarta.annotation.Nullable String title) {
-    
-    this.title = title;
-    return this;
-  }
-
-  /**
-   * Get title
-   * @return title
-   */
-  @jakarta.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_TITLE)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-
-  public String getTitle() {
-    return title;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_TITLE)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setTitle(@jakarta.annotation.Nullable String title) {
-    this.title = title;
+  public void setPlural(@jakarta.annotation.Nonnull PackageDocumentPluralPart plural) {
+    this.plural = plural;
   }
 
   @Override
@@ -101,22 +73,20 @@ public class PublishedSchema {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    PublishedSchema publishedSchema = (PublishedSchema) o;
-    return Objects.equals(this.type, publishedSchema.type) &&
-        Objects.equals(this.title, publishedSchema.title);
+    PackageDocumentMessagePartsInnerOneOf2 packageDocumentMessagePartsInnerOneOf2 = (PackageDocumentMessagePartsInnerOneOf2) o;
+    return Objects.equals(this.plural, packageDocumentMessagePartsInnerOneOf2.plural);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(type, title);
+    return Objects.hash(plural);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class PublishedSchema {\n");
-    sb.append("    type: ").append(toIndentedString(type)).append("\n");
-    sb.append("    title: ").append(toIndentedString(title)).append("\n");
+    sb.append("class PackageDocumentMessagePartsInnerOneOf2 {\n");
+    sb.append("    plural: ").append(toIndentedString(plural)).append("\n");
     sb.append("}");
     return sb.toString();
   }

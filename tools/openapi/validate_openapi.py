@@ -143,6 +143,17 @@ def validate(check_generated: bool) -> list[str]:
     inventory_by_id = {member["id"]: member for member in total["members"]}
     named_ids = {member["id"] for member in named["members"]}
     schemas = components.get("components", {}).get("schemas", {})
+    published_schema = schemas.get("PublishedSchema", {})
+    if published_schema.get("additionalProperties") is False:
+        errors.append("PublishedSchema must accept complete Draft 2020-12 documents, including $defs and extension annotations")
+    for filename in sorted(SCHEMA_FILES):
+        document_schema = json.loads((COMPONENTS.parent / filename).read_text(encoding="utf-8"))
+        error = validate_example(published_schema, document_schema, components)
+        if error:
+            errors.append(f"PublishedSchema must accept served {filename}: {error}")
+    capability = schemas.get("CapabilityRegistry", {})
+    if not {"fieldTypes", "operators"}.issubset(set(capability.get("required", []))):
+        errors.append("CapabilityRegistry must retain deprecated fieldTypes and operators aliases")
     for fallback in FORBIDDEN_FALLBACKS:
         if fallback in schemas:
             errors.append(f"forbidden generic fallback schema {fallback} is declared")
@@ -226,7 +237,7 @@ def validate(check_generated: bool) -> list[str]:
                     if name in FORBIDDEN_FALLBACKS or schema is None:
                         errors.append(f"success response {operation_id} must select a concrete component response schema")
                         continue
-                    if schema.get("type") == "object" and schema.get("additionalProperties") is not False:
+                    if name != "PublishedSchema" and schema.get("type") == "object" and schema.get("additionalProperties") is not False:
                         errors.append(f"success response {operation_id} schema {name} is permissive")
                     values = content_examples(media, components)
                     if not values:
@@ -260,6 +271,8 @@ def validate(check_generated: bool) -> list[str]:
         errors.append("authorized asset endpoint must be exactly one uncounted M2 supplemental operation")
     elif "x-m2-endpoint-design" not in supplemental[0] or supplemental[0].get("x-m0-source-id") != "ONS-authorized-asset-api-prd-568-c6c3e1e8e1":
         errors.append("authorized asset supplemental operation lacks its M0 source/rationale")
+    elif schema_for(supplemental[0]["responses"]["200"]["content"]["application/json"]["schema"], components)[0] != "AuthorizedAssetResponse":
+        errors.append("authorized asset supplement must return AuthorizedAssetResponse")
     refs = external_refs(document) | external_refs(components)
     referenced_names = {ref.rsplit("/", 1)[-1].split("#", 1)[0] for ref in refs if ".schema.json" in ref}
     if not SCHEMA_FILES.issubset(referenced_names):

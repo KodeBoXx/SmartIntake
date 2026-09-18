@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.kodeboxx.smartintake.generated.contract.ExpressionDocumentLiteral;
-import com.kodeboxx.smartintake.generated.contract.ExpressionDocumentReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -35,7 +34,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
  */
 @JsonPropertyOrder({
   ExpressionDocument.JSON_PROPERTY_LITERAL,
-  ExpressionDocument.JSON_PROPERTY_REFERENCE,
+  ExpressionDocument.JSON_PROPERTY_REF,
   ExpressionDocument.JSON_PROPERTY_CONTEXT,
   ExpressionDocument.JSON_PROPERTY_OP,
   ExpressionDocument.JSON_PROPERTY_ARGS
@@ -46,9 +45,9 @@ public class ExpressionDocument extends HashMap<String, Object> {
   @jakarta.annotation.Nullable
   private ExpressionDocumentLiteral literal;
 
-  public static final String JSON_PROPERTY_REFERENCE = "reference";
+  public static final String JSON_PROPERTY_REF = "ref";
   @jakarta.annotation.Nullable
-  private ExpressionDocumentReference reference;
+  private Object ref;
 
   /**
    * Gets or Sets context
@@ -56,11 +55,7 @@ public class ExpressionDocument extends HashMap<String, Object> {
   public enum ContextEnum {
     SESSION_DATE(String.valueOf("sessionDate")),
     
-    SESSION_TIME_ZONE(String.valueOf("sessionTimeZone")),
-    
-    ITEM(String.valueOf("item")),
-    
-    PARENT_ITEM(String.valueOf("parentItem"));
+    SESSION_TIME_ZONE(String.valueOf("sessionTimeZone"));
 
     private String value;
 
@@ -229,29 +224,29 @@ public class ExpressionDocument extends HashMap<String, Object> {
     this.literal = literal;
   }
 
-  public ExpressionDocument reference(@jakarta.annotation.Nullable ExpressionDocumentReference reference) {
+  public ExpressionDocument ref(@jakarta.annotation.Nullable Object ref) {
     
-    this.reference = reference;
+    this.ref = ref;
     return this;
   }
 
   /**
-   * Get reference
-   * @return reference
+   * Get ref
+   * @return ref
    */
   @jakarta.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_REFERENCE)
+  @JsonProperty(JSON_PROPERTY_REF)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
-  public ExpressionDocumentReference getReference() {
-    return reference;
+  public Object getRef() {
+    return ref;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_REFERENCE)
+  @JsonProperty(JSON_PROPERTY_REF)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setReference(@jakarta.annotation.Nullable ExpressionDocumentReference reference) {
-    this.reference = reference;
+  public void setRef(@jakarta.annotation.Nullable Object ref) {
+    this.ref = ref;
   }
 
   public ExpressionDocument context(@jakarta.annotation.Nullable ContextEnum context) {
@@ -347,7 +342,7 @@ public class ExpressionDocument extends HashMap<String, Object> {
     }
     ExpressionDocument expressionDocument = (ExpressionDocument) o;
     return Objects.equals(this.literal, expressionDocument.literal) &&
-        Objects.equals(this.reference, expressionDocument.reference) &&
+        Objects.equals(this.ref, expressionDocument.ref) &&
         Objects.equals(this.context, expressionDocument.context) &&
         Objects.equals(this.op, expressionDocument.op) &&
         Objects.equals(this.args, expressionDocument.args) &&
@@ -356,7 +351,7 @@ public class ExpressionDocument extends HashMap<String, Object> {
 
   @Override
   public int hashCode() {
-    return Objects.hash(literal, reference, context, op, args, super.hashCode());
+    return Objects.hash(literal, ref, context, op, args, super.hashCode());
   }
 
   @Override
@@ -365,7 +360,7 @@ public class ExpressionDocument extends HashMap<String, Object> {
     sb.append("class ExpressionDocument {\n");
     sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    literal: ").append(toIndentedString(literal)).append("\n");
-    sb.append("    reference: ").append(toIndentedString(reference)).append("\n");
+    sb.append("    ref: ").append(toIndentedString(ref)).append("\n");
     sb.append("    context: ").append(toIndentedString(context)).append("\n");
     sb.append("    op: ").append(toIndentedString(op)).append("\n");
     sb.append("    args: ").append(toIndentedString(args)).append("\n");

@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.kodeboxx.smartintake.generated.contract.PackageDocumentExtensionNamespacesValue;
+import com.kodeboxx.smartintake.generated.contract.PackageDocumentExtensionValue;
 import com.kodeboxx.smartintake.generated.contract.PackageDocumentNode;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,7 +38,10 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   PackageDocumentSection.JSON_PROPERTY_KEY,
   PackageDocumentSection.JSON_PROPERTY_LABEL_KEY,
   PackageDocumentSection.JSON_PROPERTY_NODES,
-  PackageDocumentSection.JSON_PROPERTY_EXTENSIONS
+  PackageDocumentSection.JSON_PROPERTY_EXTENSIONS,
+  PackageDocumentSection.JSON_PROPERTY_GUIDANCE_ID,
+  PackageDocumentSection.JSON_PROPERTY_LAYOUT,
+  PackageDocumentSection.JSON_PROPERTY_TITLE_KEY
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
 public class PackageDocumentSection {
@@ -60,7 +63,54 @@ public class PackageDocumentSection {
 
   public static final String JSON_PROPERTY_EXTENSIONS = "extensions";
   @jakarta.annotation.Nullable
-  private Map<String, PackageDocumentExtensionNamespacesValue> extensions = new HashMap<>();
+  private Map<String, PackageDocumentExtensionValue> extensions = new HashMap<>();
+
+  public static final String JSON_PROPERTY_GUIDANCE_ID = "guidanceId";
+  @jakarta.annotation.Nullable
+  private String guidanceId;
+
+  /**
+   * Gets or Sets layout
+   */
+  public enum LayoutEnum {
+    STACK(String.valueOf("stack")),
+    
+    GRID(String.valueOf("grid"));
+
+    private String value;
+
+    LayoutEnum(String value) {
+      this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    @JsonCreator
+    public static LayoutEnum fromValue(String value) {
+      for (LayoutEnum b : LayoutEnum.values()) {
+        if (b.value.equals(value)) {
+          return b;
+        }
+      }
+      throw new IllegalArgumentException("Unexpected value '" + value + "'");
+    }
+  }
+
+  public static final String JSON_PROPERTY_LAYOUT = "layout";
+  @jakarta.annotation.Nullable
+  private LayoutEnum layout;
+
+  public static final String JSON_PROPERTY_TITLE_KEY = "titleKey";
+  @jakarta.annotation.Nullable
+  private String titleKey;
 
   public PackageDocumentSection() {
   }
@@ -173,13 +223,13 @@ public class PackageDocumentSection {
     this.nodes = nodes;
   }
 
-  public PackageDocumentSection extensions(@jakarta.annotation.Nullable Map<String, PackageDocumentExtensionNamespacesValue> extensions) {
+  public PackageDocumentSection extensions(@jakarta.annotation.Nullable Map<String, PackageDocumentExtensionValue> extensions) {
     
     this.extensions = extensions;
     return this;
   }
 
-  public PackageDocumentSection putExtensionsItem(String key, PackageDocumentExtensionNamespacesValue extensionsItem) {
+  public PackageDocumentSection putExtensionsItem(String key, PackageDocumentExtensionValue extensionsItem) {
     if (this.extensions == null) {
       this.extensions = new HashMap<>();
     }
@@ -188,22 +238,97 @@ public class PackageDocumentSection {
   }
 
   /**
-   * Get extensions
+   * Closed, dependency-bound extension descriptor; unregistered bindings are compiler errors.
    * @return extensions
    */
   @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_EXTENSIONS)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
-  public Map<String, PackageDocumentExtensionNamespacesValue> getExtensions() {
+  public Map<String, PackageDocumentExtensionValue> getExtensions() {
     return extensions;
   }
 
 
   @JsonProperty(JSON_PROPERTY_EXTENSIONS)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
-  public void setExtensions(@jakarta.annotation.Nullable Map<String, PackageDocumentExtensionNamespacesValue> extensions) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setExtensions(@jakarta.annotation.Nullable Map<String, PackageDocumentExtensionValue> extensions) {
     this.extensions = extensions;
+  }
+
+  public PackageDocumentSection guidanceId(@jakarta.annotation.Nullable String guidanceId) {
+    
+    this.guidanceId = guidanceId;
+    return this;
+  }
+
+  /**
+   * Get guidanceId
+   * @return guidanceId
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_GUIDANCE_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public String getGuidanceId() {
+    return guidanceId;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_GUIDANCE_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setGuidanceId(@jakarta.annotation.Nullable String guidanceId) {
+    this.guidanceId = guidanceId;
+  }
+
+  public PackageDocumentSection layout(@jakarta.annotation.Nullable LayoutEnum layout) {
+    
+    this.layout = layout;
+    return this;
+  }
+
+  /**
+   * Get layout
+   * @return layout
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_LAYOUT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public LayoutEnum getLayout() {
+    return layout;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_LAYOUT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setLayout(@jakarta.annotation.Nullable LayoutEnum layout) {
+    this.layout = layout;
+  }
+
+  public PackageDocumentSection titleKey(@jakarta.annotation.Nullable String titleKey) {
+    
+    this.titleKey = titleKey;
+    return this;
+  }
+
+  /**
+   * Get titleKey
+   * @return titleKey
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_TITLE_KEY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public String getTitleKey() {
+    return titleKey;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_TITLE_KEY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setTitleKey(@jakarta.annotation.Nullable String titleKey) {
+    this.titleKey = titleKey;
   }
 
   @Override
@@ -219,12 +344,15 @@ public class PackageDocumentSection {
         Objects.equals(this.key, packageDocumentSection.key) &&
         Objects.equals(this.labelKey, packageDocumentSection.labelKey) &&
         Objects.equals(this.nodes, packageDocumentSection.nodes) &&
-        Objects.equals(this.extensions, packageDocumentSection.extensions);
+        Objects.equals(this.extensions, packageDocumentSection.extensions) &&
+        Objects.equals(this.guidanceId, packageDocumentSection.guidanceId) &&
+        Objects.equals(this.layout, packageDocumentSection.layout) &&
+        Objects.equals(this.titleKey, packageDocumentSection.titleKey);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, key, labelKey, nodes, extensions);
+    return Objects.hash(id, key, labelKey, nodes, extensions, guidanceId, layout, titleKey);
   }
 
   @Override
@@ -236,6 +364,9 @@ public class PackageDocumentSection {
     sb.append("    labelKey: ").append(toIndentedString(labelKey)).append("\n");
     sb.append("    nodes: ").append(toIndentedString(nodes)).append("\n");
     sb.append("    extensions: ").append(toIndentedString(extensions)).append("\n");
+    sb.append("    guidanceId: ").append(toIndentedString(guidanceId)).append("\n");
+    sb.append("    layout: ").append(toIndentedString(layout)).append("\n");
+    sb.append("    titleKey: ").append(toIndentedString(titleKey)).append("\n");
     sb.append("}");
     return sb.toString();
   }

@@ -21,9 +21,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.kodeboxx.smartintake.generated.contract.PackageDocumentExtensionNamespacesValue;
 import com.kodeboxx.smartintake.generated.contract.RuntimeManifestDocumentAsset;
 import com.kodeboxx.smartintake.generated.contract.RuntimeManifestDocumentComponent;
+import com.kodeboxx.smartintake.generated.contract.RuntimeManifestDocumentExtensionValue;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -91,7 +91,7 @@ public class RuntimeManifestDocument extends HashMap<String, Object> {
 
   public static final String JSON_PROPERTY_EXTENSIONS = "extensions";
   @jakarta.annotation.Nonnull
-  private Map<String, PackageDocumentExtensionNamespacesValue> extensions = new HashMap<>();
+  private Map<String, RuntimeManifestDocumentExtensionValue> extensions = new HashMap<>();
 
   public RuntimeManifestDocument() {
 
@@ -365,33 +365,33 @@ public class RuntimeManifestDocument extends HashMap<String, Object> {
     this.resolvedAssets = resolvedAssets;
   }
 
-  public RuntimeManifestDocument extensions(@jakarta.annotation.Nonnull Map<String, PackageDocumentExtensionNamespacesValue> extensions) {
+  public RuntimeManifestDocument extensions(@jakarta.annotation.Nonnull Map<String, RuntimeManifestDocumentExtensionValue> extensions) {
     
     this.extensions = extensions;
     return this;
   }
 
-  public RuntimeManifestDocument putExtensionsItem(String key, PackageDocumentExtensionNamespacesValue extensionsItem) {
+  public RuntimeManifestDocument putExtensionsItem(String key, RuntimeManifestDocumentExtensionValue extensionsItem) {
     this.extensions.put(key, extensionsItem);
     return this;
   }
 
   /**
-   * Get extensions
+   * Closed, dependency-bound extension descriptor; unregistered bindings are compiler errors.
    * @return extensions
    */
   @jakarta.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_EXTENSIONS)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public Map<String, PackageDocumentExtensionNamespacesValue> getExtensions() {
+  public Map<String, RuntimeManifestDocumentExtensionValue> getExtensions() {
     return extensions;
   }
 
 
   @JsonProperty(JSON_PROPERTY_EXTENSIONS)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.ALWAYS)
-  public void setExtensions(@jakarta.annotation.Nonnull Map<String, PackageDocumentExtensionNamespacesValue> extensions) {
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setExtensions(@jakarta.annotation.Nonnull Map<String, RuntimeManifestDocumentExtensionValue> extensions) {
     this.extensions = extensions;
   }
 

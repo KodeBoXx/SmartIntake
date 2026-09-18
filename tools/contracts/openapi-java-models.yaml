@@ -61,8 +61,11 @@ paths:
                   displayName: A. Author
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
+      x-secret-issuance-replay: Secret, activation, reset and session issuance never replay credentials, tokens, cookies or
+        transfer capabilities; a replay response is redacted.
   /v1/auth/password-change:
     post:
       operationId: ON-post-v1-auth-password-change-98d74c881d
@@ -118,8 +121,9 @@ paths:
                   newPassword: new-correct-horse-battery
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/auth/recovery:
     post:
       operationId: ON-post-v1-auth-recovery-759d7b6e5a
@@ -186,8 +190,11 @@ paths:
                   email: author@example.test
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
+      x-secret-issuance-replay: Secret, activation, reset and session issuance never replay credentials, tokens, cookies or
+        transfer capabilities; a replay response is redacted.
   /v1/auth/reset:
     post:
       operationId: ON-post-v1-auth-reset-7cc02daaf6
@@ -240,8 +247,11 @@ paths:
                   newPassword: new-correct-horse-battery
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
+      x-secret-issuance-replay: Secret, activation, reset and session issuance never replay credentials, tokens, cookies or
+        transfer capabilities; a replay response is redacted.
   /v1/auth/session:
     get:
       operationId: ON-get-v1-auth-session-4664ebe0bc
@@ -365,8 +375,13 @@ paths:
                   password: correct-horse-battery-staple
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
+      x-secret-issuance-replay: Secret, activation, reset and session issuance never replay credentials, tokens, cookies or
+        transfer capabilities; a replay response is redacted.
+      x-login-csrf-origin-protection: Validate an allow-listed Origin and a one-time login-CSRF token before issuing a SameSite,
+        HttpOnly staff cookie.
   /v1/auth/sign-out:
     post:
       operationId: ON-post-v1-auth-sign-out-a46dbecd13
@@ -421,8 +436,9 @@ paths:
                   name: Example resource
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/capabilities:
     get:
       operationId: ON-get-v1-capabilities-ca77d2f932
@@ -529,8 +545,11 @@ paths:
                   password: correct-horse-battery-staple
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
+      x-secret-issuance-replay: Secret, activation, reset and session issuance never replay credentials, tokens, cookies or
+        transfer capabilities; a replay response is redacted.
   /v1/organizations/{o}/invitations/{i}:
     delete:
       operationId: ON-delete-v1-organizations-o-invitations-i-f4f64aadd7
@@ -590,8 +609,9 @@ paths:
       - staffCookie: []
         csrfHeader: []
       x-request-body: none
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/organizations/{o}/policies:
     get:
       operationId: OS-get-v1-organizations-o-policies-a6d63aef4b
@@ -658,6 +678,8 @@ paths:
       - $ref: '#/components/parameters/Limit'
       security:
       - staffCookie: []
+      x-pagination: 'Results use a stable total order and a snapshot cursor: no duplicate items, no missing items, and deterministic
+        continuation while the cursor is valid.'
     post:
       operationId: OS-post-v1-organizations-o-policies-18ae7aa567
       summary: POST /v1/organizations/{o}/policies (policy objects)
@@ -736,8 +758,9 @@ paths:
                   policyType: retention
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
     patch:
       operationId: OS-patch-v1-organizations-o-policies-408a57e0ec
       summary: PATCH /v1/organizations/{o}/policies (policy objects)
@@ -821,8 +844,9 @@ paths:
                   policyType: retention
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale is 412.
     delete:
       operationId: OS-delete-v1-organizations-o-policies-8804100c92
@@ -875,8 +899,9 @@ paths:
       - staffCookie: []
         csrfHeader: []
       x-request-body: none
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/organizations/{o}/users:
     get:
       operationId: ON-get-v1-organizations-o-users-987876371e
@@ -944,6 +969,8 @@ paths:
       - $ref: '#/components/parameters/Limit'
       security:
       - staffCookie: []
+      x-pagination: 'Results use a stable total order and a snapshot cursor: no duplicate items, no missing items, and deterministic
+        continuation while the cursor is valid.'
     post:
       operationId: ON-post-v1-organizations-o-users-5260bb3701
       summary: POST /v1/organizations/{o}/users
@@ -1023,8 +1050,9 @@ paths:
                   email: author@example.test
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/organizations/{o}/users/{u}:
     patch:
       operationId: ON-patch-v1-organizations-o-users-u-64340c0fdf
@@ -1117,8 +1145,9 @@ paths:
                   email: author@example.test
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale is 412.
     delete:
       operationId: ON-delete-v1-organizations-o-users-u-e9143ed806
@@ -1178,8 +1207,9 @@ paths:
       - staffCookie: []
         csrfHeader: []
       x-request-body: none
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/organizations/{o}/users/{u}/invitations:
     post:
       operationId: ON-post-v1-organizations-o-users-u-invitations-2caab11b76
@@ -1266,8 +1296,9 @@ paths:
                   name: Example resource
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/organizations/{o}/users/{u}/recovery:
     post:
       operationId: ON-post-v1-organizations-o-users-u-recovery-c327e4cd74
@@ -1293,21 +1324,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OrganizationUserResponse'
+                $ref: '#/components/schemas/OrganizationRecoveryResponse'
               examples:
                 success:
                   value:
                     requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
-                    organizationUser:
-                      id: organizationuser-01J2W5RFR3K24SFWDX2C0N9VW3
-                      kind: OrganizationUser
+                    organizationRecovery:
+                      id: organizationrecovery-01J2W5RFR3K24SFWDX2C0N9VW3
+                      kind: OrganizationRecovery
                       revision: 7
                       status: active
                       createdAt: '2026-09-18T00:00:00Z'
                       updatedAt: '2026-09-18T00:00:00Z'
-                      email: author@example.test
-                      roles:
-                      - administrator
+                      safeDelivery: verified-email
+                      revocation: sessions-revoked
+                      ownerSafety: confirmed
+                      idempotencyReplay: redacted
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1348,15 +1380,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OrganizationUserCreateRequest'
+              $ref: '#/components/schemas/OrganizationRecoveryRequest'
             examples:
               valid:
                 value:
-                  email: author@example.test
+                  reason: Account recovery requested by verified owner.
+                  safeDelivery: verified-email
+                  revokeExistingSessions: true
+                  ownerSafetyConfirmed: true
+                  idempotencyReplay: redacted
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/platform/accounts/{a}:
     patch:
       operationId: ON-patch-v1-platform-accounts-a-05f292a1f5
@@ -1440,8 +1477,9 @@ paths:
                   accountStatus: active
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale is 412.
   /v1/platform/accounts/{a}/recovery:
     post:
@@ -1468,19 +1506,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PlatformAccountResponse'
+                $ref: '#/components/schemas/PlatformRecoveryResponse'
               examples:
                 success:
                   value:
                     requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
-                    platformAccount:
-                      id: platformaccount-01J2W5RFR3K24SFWDX2C0N9VW3
-                      kind: PlatformAccount
+                    platformRecovery:
+                      id: platformrecovery-01J2W5RFR3K24SFWDX2C0N9VW3
+                      kind: PlatformRecovery
                       revision: 7
                       status: active
                       createdAt: '2026-09-18T00:00:00Z'
                       updatedAt: '2026-09-18T00:00:00Z'
-                      accountStatus: active
+                      safeDelivery: manual-security-review
+                      revocation: sessions-revoked
+                      ownerSafety: confirmed
+                      idempotencyReplay: redacted
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1514,15 +1555,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PlatformAccountCreateRequest'
+              $ref: '#/components/schemas/PlatformRecoveryRequest'
             examples:
               valid:
                 value:
-                  accountStatus: active
+                  reason: Platform account recovery requires security review.
+                  safeDelivery: manual-security-review
+                  revokeExistingSessions: true
+                  ownerSafetyConfirmed: true
+                  idempotencyReplay: redacted
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/platform/organizations:
     get:
       operationId: ON-get-v1-platform-organizations-69b54638c0
@@ -1581,6 +1627,8 @@ paths:
       - $ref: '#/components/parameters/Limit'
       security:
       - staffCookie: []
+      x-pagination: 'Results use a stable total order and a snapshot cursor: no duplicate items, no missing items, and deterministic
+        continuation while the cursor is valid.'
     post:
       operationId: ON-post-v1-platform-organizations-77f778ca30
       summary: POST /v1/platform/organizations
@@ -1651,8 +1699,9 @@ paths:
                   name: Example resource
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/platform/organizations/{o}:
     patch:
       operationId: ON-patch-v1-platform-organizations-o-f7c610cd38
@@ -1736,8 +1785,9 @@ paths:
                   name: Example resource
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale is 412.
   /v1/platform/organizations/{o}/users:
     post:
@@ -1819,8 +1869,9 @@ paths:
                   email: author@example.test
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/public/forms/{shareId}/sessions:
     post:
       operationId: ON-post-v1-public-forms-shareid-sessions-1ca37406cb
@@ -1901,8 +1952,9 @@ paths:
                   timeZone: America/Toronto
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/schemas/{kind}/{version}:
     get:
       operationId: ON-get-v1-schemas-kind-version-4c108bde88
@@ -2119,8 +2171,9 @@ paths:
                     value: '9007199254740993'
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
       x-concurrency: baseRevision is required; stale base is 409 without partial application; identical clientMutationId/body
         replays first.
   /v1/sessions/{s}/attachments:
@@ -2208,8 +2261,9 @@ paths:
                   sha256: '0000000000000000000000000000000000000000000000000000000000000000'
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/sessions/{s}/attachments/{a}:
     delete:
       operationId: ON-delete-v1-sessions-s-attachments-a-d6208a4e81
@@ -2270,8 +2324,9 @@ paths:
       security:
       - respondentSession: []
       x-request-body: none
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/sessions/{s}/attachments/{a}/complete:
     post:
       operationId: ON-post-v1-sessions-s-attachments-a-complete-7605aab1bc
@@ -2362,8 +2417,9 @@ paths:
                   sha256: '0000000000000000000000000000000000000000000000000000000000000000'
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/sessions/{s}/submission-operation:
     get:
       operationId: ON-get-v1-sessions-s-submission-operation-978f11ba2b
@@ -2512,8 +2568,9 @@ paths:
                   attemptId: attempt-01J2W5RFR3K24SFWDX2C0N9VW3
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/sessions/{s}/validate:
     post:
       operationId: ON-post-v1-sessions-s-validate-dde1446480
@@ -2594,8 +2651,9 @@ paths:
                   validationProfile: draft
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/workspaces/{w}/assets/{assetId}:
     get:
       operationId: M2-get-v1-workspaces-w-assets-assetid-authorized-asset
@@ -2622,20 +2680,21 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FormResponse'
+                $ref: '#/components/schemas/AuthorizedAssetResponse'
               examples:
                 success:
                   value:
                     requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
-                    form:
-                      id: form-01J2W5RFR3K24SFWDX2C0N9VW3
-                      kind: Form
+                    authorizedAsset:
+                      id: authorizedasset-01J2W5RFR3K24SFWDX2C0N9VW3
+                      kind: AuthorizedAsset
                       revision: 7
                       status: active
                       createdAt: '2026-09-18T00:00:00Z'
                       updatedAt: '2026-09-18T00:00:00Z'
-                      formKey: example-form
-                      title: Example form
+                      downloadUrl: https://transfer.example.test/assets/asset-01J2W5RFR3K24SFWDX2C0N9VW3?capability=redacted
+                      expiresAt: '2026-09-18T00:05:00Z'
+                      contentType: application/pdf
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -2791,6 +2850,8 @@ paths:
       - $ref: '#/components/parameters/Limit'
       security:
       - staffCookie: []
+      x-pagination: 'Results use a stable total order and a snapshot cursor: no duplicate items, no missing items, and deterministic
+        continuation while the cursor is valid.'
     post:
       operationId: OS-post-v1-workspaces-w-blocks-11cec73326
       summary: POST /v1/workspaces/{w}/blocks (reusable blocks)
@@ -2868,8 +2929,9 @@ paths:
                   blockType: markdown
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
     patch:
       operationId: OS-patch-v1-workspaces-w-blocks-4d63d8c148
       summary: PATCH /v1/workspaces/{w}/blocks (reusable blocks)
@@ -2952,8 +3014,9 @@ paths:
                   blockType: markdown
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale is 412.
     delete:
       operationId: OS-delete-v1-workspaces-w-blocks-dfd6869ed8
@@ -3006,8 +3069,9 @@ paths:
       - staffCookie: []
         csrfHeader: []
       x-request-body: none
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/workspaces/{w}/exports:
     post:
       operationId: ON-post-v1-workspaces-w-exports-380db1264c
@@ -3095,8 +3159,9 @@ paths:
                   - answers
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/workspaces/{w}/folders:
     get:
       operationId: OS-get-v1-workspaces-w-folders-33ea83deb0
@@ -3162,6 +3227,8 @@ paths:
       - $ref: '#/components/parameters/Limit'
       security:
       - staffCookie: []
+      x-pagination: 'Results use a stable total order and a snapshot cursor: no duplicate items, no missing items, and deterministic
+        continuation while the cursor is valid.'
     post:
       operationId: OS-post-v1-workspaces-w-folders-04335a99f1
       summary: POST /v1/workspaces/{w}/folders (catalog folders)
@@ -3239,8 +3306,9 @@ paths:
                   name: Example resource
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
     patch:
       operationId: OS-patch-v1-workspaces-w-folders-462f91440e
       summary: PATCH /v1/workspaces/{w}/folders (catalog folders)
@@ -3323,8 +3391,9 @@ paths:
                   name: Example resource
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale is 412.
     delete:
       operationId: OS-delete-v1-workspaces-w-folders-bf3ff71abf
@@ -3377,8 +3446,9 @@ paths:
       - staffCookie: []
         csrfHeader: []
       x-request-body: none
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/workspaces/{w}/forms:
     post:
       operationId: ON-post-v1-workspaces-w-forms-89f650ba42
@@ -3458,8 +3528,9 @@ paths:
                   formKey: example-form
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
     get:
       operationId: ON-get-v1-workspaces-w-forms-2cc818d28d
       summary: GET /v1/workspaces/{w}/forms
@@ -3525,6 +3596,8 @@ paths:
       - $ref: '#/components/parameters/Limit'
       security:
       - staffCookie: []
+      x-pagination: 'Results use a stable total order and a snapshot cursor: no duplicate items, no missing items, and deterministic
+        continuation while the cursor is valid.'
   /v1/workspaces/{w}/forms/{f}/activation:
     post:
       operationId: ON-post-v1-workspaces-w-forms-f-activation-960c53c753
@@ -3617,8 +3690,9 @@ paths:
                   - share-01J2W5RFR3K24SFWDX2C0N9VW3
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale is 412.
   /v1/workspaces/{w}/forms/{f}/drafts/{d}:
     get:
@@ -3802,11 +3876,15 @@ paths:
                     - en
                     translations:
                       en:
-                        title: Intake
-                        amount: Amount
-                        name: Name
-                        attendees: Attendees
-                        attendee_name: Attendee name
+                        direction: ltr
+                        messages:
+                          title: Intake
+                          amount: Amount
+                          name: Name
+                          attendees: Attendees
+                          attendee_name: Attendee name
+                        pronunciations: []
+                        reviewState: approved
                     data:
                       fields:
                       - id: name
@@ -3883,18 +3961,41 @@ paths:
                         - literal:
                             type: decimal
                             value: '2.5'
-                    dependencies: []
+                    dependencies:
+                    - kind: extension
+                      id: exampleExtension
+                      version: 1.0.0
+                      digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
                     policies:
                       attachmentsRequiredReady: true
                     assets: []
                     extensions:
                       x-example.org:
-                        profile: representative
+                        dependencyId: exampleExtension
+                        version: 1.0.0
+                        digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                        value: representative
+                    guidance: {}
+                    theme:
+                      themeKey: accessible_default
+                      version: 1.0.0
+                      tokens:
+                        accent: '#175CD3'
+                        background: '#FFFFFF'
+                        text: '#182230'
+                        fontFamily: system
+                        density: comfortable
+                        radius: 8
+                        responsive:
+                          compactMaxWidth: 639
+                          mediumMaxWidth: 1023
+                          wideColumns: 2
                   editNote: Clarify consent wording.
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale is 412.
   /v1/workspaces/{w}/forms/{f}/drafts/{d}/review-requests:
     post:
@@ -3991,8 +4092,9 @@ paths:
                   message: Please review the release candidate.
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/workspaces/{w}/forms/{f}/drafts/{d}/validate:
     post:
       operationId: ON-post-v1-workspaces-w-forms-f-drafts-d-validate-a7ada56c4b
@@ -4086,8 +4188,9 @@ paths:
                   validationProfile: draft
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/workspaces/{w}/forms/{f}/export:
     get:
       operationId: ON-get-v1-workspaces-w-forms-f-export-3040e326d5
@@ -4138,11 +4241,15 @@ paths:
                         - en
                         translations:
                           en:
-                            title: Intake
-                            amount: Amount
-                            name: Name
-                            attendees: Attendees
-                            attendee_name: Attendee name
+                            direction: ltr
+                            messages:
+                              title: Intake
+                              amount: Amount
+                              name: Name
+                              attendees: Attendees
+                              attendee_name: Attendee name
+                            pronunciations: []
+                            reviewState: approved
                         data:
                           fields:
                           - id: name
@@ -4219,13 +4326,35 @@ paths:
                             - literal:
                                 type: decimal
                                 value: '2.5'
-                        dependencies: []
+                        dependencies:
+                        - kind: extension
+                          id: exampleExtension
+                          version: 1.0.0
+                          digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
                         policies:
                           attachmentsRequiredReady: true
                         assets: []
                         extensions:
                           x-example.org:
-                            profile: representative
+                            dependencyId: exampleExtension
+                            version: 1.0.0
+                            digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                            value: representative
+                        guidance: {}
+                        theme:
+                          themeKey: accessible_default
+                          version: 1.0.0
+                          tokens:
+                            accent: '#175CD3'
+                            background: '#FFFFFF'
+                            text: '#182230'
+                            fontFamily: system
+                            density: comfortable
+                            radius: 8
+                            responsive:
+                              compactMaxWidth: 639
+                              mediumMaxWidth: 1023
+                              wideColumns: 2
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -4344,8 +4473,9 @@ paths:
                   packageHash: '0000000000000000000000000000000000000000000000000000000000000000'
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/workspaces/{w}/forms/{f}/releases/{releaseId}:
     get:
       operationId: ON-get-v1-workspaces-w-forms-f-releases-releaseid-b49fe24697
@@ -4495,6 +4625,8 @@ paths:
       - $ref: '#/components/parameters/Limit'
       security:
       - staffCookie: []
+      x-pagination: 'Results use a stable total order and a snapshot cursor: no duplicate items, no missing items, and deterministic
+        continuation while the cursor is valid.'
     post:
       operationId: OS-post-v1-workspaces-w-forms-f-share-channels-3fcc12bdba
       summary: POST /v1/workspaces/{w}/forms/{f}/share-channels (share channels)
@@ -4580,8 +4712,9 @@ paths:
                   channelType: link
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
     patch:
       operationId: OS-patch-v1-workspaces-w-forms-f-share-channels-32a04eeaba
       summary: PATCH /v1/workspaces/{w}/forms/{f}/share-channels (share channels)
@@ -4672,8 +4805,9 @@ paths:
                   channelType: link
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale is 412.
     delete:
       operationId: OS-delete-v1-workspaces-w-forms-f-share-channels-d635d8c3a7
@@ -4733,8 +4867,9 @@ paths:
       - staffCookie: []
         csrfHeader: []
       x-request-body: none
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/workspaces/{w}/imports/validate:
     post:
       operationId: ON-post-v1-workspaces-w-imports-validate-57f09aa4ca
@@ -4825,11 +4960,15 @@ paths:
                     - en
                     translations:
                       en:
-                        title: Intake
-                        amount: Amount
-                        name: Name
-                        attendees: Attendees
-                        attendee_name: Attendee name
+                        direction: ltr
+                        messages:
+                          title: Intake
+                          amount: Amount
+                          name: Name
+                          attendees: Attendees
+                          attendee_name: Attendee name
+                        pronunciations: []
+                        reviewState: approved
                     data:
                       fields:
                       - id: name
@@ -4906,17 +5045,40 @@ paths:
                         - literal:
                             type: decimal
                             value: '2.5'
-                    dependencies: []
+                    dependencies:
+                    - kind: extension
+                      id: exampleExtension
+                      version: 1.0.0
+                      digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
                     policies:
                       attachmentsRequiredReady: true
                     assets: []
                     extensions:
                       x-example.org:
-                        profile: representative
+                        dependencyId: exampleExtension
+                        version: 1.0.0
+                        digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                        value: representative
+                    guidance: {}
+                    theme:
+                      themeKey: accessible_default
+                      version: 1.0.0
+                      tokens:
+                        accent: '#175CD3'
+                        background: '#FFFFFF'
+                        text: '#182230'
+                        fontFamily: system
+                        density: comfortable
+                        radius: 8
+                        responsive:
+                          compactMaxWidth: 639
+                          mediumMaxWidth: 1023
+                          wideColumns: 2
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/workspaces/{w}/imports/{candidateId}/commit:
     post:
       operationId: ON-post-v1-workspaces-w-imports-candidateid-commit-9f77424a8c
@@ -5009,8 +5171,9 @@ paths:
                   expectedDraftRevision: 7
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale is 412.
   /v1/workspaces/{w}/locale-bundles:
     get:
@@ -5077,6 +5240,8 @@ paths:
       - $ref: '#/components/parameters/Limit'
       security:
       - staffCookie: []
+      x-pagination: 'Results use a stable total order and a snapshot cursor: no duplicate items, no missing items, and deterministic
+        continuation while the cursor is valid.'
     post:
       operationId: OS-post-v1-workspaces-w-locale-bundles-faa51eb04a
       summary: POST /v1/workspaces/{w}/locale-bundles (locale bundles)
@@ -5154,8 +5319,9 @@ paths:
                   locale: en-US
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
     put:
       operationId: OS-put-v1-workspaces-w-locale-bundles-b34aedaa7f
       summary: PUT /v1/workspaces/{w}/locale-bundles (locale bundles)
@@ -5238,8 +5404,9 @@ paths:
                   locale: en-US
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale is 412.
     delete:
       operationId: OS-delete-v1-workspaces-w-locale-bundles-195b03e546
@@ -5292,8 +5459,9 @@ paths:
       - staffCookie: []
         csrfHeader: []
       x-request-body: none
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/workspaces/{w}/submissions:
     get:
       operationId: ON-get-v1-workspaces-w-submissions-bd7aaa46e9
@@ -5361,6 +5529,8 @@ paths:
       - $ref: '#/components/parameters/Limit'
       security:
       - staffCookie: []
+      x-pagination: 'Results use a stable total order and a snapshot cursor: no duplicate items, no missing items, and deterministic
+        continuation while the cursor is valid.'
   /v1/workspaces/{w}/submissions/{id}:
     get:
       operationId: ON-get-v1-workspaces-w-submissions-id-ba0bcaf245
@@ -5468,7 +5638,7 @@ paths:
                       createdAt: '2026-09-18T00:00:00Z'
                       updatedAt: '2026-09-18T00:00:00Z'
                       submissionId: submission-01J2W5RFR3K24SFWDX2C0N9VW3
-                      score: '12.50'
+                      score: '12.5'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -5564,6 +5734,8 @@ paths:
       - $ref: '#/components/parameters/Limit'
       security:
       - staffCookie: []
+      x-pagination: 'Results use a stable total order and a snapshot cursor: no duplicate items, no missing items, and deterministic
+        continuation while the cursor is valid.'
     post:
       operationId: OS-post-v1-workspaces-w-tags-a1075ffc3a
       summary: POST /v1/workspaces/{w}/tags (catalog tags)
@@ -5642,8 +5814,9 @@ paths:
                   label: Example resource
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
     patch:
       operationId: OS-patch-v1-workspaces-w-tags-81684cbff4
       summary: PATCH /v1/workspaces/{w}/tags (catalog tags)
@@ -5727,8 +5900,9 @@ paths:
                   label: Example resource
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale is 412.
     delete:
       operationId: OS-delete-v1-workspaces-w-tags-1ab7a1ce97
@@ -5781,8 +5955,9 @@ paths:
       - staffCookie: []
         csrfHeader: []
       x-request-body: none
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/workspaces/{w}/themes:
     get:
       operationId: OS-get-v1-workspaces-w-themes-e7f6771fc2
@@ -5848,6 +6023,8 @@ paths:
       - $ref: '#/components/parameters/Limit'
       security:
       - staffCookie: []
+      x-pagination: 'Results use a stable total order and a snapshot cursor: no duplicate items, no missing items, and deterministic
+        continuation while the cursor is valid.'
     post:
       operationId: OS-post-v1-workspaces-w-themes-a10b4945e6
       summary: POST /v1/workspaces/{w}/themes (themes)
@@ -5925,8 +6102,9 @@ paths:
                   name: Example resource
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
     patch:
       operationId: OS-patch-v1-workspaces-w-themes-1f3e788ad7
       summary: PATCH /v1/workspaces/{w}/themes (themes)
@@ -6009,8 +6187,9 @@ paths:
                   name: Example resource
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale is 412.
     delete:
       operationId: OS-delete-v1-workspaces-w-themes-05b4453321
@@ -6063,8 +6242,9 @@ paths:
       - staffCookie: []
         csrfHeader: []
       x-request-body: none
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/workspaces/{w}/users/{u}/roles:
     put:
       operationId: ON-put-v1-workspaces-w-users-u-roles-b47a2cdecd
@@ -6157,8 +6337,9 @@ paths:
                   - editor
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale is 412.
     delete:
       operationId: ON-delete-v1-workspaces-w-users-u-roles-3882c2ac6d
@@ -6218,8 +6399,9 @@ paths:
       - staffCookie: []
         csrfHeader: []
       x-request-body: none
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/workspaces/{w}/webhook-deliveries:
     get:
       operationId: ON-get-v1-workspaces-w-webhook-deliveries-f6b56d678f
@@ -6286,6 +6468,8 @@ paths:
       - $ref: '#/components/parameters/Limit'
       security:
       - staffCookie: []
+      x-pagination: 'Results use a stable total order and a snapshot cursor: no duplicate items, no missing items, and deterministic
+        continuation while the cursor is valid.'
   /v1/workspaces/{w}/webhook-deliveries/{id}/replay:
     post:
       operationId: ON-post-v1-workspaces-w-webhook-deliveries-id-replay-f720705f03
@@ -6372,8 +6556,9 @@ paths:
                   reason: Receiver recovered.
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/workspaces/{w}/webhooks:
     post:
       operationId: ON-post-v1-workspaces-w-webhooks-e95a4d5035
@@ -6454,8 +6639,9 @@ paths:
                   url: https://receiver.example.test/hooks/submission
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
 x-m0-operation-inventory:
   oNamed:
     source: docs/acceptance/v1.1/denominators/o-named.json
@@ -6553,7 +6739,8 @@ components:
       type: apiKey
       in: cookie
       name: smartintake_staff
-      description: Opaque HttpOnly staff session cookie.
+      description: Opaque HttpOnly staff session cookie; sign-in validates Origin and binds a login-CSRF token before issuing
+        it.
     csrfHeader:
       type: apiKey
       in: header
@@ -6580,12 +6767,14 @@ components:
       schema:
         $ref: '#/components/schemas/OpaqueId'
       example: idem-01J2W5RFR3K24SFWDX2C0N9VW3
+      description: Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
     Cursor:
       name: cursor
       in: query
       schema:
         type: string
-      description: Opaque snapshot cursor.
+      description: Opaque stable-snapshot cursor. Pages are stable-sorted, duplicate-free and collectively contain every item
+        exactly once.
     Limit:
       name: limit
       in: query
@@ -6607,6 +6796,11 @@ components:
       schema:
         $ref: '#/components/schemas/Sha256'
       description: Published contract SHA-256.
+    RetryAfter:
+      schema:
+        type: integer
+        minimum: 1
+      description: Seconds until the caller may retry a 429 response.
   examples:
     Problem:
       value:
@@ -6836,13 +7030,28 @@ components:
           controls:
           - staticContent
           row: 17
+        fieldTypes:
+        - text
+        - integer
+        - decimal
+        - date
+        - dateTime
+        - time
+        - boolean
+        - choice
+        - multiChoice
+        - object
+        - list
+        - attachments
+        - drawing
         generation:
           absolutePathPolicy: forbidden
           generator: tools/contracts/generate_contract_artifacts.py
-          generatorVersion: 1.2.0
+          generatorVersion: 1.3.0
           javaOpenApiGenerator: 7.10.0 (pinned; generated by openapi-generator-maven-plugin from a deterministic local OpenAPI
             bundle)
-          modelStrategy: strongly-typed-schema-domain-records-with-extension-fields
+          jsonSchemaToTypeScript: 15.0.4
+          modelStrategy: schema-derived-transport-projections-require-ContractRegistry-validation
           openapi: 3.1.0
           openapiTypeScript: 7.6.1
           python: '3.12'
@@ -6896,7 +7105,7 @@ components:
         openapi:
           file: docs/api/openapi.yaml
           resource: contracts/openapi-4.0.0.yaml
-          sha256: 05b25c6eec00e1f122d5be2848a2af8d34e25cde2879352abb2f2052426884d9
+          sha256: '0000000000000000000000000000000000000000000000000000000000000000'
           version: 3.1.0
         operations:
           count: 82
@@ -7580,49 +7789,84 @@ components:
         - maxArgs: 0
           minArgs: 0
           operator: today
+        operators:
+        - and
+        - or
+        - not
+        - eq
+        - ne
+        - lt
+        - lte
+        - gt
+        - gte
+        - in
+        - contains
+        - containsAll
+        - exists
+        - isAnswered
+        - statusIs
+        - add
+        - subtract
+        - multiply
+        - divide
+        - round
+        - min
+        - max
+        - sum
+        - count
+        - any
+        - all
+        - concat
+        - length
+        - coalesce
+        - if
+        - dateDiffDays
+        - ageYears
+        - dateAddDays
+        - today
         registryVersion: 1.0.0
         schemas:
         - file: package.schema.json
           id: https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/package.schema.json
           kind: package
           resource: contracts/smart-form-builder-lite/4.0.0/package.schema.json
-          sha256: dde93e4bcb294d7dd64bf649a87fb61ae8a76f4858898c50ec880ce5752040b1
+          sha256: 70eef04301c1a46e0851483bc5626e174784d0d442bd27144fd5738eb42abd7b
           version: 4.0.0
         - file: expression.schema.json
           id: https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/expression.schema.json
           kind: expression
           resource: contracts/smart-form-builder-lite/4.0.0/expression.schema.json
-          sha256: 75c1e0a61f49474cb840ee30ecd91a67c108e95a6865d18d8919174f89ab3f14
+          sha256: 393732395faa4b3dac3401bfc4347f583465ff143c6345c5fe8522d7927a9aca
           version: 4.0.0
         - file: input-answer.schema.json
           id: https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/input-answer.schema.json
           kind: input-answer
           resource: contracts/smart-form-builder-lite/4.0.0/input-answer.schema.json
-          sha256: e03c3a331e24538cb1858dd8daf52eee2ac8cf447caaef7fd2a67a7efbb0529f
+          sha256: 2537946ae3434c01c80bb58d36a52f36a0c40afac24a31304bba21f32c44afbc
           version: 4.0.0
         - file: typed-answer.schema.json
           id: https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/typed-answer.schema.json
           kind: typed-answer
           resource: contracts/smart-form-builder-lite/4.0.0/typed-answer.schema.json
-          sha256: 7c6c7c3cde117b9313bd59256f6da4f04040de0b52135cad211dde9a322047fa
+          sha256: 52748b96244070197dae1a95107713712a8f8e5c9877bc53d851a1a4d290c4df
           version: 4.0.0
         - file: runtime-manifest.schema.json
           id: https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/runtime-manifest.schema.json
           kind: runtime-manifest
           resource: contracts/smart-form-builder-lite/4.0.0/runtime-manifest.schema.json
-          sha256: f4bbe82d72cdabc78eb0e430e7b7de1c758a4a0a59e249d6f630b848b7da925e
+          sha256: a8e2992416b97203265836eac4b288d7c51d9272d40415e3e8ef89b35dbba31d
           version: 4.0.0
         - file: submission-envelope.schema.json
           id: https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/submission-envelope.schema.json
           kind: submission-envelope
           resource: contracts/smart-form-builder-lite/4.0.0/submission-envelope.schema.json
-          sha256: c8bb9e048a13fafc89c1b9741cf0c80d17925b1f98eace0bbf62a87066ba7a4c
+          sha256: 6959c452798c6893aeb2cfe4004440fdfa28261cba143cb00518bb2a4a6631e0
           version: 4.0.0
         - file: event.schema.json
           id: https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/event.schema.json
           kind: event
           resource: contracts/smart-form-builder-lite/4.0.0/event.schema.json
-          sha256: 4ca4a996c9bcf152a6bcb193cebb42077050d3240be61ae98920fa0c06fb4677
+          sha256: 51a54916d61abda125beda9a2e470e647232ef14629e3d5f99e0884b9423f23f
           version: 4.0.0
         versions:
           contract: 4.0.0
@@ -7639,7 +7883,14 @@ components:
             $ref: '#/components/schemas/Problem'
           examples:
             problem:
-              $ref: '#/components/examples/Problem'
+              value:
+                type: https://api.smartintake.invalid/problems/badrequest
+                title: Malformed request
+                status: 400
+                code: BADREQUEST
+                detail: Malformed request
+                requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
+                errors: []
     Unauthenticated:
       description: Authentication is required
       content:
@@ -7648,7 +7899,14 @@ components:
             $ref: '#/components/schemas/Problem'
           examples:
             problem:
-              $ref: '#/components/examples/Problem'
+              value:
+                type: https://api.smartintake.invalid/problems/unauthenticated
+                title: Authentication is required
+                status: 401
+                code: UNAUTHENTICATED
+                detail: Authentication is required
+                requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
+                errors: []
     Forbidden:
       description: Scope is insufficient
       content:
@@ -7657,7 +7915,14 @@ components:
             $ref: '#/components/schemas/Problem'
           examples:
             problem:
-              $ref: '#/components/examples/Problem'
+              value:
+                type: https://api.smartintake.invalid/problems/forbidden
+                title: Scope is insufficient
+                status: 403
+                code: FORBIDDEN
+                detail: Scope is insufficient
+                requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
+                errors: []
     NotFound:
       description: Resource is absent or concealed
       content:
@@ -7666,7 +7931,14 @@ components:
             $ref: '#/components/schemas/Problem'
           examples:
             problem:
-              $ref: '#/components/examples/Problem'
+              value:
+                type: https://api.smartintake.invalid/problems/notfound
+                title: Resource is absent or concealed
+                status: 404
+                code: NOTFOUND
+                detail: Resource is absent or concealed
+                requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
+                errors: []
     Conflict:
       description: Replay or state conflict
       content:
@@ -7675,7 +7947,14 @@ components:
             $ref: '#/components/schemas/Problem'
           examples:
             problem:
-              $ref: '#/components/examples/Problem'
+              value:
+                type: https://api.smartintake.invalid/problems/conflict
+                title: Replay or state conflict
+                status: 409
+                code: CONFLICT
+                detail: Replay or state conflict
+                requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
+                errors: []
     PreconditionFailed:
       description: ETag is stale
       content:
@@ -7684,7 +7963,14 @@ components:
             $ref: '#/components/schemas/Problem'
           examples:
             problem:
-              $ref: '#/components/examples/Problem'
+              value:
+                type: https://api.smartintake.invalid/problems/preconditionfailed
+                title: ETag is stale
+                status: 412
+                code: PRECONDITIONFAILED
+                detail: ETag is stale
+                requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
+                errors: []
     PreconditionRequired:
       description: If-Match is required
       content:
@@ -7693,7 +7979,14 @@ components:
             $ref: '#/components/schemas/Problem'
           examples:
             problem:
-              $ref: '#/components/examples/Problem'
+              value:
+                type: https://api.smartintake.invalid/problems/preconditionrequired
+                title: If-Match is required
+                status: 428
+                code: PRECONDITIONREQUIRED
+                detail: If-Match is required
+                requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
+                errors: []
     Unprocessable:
       description: Semantic validation failed
       content:
@@ -7702,7 +7995,14 @@ components:
             $ref: '#/components/schemas/Problem'
           examples:
             problem:
-              $ref: '#/components/examples/Problem'
+              value:
+                type: https://api.smartintake.invalid/problems/unprocessable
+                title: Semantic validation failed
+                status: 422
+                code: UNPROCESSABLE
+                detail: Semantic validation failed
+                requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
+                errors: []
     RateLimited:
       description: Rate limit exceeded
       content:
@@ -7711,7 +8011,17 @@ components:
             $ref: '#/components/schemas/Problem'
           examples:
             problem:
-              $ref: '#/components/examples/Problem'
+              value:
+                type: https://api.smartintake.invalid/problems/ratelimited
+                title: Rate limit exceeded
+                status: 429
+                code: RATELIMITED
+                detail: Rate limit exceeded
+                requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
+                errors: []
+      headers:
+        Retry-After:
+          $ref: '#/components/headers/RetryAfter'
     Gone:
       description: Session or capability expired
       content:
@@ -7720,7 +8030,14 @@ components:
             $ref: '#/components/schemas/Problem'
           examples:
             problem:
-              $ref: '#/components/examples/Problem'
+              value:
+                type: https://api.smartintake.invalid/problems/gone
+                title: Session or capability expired
+                status: 410
+                code: GONE
+                detail: Session or capability expired
+                requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
+                errors: []
     InternalError:
       description: Unexpected failure
       content:
@@ -7729,7 +8046,14 @@ components:
             $ref: '#/components/schemas/Problem'
           examples:
             problem:
-              $ref: '#/components/examples/Problem'
+              value:
+                type: https://api.smartintake.invalid/problems/internalerror
+                title: Unexpected failure
+                status: 500
+                code: INTERNALERROR
+                detail: Unexpected failure
+                requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
+                errors: []
   schemas:
     OpaqueId:
       type: string
@@ -7741,12 +8065,14 @@ components:
       pattern: ^[0-9a-f]{64}$
     CanonicalInt64:
       type: string
-      pattern: ^-?(?:0|[1-9][0-9]*)$
-      description: Canonical base-10 int64 string; JSON number is forbidden.
+      pattern: ^(0|-[1-9][0-9]*|[1-9][0-9]*)$
+      format: canonical-int64
+      description: Canonical signed int64 base-10 string; JSON number is forbidden.
     CanonicalDecimal:
       type: string
-      pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
-      description: Canonical base-10 decimal string; JSON number is forbidden.
+      pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$
+      format: canonical-decimal
+      description: Canonical expression-result decimal string with no redundant fractional zeroes; JSON number is forbidden.
     Diagnostic:
       type: object
       additionalProperties: false
@@ -7896,16 +8222,12 @@ components:
           format: date-time
     PublishedSchema:
       type: object
-      additionalProperties: false
       required:
       - $schema
       - $id
-      - type
-      properties:
-        type:
-          type: string
-        title:
-          type: string
+      properties: {}
+      description: A complete Draft 2020-12 schema document. Keywords, $defs, recursive references and extension annotations
+        are intentionally preserved.
     CapabilityRegistry:
       type: object
       additionalProperties: false
@@ -7922,6 +8244,8 @@ components:
       - assetSupplement
       - openapi
       - generation
+      - fieldTypes
+      - operators
       properties:
         registryVersion:
           type: string
@@ -8063,6 +8387,20 @@ components:
             - string
             - object
             - array
+        fieldTypes:
+          type: array
+          minItems: 1
+          items:
+            type: string
+          deprecated: true
+          description: M1 compatibility alias derived from fieldCatalog; use fieldCatalog for catalog metadata.
+        operators:
+          type: array
+          minItems: 1
+          items:
+            type: string
+          deprecated: true
+          description: M1 compatibility alias derived from operatorSignatures; use operatorSignatures for arity metadata.
         xGeneratedEventModel:
           $ref: '#/components/schemas/EventDocument'
     Form:
@@ -9103,6 +9441,88 @@ components:
           type: string
           minLength: 8
       description: Concrete StaffSession resource representation.
+    OrganizationRecovery:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - kind
+      - revision
+      - status
+      - createdAt
+      - updatedAt
+      - safeDelivery
+      - revocation
+      - ownerSafety
+      - idempotencyReplay
+      properties:
+        id:
+          $ref: '#/components/schemas/OpaqueId'
+        kind:
+          const: OrganizationRecovery
+        revision:
+          type: integer
+          minimum: 0
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        safeDelivery:
+          enum:
+          - verified-email
+          - administrator-assisted
+        revocation:
+          const: sessions-revoked
+        ownerSafety:
+          const: confirmed
+        idempotencyReplay:
+          const: redacted
+      description: Concrete OrganizationRecovery resource representation.
+    PlatformRecovery:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - kind
+      - revision
+      - status
+      - createdAt
+      - updatedAt
+      - safeDelivery
+      - revocation
+      - ownerSafety
+      - idempotencyReplay
+      properties:
+        id:
+          $ref: '#/components/schemas/OpaqueId'
+        kind:
+          const: PlatformRecovery
+        revision:
+          type: integer
+          minimum: 0
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        safeDelivery:
+          enum:
+          - verified-email
+          - manual-security-review
+        revocation:
+          const: sessions-revoked
+        ownerSafety:
+          const: confirmed
+        idempotencyReplay:
+          const: redacted
+      description: Concrete PlatformRecovery resource representation.
     CapabilityRegistryUpdateRequest:
       type: object
       additionalProperties: false
@@ -9641,16 +10061,51 @@ components:
           type: string
           minLength: 1
           maxLength: 160
-    PlatformAccountCreateRequest:
+    OrganizationRecoveryRequest:
       type: object
       additionalProperties: false
       required:
-      - accountStatus
+      - reason
+      - safeDelivery
       properties:
-        accountStatus:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 500
+        safeDelivery:
           enum:
-          - active
-          - suspended
+          - verified-email
+          - administrator-assisted
+        revokeExistingSessions:
+          type: boolean
+        ownerSafetyConfirmed:
+          const: true
+        idempotencyReplay:
+          enum:
+          - redacted
+    PlatformRecoveryRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - reason
+      - safeDelivery
+      - ownerSafetyConfirmed
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 500
+        safeDelivery:
+          enum:
+          - verified-email
+          - manual-security-review
+        revokeExistingSessions:
+          type: boolean
+        ownerSafetyConfirmed:
+          const: true
+        idempotencyReplay:
+          enum:
+          - redacted
     FolderUpdateRequest:
       type: object
       additionalProperties: false
@@ -10456,6 +10911,46 @@ components:
               anyOf:
               - type: string
               - type: 'null'
+    OrganizationRecoveryResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - requestId
+      - organizationRecovery
+      properties:
+        requestId:
+          $ref: '#/components/schemas/OpaqueId'
+        organizationRecovery:
+          $ref: '#/components/schemas/OrganizationRecovery'
+    OrganizationRecoveryCollection:
+      type: object
+      additionalProperties: false
+      required:
+      - requestId
+      - items
+      - page
+      properties:
+        requestId:
+          $ref: '#/components/schemas/OpaqueId'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationRecovery'
+        page:
+          type: object
+          additionalProperties: false
+          required:
+          - limit
+          - nextCursor
+          properties:
+            limit:
+              type: integer
+              minimum: 1
+              maximum: 200
+            nextCursor:
+              anyOf:
+              - type: string
+              - type: 'null'
     OrganizationUserResponse:
       type: object
       additionalProperties: false
@@ -10561,6 +11056,46 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PlatformAccount'
+        page:
+          type: object
+          additionalProperties: false
+          required:
+          - limit
+          - nextCursor
+          properties:
+            limit:
+              type: integer
+              minimum: 1
+              maximum: 200
+            nextCursor:
+              anyOf:
+              - type: string
+              - type: 'null'
+    PlatformRecoveryResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - requestId
+      - platformRecovery
+      properties:
+        requestId:
+          $ref: '#/components/schemas/OpaqueId'
+        platformRecovery:
+          $ref: '#/components/schemas/PlatformRecovery'
+    PlatformRecoveryCollection:
+      type: object
+      additionalProperties: false
+      required:
+      - requestId
+      - items
+      - page
+      properties:
+        requestId:
+          $ref: '#/components/schemas/OpaqueId'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlatformRecovery'
         page:
           type: object
           additionalProperties: false
@@ -11199,6 +11734,8 @@ components:
       - policies
       - assets
       - extensions
+      - guidance
+      - theme
       properties:
         schemaVersion:
           const: 4.0.0
@@ -11231,11 +11768,7 @@ components:
           type: object
           minProperties: 1
           additionalProperties:
-            type: object
-            propertyNames:
-              pattern: ^[a-z][a-z0-9_]{0,63}$
-            additionalProperties:
-              $ref: '#/components/schemas/PackageDocumentTranslation'
+            $ref: '#/components/schemas/PackageDocumentLocaleBundle'
         data:
           type: object
           additionalProperties: false
@@ -11274,20 +11807,7 @@ components:
             $ref: '#/components/schemas/PackageDocumentDependency'
           uniqueItems: true
         policies:
-          type: object
-          additionalProperties: false
-          properties:
-            retention:
-              enum:
-              - clear
-              - memory
-              - draft
-            attachmentsRequiredReady:
-              type: boolean
-            extensions:
-              $ref: '#/components/schemas/PackageDocumentExtensionNamespaces'
-          required:
-          - attachmentsRequiredReady
+          $ref: '#/components/schemas/PackageDocumentPolicies'
         assets:
           type: array
           items:
@@ -11295,6 +11815,10 @@ components:
           uniqueItems: true
         extensions:
           $ref: '#/components/schemas/PackageDocumentExtensionNamespaces'
+        guidance:
+          $ref: '#/components/schemas/PackageDocumentGuidance'
+        theme:
+          $ref: '#/components/schemas/PackageDocumentTheme'
       x-catalogRows:
       - row: 1
         controls:
@@ -11517,8 +12041,8 @@ components:
           format: canonical-int64
         decimal:
           type: string
-          pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$
-          format: canonical-decimal
+          pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
+          format: stored-decimal
         date:
           type: string
           pattern: ^\d{4}-\d{2}-\d{2}$
@@ -11526,6 +12050,7 @@ components:
         time:
           type: string
           pattern: ^(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.\d{1,9})?$
+          format: time
         instant:
           type: string
           pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z$
@@ -11535,13 +12060,8 @@ components:
           propertyNames:
             pattern: ^x-[a-z0-9]+(?:[.-][a-z0-9]+)+$
           additionalProperties:
-            type:
-            - string
-            - number
-            - boolean
-            - array
-            - object
-            - 'null'
+            $ref: '#/components/schemas/PackageDocumentExtensionValue'
+          description: Closed, dependency-bound extension descriptor; unregistered bindings are compiler errors.
         rowPath:
           type: array
           maxItems: 3
@@ -11694,6 +12214,14 @@ components:
               - fields
             extensions:
               $ref: '#/components/schemas/PackageDocumentExtensionNamespaces'
+            guidanceId:
+              $ref: '#/components/schemas/PackageDocumentId'
+            visibilityExpressionId:
+              $ref: '#/components/schemas/PackageDocumentId'
+            requiredExpressionId:
+              $ref: '#/components/schemas/PackageDocumentId'
+            validationExpressionId:
+              $ref: '#/components/schemas/PackageDocumentId'
           required:
           - id
           - key
@@ -11815,6 +12343,12 @@ components:
                 $ref: '#/components/schemas/PackageDocumentKey'
             extensions:
               $ref: '#/components/schemas/PackageDocumentExtensionNamespaces'
+            visibilityExpressionId:
+              $ref: '#/components/schemas/PackageDocumentId'
+            requiredExpressionId:
+              $ref: '#/components/schemas/PackageDocumentId'
+            validationExpressionId:
+              $ref: '#/components/schemas/PackageDocumentId'
           required:
           - id
           - kind
@@ -12294,6 +12828,14 @@ components:
                 $ref: '#/components/schemas/PackageDocumentNode'
             extensions:
               $ref: '#/components/schemas/PackageDocumentExtensionNamespaces'
+            guidanceId:
+              $ref: '#/components/schemas/PackageDocumentId'
+            layout:
+              enum:
+              - stack
+              - grid
+            titleKey:
+              $ref: '#/components/schemas/PackageDocumentKey'
           required:
           - id
           - key
@@ -12316,6 +12858,17 @@ components:
                 $ref: '#/components/schemas/PackageDocumentSection'
             extensions:
               $ref: '#/components/schemas/PackageDocumentExtensionNamespaces'
+            titleKey:
+              $ref: '#/components/schemas/PackageDocumentKey'
+            guidanceId:
+              $ref: '#/components/schemas/PackageDocumentId'
+            defaultNextPageId:
+              $ref: '#/components/schemas/PackageDocumentId'
+            routes:
+              type: array
+              items:
+                $ref: '#/components/schemas/PackageDocumentRoute'
+              uniqueItems: true
           required:
           - id
           - key
@@ -12366,6 +12919,13 @@ components:
                       $ref: '#/components/schemas/ExpressionDocument'
                   required:
                   - value
+                - type: object
+                  additionalProperties: false
+                  properties:
+                    plural:
+                      $ref: '#/components/schemas/PackageDocumentPluralPart'
+                  required:
+                  - plural
           required:
           - grammar
           - parts
@@ -12379,6 +12939,8 @@ components:
               - theme
               - locale
               - asset
+              - component
+              - extension
             id:
               $ref: '#/components/schemas/PackageDocumentId'
             version:
@@ -12408,6 +12970,249 @@ components:
           - id
           - digest
           - mediaType
+        decimalStorage:
+          type: string
+          pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
+          format: stored-decimal
+        expressionResultDecimal:
+          type: string
+          pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$
+          format: canonical-decimal
+        extensionValue:
+          type: object
+          additionalProperties: false
+          properties:
+            dependencyId:
+              $ref: '#/components/schemas/PackageDocumentId'
+            version:
+              type: string
+              minLength: 1
+            digest:
+              $ref: '#/components/schemas/PackageDocumentSha256'
+            value:
+              type:
+              - string
+              - number
+              - boolean
+              - 'null'
+          required:
+          - dependencyId
+          - version
+          - digest
+          - value
+        guidanceEntry:
+          type: object
+          additionalProperties: false
+          properties:
+            id:
+              $ref: '#/components/schemas/PackageDocumentId'
+            messageKey:
+              $ref: '#/components/schemas/PackageDocumentKey'
+          required:
+          - id
+          - messageKey
+        guidance:
+          type: object
+          propertyNames:
+            pattern: ^[A-Za-z][A-Za-z0-9_-]{0,127}$
+          additionalProperties:
+            $ref: '#/components/schemas/PackageDocumentGuidanceEntry'
+        themeTokens:
+          type: object
+          additionalProperties: false
+          properties:
+            accent:
+              type: string
+              pattern: ^#[0-9A-Fa-f]{6}$
+            background:
+              type: string
+              pattern: ^#[0-9A-Fa-f]{6}$
+            text:
+              type: string
+              pattern: ^#[0-9A-Fa-f]{6}$
+            fontFamily:
+              enum:
+              - system
+              - sans
+              - serif
+            density:
+              enum:
+              - compact
+              - comfortable
+            radius:
+              type: integer
+              minimum: 0
+              maximum: 32
+            fieldGap:
+              type: integer
+              minimum: 0
+              maximum: 96
+            sectionGap:
+              type: integer
+              minimum: 0
+              maximum: 128
+            pagePadding:
+              type: integer
+              minimum: 0
+              maximum: 128
+            responsive:
+              type: object
+              additionalProperties: false
+              properties:
+                compactMaxWidth:
+                  const: 639
+                mediumMaxWidth:
+                  const: 1023
+                wideColumns:
+                  type: integer
+                  minimum: 1
+                  maximum: 3
+              required:
+              - compactMaxWidth
+              - mediumMaxWidth
+              - wideColumns
+          required:
+          - accent
+          - background
+          - text
+          - fontFamily
+          - density
+          - radius
+        theme:
+          type: object
+          additionalProperties: false
+          properties:
+            themeKey:
+              $ref: '#/components/schemas/PackageDocumentKey'
+            version:
+              type: string
+              minLength: 1
+            tokens:
+              $ref: '#/components/schemas/PackageDocumentThemeTokens'
+          required:
+          - themeKey
+          - version
+          - tokens
+        pluralPart:
+          type: object
+          additionalProperties: false
+          properties:
+            count:
+              $ref: '#/components/schemas/ExpressionDocument'
+            cases:
+              type: object
+              propertyNames:
+                enum:
+                - zero
+                - one
+                - two
+                - few
+                - many
+                - other
+              additionalProperties:
+                $ref: '#/components/schemas/PackageDocumentMessage'
+              required:
+              - other
+          required:
+          - count
+          - cases
+        localeBundle:
+          type: object
+          additionalProperties: false
+          properties:
+            direction:
+              enum:
+              - ltr
+              - rtl
+            messages:
+              type: object
+              propertyNames:
+                pattern: ^[a-z][a-z0-9_.-]{0,127}$
+              additionalProperties:
+                $ref: '#/components/schemas/PackageDocumentTranslation'
+            pronunciations:
+              type: array
+              items:
+                type: string
+              uniqueItems: true
+            reviewState:
+              enum:
+              - approved-prd-fixed-values
+              - approved
+          required:
+          - direction
+          - messages
+        route:
+          type: object
+          additionalProperties: false
+          properties:
+            id:
+              $ref: '#/components/schemas/PackageDocumentId'
+            targetPageId:
+              $ref: '#/components/schemas/PackageDocumentId'
+            whenExpressionId:
+              $ref: '#/components/schemas/PackageDocumentId'
+          required:
+          - id
+          - targetPageId
+          - whenExpressionId
+        policyRetention:
+          type: object
+          additionalProperties: false
+          properties:
+            policyKey:
+              $ref: '#/components/schemas/PackageDocumentKey'
+            submissionDays:
+              type: integer
+              minimum: 1
+              maximum: 36500
+            draftDays:
+              type: integer
+              minimum: 1
+              maximum: 36500
+          required:
+          - policyKey
+        policies:
+          type: object
+          additionalProperties: false
+          properties:
+            attachmentsRequiredReady:
+              type: boolean
+            allowVoiceQuestions:
+              type: boolean
+            confirmationKey:
+              $ref: '#/components/schemas/PackageDocumentKey'
+            draftExpiryDays:
+              type: integer
+              minimum: 1
+              maximum: 3650
+            guidanceMode:
+              enum:
+              - text
+              - voice
+              - none
+            narrationAutoplay:
+              type: boolean
+            presentation:
+              enum:
+              - grouped
+              - linear
+            responseAccess:
+              enum:
+              - anonymous
+              - authenticated
+            retentionPolicyKey:
+              $ref: '#/components/schemas/PackageDocumentKey'
+            retention:
+              $ref: '#/components/schemas/PackageDocumentPolicyRetention'
+            reviewBeforeSubmit:
+              type: boolean
+            showProgress:
+              type: boolean
+            extensions:
+              $ref: '#/components/schemas/PackageDocumentExtensionNamespaces'
+          required:
+          - attachmentsRequiredReady
       allOf:
       - $comment: Control/type consistency is checked for each instance; fieldId resolution is semantic.
       - $comment: text accepts ['text']
@@ -12449,6 +13254,10 @@ components:
       - $comment: drawing accepts ['drawing']
       - $comment: calculated accepts ['text', 'integer', 'decimal', 'boolean', 'date', 'time', 'dateTime', 'choice', 'multiChoice',
           'object']
+      x-extensionDependencyBinding:
+        mode: compiler-enforced
+        rule: Every extensions entry must identify a declared dependency whose kind is extension and whose id/version/digest
+          exactly match; otherwise reject compilation.
     PackageDocumentId:
       type: string
       pattern: ^[A-Za-z][A-Za-z0-9_-]{0,127}$
@@ -12464,8 +13273,8 @@ components:
       format: canonical-int64
     PackageDocumentDecimal:
       type: string
-      pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$
-      format: canonical-decimal
+      pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
+      format: stored-decimal
     PackageDocumentDate:
       type: string
       pattern: ^\d{4}-\d{2}-\d{2}$
@@ -12473,6 +13282,7 @@ components:
     PackageDocumentTime:
       type: string
       pattern: ^(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.\d{1,9})?$
+      format: time
     PackageDocumentInstant:
       type: string
       pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z$
@@ -12482,13 +13292,8 @@ components:
       propertyNames:
         pattern: ^x-[a-z0-9]+(?:[.-][a-z0-9]+)+$
       additionalProperties:
-        type:
-        - string
-        - number
-        - boolean
-        - array
-        - object
-        - 'null'
+        $ref: '#/components/schemas/PackageDocumentExtensionValue'
+      description: Closed, dependency-bound extension descriptor; unregistered bindings are compiler errors.
     PackageDocumentRowPath:
       type: array
       maxItems: 3
@@ -12641,6 +13446,14 @@ components:
           - fields
         extensions:
           $ref: '#/components/schemas/PackageDocumentExtensionNamespaces'
+        guidanceId:
+          $ref: '#/components/schemas/PackageDocumentId'
+        visibilityExpressionId:
+          $ref: '#/components/schemas/PackageDocumentId'
+        requiredExpressionId:
+          $ref: '#/components/schemas/PackageDocumentId'
+        validationExpressionId:
+          $ref: '#/components/schemas/PackageDocumentId'
       required:
       - id
       - key
@@ -12762,6 +13575,12 @@ components:
             $ref: '#/components/schemas/PackageDocumentKey'
         extensions:
           $ref: '#/components/schemas/PackageDocumentExtensionNamespaces'
+        visibilityExpressionId:
+          $ref: '#/components/schemas/PackageDocumentId'
+        requiredExpressionId:
+          $ref: '#/components/schemas/PackageDocumentId'
+        validationExpressionId:
+          $ref: '#/components/schemas/PackageDocumentId'
       required:
       - id
       - kind
@@ -13241,6 +14060,14 @@ components:
             $ref: '#/components/schemas/PackageDocumentNode'
         extensions:
           $ref: '#/components/schemas/PackageDocumentExtensionNamespaces'
+        guidanceId:
+          $ref: '#/components/schemas/PackageDocumentId'
+        layout:
+          enum:
+          - stack
+          - grid
+        titleKey:
+          $ref: '#/components/schemas/PackageDocumentKey'
       required:
       - id
       - key
@@ -13263,6 +14090,17 @@ components:
             $ref: '#/components/schemas/PackageDocumentSection'
         extensions:
           $ref: '#/components/schemas/PackageDocumentExtensionNamespaces'
+        titleKey:
+          $ref: '#/components/schemas/PackageDocumentKey'
+        guidanceId:
+          $ref: '#/components/schemas/PackageDocumentId'
+        defaultNextPageId:
+          $ref: '#/components/schemas/PackageDocumentId'
+        routes:
+          type: array
+          items:
+            $ref: '#/components/schemas/PackageDocumentRoute'
+          uniqueItems: true
       required:
       - id
       - key
@@ -13313,6 +14151,13 @@ components:
                   $ref: '#/components/schemas/ExpressionDocument'
               required:
               - value
+            - type: object
+              additionalProperties: false
+              properties:
+                plural:
+                  $ref: '#/components/schemas/PackageDocumentPluralPart'
+              required:
+              - plural
       required:
       - grammar
       - parts
@@ -13326,6 +14171,8 @@ components:
           - theme
           - locale
           - asset
+          - component
+          - extension
         id:
           $ref: '#/components/schemas/PackageDocumentId'
         version:
@@ -13355,6 +14202,249 @@ components:
       - id
       - digest
       - mediaType
+    PackageDocumentDecimalStorage:
+      type: string
+      pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
+      format: stored-decimal
+    PackageDocumentExpressionResultDecimal:
+      type: string
+      pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$
+      format: canonical-decimal
+    PackageDocumentExtensionValue:
+      type: object
+      additionalProperties: false
+      properties:
+        dependencyId:
+          $ref: '#/components/schemas/PackageDocumentId'
+        version:
+          type: string
+          minLength: 1
+        digest:
+          $ref: '#/components/schemas/PackageDocumentSha256'
+        value:
+          type:
+          - string
+          - number
+          - boolean
+          - 'null'
+      required:
+      - dependencyId
+      - version
+      - digest
+      - value
+    PackageDocumentGuidanceEntry:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: '#/components/schemas/PackageDocumentId'
+        messageKey:
+          $ref: '#/components/schemas/PackageDocumentKey'
+      required:
+      - id
+      - messageKey
+    PackageDocumentGuidance:
+      type: object
+      propertyNames:
+        pattern: ^[A-Za-z][A-Za-z0-9_-]{0,127}$
+      additionalProperties:
+        $ref: '#/components/schemas/PackageDocumentGuidanceEntry'
+    PackageDocumentThemeTokens:
+      type: object
+      additionalProperties: false
+      properties:
+        accent:
+          type: string
+          pattern: ^#[0-9A-Fa-f]{6}$
+        background:
+          type: string
+          pattern: ^#[0-9A-Fa-f]{6}$
+        text:
+          type: string
+          pattern: ^#[0-9A-Fa-f]{6}$
+        fontFamily:
+          enum:
+          - system
+          - sans
+          - serif
+        density:
+          enum:
+          - compact
+          - comfortable
+        radius:
+          type: integer
+          minimum: 0
+          maximum: 32
+        fieldGap:
+          type: integer
+          minimum: 0
+          maximum: 96
+        sectionGap:
+          type: integer
+          minimum: 0
+          maximum: 128
+        pagePadding:
+          type: integer
+          minimum: 0
+          maximum: 128
+        responsive:
+          type: object
+          additionalProperties: false
+          properties:
+            compactMaxWidth:
+              const: 639
+            mediumMaxWidth:
+              const: 1023
+            wideColumns:
+              type: integer
+              minimum: 1
+              maximum: 3
+          required:
+          - compactMaxWidth
+          - mediumMaxWidth
+          - wideColumns
+      required:
+      - accent
+      - background
+      - text
+      - fontFamily
+      - density
+      - radius
+    PackageDocumentTheme:
+      type: object
+      additionalProperties: false
+      properties:
+        themeKey:
+          $ref: '#/components/schemas/PackageDocumentKey'
+        version:
+          type: string
+          minLength: 1
+        tokens:
+          $ref: '#/components/schemas/PackageDocumentThemeTokens'
+      required:
+      - themeKey
+      - version
+      - tokens
+    PackageDocumentPluralPart:
+      type: object
+      additionalProperties: false
+      properties:
+        count:
+          $ref: '#/components/schemas/ExpressionDocument'
+        cases:
+          type: object
+          propertyNames:
+            enum:
+            - zero
+            - one
+            - two
+            - few
+            - many
+            - other
+          additionalProperties:
+            $ref: '#/components/schemas/PackageDocumentMessage'
+          required:
+          - other
+      required:
+      - count
+      - cases
+    PackageDocumentLocaleBundle:
+      type: object
+      additionalProperties: false
+      properties:
+        direction:
+          enum:
+          - ltr
+          - rtl
+        messages:
+          type: object
+          propertyNames:
+            pattern: ^[a-z][a-z0-9_.-]{0,127}$
+          additionalProperties:
+            $ref: '#/components/schemas/PackageDocumentTranslation'
+        pronunciations:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+        reviewState:
+          enum:
+          - approved-prd-fixed-values
+          - approved
+      required:
+      - direction
+      - messages
+    PackageDocumentRoute:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: '#/components/schemas/PackageDocumentId'
+        targetPageId:
+          $ref: '#/components/schemas/PackageDocumentId'
+        whenExpressionId:
+          $ref: '#/components/schemas/PackageDocumentId'
+      required:
+      - id
+      - targetPageId
+      - whenExpressionId
+    PackageDocumentPolicyRetention:
+      type: object
+      additionalProperties: false
+      properties:
+        policyKey:
+          $ref: '#/components/schemas/PackageDocumentKey'
+        submissionDays:
+          type: integer
+          minimum: 1
+          maximum: 36500
+        draftDays:
+          type: integer
+          minimum: 1
+          maximum: 36500
+      required:
+      - policyKey
+    PackageDocumentPolicies:
+      type: object
+      additionalProperties: false
+      properties:
+        attachmentsRequiredReady:
+          type: boolean
+        allowVoiceQuestions:
+          type: boolean
+        confirmationKey:
+          $ref: '#/components/schemas/PackageDocumentKey'
+        draftExpiryDays:
+          type: integer
+          minimum: 1
+          maximum: 3650
+        guidanceMode:
+          enum:
+          - text
+          - voice
+          - none
+        narrationAutoplay:
+          type: boolean
+        presentation:
+          enum:
+          - grouped
+          - linear
+        responseAccess:
+          enum:
+          - anonymous
+          - authenticated
+        retentionPolicyKey:
+          $ref: '#/components/schemas/PackageDocumentKey'
+        retention:
+          $ref: '#/components/schemas/PackageDocumentPolicyRetention'
+        reviewBeforeSubmit:
+          type: boolean
+        showProgress:
+          type: boolean
+        extensions:
+          $ref: '#/components/schemas/PackageDocumentExtensionNamespaces'
+      required:
+      - attachmentsRequiredReady
     ExpressionDocument:
       title: Smart Form Builder Lite expression AST 4.0.0
       x-operatorArity:
@@ -13476,8 +14566,9 @@ components:
           format: canonical-int64
         decimal:
           type: string
-          pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$
-          format: canonical-decimal
+          pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
+          format: stored-decimal
+          description: Destination storage preserves declared scale, e.g. 12.50.
         date:
           type: string
           pattern: ^\d{4}-\d{2}-\d{2}$
@@ -13485,6 +14576,7 @@ components:
         time:
           type: string
           pattern: ^(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.\d{1,9})?$
+          format: time
         instant:
           type: string
           pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z$
@@ -13494,13 +14586,8 @@ components:
           propertyNames:
             pattern: ^x-[a-z0-9]+(?:[.-][a-z0-9]+)+$
           additionalProperties:
-            type:
-            - string
-            - number
-            - boolean
-            - array
-            - object
-            - 'null'
+            $ref: '#/components/schemas/ExpressionDocumentExtensionValue'
+          description: Closed, dependency-bound extension descriptor; unregistered bindings are compiler errors.
         rowPath:
           type: array
           maxItems: 3
@@ -13529,15 +14616,6 @@ components:
           - timeZone
         expression:
           $ref: '#/components/schemas/ExpressionDocument'
-        literalValue:
-          anyOf:
-          - type: string
-          - type: boolean
-          - $ref: '#/components/schemas/ExpressionDocumentInt64'
-          - $ref: '#/components/schemas/ExpressionDocumentDecimal'
-          - $ref: '#/components/schemas/ExpressionDocumentDate'
-          - $ref: '#/components/schemas/ExpressionDocumentTime'
-          - $ref: '#/components/schemas/ExpressionDocumentDateTime'
         literal:
           type: object
           additionalProperties: false
@@ -13556,18 +14634,266 @@ components:
                   - time
                   - dateTime
                   - choice
-                value:
-                  $ref: '#/components/schemas/ExpressionDocumentLiteralValue'
+                  - array
+                itemType:
+                  enum:
+                  - text
+                  - integer
+                  - decimal
+                  - boolean
+                  - date
+                  - time
+                  - dateTime
+                  - choice
+                value: {}
               required:
               - type
               - value
+              allOf:
+              - if:
+                  properties:
+                    type:
+                      const: text
+                  required:
+                  - type
+                then:
+                  properties:
+                    value:
+                      type: string
+                  not:
+                    required:
+                    - itemType
+              - if:
+                  properties:
+                    type:
+                      const: integer
+                  required:
+                  - type
+                then:
+                  properties:
+                    value:
+                      $ref: '#/components/schemas/ExpressionDocumentInt64'
+                  not:
+                    required:
+                    - itemType
+              - if:
+                  properties:
+                    type:
+                      const: decimal
+                  required:
+                  - type
+                then:
+                  properties:
+                    value:
+                      $ref: '#/components/schemas/ExpressionDocumentDecimalStorage'
+                  not:
+                    required:
+                    - itemType
+              - if:
+                  properties:
+                    type:
+                      const: boolean
+                  required:
+                  - type
+                then:
+                  properties:
+                    value:
+                      type: boolean
+                  not:
+                    required:
+                    - itemType
+              - if:
+                  properties:
+                    type:
+                      const: date
+                  required:
+                  - type
+                then:
+                  properties:
+                    value:
+                      $ref: '#/components/schemas/ExpressionDocumentDate'
+                  not:
+                    required:
+                    - itemType
+              - if:
+                  properties:
+                    type:
+                      const: time
+                  required:
+                  - type
+                then:
+                  properties:
+                    value:
+                      $ref: '#/components/schemas/ExpressionDocumentTime'
+                  not:
+                    required:
+                    - itemType
+              - if:
+                  properties:
+                    type:
+                      const: dateTime
+                  required:
+                  - type
+                then:
+                  properties:
+                    value:
+                      $ref: '#/components/schemas/ExpressionDocumentDateTime'
+                  not:
+                    required:
+                    - itemType
+              - if:
+                  properties:
+                    type:
+                      const: choice
+                  required:
+                  - type
+                then:
+                  properties:
+                    value:
+                      type: string
+                  not:
+                    required:
+                    - itemType
+              - if:
+                  properties:
+                    type:
+                      const: array
+                  required:
+                  - type
+                then:
+                  required:
+                  - itemType
+                  properties:
+                    value:
+                      type: array
+                      items: {}
+              - if:
+                  properties:
+                    type:
+                      const: array
+                    itemType:
+                      const: text
+                  required:
+                  - type
+                  - itemType
+                then:
+                  properties:
+                    value:
+                      type: array
+                      items:
+                        type: string
+              - if:
+                  properties:
+                    type:
+                      const: array
+                    itemType:
+                      const: integer
+                  required:
+                  - type
+                  - itemType
+                then:
+                  properties:
+                    value:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/ExpressionDocumentInt64'
+              - if:
+                  properties:
+                    type:
+                      const: array
+                    itemType:
+                      const: decimal
+                  required:
+                  - type
+                  - itemType
+                then:
+                  properties:
+                    value:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/ExpressionDocumentDecimalStorage'
+              - if:
+                  properties:
+                    type:
+                      const: array
+                    itemType:
+                      const: boolean
+                  required:
+                  - type
+                  - itemType
+                then:
+                  properties:
+                    value:
+                      type: array
+                      items:
+                        type: boolean
+              - if:
+                  properties:
+                    type:
+                      const: array
+                    itemType:
+                      const: date
+                  required:
+                  - type
+                  - itemType
+                then:
+                  properties:
+                    value:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/ExpressionDocumentDate'
+              - if:
+                  properties:
+                    type:
+                      const: array
+                    itemType:
+                      const: time
+                  required:
+                  - type
+                  - itemType
+                then:
+                  properties:
+                    value:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/ExpressionDocumentTime'
+              - if:
+                  properties:
+                    type:
+                      const: array
+                    itemType:
+                      const: dateTime
+                  required:
+                  - type
+                  - itemType
+                then:
+                  properties:
+                    value:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/ExpressionDocumentDateTime'
+              - if:
+                  properties:
+                    type:
+                      const: array
+                    itemType:
+                      const: choice
+                  required:
+                  - type
+                  - itemType
+                then:
+                  properties:
+                    value:
+                      type: array
+                      items:
+                        type: string
           required:
           - literal
         reference:
           type: object
           additionalProperties: false
           properties:
-            reference:
+            ref:
               type: object
               additionalProperties: false
               properties:
@@ -13578,15 +14904,27 @@ components:
                   - root
                   - item
                   - parentItem
-                ancestorDepth:
+                parentDepth:
                   type: integer
-                  minimum: 0
-                  maximum: 2
+                  minimum: 1
+                  maximum: 3
               required:
               - fieldId
               - scope
+              allOf:
+              - if:
+                  properties:
+                    scope:
+                      const: parentItem
+                  required:
+                  - scope
+                then: {}
+                else:
+                  not:
+                    required:
+                    - parentDepth
           required:
-          - reference
+          - ref
         context:
           type: object
           additionalProperties: false
@@ -13595,8 +14933,6 @@ components:
               enum:
               - sessionDate
               - sessionTimeZone
-              - item
-              - parentItem
           required:
           - context
         apply:
@@ -13647,6 +14983,38 @@ components:
           required:
           - op
           - args
+        decimalStorage:
+          type: string
+          pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
+          format: stored-decimal
+          description: Destination storage preserves declared scale, e.g. 12.50.
+        decimalResult:
+          type: string
+          pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$
+          format: canonical-decimal
+          description: Exact expression result; no redundant trailing fractional zeroes.
+        extensionValue:
+          type: object
+          additionalProperties: false
+          properties:
+            dependencyId:
+              $ref: '#/components/schemas/ExpressionDocumentId'
+            version:
+              type: string
+              minLength: 1
+            digest:
+              $ref: '#/components/schemas/ExpressionDocumentSha256'
+            value:
+              type:
+              - string
+              - number
+              - boolean
+              - 'null'
+          required:
+          - dependencyId
+          - version
+          - digest
+          - value
       type: object
       additionalProperties: false
       required: []
@@ -13665,12 +15033,260 @@ components:
               - time
               - dateTime
               - choice
-            value:
-              $ref: '#/components/schemas/ExpressionDocumentLiteralValue'
+              - array
+            itemType:
+              enum:
+              - text
+              - integer
+              - decimal
+              - boolean
+              - date
+              - time
+              - dateTime
+              - choice
+            value: {}
           required:
           - type
           - value
-        reference:
+          allOf:
+          - if:
+              properties:
+                type:
+                  const: text
+              required:
+              - type
+            then:
+              properties:
+                value:
+                  type: string
+              not:
+                required:
+                - itemType
+          - if:
+              properties:
+                type:
+                  const: integer
+              required:
+              - type
+            then:
+              properties:
+                value:
+                  $ref: '#/components/schemas/ExpressionDocumentInt64'
+              not:
+                required:
+                - itemType
+          - if:
+              properties:
+                type:
+                  const: decimal
+              required:
+              - type
+            then:
+              properties:
+                value:
+                  $ref: '#/components/schemas/ExpressionDocumentDecimalStorage'
+              not:
+                required:
+                - itemType
+          - if:
+              properties:
+                type:
+                  const: boolean
+              required:
+              - type
+            then:
+              properties:
+                value:
+                  type: boolean
+              not:
+                required:
+                - itemType
+          - if:
+              properties:
+                type:
+                  const: date
+              required:
+              - type
+            then:
+              properties:
+                value:
+                  $ref: '#/components/schemas/ExpressionDocumentDate'
+              not:
+                required:
+                - itemType
+          - if:
+              properties:
+                type:
+                  const: time
+              required:
+              - type
+            then:
+              properties:
+                value:
+                  $ref: '#/components/schemas/ExpressionDocumentTime'
+              not:
+                required:
+                - itemType
+          - if:
+              properties:
+                type:
+                  const: dateTime
+              required:
+              - type
+            then:
+              properties:
+                value:
+                  $ref: '#/components/schemas/ExpressionDocumentDateTime'
+              not:
+                required:
+                - itemType
+          - if:
+              properties:
+                type:
+                  const: choice
+              required:
+              - type
+            then:
+              properties:
+                value:
+                  type: string
+              not:
+                required:
+                - itemType
+          - if:
+              properties:
+                type:
+                  const: array
+              required:
+              - type
+            then:
+              required:
+              - itemType
+              properties:
+                value:
+                  type: array
+                  items: {}
+          - if:
+              properties:
+                type:
+                  const: array
+                itemType:
+                  const: text
+              required:
+              - type
+              - itemType
+            then:
+              properties:
+                value:
+                  type: array
+                  items:
+                    type: string
+          - if:
+              properties:
+                type:
+                  const: array
+                itemType:
+                  const: integer
+              required:
+              - type
+              - itemType
+            then:
+              properties:
+                value:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ExpressionDocumentInt64'
+          - if:
+              properties:
+                type:
+                  const: array
+                itemType:
+                  const: decimal
+              required:
+              - type
+              - itemType
+            then:
+              properties:
+                value:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ExpressionDocumentDecimalStorage'
+          - if:
+              properties:
+                type:
+                  const: array
+                itemType:
+                  const: boolean
+              required:
+              - type
+              - itemType
+            then:
+              properties:
+                value:
+                  type: array
+                  items:
+                    type: boolean
+          - if:
+              properties:
+                type:
+                  const: array
+                itemType:
+                  const: date
+              required:
+              - type
+              - itemType
+            then:
+              properties:
+                value:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ExpressionDocumentDate'
+          - if:
+              properties:
+                type:
+                  const: array
+                itemType:
+                  const: time
+              required:
+              - type
+              - itemType
+            then:
+              properties:
+                value:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ExpressionDocumentTime'
+          - if:
+              properties:
+                type:
+                  const: array
+                itemType:
+                  const: dateTime
+              required:
+              - type
+              - itemType
+            then:
+              properties:
+                value:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ExpressionDocumentDateTime'
+          - if:
+              properties:
+                type:
+                  const: array
+                itemType:
+                  const: choice
+              required:
+              - type
+              - itemType
+            then:
+              properties:
+                value:
+                  type: array
+                  items:
+                    type: string
+        ref:
           type: object
           additionalProperties: false
           properties:
@@ -13681,19 +15297,29 @@ components:
               - root
               - item
               - parentItem
-            ancestorDepth:
+            parentDepth:
               type: integer
-              minimum: 0
-              maximum: 2
+              minimum: 1
+              maximum: 3
           required:
           - fieldId
           - scope
+          allOf:
+          - if:
+              properties:
+                scope:
+                  const: parentItem
+              required:
+              - scope
+            then: {}
+            else:
+              not:
+                required:
+                - parentDepth
         context:
           enum:
           - sessionDate
           - sessionTimeZone
-          - item
-          - parentItem
         op:
           enum:
           - and
@@ -13750,8 +15376,9 @@ components:
       format: canonical-int64
     ExpressionDocumentDecimal:
       type: string
-      pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$
-      format: canonical-decimal
+      pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
+      format: stored-decimal
+      description: Destination storage preserves declared scale, e.g. 12.50.
     ExpressionDocumentDate:
       type: string
       pattern: ^\d{4}-\d{2}-\d{2}$
@@ -13759,6 +15386,7 @@ components:
     ExpressionDocumentTime:
       type: string
       pattern: ^(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.\d{1,9})?$
+      format: time
     ExpressionDocumentInstant:
       type: string
       pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z$
@@ -13768,13 +15396,8 @@ components:
       propertyNames:
         pattern: ^x-[a-z0-9]+(?:[.-][a-z0-9]+)+$
       additionalProperties:
-        type:
-        - string
-        - number
-        - boolean
-        - array
-        - object
-        - 'null'
+        $ref: '#/components/schemas/ExpressionDocumentExtensionValue'
+      description: Closed, dependency-bound extension descriptor; unregistered bindings are compiler errors.
     ExpressionDocumentRowPath:
       type: array
       maxItems: 3
@@ -13803,15 +15426,6 @@ components:
       - timeZone
     ExpressionDocumentExpression:
       $ref: '#/components/schemas/ExpressionDocument'
-    ExpressionDocumentLiteralValue:
-      anyOf:
-      - type: string
-      - type: boolean
-      - $ref: '#/components/schemas/ExpressionDocumentInt64'
-      - $ref: '#/components/schemas/ExpressionDocumentDecimal'
-      - $ref: '#/components/schemas/ExpressionDocumentDate'
-      - $ref: '#/components/schemas/ExpressionDocumentTime'
-      - $ref: '#/components/schemas/ExpressionDocumentDateTime'
     ExpressionDocumentLiteral:
       type: object
       additionalProperties: false
@@ -13830,18 +15444,266 @@ components:
               - time
               - dateTime
               - choice
-            value:
-              $ref: '#/components/schemas/ExpressionDocumentLiteralValue'
+              - array
+            itemType:
+              enum:
+              - text
+              - integer
+              - decimal
+              - boolean
+              - date
+              - time
+              - dateTime
+              - choice
+            value: {}
           required:
           - type
           - value
+          allOf:
+          - if:
+              properties:
+                type:
+                  const: text
+              required:
+              - type
+            then:
+              properties:
+                value:
+                  type: string
+              not:
+                required:
+                - itemType
+          - if:
+              properties:
+                type:
+                  const: integer
+              required:
+              - type
+            then:
+              properties:
+                value:
+                  $ref: '#/components/schemas/ExpressionDocumentInt64'
+              not:
+                required:
+                - itemType
+          - if:
+              properties:
+                type:
+                  const: decimal
+              required:
+              - type
+            then:
+              properties:
+                value:
+                  $ref: '#/components/schemas/ExpressionDocumentDecimalStorage'
+              not:
+                required:
+                - itemType
+          - if:
+              properties:
+                type:
+                  const: boolean
+              required:
+              - type
+            then:
+              properties:
+                value:
+                  type: boolean
+              not:
+                required:
+                - itemType
+          - if:
+              properties:
+                type:
+                  const: date
+              required:
+              - type
+            then:
+              properties:
+                value:
+                  $ref: '#/components/schemas/ExpressionDocumentDate'
+              not:
+                required:
+                - itemType
+          - if:
+              properties:
+                type:
+                  const: time
+              required:
+              - type
+            then:
+              properties:
+                value:
+                  $ref: '#/components/schemas/ExpressionDocumentTime'
+              not:
+                required:
+                - itemType
+          - if:
+              properties:
+                type:
+                  const: dateTime
+              required:
+              - type
+            then:
+              properties:
+                value:
+                  $ref: '#/components/schemas/ExpressionDocumentDateTime'
+              not:
+                required:
+                - itemType
+          - if:
+              properties:
+                type:
+                  const: choice
+              required:
+              - type
+            then:
+              properties:
+                value:
+                  type: string
+              not:
+                required:
+                - itemType
+          - if:
+              properties:
+                type:
+                  const: array
+              required:
+              - type
+            then:
+              required:
+              - itemType
+              properties:
+                value:
+                  type: array
+                  items: {}
+          - if:
+              properties:
+                type:
+                  const: array
+                itemType:
+                  const: text
+              required:
+              - type
+              - itemType
+            then:
+              properties:
+                value:
+                  type: array
+                  items:
+                    type: string
+          - if:
+              properties:
+                type:
+                  const: array
+                itemType:
+                  const: integer
+              required:
+              - type
+              - itemType
+            then:
+              properties:
+                value:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ExpressionDocumentInt64'
+          - if:
+              properties:
+                type:
+                  const: array
+                itemType:
+                  const: decimal
+              required:
+              - type
+              - itemType
+            then:
+              properties:
+                value:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ExpressionDocumentDecimalStorage'
+          - if:
+              properties:
+                type:
+                  const: array
+                itemType:
+                  const: boolean
+              required:
+              - type
+              - itemType
+            then:
+              properties:
+                value:
+                  type: array
+                  items:
+                    type: boolean
+          - if:
+              properties:
+                type:
+                  const: array
+                itemType:
+                  const: date
+              required:
+              - type
+              - itemType
+            then:
+              properties:
+                value:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ExpressionDocumentDate'
+          - if:
+              properties:
+                type:
+                  const: array
+                itemType:
+                  const: time
+              required:
+              - type
+              - itemType
+            then:
+              properties:
+                value:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ExpressionDocumentTime'
+          - if:
+              properties:
+                type:
+                  const: array
+                itemType:
+                  const: dateTime
+              required:
+              - type
+              - itemType
+            then:
+              properties:
+                value:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ExpressionDocumentDateTime'
+          - if:
+              properties:
+                type:
+                  const: array
+                itemType:
+                  const: choice
+              required:
+              - type
+              - itemType
+            then:
+              properties:
+                value:
+                  type: array
+                  items:
+                    type: string
       required:
       - literal
     ExpressionDocumentReference:
       type: object
       additionalProperties: false
       properties:
-        reference:
+        ref:
           type: object
           additionalProperties: false
           properties:
@@ -13852,15 +15714,27 @@ components:
               - root
               - item
               - parentItem
-            ancestorDepth:
+            parentDepth:
               type: integer
-              minimum: 0
-              maximum: 2
+              minimum: 1
+              maximum: 3
           required:
           - fieldId
           - scope
+          allOf:
+          - if:
+              properties:
+                scope:
+                  const: parentItem
+              required:
+              - scope
+            then: {}
+            else:
+              not:
+                required:
+                - parentDepth
       required:
-      - reference
+      - ref
     ExpressionDocumentContext:
       type: object
       additionalProperties: false
@@ -13869,8 +15743,6 @@ components:
           enum:
           - sessionDate
           - sessionTimeZone
-          - item
-          - parentItem
       required:
       - context
     ExpressionDocumentApply:
@@ -13921,6 +15793,38 @@ components:
       required:
       - op
       - args
+    ExpressionDocumentDecimalStorage:
+      type: string
+      pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
+      format: stored-decimal
+      description: Destination storage preserves declared scale, e.g. 12.50.
+    ExpressionDocumentDecimalResult:
+      type: string
+      pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$
+      format: canonical-decimal
+      description: Exact expression result; no redundant trailing fractional zeroes.
+    ExpressionDocumentExtensionValue:
+      type: object
+      additionalProperties: false
+      properties:
+        dependencyId:
+          $ref: '#/components/schemas/ExpressionDocumentId'
+        version:
+          type: string
+          minLength: 1
+        digest:
+          $ref: '#/components/schemas/ExpressionDocumentSha256'
+        value:
+          type:
+          - string
+          - number
+          - boolean
+          - 'null'
+      required:
+      - dependencyId
+      - version
+      - digest
+      - value
     InputAnswerDocument:
       title: Smart Form Builder Lite InputAnswer 4.0.0
       description: Recursive metadata-free input wrapper. Field type is resolved by the pinned definition.
@@ -13949,6 +15853,7 @@ components:
         time:
           type: string
           pattern: ^(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.\d{1,9})?$
+          format: time
         instant:
           type: string
           pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z$
@@ -13958,13 +15863,8 @@ components:
           propertyNames:
             pattern: ^x-[a-z0-9]+(?:[.-][a-z0-9]+)+$
           additionalProperties:
-            type:
-            - string
-            - number
-            - boolean
-            - array
-            - object
-            - 'null'
+            $ref: '#/components/schemas/InputAnswerDocumentExtensionValue'
+          description: Closed, dependency-bound extension descriptor; unregistered bindings are compiler errors.
         rowPath:
           type: array
           maxItems: 3
@@ -14065,6 +15965,28 @@ components:
               - respondentNotApplicable
           required:
           - status
+        extensionValue:
+          type: object
+          additionalProperties: false
+          properties:
+            dependencyId:
+              $ref: '#/components/schemas/InputAnswerDocumentId'
+            version:
+              type: string
+              minLength: 1
+            digest:
+              $ref: '#/components/schemas/InputAnswerDocumentSha256'
+            value:
+              type:
+              - string
+              - number
+              - boolean
+              - 'null'
+          required:
+          - dependencyId
+          - version
+          - digest
+          - value
       type: object
       additionalProperties: false
       required:
@@ -14102,6 +16024,7 @@ components:
     InputAnswerDocumentTime:
       type: string
       pattern: ^(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.\d{1,9})?$
+      format: time
     InputAnswerDocumentInstant:
       type: string
       pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z$
@@ -14111,13 +16034,8 @@ components:
       propertyNames:
         pattern: ^x-[a-z0-9]+(?:[.-][a-z0-9]+)+$
       additionalProperties:
-        type:
-        - string
-        - number
-        - boolean
-        - array
-        - object
-        - 'null'
+        $ref: '#/components/schemas/InputAnswerDocumentExtensionValue'
+      description: Closed, dependency-bound extension descriptor; unregistered bindings are compiler errors.
     InputAnswerDocumentRowPath:
       type: array
       maxItems: 3
@@ -14218,6 +16136,28 @@ components:
           - respondentNotApplicable
       required:
       - status
+    InputAnswerDocumentExtensionValue:
+      type: object
+      additionalProperties: false
+      properties:
+        dependencyId:
+          $ref: '#/components/schemas/InputAnswerDocumentId'
+        version:
+          type: string
+          minLength: 1
+        digest:
+          $ref: '#/components/schemas/InputAnswerDocumentSha256'
+        value:
+          type:
+          - string
+          - number
+          - boolean
+          - 'null'
+      required:
+      - dependencyId
+      - version
+      - digest
+      - value
     TypedAnswerDocument:
       title: Smart Form Builder Lite typed answer cell 4.0.0
       description: Server envelope answer with resolved type and provenance; client InputAnswer must not carry these fields.
@@ -14237,8 +16177,8 @@ components:
           format: canonical-int64
         decimal:
           type: string
-          pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$
-          format: canonical-decimal
+          pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
+          format: stored-decimal
         date:
           type: string
           pattern: ^\d{4}-\d{2}-\d{2}$
@@ -14246,6 +16186,7 @@ components:
         time:
           type: string
           pattern: ^(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.\d{1,9})?$
+          format: time
         instant:
           type: string
           pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z$
@@ -14255,13 +16196,8 @@ components:
           propertyNames:
             pattern: ^x-[a-z0-9]+(?:[.-][a-z0-9]+)+$
           additionalProperties:
-            type:
-            - string
-            - number
-            - boolean
-            - array
-            - object
-            - 'null'
+            $ref: '#/components/schemas/TypedAnswerDocumentExtensionValue'
+          description: Closed, dependency-bound extension descriptor; unregistered bindings are compiler errors.
         rowPath:
           type: array
           maxItems: 3
@@ -14416,6 +16352,36 @@ components:
           - status
           - type
           - provenance
+        decimalStorage:
+          type: string
+          pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
+          format: stored-decimal
+        decimalResult:
+          type: string
+          pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$
+          format: canonical-decimal
+        extensionValue:
+          type: object
+          additionalProperties: false
+          properties:
+            dependencyId:
+              $ref: '#/components/schemas/TypedAnswerDocumentId'
+            version:
+              type: string
+              minLength: 1
+            digest:
+              $ref: '#/components/schemas/TypedAnswerDocumentSha256'
+            value:
+              type:
+              - string
+              - number
+              - boolean
+              - 'null'
+          required:
+          - dependencyId
+          - version
+          - digest
+          - value
       type: object
       additionalProperties: false
       required:
@@ -14464,8 +16430,8 @@ components:
       format: canonical-int64
     TypedAnswerDocumentDecimal:
       type: string
-      pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$
-      format: canonical-decimal
+      pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
+      format: stored-decimal
     TypedAnswerDocumentDate:
       type: string
       pattern: ^\d{4}-\d{2}-\d{2}$
@@ -14473,6 +16439,7 @@ components:
     TypedAnswerDocumentTime:
       type: string
       pattern: ^(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.\d{1,9})?$
+      format: time
     TypedAnswerDocumentInstant:
       type: string
       pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z$
@@ -14482,13 +16449,8 @@ components:
       propertyNames:
         pattern: ^x-[a-z0-9]+(?:[.-][a-z0-9]+)+$
       additionalProperties:
-        type:
-        - string
-        - number
-        - boolean
-        - array
-        - object
-        - 'null'
+        $ref: '#/components/schemas/TypedAnswerDocumentExtensionValue'
+      description: Closed, dependency-bound extension descriptor; unregistered bindings are compiler errors.
     TypedAnswerDocumentRowPath:
       type: array
       maxItems: 3
@@ -14643,6 +16605,36 @@ components:
       - status
       - type
       - provenance
+    TypedAnswerDocumentDecimalStorage:
+      type: string
+      pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
+      format: stored-decimal
+    TypedAnswerDocumentDecimalResult:
+      type: string
+      pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$
+      format: canonical-decimal
+    TypedAnswerDocumentExtensionValue:
+      type: object
+      additionalProperties: false
+      properties:
+        dependencyId:
+          $ref: '#/components/schemas/TypedAnswerDocumentId'
+        version:
+          type: string
+          minLength: 1
+        digest:
+          $ref: '#/components/schemas/TypedAnswerDocumentSha256'
+        value:
+          type:
+          - string
+          - number
+          - boolean
+          - 'null'
+      required:
+      - dependencyId
+      - version
+      - digest
+      - value
     RuntimeManifestDocument:
       title: Smart Form Builder Lite immutable runtime manifest 4.0.0
       type: object
@@ -14716,6 +16708,7 @@ components:
         time:
           type: string
           pattern: ^(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.\d{1,9})?$
+          format: time
         instant:
           type: string
           pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z$
@@ -14725,13 +16718,8 @@ components:
           propertyNames:
             pattern: ^x-[a-z0-9]+(?:[.-][a-z0-9]+)+$
           additionalProperties:
-            type:
-            - string
-            - number
-            - boolean
-            - array
-            - object
-            - 'null'
+            $ref: '#/components/schemas/RuntimeManifestDocumentExtensionValue'
+          description: Closed, dependency-bound extension descriptor; unregistered bindings are compiler errors.
         rowPath:
           type: array
           maxItems: 3
@@ -14798,6 +16786,28 @@ components:
           - id
           - version
           - digest
+        extensionValue:
+          type: object
+          additionalProperties: false
+          properties:
+            dependencyId:
+              $ref: '#/components/schemas/RuntimeManifestDocumentId'
+            version:
+              type: string
+              minLength: 1
+            digest:
+              $ref: '#/components/schemas/RuntimeManifestDocumentSha256'
+            value:
+              type:
+              - string
+              - number
+              - boolean
+              - 'null'
+          required:
+          - dependencyId
+          - version
+          - digest
+          - value
     RuntimeManifestDocumentId:
       type: string
       pattern: ^[A-Za-z][A-Za-z0-9_-]{0,127}$
@@ -14822,6 +16832,7 @@ components:
     RuntimeManifestDocumentTime:
       type: string
       pattern: ^(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.\d{1,9})?$
+      format: time
     RuntimeManifestDocumentInstant:
       type: string
       pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z$
@@ -14831,13 +16842,8 @@ components:
       propertyNames:
         pattern: ^x-[a-z0-9]+(?:[.-][a-z0-9]+)+$
       additionalProperties:
-        type:
-        - string
-        - number
-        - boolean
-        - array
-        - object
-        - 'null'
+        $ref: '#/components/schemas/RuntimeManifestDocumentExtensionValue'
+      description: Closed, dependency-bound extension descriptor; unregistered bindings are compiler errors.
     RuntimeManifestDocumentRowPath:
       type: array
       maxItems: 3
@@ -14904,6 +16910,28 @@ components:
       - id
       - version
       - digest
+    RuntimeManifestDocumentExtensionValue:
+      type: object
+      additionalProperties: false
+      properties:
+        dependencyId:
+          $ref: '#/components/schemas/RuntimeManifestDocumentId'
+        version:
+          type: string
+          minLength: 1
+        digest:
+          $ref: '#/components/schemas/RuntimeManifestDocumentSha256'
+        value:
+          type:
+          - string
+          - number
+          - boolean
+          - 'null'
+      required:
+      - dependencyId
+      - version
+      - digest
+      - value
     SubmissionEnvelopeDocument:
       title: Smart Form Builder Lite immutable submission envelope 4.0.0
       type: object
@@ -14916,6 +16944,8 @@ components:
       - formId
       - sessionId
       - sessionRevision
+      - startedAt
+      - receivedAt
       - submittedAt
       - status
       - locale
@@ -14981,6 +17011,10 @@ components:
           uniqueItems: true
         extensions:
           $ref: '#/components/schemas/SubmissionEnvelopeDocumentExtensionNamespaces'
+        startedAt:
+          $ref: '#/components/schemas/SubmissionEnvelopeDocumentInstant'
+        receivedAt:
+          $ref: '#/components/schemas/SubmissionEnvelopeDocumentInstant'
       $defs:
         id:
           type: string
@@ -14997,8 +17031,8 @@ components:
           format: canonical-int64
         decimal:
           type: string
-          pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$
-          format: canonical-decimal
+          pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
+          format: stored-decimal
         date:
           type: string
           pattern: ^\d{4}-\d{2}-\d{2}$
@@ -15006,6 +17040,7 @@ components:
         time:
           type: string
           pattern: ^(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.\d{1,9})?$
+          format: time
         instant:
           type: string
           pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z$
@@ -15015,13 +17050,8 @@ components:
           propertyNames:
             pattern: ^x-[a-z0-9]+(?:[.-][a-z0-9]+)+$
           additionalProperties:
-            type:
-            - string
-            - number
-            - boolean
-            - array
-            - object
-            - 'null'
+            $ref: '#/components/schemas/SubmissionEnvelopeDocumentExtensionValue'
+          description: Closed, dependency-bound extension descriptor; unregistered bindings are compiler errors.
         rowPath:
           type: array
           maxItems: 3
@@ -15170,6 +17200,36 @@ components:
           - packageHash
           - engineContract
           - contractVersion
+        decimalStorage:
+          type: string
+          pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
+          format: stored-decimal
+        decimalResult:
+          type: string
+          pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$
+          format: canonical-decimal
+        extensionValue:
+          type: object
+          additionalProperties: false
+          properties:
+            dependencyId:
+              $ref: '#/components/schemas/SubmissionEnvelopeDocumentId'
+            version:
+              type: string
+              minLength: 1
+            digest:
+              $ref: '#/components/schemas/SubmissionEnvelopeDocumentSha256'
+            value:
+              type:
+              - string
+              - number
+              - boolean
+              - 'null'
+          required:
+          - dependencyId
+          - version
+          - digest
+          - value
     SubmissionEnvelopeDocumentId:
       type: string
       pattern: ^[A-Za-z][A-Za-z0-9_-]{0,127}$
@@ -15185,8 +17245,8 @@ components:
       format: canonical-int64
     SubmissionEnvelopeDocumentDecimal:
       type: string
-      pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$
-      format: canonical-decimal
+      pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
+      format: stored-decimal
     SubmissionEnvelopeDocumentDate:
       type: string
       pattern: ^\d{4}-\d{2}-\d{2}$
@@ -15194,6 +17254,7 @@ components:
     SubmissionEnvelopeDocumentTime:
       type: string
       pattern: ^(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.\d{1,9})?$
+      format: time
     SubmissionEnvelopeDocumentInstant:
       type: string
       pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z$
@@ -15203,13 +17264,8 @@ components:
       propertyNames:
         pattern: ^x-[a-z0-9]+(?:[.-][a-z0-9]+)+$
       additionalProperties:
-        type:
-        - string
-        - number
-        - boolean
-        - array
-        - object
-        - 'null'
+        $ref: '#/components/schemas/SubmissionEnvelopeDocumentExtensionValue'
+      description: Closed, dependency-bound extension descriptor; unregistered bindings are compiler errors.
     SubmissionEnvelopeDocumentRowPath:
       type: array
       maxItems: 3
@@ -15358,6 +17414,36 @@ components:
       - packageHash
       - engineContract
       - contractVersion
+    SubmissionEnvelopeDocumentDecimalStorage:
+      type: string
+      pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
+      format: stored-decimal
+    SubmissionEnvelopeDocumentDecimalResult:
+      type: string
+      pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$
+      format: canonical-decimal
+    SubmissionEnvelopeDocumentExtensionValue:
+      type: object
+      additionalProperties: false
+      properties:
+        dependencyId:
+          $ref: '#/components/schemas/SubmissionEnvelopeDocumentId'
+        version:
+          type: string
+          minLength: 1
+        digest:
+          $ref: '#/components/schemas/SubmissionEnvelopeDocumentSha256'
+        value:
+          type:
+          - string
+          - number
+          - boolean
+          - 'null'
+      required:
+      - dependencyId
+      - version
+      - digest
+      - value
     EventDocument:
       title: Smart Form Builder Lite outbound event 4.0.0
       type: object
@@ -15408,14 +17494,87 @@ components:
       allOf:
       - if:
           properties:
+            type:
+              const: form.published
+          required:
+          - type
+        then:
+          properties:
+            dataMode:
+              const: reference
+            resource:
+              required:
+              - formId
+              - releaseId
+          not:
+            required:
+            - envelope
+      - if:
+          properties:
+            type:
+              const: form.retired
+          required:
+          - type
+        then:
+          properties:
+            dataMode:
+              const: reference
+            resource:
+              required:
+              - formId
+              - releaseId
+          not:
+            required:
+            - envelope
+      - if:
+          properties:
+            type:
+              const: submission.created
+          required:
+          - type
+        then:
+          properties:
             dataMode:
               const: full
-          required:
-          - dataMode
-        then:
+            resource:
+              required:
+              - formId
+              - submissionId
           required:
           - envelope
-        else:
+      - if:
+          properties:
+            type:
+              const: submission.deleted
+          required:
+          - type
+        then:
+          properties:
+            dataMode:
+              const: reference
+            resource:
+              required:
+              - formId
+              - submissionId
+              - deletionId
+              - accessRevokedAt
+          not:
+            required:
+            - envelope
+      - if:
+          properties:
+            type:
+              const: attachment.rejected
+          required:
+          - type
+        then:
+          properties:
+            dataMode:
+              const: reference
+            resource:
+              required:
+              - formId
+              - attachmentId
           not:
             required:
             - envelope
@@ -15444,6 +17603,7 @@ components:
         time:
           type: string
           pattern: ^(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.\d{1,9})?$
+          format: time
         instant:
           type: string
           pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z$
@@ -15453,13 +17613,8 @@ components:
           propertyNames:
             pattern: ^x-[a-z0-9]+(?:[.-][a-z0-9]+)+$
           additionalProperties:
-            type:
-            - string
-            - number
-            - boolean
-            - array
-            - object
-            - 'null'
+            $ref: '#/components/schemas/EventDocumentExtensionValue'
+          description: Closed, dependency-bound extension descriptor; unregistered bindings are compiler errors.
         rowPath:
           type: array
           maxItems: 3
@@ -15500,10 +17655,34 @@ components:
               $ref: '#/components/schemas/EventDocumentId'
             deletionId:
               $ref: '#/components/schemas/EventDocumentId'
+            accessRevokedAt:
+              $ref: '#/components/schemas/EventDocumentInstant'
           required:
           - formId
         fullEnvelope:
           $ref: '#/components/schemas/SubmissionEnvelopeDocument'
+        extensionValue:
+          type: object
+          additionalProperties: false
+          properties:
+            dependencyId:
+              $ref: '#/components/schemas/EventDocumentId'
+            version:
+              type: string
+              minLength: 1
+            digest:
+              $ref: '#/components/schemas/EventDocumentSha256'
+            value:
+              type:
+              - string
+              - number
+              - boolean
+              - 'null'
+          required:
+          - dependencyId
+          - version
+          - digest
+          - value
     EventDocumentId:
       type: string
       pattern: ^[A-Za-z][A-Za-z0-9_-]{0,127}$
@@ -15528,6 +17707,7 @@ components:
     EventDocumentTime:
       type: string
       pattern: ^(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.\d{1,9})?$
+      format: time
     EventDocumentInstant:
       type: string
       pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z$
@@ -15537,13 +17717,8 @@ components:
       propertyNames:
         pattern: ^x-[a-z0-9]+(?:[.-][a-z0-9]+)+$
       additionalProperties:
-        type:
-        - string
-        - number
-        - boolean
-        - array
-        - object
-        - 'null'
+        $ref: '#/components/schemas/EventDocumentExtensionValue'
+      description: Closed, dependency-bound extension descriptor; unregistered bindings are compiler errors.
     EventDocumentRowPath:
       type: array
       maxItems: 3
@@ -15584,10 +17759,34 @@ components:
           $ref: '#/components/schemas/EventDocumentId'
         deletionId:
           $ref: '#/components/schemas/EventDocumentId'
+        accessRevokedAt:
+          $ref: '#/components/schemas/EventDocumentInstant'
       required:
       - formId
     EventDocumentFullEnvelope:
       $ref: '#/components/schemas/SubmissionEnvelopeDocument'
+    EventDocumentExtensionValue:
+      type: object
+      additionalProperties: false
+      properties:
+        dependencyId:
+          $ref: '#/components/schemas/EventDocumentId'
+        version:
+          type: string
+          minLength: 1
+        digest:
+          $ref: '#/components/schemas/EventDocumentSha256'
+        value:
+          type:
+          - string
+          - number
+          - boolean
+          - 'null'
+      required:
+      - dependencyId
+      - version
+      - digest
+      - value
   x-contract-schema-resources:
   - $ref: '#/components/schemas/PackageDocument'
   - $ref: '#/components/schemas/ExpressionDocument'

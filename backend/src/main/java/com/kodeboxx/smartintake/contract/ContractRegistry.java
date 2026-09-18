@@ -5,13 +5,17 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.JsonMetaSchema;
+import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.SpecVersion;
 import com.networknt.schema.ValidationMessage;
+import com.networknt.schema.format.AbstractFormat;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Comparator;
@@ -36,6 +40,9 @@ public final class ContractRegistry {
   private final PublishedDocument openApi;
   private final Map<String, Object> capabilities;
 
+  private static final BigInteger INT64_MIN = BigInteger.valueOf(Long.MIN_VALUE);
+  private static final BigInteger INT64_MAX = BigInteger.valueOf(Long.MAX_VALUE);
+
   public ContractRegistry(ObjectMapper json) {
     this.json = json;
     try {
@@ -50,12 +57,22 @@ public final class ContractRegistry {
         schemaBytes.put(kind, content);
         schemaSources.put(String.valueOf(entry.get("id")), new String(content, StandardCharsets.UTF_8));
       }
-      JsonSchemaFactory factory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012))
+      JsonMetaSchema metaSchema = JsonMetaSchema.builder(JsonMetaSchema.getV202012())
+          .addFormat(format("canonical-int64", ContractRegistry::isCanonicalInt64))
+          .addFormat(format("canonical-decimal", ContractRegistry::isCanonicalDecimal))
+          .addFormat(format("stored-decimal", ContractRegistry::isStoredDecimal))
+          .build();
+      JsonSchemaFactory factory = JsonSchemaFactory.builder()
+          .defaultMetaSchemaIri(metaSchema.getIri())
+          .addMetaSchema(metaSchema)
           .schemaLoaders(loaders -> loaders.schemas(schemaSources)).build();
+      SchemaValidatorsConfig validationConfig = SchemaValidatorsConfig.builder()
+          .formatAssertionsEnabled(true)
+          .build();
       for (Map<String, Object> entry : entries) {
         String kind = String.valueOf(entry.get("kind"));
         byte[] content = schemaBytes.get(kind);
-        JsonSchema schema = factory.getSchema(json.readTree(content));
+        JsonSchema schema = factory.getSchema(json.readTree(content), validationConfig);
         schemas.put(kind, new PublishedSchema(kind, String.valueOf(entry.get("version")), content, sha256(content), schema));
       }
       byte[] apiBytes = bytes("contracts/openapi-4.0.0.yaml");
@@ -64,6 +81,30 @@ public final class ContractRegistry {
       throw new IllegalStateException("M2 contract publication bundle is unavailable", exception);
     }
   }
+
+  private static AbstractFormat format(String name, java.util.function.Predicate<String> predicate) {
+    return new AbstractFormat(name, "Contract scalar format is invalid") {
+      @Override public boolean matches(String value) { return predicate.test(value); }
+    };
+  }
+
+  private static boolean isCanonicalInt64(String value) {
+    if (!value.matches("^(0|-[1-9][0-9]*|[1-9][0-9]*)$")) return false;
+    BigInteger number = new BigInteger(value);
+    return number.compareTo(INT64_MIN) >= 0 && number.compareTo(INT64_MAX) <= 0;
+  }
+
+  private static boolean isCanonicalDecimal(String value) {
+    if (!value.matches("^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\\.[0-9]*[1-9])?$")) return false;
+    return digits(value) <= 34;
+  }
+
+  private static boolean isStoredDecimal(String value) {
+    if (!value.matches("^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$")) return false;
+    return digits(value) <= 34;
+  }
+
+  private static int digits(String value) { return value.replace("-", "").replace(".", "").length(); }
 
   public Map<String, Object> capabilities() {
     return capabilities;
@@ -88,6 +129,13 @@ public final class ContractRegistry {
         .sorted(Comparator.comparing(Diagnostic::pointer).thenComparing(Diagnostic::message))
         .toList();
     return new ValidationResult(kind, version, schema.sha256(), diagnostics.isEmpty(), diagnostics);
+  }
+
+  /** Gate transport DTO deserialization behind the authoritative contract validator. */
+  public JsonNode requireValid(String kind, String version, JsonNode instance) {
+    ValidationResult result = validate(kind, version, instance);
+    if (!result.valid()) throw new IllegalArgumentException("Contract validation failed for " + kind + "@" + version + ": " + result.diagnostics());
+    return instance;
   }
 
   private byte[] bytes(String resource) throws IOException {

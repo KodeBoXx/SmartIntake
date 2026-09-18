@@ -23,6 +23,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.kodeboxx.smartintake.generated.contract.ExpressionDocument;
 import com.kodeboxx.smartintake.generated.contract.PackageDocumentMessagePartsInnerOneOf;
 import com.kodeboxx.smartintake.generated.contract.PackageDocumentMessagePartsInnerOneOf1;
+import com.kodeboxx.smartintake.generated.contract.PackageDocumentMessagePartsInnerOneOf2;
+import com.kodeboxx.smartintake.generated.contract.PackageDocumentPluralPart;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -31,7 +33,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
  */
 @JsonPropertyOrder({
   PackageDocumentMessagePartsInner.JSON_PROPERTY_TEXT,
-  PackageDocumentMessagePartsInner.JSON_PROPERTY_VALUE
+  PackageDocumentMessagePartsInner.JSON_PROPERTY_VALUE,
+  PackageDocumentMessagePartsInner.JSON_PROPERTY_PLURAL
 })
 @JsonTypeName("PackageDocumentMessage_parts_inner")
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
@@ -43,6 +46,10 @@ public class PackageDocumentMessagePartsInner {
   public static final String JSON_PROPERTY_VALUE = "value";
   @jakarta.annotation.Nonnull
   private ExpressionDocument value;
+
+  public static final String JSON_PROPERTY_PLURAL = "plural";
+  @jakarta.annotation.Nonnull
+  private PackageDocumentPluralPart plural;
 
   public PackageDocumentMessagePartsInner() {
   }
@@ -97,6 +104,31 @@ public class PackageDocumentMessagePartsInner {
     this.value = value;
   }
 
+  public PackageDocumentMessagePartsInner plural(@jakarta.annotation.Nonnull PackageDocumentPluralPart plural) {
+    
+    this.plural = plural;
+    return this;
+  }
+
+  /**
+   * Get plural
+   * @return plural
+   */
+  @jakarta.annotation.Nonnull
+  @JsonProperty(JSON_PROPERTY_PLURAL)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+
+  public PackageDocumentPluralPart getPlural() {
+    return plural;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_PLURAL)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setPlural(@jakarta.annotation.Nonnull PackageDocumentPluralPart plural) {
+    this.plural = plural;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -107,12 +139,13 @@ public class PackageDocumentMessagePartsInner {
     }
     PackageDocumentMessagePartsInner packageDocumentMessagePartsInner = (PackageDocumentMessagePartsInner) o;
     return Objects.equals(this.text, packageDocumentMessagePartsInner.text) &&
-        Objects.equals(this.value, packageDocumentMessagePartsInner.value);
+        Objects.equals(this.value, packageDocumentMessagePartsInner.value) &&
+        Objects.equals(this.plural, packageDocumentMessagePartsInner.plural);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(text, value);
+    return Objects.hash(text, value, plural);
   }
 
   @Override
@@ -121,6 +154,7 @@ public class PackageDocumentMessagePartsInner {
     sb.append("class PackageDocumentMessagePartsInner {\n");
     sb.append("    text: ").append(toIndentedString(text)).append("\n");
     sb.append("    value: ").append(toIndentedString(value)).append("\n");
+    sb.append("    plural: ").append(toIndentedString(plural)).append("\n");
     sb.append("}");
     return sb.toString();
   }

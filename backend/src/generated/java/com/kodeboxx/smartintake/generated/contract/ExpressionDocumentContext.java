@@ -39,11 +39,7 @@ public class ExpressionDocumentContext extends HashMap<String, Object> {
   public enum ContextEnum {
     SESSION_DATE(String.valueOf("sessionDate")),
     
-    SESSION_TIME_ZONE(String.valueOf("sessionTimeZone")),
-    
-    ITEM(String.valueOf("item")),
-    
-    PARENT_ITEM(String.valueOf("parentItem"));
+    SESSION_TIME_ZONE(String.valueOf("sessionTimeZone"));
 
     private String value;
 

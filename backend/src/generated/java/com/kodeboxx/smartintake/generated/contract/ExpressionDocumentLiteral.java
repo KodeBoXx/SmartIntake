@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.kodeboxx.smartintake.generated.contract.ExpressionDocumentLiteralValue;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -29,6 +28,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
  */
 @JsonPropertyOrder({
   ExpressionDocumentLiteral.JSON_PROPERTY_TYPE,
+  ExpressionDocumentLiteral.JSON_PROPERTY_ITEM_TYPE,
   ExpressionDocumentLiteral.JSON_PROPERTY_VALUE
 })
 @JsonTypeName("ExpressionDocument_literal")
@@ -52,7 +52,9 @@ public class ExpressionDocumentLiteral {
     
     DATE_TIME(String.valueOf("dateTime")),
     
-    CHOICE(String.valueOf("choice"));
+    CHOICE(String.valueOf("choice")),
+    
+    ARRAY(String.valueOf("array"));
 
     private String value;
 
@@ -85,9 +87,60 @@ public class ExpressionDocumentLiteral {
   @jakarta.annotation.Nonnull
   private TypeEnum type;
 
+  /**
+   * Gets or Sets itemType
+   */
+  public enum ItemTypeEnum {
+    TEXT(String.valueOf("text")),
+    
+    INTEGER(String.valueOf("integer")),
+    
+    DECIMAL(String.valueOf("decimal")),
+    
+    BOOLEAN(String.valueOf("boolean")),
+    
+    DATE(String.valueOf("date")),
+    
+    TIME(String.valueOf("time")),
+    
+    DATE_TIME(String.valueOf("dateTime")),
+    
+    CHOICE(String.valueOf("choice"));
+
+    private String value;
+
+    ItemTypeEnum(String value) {
+      this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    @JsonCreator
+    public static ItemTypeEnum fromValue(String value) {
+      for (ItemTypeEnum b : ItemTypeEnum.values()) {
+        if (b.value.equals(value)) {
+          return b;
+        }
+      }
+      throw new IllegalArgumentException("Unexpected value '" + value + "'");
+    }
+  }
+
+  public static final String JSON_PROPERTY_ITEM_TYPE = "itemType";
+  @jakarta.annotation.Nullable
+  private ItemTypeEnum itemType;
+
   public static final String JSON_PROPERTY_VALUE = "value";
-  @jakarta.annotation.Nonnull
-  private ExpressionDocumentLiteralValue value;
+  @jakarta.annotation.Nullable
+  private Object value = null;
 
   public ExpressionDocumentLiteral() {
   }
@@ -117,7 +170,32 @@ public class ExpressionDocumentLiteral {
     this.type = type;
   }
 
-  public ExpressionDocumentLiteral value(@jakarta.annotation.Nonnull ExpressionDocumentLiteralValue value) {
+  public ExpressionDocumentLiteral itemType(@jakarta.annotation.Nullable ItemTypeEnum itemType) {
+    
+    this.itemType = itemType;
+    return this;
+  }
+
+  /**
+   * Get itemType
+   * @return itemType
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_ITEM_TYPE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public ItemTypeEnum getItemType() {
+    return itemType;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_ITEM_TYPE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setItemType(@jakarta.annotation.Nullable ItemTypeEnum itemType) {
+    this.itemType = itemType;
+  }
+
+  public ExpressionDocumentLiteral value(@jakarta.annotation.Nullable Object value) {
     
     this.value = value;
     return this;
@@ -127,18 +205,18 @@ public class ExpressionDocumentLiteral {
    * Get value
    * @return value
    */
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_VALUE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public ExpressionDocumentLiteralValue getValue() {
+  public Object getValue() {
     return value;
   }
 
 
   @JsonProperty(JSON_PROPERTY_VALUE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setValue(@jakarta.annotation.Nonnull ExpressionDocumentLiteralValue value) {
+  public void setValue(@jakarta.annotation.Nullable Object value) {
     this.value = value;
   }
 
@@ -152,12 +230,13 @@ public class ExpressionDocumentLiteral {
     }
     ExpressionDocumentLiteral expressionDocumentLiteral = (ExpressionDocumentLiteral) o;
     return Objects.equals(this.type, expressionDocumentLiteral.type) &&
+        Objects.equals(this.itemType, expressionDocumentLiteral.itemType) &&
         Objects.equals(this.value, expressionDocumentLiteral.value);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(type, value);
+    return Objects.hash(type, itemType, value);
   }
 
   @Override
@@ -165,6 +244,7 @@ public class ExpressionDocumentLiteral {
     StringBuilder sb = new StringBuilder();
     sb.append("class ExpressionDocumentLiteral {\n");
     sb.append("    type: ").append(toIndentedString(type)).append("\n");
+    sb.append("    itemType: ").append(toIndentedString(itemType)).append("\n");
     sb.append("    value: ").append(toIndentedString(value)).append("\n");
     sb.append("}");
     return sb.toString();

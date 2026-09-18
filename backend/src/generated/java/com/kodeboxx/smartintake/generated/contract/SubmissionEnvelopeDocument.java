@@ -21,10 +21,10 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.kodeboxx.smartintake.generated.contract.PackageDocumentExtensionNamespacesValue;
 import com.kodeboxx.smartintake.generated.contract.SubmissionEnvelopeDocumentAck;
 import com.kodeboxx.smartintake.generated.contract.SubmissionEnvelopeDocumentAttachment;
 import com.kodeboxx.smartintake.generated.contract.SubmissionEnvelopeDocumentEvaluationContext;
+import com.kodeboxx.smartintake.generated.contract.SubmissionEnvelopeDocumentExtensionValue;
 import com.kodeboxx.smartintake.generated.contract.SubmissionEnvelopeDocumentRelease;
 import com.kodeboxx.smartintake.generated.contract.TypedAnswerDocument;
 import java.time.OffsetDateTime;
@@ -54,7 +54,9 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   SubmissionEnvelopeDocument.JSON_PROPERTY_ANSWERS,
   SubmissionEnvelopeDocument.JSON_PROPERTY_ATTACHMENTS,
   SubmissionEnvelopeDocument.JSON_PROPERTY_ACKNOWLEDGMENTS,
-  SubmissionEnvelopeDocument.JSON_PROPERTY_EXTENSIONS
+  SubmissionEnvelopeDocument.JSON_PROPERTY_EXTENSIONS,
+  SubmissionEnvelopeDocument.JSON_PROPERTY_STARTED_AT,
+  SubmissionEnvelopeDocument.JSON_PROPERTY_RECEIVED_AT
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
 public class SubmissionEnvelopeDocument extends HashMap<String, Object> {
@@ -120,7 +122,15 @@ public class SubmissionEnvelopeDocument extends HashMap<String, Object> {
 
   public static final String JSON_PROPERTY_EXTENSIONS = "extensions";
   @jakarta.annotation.Nonnull
-  private Map<String, PackageDocumentExtensionNamespacesValue> extensions = new HashMap<>();
+  private Map<String, SubmissionEnvelopeDocumentExtensionValue> extensions = new HashMap<>();
+
+  public static final String JSON_PROPERTY_STARTED_AT = "startedAt";
+  @jakarta.annotation.Nonnull
+  private OffsetDateTime startedAt;
+
+  public static final String JSON_PROPERTY_RECEIVED_AT = "receivedAt";
+  @jakarta.annotation.Nonnull
+  private OffsetDateTime receivedAt;
 
   public SubmissionEnvelopeDocument() {
 
@@ -526,34 +536,84 @@ public class SubmissionEnvelopeDocument extends HashMap<String, Object> {
     this.acknowledgments = acknowledgments;
   }
 
-  public SubmissionEnvelopeDocument extensions(@jakarta.annotation.Nonnull Map<String, PackageDocumentExtensionNamespacesValue> extensions) {
+  public SubmissionEnvelopeDocument extensions(@jakarta.annotation.Nonnull Map<String, SubmissionEnvelopeDocumentExtensionValue> extensions) {
     
     this.extensions = extensions;
     return this;
   }
 
-  public SubmissionEnvelopeDocument putExtensionsItem(String key, PackageDocumentExtensionNamespacesValue extensionsItem) {
+  public SubmissionEnvelopeDocument putExtensionsItem(String key, SubmissionEnvelopeDocumentExtensionValue extensionsItem) {
     this.extensions.put(key, extensionsItem);
     return this;
   }
 
   /**
-   * Get extensions
+   * Closed, dependency-bound extension descriptor; unregistered bindings are compiler errors.
    * @return extensions
    */
   @jakarta.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_EXTENSIONS)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public Map<String, PackageDocumentExtensionNamespacesValue> getExtensions() {
+  public Map<String, SubmissionEnvelopeDocumentExtensionValue> getExtensions() {
     return extensions;
   }
 
 
   @JsonProperty(JSON_PROPERTY_EXTENSIONS)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.ALWAYS)
-  public void setExtensions(@jakarta.annotation.Nonnull Map<String, PackageDocumentExtensionNamespacesValue> extensions) {
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setExtensions(@jakarta.annotation.Nonnull Map<String, SubmissionEnvelopeDocumentExtensionValue> extensions) {
     this.extensions = extensions;
+  }
+
+  public SubmissionEnvelopeDocument startedAt(@jakarta.annotation.Nonnull OffsetDateTime startedAt) {
+    
+    this.startedAt = startedAt;
+    return this;
+  }
+
+  /**
+   * Get startedAt
+   * @return startedAt
+   */
+  @jakarta.annotation.Nonnull
+  @JsonProperty(JSON_PROPERTY_STARTED_AT)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+
+  public OffsetDateTime getStartedAt() {
+    return startedAt;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_STARTED_AT)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setStartedAt(@jakarta.annotation.Nonnull OffsetDateTime startedAt) {
+    this.startedAt = startedAt;
+  }
+
+  public SubmissionEnvelopeDocument receivedAt(@jakarta.annotation.Nonnull OffsetDateTime receivedAt) {
+    
+    this.receivedAt = receivedAt;
+    return this;
+  }
+
+  /**
+   * Get receivedAt
+   * @return receivedAt
+   */
+  @jakarta.annotation.Nonnull
+  @JsonProperty(JSON_PROPERTY_RECEIVED_AT)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+
+  public OffsetDateTime getReceivedAt() {
+    return receivedAt;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_RECEIVED_AT)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setReceivedAt(@jakarta.annotation.Nonnull OffsetDateTime receivedAt) {
+    this.receivedAt = receivedAt;
   }
 
   @Override
@@ -581,12 +641,14 @@ public class SubmissionEnvelopeDocument extends HashMap<String, Object> {
         Objects.equals(this.attachments, submissionEnvelopeDocument.attachments) &&
         Objects.equals(this.acknowledgments, submissionEnvelopeDocument.acknowledgments) &&
         Objects.equals(this.extensions, submissionEnvelopeDocument.extensions) &&
+        Objects.equals(this.startedAt, submissionEnvelopeDocument.startedAt) &&
+        Objects.equals(this.receivedAt, submissionEnvelopeDocument.receivedAt) &&
         super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(schemaVersion, submissionId, tenantId, workspaceId, formId, sessionId, sessionRevision, submittedAt, status, locale, evaluationContext, release, answers, attachments, acknowledgments, extensions, super.hashCode());
+    return Objects.hash(schemaVersion, submissionId, tenantId, workspaceId, formId, sessionId, sessionRevision, submittedAt, status, locale, evaluationContext, release, answers, attachments, acknowledgments, extensions, startedAt, receivedAt, super.hashCode());
   }
 
   @Override
@@ -610,6 +672,8 @@ public class SubmissionEnvelopeDocument extends HashMap<String, Object> {
     sb.append("    attachments: ").append(toIndentedString(attachments)).append("\n");
     sb.append("    acknowledgments: ").append(toIndentedString(acknowledgments)).append("\n");
     sb.append("    extensions: ").append(toIndentedString(extensions)).append("\n");
+    sb.append("    startedAt: ").append(toIndentedString(startedAt)).append("\n");
+    sb.append("    receivedAt: ").append(toIndentedString(receivedAt)).append("\n");
     sb.append("}");
     return sb.toString();
   }

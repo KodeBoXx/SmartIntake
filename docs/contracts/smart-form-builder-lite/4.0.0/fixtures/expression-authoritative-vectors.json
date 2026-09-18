@@ -1,0 +1,167 @@
+{
+  "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/expression-contract.json",
+  "sourceSha256": "sha256:6fd9cd69b123418209b9ae21d1b7a76af2a7ceb76689f2aad0fbe261d2a00aa7",
+  "vectors": [
+    {
+      "id": "EXPR-003",
+      "expression": {
+        "op": "add",
+        "args": [
+          {
+            "literal": {
+              "type": "integer",
+              "value": "2"
+            }
+          },
+          {
+            "literal": {
+              "type": "integer",
+              "value": "3"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-022",
+      "expression": {
+        "op": "in",
+        "args": [
+          {
+            "literal": {
+              "type": "choice",
+              "value": "opt_red"
+            }
+          },
+          {
+            "literal": {
+              "type": "array",
+              "itemType": "choice",
+              "value": [
+                "opt_blue",
+                "opt_red"
+              ]
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-050",
+      "expression": {
+        "context": "sessionDate"
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-051",
+      "expression": {
+        "context": "sessionTimeZone"
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-077",
+      "expression": {
+        "op": "sum",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_orders",
+              "scope": "root"
+            }
+          },
+          {
+            "op": "sum",
+            "args": [
+              {
+                "ref": {
+                  "fieldId": "fld_parts",
+                  "scope": "item"
+                }
+              },
+              {
+                "op": "if",
+                "args": [
+                  {
+                    "op": "lte",
+                    "args": [
+                      {
+                        "ref": {
+                          "fieldId": "fld_quantity",
+                          "scope": "item"
+                        }
+                      },
+                      {
+                        "ref": {
+                          "fieldId": "fld_limit",
+                          "scope": "parentItem",
+                          "parentDepth": 1
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "ref": {
+                      "fieldId": "fld_quantity",
+                      "scope": "item"
+                    }
+                  },
+                  {
+                    "literal": {
+                      "type": "integer",
+                      "value": "0"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-052",
+      "expression": {
+        "context": "locale"
+      },
+      "schemaValid": false
+    },
+    {
+      "id": "EXPR-053",
+      "expression": {
+        "literal": {
+          "type": "array",
+          "itemType": "integer",
+          "value": [
+            [
+              1
+            ]
+          ]
+        }
+      },
+      "schemaValid": false
+    },
+    {
+      "id": "EXPR-054",
+      "expression": {
+        "literal": "1"
+      },
+      "schemaValid": false
+    },
+    {
+      "id": "EXPR-078",
+      "expression": {
+        "ref": {
+          "fieldId": "fld_number",
+          "scope": "root",
+          "parentDepth": 1
+        }
+      },
+      "schemaValid": false
+    }
+  ]
+}

@@ -62,8 +62,11 @@ paths:
                   displayName: A. Author
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
+      x-secret-issuance-replay: Secret, activation, reset and session issuance never replay credentials, tokens, cookies or
+        transfer capabilities; a replay response is redacted.
   /v1/auth/password-change:
     post:
       operationId: ON-post-v1-auth-password-change-98d74c881d
@@ -119,8 +122,9 @@ paths:
                   newPassword: new-correct-horse-battery
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/auth/recovery:
     post:
       operationId: ON-post-v1-auth-recovery-759d7b6e5a
@@ -187,8 +191,11 @@ paths:
                   email: author@example.test
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
+      x-secret-issuance-replay: Secret, activation, reset and session issuance never replay credentials, tokens, cookies or
+        transfer capabilities; a replay response is redacted.
   /v1/auth/reset:
     post:
       operationId: ON-post-v1-auth-reset-7cc02daaf6
@@ -241,8 +248,11 @@ paths:
                   newPassword: new-correct-horse-battery
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
+      x-secret-issuance-replay: Secret, activation, reset and session issuance never replay credentials, tokens, cookies or
+        transfer capabilities; a replay response is redacted.
   /v1/auth/session:
     get:
       operationId: ON-get-v1-auth-session-4664ebe0bc
@@ -366,8 +376,13 @@ paths:
                   password: correct-horse-battery-staple
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
+      x-secret-issuance-replay: Secret, activation, reset and session issuance never replay credentials, tokens, cookies or
+        transfer capabilities; a replay response is redacted.
+      x-login-csrf-origin-protection: Validate an allow-listed Origin and a one-time login-CSRF token before issuing a SameSite,
+        HttpOnly staff cookie.
   /v1/auth/sign-out:
     post:
       operationId: ON-post-v1-auth-sign-out-a46dbecd13
@@ -420,8 +435,9 @@ paths:
                   name: Example resource
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/capabilities:
     get:
       operationId: ON-get-v1-capabilities-ca77d2f932
@@ -528,8 +544,11 @@ paths:
                   password: correct-horse-battery-staple
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
+      x-secret-issuance-replay: Secret, activation, reset and session issuance never replay credentials, tokens, cookies or
+        transfer capabilities; a replay response is redacted.
   /v1/organizations/{o}/invitations/{i}:
     delete:
       operationId: ON-delete-v1-organizations-o-invitations-i-f4f64aadd7
@@ -587,8 +606,9 @@ paths:
       - $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/parameters/IdempotencyKey
       security: *id001
       x-request-body: none
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/organizations/{o}/policies:
     get:
       operationId: OS-get-v1-organizations-o-policies-a6d63aef4b
@@ -655,6 +675,8 @@ paths:
       - $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/parameters/Limit
       security:
       - staffCookie: []
+      x-pagination: 'Results use a stable total order and a snapshot cursor: no duplicate items, no missing items, and deterministic
+        continuation while the cursor is valid.'
     post:
       operationId: OS-post-v1-organizations-o-policies-18ae7aa567
       summary: POST /v1/organizations/{o}/policies (policy objects)
@@ -731,8 +753,9 @@ paths:
                   policyType: retention
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
     patch:
       operationId: OS-patch-v1-organizations-o-policies-408a57e0ec
       summary: PATCH /v1/organizations/{o}/policies (policy objects)
@@ -814,8 +837,9 @@ paths:
                   policyType: retention
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale is 412.
     delete:
       operationId: OS-delete-v1-organizations-o-policies-8804100c92
@@ -866,8 +890,9 @@ paths:
       - $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/parameters/IdempotencyKey
       security: *id001
       x-request-body: none
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/organizations/{o}/users:
     get:
       operationId: ON-get-v1-organizations-o-users-987876371e
@@ -935,6 +960,8 @@ paths:
       - $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/parameters/Limit
       security:
       - staffCookie: []
+      x-pagination: 'Results use a stable total order and a snapshot cursor: no duplicate items, no missing items, and deterministic
+        continuation while the cursor is valid.'
     post:
       operationId: ON-post-v1-organizations-o-users-5260bb3701
       summary: POST /v1/organizations/{o}/users
@@ -1012,8 +1039,9 @@ paths:
                   email: author@example.test
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/organizations/{o}/users/{u}:
     patch:
       operationId: ON-patch-v1-organizations-o-users-u-64340c0fdf
@@ -1104,8 +1132,9 @@ paths:
                   email: author@example.test
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale is 412.
     delete:
       operationId: ON-delete-v1-organizations-o-users-u-e9143ed806
@@ -1163,8 +1192,9 @@ paths:
       - $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/parameters/IdempotencyKey
       security: *id001
       x-request-body: none
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/organizations/{o}/users/{u}/invitations:
     post:
       operationId: ON-post-v1-organizations-o-users-u-invitations-2caab11b76
@@ -1249,8 +1279,9 @@ paths:
                   name: Example resource
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/organizations/{o}/users/{u}/recovery:
     post:
       operationId: ON-post-v1-organizations-o-users-u-recovery-c327e4cd74
@@ -1276,21 +1307,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/schemas/OrganizationUserResponse
+                $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/schemas/OrganizationRecoveryResponse
               examples:
                 success:
                   value:
                     requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
-                    organizationUser:
-                      id: organizationuser-01J2W5RFR3K24SFWDX2C0N9VW3
-                      kind: OrganizationUser
+                    organizationRecovery:
+                      id: organizationrecovery-01J2W5RFR3K24SFWDX2C0N9VW3
+                      kind: OrganizationRecovery
                       revision: 7
                       status: active
                       createdAt: '2026-09-18T00:00:00Z'
                       updatedAt: '2026-09-18T00:00:00Z'
-                      email: author@example.test
-                      roles:
-                      - administrator
+                      safeDelivery: verified-email
+                      revocation: sessions-revoked
+                      ownerSafety: confirmed
+                      idempotencyReplay: redacted
         '400':
           $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/responses/BadRequest
         '401':
@@ -1329,15 +1361,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/schemas/OrganizationUserCreateRequest
+              $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/schemas/OrganizationRecoveryRequest
             examples:
               valid:
                 value:
-                  email: author@example.test
+                  reason: Account recovery requested by verified owner.
+                  safeDelivery: verified-email
+                  revokeExistingSessions: true
+                  ownerSafetyConfirmed: true
+                  idempotencyReplay: redacted
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/platform/accounts/{a}:
     patch:
       operationId: ON-patch-v1-platform-accounts-a-05f292a1f5
@@ -1419,8 +1456,9 @@ paths:
                   accountStatus: active
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale is 412.
   /v1/platform/accounts/{a}/recovery:
     post:
@@ -1447,19 +1485,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/schemas/PlatformAccountResponse
+                $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/schemas/PlatformRecoveryResponse
               examples:
                 success:
                   value:
                     requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
-                    platformAccount:
-                      id: platformaccount-01J2W5RFR3K24SFWDX2C0N9VW3
-                      kind: PlatformAccount
+                    platformRecovery:
+                      id: platformrecovery-01J2W5RFR3K24SFWDX2C0N9VW3
+                      kind: PlatformRecovery
                       revision: 7
                       status: active
                       createdAt: '2026-09-18T00:00:00Z'
                       updatedAt: '2026-09-18T00:00:00Z'
-                      accountStatus: active
+                      safeDelivery: manual-security-review
+                      revocation: sessions-revoked
+                      ownerSafety: confirmed
+                      idempotencyReplay: redacted
         '400':
           $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/responses/BadRequest
         '401':
@@ -1491,15 +1532,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/schemas/PlatformAccountCreateRequest
+              $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/schemas/PlatformRecoveryRequest
             examples:
               valid:
                 value:
-                  accountStatus: active
+                  reason: Platform account recovery requires security review.
+                  safeDelivery: manual-security-review
+                  revokeExistingSessions: true
+                  ownerSafetyConfirmed: true
+                  idempotencyReplay: redacted
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/platform/organizations:
     get:
       operationId: ON-get-v1-platform-organizations-69b54638c0
@@ -1558,6 +1604,8 @@ paths:
       - $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/parameters/Limit
       security:
       - staffCookie: []
+      x-pagination: 'Results use a stable total order and a snapshot cursor: no duplicate items, no missing items, and deterministic
+        continuation while the cursor is valid.'
     post:
       operationId: ON-post-v1-platform-organizations-77f778ca30
       summary: POST /v1/platform/organizations
@@ -1626,8 +1674,9 @@ paths:
                   name: Example resource
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/platform/organizations/{o}:
     patch:
       operationId: ON-patch-v1-platform-organizations-o-f7c610cd38
@@ -1709,8 +1758,9 @@ paths:
                   name: Example resource
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale is 412.
   /v1/platform/organizations/{o}/users:
     post:
@@ -1790,8 +1840,9 @@ paths:
                   email: author@example.test
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/public/forms/{shareId}/sessions:
     post:
       operationId: ON-post-v1-public-forms-shareid-sessions-1ca37406cb
@@ -1872,8 +1923,9 @@ paths:
                   timeZone: America/Toronto
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/schemas/{kind}/{version}:
     get:
       operationId: ON-get-v1-schemas-kind-version-4c108bde88
@@ -2091,8 +2143,9 @@ paths:
                     value: '9007199254740993'
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
       x-concurrency: baseRevision is required; stale base is 409 without partial application; identical clientMutationId/body
         replays first.
   /v1/sessions/{s}/attachments:
@@ -2179,8 +2232,9 @@ paths:
                   sha256: '0000000000000000000000000000000000000000000000000000000000000000'
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/sessions/{s}/attachments/{a}:
     delete:
       operationId: ON-delete-v1-sessions-s-attachments-a-d6208a4e81
@@ -2240,8 +2294,9 @@ paths:
       - $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/parameters/IdempotencyKey
       security: *id002
       x-request-body: none
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/sessions/{s}/attachments/{a}/complete:
     post:
       operationId: ON-post-v1-sessions-s-attachments-a-complete-7605aab1bc
@@ -2331,8 +2386,9 @@ paths:
                   sha256: '0000000000000000000000000000000000000000000000000000000000000000'
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/sessions/{s}/submission-operation:
     get:
       operationId: ON-get-v1-sessions-s-submission-operation-978f11ba2b
@@ -2479,8 +2535,9 @@ paths:
                   attemptId: attempt-01J2W5RFR3K24SFWDX2C0N9VW3
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/sessions/{s}/validate:
     post:
       operationId: ON-post-v1-sessions-s-validate-dde1446480
@@ -2560,8 +2617,9 @@ paths:
                   validationProfile: draft
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/workspaces/{w}/assets/{assetId}:
     get:
       operationId: M2-get-v1-workspaces-w-assets-assetid-authorized-asset
@@ -2588,20 +2646,21 @@ paths:
           content:
             application/json:
               schema:
-                $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/schemas/FormResponse
+                $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/schemas/AuthorizedAssetResponse
               examples:
                 success:
                   value:
                     requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
-                    form:
-                      id: form-01J2W5RFR3K24SFWDX2C0N9VW3
-                      kind: Form
+                    authorizedAsset:
+                      id: authorizedasset-01J2W5RFR3K24SFWDX2C0N9VW3
+                      kind: AuthorizedAsset
                       revision: 7
                       status: active
                       createdAt: '2026-09-18T00:00:00Z'
                       updatedAt: '2026-09-18T00:00:00Z'
-                      formKey: example-form
-                      title: Example form
+                      downloadUrl: https://transfer.example.test/assets/asset-01J2W5RFR3K24SFWDX2C0N9VW3?capability=redacted
+                      expiresAt: '2026-09-18T00:05:00Z'
+                      contentType: application/pdf
         '400':
           $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/responses/BadRequest
         '401':
@@ -2757,6 +2816,8 @@ paths:
       - $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/parameters/Limit
       security:
       - staffCookie: []
+      x-pagination: 'Results use a stable total order and a snapshot cursor: no duplicate items, no missing items, and deterministic
+        continuation while the cursor is valid.'
     post:
       operationId: OS-post-v1-workspaces-w-blocks-11cec73326
       summary: POST /v1/workspaces/{w}/blocks (reusable blocks)
@@ -2832,8 +2893,9 @@ paths:
                   blockType: markdown
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
     patch:
       operationId: OS-patch-v1-workspaces-w-blocks-4d63d8c148
       summary: PATCH /v1/workspaces/{w}/blocks (reusable blocks)
@@ -2914,8 +2976,9 @@ paths:
                   blockType: markdown
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale is 412.
     delete:
       operationId: OS-delete-v1-workspaces-w-blocks-dfd6869ed8
@@ -2966,8 +3029,9 @@ paths:
       - $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/parameters/IdempotencyKey
       security: *id001
       x-request-body: none
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/workspaces/{w}/exports:
     post:
       operationId: ON-post-v1-workspaces-w-exports-380db1264c
@@ -3053,8 +3117,9 @@ paths:
                   - answers
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/workspaces/{w}/folders:
     get:
       operationId: OS-get-v1-workspaces-w-folders-33ea83deb0
@@ -3120,6 +3185,8 @@ paths:
       - $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/parameters/Limit
       security:
       - staffCookie: []
+      x-pagination: 'Results use a stable total order and a snapshot cursor: no duplicate items, no missing items, and deterministic
+        continuation while the cursor is valid.'
     post:
       operationId: OS-post-v1-workspaces-w-folders-04335a99f1
       summary: POST /v1/workspaces/{w}/folders (catalog folders)
@@ -3195,8 +3262,9 @@ paths:
                   name: Example resource
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
     patch:
       operationId: OS-patch-v1-workspaces-w-folders-462f91440e
       summary: PATCH /v1/workspaces/{w}/folders (catalog folders)
@@ -3277,8 +3345,9 @@ paths:
                   name: Example resource
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale is 412.
     delete:
       operationId: OS-delete-v1-workspaces-w-folders-bf3ff71abf
@@ -3329,8 +3398,9 @@ paths:
       - $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/parameters/IdempotencyKey
       security: *id001
       x-request-body: none
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/workspaces/{w}/forms:
     post:
       operationId: ON-post-v1-workspaces-w-forms-89f650ba42
@@ -3408,8 +3478,9 @@ paths:
                   formKey: example-form
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
     get:
       operationId: ON-get-v1-workspaces-w-forms-2cc818d28d
       summary: GET /v1/workspaces/{w}/forms
@@ -3475,6 +3546,8 @@ paths:
       - $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/parameters/Limit
       security:
       - staffCookie: []
+      x-pagination: 'Results use a stable total order and a snapshot cursor: no duplicate items, no missing items, and deterministic
+        continuation while the cursor is valid.'
   /v1/workspaces/{w}/forms/{f}/activation:
     post:
       operationId: ON-post-v1-workspaces-w-forms-f-activation-960c53c753
@@ -3565,8 +3638,9 @@ paths:
                   - share-01J2W5RFR3K24SFWDX2C0N9VW3
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale is 412.
   /v1/workspaces/{w}/forms/{f}/drafts/{d}:
     get:
@@ -3748,11 +3822,15 @@ paths:
                     - en
                     translations:
                       en:
-                        title: Intake
-                        amount: Amount
-                        name: Name
-                        attendees: Attendees
-                        attendee_name: Attendee name
+                        direction: ltr
+                        messages:
+                          title: Intake
+                          amount: Amount
+                          name: Name
+                          attendees: Attendees
+                          attendee_name: Attendee name
+                        pronunciations: []
+                        reviewState: approved
                     data:
                       fields:
                       - id: name
@@ -3829,18 +3907,41 @@ paths:
                         - literal:
                             type: decimal
                             value: '2.5'
-                    dependencies: []
+                    dependencies:
+                    - kind: extension
+                      id: exampleExtension
+                      version: 1.0.0
+                      digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
                     policies:
                       attachmentsRequiredReady: true
                     assets: []
                     extensions:
                       x-example.org:
-                        profile: representative
+                        dependencyId: exampleExtension
+                        version: 1.0.0
+                        digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                        value: representative
+                    guidance: {}
+                    theme:
+                      themeKey: accessible_default
+                      version: 1.0.0
+                      tokens:
+                        accent: '#175CD3'
+                        background: '#FFFFFF'
+                        text: '#182230'
+                        fontFamily: system
+                        density: comfortable
+                        radius: 8
+                        responsive:
+                          compactMaxWidth: 639
+                          mediumMaxWidth: 1023
+                          wideColumns: 2
                   editNote: Clarify consent wording.
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale is 412.
   /v1/workspaces/{w}/forms/{f}/drafts/{d}/review-requests:
     post:
@@ -3935,8 +4036,9 @@ paths:
                   message: Please review the release candidate.
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/workspaces/{w}/forms/{f}/drafts/{d}/validate:
     post:
       operationId: ON-post-v1-workspaces-w-forms-f-drafts-d-validate-a7ada56c4b
@@ -4028,8 +4130,9 @@ paths:
                   validationProfile: draft
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/workspaces/{w}/forms/{f}/export:
     get:
       operationId: ON-get-v1-workspaces-w-forms-f-export-3040e326d5
@@ -4080,11 +4183,15 @@ paths:
                         - en
                         translations:
                           en:
-                            title: Intake
-                            amount: Amount
-                            name: Name
-                            attendees: Attendees
-                            attendee_name: Attendee name
+                            direction: ltr
+                            messages:
+                              title: Intake
+                              amount: Amount
+                              name: Name
+                              attendees: Attendees
+                              attendee_name: Attendee name
+                            pronunciations: []
+                            reviewState: approved
                         data:
                           fields:
                           - id: name
@@ -4161,13 +4268,35 @@ paths:
                             - literal:
                                 type: decimal
                                 value: '2.5'
-                        dependencies: []
+                        dependencies:
+                        - kind: extension
+                          id: exampleExtension
+                          version: 1.0.0
+                          digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
                         policies:
                           attachmentsRequiredReady: true
                         assets: []
                         extensions:
                           x-example.org:
-                            profile: representative
+                            dependencyId: exampleExtension
+                            version: 1.0.0
+                            digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                            value: representative
+                        guidance: {}
+                        theme:
+                          themeKey: accessible_default
+                          version: 1.0.0
+                          tokens:
+                            accent: '#175CD3'
+                            background: '#FFFFFF'
+                            text: '#182230'
+                            fontFamily: system
+                            density: comfortable
+                            radius: 8
+                            responsive:
+                              compactMaxWidth: 639
+                              mediumMaxWidth: 1023
+                              wideColumns: 2
         '400':
           $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/responses/BadRequest
         '401':
@@ -4284,8 +4413,9 @@ paths:
                   packageHash: '0000000000000000000000000000000000000000000000000000000000000000'
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/workspaces/{w}/forms/{f}/releases/{releaseId}:
     get:
       operationId: ON-get-v1-workspaces-w-forms-f-releases-releaseid-b49fe24697
@@ -4435,6 +4565,8 @@ paths:
       - $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/parameters/Limit
       security:
       - staffCookie: []
+      x-pagination: 'Results use a stable total order and a snapshot cursor: no duplicate items, no missing items, and deterministic
+        continuation while the cursor is valid.'
     post:
       operationId: OS-post-v1-workspaces-w-forms-f-share-channels-3fcc12bdba
       summary: POST /v1/workspaces/{w}/forms/{f}/share-channels (share channels)
@@ -4518,8 +4650,9 @@ paths:
                   channelType: link
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
     patch:
       operationId: OS-patch-v1-workspaces-w-forms-f-share-channels-32a04eeaba
       summary: PATCH /v1/workspaces/{w}/forms/{f}/share-channels (share channels)
@@ -4608,8 +4741,9 @@ paths:
                   channelType: link
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale is 412.
     delete:
       operationId: OS-delete-v1-workspaces-w-forms-f-share-channels-d635d8c3a7
@@ -4667,8 +4801,9 @@ paths:
       - $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/parameters/IdempotencyKey
       security: *id001
       x-request-body: none
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/workspaces/{w}/imports/validate:
     post:
       operationId: ON-post-v1-workspaces-w-imports-validate-57f09aa4ca
@@ -4757,11 +4892,15 @@ paths:
                     - en
                     translations:
                       en:
-                        title: Intake
-                        amount: Amount
-                        name: Name
-                        attendees: Attendees
-                        attendee_name: Attendee name
+                        direction: ltr
+                        messages:
+                          title: Intake
+                          amount: Amount
+                          name: Name
+                          attendees: Attendees
+                          attendee_name: Attendee name
+                        pronunciations: []
+                        reviewState: approved
                     data:
                       fields:
                       - id: name
@@ -4838,17 +4977,40 @@ paths:
                         - literal:
                             type: decimal
                             value: '2.5'
-                    dependencies: []
+                    dependencies:
+                    - kind: extension
+                      id: exampleExtension
+                      version: 1.0.0
+                      digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
                     policies:
                       attachmentsRequiredReady: true
                     assets: []
                     extensions:
                       x-example.org:
-                        profile: representative
+                        dependencyId: exampleExtension
+                        version: 1.0.0
+                        digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                        value: representative
+                    guidance: {}
+                    theme:
+                      themeKey: accessible_default
+                      version: 1.0.0
+                      tokens:
+                        accent: '#175CD3'
+                        background: '#FFFFFF'
+                        text: '#182230'
+                        fontFamily: system
+                        density: comfortable
+                        radius: 8
+                        responsive:
+                          compactMaxWidth: 639
+                          mediumMaxWidth: 1023
+                          wideColumns: 2
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/workspaces/{w}/imports/{candidateId}/commit:
     post:
       operationId: ON-post-v1-workspaces-w-imports-candidateid-commit-9f77424a8c
@@ -4939,8 +5101,9 @@ paths:
                   expectedDraftRevision: 7
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale is 412.
   /v1/workspaces/{w}/locale-bundles:
     get:
@@ -5007,6 +5170,8 @@ paths:
       - $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/parameters/Limit
       security:
       - staffCookie: []
+      x-pagination: 'Results use a stable total order and a snapshot cursor: no duplicate items, no missing items, and deterministic
+        continuation while the cursor is valid.'
     post:
       operationId: OS-post-v1-workspaces-w-locale-bundles-faa51eb04a
       summary: POST /v1/workspaces/{w}/locale-bundles (locale bundles)
@@ -5082,8 +5247,9 @@ paths:
                   locale: en-US
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
     put:
       operationId: OS-put-v1-workspaces-w-locale-bundles-b34aedaa7f
       summary: PUT /v1/workspaces/{w}/locale-bundles (locale bundles)
@@ -5164,8 +5330,9 @@ paths:
                   locale: en-US
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale is 412.
     delete:
       operationId: OS-delete-v1-workspaces-w-locale-bundles-195b03e546
@@ -5216,8 +5383,9 @@ paths:
       - $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/parameters/IdempotencyKey
       security: *id001
       x-request-body: none
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/workspaces/{w}/submissions:
     get:
       operationId: ON-get-v1-workspaces-w-submissions-bd7aaa46e9
@@ -5285,6 +5453,8 @@ paths:
       - $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/parameters/Limit
       security:
       - staffCookie: []
+      x-pagination: 'Results use a stable total order and a snapshot cursor: no duplicate items, no missing items, and deterministic
+        continuation while the cursor is valid.'
   /v1/workspaces/{w}/submissions/{id}:
     get:
       operationId: ON-get-v1-workspaces-w-submissions-id-ba0bcaf245
@@ -5392,7 +5562,7 @@ paths:
                       createdAt: '2026-09-18T00:00:00Z'
                       updatedAt: '2026-09-18T00:00:00Z'
                       submissionId: submission-01J2W5RFR3K24SFWDX2C0N9VW3
-                      score: '12.50'
+                      score: '12.5'
         '400':
           $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/responses/BadRequest
         '401':
@@ -5488,6 +5658,8 @@ paths:
       - $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/parameters/Limit
       security:
       - staffCookie: []
+      x-pagination: 'Results use a stable total order and a snapshot cursor: no duplicate items, no missing items, and deterministic
+        continuation while the cursor is valid.'
     post:
       operationId: OS-post-v1-workspaces-w-tags-a1075ffc3a
       summary: POST /v1/workspaces/{w}/tags (catalog tags)
@@ -5564,8 +5736,9 @@ paths:
                   label: Example resource
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
     patch:
       operationId: OS-patch-v1-workspaces-w-tags-81684cbff4
       summary: PATCH /v1/workspaces/{w}/tags (catalog tags)
@@ -5647,8 +5820,9 @@ paths:
                   label: Example resource
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale is 412.
     delete:
       operationId: OS-delete-v1-workspaces-w-tags-1ab7a1ce97
@@ -5699,8 +5873,9 @@ paths:
       - $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/parameters/IdempotencyKey
       security: *id001
       x-request-body: none
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/workspaces/{w}/themes:
     get:
       operationId: OS-get-v1-workspaces-w-themes-e7f6771fc2
@@ -5766,6 +5941,8 @@ paths:
       - $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/parameters/Limit
       security:
       - staffCookie: []
+      x-pagination: 'Results use a stable total order and a snapshot cursor: no duplicate items, no missing items, and deterministic
+        continuation while the cursor is valid.'
     post:
       operationId: OS-post-v1-workspaces-w-themes-a10b4945e6
       summary: POST /v1/workspaces/{w}/themes (themes)
@@ -5841,8 +6018,9 @@ paths:
                   name: Example resource
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
     patch:
       operationId: OS-patch-v1-workspaces-w-themes-1f3e788ad7
       summary: PATCH /v1/workspaces/{w}/themes (themes)
@@ -5923,8 +6101,9 @@ paths:
                   name: Example resource
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale is 412.
     delete:
       operationId: OS-delete-v1-workspaces-w-themes-05b4453321
@@ -5975,8 +6154,9 @@ paths:
       - $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/parameters/IdempotencyKey
       security: *id001
       x-request-body: none
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/workspaces/{w}/users/{u}/roles:
     put:
       operationId: ON-put-v1-workspaces-w-users-u-roles-b47a2cdecd
@@ -6067,8 +6247,9 @@ paths:
                   - editor
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale is 412.
     delete:
       operationId: ON-delete-v1-workspaces-w-users-u-roles-3882c2ac6d
@@ -6126,8 +6307,9 @@ paths:
       - $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/parameters/IdempotencyKey
       security: *id001
       x-request-body: none
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/workspaces/{w}/webhook-deliveries:
     get:
       operationId: ON-get-v1-workspaces-w-webhook-deliveries-f6b56d678f
@@ -6194,6 +6376,8 @@ paths:
       - $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/parameters/Limit
       security:
       - staffCookie: []
+      x-pagination: 'Results use a stable total order and a snapshot cursor: no duplicate items, no missing items, and deterministic
+        continuation while the cursor is valid.'
   /v1/workspaces/{w}/webhook-deliveries/{id}/replay:
     post:
       operationId: ON-post-v1-workspaces-w-webhook-deliveries-id-replay-f720705f03
@@ -6278,8 +6462,9 @@ paths:
                   reason: Receiver recovered.
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
   /v1/workspaces/{w}/webhooks:
     post:
       operationId: ON-post-v1-workspaces-w-webhooks-e95a4d5035
@@ -6358,8 +6543,9 @@ paths:
                   url: https://receiver.example.test/hooks/submission
               invalid:
                 value: {}
-      x-replay: Idempotency-Key replays an equal request's original result; changed-body reuse is 409. Session mutation replay
-        keys are clientMutationId plus body.
+      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
+        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
+        plus body.
 x-m0-operation-inventory:
   oNamed:
     source: docs/acceptance/v1.1/denominators/o-named.json
