@@ -35,7 +35,7 @@ The 21 observational `N_current` surfaces are covered as follows:
 Latest local results:
 
 - Backend: 33 route, compatibility, transactional concurrency, contract, and real closed-context restart tests passed with no failures, errors, or skips.
-- Frontend: 28 focused Angular journey, HTTP-contract, toolbar, rehydration/serialization, and responsive response-administration tests passed; production build passed.
+- Frontend: 30 focused Angular journey, HTTP-contract, toolbar, authentication-retry, rehydration/serialization, and responsive response-administration tests passed; production build passed.
 - Live lifecycle: create → publish → start session → mutation → exact replay → submit → CSV export passed; the created session stored a 64-character secret digest.
 - Historical public preview check: frontend and proxied API returned HTTP 200 and author/public-preview screens rendered. This is developer verification only and does not claim fresh browser or acceptance evidence.
 
