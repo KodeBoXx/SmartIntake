@@ -1,0 +1,278 @@
+{
+  "counting_rule": "one pre-refactor observable surface; observed result is captured later and is never expected behavior",
+  "current_execution_status": "not-run",
+  "independent_review_required": true,
+  "manifest": "N_current",
+  "members": [
+    {
+      "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
+      "citation": {
+        "lines": "7-27",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "N-auth-bootstrap-a4aa5665b9",
+      "owner": "characterization",
+      "status": "not-run",
+      "surface": "auth-bootstrap",
+      "title": "auth-bootstrap"
+    },
+    {
+      "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
+      "citation": {
+        "lines": "15-45",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "N-auth-session-lifecycle-10a825b039",
+      "owner": "characterization",
+      "status": "not-run",
+      "surface": "auth-session-lifecycle",
+      "title": "auth-session-lifecycle"
+    },
+    {
+      "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
+      "citation": {
+        "lines": "657",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "N-catalog-652f550162",
+      "owner": "characterization",
+      "status": "not-run",
+      "surface": "catalog",
+      "title": "catalog"
+    },
+    {
+      "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
+      "citation": {
+        "lines": "373-379",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "N-draft-save-ba893790cd",
+      "owner": "characterization",
+      "status": "not-run",
+      "surface": "draft-save",
+      "title": "draft-save"
+    },
+    {
+      "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
+      "citation": {
+        "lines": "568-604",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "N-definition-import-export-9f1861c342",
+      "owner": "characterization",
+      "status": "not-run",
+      "surface": "definition-import-export",
+      "title": "definition-import-export"
+    },
+    {
+      "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
+      "citation": {
+        "lines": "365-369",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "N-publish-release-db30a3dace",
+      "owner": "characterization",
+      "status": "not-run",
+      "surface": "publish-release",
+      "title": "publish-release"
+    },
+    {
+      "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
+      "citation": {
+        "lines": "371-385",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "N-public-session-start-87fcb2cbdc",
+      "owner": "characterization",
+      "status": "not-run",
+      "surface": "public-session-start",
+      "title": "public-session-start"
+    },
+    {
+      "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
+      "citation": {
+        "lines": "371-379",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "N-session-read-e732408eaa",
+      "owner": "characterization",
+      "status": "not-run",
+      "surface": "session-read",
+      "title": "session-read"
+    },
+    {
+      "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
+      "citation": {
+        "lines": "373-379",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "N-session-mutation-18afec79d2",
+      "owner": "characterization",
+      "status": "not-run",
+      "surface": "session-mutation",
+      "title": "session-mutation"
+    },
+    {
+      "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
+      "citation": {
+        "lines": "313-329",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "N-session-validation-8915d17e9e",
+      "owner": "characterization",
+      "status": "not-run",
+      "surface": "session-validation",
+      "title": "session-validation"
+    },
+    {
+      "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
+      "citation": {
+        "lines": "371-377",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "N-submission-receipt-e4f74c0993",
+      "owner": "characterization",
+      "status": "not-run",
+      "surface": "submission-receipt",
+      "title": "submission-receipt"
+    },
+    {
+      "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
+      "citation": {
+        "lines": "387-393",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "N-response-list-86c87f7af9",
+      "owner": "characterization",
+      "status": "not-run",
+      "surface": "response-list",
+      "title": "response-list"
+    },
+    {
+      "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
+      "citation": {
+        "lines": "387-393",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "N-response-detail-69fdcd144d",
+      "owner": "characterization",
+      "status": "not-run",
+      "surface": "response-detail",
+      "title": "response-detail"
+    },
+    {
+      "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
+      "citation": {
+        "lines": "391-393",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "N-response-export-5a030de2fc",
+      "owner": "characterization",
+      "status": "not-run",
+      "surface": "response-export",
+      "title": "response-export"
+    },
+    {
+      "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
+      "citation": {
+        "lines": "678-709",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "N-frontend-entry-ea92177474",
+      "owner": "characterization",
+      "status": "not-run",
+      "surface": "frontend-entry",
+      "title": "frontend-entry"
+    },
+    {
+      "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
+      "citation": {
+        "lines": "678-709",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "N-frontend-authoring-29aa0ad6be",
+      "owner": "characterization",
+      "status": "not-run",
+      "surface": "frontend-authoring",
+      "title": "frontend-authoring"
+    },
+    {
+      "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
+      "citation": {
+        "lines": "191",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Lite-Evaluator-Protocol.md"
+      },
+      "id": "N-frontend-preview-71d0b89215",
+      "owner": "characterization",
+      "status": "not-run",
+      "surface": "frontend-preview",
+      "title": "frontend-preview"
+    },
+    {
+      "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
+      "citation": {
+        "lines": "371-385",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "N-frontend-respondent-a40feb8221",
+      "owner": "characterization",
+      "status": "not-run",
+      "surface": "frontend-respondent",
+      "title": "frontend-respondent"
+    },
+    {
+      "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
+      "citation": {
+        "lines": "189",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Lite-Evaluator-Protocol.md"
+      },
+      "id": "N-frontend-response-admin-dd3f562345",
+      "owner": "characterization",
+      "status": "not-run",
+      "surface": "frontend-response-admin",
+      "title": "frontend-response-admin"
+    },
+    {
+      "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
+      "citation": {
+        "lines": "653-675",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "N-database-v1-v4-b20f5a5bde",
+      "owner": "characterization",
+      "status": "not-run",
+      "surface": "database-v1-v4",
+      "title": "database-v1-v4"
+    },
+    {
+      "assertion": "capture request/input and observed current result before/after refactor; no PRD behavior is inferred from the observation",
+      "citation": {
+        "lines": "204",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Lite-Evaluator-Protocol.md"
+      },
+      "id": "N-compose-clean-start-b6aa5f23de",
+      "owner": "characterization",
+      "status": "not-run",
+      "surface": "compose-clean-start",
+      "title": "compose-clean-start"
+    }
+  ],
+  "owner": "acceptance/denominators",
+  "selection": "plan-selected characterization inventory",
+  "source_citations": [
+    {
+      "lines": "361-409,517-675",
+      "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+    },
+    {
+      "lines": "7-45",
+      "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+    },
+    {
+      "lines": "189-204",
+      "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Lite-Evaluator-Protocol.md"
+    }
+  ],
+  "total": 21,
+  "version": "2.0.0-m0"
+}

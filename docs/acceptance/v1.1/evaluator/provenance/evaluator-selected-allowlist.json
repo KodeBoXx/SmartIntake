@@ -1,0 +1,9 @@
+{
+  "allowlistId": "evaluator-selected-v1",
+  "approvalStatus": "pending-independent-review",
+  "corpusVersion": "2.4.21-m0",
+  "purpose": "synthetic package/sentinel choices not asserted as PRD literal",
+  "recordIds": [
+    "EVAL-PKG-BUDGET"
+  ]
+}

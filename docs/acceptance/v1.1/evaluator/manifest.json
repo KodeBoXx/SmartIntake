@@ -1,0 +1,411 @@
+{
+  "artifacts": [
+    {
+      "path": "README.md",
+      "sha256": "a33ff83e011e70b2013e7f9ce78faf4028a6f8ebaae2a461e20c474bbfd04f55"
+    },
+    {
+      "path": "assets/priority_asset_selfcheck.py",
+      "sha256": "3d1a5634f32d64a740486a7a927a0a6bc2d1b156d24f44f1be16bb8114270238"
+    },
+    {
+      "path": "assets/t08-validation-errors.json",
+      "sha256": "9db2ed60b9194c8f8395a75bfb3d9674cd499f328ef23bcb6d3f3a6c70443ae4"
+    },
+    {
+      "path": "assets/t19-webhooks.json",
+      "sha256": "44fd4cd75b8d05c0aa49e2b4e8886fe88e894273952fe62303814c606350784e"
+    },
+    {
+      "path": "assets/t21-hostile-imports.json",
+      "sha256": "c79e0997d86307115dd53992a1d35d0d336b7f8e4f83db065cd39f2c10dd02ab"
+    },
+    {
+      "path": "assets/t22-scale-limits.json",
+      "sha256": "82e8df1b083c462758c018e18ed512eee0e26c9f16384c3d3482f1e9e5c365a6"
+    },
+    {
+      "path": "assets/t22_browser_discovery_probe.py",
+      "sha256": "bd62401febdc93ead55dce6a60b9d616a6619c23f87a20999385d6264533047c"
+    },
+    {
+      "path": "assets/t22_dataset_generator.py",
+      "sha256": "72c782a6aba0652fa0aa6d8bda4c972624465ec24e8a1fe0357ae7b34924f4c5"
+    },
+    {
+      "path": "assets/t22_export_bundle.py",
+      "sha256": "a870d621818a535564ab54f7abf4bec813edc59facc043e4a71707c9e220dac0"
+    },
+    {
+      "path": "assets/t22_workload_runner.py",
+      "sha256": "20999eec9de49b88678626fa104bdb1d8d202b61eb8eec550fe60d6c4e3c3267"
+    },
+    {
+      "path": "assets/t25-usability-protocol.json",
+      "sha256": "aa4d74a3dea2b2bfded078fd9b68029675e781d82e60f78705f62fd278cba5c2"
+    },
+    {
+      "path": "conventions/encoding.md",
+      "sha256": "0d188fd84377852854452db9ab8422b443b24f2304b2dba1b118e8717934df68"
+    },
+    {
+      "path": "conventions/record-schema.json",
+      "sha256": "1e5f692688cbe7392fc3502bd43bcbf447c14bf570f0e6575b530d8eaa7694ce"
+    },
+    {
+      "path": "conventions/signature-authority.schema.json",
+      "sha256": "ff791816948979c44964a046820380351eed4b80825da1d9ad712676054f7511"
+    },
+    {
+      "path": "coverage/fixture-coverage.json",
+      "sha256": "74a0b4821de2af7529d8503ca5ce6a9bde0cc72675cbadd3680e0b5a37d93144"
+    },
+    {
+      "path": "fixtures/check_fixture_routes.py",
+      "sha256": "006cdc25fdf1d5be606dec3fd9d085a767ff590b7f9873d49a5b2a9194da3d8f"
+    },
+    {
+      "path": "fixtures/check_full_fixture_oracles.py",
+      "sha256": "2e63558a920ae5e96aa21435fc1538d758cde26b40a2361936c768af9dd0f765"
+    },
+    {
+      "path": "fixtures/check_t01_t07.py",
+      "sha256": "a7589868a429e732a56f934216cfc5e78b4b38ae7befb2e0ad13c24fa5460853"
+    },
+    {
+      "path": "fixtures/check_t08_t15.py",
+      "sha256": "ba7b4d3970b1bc0393ec7be8acf09cc42b42ca6fceb20d35e26137095a730d98"
+    },
+    {
+      "path": "fixtures/check_t17_t24.py",
+      "sha256": "2ae6ed6243d6f30eb88f4e5c964bcfa6e7e4dcb13cfa154807944472ac5fb308"
+    },
+    {
+      "path": "fixtures/check_t25_t32.py",
+      "sha256": "4bdb5c70a6d7e1e3d678b509990254d1438c47b3194216bf088930304c51538e"
+    },
+    {
+      "path": "fixtures/t01-t07.json",
+      "sha256": "0bb2e658c2a0eb829d114b5f0f87c2cd63d3b906f7a8a6a9a9190c3dd9b192e1"
+    },
+    {
+      "path": "fixtures/t08-t15.json",
+      "sha256": "a770020f768dcca248a6d92fe7402ba3d35f4b0605d1c0b266d691c6f396f267"
+    },
+    {
+      "path": "fixtures/t17-t24.json",
+      "sha256": "de37fd0355cb05bb1f011348d20e04742f26d36f3eb01d1373e558fc44ca7275"
+    },
+    {
+      "path": "fixtures/t25-t32.json",
+      "sha256": "a3df63b831ee342f656d95ce78f7ae90f97813e63e0bab128360a9b8c3e4b1cc"
+    },
+    {
+      "path": "locales/check_locale_closure.py",
+      "sha256": "e984500f615c6122e5e1a5711e2e5e7a6eb3e83253da524f2776addc57aa79b1"
+    },
+    {
+      "path": "locales/invalid-variant.json",
+      "sha256": "cb2430f0fdc2b89a8ff6538d589c6e28a5285399293df2e1d02cdc69bbad5c9a"
+    },
+    {
+      "path": "locales/key-inventory.json",
+      "sha256": "c98f9c0bd6ab295aa5a7843bc2b73b435847d1fe938d693544c42a5d218ac276"
+    },
+    {
+      "path": "locales/locale-expectations.json",
+      "sha256": "116efdac04b9c4bb2312cc8679e0f6f1ba51821036a362dbf2aadb6d36ed5386"
+    },
+    {
+      "path": "locales/plural-map.json",
+      "sha256": "4caf409e82a7b7a5d6cd7844111e747fc37776fd23e22d23bcece1f6c9c0e1f4"
+    },
+    {
+      "path": "navigation/completion-predicate.json",
+      "sha256": "640f1ce253670e82463ef3de65e5064552ebf466446d0021f952eef790c2f3d2"
+    },
+    {
+      "path": "navigation/navigation-oracle.json",
+      "sha256": "d3a365805371819b36ce66e2887cc022ffa7eeb070e70a0c8b0303c32b3a6da4"
+    },
+    {
+      "path": "oracles/author-oracle.json",
+      "sha256": "13d86e9f239be10d0605122aa795a3f3de237bf5912c87b1aee13cb050e774c7"
+    },
+    {
+      "path": "oracles/focus-oracle.json",
+      "sha256": "23a3389804293bbcd06a4891a505187d9998fa1a9deea47e8f7f463a688b17f9"
+    },
+    {
+      "path": "oracles/foundation-acceptance.json",
+      "sha256": "1ada01960e4c6166f6039ebec7b49a323de5c7a55fbb34ae90f32415cc3c954c"
+    },
+    {
+      "path": "oracles/lite-scope-additions.json",
+      "sha256": "693cb36ce41cd5277b88d5348a92b5595ed66a69418efba74d0260b4a37627f7"
+    },
+    {
+      "path": "oracles/respondent-critical-errors.json",
+      "sha256": "0033dd4d6e2c059558f030629aec54f75ff30003bfc6d33e1ecad9767a6137fe"
+    },
+    {
+      "path": "oracles/respondent-oracle.json",
+      "sha256": "1d7672f05d8e91e758565f854bbd727c42817156f769478c7c8e82dc44fa472b"
+    },
+    {
+      "path": "packages/catalog-coverage-matrix.json",
+      "sha256": "3fa050f240fbe523dc6bc0532b6dbc0bda06b926ebd0b4ba34ca1480145582bf"
+    },
+    {
+      "path": "packages/package-hc.json",
+      "sha256": "bdec92d08367f2db92dca7cbb2a1ec6d308628be381cb992ed7ab3ff0db22294"
+    },
+    {
+      "path": "packages/package-nhc.json",
+      "sha256": "1a612abae70488f191d46583946e46e25efb4fb18f470e0312625eb6f82315ea"
+    },
+    {
+      "path": "packages/parity-budget.json",
+      "sha256": "d9135f32378e6b1342bed78aab35247bb4748d171505fac28861e0bdf510abde"
+    },
+    {
+      "path": "provenance/allowlist-approval.schema.json",
+      "sha256": "670321e3cce6e8619ae5adefe3bef100f816d2aa5884ddfda25c3735119cd6cb"
+    },
+    {
+      "path": "provenance/evaluator-selected-allowlist.json",
+      "sha256": "34e265af412422360b6c22d9eaeadf40265a59cad2e17f10a83be6c8ecd580c6"
+    },
+    {
+      "path": "provenance/interpretation-review.json",
+      "sha256": "e9718b4d858711066176a15a5ffe701c9ce8374b34e73d0bca81672350b2fef9"
+    },
+    {
+      "path": "provenance/interpretation-review.schema.json",
+      "sha256": "f702ee98341bf4b539622636164d431348f62929dc6c0dc9e4373bd209d92cd8"
+    },
+    {
+      "path": "provenance/rule-registry.json",
+      "sha256": "ec0e10abaa90305f503ead066c2eae88d5b0e42f2d69e8632c1ab9d23bd105cc"
+    },
+    {
+      "path": "review/review-projection.json",
+      "sha256": "da73fc28d1a4ea1528b13eb37ed1ca44f02953a7860d9f6885421f7af80b2496"
+    },
+    {
+      "path": "review/status-label-map.json",
+      "sha256": "6b8b8b673b961c65ce79711c1099d0bf988a6422f3438b307f6e537132a46cd4"
+    },
+    {
+      "path": "sentinels/commitments.json",
+      "sha256": "9d1237d644d3e9ae3cb798e3bc121bc1708e9fe0237c91e8da0f15e3c4ea6fc8"
+    },
+    {
+      "path": "sentinels/gate-schedule.json",
+      "sha256": "e94e01de0ebedb9cc9869d998bed642cc8d6c7eb6982940a1c75868e274a734e"
+    },
+    {
+      "path": "sentinels/public-catalog.json",
+      "sha256": "e9b1d843d32c6a6fbc561236da9870a73c04735a1be503b9319b57ca446ecc78"
+    },
+    {
+      "path": "sentinels/rotation-protocol.md",
+      "sha256": "c6eb6ea4e4a87888a41c089b8f700ab3699bd1ba8f7bb582b262b19c6db18814"
+    },
+    {
+      "path": "tools/test_validate_corpus.py",
+      "sha256": "1a6ad6dd216fe780af3e0d5b943c3b2f8d252e856693699de536591f43f9a4de"
+    },
+    {
+      "path": "tools/validate_corpus.py",
+      "sha256": "66028c5cc299ed1b4e0f57a71b20ee63aa2e07e1031a0bd934d3880fe3bcdd8a"
+    }
+  ],
+  "attestationState": "unsigned; no reviewer, signature, product-conformance, fixture-execution, or M0-exit claim",
+  "authorRole": "encoder",
+  "blocked": [
+    {
+      "reason": "denial-list-not-published",
+      "scope": "seven formerly removed whole-Core IDs"
+    },
+    {
+      "reason": "evaluator-selected-allowlist-pending-approval",
+      "scope": "synthetic package/sentinel selections need an approved signed allowlist before evaluator signing"
+    },
+    {
+      "reason": "semantic-interpretation-review-pending",
+      "scope": "record-level semantic mappings need independent review before evaluator signing"
+    },
+    {
+      "reason": "pending-schema-M2",
+      "scope": "execution of API/import/workload assets"
+    },
+    {
+      "reason": "controlled-receiver-and-provider-prerequisite",
+      "scope": "T19 controlled HTTPS receiver and operator-managed credentials"
+    },
+    {
+      "reason": "participant-and-observation-prerequisite",
+      "scope": "T25 independent participants, declared browser/AT matrix, and governed observations"
+    },
+    {
+      "reason": "native-language-reviewer-not-yet-assigned",
+      "scope": "Hindi and Arabic native-script translations/review"
+    }
+  ],
+  "branch": "vorflux/m0-acceptance-foundation",
+  "candidateSha": "66e96756d3e7d00c60e8d974b34a113b9ca60586",
+  "corpusDigest": "dcec91d8f8f6d05b4e948a842eb95974dceebdebec3162589bd3b538d529ba1a",
+  "corpusName": "Smart Form Builder Lite v1.1 independent evaluator corpus",
+  "corpusVersion": "2.4.21-m0",
+  "crossScopeRefs": {
+    "denialListRef": "docs/acceptance/v1.1/inventory/inventory.json#/formerlyRemovedWholeCoreDenialList/identifiers",
+    "denominatorClosure": {
+      "manifestIndexPath": "docs/acceptance/v1.1/denominators/manifest-index.json",
+      "manifestIndexSha256": "7af0f62c643dc0fa707219c7ea929eb7531f174836f6e2d415906f3e1136f4aa",
+      "reviewAttestationPath": "docs/acceptance/v1.1/denominators/review-attestation.json",
+      "reviewAttestationSha256": "b77cb97ede7480c17ef70b9e9fff441eba40d7a11b433eb079dfbee2241e15c6",
+      "sha256sumsPath": "docs/acceptance/v1.1/denominators/SHA256SUMS",
+      "sha256sumsSha256": "5c3582035d9a5c3a36f13e9cd5121224288716be571396da31010e0efb416d71",
+      "version": "2.0.0-m0"
+    },
+    "denominatorManifest": {
+      "path": "docs/acceptance/v1.1/denominators/manifest-index.json",
+      "sha256": "7af0f62c643dc0fa707219c7ea929eb7531f174836f6e2d415906f3e1136f4aa"
+    },
+    "inventoryManifest": {
+      "path": "docs/acceptance/v1.1/inventory/manifest.json",
+      "sha256": "b8b1bd1e0fdcb19ec44b50c6bd4a9396563e36a2b64c2a6591f299e14d08c9ef"
+    },
+    "operatorIndexRef": "docs/acceptance/v1.1/inventory/inventory.json#/expression/operators",
+    "requirementRegisterRef": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/requirement-dispositions.csv",
+    "vectorIndexRef": "docs/acceptance/v1.1/inventory/inventory.json#/expression/vectors"
+  },
+  "derivationRule": "expected outcomes derived solely from PRD/handoff; current product output was not inspected",
+  "digestAlgorithm": "SHA-256",
+  "digestCommand": "cd docs/acceptance/v1.1/evaluator\nfind . -type f ! -path './manifest.json' ! -path './__pycache__/*' ! -path '*/__pycache__/*' -print0 | LC_ALL=C sort -z | xargs -0 sha256sum | LC_ALL=C sort | sha256sum",
+  "frozenAt": null,
+  "gateSchedule": "sentinels/gate-schedule.json",
+  "handoffSource": {
+    "path": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Lite-Evaluator-Protocol.md",
+    "sha256": "20bf0154fb07c6b917f73c6db246f7917e5a2e80f0fc1735fcaef4d2bfc3f6d3"
+  },
+  "owner": "evaluator, independent of implementation authors",
+  "preSignatureManifestDigest": {
+    "algorithm": "SHA-256",
+    "computedBy": "validate_corpus.canonical_manifest_digest",
+    "normalization": "canonical JSON (sort_keys, UTF-8, trailing LF); normalize signature.value, signature.payloadDigest, and preSignatureManifestDigest.storedValue to null",
+    "storedValue": "5a16106d7f74b12d4793b7da065fbd82e7e59ba510a63affb105c629916363f7"
+  },
+  "provenanceSummary": {
+    "booleanAndNullCitationProhibited": true,
+    "scopeBound": true,
+    "shortTokenMatching": "whole-token only",
+    "statement": "Each scalar provenance entry is either a scope-bound verbatim citation or a record/path-specific derivation with basis inside the record citation range."
+  },
+  "releaseSemantics": {
+    "fixtureCaseCounts": {
+      "T01-T07": 23,
+      "T08-T15": 33,
+      "T17-T24": 95,
+      "T25-T32": 41,
+      "total": 192
+    },
+    "fixtureOracleLayout": "four canonical grouped artifacts; obsolete generic full-fixture-oracles.json removed",
+    "localeKeyClosure": 277
+  },
+  "reviewLineage": {
+    "entries": [
+      {
+        "claimsNotMade": [
+          "no independent reviewer attestation",
+          "no signature",
+          "no product conformance",
+          "no M0 exit"
+        ],
+        "id": "R1-v1.6-remediation",
+        "reviewer": null,
+        "scope": "evaluator corpus provenance, frozen assets, source pins, manifest policy",
+        "status": "pending"
+      }
+    ],
+    "status": "pending-independent-review"
+  },
+  "reviewState": "unsigned-pending-independent-evaluator-freeze",
+  "signature": {
+    "algorithm": "ed25519",
+    "payloadDigest": null,
+    "signer": null,
+    "signingPrerequisites": [
+      "approved evaluator-selected allowlist",
+      "approved independent semantic-interpretation review",
+      "independent evaluator corpus signature"
+    ],
+    "state": "unsigned-pending",
+    "value": null
+  },
+  "signatureAuthority": {
+    "authority": "independent-agent-review",
+    "keyId": "evaluator-independent-ed25519-v1",
+    "provider": "codex-gpt",
+    "publicKey": "e9A1c5Z0psshQKTJ2taqvDh4AVcIr_N79F6H0_U8RXs"
+  },
+  "sourceSet": {
+    "kind": "exact-authoritative-source-set/v1",
+    "names": [
+      "PRD",
+      "PROTO",
+      "CONTRACT",
+      "AUTH",
+      "REG"
+    ],
+    "sourcePaths": {
+      "AUTH": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md",
+      "CONTRACT": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Lite-Contract-Details.md",
+      "PRD": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+      "PROTO": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Lite-Evaluator-Protocol.md",
+      "REG": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/requirement-dispositions.csv"
+    }
+  },
+  "sources": [
+    {
+      "name": "PRD",
+      "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+      "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+    },
+    {
+      "name": "PROTO",
+      "path": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Lite-Evaluator-Protocol.md",
+      "sha256": "20bf0154fb07c6b917f73c6db246f7917e5a2e80f0fc1735fcaef4d2bfc3f6d3"
+    },
+    {
+      "name": "CONTRACT",
+      "path": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Lite-Contract-Details.md",
+      "sha256": "488e049ec680fc2806142efdebd2d010c5ee3400068d426f8451b27568a06fb2"
+    },
+    {
+      "name": "AUTH",
+      "path": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md",
+      "sha256": "e09a460f2cb3ac4f7d296abdbd6e894f18f587cd036b9db34b1f21663ae9aa0b"
+    },
+    {
+      "name": "REG",
+      "path": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/requirement-dispositions.csv",
+      "sha256": "090e0c02414e6bec0ebaf2c84a718d3f9ddb09a006c12d9a99976092fe1d810e"
+    }
+  ],
+  "specVersion": "M0-evaluator-corpus-spec-1.5.0",
+  "status": {
+    "localePacksNativeReviewed": false,
+    "measuredConformanceExecuted": false,
+    "packagesInstantiatedAs4_0_0": false,
+    "productSourceInspectedForExpectations": false,
+    "productTestsExecuted": false,
+    "schemasGenerated": false,
+    "sentinelsSealed": false,
+    "statement": "This corpus states expected outcomes only. No measured conformance run has been executed and no result in this tree may be read as evidence about the implementation."
+  },
+  "evidenceSemantics": {
+    "t22ProviderHttp": "urllib provides parsed status/header fields. T22 retains canonicalized parsed status/header fields and original response-body bytes; it does not claim original HTTP status-line/header-byte capture."
+  }
+}

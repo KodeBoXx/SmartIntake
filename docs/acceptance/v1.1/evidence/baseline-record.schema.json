@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodeboxx.example/smart-intake/acceptance/v1.1/baseline-record.schema.json",
+  "title": "Smart Form Builder Lite v1.1 M0 baseline observation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "recordType",
+    "observedAtUtc",
+    "candidate",
+    "environment",
+    "executionPolicy",
+    "acceptanceBoundary",
+    "recordValidation",
+    "tasks"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.1.0" },
+    "recordType": { "const": "m0-baseline-observation" },
+    "observedAtUtc": { "type": "string", "format": "date-time" },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sha", "shaAttempt", "treeSha", "treeAttempt", "dirty", "dirtyStateSha256", "dirtyStateSummary", "dirtyStateAttempt"],
+      "properties": {
+        "sha": { "type": ["string", "null"], "pattern": "^[0-9a-f]{40}$" },
+        "shaAttempt": { "$ref": "#/$defs/attempt" },
+        "treeSha": { "type": ["string", "null"], "pattern": "^[0-9a-f]{40}$" },
+        "treeAttempt": { "$ref": "#/$defs/attempt" },
+        "dirty": { "type": "boolean" },
+        "dirtyStateSha256": { "$ref": "#/$defs/sha256" },
+        "dirtyStateSummary": { "type": "string", "maxLength": 4000 },
+        "dirtyStateAttempt": { "$ref": "#/$defs/attempt" }
+      }
+    },
+    "environment": { "type": "object" },
+    "executionPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["maxAttemptsPerCommand", "retriesAllowed", "networkInstallAllowed", "logsRetained", "mutationBoundary"],
+      "properties": {
+        "maxAttemptsPerCommand": { "const": 1 },
+        "retriesAllowed": { "const": false },
+        "networkInstallAllowed": { "const": false },
+        "logsRetained": { "type": "string" },
+        "mutationBoundary": {
+          "type": "string",
+          "pattern": "^Only caller-provisioned disposable PostgreSQL database 'smartintake_baseline_[a-z0-9_]+' at the explicit Spring datasource URL; no shared application database may be used, created, reset, or dropped\\.$"
+        }
+      }
+    },
+    "acceptanceBoundary": {
+      "const": "This record is baseline evidence only. No status, artifact, build, mock, screenshot, unavailable integration, filtered row, or command retry closes acceptance."
+    },
+    "recordValidation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaPath", "schemaSha256", "mode", "validatorAvailable", "validatorVersion", "valid"],
+      "properties": {
+        "schemaPath": { "const": "docs/acceptance/v1.1/evidence/baseline-record.schema.json" },
+        "schemaSha256": { "$ref": "#/$defs/sha256" },
+        "mode": { "enum": ["full-jsonschema", "structural-fallback"] },
+        "validatorAvailable": { "type": "boolean" },
+        "validatorVersion": { "type": ["string", "null"] },
+        "valid": { "const": true }
+      }
+    },
+    "tasks": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/task" }
+    }
+  },
+  "$defs": {
+    "status": { "enum": ["pass", "fail", "blocked", "not-run"] },
+    "level": { "enum": ["E0", "E1", "E2", "E3", "Human"] },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "attempt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["number", "command", "commandDisplay", "workingDirectory", "executed", "result", "exitCode", "startedAtUtc", "finishedAtUtc", "outputSummary", "outputSha256", "retried"],
+      "properties": {
+        "number": { "const": 1 },
+        "command": { "type": "array", "items": { "type": "string" } },
+        "commandDisplay": { "type": "string" },
+        "workingDirectory": { "type": "string", "minLength": 1 },
+        "executed": { "type": "boolean" },
+        "result": { "$ref": "#/$defs/status" },
+        "exitCode": { "type": ["integer", "null"] },
+        "startedAtUtc": { "type": "string", "format": "date-time" },
+        "finishedAtUtc": { "type": "string", "format": "date-time" },
+        "outputSummary": { "type": "string", "maxLength": 4016 },
+        "outputSha256": { "$ref": "#/$defs/sha256" },
+        "retried": { "const": false }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "present", "sha256", "bytes"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "present": { "type": "boolean" },
+        "sha256": { "type": ["string", "null"], "pattern": "^[0-9a-f]{64}$" },
+        "bytes": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "task": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "status", "evidenceLevel", "acceptance", "denominator", "finding", "prerequisites", "attempts", "artifacts"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "title": { "type": "string" },
+        "status": { "$ref": "#/$defs/status" },
+        "evidenceLevel": { "$ref": "#/$defs/level" },
+        "acceptance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["countsTowardAcceptance", "reason"],
+          "properties": {
+            "countsTowardAcceptance": { "const": false },
+            "reason": { "type": "string", "minLength": 1 }
+          }
+        },
+        "denominator": {
+          "type": "object",
+          "required": ["numerator", "denominator", "unit"],
+          "properties": {
+            "numerator": { "type": "integer", "minimum": 0 },
+            "denominator": { "type": ["integer", "string"], "minLength": 1 },
+            "unit": { "type": "string", "minLength": 1 }
+          },
+          "additionalProperties": true
+        },
+        "finding": { "type": "string", "minLength": 1 },
+        "prerequisites": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "status"],
+            "properties": { "id": { "type": "string" }, "status": { "$ref": "#/$defs/status" } }
+          }
+        },
+        "attempts": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/attempt" } },
+        "artifacts": { "type": "array", "items": { "$ref": "#/$defs/artifact" } }
+      }
+    }
+  }
+}

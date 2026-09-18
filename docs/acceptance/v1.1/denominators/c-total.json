@@ -1,0 +1,282 @@
+{
+  "counting_rule": "one compiler/graph semantic case",
+  "current_execution_status": "not-run",
+  "independent_review_required": true,
+  "manifest": "C_total",
+  "members": [
+    {
+      "case": "closed-schema",
+      "citation": {
+        "lines": "431",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-closed-schema-54343c3867",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "closed-schema"
+    },
+    {
+      "case": "stable-id-key",
+      "citation": {
+        "lines": "422,513",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-stable-id-key-d24a731cc5",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "stable-id-key"
+    },
+    {
+      "case": "control-type-compatibility",
+      "citation": {
+        "lines": "220-267",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-control-type-compatibility-7b02bd2de1",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "control-type-compatibility"
+    },
+    {
+      "case": "scope-arity",
+      "citation": {
+        "lines": "271-292",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-scope-arity-0ecb5cd83e",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "scope-arity"
+    },
+    {
+      "case": "option-domain",
+      "citation": {
+        "lines": "220-267",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-option-domain-8653e3d83c",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "option-domain"
+    },
+    {
+      "case": "route-reachability",
+      "citation": {
+        "lines": "305-312",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-route-reachability-6eb0344387",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "route-reachability"
+    },
+    {
+      "case": "route-cycle",
+      "citation": {
+        "lines": "305-312",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-route-cycle-23ad08858e",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "route-cycle"
+    },
+    {
+      "case": "dependency-cycle",
+      "citation": {
+        "lines": "428,514",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-dependency-cycle-7d12094ea9",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "dependency-cycle"
+    },
+    {
+      "case": "hidden-retention",
+      "citation": {
+        "lines": "293-304",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-hidden-retention-7cad96df08",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "hidden-retention"
+    },
+    {
+      "case": "dynamic-requiredness",
+      "citation": {
+        "lines": "313-329",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-dynamic-requiredness-5b1d9ad421",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "dynamic-requiredness"
+    },
+    {
+      "case": "calculation",
+      "citation": {
+        "lines": "271-292",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-calculation-361900df8e",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "calculation"
+    },
+    {
+      "case": "review-projection",
+      "citation": {
+        "lines": "1395-1403",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-review-projection-6019f4a203",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "review-projection"
+    },
+    {
+      "case": "locale-completeness",
+      "citation": {
+        "lines": "331-359",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-locale-completeness-69807b5ba5",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "locale-completeness"
+    },
+    {
+      "case": "rtl-theme",
+      "citation": {
+        "lines": "331-359",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-rtl-theme-79d013f8bc",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "rtl-theme"
+    },
+    {
+      "case": "asset-policy",
+      "citation": {
+        "lines": "218,429",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-asset-policy-73c4cc76ed",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "asset-policy"
+    },
+    {
+      "case": "limit-before-expansion",
+      "citation": {
+        "lines": "568,666",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-limit-before-expansion-73053e137c",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "limit-before-expansion"
+    },
+    {
+      "case": "extension-settings",
+      "citation": {
+        "lines": "431",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-extension-settings-febc9628b7",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "extension-settings"
+    },
+    {
+      "case": "fixed-matrix",
+      "citation": {
+        "lines": "220-267",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-fixed-matrix-0cd694c0b9",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "fixed-matrix"
+    },
+    {
+      "case": "nested-repeater-depth",
+      "citation": {
+        "lines": "220-267,666",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-nested-repeater-depth-e02f6f461e",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "nested-repeater-depth"
+    },
+    {
+      "case": "protected-calculated-value",
+      "citation": {
+        "lines": "479-504",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-protected-calculated-value-68a5f96e87",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "protected-calculated-value"
+    },
+    {
+      "case": "unknown-truth",
+      "citation": {
+        "lines": "481",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-unknown-truth-48f50ebd95",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "unknown-truth"
+    },
+    {
+      "case": "exact-integer",
+      "citation": {
+        "lines": "481,433",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-exact-integer-046a5bd934",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "exact-integer"
+    },
+    {
+      "case": "decimal-scale",
+      "citation": {
+        "lines": "481",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-decimal-scale-52b9310331",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "decimal-scale"
+    },
+    {
+      "case": "diagnostic-pointer",
+      "citation": {
+        "lines": "529-539",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "C-diagnostic-pointer-cabffdfcf8",
+      "owner": "compiler/runtime",
+      "status": "not-run",
+      "title": "diagnostic-pointer"
+    }
+  ],
+  "owner": "acceptance/denominators",
+  "selection": "plan-selected",
+  "source_citations": [
+    {
+      "lines": "202-329,413-435,1395-1403",
+      "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+    }
+  ],
+  "total": 24,
+  "version": "2.0.0-m0"
+}

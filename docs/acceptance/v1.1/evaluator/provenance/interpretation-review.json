@@ -1,0 +1,1339 @@
+{
+  "contentBindings": [
+    {
+      "recordCanonicalSha256": "1f87aad226654023f56866908a0efd4a698f8b4bdc2b925151b2a84140af5b76",
+      "recordId": "EVAL-T08-API-01",
+      "reviewId": "IR-T08",
+      "sourcePath": "assets/t08-validation-errors.json"
+    },
+    {
+      "recordCanonicalSha256": "377cbfb179c2055a247f1cc4c40024f438b2c8aa1f96521367cea6ccaf861006",
+      "recordId": "EVAL-T19-WEBHOOK-01",
+      "reviewId": "IR-T19",
+      "sourcePath": "assets/t19-webhooks.json"
+    },
+    {
+      "recordCanonicalSha256": "29fb9ec38537e450a444c811a391fef00b9faa2d0d386633471d1aa2f9db9623",
+      "recordId": "EVAL-T21-IMPORT-01",
+      "reviewId": "IR-T21",
+      "sourcePath": "assets/t21-hostile-imports.json"
+    },
+    {
+      "recordCanonicalSha256": "996eb75c856900fb04834c2321cc8176f71e22ffde3927e0eb40da8ba4ee8c11",
+      "recordId": "EVAL-T25-USABILITY-01",
+      "reviewId": "IR-T25",
+      "sourcePath": "assets/t25-usability-protocol.json"
+    },
+    {
+      "recordCanonicalSha256": "c349af06433e4a64476e71001b0370311ae1a5c7444165fff0007aaa0d42e29e",
+      "recordId": "EVAL-FIXCOV-T01",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "coverage/fixture-coverage.json"
+    },
+    {
+      "recordCanonicalSha256": "7fc8f0d75f2c13942646ad7aa8344898e0c62d0abeed83ebb9667dfb996ee701",
+      "recordId": "EVAL-FIXCOV-T02",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "coverage/fixture-coverage.json"
+    },
+    {
+      "recordCanonicalSha256": "b20e609f23ea57a4c2af2865888fc54599515141281973e8892fe5e2ec84c918",
+      "recordId": "EVAL-FIXCOV-T03",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "coverage/fixture-coverage.json"
+    },
+    {
+      "recordCanonicalSha256": "65b4de4ee51fa7f56f57d47463f153d5cdec320edaa89ff6af7a8da43a0c6465",
+      "recordId": "EVAL-FIXCOV-T04",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "coverage/fixture-coverage.json"
+    },
+    {
+      "recordCanonicalSha256": "b75233b73770c1967c9fa92e72bfcddb4d58625041702c6a62570b4a24812d20",
+      "recordId": "EVAL-FIXCOV-T05",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "coverage/fixture-coverage.json"
+    },
+    {
+      "recordCanonicalSha256": "09de52f769c441f727aef1f5f5d4ad79252aa62021e67f2cf111b31eae2277d9",
+      "recordId": "EVAL-FIXCOV-T06",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "coverage/fixture-coverage.json"
+    },
+    {
+      "recordCanonicalSha256": "4f4d126d5fa71585b7c05f0fb631bb461629cac62e4d9214d778248efb3846f3",
+      "recordId": "EVAL-FIXCOV-T07",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "coverage/fixture-coverage.json"
+    },
+    {
+      "recordCanonicalSha256": "77bcbab7965515bedf107a52eaa50e12860813d4011ea9334f4686ff4e481417",
+      "recordId": "EVAL-FIXCOV-T08",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "coverage/fixture-coverage.json"
+    },
+    {
+      "recordCanonicalSha256": "c1c75242e0caa4de4293241e80a72580b43f94c41101cff5796d8de7f5af1352",
+      "recordId": "EVAL-FIXCOV-T09",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "coverage/fixture-coverage.json"
+    },
+    {
+      "recordCanonicalSha256": "8edd45ca3b4c062546921dd8b71a27e35a705fac447f7ab2174c937a6ccb66bf",
+      "recordId": "EVAL-FIXCOV-T10",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "coverage/fixture-coverage.json"
+    },
+    {
+      "recordCanonicalSha256": "6373ce745e7499bae4e7b5e3873d93537c93999b557e53b095f407435b6bd800",
+      "recordId": "EVAL-FIXCOV-T11",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "coverage/fixture-coverage.json"
+    },
+    {
+      "recordCanonicalSha256": "6bdf54d07edb5eb36b6e13135aa8ebdb92beb801b913682c22adb47d392c9e11",
+      "recordId": "EVAL-FIXCOV-T12",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "coverage/fixture-coverage.json"
+    },
+    {
+      "recordCanonicalSha256": "34aff2101a272adc96c32f224841f4d0e9f9717a46438a3daa749c1c08a7972a",
+      "recordId": "EVAL-FIXCOV-T13",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "coverage/fixture-coverage.json"
+    },
+    {
+      "recordCanonicalSha256": "6d212e4645828e2586123578d3e9b502b6412fdf996afdefe23cc11fa0b9927b",
+      "recordId": "EVAL-FIXCOV-T14",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "coverage/fixture-coverage.json"
+    },
+    {
+      "recordCanonicalSha256": "9122cfa5e1b6641e86dba264fcac639cc537d68903bb6b183317ce444a1f414c",
+      "recordId": "EVAL-FIXCOV-T15",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "coverage/fixture-coverage.json"
+    },
+    {
+      "recordCanonicalSha256": "661ee757e046d03a3fe3b9deaf975e00a4375693c5164ef233f9b9607f92ecd7",
+      "recordId": "EVAL-FIXCOV-T17",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "coverage/fixture-coverage.json"
+    },
+    {
+      "recordCanonicalSha256": "8ea8a43727dd2c44afd2d79aa7652b934a7cfe5444d860f6f8b7f3ba29c644c0",
+      "recordId": "EVAL-FIXCOV-T18",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "coverage/fixture-coverage.json"
+    },
+    {
+      "recordCanonicalSha256": "d084ef2ab0acc4b79f001a468aa7ce6085ae77f253bb85379890ac92afbcb083",
+      "recordId": "EVAL-FIXCOV-T19",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "coverage/fixture-coverage.json"
+    },
+    {
+      "recordCanonicalSha256": "5a8444e5cf7051c9685bac01c61b62bf4ea22d4ec2b3c29f4b03431f8aed2adb",
+      "recordId": "EVAL-FIXCOV-T20",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "coverage/fixture-coverage.json"
+    },
+    {
+      "recordCanonicalSha256": "1730c0661becda914deb4ff6ed60be390504ae4cb76d12a516cb433f8162ecea",
+      "recordId": "EVAL-FIXCOV-T21",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "coverage/fixture-coverage.json"
+    },
+    {
+      "recordCanonicalSha256": "2708fcf230e5ab127726692737b39245b99c9d1619a13c754fefd818320d391b",
+      "recordId": "EVAL-FIXCOV-T22",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "coverage/fixture-coverage.json"
+    },
+    {
+      "recordCanonicalSha256": "a975f878fc1e5cf84a27095c498d4ec5ef7b83aae91550a27ac4d574e54d35b2",
+      "recordId": "EVAL-FIXCOV-T23",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "coverage/fixture-coverage.json"
+    },
+    {
+      "recordCanonicalSha256": "71ddba5d7200179d87272c37cefc5a30fd7ced24b3a8855b13ce08cbd33170f5",
+      "recordId": "EVAL-FIXCOV-T24",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "coverage/fixture-coverage.json"
+    },
+    {
+      "recordCanonicalSha256": "ea4c4df36d81626af02b51f65770911664634f0c5a1cd4dfcb2caf77ecb4cddd",
+      "recordId": "EVAL-FIXCOV-T25",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "coverage/fixture-coverage.json"
+    },
+    {
+      "recordCanonicalSha256": "57993f2ce253ce4fc5573d34526cddd4922ebddc5b350fb9b5e9fdb9a91090dd",
+      "recordId": "EVAL-FIXCOV-T26",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "coverage/fixture-coverage.json"
+    },
+    {
+      "recordCanonicalSha256": "b4ae3dcb4fbcd85e03c029b5640742380f70738223abf950eed1b2b3752d514a",
+      "recordId": "EVAL-FIXCOV-T27",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "coverage/fixture-coverage.json"
+    },
+    {
+      "recordCanonicalSha256": "18fbeea9a0a2e888bf3a2d6d098e2f5cfcf4428331da627ab556632f5d05069d",
+      "recordId": "EVAL-FIXCOV-T28",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "coverage/fixture-coverage.json"
+    },
+    {
+      "recordCanonicalSha256": "6b353f89eee3f2ec83fc6947087c36ec864c8e5f705f15afbdf0fd37d43a3bb2",
+      "recordId": "EVAL-FIXCOV-T29",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "coverage/fixture-coverage.json"
+    },
+    {
+      "recordCanonicalSha256": "87da2ccf4d6661ba1f0113aff46ac68a3ec89b5a57bae9bc474c38db49d36202",
+      "recordId": "EVAL-FIXCOV-T30",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "coverage/fixture-coverage.json"
+    },
+    {
+      "recordCanonicalSha256": "1a7ea9c487b80328b6e53c8f25a8ff6c2e1bd4dbd895c269c5ccbf2302aad7c8",
+      "recordId": "EVAL-FIXCOV-T31",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "coverage/fixture-coverage.json"
+    },
+    {
+      "recordCanonicalSha256": "7fb674ea27eac2093ceb86371feb955acf7909b8b407cc521938467e3e13a09d",
+      "recordId": "EVAL-FIXCOV-T32",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "coverage/fixture-coverage.json"
+    },
+    {
+      "recordCanonicalSha256": "c1862d8d3d53a5c02916ce4ca799d0b35055537f68f195a8581c49e8f79e6a4b",
+      "recordId": "EVAL-LOC-INVALID-01",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "locales/invalid-variant.json"
+    },
+    {
+      "recordCanonicalSha256": "78c5b9d3dda348a94f1c730dc941c4a53dc4400e3322d53db5b2f8cad54977b4",
+      "recordId": "EVAL-LOC-INVALID-02",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "locales/invalid-variant.json"
+    },
+    {
+      "recordCanonicalSha256": "808f0a9880b0b0467c1c2504c53f83cb91b5aabc10cb5e3074cadebd9bc32456",
+      "recordId": "EVAL-LOC-KEY-01",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "locales/key-inventory.json"
+    },
+    {
+      "recordCanonicalSha256": "5b53cb3bbdb2a9dd24e58e3aa39e449610972dfd61996bbb7b209b22c7d2255d",
+      "recordId": "EVAL-LOC-KEY-02",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "locales/key-inventory.json"
+    },
+    {
+      "recordCanonicalSha256": "2f3e7465d3944a65ff0fb90759cc4e04c31c78939afa6465f5dc8260437a612b",
+      "recordId": "EVAL-LOC-KEY-03",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "locales/key-inventory.json"
+    },
+    {
+      "recordCanonicalSha256": "9da6f3eaff8bed191075e869da56915955033a211e11f88d3f61d0ad7593d541",
+      "recordId": "EVAL-LOC-KEY-04",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "locales/key-inventory.json"
+    },
+    {
+      "recordCanonicalSha256": "d6577fc33697f422c707024083069a37d9fe10aa796b089a9bd23566091b81a6",
+      "recordId": "EVAL-LOC-KEY-05",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "locales/key-inventory.json"
+    },
+    {
+      "recordCanonicalSha256": "aed144249f5783e24342aac04b1abd18a3abc835951c46ed6f4514ff17a41f37",
+      "recordId": "EVAL-LOC-KEY-06",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "locales/key-inventory.json"
+    },
+    {
+      "recordCanonicalSha256": "6c7518415ce890273295fbaea535867c0e82c6160bb1f53fe0719c3a66913a7a",
+      "recordId": "EVAL-LOC-KEY-07",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "locales/key-inventory.json"
+    },
+    {
+      "recordCanonicalSha256": "b4f98211fa81b376a35e674948bf443dd0c682692da6ea99d529157cdbc484d9",
+      "recordId": "EVAL-LOC-KEY-08",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "locales/key-inventory.json"
+    },
+    {
+      "recordCanonicalSha256": "3848a0d60969f152a54fad80e9df911323450c8d4b7dbfda72ec886c63d222e5",
+      "recordId": "EVAL-LOC-KEY-09",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "locales/key-inventory.json"
+    },
+    {
+      "recordCanonicalSha256": "7ab663ca73b2b9a87aceb63f1ae12991c1592e05c5cf7f665229f03af2acfbc8",
+      "recordId": "EVAL-LOC-KEY-10",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "locales/key-inventory.json"
+    },
+    {
+      "recordCanonicalSha256": "c6eff354a917a446664af47d43017b3705a7c3a01f3c1a6324b00a512ea69eb3",
+      "recordId": "EVAL-LOC-KEY-11",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "locales/key-inventory.json"
+    },
+    {
+      "recordCanonicalSha256": "c05894ac985ed673dbb97893a888e63e89f955dd196be4bc57dba98266420cb5",
+      "recordId": "EVAL-LOC-KEY-12",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "locales/key-inventory.json"
+    },
+    {
+      "recordCanonicalSha256": "7e8898f84892b0b5289a71b8dcc29fdf8d19edd3a2fd160a115b18e1c079fab4",
+      "recordId": "EVAL-LOC-KEY-13",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "locales/key-inventory.json"
+    },
+    {
+      "recordCanonicalSha256": "01ac337a175cbd62eb9472bf0829ef5c8c6b25dcd4c597356bb17232592c3c44",
+      "recordId": "EVAL-LOC-KEY-14",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "locales/key-inventory.json"
+    },
+    {
+      "recordCanonicalSha256": "ab794aa7209f4a305b0f00c7d582d459fb671c4c3213b8385a0cd74a2fe81ba6",
+      "recordId": "EVAL-LOC-KEY-15",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "locales/key-inventory.json"
+    },
+    {
+      "recordCanonicalSha256": "bd94d78c53f03f19711cb7a8a8355b1322a16bed6fa13f12b6af1e7fa2c83430",
+      "recordId": "EVAL-LOC-KEY-16",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "locales/key-inventory.json"
+    },
+    {
+      "recordCanonicalSha256": "81689ad541f17dd3f72ab4eb444dd65490b8769209399bd2c2635eaccec5f35a",
+      "recordId": "EVAL-LOC-KEY-17",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "locales/key-inventory.json"
+    },
+    {
+      "recordCanonicalSha256": "faf5e68c3697e3a1460159da4016401306715fe3db31d6575789b598442371e1",
+      "recordId": "EVAL-LOC-KEY-18",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "locales/key-inventory.json"
+    },
+    {
+      "recordCanonicalSha256": "799f9b9fc064c54316f25deaa179be9633f8c08902b1376110e69cdd457d52b8",
+      "recordId": "EVAL-LOC-EXPECT",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "locales/locale-expectations.json"
+    },
+    {
+      "recordCanonicalSha256": "98b1bf6905dca6149bb59ed5e8589aaa1b2af3f38dc77eec1560fc1988dc16d5",
+      "recordId": "EVAL-LOC-PLURAL",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "locales/plural-map.json"
+    },
+    {
+      "recordCanonicalSha256": "9e07ab4d534c0c2abd5309675e1a3a73552682c76acac63bf352ed59618a1dc5",
+      "recordId": "EVAL-PRED-01",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "navigation/completion-predicate.json"
+    },
+    {
+      "recordCanonicalSha256": "0ec7489d3c10dc9190a047dc86aeb2e8066f38ddd9ecc63b838c3aa99db8f16a",
+      "recordId": "EVAL-NAV-BASE",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "navigation/navigation-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "e094fc18e4fdc2a559b778bf3b1e53aeb03e96ebff85ffbd9432a92332dc36e6",
+      "recordId": "EVAL-NAV-01",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "navigation/navigation-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "8f9dfd2ad51a8ec397e34409a5e1e904e04f97c6dc45a1618e43e3fa6a745306",
+      "recordId": "EVAL-NAV-02",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "navigation/navigation-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "0243fac38c8de69e995261c42a5546f45cdb556271591a25ddf350443fdfaae1",
+      "recordId": "EVAL-NAV-03",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "navigation/navigation-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "01449b844e441bde9eb499b05716d026fa249000423306bc3c5be16df70b1828",
+      "recordId": "EVAL-NAV-04",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "navigation/navigation-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "e5ce83787a6bc20d184c9ccc4223a4b886809eb2619a85bc9012d4b6ff805b75",
+      "recordId": "EVAL-NAV-05",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "navigation/navigation-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "ebcae535aac2cbbbbf066512760dd0b0569776413097a1d69f554a455a7534a5",
+      "recordId": "EVAL-AUTH-A1",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "6a2a42306357e534206ebacfb0b0d2bb3a5d56e41c79431fc243f1e2e986e8f6",
+      "recordId": "EVAL-AUTH-A2",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "8cbb2e780e03d224bb196760f371d83a114b2cb5024a421027f60d4ecb35b438",
+      "recordId": "EVAL-AUTH-A3",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "1f34866c76bc1db914c90a438ad8b0522f3fee866bb02978b68d9dce8cc5bc0d",
+      "recordId": "EVAL-AUTH-A4",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "a344d089db7308739a174bdc74d81a2247c66de13f20dbeab500332bd40c7d07",
+      "recordId": "EVAL-AUTH-A5",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "66a7cde6eac5031125c3ee0f597d41e41e9f6b1e0a323ab60dd9988cf65d3d03",
+      "recordId": "EVAL-AUTH-A6",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "f4b4f2fdaa979ef9505a85f62cd26d4b0f6ab0a7e7e7c46bfdda1d05a9c93b46",
+      "recordId": "EVAL-AUTH-A7",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "5a3bf9946456cea3646aa7f5ccda83a4fd2d7c0cdcb5250f7555b32113e6bb9d",
+      "recordId": "EVAL-AUTH-A8",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "1e9886042a2067d00daa289fdb238be6b55e4092cc490651478c5c7419d27916",
+      "recordId": "EVAL-AUTH-F01",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "1f23a727d0df6cbded09b0e6ff0a98b20931153449514f411fd4387394009a24",
+      "recordId": "EVAL-AUTH-F02",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "77693505b9aeea43701428ba21aae9184a9b1063bc1c889f3cbd16056e6024b3",
+      "recordId": "EVAL-AUTH-F03",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "2aeddac67096c08b0dbcd8e65e9ea3938529b84fab5293ea21191d47f354a444",
+      "recordId": "EVAL-AUTH-F04",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "aa6b6c48af7d8f6a6d7449acd8aea73ec964aed0798e7f7e079bef4b89938577",
+      "recordId": "EVAL-AUTH-F05",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "e97d77978be1668565fec472f359d55b1b4d2614f49855ef82038d7d4177a711",
+      "recordId": "EVAL-AUTH-F06",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "14f9fd5763341b238b2cf01909bac8b44a929b8a1c1acba33d24b50eec2ad7b6",
+      "recordId": "EVAL-AUTH-F07",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "f623864966299461425a262d864107633528523b60fb26238df1107fc21bb856",
+      "recordId": "EVAL-AUTH-F08",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "67740a7aa3edd3df3972af4b1c08296d3fe50331f52666ea727f3a6323fb922a",
+      "recordId": "EVAL-AUTH-F09",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "7bb4a545eed94fce6111b00e3244f2949a7374d07fe39b6493eed0864de5738f",
+      "recordId": "EVAL-AUTH-F10",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "de3cda23a1163efdf2bab7b09e7d6d33dcac6e95add92e7d3c726edb88b18aad",
+      "recordId": "EVAL-AUTH-F11",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "b3a869ef6fab2e90ef3e3b3be0f18d90365e923693c0dbf89d21f4d11503704c",
+      "recordId": "EVAL-AUTH-F12",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "148da63fcc64bbdb6814a72c48b5e706a07daa3ec934025069457cd83fc9c8d0",
+      "recordId": "EVAL-AUTH-F13",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "69f3af3d3e2a92d559adf7e7a13ee015e87b92fedf7a218ff275298dac3abc75",
+      "recordId": "EVAL-AUTH-F14",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "c7574aa0528f3861869b8df71ec1bd1d67e0b8fffb3a95249b447656ed2007ca",
+      "recordId": "EVAL-AUTH-F15",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "6c7d09766f7abcc4fdbdaf9f3bc53e3bb2711af5f35ac31885bde38a515c7db5",
+      "recordId": "EVAL-AUTH-F16",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "3384a4b62a4829a05554dfd5d6636496ebb0782a0d31c42fdc0a1165908f3e00",
+      "recordId": "EVAL-AUTH-F17",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "d76a1ec024ffb320e97e13857be591050bc20a1d49a4f54fd0c73aa35815be6c",
+      "recordId": "EVAL-AUTH-F18",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "de29cbfc96c0e71860ad7ea80d398a76d3e2ef282c053d43d81169dedab35aa6",
+      "recordId": "EVAL-AUTH-F19",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "c3123e3c16b99654f9de76e94e6b2aa520ec2920387a90cf1d5d9ef3141bca64",
+      "recordId": "EVAL-AUTH-F20",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "6b5652607d2a60d5c61964c3eb0016ac599d3fd3ff5cba1e5721e4375fdbba8e",
+      "recordId": "EVAL-AUTH-F21",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "cf5d878df4c085e35aeb747105ae2f1ba69671d5b22048eca5a35131366f6f83",
+      "recordId": "EVAL-AUTH-F22",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "38a65c8c8bc9b4cac1ccc97a184b05647da23a766505f70f4f3e203948b6a533",
+      "recordId": "EVAL-AUTH-F23",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "9a3cc919b466563bf981d74fc4f81e237942d4d6a86536eaad9b5410891166b2",
+      "recordId": "EVAL-AUTH-F24",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "14ea5714589aa3896b4bf36bf063ab281e49fb94e860d86962bfb7dc98dd8698",
+      "recordId": "EVAL-AUTH-F25",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "3e76016c9e16457539797800e533ec203855b0bc26b294828ba8cb25ce847205",
+      "recordId": "EVAL-AUTH-F26",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "33bf102ea079135db57194a454305ebfcaf63df7dcb82038077930b77ad43f5a",
+      "recordId": "EVAL-AUTH-F27",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "bd6a75c3547751f436dc2f040a074d50d3f69c4804a8b3dac17734ed74fd2a1d",
+      "recordId": "EVAL-AUTH-F28",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "5430428ffc4915f38472661bfde04f0b318b24ba88c47954457cb92ce112f161",
+      "recordId": "EVAL-AUTH-F29",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "7f1bd8ab5ba31fdbf2dcb03ed8fa9c2beda66d74c7a6c1f68a556c1e934bdc34",
+      "recordId": "EVAL-AUTH-F30",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/author-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "dc49b16421beef3b5b464cf5d28e5d9173ae9aab23acfaa85f36a43768db0218",
+      "recordId": "EVAL-FOCUS-01",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/focus-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "6d07b0afa669112c0d4c0fe33c3b3446ae4b18306cb1f8f756a23229f3b4ac04",
+      "recordId": "EVAL-FOCUS-02",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/focus-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "48332717364df0cad26e0377a6d979460facf112d3bbfca21627de98c5aae841",
+      "recordId": "EVAL-FOCUS-03",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/focus-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "7391416affb230dc04037d3b570447aeb4792e78c850537503a8e9e2131d6770",
+      "recordId": "EVAL-FOCUS-04",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/focus-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "f2bacafb659473060a357c5557cd5c37ae181c20012b84eab270a05011ce5c5f",
+      "recordId": "EVAL-FOCUS-05",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/focus-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "e15ea6a6f762555af48128a2055eb6c89b15fe2c018d1ab563f71403f610c4e3",
+      "recordId": "EVAL-FOCUS-06",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/focus-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "56476114e9f84b3789dccd083af770644329ea967a705917582b964115fb7c4a",
+      "recordId": "EVAL-FOCUS-07",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/focus-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "406020dbb790c97eb5f8da7ed21298895880830d911e75278cd8c9e96d45b3f2",
+      "recordId": "EVAL-FOCUS-08",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/focus-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "24921ae13dac4d12f43b071f8527f8452f2a80b57787e3b2f044cdaca247a5cc",
+      "recordId": "EVAL-FOCUS-09",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/focus-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "b00e0d63eb1b54b8367c51c8d1bbc3045cc38801b1ee63bfe52a2ec14d1e72c9",
+      "recordId": "EVAL-FOCUS-10",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/focus-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "214b37e2c380fbfda14b5f2cdb6ba362e71c0856bd966a0961404898f52c662c",
+      "recordId": "EVAL-FOCUS-11",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/focus-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "a4e84b52edeed0761de9288ca4b5fd63f5afc1d3ee2a2b3e256c14b81a612790",
+      "recordId": "EVAL-FOCUS-12",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/focus-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "7686230a1b5e79a992dfb202536b8e06f22e8fee169a9af6935696300f2e01d0",
+      "recordId": "EVAL-FND-01",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/foundation-acceptance.json"
+    },
+    {
+      "recordCanonicalSha256": "3e64ecfd754f8a7f82a0fd0e77ebf8579e297a948be80bedf0a97269368873ed",
+      "recordId": "EVAL-FND-02",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/foundation-acceptance.json"
+    },
+    {
+      "recordCanonicalSha256": "310c4e6d0ae8fdb8d878f163afaf85c275ccefbdb853fbe94ab871bf8b3899be",
+      "recordId": "EVAL-FND-03",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/foundation-acceptance.json"
+    },
+    {
+      "recordCanonicalSha256": "da1b15cb65b1a5b258bc46ab75a93676ce463515424784adcf0e7ed5a531c613",
+      "recordId": "EVAL-FND-04",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/foundation-acceptance.json"
+    },
+    {
+      "recordCanonicalSha256": "8ad8565b7de269837a8b20e57ba7bcc59b9a8aba65a1aaada12778a2d90c3c3b",
+      "recordId": "EVAL-FND-05",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/foundation-acceptance.json"
+    },
+    {
+      "recordCanonicalSha256": "0f1e459e014dc444326db880a9fbbc3580902372eedff2b42401f0a41d98939e",
+      "recordId": "EVAL-FND-06",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/foundation-acceptance.json"
+    },
+    {
+      "recordCanonicalSha256": "0be9a7083df8c43ab49de7202f7bede7a9069567eaedb7aa9c9d531ffea1a73c",
+      "recordId": "EVAL-LSA-01",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/lite-scope-additions.json"
+    },
+    {
+      "recordCanonicalSha256": "e6be039001ea5b67df09f7ec4c0f1ec3ba1ebb704cb56b2a0b38e5fd5a417f8a",
+      "recordId": "EVAL-LSA-02",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/lite-scope-additions.json"
+    },
+    {
+      "recordCanonicalSha256": "6bde304b053ac60d3dc5fe2dc2cf0eb222929993db531afb8afec5d05a298d34",
+      "recordId": "EVAL-LSA-03",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/lite-scope-additions.json"
+    },
+    {
+      "recordCanonicalSha256": "9d7b49bfea7f2a312ef76835e9d88813110861c7f1f4ae045eca648bc2c1691c",
+      "recordId": "EVAL-LSA-04",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/lite-scope-additions.json"
+    },
+    {
+      "recordCanonicalSha256": "57ba8fd0bdbca05bbc90aae30ab8cd64343de823da08f3cce7543613f069c638",
+      "recordId": "EVAL-LSA-05",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/lite-scope-additions.json"
+    },
+    {
+      "recordCanonicalSha256": "f9bbc74405cf1e3ae40525a5e324c23bed02bbad53197a3787480bafcfcb449b",
+      "recordId": "EVAL-LSA-06",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/lite-scope-additions.json"
+    },
+    {
+      "recordCanonicalSha256": "07c18789cee55d578dfd753f2dcb5351daa0ff0dfaf2ea8539e6de684cf3daff",
+      "recordId": "EVAL-LSA-07",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/lite-scope-additions.json"
+    },
+    {
+      "recordCanonicalSha256": "d844603dad211ec607bb28ededf3ae9f8ac16f58d836fdb2f392decdaa5197a9",
+      "recordId": "EVAL-LSA-08",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/lite-scope-additions.json"
+    },
+    {
+      "recordCanonicalSha256": "d760833f2bae0c6d170c32737c08a41cd144137ef1ddac47168ce87091ce9dca",
+      "recordId": "EVAL-LSA-09",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/lite-scope-additions.json"
+    },
+    {
+      "recordCanonicalSha256": "3922ded48b05fbc9bd2bd249b1175e26be5320691e740999ce2a452152106c43",
+      "recordId": "EVAL-LSA-POLICY",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/lite-scope-additions.json"
+    },
+    {
+      "recordCanonicalSha256": "ade84ca0cdaf5b476706fd6f62b464d65763dd0cb5e5995a52468d351f0c6572",
+      "recordId": "EVAL-CRIT-01",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-critical-errors.json"
+    },
+    {
+      "recordCanonicalSha256": "60115fb8937795197e4e064c01dd8f6deaf8d86e64a44946a3a8bc7d988d66a1",
+      "recordId": "EVAL-CRIT-02",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-critical-errors.json"
+    },
+    {
+      "recordCanonicalSha256": "21cd084a1e4ef9ddf79411f942c2f08fb7babf65875a0b180f9f0ca544f6a39a",
+      "recordId": "EVAL-CRIT-03",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-critical-errors.json"
+    },
+    {
+      "recordCanonicalSha256": "3cb97fab41dc91138e2c4f44ea4cde9eb2978ad79874b648eb1b043adf29e2c7",
+      "recordId": "EVAL-CRIT-04",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-critical-errors.json"
+    },
+    {
+      "recordCanonicalSha256": "1b9fb8ab56d88eaa42fd722fb4b976fbe7013a15a54ccfe15c35249d9b7060a1",
+      "recordId": "EVAL-CRIT-05",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-critical-errors.json"
+    },
+    {
+      "recordCanonicalSha256": "b7c130d5d9f90a3823fcc27825d19b99bc0e394ff770fd9f944915dd93d5b153",
+      "recordId": "EVAL-CRIT-06",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-critical-errors.json"
+    },
+    {
+      "recordCanonicalSha256": "3f57287d52c8ebb1ef7094e7efc440287703789e445be055d4f043f48fddde2c",
+      "recordId": "EVAL-CRIT-07",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-critical-errors.json"
+    },
+    {
+      "recordCanonicalSha256": "357e623854f18e886587243af148e6bce18ffcfd7865c80db26469021de03dba",
+      "recordId": "EVAL-CRIT-08",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-critical-errors.json"
+    },
+    {
+      "recordCanonicalSha256": "3a42a1c397b2561e0fb1f7701383b2f05020fbeb070337a21bf33a9bdb85daa4",
+      "recordId": "EVAL-CRIT-09",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-critical-errors.json"
+    },
+    {
+      "recordCanonicalSha256": "deef9765d9975137ee355e4f373a9d73003dca9aed780d96b10d1e7e467fcbc3",
+      "recordId": "EVAL-CRIT-10",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-critical-errors.json"
+    },
+    {
+      "recordCanonicalSha256": "3d7be38ea30c23f6d2151cc7acbdedccfa33f832d5ecc05657c18c3d38ff42dd",
+      "recordId": "EVAL-RESP-S01",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "39a2bec05fd0e004b1b0557fa0a603b371a9c490e879af1cf67463e2e79855c9",
+      "recordId": "EVAL-RESP-S02",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "758032268774e392c435db33b867feaf869278e080fbea171db80d7bedebb3b0",
+      "recordId": "EVAL-RESP-S03",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "2a3f217a40da5007ccb27ef98bec340a9aac7c8a3ea7527277fc909a1a95a9c9",
+      "recordId": "EVAL-RESP-S04",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "90071e2e0230542e0149b41fb1e510aabdb65a25eb089e92dab4f6f15601ee6b",
+      "recordId": "EVAL-RESP-S05",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "e38c13e1d65ec01d5f5c165d086a13336f192865d90e8f5d653c9d39e3a67e18",
+      "recordId": "EVAL-RESP-S06",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "c9c6d9f784d117bc996a4de714ed2b503dff2da126b0a33ad6e86fee040eb70a",
+      "recordId": "EVAL-RESP-S07",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "82379e3cd5d7139f18191079346fb798ce0db32193058a43ec8855e5ea647317",
+      "recordId": "EVAL-RESP-S08",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "0233ad8a0b0efc18c790a89e17a6f8a63c8f59e803aa575a14046162a6dde2aa",
+      "recordId": "EVAL-RESP-S09",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "e8c38312fa3d6c574e77dc81fe067052e3a5912fc45454fab63bdc5c5c696461",
+      "recordId": "EVAL-RESP-S10",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "0bd2462cce7c0d243ee25247be11f28dd92f21da88309f4cb9f026439ab13df9",
+      "recordId": "EVAL-RESP-O01",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "920f64d472c7fff761fd9d2e5d6e1b4a26bc39765b0efd03728bd90f35f2ea0a",
+      "recordId": "EVAL-RESP-O02",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "70981dd302eaaf6d2cc9e509933fd001bbd1d4020b1db4d79dde09a59b8ba5a1",
+      "recordId": "EVAL-RESP-O03",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "cc731bff3c64248801b0df02ac0b5b6ba2325c10b2c5d7284c08160697ddc712",
+      "recordId": "EVAL-RESP-O04",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "7333239a77d5222a0b4608a4e38177b51c51bed193bec93120fbe553a73c4f1d",
+      "recordId": "EVAL-RESP-O05",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "fa24f23fb3536555b10080c204750fb438860d5559e7e86f5e96ca2c67240baf",
+      "recordId": "EVAL-RESP-O06",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "299bf8f0d2cf5953bed0553c96c39e3fc759daec1245f479f8e3c7fe23d4baf2",
+      "recordId": "EVAL-RESP-O07",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "60f94bd48d40f8eadcde43c26f2d0c21e9390badbe065e0809569a8385839322",
+      "recordId": "EVAL-RESP-O08",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "7510885374cfe4d3f676387486d58fef7eecda38b57675af9fe28c3cdd848c06",
+      "recordId": "EVAL-RESP-O09",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "60a9a82918094d7b85bd561e6fbf5ea8cb40ee4b070b9da1cf274abfa5f9e53b",
+      "recordId": "EVAL-RESP-O10",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "4b2a23516a45a919dfe63c6fbd63eed28681827d40a6204c4a91d4d9e2c2eb4b",
+      "recordId": "EVAL-RESP-O11",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "a52db7de88adba3732a71b0b7355c59639ec96f5af247c91c282791cc86145b4",
+      "recordId": "EVAL-RESP-O12",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "e7de7a41523d55beee7c4c0f96abdf82f8587f361cb0f8794a114c581b34b9e4",
+      "recordId": "EVAL-RESP-O13",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "a9f79d0872c8e193686d5db82d2d72666e12b610e3c76280712855b394f043cf",
+      "recordId": "EVAL-RESP-O14",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "5adfb87c9791257857016488a701e1691d56124a49efdf905f30475784efce8a",
+      "recordId": "EVAL-RESP-O15",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "3f3750d54b8083d875016e0b99e0a9dabb01014b42dcef5fdc7e491039024f1f",
+      "recordId": "EVAL-RESP-O16",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "d6868f6639e7e6e42b4744af6b79a8541f8905fb59e424209476befa1375b693",
+      "recordId": "EVAL-RESP-O17",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "ed29d7c20093e307516d4c939a255d1ad886354a4c2eef4e36ee5592e125101f",
+      "recordId": "EVAL-RESP-O18",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "d8ec8d3ceda5245e0ef580c45c3fc059b3137cf2ab4b1116fe6b9dcb3c27e0d5",
+      "recordId": "EVAL-RESP-O19",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "0a5a1e609741b3495696995bfa25292eae3f777059ebce98bfe0540004f79a5e",
+      "recordId": "EVAL-RESP-O20",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "9bd1a8cb3cf8f8fcc2438424236ed5c303fa9a9f7835d4e627521ebdb1ec6bae",
+      "recordId": "EVAL-RESP-O21",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "oracles/respondent-oracle.json"
+    },
+    {
+      "recordCanonicalSha256": "7ecc03a19a0c9972b6276589a807ffe61accbfc261647452aeb2d8bc9861bd77",
+      "recordId": "EVAL-CAT-01",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "packages/catalog-coverage-matrix.json"
+    },
+    {
+      "recordCanonicalSha256": "704f198e30f917e8be233048b895d9d8657ca693427b6a4d78a493e1cd5a64d3",
+      "recordId": "EVAL-CAT-02",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "packages/catalog-coverage-matrix.json"
+    },
+    {
+      "recordCanonicalSha256": "5471a44a2aa8f3605140693fd6b7efd1d1730ab856e12295301cd2f36e075ad2",
+      "recordId": "EVAL-CAT-03",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "packages/catalog-coverage-matrix.json"
+    },
+    {
+      "recordCanonicalSha256": "e96d7d48be445087b9439346baddb300a5f6a05eddd8d2f90c291162e48e5541",
+      "recordId": "EVAL-CAT-04",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "packages/catalog-coverage-matrix.json"
+    },
+    {
+      "recordCanonicalSha256": "90218224c42e741638ffd0c6416f95a139904855e2adbf9b7157bcf6788c32a6",
+      "recordId": "EVAL-CAT-05",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "packages/catalog-coverage-matrix.json"
+    },
+    {
+      "recordCanonicalSha256": "4bab64288ceecc4be48cb1eda090a57468816df8d4f19fa6759556a5a7967e2e",
+      "recordId": "EVAL-CAT-06",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "packages/catalog-coverage-matrix.json"
+    },
+    {
+      "recordCanonicalSha256": "1c755c286c5db3e0876491dbd6892a72cd73edc99f2341f90511cc85b9e46dbb",
+      "recordId": "EVAL-CAT-07",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "packages/catalog-coverage-matrix.json"
+    },
+    {
+      "recordCanonicalSha256": "f063bf9b791de73229a0ef98f3cf1339a82b0c557a2b9c5cfafadff68a1e24b7",
+      "recordId": "EVAL-CAT-08",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "packages/catalog-coverage-matrix.json"
+    },
+    {
+      "recordCanonicalSha256": "38c3b3cbd0b5ffe983b8fd06690bcb7e84edf8ea58bf5f59143be25829cf5ba6",
+      "recordId": "EVAL-CAT-09",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "packages/catalog-coverage-matrix.json"
+    },
+    {
+      "recordCanonicalSha256": "ec355f1faed1e2762edfcc1f5540d5f368980d8bbf649ab0007f56ec9d5a37ca",
+      "recordId": "EVAL-CAT-10",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "packages/catalog-coverage-matrix.json"
+    },
+    {
+      "recordCanonicalSha256": "720867741bef03da2878cb5a55879f50c2a90acf6289f3e08062ec5118fa7e9b",
+      "recordId": "EVAL-CAT-11",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "packages/catalog-coverage-matrix.json"
+    },
+    {
+      "recordCanonicalSha256": "95c3aa77b69a2336266f284bff36aa17b31dd5c42f418f66ceda402a7b96e201",
+      "recordId": "EVAL-CAT-12",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "packages/catalog-coverage-matrix.json"
+    },
+    {
+      "recordCanonicalSha256": "afd1e537611680143aed7c270b5b7338bedcfe49c196a5350896242c61f6c9f5",
+      "recordId": "EVAL-CAT-13",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "packages/catalog-coverage-matrix.json"
+    },
+    {
+      "recordCanonicalSha256": "c0b58038e75d0e59827d9150a4aaa64fe6164c4698b4f3a7947bdb70ac578839",
+      "recordId": "EVAL-CAT-14",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "packages/catalog-coverage-matrix.json"
+    },
+    {
+      "recordCanonicalSha256": "5673bb74c9db6349b3227c8a83d7dd4a73da48d2ac44eafd067a78ed6602a02e",
+      "recordId": "EVAL-CAT-15",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "packages/catalog-coverage-matrix.json"
+    },
+    {
+      "recordCanonicalSha256": "9e553180288d43cceb6daa193d1edd022065c0293f1b7a4f802b3e78963fd285",
+      "recordId": "EVAL-CAT-16",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "packages/catalog-coverage-matrix.json"
+    },
+    {
+      "recordCanonicalSha256": "ee9103656e6a03b6ce45e2dbbdfb810f2bacbd301327018d0e89a4c656ceae92",
+      "recordId": "EVAL-CAT-17",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "packages/catalog-coverage-matrix.json"
+    },
+    {
+      "recordCanonicalSha256": "452bcf0a0cb59855d21c9a0e2f8c3fb34548f12576081f507fdbe03f0b12934c",
+      "recordId": "EVAL-RVW-R01",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "review/review-projection.json"
+    },
+    {
+      "recordCanonicalSha256": "009bf23d96c97a2797a51c7d3908c2e3849b6a8b0e8619dfc287e230f374b579",
+      "recordId": "EVAL-RVW-R02",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "review/review-projection.json"
+    },
+    {
+      "recordCanonicalSha256": "2ab057c69ba781b8c7c1e774f1490a603b9bf92ac182a39e014b2c044ee0511c",
+      "recordId": "EVAL-RVW-R03",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "review/review-projection.json"
+    },
+    {
+      "recordCanonicalSha256": "6caa1bfca0929241fd9e2d4d38c87e6ef30259702e46d3207db13df4ac3afe8e",
+      "recordId": "EVAL-RVW-R04",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "review/review-projection.json"
+    },
+    {
+      "recordCanonicalSha256": "a3d1f747924e0d95dcffe72d1bd0249c8d3ae63081c04f3bf695037850fa2587",
+      "recordId": "EVAL-RVW-R05",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "review/review-projection.json"
+    },
+    {
+      "recordCanonicalSha256": "8e2810557df60f640bf72fa5236031fe3c447c3fd9106191a956f359297ad1fd",
+      "recordId": "EVAL-RVW-R06",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "review/review-projection.json"
+    },
+    {
+      "recordCanonicalSha256": "b5bd7625797169be462c3429a08a64f7825d3f0b46d8e1f3776a77b749775a3f",
+      "recordId": "EVAL-RVW-R07",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "review/review-projection.json"
+    },
+    {
+      "recordCanonicalSha256": "e9a2d86e42b64aabf82c26a0cbaea702fb3f01b6df7549f647c66dd544c8fc35",
+      "recordId": "EVAL-RVW-R08",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "review/review-projection.json"
+    },
+    {
+      "recordCanonicalSha256": "8e13009602b010095eef74de454987436d682342a7c998ebf348904f7aa14aea",
+      "recordId": "EVAL-RVW-R09",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "review/review-projection.json"
+    },
+    {
+      "recordCanonicalSha256": "ec88c927b0d101e39e78d0709e2202fe96a316fdb2ce03ac6f82e4c95fb96401",
+      "recordId": "EVAL-RVW-R10",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "review/review-projection.json"
+    },
+    {
+      "recordCanonicalSha256": "97c63e20b7130439b0b9e0d9d7a80c436a391d6cbe436482f5c08326d5c319b8",
+      "recordId": "EVAL-RVW-R11",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "review/review-projection.json"
+    },
+    {
+      "recordCanonicalSha256": "9cc012180ba949c454470d44b8c3042380c39530eff94fd9c1a1327ad34eba7c",
+      "recordId": "EVAL-RVW-R12",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "review/review-projection.json"
+    },
+    {
+      "recordCanonicalSha256": "ab49a5e27e1779a0d9dd28729716d68a99ef0861a71cd7dbc7ad07180ead6fc9",
+      "recordId": "EVAL-RVW-R13",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "review/review-projection.json"
+    },
+    {
+      "recordCanonicalSha256": "86825a44feeeb805369b6c20c4d7429247a09c5eb8925c852c28fa42d94c3ffc",
+      "recordId": "EVAL-RVW-R14",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "review/review-projection.json"
+    },
+    {
+      "recordCanonicalSha256": "09ba084bb367153ac34be52ea2064cc6ca5aec8976ed5811a560a7dce2064035",
+      "recordId": "EVAL-RVW-R15",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "review/review-projection.json"
+    },
+    {
+      "recordCanonicalSha256": "ca51c2c5fc3724d2a6e58013351c0590b03233c9d8cfd9d983839c5f7d87af52",
+      "recordId": "EVAL-RVW-R16",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "review/review-projection.json"
+    },
+    {
+      "recordCanonicalSha256": "8dbd93e913734d3adfaada2a2bb0ec44774b6e45cab857e3252c617a2965fae5",
+      "recordId": "EVAL-RVW-E01",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "review/review-projection.json"
+    },
+    {
+      "recordCanonicalSha256": "0864511fba9cba1e2ba9fbebda25a83b4836c667f1dd370776d2d3748bf6f4a7",
+      "recordId": "EVAL-RVW-E02",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "review/review-projection.json"
+    },
+    {
+      "recordCanonicalSha256": "0058f45f447c1ccb2fae6ed9d94e92d803f3dbc8814ebdf34a9877ad6f988058",
+      "recordId": "EVAL-RVW-E03",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "review/review-projection.json"
+    },
+    {
+      "recordCanonicalSha256": "3bddc90317c4c6fcb92d28330467eb129420772ebb29318be97b02ef2a8a6252",
+      "recordId": "EVAL-RVW-E04",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "review/review-projection.json"
+    },
+    {
+      "recordCanonicalSha256": "c6fad05bccc1950ea43394d40178f547221fc81d7f17a0ccf35cf54e45ef5ca6",
+      "recordId": "EVAL-RVW-E05",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "review/review-projection.json"
+    },
+    {
+      "recordCanonicalSha256": "cfb5f42b9a47e0b892fad033beb8a9a68a6f7d6e6c8afd9f34774f376dc210c4",
+      "recordId": "EVAL-RVW-S01",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "review/review-projection.json"
+    },
+    {
+      "recordCanonicalSha256": "9e7e657c075e84af046956e0b219663fd26fc7635700e04d81f40236a7e74979",
+      "recordId": "EVAL-RVW-S02",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "review/review-projection.json"
+    },
+    {
+      "recordCanonicalSha256": "9d9874985287e872a296b5c3943c27d0220528fea12849ecbdba0c48a040a476",
+      "recordId": "EVAL-RVW-S03",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "review/review-projection.json"
+    },
+    {
+      "recordCanonicalSha256": "a51843c83af4f3afb64fdd50aa7995536a84c3b314b72fc7572655d93ba1494e",
+      "recordId": "EVAL-RVW-S04",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "review/review-projection.json"
+    },
+    {
+      "recordCanonicalSha256": "5efcc4c2ce8805f81d661dd1f60be2d5731c58ba28b7bed64f425e8a83197c6c",
+      "recordId": "EVAL-RVW-STATUS",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "review/status-label-map.json"
+    },
+    {
+      "recordCanonicalSha256": "c21e236007cd9cd799d119eec04a5b554efa8e62a753306b9377fed8909c905d",
+      "recordId": "EVAL-SNT-01",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "sentinels/public-catalog.json"
+    },
+    {
+      "recordCanonicalSha256": "d31d450c42fa083cc1de3cd7d05abdbf67d74cb80289bf0eef44b3542e19294d",
+      "recordId": "EVAL-SNT-02",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "sentinels/public-catalog.json"
+    },
+    {
+      "recordCanonicalSha256": "5fe52c3c5baa9cf23336470989f83657cfc6a76e83fefa7837482137cfe0458a",
+      "recordId": "EVAL-SNT-03",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "sentinels/public-catalog.json"
+    },
+    {
+      "recordCanonicalSha256": "aabe236a40d8e378e48f1f13ca5c27af6024a2cd0a5172f34bf4c7a9be0d8083",
+      "recordId": "EVAL-SNT-04",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "sentinels/public-catalog.json"
+    },
+    {
+      "recordCanonicalSha256": "3baff03e991eb006e8ccb5e3b3b5a2ae8e5abf0fb4e219465c4a40bb433a4cb6",
+      "recordId": "EVAL-SNT-05",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "sentinels/public-catalog.json"
+    },
+    {
+      "recordCanonicalSha256": "98a2cf4bf13d287e94f9b592cb9909dbc76e3c69125e65dd3eb58cd6c539716e",
+      "recordId": "EVAL-SNT-06",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "sentinels/public-catalog.json"
+    },
+    {
+      "recordCanonicalSha256": "f01cf077748e05823d36d092d3590c25b70886f6fd55a34444760f653c43d75c",
+      "recordId": "EVAL-SNT-07",
+      "reviewId": "IR-LEGACY-SEMANTIC",
+      "sourcePath": "sentinels/public-catalog.json"
+    }
+  ],
+  "corpusVersion": "2.4.21-m0",
+  "interpretationIds": [
+    "IR-LEGACY-SEMANTIC",
+    "IR-T08",
+    "IR-T19",
+    "IR-T21",
+    "IR-T25"
+  ],
+  "reviewStatus": "pending-independent-review"
+}

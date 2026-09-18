@@ -1,0 +1,139 @@
+{
+  "locale": "en",
+  "localeStubs": {
+    "ar": {
+      "displayValues": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "reviewState": "pending-native-review",
+      "translationStatus": "not-supplied"
+    },
+    "hi": {
+      "displayValues": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "reviewState": "pending-native-review",
+      "translationStatus": "not-supplied"
+    }
+  },
+  "map": [
+    {
+      "case": "boolean false",
+      "display": "No",
+      "status": "answered",
+      "value": false
+    },
+    {
+      "case": "numeric zero",
+      "display": "0",
+      "status": "answered",
+      "value": "0"
+    },
+    {
+      "case": "applicable optional unanswered",
+      "display": "Not answered",
+      "status": "unanswered",
+      "value": null
+    },
+    {
+      "case": "explicit unknown",
+      "display": "Unknown",
+      "status": "unknown",
+      "value": null
+    },
+    {
+      "case": "declined",
+      "display": "Prefer not to answer",
+      "status": "declined",
+      "value": null
+    },
+    {
+      "case": "respondent not applicable",
+      "display": "Not applicable (respondent answer)",
+      "status": "respondentNotApplicable",
+      "value": null
+    },
+    {
+      "case": "system hidden",
+      "display": null,
+      "projection": "omitted",
+      "status": "notApplicable",
+      "value": null
+    }
+  ],
+  "prdCitations": [
+    {
+      "file": "PRD",
+      "lines": "1399",
+      "quote": "Binding retained task protocol"
+    }
+  ],
+  "records": [
+    {
+      "assertionType": "projection",
+      "evidenceLevel": "E2",
+      "expected": {
+        "notApplicableProjection": "omitted",
+        "statusVocabulary": [
+          "answered",
+          "unanswered",
+          "unknown",
+          "declined",
+          "respondentNotApplicable",
+          "notApplicable"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T09",
+        "T12",
+        "T13",
+        "T14"
+      ],
+      "id": "EVAL-RVW-STATUS",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1399",
+          "quote": "Show localized field/option labels while retaining value meaning. Show false as No, zero as 0, unanswered as Not answered, explicit unknown as Unknown, declined as Prefer not to answer, and explicitly allowed `respondentNotApplicable` as Not applicable (respondent answer) using the approved locale pack. `respondentNotApplicable` remains an applicable respondent-selected status with no value; it is distinct from system-hidden `notApplicable`, which is omitted from review. A selected option named None remains a selected option, not an answer-status synonym. Preserve ranked option order. Show unit/currency and derived labeling. For repeated items with identical labels include an unambiguous item position plus distinguishing configured summary values. Show attachment name, size and readiness through authorized metadata; do not expose a durable download token. Drawing/typed-name values, when a different fixture uses them, remain ordinary captured data with no e-sign claim.",
+          "rangeSha256": "05b59b435fa409bae0e3d45d0ec5f1a467a2daaae92d26d7d1eed5fe2533facf",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-API-03",
+        "SF-LOC-03",
+        "SF-RES-01",
+        "SF-RES-02"
+      ],
+      "status": "not-run"
+    }
+  ],
+  "statusVocabulary": [
+    "answered",
+    "unanswered",
+    "unknown",
+    "declined",
+    "respondentNotApplicable",
+    "notApplicable"
+  ]
+}

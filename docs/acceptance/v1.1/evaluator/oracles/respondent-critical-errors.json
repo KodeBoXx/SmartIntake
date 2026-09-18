@@ -1,0 +1,371 @@
+{
+  "records": [
+    {
+      "assertionType": "oracle",
+      "evidenceLevel": "E2",
+      "expected": {
+        "criticalError": "changing the wrong repeated item after reorder",
+        "effect": "attempt-unsuccessful-even-if-receipt-exists"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T06"
+      ],
+      "id": "EVAL-CRIT-01",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1393",
+          "quote": "Critical errors include changing the wrong repeated item after reorder; losing leading zeros; treating zero/false as unanswered; treating Unknown as No/None; changing a date/decimal during locale switch; retaining hidden detail in review/output/narration; accepting a pending/rejected attachment as Ready; bypassing required review acknowledgment; a voice command submitting; or believing a nonaccepted state is submission success. Any such unresolved error prevents a successful attempt even if a receipt exists.",
+          "rangeSha256": "2b4c5e0fef6f87274c65925043bc1aaa7f17c23d8d2a8b719d12641ea92e4a42",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-FLD-03"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "oracle",
+      "evidenceLevel": "E2",
+      "expected": {
+        "criticalError": "losing leading zeros",
+        "effect": "attempt-unsuccessful-even-if-receipt-exists"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04",
+        "T31"
+      ],
+      "id": "EVAL-CRIT-02",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1393",
+          "quote": "Critical errors include changing the wrong repeated item after reorder; losing leading zeros; treating zero/false as unanswered; treating Unknown as No/None; changing a date/decimal during locale switch; retaining hidden detail in review/output/narration; accepting a pending/rejected attachment as Ready; bypassing required review acknowledgment; a voice command submitting; or believing a nonaccepted state is submission success. Any such unresolved error prevents a successful attempt even if a receipt exists.",
+          "rangeSha256": "2b4c5e0fef6f87274c65925043bc1aaa7f17c23d8d2a8b719d12641ea92e4a42",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-CON-02",
+        "SF-FLD-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "oracle",
+      "evidenceLevel": "E2",
+      "expected": {
+        "criticalError": "treating zero/false as unanswered",
+        "effect": "attempt-unsuccessful-even-if-receipt-exists"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04",
+        "T31"
+      ],
+      "id": "EVAL-CRIT-03",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1393",
+          "quote": "Critical errors include changing the wrong repeated item after reorder; losing leading zeros; treating zero/false as unanswered; treating Unknown as No/None; changing a date/decimal during locale switch; retaining hidden detail in review/output/narration; accepting a pending/rejected attachment as Ready; bypassing required review acknowledgment; a voice command submitting; or believing a nonaccepted state is submission success. Any such unresolved error prevents a successful attempt even if a receipt exists.",
+          "rangeSha256": "2b4c5e0fef6f87274c65925043bc1aaa7f17c23d8d2a8b719d12641ea92e4a42",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-CON-02",
+        "SF-FLD-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "oracle",
+      "evidenceLevel": "E2",
+      "expected": {
+        "criticalError": "treating Unknown as No/None",
+        "effect": "attempt-unsuccessful-even-if-receipt-exists"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T05"
+      ],
+      "id": "EVAL-CRIT-04",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1393",
+          "quote": "Critical errors include changing the wrong repeated item after reorder; losing leading zeros; treating zero/false as unanswered; treating Unknown as No/None; changing a date/decimal during locale switch; retaining hidden detail in review/output/narration; accepting a pending/rejected attachment as Ready; bypassing required review acknowledgment; a voice command submitting; or believing a nonaccepted state is submission success. Any such unresolved error prevents a successful attempt even if a receipt exists.",
+          "rangeSha256": "2b4c5e0fef6f87274c65925043bc1aaa7f17c23d8d2a8b719d12641ea92e4a42",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-RUL-03"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "oracle",
+      "evidenceLevel": "E2",
+      "expected": {
+        "criticalError": "changing a date or decimal during locale switch",
+        "effect": "attempt-unsuccessful-even-if-receipt-exists"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T12"
+      ],
+      "id": "EVAL-CRIT-05",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1393",
+          "quote": "Critical errors include changing the wrong repeated item after reorder; losing leading zeros; treating zero/false as unanswered; treating Unknown as No/None; changing a date/decimal during locale switch; retaining hidden detail in review/output/narration; accepting a pending/rejected attachment as Ready; bypassing required review acknowledgment; a voice command submitting; or believing a nonaccepted state is submission success. Any such unresolved error prevents a successful attempt even if a receipt exists.",
+          "rangeSha256": "2b4c5e0fef6f87274c65925043bc1aaa7f17c23d8d2a8b719d12641ea92e4a42",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-LOC-02"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "oracle",
+      "evidenceLevel": "E2",
+      "expected": {
+        "criticalError": "retaining hidden detail in review/output/narration",
+        "effect": "attempt-unsuccessful-even-if-receipt-exists"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T11",
+        "T20"
+      ],
+      "id": "EVAL-CRIT-06",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1393",
+          "quote": "Critical errors include changing the wrong repeated item after reorder; losing leading zeros; treating zero/false as unanswered; treating Unknown as No/None; changing a date/decimal during locale switch; retaining hidden detail in review/output/narration; accepting a pending/rejected attachment as Ready; bypassing required review acknowledgment; a voice command submitting; or believing a nonaccepted state is submission success. Any such unresolved error prevents a successful attempt even if a receipt exists.",
+          "rangeSha256": "2b4c5e0fef6f87274c65925043bc1aaa7f17c23d8d2a8b719d12641ea92e4a42",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-SEC-04"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "oracle",
+      "evidenceLevel": "E2",
+      "expected": {
+        "criticalError": "accepting a pending/rejected attachment as Ready",
+        "effect": "attempt-unsuccessful-even-if-receipt-exists"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T15"
+      ],
+      "id": "EVAL-CRIT-07",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1393",
+          "quote": "Critical errors include changing the wrong repeated item after reorder; losing leading zeros; treating zero/false as unanswered; treating Unknown as No/None; changing a date/decimal during locale switch; retaining hidden detail in review/output/narration; accepting a pending/rejected attachment as Ready; bypassing required review acknowledgment; a voice command submitting; or believing a nonaccepted state is submission success. Any such unresolved error prevents a successful attempt even if a receipt exists.",
+          "rangeSha256": "2b4c5e0fef6f87274c65925043bc1aaa7f17c23d8d2a8b719d12641ea92e4a42",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-FLD-06"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "oracle",
+      "evidenceLevel": "E2",
+      "expected": {
+        "criticalError": "bypassing required review acknowledgment",
+        "effect": "attempt-unsuccessful-even-if-receipt-exists"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T14"
+      ],
+      "id": "EVAL-CRIT-08",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1393",
+          "quote": "Critical errors include changing the wrong repeated item after reorder; losing leading zeros; treating zero/false as unanswered; treating Unknown as No/None; changing a date/decimal during locale switch; retaining hidden detail in review/output/narration; accepting a pending/rejected attachment as Ready; bypassing required review acknowledgment; a voice command submitting; or believing a nonaccepted state is submission success. Any such unresolved error prevents a successful attempt even if a receipt exists.",
+          "rangeSha256": "2b4c5e0fef6f87274c65925043bc1aaa7f17c23d8d2a8b719d12641ea92e4a42",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-RES-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "oracle",
+      "evidenceLevel": "E2",
+      "expected": {
+        "criticalError": "a voice command submitting",
+        "effect": "attempt-unsuccessful-even-if-receipt-exists"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T11"
+      ],
+      "id": "EVAL-CRIT-09",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1393",
+          "quote": "Critical errors include changing the wrong repeated item after reorder; losing leading zeros; treating zero/false as unanswered; treating Unknown as No/None; changing a date/decimal during locale switch; retaining hidden detail in review/output/narration; accepting a pending/rejected attachment as Ready; bypassing required review acknowledgment; a voice command submitting; or believing a nonaccepted state is submission success. Any such unresolved error prevents a successful attempt even if a receipt exists.",
+          "rangeSha256": "2b4c5e0fef6f87274c65925043bc1aaa7f17c23d8d2a8b719d12641ea92e4a42",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-GUD-03",
+        "SF-SEC-04"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "oracle",
+      "evidenceLevel": "E2",
+      "expected": {
+        "criticalError": "believing a nonaccepted state is submission success",
+        "effect": "attempt-unsuccessful-even-if-receipt-exists"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T17"
+      ],
+      "id": "EVAL-CRIT-10",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1393",
+          "quote": "Critical errors include changing the wrong repeated item after reorder; losing leading zeros; treating zero/false as unanswered; treating Unknown as No/None; changing a date/decimal during locale switch; retaining hidden detail in review/output/narration; accepting a pending/rejected attachment as Ready; bypassing required review acknowledgment; a voice command submitting; or believing a nonaccepted state is submission success. Any such unresolved error prevents a successful attempt even if a receipt exists.",
+          "rangeSha256": "2b4c5e0fef6f87274c65925043bc1aaa7f17c23d8d2a8b719d12641ea92e4a42",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-NFR-03",
+        "SF-RES-04"
+      ],
+      "status": "not-run"
+    }
+  ]
+}

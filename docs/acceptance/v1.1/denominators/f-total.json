@@ -1,0 +1,154 @@
+{
+  "counting_rule": "one named fault/recovery drill",
+  "current_execution_status": "not-run",
+  "independent_review_required": true,
+  "manifest": "F_total",
+  "members": [
+    {
+      "citation": {
+        "lines": "202",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Lite-Evaluator-Protocol.md"
+      },
+      "drill": "idle-autosave",
+      "id": "F-idle-autosave-983ad9206e",
+      "owner": "operations/reliability",
+      "status": "not-run",
+      "title": "idle-autosave"
+    },
+    {
+      "citation": {
+        "lines": "202",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Lite-Evaluator-Protocol.md"
+      },
+      "drill": "continuous-autosave",
+      "id": "F-continuous-autosave-df6343e605",
+      "owner": "operations/reliability",
+      "status": "not-run",
+      "title": "continuous-autosave"
+    },
+    {
+      "citation": {
+        "lines": "663-675",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "drill": "server-500",
+      "id": "F-server-500-a1b3a2d9ba",
+      "owner": "operations/reliability",
+      "status": "not-run",
+      "title": "server-500"
+    },
+    {
+      "citation": {
+        "lines": "663-675",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "drill": "offline",
+      "id": "F-offline-8e2c7ac508",
+      "owner": "operations/reliability",
+      "status": "not-run",
+      "title": "offline"
+    },
+    {
+      "citation": {
+        "lines": "202",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Lite-Evaluator-Protocol.md"
+      },
+      "drill": "two-tabs",
+      "id": "F-two-tabs-0d5629f7a5",
+      "owner": "operations/reliability",
+      "status": "not-run",
+      "title": "two-tabs"
+    },
+    {
+      "citation": {
+        "lines": "202",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Lite-Evaluator-Protocol.md"
+      },
+      "drill": "stale-revision",
+      "id": "F-stale-revision-808ed15ca2",
+      "owner": "operations/reliability",
+      "status": "not-run",
+      "title": "stale-revision"
+    },
+    {
+      "citation": {
+        "lines": "663-675",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "drill": "expired-draft",
+      "id": "F-expired-draft-249ec28558",
+      "owner": "operations/reliability",
+      "status": "not-run",
+      "title": "expired-draft"
+    },
+    {
+      "citation": {
+        "lines": "663-675",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "drill": "shared-device",
+      "id": "F-shared-device-9049b2f1fa",
+      "owner": "operations/reliability",
+      "status": "not-run",
+      "title": "shared-device"
+    },
+    {
+      "citation": {
+        "lines": "663-675",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "drill": "app-restart",
+      "id": "F-app-restart-c73a34c79f",
+      "owner": "operations/reliability",
+      "status": "not-run",
+      "title": "app-restart"
+    },
+    {
+      "citation": {
+        "lines": "663-675",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "drill": "database-restart",
+      "id": "F-database-restart-8f5c46b7a8",
+      "owner": "operations/reliability",
+      "status": "not-run",
+      "title": "database-restart"
+    },
+    {
+      "citation": {
+        "lines": "663-675",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "drill": "backup-restore-tombstone-replay",
+      "id": "F-backup-restore-tombstone-replay-415b858a25",
+      "owner": "operations/reliability",
+      "status": "not-run",
+      "title": "backup-restore-tombstone-replay"
+    },
+    {
+      "citation": {
+        "lines": "663-675",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "drill": "dependency-partial-failure",
+      "id": "F-dependency-partial-failure-825a900a80",
+      "owner": "operations/reliability",
+      "status": "not-run",
+      "title": "dependency-partial-failure"
+    }
+  ],
+  "owner": "acceptance/denominators",
+  "selection": "plan-selected",
+  "source_citations": [
+    {
+      "lines": "373-379,663-675",
+      "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+    },
+    {
+      "lines": "202-204",
+      "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Lite-Evaluator-Protocol.md"
+    }
+  ],
+  "total": 12,
+  "version": "2.0.0-m0"
+}

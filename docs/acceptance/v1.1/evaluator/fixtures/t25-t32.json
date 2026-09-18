@@ -1,0 +1,3647 @@
+{
+  "corpusVersion": "2.4.21-m0",
+  "executionStatus": "not-run",
+  "fixtureSet": [
+    "T25",
+    "T26",
+    "T27",
+    "T28",
+    "T29",
+    "T30",
+    "T31",
+    "T32"
+  ],
+  "fixtures": [
+    {
+      "cases": [
+        {
+          "actions": [
+            {
+              "actor": "A1..A5",
+              "instruction": "Give exactly 20 minutes using only the separate five-field practice form; cover navigation, ordinary properties, rules, preview, locale review, publish and recovery.",
+              "kind": "human-session"
+            },
+            {
+              "actor": "A1..A5",
+              "instruction": "Withhold target package, target screenshots, raw JSON, source code and product coaching; start the 60-minute author task after orientation.",
+              "kind": "human-session"
+            },
+            {
+              "actor": "R1..R5",
+              "instruction": "Give exactly five minutes to read the neutral synthetic-data introduction, then start the 25-minute respondent task.",
+              "kind": "human-session"
+            },
+            {
+              "actor": "evaluator",
+              "instruction": "Assign the frozen A/B order and browser/AT order, retain every failure or abandonment, and never replace a failure with a more experienced participant.",
+              "kind": "observation"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "anonymized slot roster",
+              "orientation start/end timestamps",
+              "counterbalance assignment"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "authors": {
+                "allocated": 5,
+                "orientationMinutes": 20,
+                "taskLimitMinutes": 60
+              },
+              "protocolAssetSha256": "aa4d74a3dea2b2bfded078fd9b68029675e781d82e60f78705f62fd278cba5c2",
+              "respondents": {
+                "allocated": 5,
+                "readingMinutes": 5,
+                "taskLimitMinutes": 25
+              }
+            }
+          },
+          "id": "T25-ORIENTATION-AND-ALLOCATION",
+          "preState": {
+            "allSlots": "unrecruited",
+            "assetExecutionStatus": "not-run",
+            "participantSlots": [
+              "A1",
+              "A2",
+              "A3",
+              "A4",
+              "A5",
+              "R1",
+              "R2",
+              "R3",
+              "R4",
+              "R5"
+            ],
+            "protocol": "t25-usability-v2"
+          }
+        },
+        {
+          "actions": [
+            {
+              "instruction": "Create the three-phase English-default package with the 30 Appendix C field definitions, both equipment modes, fixed-row detail, nested repeaters, calculated total and shared email identity.",
+              "kind": "browser"
+            },
+            {
+              "instruction": "Add the required guidance, approved question/answer and no-match behavior, opt-in narration without autoplay, shipping reusable-block temporary remap/removal, complete Hindi/Arabic packs and rejected missing-acknowledgment variant.",
+              "kind": "browser"
+            },
+            {
+              "instruction": "Preview complete/setup-detail/Other-detail/invalid scenarios without creating a response, webhook or email; publish v1, start a pinned synthetic session, create/reorder v2, inspect stale approval and export v1.",
+              "kind": "browser"
+            },
+            {
+              "instruction": "Record elapsed time, input/logic errors, help usage, navigation recovery, intervention codes and whether any product hint occurred.",
+              "kind": "observation"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "anonymized author observation form",
+              "published release hash",
+              "screen/network trace showing no preview side effects"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "denominator": 5,
+              "minimumSuccesses": 4,
+              "productHint": "unsuccessful unassisted attempt",
+              "successfulAttempt": "published required semantics with no code edits and no facilitator intervention"
+            }
+          },
+          "id": "T25-AUTHOR-SCRIPT-AND-SCORING",
+          "preState": {
+            "ordinaryStaffRole": "author",
+            "participant": "A1",
+            "release": "absent",
+            "taskPackage": "Community equipment support request / equipment-support"
+          }
+        },
+        {
+          "actions": [
+            {
+              "instruction": "Enter the frozen Appendix C identity/setup/equipment/collection answers; create the two Display unit rows, remove Spare, move B above A, upload the 8-byte equipment-note.txt and wait for Ready.",
+              "kind": "browser"
+            },
+            {
+              "instruction": "Save/reload in the same browser, change Hindi/Arabic/English while IDs and values stay stable, edit the second displayed equipment quantity to 3 from review, then acknowledge exact English text and submit.",
+              "kind": "browser"
+            },
+            {
+              "instruction": "Check final total 44.75, first quantity remains 1, second quantity is 3, no hidden detail remains, and an accepted durable receipt is returned.",
+              "kind": "observation"
+            },
+            {
+              "instruction": "Record every critical answer-meaning error; an outage is marked blocked only when evaluator-wide and is applied equally to both tools.",
+              "kind": "observation"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "anonymized respondent observation form",
+              "review/receipt capture",
+              "stable-row-path edit trace"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "criticalMeaningErrorsAmongSuccesses": 0,
+              "denominator": 5,
+              "minimumSuccesses": 4,
+              "requiredTotal": "44.75",
+              "successfulAttempt": "exact final answer meaning plus accepted receipt without assistance"
+            }
+          },
+          "id": "T25-RESPONDENT-SCRIPT-AND-CRITICAL-MEANING",
+          "preState": {
+            "participant": "R1",
+            "pinnedRelease": "equipment-support-v1",
+            "syntheticSession": "fresh",
+            "taskClockMinutes": 25
+          }
+        }
+      ],
+      "citations": [
+        "PRD:701-702",
+        "PRD:823",
+        "PRD:1287-1289"
+      ],
+      "executionStatus": "not-run",
+      "frozenAssets": [
+        {
+          "path": "docs/acceptance/v1.1/evaluator/assets/t25-usability-protocol.json",
+          "sha256": "aa4d74a3dea2b2bfded078fd9b68029675e781d82e60f78705f62fd278cba5c2"
+        }
+      ],
+      "id": "T25",
+      "requirements": [
+        "SF-UX-02",
+        "SF-UX-03"
+      ],
+      "title": "Human usability protocol"
+    },
+    {
+      "cases": [
+        {
+          "actions": [
+            {
+              "instruction": "Parse both frozen package bytes using a schema validator independent of the product.",
+              "kind": "package-load"
+            },
+            {
+              "instruction": "Count exactly 42 canonical fields and five pages in each package; resolve all page field bindings, option sets, expressions, row schemas, locale bindings, guidance bindings, typed sample answers and expected outputs.",
+              "kind": "graph-walk"
+            },
+            {
+              "instruction": "Verify each graph has a real three-level repeater hierarchy, list/object row schemas, attachments, drawing, constrained-integer rating, ordered multiChoice ranking and calculated metadata on a compatible result type.",
+              "kind": "graph-walk"
+            },
+            {
+              "instruction": "Compare only frozen structural metrics from parity-budget.json; do not normalize domain labels/options/rules/workflows or treat equal serialized graphs as parity.",
+              "kind": "comparison"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "independent graph-walk report",
+              "structural metric report",
+              "package byte digests"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "comparisonMode": "structural-only",
+              "hcFieldCount": 42,
+              "hcPageCount": 5,
+              "nhcFieldCount": 42,
+              "nhcPageCount": 5,
+              "observedProductParity": false
+            }
+          },
+          "id": "T26-HC-NHC-STRUCTURAL-PARITY",
+          "preState": {
+            "evaluation": "not-run",
+            "healthcarePackage": "package-hc.json",
+            "nonHealthcarePackage": "package-nhc.json",
+            "profile": "4.0.0"
+          }
+        },
+        {
+          "actions": [
+            {
+              "instruction": "Add the non-healthcare equipment-list composite through the documented registry and configure its nested row fields and rules.",
+              "kind": "browser"
+            },
+            {
+              "body": {
+                "packageSource": "UI-created imported draft",
+                "profile": "4.0.0"
+              },
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/workspaces/{w}/forms/{f}/drafts/{d}/validate"
+            },
+            {
+              "instruction": "Edit one composite setting through imported draft properties, restore it, and export the normalized package.",
+              "kind": "browser"
+            },
+            {
+              "instruction": "Evaluate frozen typed answers and compare canonical list/object output, normalized package hash and golden outputs without relying on the candidate serializer.",
+              "kind": "independent-evaluate"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "registry conformance report",
+              "validation response",
+              "independent output comparison",
+              "exported package digest"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "coreResponseFormatChanged": false,
+              "normalizedHashRestored": true,
+              "outputWireType": "list",
+              "rowWireType": "object",
+              "validateHttpStatus": 200
+            }
+          },
+          "id": "T26-NONHEALTHCARE-COMPOSITE-CANONICAL-OUTPUT",
+          "preState": {
+            "candidateDraft": "imported from UI-created package",
+            "packageScenario": "fleet-maintenance non-healthcare package",
+            "registry": "enabled and version-pinned"
+          }
+        },
+        {
+          "actions": [
+            {
+              "instruction": "Approve and pin component-equipment-list@1.0.0 and adapter@1.0.0 for releaseV1.",
+              "kind": "administration"
+            },
+            {
+              "instruction": "Disable component-equipment-list@1.0.0 for new draft selection and request evaluation of a draft that requires its disabled or incompatible dependency.",
+              "kind": "administration"
+            },
+            {
+              "instruction": "Start a session on releaseV1 and evaluate it with its pinned approved versions.",
+              "kind": "session"
+            },
+            {
+              "instruction": "Capture approval, pin, disable reason, failed-safe diagnostic and release binding.",
+              "kind": "audit"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "version administration audit",
+              "failure diagnostic",
+              "old-release evaluation trace"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "auditContainsSecrets": false,
+              "disabledRequiredDependency": {
+                "code": "DEPENDENCY_UNAVAILABLE",
+                "status": 422
+              },
+              "priorPinnedRelease": {
+                "reproducible": true,
+                "status": 200
+              }
+            }
+          },
+          "id": "T26-PIN-DISABLE-OLD-RELEASE",
+          "preState": {
+            "componentVersion": "component-equipment-list@1.0.0",
+            "providerVersion": "adapter@1.0.0",
+            "releaseV1": "published and pinned",
+            "releaseV2": "draft"
+          }
+        },
+        {
+          "actions": [
+            {
+              "instruction": "Inspect lockfiles, dependency inventory and license notes for a prebuilt form engine supplying schema, evaluator, rule or authoring responsibility.",
+              "kind": "inspection"
+            },
+            {
+              "instruction": "Trace registry extension documentation for speech/provider/component adapter contracts and confirm it exposes no private database or UI internals.",
+              "kind": "inspection"
+            },
+            {
+              "instruction": "Record each supporting library, its bounded responsibility and the evidence for owned responsibility.",
+              "kind": "audit"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "dependency/license inventory",
+              "responsibility trace",
+              "extension API documentation capture"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "prebuiltFormEngineResponsibilities": [],
+              "privateInternalsRequired": false,
+              "supportingLibrariesDisclosed": true
+            }
+          },
+          "id": "T26-OWNERSHIP-INVENTORY",
+          "preState": {
+            "dependencyManifest": "candidate lockfiles and license inventory",
+            "responsibilitySet": [
+              "schema",
+              "engine",
+              "rules",
+              "authoring"
+            ]
+          }
+        }
+      ],
+      "citations": [
+        "PRD:789-792",
+        "PRD:824",
+        "PRD:1341-1346"
+      ],
+      "executionStatus": "not-run",
+      "frozenAssets": [
+        {
+          "path": "docs/acceptance/v1.1/evaluator/packages/package-hc.json",
+          "sha256": "bdec92d08367f2db92dca7cbb2a1ec6d308628be381cb992ed7ab3ff0db22294"
+        },
+        {
+          "path": "docs/acceptance/v1.1/evaluator/packages/package-nhc.json",
+          "sha256": "1a612abae70488f191d46583946e46e25efb4fb18f470e0312625eb6f82315ea"
+        },
+        {
+          "path": "docs/acceptance/v1.1/evaluator/packages/parity-budget.json",
+          "sha256": "d9135f32378e6b1342bed78aab35247bb4748d171505fac28861e0bdf510abde"
+        }
+      ],
+      "id": "T26",
+      "requirements": [
+        "SF-EXT-01",
+        "SF-EXT-02",
+        "SF-EXT-03",
+        "SF-EXT-04"
+      ],
+      "title": "Extensibility ownership and HC/NHC parity"
+    },
+    {
+      "cases": [
+        {
+          "actions": [
+            {
+              "body": {
+                "passwordRef": "secret:active-password",
+                "username": "author.a"
+              },
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/auth/sign-in"
+            },
+            {
+              "body": {
+                "passwordRef": "secret:wrong-password",
+                "username": "missing.user"
+              },
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/auth/sign-in"
+            },
+            {
+              "body": {
+                "passwordRef": "secret:wrong-password",
+                "username": "author.a"
+              },
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/auth/sign-in"
+            },
+            {
+              "instruction": "Inspect body, audit, security log and browser storage for password, hash, bearer token or development identity header acceptance.",
+              "kind": "redaction-check"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "redacted HTTP transcript",
+              "Set-Cookie attributes",
+              "security-log excerpt"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "developmentIdentityHeaderAccepted": false,
+              "ordinaryJsonContains": [
+                "safe account/setup state"
+              ],
+              "ordinaryJsonExcludes": [
+                "password",
+                "hash",
+                "bearerToken"
+              ],
+              "unknownAndWrong": {
+                "sameHttpStatus": 401,
+                "samePublicBody": true
+              },
+              "valid": {
+                "httpStatus": 200,
+                "setsFreshOpaqueCookie": true,
+                "setupOnly": false
+              }
+            }
+          },
+          "id": "T27-NORMAL-AND-GENERIC-FAILURE",
+          "preState": {
+            "accounts": {
+              "active": "author.a",
+              "unknown": "missing.user",
+              "wrongPassword": "author.a"
+            },
+            "passwords": "sealed evaluator secrets",
+            "sessionStore": "empty"
+          }
+        },
+        {
+          "actions": [
+            {
+              "body": {
+                "passwordRef": "secret:wrong-password",
+                "username": "author.a"
+              },
+              "count": 10,
+              "kind": "http-repeat",
+              "method": "POST",
+              "path": "/v1/auth/sign-in"
+            },
+            {
+              "body": {
+                "passwordRef": "secret:active-password",
+                "username": "author.a"
+              },
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/auth/sign-in"
+            },
+            {
+              "body": {
+                "passwordRef": "secret:other-active-password",
+                "username": "author.b"
+              },
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/auth/sign-in"
+            },
+            {
+              "duration": "PT15M",
+              "kind": "clock-advance"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "rate-control log",
+              "redacted HTTP transcript",
+              "per-account throttle counter"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "after15MinutesAuthorA": {
+                "eligibleForAuthentication": true
+              },
+              "authorALock": {
+                "duration": "PT15M",
+                "httpStatus": 429
+              },
+              "authorB": {
+                "httpStatus": 200
+              },
+              "tenthFailure": {
+                "httpStatus": 401,
+                "publicBodyGeneric": true
+              }
+            }
+          },
+          "id": "T27-THROTTLE-AND-ISOLATION",
+          "preState": {
+            "accounts": [
+              "author.a",
+              "author.b"
+            ],
+            "failedAttempts": 0,
+            "source": "198.51.100.25"
+          }
+        },
+        {
+          "actions": [
+            {
+              "body": {
+                "passwordRef": "secret:temporary-password",
+                "username": "pending.author"
+              },
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/auth/sign-in"
+            },
+            {
+              "cookie": "setup-only",
+              "kind": "http",
+              "method": "GET",
+              "path": "/v1/auth/session"
+            },
+            {
+              "cookie": "setup-only",
+              "kind": "http",
+              "method": "GET",
+              "path": "/v1/workspaces/ws-a/forms"
+            },
+            {
+              "instruction": "Open the protected catalog deep link while setup-only; verify Choose your password is the only continuation.",
+              "kind": "browser"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "cookie/session capture",
+              "browser route trace",
+              "protected API response"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "deepLink": {
+                "protectedPageRendered": false,
+                "screen": "Choose your password"
+              },
+              "ordinaryStaffApi": {
+                "httpStatus": 403
+              },
+              "safeSession": {
+                "httpStatus": 200,
+                "tenantDataExposed": false
+              },
+              "signIn": {
+                "httpStatus": 200,
+                "setupOnly": true
+              }
+            }
+          },
+          "id": "T27-SETUP-ONLY-GUARD",
+          "preState": {
+            "account": "pending.author",
+            "activation": "awaiting-setup",
+            "session": "absent",
+            "temporaryPasswordExpiry": "2026-10-01T00:00:00Z"
+          }
+        },
+        {
+          "actions": [
+            {
+              "duration": "PT2H1S",
+              "kind": "clock-advance",
+              "withoutRequest": true
+            },
+            {
+              "cookie": "normal-session",
+              "kind": "http",
+              "method": "GET",
+              "path": "/v1/workspaces/ws-a/forms"
+            },
+            {
+              "cookie": "fresh-normal-session",
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/auth/sign-out"
+            },
+            {
+              "instruction": "Remove author.a workspace membership, then issue a sensitive workspace request no later than five minutes after removal.",
+              "kind": "authority-change"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "server session store query",
+              "response headers",
+              "membership-removal audit"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "idleExpiredRequest": {
+                "httpStatus": 401
+              },
+              "removedMembershipSensitiveRequest": {
+                "httpStatus": 403,
+                "maximumAuthorityCache": "PT5M"
+              },
+              "repeatedSignOut": {
+                "httpStatus": 204
+              },
+              "signOut": {
+                "cookieExpired": true,
+                "httpStatus": 204
+              }
+            }
+          },
+          "id": "T27-EXPIRY-LOGOUT-REVOCATION",
+          "preState": {
+            "absoluteLifetime": "PT12H",
+            "idleLifetime": "PT2H",
+            "membership": "active",
+            "normalSession": "issued to author.a"
+          }
+        },
+        {
+          "actions": [
+            {
+              "instruction": "Navigate unauthenticated to the protected deep link, sign in through the normal form, and return only to the permitted destination.",
+              "kind": "browser"
+            },
+            {
+              "body": {
+                "currentPasswordRef": "secret:active-password",
+                "newPasswordRef": "secret:new-password"
+              },
+              "cookie": "normal-session",
+              "headers": {
+                "Origin": "https://evil.invalid",
+                "X-CSRF-Token": "absent"
+              },
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/auth/password-change"
+            },
+            {
+              "instruction": "Sign out on shared-device mode, sign in as author.b, and inspect query caches, private detail route and unsent buffers.",
+              "kind": "browser"
+            },
+            {
+              "instruction": "Switch workspace A to B while an A request is in flight and wait for both responses.",
+              "kind": "browser"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "browser storage capture",
+              "network HAR",
+              "CSRF rejection response"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "crossOriginMutation": {
+                "httpStatus": 403,
+                "passwordChanged": false
+              },
+              "deepLink": {
+                "returnedAfterSignIn": true,
+                "unpermittedDestinationRendered": false
+              },
+              "sharedDevice": {
+                "authorADataVisibleToAuthorB": false
+              },
+              "workspaceSwitch": {
+                "workspaceADataRenderedAfterBSelected": false
+              }
+            }
+          },
+          "id": "T27-CSRF-DEEP-LINK-SHARED-DEVICE",
+          "preState": {
+            "account": "author.a",
+            "deepLink": "/staff/forms/form-a/edit",
+            "privateCache": [
+              "catalog",
+              "form-detail",
+              "unsent-buffer"
+            ]
+          }
+        }
+      ],
+      "citations": [
+        "PRD:127-128",
+        "PRD:832",
+        "AUTH:33-47",
+        "AUTH:74-80",
+        "AUTH:98"
+      ],
+      "executionStatus": "not-run",
+      "id": "T27",
+      "requirements": [
+        "SF-AUTH-01",
+        "SF-AUTH-02",
+        "SF-UI-01"
+      ],
+      "title": "Real staff sign-in and session safeguards"
+    },
+    {
+      "cases": [
+        {
+          "actions": [
+            {
+              "command": "docker compose --env-file .env.acceptance up -d app",
+              "instances": 2,
+              "kind": "process-concurrent"
+            },
+            {
+              "instruction": "Count platform administrator accounts and bootstrap-completed markers after both start attempts settle.",
+              "kind": "query"
+            },
+            {
+              "body": {
+                "firstOwner": "owner.a",
+                "onboarding": "temporary-password",
+                "organization": "Org A"
+              },
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/platform/organizations"
+            },
+            {
+              "expected": {
+                "ordinaryWorkspaceAccess": false,
+                "setupOnlyTenantDetailsAbsent": true
+              },
+              "instruction": "While holding only the setup-only cookie, attempt to enter an ordinary workspace from the staff chooser.",
+              "kind": "manual-ui",
+              "materializationState": "m2-endpoint-unspecified",
+              "sourceCitation": "PRD:1022-1039",
+              "surface": "Staff workspace chooser"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "startup logs",
+              "transaction/audit record",
+              "state query"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "bootstrapCompletedMarker": true,
+              "bootstrapRetry": "does-not-reset-or-promote",
+              "ordinaryTenantOperation": {
+                "ordinaryWorkspaceAccess": false,
+                "setupOnlyTenantDetailsAbsent": true
+              },
+              "organizationState": "awaiting-owner-activation",
+              "platformAdministrators": 1
+            }
+          },
+          "id": "T28-CLEAN-BOOTSTRAP-AND-PENDING-OWNER",
+          "preState": {
+            "bootstrapCompletedMarker": false,
+            "bootstrapConfig": {
+              "oneTime": true,
+              "temporaryPasswordRef": "secret:bootstrap",
+              "username": "platform.root"
+            },
+            "database": "empty"
+          }
+        },
+        {
+          "actions": [
+            {
+              "body": {
+                "displayName": "Author New",
+                "onboarding": "temporary-password",
+                "temporaryPasswordRef": "secret:author-new",
+                "username": "author.new",
+                "workspaceRoles": {
+                  "ws-a": [
+                    "author"
+                  ]
+                }
+              },
+              "cookie": "owner-a",
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/organizations/org-a/users"
+            },
+            {
+              "body": {
+                "passwordRef": "secret:author-new",
+                "username": "author.new"
+              },
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/auth/sign-in"
+            },
+            {
+              "body": {
+                "newPasswordRef": "secret:author-new-long",
+                "setupProof": "cookie-bound"
+              },
+              "cookie": "setup-only",
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/auth/activate"
+            },
+            {
+              "body": {
+                "passwordRef": "secret:author-new-long",
+                "username": "author.new"
+              },
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/auth/sign-in"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "redacted onboarding responses",
+              "audit entries",
+              "session-revocation trace"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "activation": {
+                "httpStatus": 204,
+                "revokesSetupSession": true
+              },
+              "normalSignIn": {
+                "httpStatus": 200,
+                "setupOnly": false
+              },
+              "provision": {
+                "emailDeliveryState": "not-configured",
+                "httpStatus": 201,
+                "temporaryPasswordEchoed": false
+              },
+              "temporarySignIn": {
+                "httpStatus": 200,
+                "setupOnly": true
+              }
+            }
+          },
+          "id": "T28-TEMPORARY-PASSWORD-NO-EMAIL",
+          "preState": {
+            "emailAdapter": "disabled",
+            "issuer": "owner.a",
+            "newAccount": "author.new",
+            "organization": "org-a active"
+          }
+        },
+        {
+          "actions": [
+            {
+              "body": {
+                "delivery": "manual-copy",
+                "workspaceRoles": {
+                  "ws-a": [
+                    "reviewer"
+                  ]
+                }
+              },
+              "cookie": "owner-a",
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/organizations/org-a/users/reviewer.new/invitations"
+            },
+            {
+              "instruction": "Use Copy invitation link once from the authorized issuer screen and keep the returned link in sealed evaluator custody.",
+              "kind": "browser"
+            },
+            {
+              "body": {
+                "inviteProofRef": "sealed:first-issued-link",
+                "newPasswordRef": "secret:reviewer-new"
+              },
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/invitations/accept"
+            },
+            {
+              "instruction": "Fetch authorized user/invitation list and audit export after acceptance.",
+              "kind": "inspection"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "sealed-link handling record",
+              "redacted invitation audit",
+              "membership query"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "accept": {
+                "httpStatus": 204,
+                "membershipState": "active",
+                "roles": [
+                  "reviewer"
+                ]
+              },
+              "issue": {
+                "copyAvailableToIssuer": true,
+                "deliveryState": "not-configured",
+                "httpStatus": 201
+              },
+              "ordinaryListAndAuditExclude": [
+                "password",
+                "hash",
+                "raw token"
+              ],
+              "ordinaryListAndAuditExpose": [
+                "identity",
+                "activation/membership status",
+                "workspace roles",
+                "delivery state"
+              ]
+            }
+          },
+          "id": "T28-COPY-INVITATION-NO-EMAIL",
+          "preState": {
+            "emailAdapter": "disabled",
+            "issuer": "owner.a",
+            "newAccount": "reviewer.new",
+            "offeredRoles": [
+              "reviewer"
+            ],
+            "organization": "org-a active"
+          }
+        },
+        {
+          "actions": [
+            {
+              "body": {
+                "delivery": "email",
+                "email": "invite-recipient@example.test",
+                "workspaceRoles": {
+                  "ws-a": [
+                    "publisher"
+                  ]
+                }
+              },
+              "cookie": "owner-a",
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/organizations/org-a/users/publisher.mail/invitations"
+            },
+            {
+              "instruction": "Retrieve the controlled-provider acceptance identifier and the message received by the authorized test inbox; do not equate issue with delivery or acceptance.",
+              "kind": "provider"
+            },
+            {
+              "body": {
+                "inviteProofRef": "sealed:mail-link",
+                "newPasswordRef": "secret:publisher-mail"
+              },
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/invitations/accept"
+            },
+            {
+              "instruction": "Verify message link origin is allowlisted and post-redemption browser history no longer contains the secret.",
+              "kind": "inspection"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "provider acceptance receipt",
+              "test-inbox metadata",
+              "redacted browser history capture",
+              "invitation delivery-state record"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "accept": {
+                "httpStatus": 204,
+                "membershipState": "active"
+              },
+              "issue": {
+                "deliveryState": "sent",
+                "httpStatus": 201,
+                "providerAccepted": true
+              },
+              "link": {
+                "allowlistedOrigin": true,
+                "secretRemovedFromHistory": true
+              },
+              "provider": {
+                "acceptedByProvider": true,
+                "inboxReceived": true
+              }
+            }
+          },
+          "id": "T28-CONFIGURED-INVITATION-EMAIL-DELIVERY",
+          "preState": {
+            "emailAdapter": "configured controlled provider",
+            "issuer": "owner.a",
+            "newAccount": "publisher.mail",
+            "organization": "org-a active",
+            "testInbox": "invite-recipient@example.test"
+          }
+        },
+        {
+          "actions": [
+            {
+              "duration": "PT72H1S",
+              "kind": "clock-advance"
+            },
+            {
+              "body": {
+                "inviteProofRef": "sealed:i-1",
+                "newPasswordRef": "secret:author-invited"
+              },
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/invitations/accept"
+            },
+            {
+              "body": {
+                "delivery": "manual-copy",
+                "reissue": true
+              },
+              "cookie": "owner-a",
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/organizations/org-a/users/author.invited/invitations"
+            },
+            {
+              "body": {
+                "inviteProofRef": "sealed:i-2",
+                "newPasswordRef": "secret:author-invited"
+              },
+              "instances": 2,
+              "kind": "http-concurrent",
+              "method": "POST",
+              "path": "/v1/invitations/accept"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "invitation state transitions",
+              "transaction IDs",
+              "redacted concurrency trace"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "concurrentAccept": {
+                "credentialReplacementCount": 1,
+                "otherHttpStatus": 409,
+                "successCount": 1
+              },
+              "expiredI1": {
+                "httpStatus": 410,
+                "membershipCreated": false
+              },
+              "reissue": {
+                "httpStatus": 201,
+                "newLinkState": "pending",
+                "oldLinkState": "revoked"
+              }
+            }
+          },
+          "id": "T28-INVITE-EXPIRY-REVOKE-RESEND-CONCURRENT-ACCEPT",
+          "preState": {
+            "expiry": "PT72H",
+            "invitation": "pending i-1 issued at 2026-10-01T00:00:00Z",
+            "offeredRoles": [
+              "author"
+            ],
+            "recipient": "author.invited"
+          }
+        },
+        {
+          "actions": [
+            {
+              "body": {
+                "delivery": "manual-copy",
+                "workspaceRoles": {
+                  "ws-b": [
+                    "exporter"
+                  ]
+                }
+              },
+              "cookie": "owner-b",
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/organizations/org-b/users/alex.shared/invitations"
+            },
+            {
+              "body": {
+                "existingAccountAuthenticationRef": "secret:alex-shared",
+                "inviteProofRef": "sealed:org-b-offer"
+              },
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/invitations/accept"
+            },
+            {
+              "expected": {
+                "downloadAvailable": true,
+                "downloadDenied": false,
+                "tenantDerivedFromCurrentMembership": true,
+                "workspace": "ws-b"
+              },
+              "instruction": "With the active tenant context selected, open the completed export for ws-b.",
+              "kind": "manual-ui",
+              "materializationState": "m2-endpoint-unspecified",
+              "sourceCitation": "PRD:595-599",
+              "surface": "Responses > Export history"
+            },
+            {
+              "expected": {
+                "downloadAvailable": false,
+                "downloadDenied": true,
+                "tenantDerivedFromCurrentMembership": true,
+                "workspace": "ws-a"
+              },
+              "instruction": "With the active tenant context selected, open the completed export for ws-a.",
+              "kind": "manual-ui",
+              "materializationState": "m2-endpoint-unspecified",
+              "sourceCitation": "PRD:595-599",
+              "surface": "Responses > Export history"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "membership graph",
+              "role audit",
+              "authorization responses"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "accept": {
+                "httpStatus": 204,
+                "orgARoles": [
+                  "author"
+                ],
+                "orgBRoles": [
+                  "exporter"
+                ],
+                "passwordChanged": false
+              },
+              "forgedSelectorForWsA": {
+                "downloadDenied": true,
+                "resolvedTenant": "org-a"
+              },
+              "forgedSelectorForWsB": {
+                "downloadAvailable": true,
+                "resolvedTenant": "org-b"
+              }
+            }
+          },
+          "id": "T28-EXISTING-ACCOUNT-SECOND-TENANT-AND-FORGED-ID",
+          "preState": {
+            "account": "alex.shared active",
+            "issuer": "owner.b",
+            "memberships": {
+              "org-a": {
+                "ws-a": [
+                  "author"
+                ]
+              },
+              "org-b": "none"
+            }
+          }
+        },
+        {
+          "actions": [
+            {
+              "bodyVariants": [
+                {
+                  "suspended": true
+                },
+                {
+                  "organizationRole": "member"
+                }
+              ],
+              "instances": 2,
+              "kind": "http-concurrent",
+              "method": "PATCH",
+              "path": "/v1/organizations/org-a/users/owner.a"
+            },
+            {
+              "body": {
+                "organization": "forged-platform-org"
+              },
+              "cookie": "tenant-admin-a",
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/platform/organizations"
+            },
+            {
+              "body": {
+                "reason": "forged cross-boundary reset"
+              },
+              "cookie": "tenant-admin-a",
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/organizations/org-a/users/dual.platform-and-owner/recovery"
+            },
+            {
+              "instruction": "Suspend dual.platform-and-owner in org-a and then read platform organization administration as that account.",
+              "kind": "authority-change"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "serialized transaction trace",
+              "owner continuity audit",
+              "platform/tenant authorization responses"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "ownerRace": {
+                "actingOwnersRemaining": 1,
+                "eachHttpStatus": 409,
+                "successCount": 0
+              },
+              "tenantPlatformCreate": {
+                "httpStatus": 403
+              },
+              "tenantRecoveryOfSharedPlatformAccount": {
+                "httpStatus": 403
+              },
+              "tenantSuspensionOfDualRole": {
+                "removesTenantAccess": true,
+                "retainsPlatformAuthority": true
+              }
+            }
+          },
+          "id": "T28-LAST-OWNER-AND-PLATFORM-BOUNDARIES",
+          "preState": {
+            "dualRole": "dual.platform-and-owner",
+            "orgAOwners": [
+              "owner.a active"
+            ],
+            "platformAdministrators": [
+              "platform.root active"
+            ],
+            "tenantAdmin": "admin.a"
+          }
+        }
+      ],
+      "citations": [
+        "PRD:129-137",
+        "PRD:833",
+        "PRD:117-121",
+        "PRD:182-188",
+        "AUTH:17-27",
+        "AUTH:39-43",
+        "AUTH:51-64",
+        "AUTH:82-94",
+        "AUTH:100"
+      ],
+      "executionStatus": "not-run",
+      "id": "T28",
+      "requirements": [
+        "SF-AUTH-03",
+        "SF-AUTH-04",
+        "SF-AUTH-06",
+        "SF-AUTH-07",
+        "SF-PLT-01",
+        "SF-PLT-02",
+        "SF-PLT-03",
+        "SF-ORG-05"
+      ],
+      "title": "Bootstrap, onboarding, invitations and tenant boundaries"
+    },
+    {
+      "cases": [
+        {
+          "actions": [
+            {
+              "body": {
+                "currentPasswordRef": "secret:author-old",
+                "newPassword": "0123456789 abcde"
+              },
+              "cookie": "s-1",
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/auth/password-change"
+            },
+            {
+              "cookie": "s-2",
+              "kind": "http",
+              "method": "GET",
+              "path": "/v1/workspaces/ws-a/forms"
+            },
+            {
+              "body": {
+                "passwordRef": "secret:author-old",
+                "username": "author.a"
+              },
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/auth/sign-in"
+            },
+            {
+              "body": {
+                "password": "0123456789 abcde",
+                "username": "author.a"
+              },
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/auth/sign-in"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "session-revocation query",
+              "redacted audit",
+              "sign-in transcript"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "change": {
+                "audit": true,
+                "httpStatus": 204
+              },
+              "newPassword": {
+                "httpStatus": 200
+              },
+              "oldPassword": {
+                "httpStatus": 401,
+                "publicBodyGeneric": true
+              },
+              "oldSession": {
+                "httpStatus": 401
+              },
+              "passwordValueInAudit": false
+            }
+          },
+          "id": "T29-CURRENT-PASSWORD-CHANGE-AND-SESSION-REVOCATION",
+          "preState": {
+            "account": "author.a active",
+            "currentPasswordRef": "secret:author-old",
+            "newPassword": "0123456789 abcde",
+            "sessions": [
+              "s-1",
+              "s-2"
+            ]
+          }
+        },
+        {
+          "actions": [
+            {
+              "body": {
+                "currentPasswordRef": "secret:author-current",
+                "newPassword": "12345678901234"
+              },
+              "cookie": "s-3",
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/auth/password-change"
+            },
+            {
+              "body": {
+                "currentPasswordRef": "secret:author-current",
+                "newPassword": "  café  密码  fifteen+ "
+              },
+              "cookie": "s-3",
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/auth/password-change"
+            },
+            {
+              "body": {
+                "currentPasswordRef": "secret:unicode-exact",
+                "newPassword": "password-with-65-or-more-unicode-code-points-abcdefghijklmnopqrstuvwxyz"
+              },
+              "cookie": "s-3",
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/auth/password-change"
+            },
+            {
+              "instruction": "Attempt sign-in with exact whitespace/Unicode password and a trimmed/normalized variant.",
+              "kind": "inspection"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "policy diagnostic",
+              "redacted password-length test log",
+              "exact/variant authentication results"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "atLeast64": {
+                "httpStatus": 204
+              },
+              "exactVariant": {
+                "httpStatus": 200
+              },
+              "trimmedOrNormalizedVariant": {
+                "httpStatus": 401
+              },
+              "under15": {
+                "code": "PASSWORD_POLICY",
+                "httpStatus": 422
+              },
+              "unicodeAndSpaces": {
+                "httpStatus": 204
+              }
+            }
+          },
+          "id": "T29-PASSWORD-POLICY-UNICODE-AND-NO-TRUNCATION",
+          "preState": {
+            "account": "author.a",
+            "normalSession": "s-3"
+          }
+        },
+        {
+          "actions": [
+            {
+              "body": {
+                "reason": "authorized recovery",
+                "temporaryPasswordRef": "secret:recovery-temp"
+              },
+              "cookie": "owner-a",
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/organizations/org-a/users/author.only-org-a/recovery"
+            },
+            {
+              "body": {
+                "passwordRef": "secret:recovery-temp",
+                "username": "author.only-org-a"
+              },
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/auth/sign-in"
+            },
+            {
+              "cookie": "recovery-setup-only",
+              "kind": "http",
+              "method": "GET",
+              "path": "/v1/workspaces/ws-a/forms"
+            },
+            {
+              "body": {
+                "newPassword": "recovery new password",
+                "setupProof": "cookie-bound"
+              },
+              "cookie": "recovery-setup-only",
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/auth/activate"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "redacted recovery audit",
+              "session scope response",
+              "activation transaction"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "activation": {
+                "httpStatus": 204
+              },
+              "ordinaryApiBeforeSetup": {
+                "httpStatus": 403
+              },
+              "recovery": {
+                "audit": true,
+                "emailRequired": false,
+                "httpStatus": 204,
+                "targetState": "awaiting-setup"
+              },
+              "temporarySignIn": {
+                "httpStatus": 200,
+                "setupOnly": true
+              }
+            }
+          },
+          "id": "T29-ADMIN-RECOVERY-WITHOUT-EMAIL",
+          "preState": {
+            "admin": "owner.a",
+            "emailAdapter": "disabled",
+            "organization": "org-a",
+            "target": "author.only-org-a",
+            "targetMemberships": [
+              "org-a"
+            ]
+          }
+        },
+        {
+          "actions": [
+            {
+              "body": {
+                "username": "author.a"
+              },
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/auth/recovery"
+            },
+            {
+              "body": {
+                "username": "missing.user"
+              },
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/auth/recovery"
+            },
+            {
+              "instruction": "Inspect controlled-provider acceptance and the known-account test inbox; retain the recovery link only in sealed evaluator custody.",
+              "kind": "provider"
+            },
+            {
+              "body": {
+                "newPassword": "recovered password 123",
+                "resetProofRef": "sealed:known-recovery-link"
+              },
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/auth/reset"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "redacted request pair",
+              "provider receipt",
+              "sealed-link custody record",
+              "reset audit"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "knownAndUnknownRequest": {
+                "sameHttpStatus": 202,
+                "samePublicBody": true
+              },
+              "providerForKnown": {
+                "acceptedByProvider": true,
+                "allowlistedOrigin": true,
+                "inboxReceived": true,
+                "sent": true
+              },
+              "publicResponseContains": [],
+              "reset": {
+                "httpStatus": 204,
+                "normalSignInRequired": true
+              }
+            }
+          },
+          "id": "T29-CONFIGURED-SELF-RECOVERY-EMAIL",
+          "preState": {
+            "allowlistedOrigin": "https://app.example.test",
+            "emailAdapter": "configured controlled provider",
+            "knownUsername": "author.a",
+            "unknownUsername": "missing.user"
+          }
+        },
+        {
+          "actions": [
+            {
+              "body": {
+                "newPassword": "attempt with invite proof",
+                "resetProofRef": "sealed:i-1"
+              },
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/auth/reset"
+            },
+            {
+              "duration": "PT30M1S",
+              "kind": "clock-advance"
+            },
+            {
+              "body": {
+                "newPassword": "attempt expired proof",
+                "resetProofRef": "sealed:r-1"
+              },
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/auth/reset"
+            },
+            {
+              "body": {
+                "newPassword": "first valid reset",
+                "resetProofRef": "sealed:r-2"
+              },
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/auth/reset"
+            },
+            {
+              "body": {
+                "newPassword": "replay reset",
+                "resetProofRef": "sealed:r-2"
+              },
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/auth/reset"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "reference-state transitions",
+              "atomic transaction trace",
+              "redacted diagnostics"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "expiredReset": {
+                "httpStatus": 410
+              },
+              "firstReset": {
+                "consumesReference": true,
+                "httpStatus": 204
+              },
+              "inviteAsReset": {
+                "code": "CREDENTIAL_PURPOSE",
+                "httpStatus": 400
+              },
+              "replay": {
+                "httpStatus": 409,
+                "passwordChanged": false
+              }
+            }
+          },
+          "id": "T29-RESET-PURPOSE-EXPIRY-REUSE-REVOKE",
+          "preState": {
+            "account": "author.a",
+            "inviteReference": "i-1",
+            "resetExpiry": "PT30M",
+            "resetReference": "r-1 issued 2026-10-01T00:00:00Z"
+          }
+        },
+        {
+          "actions": [
+            {
+              "body": {
+                "temporaryPasswordRef": "secret:forbidden-shared-reset"
+              },
+              "cookie": "owner-a",
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/organizations/org-a/users/alex.shared/recovery"
+            },
+            {
+              "body": {
+                "temporaryPasswordRef": "secret:forbidden-platform-reset"
+              },
+              "cookie": "owner-a",
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/organizations/org-a/users/platform.root/recovery"
+            },
+            {
+              "body": {
+                "username": "alex.shared"
+              },
+              "kind": "http",
+              "method": "POST",
+              "path": "/v1/auth/recovery"
+            },
+            {
+              "instruction": "Verify tenant-admin list/detail/export does not disclose org-b membership or credential material.",
+              "kind": "inspection"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "authorization responses",
+              "safe-user-list capture",
+              "audit records"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "holderRecovery": {
+                "httpStatus": 202,
+                "publicBodyGeneric": true
+              },
+              "orgBMembershipExposedToOrgAAdmin": false,
+              "platformRecoveryByTenantAdmin": {
+                "httpStatus": 403
+              },
+              "sharedRecoveryByTenantAdmin": {
+                "httpStatus": 403
+              }
+            }
+          },
+          "id": "T29-SHARED-ACCOUNT-TENANT-BOUNDARY",
+          "preState": {
+            "memberships": [
+              "org-a",
+              "org-b"
+            ],
+            "platformAccount": "platform.root",
+            "target": "alex.shared",
+            "tenantAdmin": "owner.a"
+          }
+        },
+        {
+          "actions": [
+            {
+              "instruction": "Follow the documented protected operator recovery procedure; do not use anonymous application bypass or bootstrap retry as a credential reset.",
+              "kind": "operator-runbook"
+            },
+            {
+              "instruction": "Verify the recovery creates an audited setup path and preserves at least one active activated platform administrator after redemption.",
+              "kind": "inspection"
+            },
+            {
+              "instruction": "Restart the application with bootstrap configuration still present and inspect bootstrap behavior.",
+              "kind": "process"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "operator audit",
+              "runbook execution log",
+              "platform-account state query"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "afterRedemption": {
+                "actingPlatformAdministrators": 1
+              },
+              "operatorRecovery": {
+                "anonymousBypass": false,
+                "audited": true,
+                "bootstrapAutoReset": false
+              },
+              "restart": {
+                "existingAdministratorReset": false
+              }
+            }
+          },
+          "id": "T29-SOLE-ADMIN-OPERATOR-RECOVERY",
+          "preState": {
+            "emailAdapter": "disabled",
+            "operatorRunbook": "documented protected procedure",
+            "platformAdministrators": [
+              "platform.root active sole acting"
+            ]
+          }
+        }
+      ],
+      "citations": [
+        "PRD:131-133",
+        "PRD:834",
+        "PRD:188",
+        "AUTH:25",
+        "AUTH:35-45",
+        "AUTH:51-64",
+        "AUTH:78-80",
+        "AUTH:101"
+      ],
+      "executionStatus": "not-run",
+      "id": "T29",
+      "requirements": [
+        "SF-AUTH-05",
+        "SF-AUTH-06",
+        "SF-AUTH-07",
+        "SF-PLT-03"
+      ],
+      "title": "Password lifecycle, recovery and account boundaries"
+    },
+    {
+      "cases": [
+        {
+          "actions": [
+            {
+              "instruction": "Open Sign in, Choose your password, Invitation acceptance, Change password, Forgot/reset password, Platform organizations, first-owner setup, Organization people, Workspace roles and no-workspace-access.",
+              "kind": "browser-matrix"
+            },
+            {
+              "instruction": "For each screen submit one inline-invalid value, use keyboard-only interaction, set RTL locale, use mobile viewport and 200% zoom.",
+              "kind": "browser-matrix"
+            },
+            {
+              "instruction": "Capture the real API call and response for every state; hidden navigation is not evidence of authorization.",
+              "kind": "network-capture"
+            },
+            {
+              "instruction": "Inspect rendered assets against the versioned Certinal asset manifest and verify no actor/code-management screen exists.",
+              "kind": "inspection"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "per-screen browser trace",
+              "asset manifest digest",
+              "keyboard/RTL/zoom screenshots"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "actorOrCodeManagementSurface": false,
+              "allNamedScreensHaveRealApiCapture": true,
+              "inlineValidation": true,
+              "namedScreens": 10,
+              "screenStateCoverage": [
+                "empty/no-access",
+                "pending activation",
+                "expiry",
+                "denied operation",
+                "email unavailable"
+              ]
+            }
+          },
+          "id": "T30-REQUIRED-SCREEN-ROUTE-MATRIX",
+          "preState": {
+            "accounts": [
+              "platform.only",
+              "author.pending",
+              "owner.a",
+              "workspace-less"
+            ],
+            "browser": "selected later under PRE-HUMAN-TRIAL",
+            "certinalAssets": "versioned candidate manifest"
+          }
+        },
+        {
+          "actions": [
+            {
+              "instruction": "Sign in as alex.shared, switch to ws-a and attempt response export; then switch to ws-b and attempt response export.",
+              "kind": "browser"
+            },
+            {
+              "instruction": "Remove alex.shared from ws-a, refresh deep-linked catalog and switch to ws-b.",
+              "kind": "browser"
+            },
+            {
+              "instruction": "Capture the ws-a and ws-b requests while verifying current tenant/workspace is selected from stored membership.",
+              "kind": "network-capture"
+            },
+            {
+              "instruction": "Verify removal and switch clear ws-a query/resource cache without deleting ws-b membership/cache.",
+              "kind": "cache-inspection"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "browser route capture",
+              "authorization network traces",
+              "cache-state capture"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "crossWorkspaceCachedDataRendered": false,
+              "wsAExportBeforeRemoval": {
+                "httpStatus": 403
+              },
+              "wsARemovedLanding": "no-workspace-access",
+              "wsBExport": {
+                "httpStatus": 200
+              },
+              "wsBMembershipAfterWsARemoval": "active"
+            }
+          },
+          "id": "T30-NO-ACCESS-AND-INDEPENDENT-WORKSPACE-ROLES",
+          "preState": {
+            "account": "alex.shared",
+            "currentWorkspace": "ws-a",
+            "orgA": {
+              "ws-a": [
+                "author"
+              ]
+            },
+            "orgB": {
+              "ws-b": [
+                "exporter"
+              ]
+            }
+          }
+        },
+        {
+          "actions": [
+            {
+              "instruction": "Issue an email invitation through Add user while the controlled adapter returns a delivery failure.",
+              "kind": "browser"
+            },
+            {
+              "instruction": "Read the visible delivery failure state and use Copy invitation link from the authorized issuer screen.",
+              "kind": "browser"
+            },
+            {
+              "instruction": "Capture the issuance/delivery-status requests and verify the invite is not marked delivered or accepted.",
+              "kind": "network-capture"
+            },
+            {
+              "instruction": "Activate copy feedback using keyboard focus and verify the message is announced without exposing the URL after screen navigation.",
+              "kind": "keyboard"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "provider failure receipt",
+              "browser capture",
+              "accessibility announcement trace"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "acceptedMembershipCreated": false,
+              "copyFeedback": {
+                "keyboardReachable": true,
+                "secretPersistedInList": false,
+                "visible": true
+              },
+              "deliveryState": "failed",
+              "issue": {
+                "httpStatus": 201
+              }
+            }
+          },
+          "id": "T30-INVITATION-DELIVERY-FAILURE-AND-COPY-FEEDBACK",
+          "preState": {
+            "emailAdapter": "configured then forced-failure",
+            "invite": "pending",
+            "issuer": "owner.a"
+          }
+        },
+        {
+          "actions": [
+            {
+              "instruction": "Open the protected deep link, allow the staff session to expire while editing permitted unsaved local work, and reauthenticate as author.a.",
+              "kind": "browser"
+            },
+            {
+              "instruction": "Verify return to the permitted deep link and recovery of only author.a local work.",
+              "kind": "browser"
+            },
+            {
+              "instruction": "Sign out, sign in as author.b on the same shared device, and inspect local state.",
+              "kind": "browser"
+            },
+            {
+              "instruction": "Capture expiry/reauthentication responses and any local-recovery diagnostic.",
+              "kind": "network-capture"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "browser storage before/after",
+              "route trace",
+              "expiry diagnostic capture"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "authorALocalWorkRecovered": true,
+              "authorAReturn": true,
+              "authorBSeesAuthorALocalWork": false,
+              "expiredState": "meaningful recovery screen"
+            }
+          },
+          "id": "T30-EXPIRY-RETURN-AND-SHARED-DEVICE-CLEARING",
+          "preState": {
+            "account": "author.a",
+            "deepLink": "/staff/forms/form-a/edit",
+            "sharedDevice": true,
+            "unsavedLocalWork": "permitted and account-bound"
+          }
+        }
+      ],
+      "citations": [
+        "PRD:200",
+        "PRD:835",
+        "PRD:192",
+        "PRD:1052",
+        "AUTH:47",
+        "AUTH:101"
+      ],
+      "executionStatus": "not-run",
+      "id": "T30",
+      "requirements": [
+        "SF-UI-01",
+        "SF-AUTH-07",
+        "SF-ORG-05"
+      ],
+      "title": "Staff UI consistency and tenant-safe recovery"
+    },
+    {
+      "cases": [
+        {
+          "actions": [
+            {
+              "input": {
+                "assets": [],
+                "contractVersion": "4.0.0",
+                "data": {
+                  "fields": [
+                    {
+                      "constraints": {
+                        "maximum": "9223372036854775807",
+                        "minimum": "-9223372036854775808",
+                        "wireFormat": "canonical-decimal-string"
+                      },
+                      "hiddenRetention": "clear",
+                      "id": "quantity",
+                      "key": "quantity",
+                      "labelKey": "q.quantity",
+                      "mode": "input",
+                      "normalizer": "preserve",
+                      "sensitivity": "ordinary",
+                      "type": "integer"
+                    }
+                  ]
+                },
+                "defaultLocale": "en",
+                "definitionVersion": "1.0.0",
+                "dependencies": [],
+                "descriptionKey": "form.description",
+                "engineContract": "4.0.0",
+                "expressions": {},
+                "flow": {
+                  "phases": [
+                    {
+                      "id": "phase-main",
+                      "pages": [
+                        {
+                          "id": "page-quantity",
+                          "routes": [],
+                          "sections": [
+                            {
+                              "id": "section-quantity",
+                              "layout": "stack",
+                              "nodes": [
+                                {
+                                  "control": "integer",
+                                  "fieldId": "quantity",
+                                  "id": "node-quantity",
+                                  "kind": "question"
+                                }
+                              ],
+                              "titleKey": "form.title"
+                            }
+                          ],
+                          "titleKey": "form.title"
+                        }
+                      ],
+                      "titleKey": "form.title"
+                    }
+                  ],
+                  "startPageId": "page-quantity"
+                },
+                "formKey": "t31-profile-integer",
+                "guidance": {},
+                "kind": "smart-form-package",
+                "policies": {
+                  "allowVoiceQuestions": false,
+                  "confirmationKey": "confirmation",
+                  "draftExpiryDays": 30,
+                  "guidanceMode": "text",
+                  "narrationAutoplay": false,
+                  "presentation": "grouped",
+                  "responseAccess": "anonymous",
+                  "retentionPolicyKey": "standard-intake",
+                  "reviewBeforeSubmit": true,
+                  "showProgress": true
+                },
+                "schemaVersion": "4.0.0",
+                "supportedLocales": [
+                  "en"
+                ],
+                "theme": {
+                  "themeKey": "accessible-default",
+                  "tokens": {
+                    "accent": "#175CD3",
+                    "background": "#FFFFFF",
+                    "density": "comfortable",
+                    "fontFamily": "system",
+                    "radius": 8,
+                    "text": "#182230"
+                  },
+                  "version": "1.0.0"
+                },
+                "titleKey": "form.title",
+                "translations": {
+                  "en": {
+                    "direction": "ltr",
+                    "messages": {
+                      "confirmation": "Recorded.",
+                      "form.description": "Canonical profile package.",
+                      "form.title": "Exact integer profile",
+                      "q.quantity": "Quantity"
+                    },
+                    "pronunciations": [],
+                    "reviewState": "approved"
+                  }
+                }
+              },
+              "kind": "schema-validate"
+            },
+            {
+              "input": {
+                "assets": [],
+                "contractVersion": "4.0.0",
+                "data": {
+                  "fields": [
+                    {
+                      "constraints": {
+                        "maximum": "9223372036854775807",
+                        "minimum": "-9223372036854775808",
+                        "wireFormat": "canonical-decimal-string"
+                      },
+                      "hiddenRetention": "clear",
+                      "id": "quantity",
+                      "key": "quantity",
+                      "labelKey": "q.quantity",
+                      "mode": "input",
+                      "normalizer": "preserve",
+                      "sensitivity": "ordinary",
+                      "type": "integer"
+                    }
+                  ]
+                },
+                "defaultLocale": "en",
+                "definitionVersion": "1.0.0",
+                "dependencies": [],
+                "descriptionKey": "form.description",
+                "engineContract": "3.0.0",
+                "expressions": {},
+                "flow": {
+                  "phases": [
+                    {
+                      "id": "phase-main",
+                      "pages": [
+                        {
+                          "id": "page-quantity",
+                          "routes": [],
+                          "sections": [
+                            {
+                              "id": "section-quantity",
+                              "layout": "stack",
+                              "nodes": [
+                                {
+                                  "control": "integer",
+                                  "fieldId": "quantity",
+                                  "id": "node-quantity",
+                                  "kind": "question"
+                                }
+                              ],
+                              "titleKey": "form.title"
+                            }
+                          ],
+                          "titleKey": "form.title"
+                        }
+                      ],
+                      "titleKey": "form.title"
+                    }
+                  ],
+                  "startPageId": "page-quantity"
+                },
+                "formKey": "t31-profile-integer",
+                "guidance": {},
+                "kind": "smart-form-package",
+                "policies": {
+                  "allowVoiceQuestions": false,
+                  "confirmationKey": "confirmation",
+                  "draftExpiryDays": 30,
+                  "guidanceMode": "text",
+                  "narrationAutoplay": false,
+                  "presentation": "grouped",
+                  "responseAccess": "anonymous",
+                  "retentionPolicyKey": "standard-intake",
+                  "reviewBeforeSubmit": true,
+                  "showProgress": true
+                },
+                "schemaVersion": "4.0.0",
+                "supportedLocales": [
+                  "en"
+                ],
+                "theme": {
+                  "themeKey": "accessible-default",
+                  "tokens": {
+                    "accent": "#175CD3",
+                    "background": "#FFFFFF",
+                    "density": "comfortable",
+                    "fontFamily": "system",
+                    "radius": 8,
+                    "text": "#182230"
+                  },
+                  "version": "1.0.0"
+                },
+                "titleKey": "form.title",
+                "translations": {
+                  "en": {
+                    "direction": "ltr",
+                    "messages": {
+                      "confirmation": "Recorded.",
+                      "form.description": "Canonical profile package.",
+                      "form.title": "Exact integer profile",
+                      "q.quantity": "Quantity"
+                    },
+                    "pronunciations": [],
+                    "reviewState": "approved"
+                  }
+                }
+              },
+              "kind": "schema-validate"
+            },
+            {
+              "input": {
+                "assets": [],
+                "data": {
+                  "fields": [
+                    {
+                      "constraints": {
+                        "maximum": "9223372036854775807",
+                        "minimum": "-9223372036854775808",
+                        "wireFormat": "canonical-decimal-string"
+                      },
+                      "hiddenRetention": "clear",
+                      "id": "quantity",
+                      "key": "quantity",
+                      "labelKey": "q.quantity",
+                      "mode": "input",
+                      "normalizer": "preserve",
+                      "sensitivity": "ordinary",
+                      "type": "integer"
+                    }
+                  ]
+                },
+                "defaultLocale": "en",
+                "definitionVersion": "1.0.0",
+                "dependencies": [],
+                "descriptionKey": "form.description",
+                "engineContract": "4.0.0",
+                "expressions": {},
+                "flow": {
+                  "phases": [
+                    {
+                      "id": "phase-main",
+                      "pages": [
+                        {
+                          "id": "page-quantity",
+                          "routes": [],
+                          "sections": [
+                            {
+                              "id": "section-quantity",
+                              "layout": "stack",
+                              "nodes": [
+                                {
+                                  "control": "integer",
+                                  "fieldId": "quantity",
+                                  "id": "node-quantity",
+                                  "kind": "question"
+                                }
+                              ],
+                              "titleKey": "form.title"
+                            }
+                          ],
+                          "titleKey": "form.title"
+                        }
+                      ],
+                      "titleKey": "form.title"
+                    }
+                  ],
+                  "startPageId": "page-quantity"
+                },
+                "formKey": "t31-profile-integer",
+                "guidance": {},
+                "kind": "smart-form-package",
+                "policies": {
+                  "allowVoiceQuestions": false,
+                  "confirmationKey": "confirmation",
+                  "draftExpiryDays": 30,
+                  "guidanceMode": "text",
+                  "narrationAutoplay": false,
+                  "presentation": "grouped",
+                  "responseAccess": "anonymous",
+                  "retentionPolicyKey": "standard-intake",
+                  "reviewBeforeSubmit": true,
+                  "showProgress": true
+                },
+                "schemaVersion": "4.0.0",
+                "supportedLocales": [
+                  "en"
+                ],
+                "theme": {
+                  "themeKey": "accessible-default",
+                  "tokens": {
+                    "accent": "#175CD3",
+                    "background": "#FFFFFF",
+                    "density": "comfortable",
+                    "fontFamily": "system",
+                    "radius": 8,
+                    "text": "#182230"
+                  },
+                  "version": "1.0.0"
+                },
+                "titleKey": "form.title",
+                "translations": {
+                  "en": {
+                    "direction": "ltr",
+                    "messages": {
+                      "confirmation": "Recorded.",
+                      "form.description": "Canonical profile package.",
+                      "form.title": "Exact integer profile",
+                      "q.quantity": "Quantity"
+                    },
+                    "pronunciations": [],
+                    "reviewState": "approved"
+                  }
+                }
+              },
+              "kind": "schema-validate"
+            },
+            {
+              "input": {
+                "assets": [],
+                "contractVersion": "5.0.0",
+                "data": {
+                  "fields": [
+                    {
+                      "constraints": {
+                        "maximum": "9223372036854775807",
+                        "minimum": "-9223372036854775808",
+                        "wireFormat": "canonical-decimal-string"
+                      },
+                      "hiddenRetention": "clear",
+                      "id": "quantity",
+                      "key": "quantity",
+                      "labelKey": "q.quantity",
+                      "mode": "input",
+                      "normalizer": "preserve",
+                      "sensitivity": "ordinary",
+                      "type": "integer"
+                    }
+                  ]
+                },
+                "defaultLocale": "en",
+                "definitionVersion": "1.0.0",
+                "dependencies": [],
+                "descriptionKey": "form.description",
+                "engineContract": "5.0.0",
+                "expressions": {},
+                "flow": {
+                  "phases": [
+                    {
+                      "id": "phase-main",
+                      "pages": [
+                        {
+                          "id": "page-quantity",
+                          "routes": [],
+                          "sections": [
+                            {
+                              "id": "section-quantity",
+                              "layout": "stack",
+                              "nodes": [
+                                {
+                                  "control": "integer",
+                                  "fieldId": "quantity",
+                                  "id": "node-quantity",
+                                  "kind": "question"
+                                }
+                              ],
+                              "titleKey": "form.title"
+                            }
+                          ],
+                          "titleKey": "form.title"
+                        }
+                      ],
+                      "titleKey": "form.title"
+                    }
+                  ],
+                  "startPageId": "page-quantity"
+                },
+                "formKey": "t31-profile-integer",
+                "guidance": {},
+                "kind": "smart-form-package",
+                "policies": {
+                  "allowVoiceQuestions": false,
+                  "confirmationKey": "confirmation",
+                  "draftExpiryDays": 30,
+                  "guidanceMode": "text",
+                  "narrationAutoplay": false,
+                  "presentation": "grouped",
+                  "responseAccess": "anonymous",
+                  "retentionPolicyKey": "standard-intake",
+                  "reviewBeforeSubmit": true,
+                  "showProgress": true
+                },
+                "schemaVersion": "5.0.0",
+                "supportedLocales": [
+                  "en"
+                ],
+                "theme": {
+                  "themeKey": "accessible-default",
+                  "tokens": {
+                    "accent": "#175CD3",
+                    "background": "#FFFFFF",
+                    "density": "comfortable",
+                    "fontFamily": "system",
+                    "radius": 8,
+                    "text": "#182230"
+                  },
+                  "version": "1.0.0"
+                },
+                "titleKey": "form.title",
+                "translations": {
+                  "en": {
+                    "direction": "ltr",
+                    "messages": {
+                      "confirmation": "Recorded.",
+                      "form.description": "Canonical profile package.",
+                      "form.title": "Exact integer profile",
+                      "q.quantity": "Quantity"
+                    },
+                    "pronunciations": [],
+                    "reviewState": "approved"
+                  }
+                }
+              },
+              "kind": "schema-validate"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "server and browser schema diagnostics",
+              "manifest/package bytes"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "allMatching": {
+                "evaluatorProfile": "4.0.0",
+                "status": 200
+              },
+              "mismatched": {
+                "code": "CONTRACT_VERSION_MISMATCH",
+                "status": 422
+              },
+              "missing": {
+                "code": "CONTRACT_VERSION_REQUIRED",
+                "status": 422
+              },
+              "unsupported": {
+                "code": "CONTRACT_VERSION_UNSUPPORTED",
+                "status": 422
+              }
+            }
+          },
+          "id": "T31-PROFILE-STAMPS-AND-REJECTION",
+          "preState": {
+            "manifest": "new candidate",
+            "packageTemplate": "smart-form-package",
+            "supportedProfile": "4.0.0"
+          }
+        },
+        {
+          "actions": [
+            {
+              "body": {
+                "baseRevision": 0,
+                "clientMutationId": "t31-int64-min-set",
+                "operations": [
+                  {
+                    "answer": {
+                      "status": "answered",
+                      "value": "-9223372036854775808"
+                    },
+                    "fieldId": "quantity",
+                    "op": "set",
+                    "rowPath": []
+                  }
+                ]
+              },
+              "contractCitations": [
+                "PRD:582",
+                "PRD:590",
+                "CONTRACT:19",
+                "CONTRACT:71-83"
+              ],
+              "expected": {
+                "acceptedRevision": 1,
+                "currentRevision": 1,
+                "httpStatus": 200,
+                "replayed": false,
+                "validation": {
+                  "blocking": false,
+                  "diagnostics": [],
+                  "invalidInputs": []
+                }
+              },
+              "kind": "http",
+              "method": "PATCH",
+              "path": "/v1/sessions/{s}",
+              "sessionRef": "s-t31-int64-min"
+            },
+            {
+              "expected": {
+                "csvDigits": "-9223372036854775808",
+                "evaluationValue": "-9223372036854775808",
+                "jsonDigits": "-9223372036854775808",
+                "numericRounding": false,
+                "reviewDigits": "-9223372036854775808",
+                "storedAnswer": {
+                  "status": "answered",
+                  "value": "-9223372036854775808"
+                }
+              },
+              "kind": "typed-answer-roundtrip",
+              "sessionRef": "s-t31-int64-min",
+              "stages": [
+                "save",
+                "reload",
+                "evaluation",
+                "review",
+                "json-export",
+                "csv-export"
+              ],
+              "vector": "INT64-02"
+            },
+            {
+              "body": {
+                "baseRevision": 0,
+                "clientMutationId": "t31-int64-max-set",
+                "operations": [
+                  {
+                    "answer": {
+                      "status": "answered",
+                      "value": "9223372036854775807"
+                    },
+                    "fieldId": "quantity",
+                    "op": "set",
+                    "rowPath": []
+                  }
+                ]
+              },
+              "contractCitations": [
+                "PRD:582",
+                "PRD:590",
+                "CONTRACT:19",
+                "CONTRACT:71-83"
+              ],
+              "expected": {
+                "acceptedRevision": 1,
+                "currentRevision": 1,
+                "httpStatus": 200,
+                "replayed": false,
+                "validation": {
+                  "blocking": false,
+                  "diagnostics": [],
+                  "invalidInputs": []
+                }
+              },
+              "kind": "http",
+              "method": "PATCH",
+              "path": "/v1/sessions/{s}",
+              "sessionRef": "s-t31-int64-max"
+            },
+            {
+              "expected": {
+                "csvDigits": "9223372036854775807",
+                "evaluationValue": "9223372036854775807",
+                "jsonDigits": "9223372036854775807",
+                "numericRounding": false,
+                "reviewDigits": "9223372036854775807",
+                "storedAnswer": {
+                  "status": "answered",
+                  "value": "9223372036854775807"
+                }
+              },
+              "kind": "typed-answer-roundtrip",
+              "sessionRef": "s-t31-int64-max",
+              "stages": [
+                "save",
+                "reload",
+                "evaluation",
+                "review",
+                "json-export",
+                "csv-export"
+              ],
+              "vector": "INT64-01"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "server/browser evaluator results",
+              "session snapshot",
+              "JSON export",
+              "CSV export"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "numericRounding": false,
+              "vectors": {
+                "INT64-01": {
+                  "allStagesExact": true,
+                  "canonicalDecimalString": "9223372036854775807"
+                },
+                "INT64-02": {
+                  "allStagesExact": true,
+                  "canonicalDecimalString": "-9223372036854775808"
+                }
+              },
+              "wireType": "canonical decimal string"
+            }
+          },
+          "id": "T31-INT64-EXTREMA-JSON-CSV-ROUNDTRIP",
+          "preState": {
+            "field": "quantity integer",
+            "profile": "4.0.0",
+            "sessions": {
+              "s-t31-int64-max": {
+                "initialRevision": 0
+              },
+              "s-t31-int64-min": {
+                "initialRevision": 0
+              }
+            },
+            "typedWireValues": [
+              "-9223372036854775808",
+              "9223372036854775807"
+            ]
+          }
+        },
+        {
+          "actions": [
+            {
+              "body": {
+                "baseRevision": 0,
+                "clientMutationId": "t31-2pow53-set",
+                "operations": [
+                  {
+                    "answer": {
+                      "status": "answered",
+                      "value": "9007199254740992"
+                    },
+                    "fieldId": "quantity",
+                    "op": "set",
+                    "rowPath": []
+                  }
+                ]
+              },
+              "contractCitations": [
+                "PRD:582",
+                "PRD:590",
+                "CONTRACT:19",
+                "CONTRACT:71-83"
+              ],
+              "expected": {
+                "acceptedRevision": 1,
+                "currentRevision": 1,
+                "httpStatus": 200,
+                "replayed": false,
+                "validation": {
+                  "blocking": false,
+                  "diagnostics": [],
+                  "invalidInputs": []
+                }
+              },
+              "kind": "http",
+              "method": "PATCH",
+              "path": "/v1/sessions/{s}",
+              "sessionRef": "s-t31-2pow53"
+            },
+            {
+              "expected": {
+                "csvDigits": "9007199254740992",
+                "evaluationValue": "9007199254740992",
+                "jsonDigits": "9007199254740992",
+                "numericRounding": false,
+                "reviewDigits": "9007199254740992",
+                "storedAnswer": {
+                  "status": "answered",
+                  "value": "9007199254740992"
+                }
+              },
+              "kind": "typed-answer-roundtrip",
+              "sessionRef": "s-t31-2pow53",
+              "stages": [
+                "save",
+                "reload",
+                "evaluation",
+                "review",
+                "json-export",
+                "csv-export"
+              ],
+              "vector": "EXPR-073"
+            },
+            {
+              "body": {
+                "baseRevision": 0,
+                "clientMutationId": "t31-2pow53-plus-one-set",
+                "operations": [
+                  {
+                    "answer": {
+                      "status": "answered",
+                      "value": "9007199254740993"
+                    },
+                    "fieldId": "quantity",
+                    "op": "set",
+                    "rowPath": []
+                  }
+                ]
+              },
+              "contractCitations": [
+                "PRD:582",
+                "PRD:590",
+                "CONTRACT:19",
+                "CONTRACT:71-83"
+              ],
+              "expected": {
+                "acceptedRevision": 1,
+                "currentRevision": 1,
+                "httpStatus": 200,
+                "replayed": false,
+                "validation": {
+                  "blocking": false,
+                  "diagnostics": [],
+                  "invalidInputs": []
+                }
+              },
+              "kind": "http",
+              "method": "PATCH",
+              "path": "/v1/sessions/{s}",
+              "sessionRef": "s-t31-2pow53-plus-one"
+            },
+            {
+              "expected": {
+                "csvDigits": "9007199254740993",
+                "evaluationValue": "9007199254740993",
+                "jsonDigits": "9007199254740993",
+                "numericRounding": false,
+                "reviewDigits": "9007199254740993",
+                "storedAnswer": {
+                  "status": "answered",
+                  "value": "9007199254740993"
+                }
+              },
+              "kind": "typed-answer-roundtrip",
+              "sessionRef": "s-t31-2pow53-plus-one",
+              "stages": [
+                "save",
+                "reload",
+                "evaluation",
+                "review",
+                "json-export",
+                "csv-export"
+              ],
+              "vector": "INT64-05"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "server/browser vector result pair",
+              "round-trip exports",
+              "byte comparison"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "EXPR-073": {
+                "state": "available",
+                "type": "integer",
+                "value": "9007199254740992"
+              },
+              "INT64-05": {
+                "state": "available",
+                "type": "integer",
+                "value": "9007199254740993"
+              },
+              "allWireValuesAreStrings": true,
+              "roundtripDigits": {
+                "EXPR-073": {
+                  "csv": "9007199254740992",
+                  "json": "9007199254740992",
+                  "reload": "9007199254740992",
+                  "save": "9007199254740992"
+                },
+                "INT64-05": {
+                  "csv": "9007199254740993",
+                  "json": "9007199254740993",
+                  "reload": "9007199254740993",
+                  "save": "9007199254740993"
+                }
+              },
+              "valuesRemainDistinct": true
+            }
+          },
+          "id": "T31-JAVASCRIPT-BOUNDARY-2POW53-AND-PLUS-ONE",
+          "preState": {
+            "field": "quantity integer",
+            "profile": "4.0.0",
+            "sessions": {
+              "s-t31-2pow53": {
+                "initialRevision": 0
+              },
+              "s-t31-2pow53-plus-one": {
+                "initialRevision": 0
+              }
+            },
+            "typedWireValues": [
+              "9007199254740992",
+              "9007199254740993"
+            ],
+            "vectors": [
+              "EXPR-073",
+              "INT64-05"
+            ]
+          }
+        },
+        {
+          "actions": [
+            {
+              "body": {
+                "baseRevision": 0,
+                "clientMutationId": "t31-int64-above-max",
+                "operations": [
+                  {
+                    "answer": {
+                      "status": "answered",
+                      "value": "9223372036854775808"
+                    },
+                    "fieldId": "quantity",
+                    "op": "set",
+                    "rowPath": []
+                  }
+                ]
+              },
+              "contractCitations": [
+                "PRD:582",
+                "PRD:590",
+                "CONTRACT:19",
+                "CONTRACT:71-83"
+              ],
+              "expected": {
+                "acceptedRevision": null,
+                "currentRevision": 0,
+                "draftChanged": false,
+                "httpStatus": 422,
+                "replayed": false,
+                "validation": {
+                  "blocking": true,
+                  "diagnostics": [
+                    {
+                      "code": "INTEGER_RANGE",
+                      "fieldId": "quantity"
+                    }
+                  ],
+                  "invalidInputs": [
+                    "quantity"
+                  ]
+                },
+                "vector": "INT64-03"
+              },
+              "kind": "http",
+              "method": "PATCH",
+              "path": "/v1/sessions/{s}",
+              "sessionRef": "s-t31-above-max"
+            },
+            {
+              "body": {
+                "baseRevision": 0,
+                "clientMutationId": "t31-int64-below-min",
+                "operations": [
+                  {
+                    "answer": {
+                      "status": "answered",
+                      "value": "-9223372036854775809"
+                    },
+                    "fieldId": "quantity",
+                    "op": "set",
+                    "rowPath": []
+                  }
+                ]
+              },
+              "contractCitations": [
+                "PRD:582",
+                "PRD:590",
+                "CONTRACT:19",
+                "CONTRACT:71-83"
+              ],
+              "expected": {
+                "acceptedRevision": null,
+                "currentRevision": 0,
+                "draftChanged": false,
+                "httpStatus": 422,
+                "replayed": false,
+                "validation": {
+                  "blocking": true,
+                  "diagnostics": [
+                    {
+                      "code": "INTEGER_RANGE",
+                      "fieldId": "quantity"
+                    }
+                  ],
+                  "invalidInputs": [
+                    "quantity"
+                  ]
+                },
+                "vector": "INT64-04"
+              },
+              "kind": "http",
+              "method": "PATCH",
+              "path": "/v1/sessions/{s}",
+              "sessionRef": "s-t31-below-min"
+            },
+            {
+              "body": {
+                "baseRevision": 0,
+                "clientMutationId": "t31-int64-json-number",
+                "operations": [
+                  {
+                    "answer": {
+                      "status": "answered",
+                      "value": 1
+                    },
+                    "fieldId": "quantity",
+                    "op": "set",
+                    "rowPath": []
+                  }
+                ]
+              },
+              "contractCitations": [
+                "PRD:582",
+                "PRD:590",
+                "CONTRACT:19",
+                "CONTRACT:71-83"
+              ],
+              "expected": {
+                "acceptedRevision": null,
+                "currentRevision": 0,
+                "draftChanged": false,
+                "httpStatus": 422,
+                "replayed": false,
+                "validation": {
+                  "blocking": true,
+                  "diagnostics": [
+                    {
+                      "code": "INTEGER_ENCODING",
+                      "fieldId": "quantity"
+                    }
+                  ],
+                  "invalidInputs": [
+                    "quantity"
+                  ]
+                },
+                "vector": "INT64-06"
+              },
+              "kind": "http",
+              "method": "PATCH",
+              "path": "/v1/sessions/{s}",
+              "sessionRef": "s-t31-json-number"
+            },
+            {
+              "body": {
+                "baseRevision": 0,
+                "clientMutationId": "t31-int64-negative-zero",
+                "operations": [
+                  {
+                    "answer": {
+                      "status": "answered",
+                      "value": "-0"
+                    },
+                    "fieldId": "quantity",
+                    "op": "set",
+                    "rowPath": []
+                  }
+                ]
+              },
+              "contractCitations": [
+                "PRD:582",
+                "PRD:590",
+                "CONTRACT:19",
+                "CONTRACT:71-83"
+              ],
+              "expected": {
+                "acceptedRevision": null,
+                "currentRevision": 0,
+                "draftChanged": false,
+                "httpStatus": 422,
+                "replayed": false,
+                "validation": {
+                  "blocking": true,
+                  "diagnostics": [
+                    {
+                      "code": "INTEGER_ENCODING",
+                      "fieldId": "quantity"
+                    }
+                  ],
+                  "invalidInputs": [
+                    "quantity"
+                  ]
+                },
+                "vector": "INT64-07"
+              },
+              "kind": "http",
+              "method": "PATCH",
+              "path": "/v1/sessions/{s}",
+              "sessionRef": "s-t31-negative-zero"
+            },
+            {
+              "body": {
+                "baseRevision": 0,
+                "clientMutationId": "t31-int64-leading-zero",
+                "operations": [
+                  {
+                    "answer": {
+                      "status": "answered",
+                      "value": "01"
+                    },
+                    "fieldId": "quantity",
+                    "op": "set",
+                    "rowPath": []
+                  }
+                ]
+              },
+              "contractCitations": [
+                "PRD:582",
+                "PRD:590",
+                "CONTRACT:19",
+                "CONTRACT:71-83"
+              ],
+              "expected": {
+                "acceptedRevision": null,
+                "currentRevision": 0,
+                "draftChanged": false,
+                "httpStatus": 422,
+                "replayed": false,
+                "validation": {
+                  "blocking": true,
+                  "diagnostics": [
+                    {
+                      "code": "INTEGER_ENCODING",
+                      "fieldId": "quantity"
+                    }
+                  ],
+                  "invalidInputs": [
+                    "quantity"
+                  ]
+                },
+                "vector": "INT64-08"
+              },
+              "kind": "http",
+              "method": "PATCH",
+              "path": "/v1/sessions/{s}",
+              "sessionRef": "s-t31-leading-zero"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "server/browser diagnostics",
+              "rejected request envelopes"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "INT64-03": {
+                "code": "INTEGER_RANGE",
+                "draftChanged": false,
+                "httpStatus": 422
+              },
+              "INT64-04": {
+                "code": "INTEGER_RANGE",
+                "draftChanged": false,
+                "httpStatus": 422
+              },
+              "INT64-06": {
+                "code": "INTEGER_ENCODING",
+                "draftChanged": false,
+                "httpStatus": 422,
+                "rejectedWireValue": 1
+              },
+              "INT64-07": {
+                "code": "INTEGER_ENCODING",
+                "draftChanged": false,
+                "httpStatus": 422
+              },
+              "INT64-08": {
+                "code": "INTEGER_ENCODING",
+                "draftChanged": false,
+                "httpStatus": 422
+              }
+            }
+          },
+          "id": "T31-INVALID-INTEGER-ENCODINGS-AND-OVERFLOW",
+          "preState": {
+            "integerField": "quantity",
+            "profile": "4.0.0",
+            "sessions": {
+              "s-t31-above-max": {
+                "initialRevision": 0
+              },
+              "s-t31-below-min": {
+                "initialRevision": 0
+              },
+              "s-t31-json-number": {
+                "initialRevision": 0
+              },
+              "s-t31-leading-zero": {
+                "initialRevision": 0
+              },
+              "s-t31-negative-zero": {
+                "initialRevision": 0
+              }
+            }
+          }
+        },
+        {
+          "actions": [
+            {
+              "instruction": "Run the frozen today/date vectors under the same UTC instant in server and browser.",
+              "kind": "evaluate"
+            },
+            {
+              "instruction": "Set the first-page quantity values that calculate the page-1 total and make page 2 visible in the same evaluation pass.",
+              "kind": "browser-input"
+            },
+            {
+              "instruction": "Advance to page 2 only after its derived visibility becomes true; reload and rerun at the same frozen instant.",
+              "kind": "navigation"
+            },
+            {
+              "instruction": "Compare server/browser state, calculation and visible-page identifiers exactly.",
+              "kind": "comparison"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "two evaluator result envelopes",
+              "visibility trace",
+              "frozen-clock configuration"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "clock": "2026-09-05T10:00:00Z",
+              "laterPageVisibleInSamePass": true,
+              "serverBrowserParity": true,
+              "todaySource": "frozen evaluator context"
+            }
+          },
+          "id": "T31-FROZEN-TODAY-AND-DERIVED-LATER-PAGE",
+          "preState": {
+            "frozenClock": "2026-09-05T10:00:00Z",
+            "packageScenario": "derived-total reveals page-2",
+            "profile": "4.0.0"
+          }
+        },
+        {
+          "actions": [
+            {
+              "instruction": "Render two placements of the same reusable definition, make only the second placement visible, and invoke its review edit link.",
+              "kind": "browser"
+            },
+            {
+              "instruction": "Evaluate nested root/item/parentItem sum with the frozen answer graph.",
+              "kind": "evaluate",
+              "vector": "EXPR-077"
+            },
+            {
+              "instruction": "Compile root reference with parentDepth=1.",
+              "kind": "evaluate",
+              "vector": "EXPR-078"
+            },
+            {
+              "instruction": "Evaluate a non-applicable retained integer reference.",
+              "kind": "evaluate",
+              "vector": "EXPR-079"
+            },
+            {
+              "instruction": "Compare two unavailable operands.",
+              "kind": "evaluate",
+              "vector": "EXPR-080"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "stable-path focus trace",
+              "server/browser vector result pairs"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "EXPR-077": {
+                "state": "available",
+                "type": "decimal",
+                "value": "3"
+              },
+              "EXPR-078": {
+                "code": "EXPR_SCOPE",
+                "state": "error"
+              },
+              "EXPR-079": {
+                "reason": "UNAVAILABLE_OPERAND",
+                "state": "unknown"
+              },
+              "EXPR-080": {
+                "reason": "UNAVAILABLE_OPERAND",
+                "state": "unknown"
+              },
+              "reviewEditTarget": "second visible placement stable row path"
+            }
+          },
+          "id": "T31-PLACEMENT-EMPTY-AGGREGATE-AND-SCOPE",
+          "preState": {
+            "packageScenario": "two placement instances plus typed empty list",
+            "vectors": [
+              "EXPR-077",
+              "EXPR-078",
+              "EXPR-079",
+              "EXPR-080"
+            ]
+          }
+        },
+        {
+          "actions": [
+            {
+              "instruction": "Compile the legal self-validation package.",
+              "kind": "compile"
+            },
+            {
+              "instruction": "Compile the genuine applicability cycle package.",
+              "kind": "compile"
+            },
+            {
+              "instruction": "Compile invalid date bounds and literal zero division.",
+              "kind": "compile"
+            },
+            {
+              "instruction": "Submit the limit-plus-one heavy-repeater package and inspect whether the limit diagnostic occurs before row evaluation.",
+              "kind": "compile"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "compile diagnostics",
+              "evaluation trace with row-evaluation counter"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "applicabilityCycle": {
+                "code": "EXPR_CYCLE",
+                "state": "error"
+              },
+              "invalidDateBounds": {
+                "code": "INVALID_LITERAL",
+                "state": "error"
+              },
+              "legalSelfValidation": {
+                "state": "available"
+              },
+              "limitPlusOne": {
+                "code": "LIMIT_EXCEEDED",
+                "rowEvaluationStarted": false,
+                "state": "error"
+              },
+              "literalZeroDivision": {
+                "code": "DIVIDE_BY_ZERO",
+                "state": "error"
+              }
+            }
+          },
+          "id": "T31-CYCLE-DATE-ZERO-DIVISION-AND-LIMIT-BEFORE-ROWS",
+          "preState": {
+            "candidatePackages": [
+              "legal-self-validation",
+              "applicability-cycle",
+              "invalid-date-bound",
+              "literal-zero-division",
+              "limit-plus-one-heavy-repeater"
+            ],
+            "profile": "4.0.0"
+          }
+        }
+      ],
+      "citations": [
+        "PRD:582",
+        "PRD:590",
+        "PRD:836",
+        "PRD:874-875",
+        "PRD:1242-1258",
+        "PRD:1460",
+        "CONTRACT:19",
+        "CONTRACT:71-83",
+        "EXPRESSION:INT64-01..08",
+        "EXPRESSION:EXPR-073,077..080"
+      ],
+      "executionStatus": "not-run",
+      "id": "T31",
+      "requirements": [
+        "SF-CON-01",
+        "SF-CON-02"
+      ],
+      "title": "Profile, contract, expression and exact integer fidelity"
+    },
+    {
+      "cases": [
+        {
+          "actions": [
+            {
+              "argv": [
+                "docker",
+                "compose",
+                "--env-file",
+                ".env.acceptance",
+                "up",
+                "--build",
+                "-d"
+              ],
+              "kind": "command"
+            },
+            {
+              "argv": [
+                "docker",
+                "compose",
+                "ps"
+              ],
+              "kind": "command"
+            },
+            {
+              "expected": {
+                "databaseReady": true,
+                "mandatoryDependencyFailureClaimedHealthy": false,
+                "storageReady": true
+              },
+              "instruction": "Use the documented deployment readiness observation after the compose command completes; do not assume an HTTP health route.",
+              "kind": "operational-observation",
+              "materializationState": "m2-endpoint-unspecified",
+              "sourceCitation": "PRD:872-876"
+            },
+            {
+              "instruction": "Sign in with the protected bootstrap temporary password, choose a normal password, create the first organization/owner/workspace, then sign in as the first real owner without a development identity header.",
+              "kind": "browser"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "compose log",
+              "migration log",
+              "readiness response",
+              "redacted bootstrap/onboarding trace"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "emailDisabledOrdinaryOperation": true,
+              "firstUser": {
+                "activationRequired": true,
+                "normalSignInAfterActivation": true
+              },
+              "manualDatabaseProvisioning": false,
+              "migrations": "all documented migrations applied once",
+              "readiness": {
+                "database": "ready",
+                "storage": "ready"
+              }
+            }
+          },
+          "id": "T32-CLEAN-START-BOOTSTRAP-FIRST-USER",
+          "preState": {
+            "bootstrapEnvironment": {
+              "BOOTSTRAP_TEMPORARY_PASSWORD_REF": "secret:bootstrap",
+              "BOOTSTRAP_USERNAME": "platform.root"
+            },
+            "databaseVolume": "empty",
+            "emailAdapter": "disabled",
+            "host": "isolated Docker Compose host",
+            "storageVolume": "empty"
+          }
+        },
+        {
+          "actions": [
+            {
+              "argv": [
+                "docker",
+                "compose",
+                "stop"
+              ],
+              "kind": "command"
+            },
+            {
+              "argv": [
+                "docker",
+                "compose",
+                "start"
+              ],
+              "kind": "command"
+            },
+            {
+              "expected": {
+                "databaseReady": true,
+                "mandatoryDependencyFailureClaimedHealthy": false,
+                "storageReady": true
+              },
+              "instruction": "Use the documented deployment readiness observation after the compose command completes; do not assume an HTTP health route.",
+              "kind": "operational-observation",
+              "materializationState": "m2-endpoint-unspecified",
+              "sourceCitation": "PRD:872-876"
+            },
+            {
+              "instruction": "Read the acknowledged form, revision 7 draft, accepted submission and sealed attachment bytes after readiness returns.",
+              "kind": "query"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "before/after state digest",
+              "compose stop/start logs",
+              "readiness response"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "acknowledgedWriteLoss": 0,
+              "attachmentDigestUnchanged": true,
+              "draftRevision": 7,
+              "formPresent": true,
+              "readinessAfterRestart": {
+                "databaseReady": true,
+                "storageReady": true
+              },
+              "submissionPresent": true
+            }
+          },
+          "id": "T32-ACKNOWLEDGED-DATA-SURVIVES-STOP-RESTART",
+          "preState": {
+            "acknowledgedRecords": {
+              "attachmentBytesSha256": "frozen test object digest",
+              "draftRevision": 7,
+              "form": "form-restart",
+              "submission": "submission-restart"
+            },
+            "stack": "healthy"
+          }
+        },
+        {
+          "actions": [
+            {
+              "instruction": "Stop PostgreSQL while the application remains running, then request readiness and an ordinary authenticated form operation.",
+              "kind": "fault"
+            },
+            {
+              "instruction": "Restore PostgreSQL, stop mandatory storage, then request readiness and an attachment operation.",
+              "kind": "fault"
+            },
+            {
+              "instruction": "Restore mandatory dependencies, keep email disabled and speech unavailable, then start ordinary form entry.",
+              "kind": "configuration"
+            },
+            {
+              "instruction": "Capture health, metrics, alert/correlation identifiers and separate email/speech capability states.",
+              "kind": "inspection"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "health/metrics captures",
+              "correlation IDs",
+              "fault timeline"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "databaseUnavailableReadiness": {
+                "httpStatus": 503
+              },
+              "emailDisabled": {
+                "invitationEmailState": "not-configured",
+                "ordinaryFormEntryAvailable": true
+              },
+              "mandatoryDependencyFailureClaimedHealthy": false,
+              "speechUnavailable": {
+                "capabilityState": "unavailable",
+                "ordinaryFormEntryAvailable": true
+              },
+              "storageUnavailableReadiness": {
+                "httpStatus": 503
+              }
+            }
+          },
+          "id": "T32-DEPENDENCY-READINESS-AND-PROVIDER-CAPABILITY",
+          "preState": {
+            "database": "running",
+            "emailAdapter": "disabled",
+            "speechAdapter": "forced unavailable",
+            "stack": "healthy",
+            "storage": "running"
+          }
+        },
+        {
+          "actions": [
+            {
+              "argv": [
+                "docker",
+                "compose",
+                "--env-file",
+                ".env.acceptance",
+                "down",
+                "--volumes"
+              ],
+              "kind": "command"
+            },
+            {
+              "instruction": "Restore the encrypted fixture backup to the isolated target using the documented restore procedure; record start/end time.",
+              "kind": "operator-runbook"
+            },
+            {
+              "argv": [
+                "docker",
+                "compose",
+                "--env-file",
+                ".env.acceptance",
+                "up",
+                "--build",
+                "-d"
+              ],
+              "kind": "command"
+            },
+            {
+              "instruction": "Reconcile tenant A/B records, rerun deletion tombstones before access, then request deleted submission/attachment/export through an otherwise authorized session.",
+              "kind": "query"
+            }
+          ],
+          "expected": {
+            "evidence": [
+              "backup manifest digest",
+              "restore command log",
+              "RPO/RTO timestamps",
+              "tenant reconciliation",
+              "tombstone replay audit"
+            ],
+            "executionStatus": "not-run",
+            "laterPassPredicate": {
+              "backupAgeMaximum": "PT24H",
+              "deletedAuthorizedRead": {
+                "httpStatus": 410
+              },
+              "deletedDataReexposed": false,
+              "restoreDurationMaximum": "PT4H",
+              "restoreEvidenceHasStartEnd": true,
+              "tenantIsolationPreserved": true
+            }
+          },
+          "id": "T32-BACKUP-RESTORE-AND-DELETION-REPLAY",
+          "preState": {
+            "backup": "encrypted fixture backup created no more than PT24H earlier",
+            "deletedSubmission": "tombstoned before backup restore",
+            "restoreTarget": "empty isolated host",
+            "tenantA": "org-a",
+            "tenantB": "org-b"
+          }
+        }
+      ],
+      "citations": [
+        "PRD:837",
+        "PRD:867",
+        "PRD:873",
+        "PRD:1464",
+        "PRD:663-675",
+        "PROTOCOL:recovery"
+      ],
+      "executionStatus": "not-run",
+      "id": "T32",
+      "requirements": [
+        "SF-OPS-01",
+        "SF-NFR-03",
+        "SF-NFR-04"
+      ],
+      "title": "Clean local deployment, restart and restore"
+    }
+  ],
+  "format": "smart-intake-evaluator-fixture-oracle/v1",
+  "frozenAtM0": true,
+  "laterExecutionPrerequisites": [
+    {
+      "id": "PRE-REAL-STAFF",
+      "requiredFor": [
+        "T27",
+        "T28",
+        "T29",
+        "T30"
+      ],
+      "requirement": "A clean deployed candidate with real server-managed staff authentication, TLS/cookie/CSRF configuration, PostgreSQL, and redacted security/audit-log capture.",
+      "state": "not-run"
+    },
+    {
+      "id": "PRE-EMAIL-PROVIDER",
+      "requiredFor": [
+        "T28",
+        "T29"
+      ],
+      "requirement": "A configured controlled email provider and an authorized test inbox; provider acceptance/delivery evidence is retained separately and is never inferred from link issuance.",
+      "state": "not-run"
+    },
+    {
+      "id": "PRE-HUMAN-TRIAL",
+      "requiredFor": [
+        "T25"
+      ],
+      "requirement": "Five independent nondeveloper authors and five independent respondents, selected browser/device/AT versions, consent/anonymization handling, and an evaluator-operated observation store.",
+      "state": "not-run"
+    },
+    {
+      "id": "PRE-DUAL-RUNTIME",
+      "requiredFor": [
+        "T26",
+        "T31"
+      ],
+      "requirement": "Independent server and browser evaluators running the exact profile 4.0.0 package/schema/typed-answer contracts; neither product serializer is the sole oracle.",
+      "state": "not-run"
+    },
+    {
+      "id": "PRE-LOCAL-RECOVERY",
+      "requiredFor": [
+        "T32"
+      ],
+      "requirement": "An isolated Docker Compose host, empty PostgreSQL/storage volumes, encrypted fixture backup, fault injection control, and retained command/readiness/migration logs.",
+      "state": "not-run"
+    }
+  ],
+  "sourcePins": {
+    "authentication": {
+      "path": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md",
+      "sha256": "e09a460f2cb3ac4f7d296abdbd6e894f18f587cd036b9db34b1f21663ae9aa0b"
+    },
+    "contract": {
+      "path": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Lite-Contract-Details.md",
+      "sha256": "488e049ec680fc2806142efdebd2d010c5ee3400068d426f8451b27568a06fb2"
+    },
+    "expressionContract": {
+      "path": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/expression-contract.json",
+      "sha256": "6fd9cd69b123418209b9ae21d1b7a76af2a7ceb76689f2aad0fbe261d2a00aa7"
+    },
+    "prd": {
+      "path": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md",
+      "sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+    },
+    "protocol": {
+      "path": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Lite-Evaluator-Protocol.md",
+      "sha256": "20bf0154fb07c6b917f73c6db246f7917e5a2e80f0fc1735fcaef4d2bfc3f6d3"
+    }
+  }
+}

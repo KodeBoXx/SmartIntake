@@ -1,0 +1,118 @@
+{
+  "closure": {
+    "kind": "sha256sums-transitive-closure/v1",
+    "memberPaths": [
+      "README.md",
+      "a-total.json",
+      "build_manifests.py",
+      "c-total.json",
+      "f-total.json",
+      "h-total.json",
+      "i-total.json",
+      "n-current.json",
+      "o-named.json",
+      "o-total.json",
+      "review-attestation.json",
+      "review-attestation.schema.json",
+      "s-total.json",
+      "sec-total.json",
+      "ui-staff-total.json",
+      "ui-total.json",
+      "wcag-applicability-exclusions.json",
+      "wcag-total.json"
+    ],
+    "sha256sumsPath": "docs/acceptance/v1.1/denominators/SHA256SUMS",
+    "sha256sumsSha256": "5c3582035d9a5c3a36f13e9cd5121224288716be571396da31010e0efb416d71"
+  },
+  "current_execution_status": "not-run",
+  "exclusions": {
+    "sec-total.json": {
+      "sha256": "a5385c75c6e69949b46fee4615210ed522a2df32800659ce69af79be3ea739d1",
+      "total": 2808
+    }
+  },
+  "generator": "build_manifests.py",
+  "independentReviewAttestation": {
+    "attestedAt": "2026-09-14T13:13:03Z",
+    "authority": "independent-agent-review",
+    "decision": "approved",
+    "note": "Validated independent technical-review attestation.",
+    "path": "docs/acceptance/v1.1/denominators/review-attestation.json",
+    "preAttestationBinding": {
+      "kind": "pre-attestation-denominator-release/v2",
+      "manifestIndexSha256": "4e0c7ad81c8da5c56a994b61c79b9b619a5525971a2172dd0209026b66049684",
+      "sha256sumsSha256": "09071100156c3ef85f1e0a30f81d1c2ffb0d1e6d4273cde4370de32b0738915d"
+    },
+    "reviewer": "gpt-m0-denominator-v2-review",
+    "sha256": "b77cb97ede7480c17ef70b9e9fff441eba40d7a11b433eb079dfbee2241e15c6",
+    "status": "approved"
+  },
+  "independent_review_required": true,
+  "input_sha256": {
+    "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e",
+    "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md": "e09a460f2cb3ac4f7d296abdbd6e894f18f587cd036b9db34b1f21663ae9aa0b",
+    "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Lite-Evaluator-Protocol.md": "20bf0154fb07c6b917f73c6db246f7917e5a2e80f0fc1735fcaef4d2bfc3f6d3",
+    "docs/source-handoff/smart-form-builder-lite-prd-v1.1/requirement-dispositions.csv": "090e0c02414e6bec0ebaf2c84a718d3f9ddb09a006c12d9a99976092fe1d810e"
+  },
+  "manifests": {
+    "a-total.json": {
+      "sha256": "f0c3f4cf5160f46edfb4ab19d544253db93405e0c398e063d1b5a2de3cba9eb3",
+      "total": 95
+    },
+    "c-total.json": {
+      "sha256": "60a2642791867c7a9527976f07fc22f4926cb3b85974d175d8651ba95a13122b",
+      "total": 24
+    },
+    "f-total.json": {
+      "sha256": "16ae5f64db3b655d2f8f2c83674588b0c62a67469628ffe6cfce966c5b75936e",
+      "total": 12
+    },
+    "h-total.json": {
+      "sha256": "90ae903e2fedd2b74e389f0680778e3e7e1854deb59232b5075167a59521a7fe",
+      "total": 10
+    },
+    "i-total.json": {
+      "sha256": "736f5794306f2c36c8ded28a19b02ba76c1c45d96e3def754d2eb26ba44cc32f",
+      "total": 50
+    },
+    "n-current.json": {
+      "sha256": "2f85ebe2de91c660087f8ed49496ac959f851cb3356d0102e2cba26f4113caba",
+      "total": 21
+    },
+    "o-named.json": {
+      "sha256": "fd88c8b3ea0c8515a4c973f990dfd05c5b770a5b29713af13e2ee09310849af5",
+      "total": 53
+    },
+    "o-total.json": {
+      "sha256": "fef15ff9da1c34eb0a09ec8a195d4679b167845ec7cc9d5018bc3e30f8ffaab2",
+      "total": 82
+    },
+    "s-total.json": {
+      "sha256": "e3213fb98ea6c0b0f8d8d3365f0d8715b5c8f121145e2afbee1cd40e81d17365",
+      "total": 7
+    },
+    "sec-total.json": {
+      "sha256": "a5385c75c6e69949b46fee4615210ed522a2df32800659ce69af79be3ea739d1",
+      "total": 10452
+    },
+    "ui-staff-total.json": {
+      "sha256": "3daf76e9fe17043aadbb18ccf623539bc06b4252f5ffd0619b31ff15a3e84c9f",
+      "total": 18
+    },
+    "ui-total.json": {
+      "sha256": "cadab8f2c28350c065d22f2ca71681e9781a89cd0efe719ec8d63bb28c2c0375",
+      "total": 14
+    },
+    "wcag-applicability-exclusions.json": {
+      "sha256": "2d646b33d0e10d87662b6978afc030c433c16ea8e08ef189af78b1112ec3003f",
+      "total": 2
+    },
+    "wcag-total.json": {
+      "sha256": "63ff8ee3814ae8840d90c14a1cb56193abc6be964bd026d751d4b28f5f2b38e7",
+      "total": 110
+    }
+  },
+  "release_status": "reviewed-by-independent-agent",
+  "source_sha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e",
+  "version": "2.0.0-m0"
+}

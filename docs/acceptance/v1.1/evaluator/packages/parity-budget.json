@@ -1,0 +1,707 @@
+{
+  "attachmentManifest": {
+    "answerValuesContain": "attachment IDs only",
+    "frozen": true,
+    "metadataByAttachmentId": {
+      "attachment-hc-001": {
+        "bytes": 8,
+        "fileName": "intake-note.txt",
+        "mediaType": "text/plain",
+        "sha256": "c9c1d0a2dbf9b2147f90e977a7d4db15c4ecbd48e1d9735d7a6b7ccaa6e4468e"
+      },
+      "attachment-nhc-001": {
+        "bytes": 8,
+        "fileName": "inspection-photo.jpg",
+        "mediaType": "image/jpeg",
+        "sha256": "c9c1d0a2dbf9b2147f90e977a7d4db15c4ecbd48e1d9735d7a6b7ccaa6e4468e"
+      }
+    }
+  },
+  "budget": {
+    "canonicalTypeRules": {
+      "attachment": "attachments",
+      "calculated": "compatible scalar or object type with calculation metadata",
+      "matrix": "list with rowSchema object",
+      "ranking": "multiChoice with ordered=true",
+      "rating": "integer with canonical decimal-string wire values and constraints"
+    },
+    "catalogFamilyCount": 17,
+    "comparisonMode": "structural-only",
+    "complexityMetrics": {
+      "answerableFieldCount": 41,
+      "attachmentFieldCount": 1,
+      "calculatedFieldCount": 1,
+      "drawingFieldCount": 1,
+      "expressionKinds": [
+        "visibility",
+        "required",
+        "calculation",
+        "validation"
+      ],
+      "listFieldCount": 4,
+      "matrixFieldCount": 1,
+      "objectFieldCount": 6,
+      "optionSetCountAtLeast": 10,
+      "recursiveDefinitionCount": 42,
+      "recursiveRepeaterDepth": 3,
+      "retentionPolicies": [
+        "clear-when-hidden",
+        "submission-retained"
+      ],
+      "validationExpressionCountAtLeast": 12
+    },
+    "fieldCount": 42,
+    "fieldCountSemantics": "total recursive canonical field definitions (roots, object properties, and item/row schemas)",
+    "observedClaimsProhibited": true,
+    "packageCount": 2,
+    "packageWireShape": {
+      "answerWireShape": "InputAnswer {status,value?}",
+      "contractVersion": "4.0.0",
+      "engineContract": "4.0.0",
+      "kind": "smart-form-package",
+      "layout": "flow.phases/pages/sections/nodes",
+      "rootFields": "data.fields",
+      "schemaVersion": "4.0.0"
+    },
+    "pageCount": 5,
+    "requiredGraphParts": [
+      "pages",
+      "fields",
+      "optionSets",
+      "expressions",
+      "localeBindings",
+      "guidanceBindings",
+      "sampleTypedAnswers",
+      "expectedOutputs"
+    ]
+  },
+  "records": [
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalRef": "#/budget",
+        "comparisonMode": "structural-only"
+      },
+      "expectedSource": "evaluator-derived",
+      "fixtures": [
+        "T04",
+        "T26"
+      ],
+      "id": "EVAL-PKG-BUDGET",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "oracleProvenance": {
+        "allowlistId": "EVAL-PKG-BUDGET",
+        "allowlistPath": "provenance/evaluator-selected-allowlist.json",
+        "mode": "evaluator-selected"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "826",
+          "quote": "The complex medical-style core fixture is a **new synthetic definition** exercising history, family relationships, symptoms and repeated entries. It is not a PDF, a conversion task or an obligation to reproduce 643 document destinations. At least one equally complex non-healthcare fixture must be included to expose domain assumptions. The evaluator owns the fixed assertions and must freeze the complete input/expected-output corpus, including both complex domain definitions, before either measured run. Implementation teams supply adapters and runners and cannot select or rewrite the oracle. The Lite fixture descriptions, expression vectors and evaluator protocol are specification data; they are not a complete executable Lite fixture suite. Remaining corpus materialization is a disclosed evaluation-start gate, not a passing result.",
+          "rangeSha256": "32dcd401d4980f16663c6645799bb3c70c130f1d0e2e5bccf2b9d6be9f2efae2",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "prdFixedSubset": {
+        "catalogFamilyCoverage": 17,
+        "int64ExtremaCases": [
+          "-9223372036854775808",
+          "9223372036854775807",
+          "9007199254740992",
+          "9007199254740993"
+        ],
+        "localeBundles": 3,
+        "maxRepeaterDepth": 3
+      },
+      "prdFixedSubsetCitations": {
+        "catalogFamilyCoverage": "226-242",
+        "int64ExtremaCases": [
+          "255",
+          "1244"
+        ],
+        "localeBundles": "1342",
+        "maxRepeaterDepth": "805"
+      },
+      "rationale": "Synthetic evaluator package required by PRD.",
+      "requirements": [
+        "SF-EXT-01",
+        "SF-EXT-03",
+        "SF-FLD-01"
+      ],
+      "status": "not-run"
+    }
+  ],
+  "sampleAnswerVectors": [
+    {
+      "answers": {
+        "hc-f01": {
+          "status": "answered",
+          "value": "Avery Morgan"
+        },
+        "hc-f02": {
+          "status": "answered",
+          "value": "1987-03-14"
+        },
+        "hc-f03": {
+          "status": "answered",
+          "value": "09:15:00"
+        },
+        "hc-f04": {
+          "status": "answered",
+          "value": "2026-09-14T09:15:00Z"
+        },
+        "hc-f05": {
+          "status": "answered",
+          "value": {
+            "fields": {
+              "hc-f05-interpreterNeeded": {
+                "status": "unanswered"
+              },
+              "hc-f05-method": {
+                "status": "answered",
+                "value": "phone"
+              },
+              "hc-f05-value": {
+                "status": "answered",
+                "value": "+1-555-0107"
+              }
+            }
+          }
+        },
+        "hc-f06": {
+          "status": "answered",
+          "value": true
+        },
+        "hc-f07": {
+          "status": "answered",
+          "value": [
+            "respiratory",
+            "fatigue"
+          ]
+        },
+        "hc-f08": {
+          "status": "answered",
+          "value": "6"
+        },
+        "hc-f09": {
+          "status": "answered",
+          "value": "known-allergies"
+        },
+        "hc-f10": {
+          "status": "answered",
+          "value": {
+            "items": [
+              {
+                "fields": {
+                  "hc-f10-row-value": {
+                    "status": "answered",
+                    "value": "seed"
+                  }
+                },
+                "itemId": "hc-row-1"
+              }
+            ]
+          }
+        },
+        "hc-f11": {
+          "status": "answered",
+          "value": {
+            "items": [
+              {
+                "fields": {
+                  "hc-f11-item-l2": {
+                    "status": "answered",
+                    "value": {
+                      "items": [
+                        {
+                          "fields": {
+                            "hc-f11-item-l2-item-l3": {
+                              "status": "answered",
+                              "value": {
+                                "items": [
+                                  {
+                                    "fields": {
+                                      "hc-f11-item-l2-item-l3-item-note": {
+                                        "status": "answered",
+                                        "value": "seed"
+                                      }
+                                    },
+                                    "itemId": "hc-l3-1"
+                                  }
+                                ]
+                              }
+                            }
+                          },
+                          "itemId": "hc-l2-1"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "itemId": "hc-l1-1"
+              }
+            ]
+          }
+        },
+        "hc-f12": {
+          "status": "answered",
+          "value": {
+            "items": [
+              {
+                "fields": {
+                  "hc-f12-row-value": {
+                    "status": "answered",
+                    "value": "seed"
+                  }
+                },
+                "itemId": "hc-row-1"
+              }
+            ]
+          }
+        },
+        "hc-f13": {
+          "status": "answered",
+          "value": false
+        },
+        "hc-f14": {
+          "status": "unanswered"
+        },
+        "hc-f15": {
+          "status": "answered",
+          "value": [
+            "breathing",
+            "pain",
+            "sleep"
+          ]
+        },
+        "hc-f16": {
+          "status": "answered",
+          "value": "1.70"
+        },
+        "hc-f17": {
+          "status": "answered",
+          "value": "70.00"
+        },
+        "hc-f19": {
+          "status": "answered",
+          "value": {
+            "fields": {
+              "hc-f19-diastolic": {
+                "status": "answered",
+                "value": "82"
+              },
+              "hc-f19-position": {
+                "status": "answered",
+                "value": "seated"
+              },
+              "hc-f19-systolic": {
+                "status": "answered",
+                "value": "128"
+              }
+            }
+          }
+        },
+        "hc-f20": {
+          "status": "answered",
+          "value": "3"
+        },
+        "hc-f21": {
+          "status": "answered",
+          "value": "37.10"
+        },
+        "hc-f22": {
+          "status": "answered",
+          "value": "routine-follow-up"
+        },
+        "hc-f23": {
+          "status": "answered",
+          "value": "Symptoms improving with inhaler use."
+        },
+        "hc-f24": {
+          "status": "answered",
+          "value": "2026-10-12"
+        },
+        "hc-f25": {
+          "status": "answered",
+          "value": [
+            "attachment-hc-001"
+          ]
+        },
+        "hc-f26": {
+          "status": "answered",
+          "value": {
+            "assetId": "hc-body-map-drawing-01",
+            "generator": {
+              "algorithm": "polyline-json-v1",
+              "canvas": {
+                "height": "120",
+                "unit": "px",
+                "width": "240"
+              },
+              "strokes": [
+                [
+                  [
+                    31,
+                    24
+                  ],
+                  [
+                    42,
+                    38
+                  ],
+                  [
+                    49,
+                    61
+                  ]
+                ],
+                [
+                  [
+                    113,
+                    29
+                  ],
+                  [
+                    119,
+                    45
+                  ]
+                ]
+              ]
+            },
+            "mediaType": "application/vnd.smartintake.stroke+json",
+            "sha256": "b3d2b693fc7cf782aca9a805808057ebc66e8dec58d7e57e2ab779ba81380072"
+          }
+        },
+        "hc-f27": {
+          "status": "answered",
+          "value": "never"
+        },
+        "hc-f28": {
+          "status": "answered",
+          "value": "occasional"
+        },
+        "hc-f29": {
+          "status": "answered",
+          "value": "no-concern"
+        },
+        "hc-f30": {
+          "status": "unanswered"
+        },
+        "hc-f31": {
+          "status": "answered",
+          "value": "guided"
+        },
+        "hc-f32": {
+          "status": "unanswered"
+        }
+      },
+      "calculatedValues": {
+        "hc-f18": "24.2"
+      },
+      "expectedOutputs": {
+        "hc-f18": {
+          "origin": "server-calculation",
+          "status": "answered",
+          "value": "24.2"
+        }
+      },
+      "expectedPackageFacts": {
+        "domain": "healthcare-clinical-history-intake",
+        "fieldCount": 42,
+        "pageCount": 5,
+        "recursiveRepeaterDepth": 3
+      },
+      "forgedCalculatedInputRejection": {
+        "attemptedInputAnswer": {
+          "status": "answered",
+          "value": "999"
+        },
+        "expectedCode": "CALCULATED_FIELD_READ_ONLY",
+        "fieldId": "hc-f18",
+        "persistenceWrites": 0
+      },
+      "formKey": "clinical-history-intake",
+      "integerWireFormat": "canonical-decimal-string",
+      "package": "package-hc.json"
+    },
+    {
+      "answers": {
+        "nhc-f01": {
+          "status": "answered",
+          "value": "TRK-204"
+        },
+        "nhc-f02": {
+          "status": "answered",
+          "value": "1FTFW1E50MFA12345"
+        },
+        "nhc-f03": {
+          "status": "answered",
+          "value": "2026-09-14"
+        },
+        "nhc-f04": {
+          "status": "answered",
+          "value": "06:45:00"
+        },
+        "nhc-f05": {
+          "status": "answered",
+          "value": "184250"
+        },
+        "nhc-f06": {
+          "status": "answered",
+          "value": "4250.50"
+        },
+        "nhc-f07": {
+          "status": "answered",
+          "value": "bay-3"
+        },
+        "nhc-f08": {
+          "status": "answered",
+          "value": true
+        },
+        "nhc-f09": {
+          "status": "answered",
+          "value": [
+            "brakes",
+            "lighting"
+          ]
+        },
+        "nhc-f10": {
+          "status": "answered",
+          "value": {
+            "items": [
+              {
+                "fields": {
+                  "nhc-f10-row-value": {
+                    "status": "answered",
+                    "value": "seed"
+                  }
+                },
+                "itemId": "nhc-row-1"
+              }
+            ]
+          }
+        },
+        "nhc-f11": {
+          "status": "answered",
+          "value": {
+            "items": [
+              {
+                "fields": {
+                  "nhc-f11-item-l2": {
+                    "status": "answered",
+                    "value": {
+                      "items": [
+                        {
+                          "fields": {
+                            "nhc-f11-item-l2-item-l3": {
+                              "status": "answered",
+                              "value": {
+                                "items": [
+                                  {
+                                    "fields": {
+                                      "nhc-f11-item-l2-item-l3-item-note": {
+                                        "status": "answered",
+                                        "value": "seed"
+                                      }
+                                    },
+                                    "itemId": "nhc-l3-1"
+                                  }
+                                ]
+                              }
+                            }
+                          },
+                          "itemId": "nhc-l2-1"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "itemId": "nhc-l1-1"
+              }
+            ]
+          }
+        },
+        "nhc-f12": {
+          "status": "answered",
+          "value": {
+            "items": [
+              {
+                "fields": {
+                  "nhc-f12-row-value": {
+                    "status": "answered",
+                    "value": "seed"
+                  }
+                },
+                "itemId": "nhc-row-1"
+              }
+            ]
+          }
+        },
+        "nhc-f13": {
+          "status": "answered",
+          "value": "4"
+        },
+        "nhc-f14": {
+          "status": "answered",
+          "value": false
+        },
+        "nhc-f15": {
+          "status": "answered",
+          "value": [
+            "brakes",
+            "lighting",
+            "tires"
+          ]
+        },
+        "nhc-f16": {
+          "status": "answered",
+          "value": "42.50"
+        },
+        "nhc-f17": {
+          "status": "answered",
+          "value": "88.00"
+        },
+        "nhc-f19": {
+          "status": "answered",
+          "value": {
+            "fields": {
+              "nhc-f19-reportedAt": {
+                "status": "answered",
+                "value": "2026-09-13T18:25:00Z"
+              },
+              "nhc-f19-reportedBy": {
+                "status": "answered",
+                "value": "Morgan Diaz"
+              },
+              "nhc-f19-summary": {
+                "status": "answered",
+                "value": "Brake pedal vibration on descent."
+              }
+            }
+          }
+        },
+        "nhc-f20": {
+          "status": "answered",
+          "value": "12500"
+        },
+        "nhc-f21": {
+          "status": "answered",
+          "value": "brake-pad-wear"
+        },
+        "nhc-f22": {
+          "status": "answered",
+          "value": "2026-09-16"
+        },
+        "nhc-f23": {
+          "status": "answered",
+          "value": "Do not dispatch until front pads are replaced."
+        },
+        "nhc-f24": {
+          "status": "answered",
+          "value": [
+            "attachment-nhc-001"
+          ]
+        },
+        "nhc-f25": {
+          "status": "answered",
+          "value": {
+            "assetId": "nhc-brake-sketch-drawing-01",
+            "generator": {
+              "algorithm": "polyline-json-v1",
+              "canvas": {
+                "height": "120",
+                "unit": "px",
+                "width": "240"
+              },
+              "strokes": [
+                [
+                  [
+                    12,
+                    71
+                  ],
+                  [
+                    56,
+                    63
+                  ],
+                  [
+                    104,
+                    62
+                  ]
+                ],
+                [
+                  [
+                    45,
+                    21
+                  ],
+                  [
+                    47,
+                    77
+                  ]
+                ]
+              ]
+            },
+            "mediaType": "application/vnd.smartintake.stroke+json",
+            "sha256": "0568060fb95d9db83d061f6b7805d0511b8afd343758b7c258e761d2fbec2b9f"
+          }
+        },
+        "nhc-f26": {
+          "status": "answered",
+          "value": "stocked"
+        },
+        "nhc-f27": {
+          "status": "answered",
+          "value": "mechanic-entry"
+        },
+        "nhc-f28": {
+          "status": "unanswered"
+        },
+        "nhc-f29": {
+          "status": "answered",
+          "value": "Sam Patel"
+        },
+        "nhc-f30": {
+          "status": "answered",
+          "value": "16:00:00"
+        },
+        "nhc-f31": {
+          "status": "answered",
+          "value": true
+        },
+        "nhc-f32": {
+          "status": "answered",
+          "value": "PO-7781"
+        }
+      },
+      "calculatedValues": {
+        "nhc-f18": "370.50"
+      },
+      "expectedOutputs": {
+        "nhc-f18": {
+          "origin": "server-calculation",
+          "status": "answered",
+          "value": "370.50"
+        }
+      },
+      "expectedPackageFacts": {
+        "domain": "fleet-maintenance-workflow",
+        "fieldCount": 42,
+        "pageCount": 5,
+        "recursiveRepeaterDepth": 3
+      },
+      "forgedCalculatedInputRejection": {
+        "attemptedInputAnswer": {
+          "status": "answered",
+          "value": "999"
+        },
+        "expectedCode": "CALCULATED_FIELD_READ_ONLY",
+        "fieldId": "nhc-f18",
+        "persistenceWrites": 0
+      },
+      "formKey": "fleet-maintenance-audit",
+      "integerWireFormat": "canonical-decimal-string",
+      "package": "package-nhc.json"
+    }
+  ]
+}

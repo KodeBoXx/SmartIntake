@@ -1,0 +1,1278 @@
+{
+  "corpusVersion": "2.4.21-m0",
+  "executionStatus": "not-run",
+  "frozenInputProtocol": {
+    "attemptTimeoutSeconds": 10,
+    "controlledReceiver": {
+      "credentialHandle": "WEBHOOK_SECRET_HANDLE_NOT_MATERIALIZED",
+      "egressAllowlistRequired": true,
+      "hostAlias": "controlled-receiver.invalid",
+      "port": 443,
+      "scheme": "https",
+      "secretValueMaterialized": false
+    },
+    "deliveryCases": [
+      {
+        "eventIds": [
+          "evt-0001"
+        ],
+        "expected": {
+          "attemptCount": 1,
+          "deduplication": "first-seen",
+          "deliveryState": "delivered",
+          "eventFormIds": {
+            "evt-0001": "clinical-history-intake"
+          },
+          "receiverSignature": "accepted"
+        },
+        "faultHandle": "receiver-204",
+        "id": "valid-signature",
+        "signingVector": {
+          "algorithm": "HMAC-SHA256",
+          "headers": {
+            "SmartForms-Event-Id": "from eventId",
+            "SmartForms-Key-Id": "key-old",
+            "SmartForms-Signature": "t=<unixSeconds>,v1=<lowercase-hex>"
+          },
+          "inputUtf8": "unixSeconds + \".\" + eventId + \".\" + exact raw body UTF-8",
+          "rawBodySha256ByEvent": {
+            "evt-0001": "80d817fd7850e76dd939f81d3cf276f9aa370c3a503d95b49671b1baf7a70b70"
+          },
+          "rawBodySource": "eventEnvelopes[eventId].rawBodyUtf8Hex; regenerated after form/deletion identity fields",
+          "secretHandle": "WEBHOOK_SECRET_HANDLE_NOT_MATERIALIZED",
+          "verification": "constant-time; test asserts relation only and never embeds a secret"
+        }
+      },
+      {
+        "eventIds": [
+          "evt-0001"
+        ],
+        "expected": {
+          "eventFormIds": {
+            "evt-0001": "clinical-history-intake"
+          },
+          "platformDeliveryState": "not-acknowledged",
+          "receiverHttpStatus": 401,
+          "receiverSignature": "rejected",
+          "storedBodyHashUnchanged": true
+        },
+        "faultHandle": "receiver-verify",
+        "id": "tampered-body",
+        "signingVector": {
+          "algorithm": "HMAC-SHA256",
+          "headers": {
+            "SmartForms-Event-Id": "from eventId",
+            "SmartForms-Key-Id": "key-old",
+            "SmartForms-Signature": "t=<unixSeconds>,v1=<lowercase-hex>"
+          },
+          "inputUtf8": "unixSeconds + \".\" + eventId + \".\" + exact raw body UTF-8",
+          "rawBodySha256ByEvent": {
+            "evt-0001": "80d817fd7850e76dd939f81d3cf276f9aa370c3a503d95b49671b1baf7a70b70"
+          },
+          "rawBodySource": "eventEnvelopes[eventId].rawBodyUtf8Hex; regenerated after form/deletion identity fields",
+          "secretHandle": "WEBHOOK_SECRET_HANDLE_NOT_MATERIALIZED",
+          "verification": "constant-time; test asserts relation only and never embeds a secret"
+        }
+      },
+      {
+        "eventIds": [
+          "evt-0001"
+        ],
+        "expected": {
+          "eventFormIds": {
+            "evt-0001": "clinical-history-intake"
+          },
+          "receiverHttpStatus": 401,
+          "receiverSignature": "rejected",
+          "rejectionReason": "TIMESTAMP_OUTSIDE_300_SECONDS"
+        },
+        "faultHandle": "receiver-verify",
+        "id": "old-timestamp",
+        "signingVector": {
+          "algorithm": "HMAC-SHA256",
+          "headers": {
+            "SmartForms-Event-Id": "from eventId",
+            "SmartForms-Key-Id": "key-old",
+            "SmartForms-Signature": "t=<unixSeconds>,v1=<lowercase-hex>"
+          },
+          "inputUtf8": "unixSeconds + \".\" + eventId + \".\" + exact raw body UTF-8",
+          "rawBodySha256ByEvent": {
+            "evt-0001": "80d817fd7850e76dd939f81d3cf276f9aa370c3a503d95b49671b1baf7a70b70"
+          },
+          "rawBodySource": "eventEnvelopes[eventId].rawBodyUtf8Hex; regenerated after form/deletion identity fields",
+          "secretHandle": "WEBHOOK_SECRET_HANDLE_NOT_MATERIALIZED",
+          "verification": "constant-time; test asserts relation only and never embeds a secret"
+        }
+      },
+      {
+        "eventIds": [
+          "evt-0001"
+        ],
+        "expected": {
+          "deliveryState": "delivered",
+          "eventFormIds": {
+            "evt-0001": "clinical-history-intake"
+          },
+          "receiverDeduplication": "same eventId processed once; second acknowledged without reprocessing"
+        },
+        "faultHandle": "receiver-204",
+        "id": "duplicate",
+        "signingVector": {
+          "algorithm": "HMAC-SHA256",
+          "headers": {
+            "SmartForms-Event-Id": "from eventId",
+            "SmartForms-Key-Id": "key-old",
+            "SmartForms-Signature": "t=<unixSeconds>,v1=<lowercase-hex>"
+          },
+          "inputUtf8": "unixSeconds + \".\" + eventId + \".\" + exact raw body UTF-8",
+          "rawBodySha256ByEvent": {
+            "evt-0001": "80d817fd7850e76dd939f81d3cf276f9aa370c3a503d95b49671b1baf7a70b70"
+          },
+          "rawBodySource": "eventEnvelopes[eventId].rawBodyUtf8Hex; regenerated after form/deletion identity fields",
+          "secretHandle": "WEBHOOK_SECRET_HANDLE_NOT_MATERIALIZED",
+          "verification": "constant-time; test asserts relation only and never embeds a secret"
+        }
+      },
+      {
+        "eventIds": [
+          "evt-0002",
+          "evt-0001"
+        ],
+        "expected": {
+          "eventFormIds": {
+            "evt-0001": "clinical-history-intake",
+            "evt-0002": "clinical-history-intake"
+          },
+          "receiverObservedSequences": [
+            102,
+            101
+          ],
+          "receiverPolicy": "deduplicate by eventId; do not rewrite sequence"
+        },
+        "faultHandle": "receiver-204",
+        "id": "out-of-order",
+        "signingVector": {
+          "algorithm": "HMAC-SHA256",
+          "headers": {
+            "SmartForms-Event-Id": "from eventId",
+            "SmartForms-Key-Id": "key-old",
+            "SmartForms-Signature": "t=<unixSeconds>,v1=<lowercase-hex>"
+          },
+          "inputUtf8": "unixSeconds + \".\" + eventId + \".\" + exact raw body UTF-8",
+          "rawBodySha256ByEvent": {
+            "evt-0001": "80d817fd7850e76dd939f81d3cf276f9aa370c3a503d95b49671b1baf7a70b70",
+            "evt-0002": "5a6deeeb31fb143878f9c0959e56d0f04d0cd5ad947f570d63850d4789b676d9"
+          },
+          "rawBodySource": "eventEnvelopes[eventId].rawBodyUtf8Hex; regenerated after form/deletion identity fields",
+          "secretHandle": "WEBHOOK_SECRET_HANDLE_NOT_MATERIALIZED",
+          "verification": "constant-time; test asserts relation only and never embeds a secret"
+        }
+      },
+      {
+        "eventIds": [
+          "evt-0001"
+        ],
+        "expected": {
+          "deliveryState": "retry-scheduled",
+          "eventFormIds": {
+            "evt-0001": "clinical-history-intake"
+          },
+          "nextAttemptNumber": 2
+        },
+        "faultHandle": "network-drop",
+        "id": "network-failure",
+        "signingVector": {
+          "algorithm": "HMAC-SHA256",
+          "headers": {
+            "SmartForms-Event-Id": "from eventId",
+            "SmartForms-Key-Id": "key-old",
+            "SmartForms-Signature": "t=<unixSeconds>,v1=<lowercase-hex>"
+          },
+          "inputUtf8": "unixSeconds + \".\" + eventId + \".\" + exact raw body UTF-8",
+          "rawBodySha256ByEvent": {
+            "evt-0001": "80d817fd7850e76dd939f81d3cf276f9aa370c3a503d95b49671b1baf7a70b70"
+          },
+          "rawBodySource": "eventEnvelopes[eventId].rawBodyUtf8Hex; regenerated after form/deletion identity fields",
+          "secretHandle": "WEBHOOK_SECRET_HANDLE_NOT_MATERIALIZED",
+          "verification": "constant-time; test asserts relation only and never embeds a secret"
+        }
+      },
+      {
+        "eventIds": [
+          "evt-0001"
+        ],
+        "expected": {
+          "deliveryState": "retry-scheduled",
+          "eventFormIds": {
+            "evt-0001": "clinical-history-intake"
+          },
+          "nextAttemptNumber": 2
+        },
+        "faultHandle": "status-408",
+        "id": "timeout-408",
+        "signingVector": {
+          "algorithm": "HMAC-SHA256",
+          "headers": {
+            "SmartForms-Event-Id": "from eventId",
+            "SmartForms-Key-Id": "key-old",
+            "SmartForms-Signature": "t=<unixSeconds>,v1=<lowercase-hex>"
+          },
+          "inputUtf8": "unixSeconds + \".\" + eventId + \".\" + exact raw body UTF-8",
+          "rawBodySha256ByEvent": {
+            "evt-0001": "80d817fd7850e76dd939f81d3cf276f9aa370c3a503d95b49671b1baf7a70b70"
+          },
+          "rawBodySource": "eventEnvelopes[eventId].rawBodyUtf8Hex; regenerated after form/deletion identity fields",
+          "secretHandle": "WEBHOOK_SECRET_HANDLE_NOT_MATERIALIZED",
+          "verification": "constant-time; test asserts relation only and never embeds a secret"
+        }
+      },
+      {
+        "eventIds": [
+          "evt-0001"
+        ],
+        "expected": {
+          "deliveryState": "retry-scheduled",
+          "eventFormIds": {
+            "evt-0001": "clinical-history-intake"
+          },
+          "nextAttemptAtUnix": 1735689720,
+          "retryAfterSecondsApplied": 120
+        },
+        "faultHandle": "status-429",
+        "id": "retry-429",
+        "signingVector": {
+          "algorithm": "HMAC-SHA256",
+          "headers": {
+            "SmartForms-Event-Id": "from eventId",
+            "SmartForms-Key-Id": "key-old",
+            "SmartForms-Signature": "t=<unixSeconds>,v1=<lowercase-hex>"
+          },
+          "inputUtf8": "unixSeconds + \".\" + eventId + \".\" + exact raw body UTF-8",
+          "rawBodySha256ByEvent": {
+            "evt-0001": "80d817fd7850e76dd939f81d3cf276f9aa370c3a503d95b49671b1baf7a70b70"
+          },
+          "rawBodySource": "eventEnvelopes[eventId].rawBodyUtf8Hex; regenerated after form/deletion identity fields",
+          "secretHandle": "WEBHOOK_SECRET_HANDLE_NOT_MATERIALIZED",
+          "verification": "constant-time; test asserts relation only and never embeds a secret"
+        }
+      },
+      {
+        "eventIds": [
+          "evt-0001"
+        ],
+        "expected": {
+          "deliveryState": "retry-scheduled",
+          "eventFormIds": {
+            "evt-0001": "clinical-history-intake"
+          },
+          "nextAttemptNumber": 2
+        },
+        "faultHandle": "status-500",
+        "id": "retry-5xx",
+        "signingVector": {
+          "algorithm": "HMAC-SHA256",
+          "headers": {
+            "SmartForms-Event-Id": "from eventId",
+            "SmartForms-Key-Id": "key-old",
+            "SmartForms-Signature": "t=<unixSeconds>,v1=<lowercase-hex>"
+          },
+          "inputUtf8": "unixSeconds + \".\" + eventId + \".\" + exact raw body UTF-8",
+          "rawBodySha256ByEvent": {
+            "evt-0001": "80d817fd7850e76dd939f81d3cf276f9aa370c3a503d95b49671b1baf7a70b70"
+          },
+          "rawBodySource": "eventEnvelopes[eventId].rawBodyUtf8Hex; regenerated after form/deletion identity fields",
+          "secretHandle": "WEBHOOK_SECRET_HANDLE_NOT_MATERIALIZED",
+          "verification": "constant-time; test asserts relation only and never embeds a secret"
+        }
+      },
+      {
+        "eventIds": [
+          "evt-0001"
+        ],
+        "expected": {
+          "deliveryState": "paused-credential-or-configuration-action",
+          "eventFormIds": {
+            "evt-0001": "clinical-history-intake"
+          },
+          "retryScheduled": false
+        },
+        "faultHandle": "status-401",
+        "id": "pause-401",
+        "signingVector": {
+          "algorithm": "HMAC-SHA256",
+          "headers": {
+            "SmartForms-Event-Id": "from eventId",
+            "SmartForms-Key-Id": "key-old",
+            "SmartForms-Signature": "t=<unixSeconds>,v1=<lowercase-hex>"
+          },
+          "inputUtf8": "unixSeconds + \".\" + eventId + \".\" + exact raw body UTF-8",
+          "rawBodySha256ByEvent": {
+            "evt-0001": "80d817fd7850e76dd939f81d3cf276f9aa370c3a503d95b49671b1baf7a70b70"
+          },
+          "rawBodySource": "eventEnvelopes[eventId].rawBodyUtf8Hex; regenerated after form/deletion identity fields",
+          "secretHandle": "WEBHOOK_SECRET_HANDLE_NOT_MATERIALIZED",
+          "verification": "constant-time; test asserts relation only and never embeds a secret"
+        }
+      },
+      {
+        "eventIds": [
+          "evt-0001"
+        ],
+        "expected": {
+          "deliveryState": "paused-credential-or-configuration-action",
+          "eventFormIds": {
+            "evt-0001": "clinical-history-intake"
+          },
+          "retryScheduled": false
+        },
+        "faultHandle": "status-403",
+        "id": "pause-403",
+        "signingVector": {
+          "algorithm": "HMAC-SHA256",
+          "headers": {
+            "SmartForms-Event-Id": "from eventId",
+            "SmartForms-Key-Id": "key-old",
+            "SmartForms-Signature": "t=<unixSeconds>,v1=<lowercase-hex>"
+          },
+          "inputUtf8": "unixSeconds + \".\" + eventId + \".\" + exact raw body UTF-8",
+          "rawBodySha256ByEvent": {
+            "evt-0001": "80d817fd7850e76dd939f81d3cf276f9aa370c3a503d95b49671b1baf7a70b70"
+          },
+          "rawBodySource": "eventEnvelopes[eventId].rawBodyUtf8Hex; regenerated after form/deletion identity fields",
+          "secretHandle": "WEBHOOK_SECRET_HANDLE_NOT_MATERIALIZED",
+          "verification": "constant-time; test asserts relation only and never embeds a secret"
+        }
+      },
+      {
+        "eventIds": [
+          "evt-0001"
+        ],
+        "expected": {
+          "deliveryState": "failed-permanent",
+          "eventFormIds": {
+            "evt-0001": "clinical-history-intake"
+          },
+          "retryScheduled": false
+        },
+        "faultHandle": "status-422",
+        "id": "permanent-4xx",
+        "signingVector": {
+          "algorithm": "HMAC-SHA256",
+          "headers": {
+            "SmartForms-Event-Id": "from eventId",
+            "SmartForms-Key-Id": "key-old",
+            "SmartForms-Signature": "t=<unixSeconds>,v1=<lowercase-hex>"
+          },
+          "inputUtf8": "unixSeconds + \".\" + eventId + \".\" + exact raw body UTF-8",
+          "rawBodySha256ByEvent": {
+            "evt-0001": "80d817fd7850e76dd939f81d3cf276f9aa370c3a503d95b49671b1baf7a70b70"
+          },
+          "rawBodySource": "eventEnvelopes[eventId].rawBodyUtf8Hex; regenerated after form/deletion identity fields",
+          "secretHandle": "WEBHOOK_SECRET_HANDLE_NOT_MATERIALIZED",
+          "verification": "constant-time; test asserts relation only and never embeds a secret"
+        }
+      },
+      {
+        "eventIds": [
+          "evt-0001"
+        ],
+        "expected": {
+          "deliveryState": "endpoint-disabled",
+          "eventFormIds": {
+            "evt-0001": "clinical-history-intake"
+          },
+          "retryScheduled": false
+        },
+        "faultHandle": "status-410",
+        "id": "disable-410",
+        "signingVector": {
+          "algorithm": "HMAC-SHA256",
+          "headers": {
+            "SmartForms-Event-Id": "from eventId",
+            "SmartForms-Key-Id": "key-old",
+            "SmartForms-Signature": "t=<unixSeconds>,v1=<lowercase-hex>"
+          },
+          "inputUtf8": "unixSeconds + \".\" + eventId + \".\" + exact raw body UTF-8",
+          "rawBodySha256ByEvent": {
+            "evt-0001": "80d817fd7850e76dd939f81d3cf276f9aa370c3a503d95b49671b1baf7a70b70"
+          },
+          "rawBodySource": "eventEnvelopes[eventId].rawBodyUtf8Hex; regenerated after form/deletion identity fields",
+          "secretHandle": "WEBHOOK_SECRET_HANDLE_NOT_MATERIALIZED",
+          "verification": "constant-time; test asserts relation only and never embeds a secret"
+        }
+      },
+      {
+        "eventIds": [
+          "evt-0001"
+        ],
+        "expected": {
+          "attemptCount": 8,
+          "deliveryState": "failed-dead-letter",
+          "eventFormIds": {
+            "evt-0001": "clinical-history-intake"
+          },
+          "replayAvailable": true
+        },
+        "faultHandle": "status-500",
+        "id": "retry-exhaustion",
+        "signingVector": {
+          "algorithm": "HMAC-SHA256",
+          "headers": {
+            "SmartForms-Event-Id": "from eventId",
+            "SmartForms-Key-Id": "key-old",
+            "SmartForms-Signature": "t=<unixSeconds>,v1=<lowercase-hex>"
+          },
+          "inputUtf8": "unixSeconds + \".\" + eventId + \".\" + exact raw body UTF-8",
+          "rawBodySha256ByEvent": {
+            "evt-0001": "80d817fd7850e76dd939f81d3cf276f9aa370c3a503d95b49671b1baf7a70b70"
+          },
+          "rawBodySource": "eventEnvelopes[eventId].rawBodyUtf8Hex; regenerated after form/deletion identity fields",
+          "secretHandle": "WEBHOOK_SECRET_HANDLE_NOT_MATERIALIZED",
+          "verification": "constant-time; test asserts relation only and never embeds a secret"
+        }
+      },
+      {
+        "eventIds": [
+          "evt-0002"
+        ],
+        "expected": {
+          "acceptedKeyIds": [
+            "key-old",
+            "key-new"
+          ],
+          "eventFormIds": {
+            "evt-0002": "clinical-history-intake"
+          },
+          "transitionHours": 24
+        },
+        "faultHandle": "receiver-204",
+        "id": "rotation",
+        "signingVector": {
+          "algorithm": "HMAC-SHA256",
+          "headers": {
+            "SmartForms-Event-Id": "from eventId",
+            "SmartForms-Key-Id": "key-old",
+            "SmartForms-Signature": "t=<unixSeconds>,v1=<lowercase-hex>"
+          },
+          "inputUtf8": "unixSeconds + \".\" + eventId + \".\" + exact raw body UTF-8",
+          "rawBodySha256ByEvent": {
+            "evt-0002": "5a6deeeb31fb143878f9c0959e56d0f04d0cd5ad947f570d63850d4789b676d9"
+          },
+          "rawBodySource": "eventEnvelopes[eventId].rawBodyUtf8Hex; regenerated after form/deletion identity fields",
+          "secretHandle": "WEBHOOK_SECRET_HANDLE_NOT_MATERIALIZED",
+          "verification": "constant-time; test asserts relation only and never embeds a secret"
+        }
+      },
+      {
+        "eventIds": [
+          "evt-0001"
+        ],
+        "expected": {
+          "deliveryState": "delivered",
+          "eventFormIds": {
+            "evt-0001": "clinical-history-intake"
+          },
+          "eventIdPreserved": true,
+          "newDeliveryAttemptRecorded": true
+        },
+        "faultHandle": "receiver-204",
+        "id": "replay",
+        "signingVector": {
+          "algorithm": "HMAC-SHA256",
+          "headers": {
+            "SmartForms-Event-Id": "from eventId",
+            "SmartForms-Key-Id": "key-old",
+            "SmartForms-Signature": "t=<unixSeconds>,v1=<lowercase-hex>"
+          },
+          "inputUtf8": "unixSeconds + \".\" + eventId + \".\" + exact raw body UTF-8",
+          "rawBodySha256ByEvent": {
+            "evt-0001": "80d817fd7850e76dd939f81d3cf276f9aa370c3a503d95b49671b1baf7a70b70"
+          },
+          "rawBodySource": "eventEnvelopes[eventId].rawBodyUtf8Hex; regenerated after form/deletion identity fields",
+          "secretHandle": "WEBHOOK_SECRET_HANDLE_NOT_MATERIALIZED",
+          "verification": "constant-time; test asserts relation only and never embeds a secret"
+        }
+      },
+      {
+        "eventIds": [
+          "evt-0001",
+          "evt-0002"
+        ],
+        "expected": {
+          "eventFormIds": {
+            "evt-0001": "clinical-history-intake",
+            "evt-0002": "clinical-history-intake"
+          },
+          "fullModeRequires": [
+            "workspace-export-role",
+            "organization-policy-approval"
+          ],
+          "referenceBodyContains": [
+            "submissionId"
+          ],
+          "referenceBodyForbids": [
+            "answers"
+          ]
+        },
+        "faultHandle": "receiver-204",
+        "id": "reference-full",
+        "signingVector": {
+          "algorithm": "HMAC-SHA256",
+          "headers": {
+            "SmartForms-Event-Id": "from eventId",
+            "SmartForms-Key-Id": "key-old",
+            "SmartForms-Signature": "t=<unixSeconds>,v1=<lowercase-hex>"
+          },
+          "inputUtf8": "unixSeconds + \".\" + eventId + \".\" + exact raw body UTF-8",
+          "rawBodySha256ByEvent": {
+            "evt-0001": "80d817fd7850e76dd939f81d3cf276f9aa370c3a503d95b49671b1baf7a70b70",
+            "evt-0002": "5a6deeeb31fb143878f9c0959e56d0f04d0cd5ad947f570d63850d4789b676d9"
+          },
+          "rawBodySource": "eventEnvelopes[eventId].rawBodyUtf8Hex; regenerated after form/deletion identity fields",
+          "secretHandle": "WEBHOOK_SECRET_HANDLE_NOT_MATERIALIZED",
+          "verification": "constant-time; test asserts relation only and never embeds a secret"
+        }
+      },
+      {
+        "eventIds": [
+          "evt-0003"
+        ],
+        "expected": {
+          "accessRevokedAt": "2025-01-01T00:02:00Z",
+          "deletionEnvelope": {
+            "accessRevokedAt": "2025-01-01T00:02:00Z",
+            "deletionId": "del-0001",
+            "formId": "clinical-history-intake"
+          },
+          "deletionId": "del-0001",
+          "eventFormIds": {
+            "evt-0003": "clinical-history-intake"
+          },
+          "formId": "clinical-history-intake",
+          "newDeletionEventId": "evt-0003",
+          "queuedFullPayloadsSuppressed": true,
+          "replayOfDeletedDataSuppressed": true,
+          "sequence": 103
+        },
+        "faultHandle": "receiver-204",
+        "id": "deletion",
+        "signingVector": {
+          "algorithm": "HMAC-SHA256",
+          "headers": {
+            "SmartForms-Event-Id": "from eventId",
+            "SmartForms-Key-Id": "key-old",
+            "SmartForms-Signature": "t=<unixSeconds>,v1=<lowercase-hex>"
+          },
+          "inputUtf8": "unixSeconds + \".\" + eventId + \".\" + exact raw body UTF-8",
+          "rawBodySha256ByEvent": {
+            "evt-0003": "eca6d6395eeafb460b97836f98da0d088d382af2202716e50df7680336ee6ed6"
+          },
+          "rawBodySource": "eventEnvelopes[eventId].rawBodyUtf8Hex; regenerated after form/deletion identity fields",
+          "secretHandle": "WEBHOOK_SECRET_HANDLE_NOT_MATERIALIZED",
+          "verification": "constant-time; test asserts relation only and never embeds a secret"
+        }
+      }
+    ],
+    "deterministicCases": [
+      {
+        "eventId": "evt-0001",
+        "id": "valid-signature",
+        "signature": "HMAC-SHA256(secretHandle, signingInput)",
+        "timestamp": 1735689600
+      },
+      {
+        "bodyMutation": "append ASCII ! after signing",
+        "eventId": "evt-0001",
+        "id": "tampered-body"
+      },
+      {
+        "eventId": "evt-0001",
+        "id": "old-timestamp",
+        "receiverNow": 1735689600,
+        "timestamp": 1735689299
+      },
+      {
+        "deliveries": 2,
+        "eventId": "evt-0001",
+        "id": "duplicate"
+      },
+      {
+        "eventIds": [
+          "evt-0002",
+          "evt-0001"
+        ],
+        "id": "out-of-order"
+      },
+      {
+        "eventId": "evt-0001",
+        "faultHandle": "status-429",
+        "id": "retry-429"
+      },
+      {
+        "attempts": 8,
+        "eventId": "evt-0001",
+        "faultHandle": "status-500",
+        "id": "retry-exhaustion"
+      },
+      {
+        "eventId": "evt-0001",
+        "faultHandle": "status-401",
+        "id": "pause-401"
+      },
+      {
+        "eventId": "evt-0001",
+        "faultHandle": "status-410",
+        "id": "disable-410"
+      },
+      {
+        "eventId": "evt-0002",
+        "id": "rotation",
+        "keyIds": [
+          "key-old",
+          "key-new"
+        ],
+        "transitionHours": 24
+      },
+      {
+        "eventId": "evt-0001",
+        "id": "replay",
+        "timestamp": 1735689660
+      },
+      {
+        "eventIds": [
+          "evt-0001",
+          "evt-0002"
+        ],
+        "id": "reference-full"
+      },
+      {
+        "eventId": "evt-0003",
+        "id": "deletion"
+      }
+    ],
+    "eventEnvelopes": [
+      {
+        "envelope": {
+          "eventId": "evt-0001",
+          "eventType": "submission.created",
+          "formId": "clinical-history-intake",
+          "payload": {
+            "submissionId": "sub-0001"
+          },
+          "payloadMode": "reference",
+          "resources": [
+            {
+              "releaseId": "release-clinical-history-intake-v1",
+              "resourceId": "sub-0001",
+              "resourceType": "submission"
+            }
+          ],
+          "schemaVersion": "4.0.0",
+          "sequence": 101,
+          "tenantId": "eval-tenant-a",
+          "timestamp": "2025-01-01T00:00:00Z",
+          "workspaceId": "eval-workspace-a"
+        },
+        "eventId": "evt-0001",
+        "rawBodySha256": "80d817fd7850e76dd939f81d3cf276f9aa370c3a503d95b49671b1baf7a70b70",
+        "rawBodyUtf8Hex": "7b226576656e744964223a226576742d30303031222c226576656e7454797065223a227375626d697373696f6e2e63726561746564222c22666f726d4964223a22636c696e6963616c2d686973746f72792d696e74616b65222c227061796c6f6164223a7b227375626d697373696f6e4964223a227375622d30303031227d2c227061796c6f61644d6f6465223a227265666572656e6365222c227265736f7572636573223a5b7b2272656c656173654964223a2272656c656173652d636c696e6963616c2d686973746f72792d696e74616b652d7631222c227265736f757263654964223a227375622d30303031222c227265736f7572636554797065223a227375626d697373696f6e227d5d2c22736368656d6156657273696f6e223a22342e302e30222c2273657175656e6365223a3130312c2274656e616e744964223a226576616c2d74656e616e742d61222c2274696d657374616d70223a22323032352d30312d30315430303a30303a30305a222c22776f726b73706163654964223a226576616c2d776f726b73706163652d61227d"
+      },
+      {
+        "envelope": {
+          "eventId": "evt-0002",
+          "eventType": "submission.created",
+          "formId": "clinical-history-intake",
+          "payload": {
+            "answers": {
+              "hc-f01": {
+                "status": "answered",
+                "value": "Avery Morgan"
+              }
+            },
+            "revision": 1,
+            "sessionId": "session-clinical-history-intake-0001",
+            "submissionId": "sub-0002"
+          },
+          "payloadMode": "full",
+          "resources": [
+            {
+              "releaseId": "release-clinical-history-intake-v1",
+              "resourceId": "sub-0002",
+              "resourceType": "submission"
+            }
+          ],
+          "schemaVersion": "4.0.0",
+          "sequence": 102,
+          "tenantId": "eval-tenant-a",
+          "timestamp": "2025-01-01T00:01:00Z",
+          "workspaceId": "eval-workspace-a"
+        },
+        "eventId": "evt-0002",
+        "rawBodySha256": "5a6deeeb31fb143878f9c0959e56d0f04d0cd5ad947f570d63850d4789b676d9",
+        "rawBodyUtf8Hex": "7b226576656e744964223a226576742d30303032222c226576656e7454797065223a227375626d697373696f6e2e63726561746564222c22666f726d4964223a22636c696e6963616c2d686973746f72792d696e74616b65222c227061796c6f6164223a7b22616e7377657273223a7b2268632d663031223a7b22737461747573223a22616e737765726564222c2276616c7565223a224176657279204d6f7267616e227d7d2c227375626d697373696f6e4964223a227375622d30303032222c2273657373696f6e4964223a2273657373696f6e2d636c696e6963616c2d686973746f72792d696e74616b652d30303031222c227265766973696f6e223a317d2c227061796c6f61644d6f6465223a2266756c6c222c227265736f7572636573223a5b7b2272656c656173654964223a2272656c656173652d636c696e6963616c2d686973746f72792d696e74616b652d7631222c227265736f757263654964223a227375622d30303032222c227265736f7572636554797065223a227375626d697373696f6e227d5d2c22736368656d6156657273696f6e223a22342e302e30222c2273657175656e6365223a3130322c2274656e616e744964223a226576616c2d74656e616e742d61222c2274696d657374616d70223a22323032352d30312d30315430303a30313a30305a222c22776f726b73706163654964223a226576616c2d776f726b73706163652d61227d"
+      },
+      {
+        "envelope": {
+          "accessRevokedAt": "2025-01-01T00:02:00Z",
+          "deletionId": "del-0001",
+          "eventId": "evt-0003",
+          "eventType": "submission.deleted",
+          "formId": "clinical-history-intake",
+          "payload": {
+            "submissionId": "sub-0002",
+            "tombstone": true
+          },
+          "payloadMode": "reference",
+          "resources": [
+            {
+              "releaseId": "release-clinical-history-intake-v1",
+              "resourceId": "sub-0002",
+              "resourceType": "submission"
+            }
+          ],
+          "schemaVersion": "4.0.0",
+          "sequence": 103,
+          "tenantId": "eval-tenant-a",
+          "timestamp": "2025-01-01T00:02:00Z",
+          "workspaceId": "eval-workspace-a"
+        },
+        "eventId": "evt-0003",
+        "rawBodySha256": "eca6d6395eeafb460b97836f98da0d088d382af2202716e50df7680336ee6ed6",
+        "rawBodyUtf8Hex": "7b226163636573735265766f6b65644174223a22323032352d30312d30315430303a30323a30305a222c2264656c6574696f6e4964223a2264656c2d30303031222c226576656e744964223a226576742d30303033222c226576656e7454797065223a227375626d697373696f6e2e64656c65746564222c22666f726d4964223a22636c696e6963616c2d686973746f72792d696e74616b65222c227061796c6f6164223a7b227375626d697373696f6e4964223a227375622d30303032222c22746f6d6273746f6e65223a747275657d2c227061796c6f61644d6f6465223a227265666572656e6365222c227265736f7572636573223a5b7b2272656c656173654964223a2272656c656173652d636c696e6963616c2d686973746f72792d696e74616b652d7631222c227265736f757263654964223a227375622d30303032222c227265736f7572636554797065223a227375626d697373696f6e227d5d2c22736368656d6156657273696f6e223a22342e302e30222c2273657175656e6365223a3130332c2274656e616e744964223a226576616c2d74656e616e742d61222c2274696d657374616d70223a22323032352d30312d30315430303a30323a30305a222c22776f726b73706163654964223a226576616c2d776f726b73706163652d61227d"
+      }
+    ],
+    "events": [
+      {
+        "bodyUtf8": "{\"eventId\":\"evt-0001\",\"eventType\":\"submission.created\",\"formId\":\"clinical-history-intake\",\"payload\":{\"submissionId\":\"sub-0001\"},\"payloadMode\":\"reference\",\"resources\":[{\"releaseId\":\"release-clinical-history-intake-v1\",\"resourceId\":\"sub-0001\",\"resourceType\":\"submission\"}],\"schemaVersion\":\"4.0.0\",\"sequence\":101,\"tenantId\":\"eval-tenant-a\",\"timestamp\":\"2025-01-01T00:00:00Z\",\"workspaceId\":\"eval-workspace-a\"}",
+        "eventId": "evt-0001",
+        "formId": "clinical-history-intake",
+        "payloadMode": "reference",
+        "sequence": 101
+      },
+      {
+        "bodyUtf8": "{\"eventId\":\"evt-0002\",\"eventType\":\"submission.created\",\"formId\":\"clinical-history-intake\",\"payload\":{\"answers\":{\"hc-f01\":{\"status\":\"answered\",\"value\":\"Avery Morgan\"}},\"submissionId\":\"sub-0002\",\"sessionId\":\"session-clinical-history-intake-0001\",\"revision\":1},\"payloadMode\":\"full\",\"resources\":[{\"releaseId\":\"release-clinical-history-intake-v1\",\"resourceId\":\"sub-0002\",\"resourceType\":\"submission\"}],\"schemaVersion\":\"4.0.0\",\"sequence\":102,\"tenantId\":\"eval-tenant-a\",\"timestamp\":\"2025-01-01T00:01:00Z\",\"workspaceId\":\"eval-workspace-a\"}",
+        "eventId": "evt-0002",
+        "formId": "clinical-history-intake",
+        "payloadMode": "full",
+        "sequence": 102
+      },
+      {
+        "bodyUtf8": "{\"accessRevokedAt\":\"2025-01-01T00:02:00Z\",\"deletionId\":\"del-0001\",\"eventId\":\"evt-0003\",\"eventType\":\"submission.deleted\",\"formId\":\"clinical-history-intake\",\"payload\":{\"submissionId\":\"sub-0002\",\"tombstone\":true},\"payloadMode\":\"reference\",\"resources\":[{\"releaseId\":\"release-clinical-history-intake-v1\",\"resourceId\":\"sub-0002\",\"resourceType\":\"submission\"}],\"schemaVersion\":\"4.0.0\",\"sequence\":103,\"tenantId\":\"eval-tenant-a\",\"timestamp\":\"2025-01-01T00:02:00Z\",\"workspaceId\":\"eval-workspace-a\"}",
+        "eventId": "evt-0003",
+        "formId": "clinical-history-intake",
+        "payloadMode": "reference",
+        "sequence": 103
+      }
+    ],
+    "executionStatus": "not-run",
+    "faultHandles": [
+      {
+        "id": "receiver-204",
+        "responseStatus": 204
+      },
+      {
+        "id": "receiver-verify",
+        "responseStatus": 401
+      },
+      {
+        "id": "network-drop",
+        "networkError": "ECONNRESET",
+        "responseStatus": null
+      },
+      {
+        "id": "status-408",
+        "responseStatus": 408
+      },
+      {
+        "id": "status-429",
+        "responseStatus": 429,
+        "retryAfterSeconds": 120
+      },
+      {
+        "id": "status-500",
+        "responseStatus": 500
+      },
+      {
+        "id": "status-401",
+        "responseStatus": 401
+      },
+      {
+        "id": "status-403",
+        "responseStatus": 403
+      },
+      {
+        "id": "status-422",
+        "responseStatus": 422
+      },
+      {
+        "id": "status-410",
+        "responseStatus": 410
+      }
+    ],
+    "frozenPackageReleaseSessionGraph": {
+      "contentBinding": "package/release/session values frozen with webhook payloads; HC identity uses RFC8785(N(package))",
+      "formKey": "clinical-history-intake",
+      "inputAnswerFieldIds": [
+        "hc-f01",
+        "hc-f02",
+        "hc-f03",
+        "hc-f04",
+        "hc-f05",
+        "hc-f06",
+        "hc-f07",
+        "hc-f08",
+        "hc-f09",
+        "hc-f10",
+        "hc-f11",
+        "hc-f12",
+        "hc-f13",
+        "hc-f14",
+        "hc-f15",
+        "hc-f16",
+        "hc-f17",
+        "hc-f19",
+        "hc-f20",
+        "hc-f21",
+        "hc-f22",
+        "hc-f23",
+        "hc-f24",
+        "hc-f25",
+        "hc-f26",
+        "hc-f27",
+        "hc-f28",
+        "hc-f29",
+        "hc-f30",
+        "hc-f31",
+        "hc-f32"
+      ],
+      "inputAnswers": {
+        "hc-f01": {
+          "status": "answered",
+          "value": "Avery Morgan"
+        },
+        "hc-f02": {
+          "status": "answered",
+          "value": "1987-03-14"
+        },
+        "hc-f03": {
+          "status": "answered",
+          "value": "09:15:00"
+        },
+        "hc-f04": {
+          "status": "answered",
+          "value": "2026-09-14T09:15:00Z"
+        },
+        "hc-f05": {
+          "status": "answered",
+          "value": {
+            "fields": {
+              "hc-f05-interpreterNeeded": {
+                "status": "unanswered"
+              },
+              "hc-f05-method": {
+                "status": "answered",
+                "value": "phone"
+              },
+              "hc-f05-value": {
+                "status": "answered",
+                "value": "+1-555-0107"
+              }
+            }
+          }
+        },
+        "hc-f06": {
+          "status": "answered",
+          "value": true
+        },
+        "hc-f07": {
+          "status": "answered",
+          "value": [
+            "respiratory",
+            "fatigue"
+          ]
+        },
+        "hc-f08": {
+          "status": "answered",
+          "value": "6"
+        },
+        "hc-f09": {
+          "status": "answered",
+          "value": "known-allergies"
+        },
+        "hc-f10": {
+          "status": "answered",
+          "value": {
+            "items": [
+              {
+                "fields": {
+                  "hc-f10-row-value": {
+                    "status": "answered",
+                    "value": "seed"
+                  }
+                },
+                "itemId": "hc-row-1"
+              }
+            ]
+          }
+        },
+        "hc-f11": {
+          "status": "answered",
+          "value": {
+            "items": [
+              {
+                "fields": {
+                  "hc-f11-item-l2": {
+                    "status": "answered",
+                    "value": {
+                      "items": [
+                        {
+                          "fields": {
+                            "hc-f11-item-l2-item-l3": {
+                              "status": "answered",
+                              "value": {
+                                "items": [
+                                  {
+                                    "fields": {
+                                      "hc-f11-item-l2-item-l3-item-note": {
+                                        "status": "answered",
+                                        "value": "seed"
+                                      }
+                                    },
+                                    "itemId": "hc-l3-1"
+                                  }
+                                ]
+                              }
+                            }
+                          },
+                          "itemId": "hc-l2-1"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "itemId": "hc-l1-1"
+              }
+            ]
+          }
+        },
+        "hc-f12": {
+          "status": "answered",
+          "value": {
+            "items": [
+              {
+                "fields": {
+                  "hc-f12-row-value": {
+                    "status": "answered",
+                    "value": "seed"
+                  }
+                },
+                "itemId": "hc-row-1"
+              }
+            ]
+          }
+        },
+        "hc-f13": {
+          "status": "answered",
+          "value": false
+        },
+        "hc-f14": {
+          "status": "unanswered"
+        },
+        "hc-f15": {
+          "status": "answered",
+          "value": [
+            "breathing",
+            "pain",
+            "sleep"
+          ]
+        },
+        "hc-f16": {
+          "status": "answered",
+          "value": "1.70"
+        },
+        "hc-f17": {
+          "status": "answered",
+          "value": "70.00"
+        },
+        "hc-f19": {
+          "status": "answered",
+          "value": {
+            "fields": {
+              "hc-f19-diastolic": {
+                "status": "answered",
+                "value": "82"
+              },
+              "hc-f19-position": {
+                "status": "answered",
+                "value": "seated"
+              },
+              "hc-f19-systolic": {
+                "status": "answered",
+                "value": "128"
+              }
+            }
+          }
+        },
+        "hc-f20": {
+          "status": "answered",
+          "value": "3"
+        },
+        "hc-f21": {
+          "status": "answered",
+          "value": "37.10"
+        },
+        "hc-f22": {
+          "status": "answered",
+          "value": "routine-follow-up"
+        },
+        "hc-f23": {
+          "status": "answered",
+          "value": "Symptoms improving with inhaler use."
+        },
+        "hc-f24": {
+          "status": "answered",
+          "value": "2026-10-12"
+        },
+        "hc-f25": {
+          "status": "answered",
+          "value": [
+            "attachment-hc-001"
+          ]
+        },
+        "hc-f26": {
+          "status": "answered",
+          "value": {
+            "assetId": "hc-body-map-drawing-01",
+            "generator": {
+              "algorithm": "polyline-json-v1",
+              "canvas": {
+                "height": "120",
+                "unit": "px",
+                "width": "240"
+              },
+              "strokes": [
+                [
+                  [
+                    31,
+                    24
+                  ],
+                  [
+                    42,
+                    38
+                  ],
+                  [
+                    49,
+                    61
+                  ]
+                ],
+                [
+                  [
+                    113,
+                    29
+                  ],
+                  [
+                    119,
+                    45
+                  ]
+                ]
+              ]
+            },
+            "mediaType": "application/vnd.smartintake.stroke+json",
+            "sha256": "b3d2b693fc7cf782aca9a805808057ebc66e8dec58d7e57e2ab779ba81380072"
+          }
+        },
+        "hc-f27": {
+          "status": "answered",
+          "value": "never"
+        },
+        "hc-f28": {
+          "status": "answered",
+          "value": "occasional"
+        },
+        "hc-f29": {
+          "status": "answered",
+          "value": "no-concern"
+        },
+        "hc-f30": {
+          "status": "unanswered"
+        },
+        "hc-f31": {
+          "status": "answered",
+          "value": "guided"
+        },
+        "hc-f32": {
+          "status": "unanswered"
+        }
+      },
+      "inputAnswersCanonicalSha256": "d7ed1435ce225c72c99c29c92b45d086c0ecb7edf2585714e417a56701d6f647",
+      "packageCanonicalSha256": "f5419bc7f359d5cba6fb3df7c770217b182e6dffff4cfd5fd941d73d617711c0",
+      "packageId": "pkg-f5419bc7f359d5cb",
+      "packageNormalization": "RFC8785(N(package))",
+      "packageSourceSha256": "bdec92d08367f2db92dca7cbb2a1ec6d308628be381cb992ed7ab3ff0db22294",
+      "releaseId": "release-clinical-history-intake-v1",
+      "releasePackageCanonicalSha256": "f5419bc7f359d5cba6fb3df7c770217b182e6dffff4cfd5fd941d73d617711c0",
+      "sessionId": "session-clinical-history-intake-0001",
+      "sessionRevision": 1
+    },
+    "jitterMilliseconds": [
+      3000,
+      -4000,
+      7000,
+      -9000,
+      12000,
+      -15000,
+      18000
+    ],
+    "protocolVersion": "t19-webhook-v2",
+    "receiverHandle": {
+      "hostAlias": "controlled-receiver.invalid",
+      "port": 443,
+      "scheme": "https",
+      "secretValueMaterialized": false,
+      "testModeAllowlistRequired": true
+    },
+    "retryAfterPolicy": {
+      "boundedMaximumSeconds": 3600,
+      "caseRetryAfterSeconds": 120,
+      "effectiveDelaySeconds": 120
+    },
+    "retryClasses": {
+      "maxAttempts": 8,
+      "pause": [
+        "status-401",
+        "status-403"
+      ],
+      "permanent": [
+        "status-422",
+        "status-410"
+      ],
+      "retryable": [
+        "network-drop",
+        "status-408",
+        "status-429",
+        "status-500"
+      ]
+    },
+    "retryOffsetsSeconds": [
+      60,
+      300,
+      1800,
+      7200,
+      21600,
+      43200,
+      86400
+    ],
+    "retrySchedule": [
+      {
+        "attemptNumber": 2,
+        "baseDelaySeconds": 60,
+        "effectiveDelayMilliseconds": 63000,
+        "jitterMilliseconds": 3000
+      },
+      {
+        "attemptNumber": 3,
+        "baseDelaySeconds": 300,
+        "effectiveDelayMilliseconds": 296000,
+        "jitterMilliseconds": -4000
+      },
+      {
+        "attemptNumber": 4,
+        "baseDelaySeconds": 1800,
+        "effectiveDelayMilliseconds": 1807000,
+        "jitterMilliseconds": 7000
+      },
+      {
+        "attemptNumber": 5,
+        "baseDelaySeconds": 7200,
+        "effectiveDelayMilliseconds": 7191000,
+        "jitterMilliseconds": -9000
+      },
+      {
+        "attemptNumber": 6,
+        "baseDelaySeconds": 21600,
+        "effectiveDelayMilliseconds": 21612000,
+        "jitterMilliseconds": 12000
+      },
+      {
+        "attemptNumber": 7,
+        "baseDelaySeconds": 43200,
+        "effectiveDelayMilliseconds": 43185000,
+        "jitterMilliseconds": -15000
+      },
+      {
+        "attemptNumber": 8,
+        "baseDelaySeconds": 86400,
+        "effectiveDelayMilliseconds": 86418000,
+        "jitterMilliseconds": 18000
+      }
+    ],
+    "secretRotation": {
+      "newKeyId": "key-new",
+      "oldKeyId": "key-old",
+      "secretValuesMaterialized": false,
+      "transitionHours": 24
+    },
+    "sourceBinding": {
+      "PRD": "600-602,610-616,817",
+      "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+    }
+  },
+  "records": [
+    {
+      "assertionType": "controlled-receiver-protocol",
+      "blockedReason": "controlled HTTPS receiver, isolated DNS/egress allowlist, and operator-owned webhook credential are later prerequisites; no receiver or secret is materialized.",
+      "evidenceLevel": "E2",
+      "expected": {
+        "noSecretInCorpus": true,
+        "receiverOutcomes": [
+          "2xx acknowledge",
+          "429 retry",
+          "500 retry",
+          "401 pause",
+          "410 disable"
+        ],
+        "requestHeaders": [
+          "SmartForms-Event-Id",
+          "SmartForms-Key-Id",
+          "SmartForms-Signature"
+        ],
+        "signatureInput": "timestamp + \".\" + eventId + \".\" + rawRequestBody UTF-8"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T19"
+      ],
+      "id": "EVAL-T19-WEBHOOK-01",
+      "milestoneGates": [
+        "M0",
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-T19",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "610-616",
+          "quote": "Reference mode contains event/resource IDs and no API-fetch entitlement. Full-envelope mode is available to staff with the workspace export role and organization policy approval; it lets the configured receiver get response data without an inbound service credential. Webhook signing secrets authenticate outbound deliveries only. Staff-session APIs remain for the application. Retention/deletion suppress queued full payloads and replay of deleted data.\n\nDelivery is at least once. Persist submission plus outbox record atomically; acknowledge the respondent independently of network delivery. Use HTTPS endpoints with DNS/IP egress checks, block private/link-local/loopback destinations by default, revalidate redirects and do not follow redirects automatically. Local test receivers require an explicit isolated test-mode allowlist.\n\nFor each attempt, send `SmartForms-Event-Id`, `SmartForms-Key-Id` and `SmartForms-Signature: t=<unixSeconds>,v1=<hex>`. Compute HMAC-SHA256 over UTF-8 `timestamp + \".\" + eventId + \".\" + rawRequestBody` with the subscription secret. Consumers compare in constant time, enforce a five-minute timestamp tolerance and deduplicate event IDs. Retry attempts use the same event/body but a fresh timestamp/signature while deliverable. Deletion terminally suppresses queued full events and their replay; it emits a new deletion event with a new ID/sequence instead of rewriting the old event body. In-flight external copies cannot be recalled. Secret rotation supports old/new key IDs for a 24-hour transition; only authorized administrators retrieve a new secret.\n\nAny 2xx acknowledges delivery. Retry network failures/408/429/5xx at offsets 1 minute, 5 minutes, 30 minutes, 2 hours, 6 hours, 12 hours and 24 hours after the initial attempt, with jitter and bounded Retry-After handling. 401/403 pauses for credential/configuration action; 410 disables the endpoint; other permanent 4xx enters failed state. Each request has a 10-second timeout. After exhaustion, show failed/dead-letter state and controlled replay. Delivery history is retained for 30 days by default, with payload data minimized under response retention policy.",
+          "rangeSha256": "174e477c6e98c8efebbcb75f6040930e230fc6e16e07ca10b3ec47fb8e2b0483",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        {
+          "file": "PRD",
+          "lines": "817",
+          "quote": "| T19 Webhooks | Signed HTTPS delivery, tampered body/old timestamp, duplicate and out-of-order events, 429/500/401/410, retry exhaustion/secret rotation/replay, reference/full payload delivery and deletion tombstone. | Real controlled receiver logs, signature checks and delivery records. |",
+          "rangeSha256": "75c4a1786876ebc30e4f7179e5826b5116119f0fbc300476e20c2a65152342b0",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Frozen evaluator protocol materialization; status is not-run and no product output was inspected.",
+      "requirements": [
+        "SF-API-04"
+      ],
+      "status": "not-run"
+    }
+  ]
+}

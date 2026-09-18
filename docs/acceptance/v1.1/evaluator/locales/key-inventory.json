@@ -1,0 +1,1687 @@
+{
+  "completePackParity": "messageValues for en, hi, and ar have identical source-derived key sets; the deterministic closure checker computes the count.",
+  "concreteGenerationRule": "Derive package question/page/option/guidance keys and author/review/focus/fixture locale contract keys with locales/check_locale_closure.py; do not retain a fixed key-count claim.",
+  "localePacks": {
+    "ar": {
+      "approvalClaim": false,
+      "messageValues": {
+        "accessibility.localeToggle": "العربية Language and direction updated; values and item identifiers are unchanged.",
+        "ack.review": "العربية I confirm this review.",
+        "confirmation": "العربية Submission recorded.",
+        "error.locale.missingMandatoryKey": "العربية A mandatory localized message is missing.",
+        "error.locale.staleMandatoryKey": "العربية A mandatory localized message is stale.",
+        "error.reviewStale": "العربية Review content has changed. Review and acknowledge it again.",
+        "form.description": "العربية Complete the required fields.",
+        "form.title": "العربية Synthetic intake",
+        "glossary.estimate": "العربية Estimate",
+        "guidance.approvedQa.answer": "العربية No. This form only collects information.",
+        "guidance.approvedQa.paraphrase": "العربية Will this charge me?",
+        "guidance.approvedQa.question": "العربية Does an estimate take a payment?",
+        "guidance.detailed": "العربية Review each answer before continuing.",
+        "guidance.equipment.narration": "العربية Equipment questions",
+        "guidance.hc-f01": "العربية Guidance for Patient preferred name",
+        "guidance.hc-f02": "العربية Guidance for Date of birth",
+        "guidance.hc-f03": "العربية Guidance for Encounter start time",
+        "guidance.hc-f04": "العربية Guidance for Encounter timestamp",
+        "guidance.hc-f05": "العربية Guidance for Contact preference",
+        "guidance.hc-f06": "العربية Guidance for Consent to clinical intake",
+        "guidance.hc-f07": "العربية Guidance for Current symptom groups",
+        "guidance.hc-f08": "العربية Guidance for Symptom intensity today",
+        "guidance.hc-f09": "العربية Guidance for Allergy status",
+        "guidance.hc-f10": "العربية Guidance for Recorded allergies",
+        "guidance.hc-f11": "العربية Guidance for Medication plan and administrations",
+        "guidance.hc-f12": "العربية Guidance for Family health history",
+        "guidance.hc-f13": "العربية Guidance for Pregnancy-related care applies",
+        "guidance.hc-f14": "العربية Guidance for Expected delivery date",
+        "guidance.hc-f15": "العربية Guidance for Care priorities",
+        "guidance.hc-f16": "العربية Guidance for Height in metres",
+        "guidance.hc-f17": "العربية Guidance for Weight in kilograms",
+        "guidance.hc-f18": "العربية Guidance for Body mass index",
+        "guidance.hc-f19": "العربية Guidance for Blood pressure reading",
+        "guidance.hc-f20": "العربية Guidance for Pain score",
+        "guidance.hc-f21": "العربية Guidance for Temperature in Celsius",
+        "guidance.hc-f22": "العربية Guidance for Clinical assessment",
+        "guidance.hc-f23": "العربية Guidance for Clinician narrative",
+        "guidance.hc-f24": "العربية Guidance for Follow-up date",
+        "guidance.hc-f25": "العربية Guidance for Referral letter",
+        "guidance.hc-f26": "العربية Guidance for Symptom body map",
+        "guidance.hc-f27": "العربية Guidance for Tobacco use",
+        "guidance.hc-f28": "العربية Guidance for Alcohol use pattern",
+        "guidance.hc-f29": "العربية Guidance for Mood and safety check",
+        "guidance.hc-f30": "العربية Guidance for Safety follow-up detail",
+        "guidance.hc-f31": "العربية Guidance for Health-history entry mode",
+        "guidance.hc-f32": "العربية Guidance for History instructions",
+        "guidance.nhc-f01": "العربية Guidance for Fleet unit number",
+        "guidance.nhc-f02": "العربية Guidance for Vehicle identification number",
+        "guidance.nhc-f03": "العربية Guidance for Maintenance inspection date",
+        "guidance.nhc-f04": "العربية Guidance for Inspection start time",
+        "guidance.nhc-f05": "العربية Guidance for Odometer reading (km)",
+        "guidance.nhc-f06": "العربية Guidance for Engine hours",
+        "guidance.nhc-f07": "العربية Guidance for Service bay",
+        "guidance.nhc-f08": "العربية Guidance for Vehicle removed from service",
+        "guidance.nhc-f09": "العربية Guidance for Maintenance categories",
+        "guidance.nhc-f10": "العربية Guidance for Repair work orders, parts and measurements",
+        "guidance.nhc-f11": "العربية Guidance for Previous maintenance events",
+        "guidance.nhc-f12": "العربية Guidance for Vehicle system inspection matrix",
+        "guidance.nhc-f13": "العربية Guidance for Roadworthiness score",
+        "guidance.nhc-f14": "العربية Guidance for Brake-release test passed",
+        "guidance.nhc-f15": "العربية Guidance for Repair priority order",
+        "guidance.nhc-f16": "العربية Guidance for Fuel level percentage",
+        "guidance.nhc-f17": "العربية Guidance for Front tire pressure (psi)",
+        "guidance.nhc-f18": "العربية Guidance for Estimated parts cost",
+        "guidance.nhc-f19": "العربية Guidance for Driver defect report",
+        "guidance.nhc-f20": "العربية Guidance for Distance since last service (km)",
+        "guidance.nhc-f21": "العربية Guidance for Primary diagnostic code",
+        "guidance.nhc-f22": "العربية Guidance for Scheduled repair date",
+        "guidance.nhc-f23": "العربية Guidance for Inspector work note",
+        "guidance.nhc-f24": "العربية Guidance for Inspection photograph",
+        "guidance.nhc-f25": "العربية Guidance for Brake wear sketch",
+        "guidance.nhc-f26": "العربية Guidance for Parts availability",
+        "guidance.nhc-f27": "العربية Guidance for Repair authorization mode",
+        "guidance.nhc-f28": "العربية Guidance for Workshop safety instructions",
+        "guidance.nhc-f29": "العربية Guidance for Lead mechanic",
+        "guidance.nhc-f30": "العربية Guidance for Target release time",
+        "guidance.nhc-f31": "العربية Guidance for Technician lockout applied",
+        "guidance.nhc-f32": "العربية Guidance for External vendor reference",
+        "guidance.noApprovedAnswer": "العربية No approved answer is available.",
+        "guidance.rich.heading": "العربية Before you begin",
+        "guidance.rich.item.1": "العربية Provide the requested information.",
+        "guidance.rich.item.2": "العربية Review answers before submission.",
+        "guidance.safeEmailPlaceholder": "العربية name@example.test",
+        "guidance.short": "العربية Select the best answer.",
+        "msg.itemCount.few": "العربية {count} items",
+        "msg.itemCount.many": "العربية {count} items",
+        "msg.itemCount.one": "العربية {count} item",
+        "msg.itemCount.other": "العربية {count} items",
+        "msg.itemCount.two": "العربية {count} items",
+        "msg.itemCount.zero": "العربية {count} items",
+        "narration.equipment": "العربية Equipment questions",
+        "opt.hc.hc-f07.digestive": "العربية digestive",
+        "opt.hc.hc-f07.fatigue": "العربية fatigue",
+        "opt.hc.hc-f07.pain": "العربية pain",
+        "opt.hc.hc-f07.respiratory": "العربية respiratory",
+        "opt.hc.hc-f09.known-allergies": "العربية known allergies",
+        "opt.hc.hc-f09.no-known-allergies": "العربية no known allergies",
+        "opt.hc.hc-f09.unknown": "العربية unknown",
+        "opt.hc.hc-f15.breathing": "العربية breathing",
+        "opt.hc.hc-f15.pain": "العربية pain",
+        "opt.hc.hc-f15.sleep": "العربية sleep",
+        "opt.hc.hc-f22.referral": "العربية referral",
+        "opt.hc.hc-f22.routine-follow-up": "العربية routine follow up",
+        "opt.hc.hc-f22.urgent-review": "العربية urgent review",
+        "opt.hc.hc-f27.current": "العربية current",
+        "opt.hc.hc-f27.former": "العربية former",
+        "opt.hc.hc-f27.never": "العربية never",
+        "opt.hc.hc-f28.frequent": "العربية frequent",
+        "opt.hc.hc-f28.none": "العربية none",
+        "opt.hc.hc-f28.occasional": "العربية occasional",
+        "opt.hc.hc-f29.follow-up-needed": "العربية follow up needed",
+        "opt.hc.hc-f29.no-concern": "العربية no concern",
+        "opt.hc.hc-f29.urgent-escalation": "العربية urgent escalation",
+        "opt.hc.hc-f31.guided": "العربية guided",
+        "opt.hc.hc-f31.summary": "العربية summary",
+        "opt.nhc.nhc-f07.bay-1": "العربية bay 1",
+        "opt.nhc.nhc-f07.bay-2": "العربية bay 2",
+        "opt.nhc.nhc-f07.bay-3": "العربية bay 3",
+        "opt.nhc.nhc-f09.brakes": "العربية brakes",
+        "opt.nhc.nhc-f09.engine": "العربية engine",
+        "opt.nhc.nhc-f09.lighting": "العربية lighting",
+        "opt.nhc.nhc-f09.tires": "العربية tires",
+        "opt.nhc.nhc-f15.brakes": "العربية brakes",
+        "opt.nhc.nhc-f15.lighting": "العربية lighting",
+        "opt.nhc.nhc-f15.tires": "العربية tires",
+        "opt.nhc.nhc-f21.brake-pad-wear": "العربية brake pad wear",
+        "opt.nhc.nhc-f21.lamp-failure": "العربية lamp failure",
+        "opt.nhc.nhc-f21.tire-wear": "العربية tire wear",
+        "opt.nhc.nhc-f26.backordered": "العربية backordered",
+        "opt.nhc.nhc-f26.stocked": "العربية stocked",
+        "opt.nhc.nhc-f26.vendor-order": "العربية vendor order",
+        "opt.nhc.nhc-f27.imported-work-order": "العربية imported work order",
+        "opt.nhc.nhc-f27.mechanic-entry": "العربية mechanic entry",
+        "page.author.about": "العربية About your request",
+        "page.author.equipment": "العربية Equipment",
+        "page.author.review-and-submit": "العربية Review",
+        "page.hc-p1": "العربية Page Intake",
+        "page.hc-p2": "العربية Page Intake",
+        "page.hc-p3": "العربية Page Intake",
+        "page.hc-p4": "العربية Page Intake",
+        "page.hc-p5": "العربية Page Review",
+        "page.intake": "العربية Intake",
+        "page.nhc-p1": "العربية Page Intake",
+        "page.nhc-p2": "العربية Page Intake",
+        "page.nhc-p3": "العربية Page Intake",
+        "page.nhc-p4": "العربية Page Intake",
+        "page.nhc-p5": "العربية Page Review",
+        "page.review": "العربية Review",
+        "q.author.checks": "العربية Checks",
+        "q.author.checks.checkDetails": "العربية Check details",
+        "q.author.checks.checkResult": "العربية Check result",
+        "q.author.email": "العربية Email",
+        "q.author.entryMode": "العربية Entry mode",
+        "q.author.equipment": "العربية Equipment",
+        "q.author.equipment.accessories": "العربية Accessories",
+        "q.author.equipment.accessories.accessoryName": "العربية Accessory name",
+        "q.author.equipment.accessories.tests": "العربية Tests",
+        "q.author.equipment.accessories.tests.testResult": "العربية Test result",
+        "q.author.equipment.equipmentName": "العربية Equipment name",
+        "q.author.equipment.quantity": "العربية Quantity",
+        "q.author.equipment.unitCost": "العربية Unit cost",
+        "q.author.extraAttendees": "العربية Extra attendees",
+        "q.author.needsSetup": "العربية Needs setup",
+        "q.author.note": "العربية Note",
+        "q.author.otherServiceDetails": "العربية Other service details",
+        "q.author.priority": "العربية Priority",
+        "q.author.priorityOrder": "العربية Priority order",
+        "q.author.referenceCode": "العربية Reference code",
+        "q.author.respondentName": "العربية Respondent name",
+        "q.author.reviewAcknowledged": "العربية Review acknowledged",
+        "q.author.services": "العربية Services",
+        "q.author.setupDetails": "العربية Setup details",
+        "q.author.shipping": "العربية Shipping",
+        "q.author.shipping.country": "العربية Country",
+        "q.author.shipping.postalCode": "العربية Postal code",
+        "q.author.supportingFiles": "العربية Supporting files",
+        "q.author.total": "العربية Total",
+        "q.author.visitDate": "العربية Visit date",
+        "q.hc-f10-row": "العربية row",
+        "q.hc-f10-row-value": "العربية value",
+        "q.hc-f11-item": "العربية item",
+        "q.hc-f11-item-l2": "العربية level2",
+        "q.hc-f11-item-l2-item": "العربية item",
+        "q.hc-f11-item-l2-item-l3": "العربية level3",
+        "q.hc-f11-item-l2-item-l3-item": "العربية item",
+        "q.hc-f11-item-l2-item-l3-item-note": "العربية note",
+        "q.hc-f12-row": "العربية row",
+        "q.hc-f12-row-value": "العربية value",
+        "q.hc.f01": "العربية Patient preferred name",
+        "q.hc.f02": "العربية Date of birth",
+        "q.hc.f03": "العربية Encounter start time",
+        "q.hc.f04": "العربية Encounter timestamp",
+        "q.hc.f05": "العربية Contact preference",
+        "q.hc.f06": "العربية Consent to clinical intake",
+        "q.hc.f07": "العربية Current symptom groups",
+        "q.hc.f08": "العربية Symptom intensity today",
+        "q.hc.f09": "العربية Allergy status",
+        "q.hc.f10": "العربية Recorded allergies",
+        "q.hc.f11": "العربية Medication plan and administrations",
+        "q.hc.f12": "العربية Family health history",
+        "q.hc.f13": "العربية Pregnancy-related care applies",
+        "q.hc.f14": "العربية Expected delivery date",
+        "q.hc.f15": "العربية Care priorities",
+        "q.hc.f16": "العربية Height in metres",
+        "q.hc.f17": "العربية Weight in kilograms",
+        "q.hc.f18": "العربية Body mass index",
+        "q.hc.f19": "العربية Blood pressure reading",
+        "q.hc.f20": "العربية Pain score",
+        "q.hc.f21": "العربية Temperature in Celsius",
+        "q.hc.f22": "العربية Clinical assessment",
+        "q.hc.f23": "العربية Clinician narrative",
+        "q.hc.f24": "العربية Follow-up date",
+        "q.hc.f25": "العربية Referral letter",
+        "q.hc.f26": "العربية Symptom body map",
+        "q.hc.f27": "العربية Tobacco use",
+        "q.hc.f28": "العربية Alcohol use pattern",
+        "q.hc.f29": "العربية Mood and safety check",
+        "q.hc.f30": "العربية Safety follow-up detail",
+        "q.hc.f31": "العربية Health-history entry mode",
+        "q.hc.f32": "العربية History instructions",
+        "q.name": "الاسم",
+        "q.nhc-f10-row": "العربية row",
+        "q.nhc-f10-row-value": "العربية value",
+        "q.nhc-f11-item": "العربية item",
+        "q.nhc-f11-item-l2": "العربية level2",
+        "q.nhc-f11-item-l2-item": "العربية item",
+        "q.nhc-f11-item-l2-item-l3": "العربية level3",
+        "q.nhc-f11-item-l2-item-l3-item": "العربية item",
+        "q.nhc-f11-item-l2-item-l3-item-note": "العربية note",
+        "q.nhc-f12-row": "العربية row",
+        "q.nhc-f12-row-value": "العربية value",
+        "q.nhc.f01": "العربية Fleet unit number",
+        "q.nhc.f02": "العربية Vehicle identification number",
+        "q.nhc.f03": "العربية Maintenance inspection date",
+        "q.nhc.f04": "العربية Inspection start time",
+        "q.nhc.f05": "العربية Odometer reading (km)",
+        "q.nhc.f06": "العربية Engine hours",
+        "q.nhc.f07": "العربية Service bay",
+        "q.nhc.f08": "العربية Vehicle removed from service",
+        "q.nhc.f09": "العربية Maintenance categories",
+        "q.nhc.f10": "العربية Repair work orders, parts and measurements",
+        "q.nhc.f11": "العربية Previous maintenance events",
+        "q.nhc.f12": "العربية Vehicle system inspection matrix",
+        "q.nhc.f13": "العربية Roadworthiness score",
+        "q.nhc.f14": "العربية Brake-release test passed",
+        "q.nhc.f15": "العربية Repair priority order",
+        "q.nhc.f16": "العربية Fuel level percentage",
+        "q.nhc.f17": "العربية Front tire pressure (psi)",
+        "q.nhc.f18": "العربية Estimated parts cost",
+        "q.nhc.f19": "العربية Driver defect report",
+        "q.nhc.f20": "العربية Distance since last service (km)",
+        "q.nhc.f21": "العربية Primary diagnostic code",
+        "q.nhc.f22": "العربية Scheduled repair date",
+        "q.nhc.f23": "العربية Inspector work note",
+        "q.nhc.f24": "العربية Inspection photograph",
+        "q.nhc.f25": "العربية Brake wear sketch",
+        "q.nhc.f26": "العربية Parts availability",
+        "q.nhc.f27": "العربية Repair authorization mode",
+        "q.nhc.f28": "العربية Workshop safety instructions",
+        "q.nhc.f29": "العربية Lead mechanic",
+        "q.nhc.f30": "العربية Target release time",
+        "q.nhc.f31": "العربية Technician lockout applied",
+        "q.nhc.f32": "العربية External vendor reference",
+        "q.quantity": "العربية Quantity",
+        "qa.estimate.answer": "العربية A best available value.",
+        "qa.estimate.paraphrase.1": "العربية Use the closest known value.",
+        "qa.estimate.question": "العربية What does estimate mean?",
+        "review.status.answered": "العربية 0",
+        "review.status.declined": "العربية Prefer not to answer",
+        "review.status.notApplicable": "العربية Not applicable",
+        "review.status.respondentNotApplicable": "العربية Not applicable (respondent answer)",
+        "review.status.unanswered": "العربية Not answered",
+        "review.status.unknown": "العربية Unknown",
+        "review.value.false": "العربية No",
+        "review.value.zero": "العربية 0",
+        "rtl.mixedDirectionIdentifier": "العربية Patient identifier: asset-ABC-123",
+        "system.notProvided": "العربية Not provided"
+      },
+      "reviewState": "pending-native-review",
+      "translationStatus": "evaluator-selected-native-script-bytes-frozen-pending-native-review"
+    },
+    "en": {
+      "messageValues": {
+        "accessibility.localeToggle": "Language and direction updated; values and item identifiers are unchanged.",
+        "ack.review": "I confirm this review.",
+        "confirmation": "Submission recorded.",
+        "error.locale.missingMandatoryKey": "A mandatory localized message is missing.",
+        "error.locale.staleMandatoryKey": "A mandatory localized message is stale.",
+        "error.reviewStale": "Review content has changed. Review and acknowledge it again.",
+        "form.description": "Complete the required fields.",
+        "form.title": "Synthetic intake",
+        "glossary.estimate": "Estimate",
+        "guidance.approvedQa.answer": "No. This form only collects information.",
+        "guidance.approvedQa.paraphrase": "Will this charge me?",
+        "guidance.approvedQa.question": "Does an estimate take a payment?",
+        "guidance.detailed": "Review each answer before continuing.",
+        "guidance.equipment.narration": "Equipment questions",
+        "guidance.hc-f01": "Guidance for Patient preferred name",
+        "guidance.hc-f02": "Guidance for Date of birth",
+        "guidance.hc-f03": "Guidance for Encounter start time",
+        "guidance.hc-f04": "Guidance for Encounter timestamp",
+        "guidance.hc-f05": "Guidance for Contact preference",
+        "guidance.hc-f06": "Guidance for Consent to clinical intake",
+        "guidance.hc-f07": "Guidance for Current symptom groups",
+        "guidance.hc-f08": "Guidance for Symptom intensity today",
+        "guidance.hc-f09": "Guidance for Allergy status",
+        "guidance.hc-f10": "Guidance for Recorded allergies",
+        "guidance.hc-f11": "Guidance for Medication plan and administrations",
+        "guidance.hc-f12": "Guidance for Family health history",
+        "guidance.hc-f13": "Guidance for Pregnancy-related care applies",
+        "guidance.hc-f14": "Guidance for Expected delivery date",
+        "guidance.hc-f15": "Guidance for Care priorities",
+        "guidance.hc-f16": "Guidance for Height in metres",
+        "guidance.hc-f17": "Guidance for Weight in kilograms",
+        "guidance.hc-f18": "Guidance for Body mass index",
+        "guidance.hc-f19": "Guidance for Blood pressure reading",
+        "guidance.hc-f20": "Guidance for Pain score",
+        "guidance.hc-f21": "Guidance for Temperature in Celsius",
+        "guidance.hc-f22": "Guidance for Clinical assessment",
+        "guidance.hc-f23": "Guidance for Clinician narrative",
+        "guidance.hc-f24": "Guidance for Follow-up date",
+        "guidance.hc-f25": "Guidance for Referral letter",
+        "guidance.hc-f26": "Guidance for Symptom body map",
+        "guidance.hc-f27": "Guidance for Tobacco use",
+        "guidance.hc-f28": "Guidance for Alcohol use pattern",
+        "guidance.hc-f29": "Guidance for Mood and safety check",
+        "guidance.hc-f30": "Guidance for Safety follow-up detail",
+        "guidance.hc-f31": "Guidance for Health-history entry mode",
+        "guidance.hc-f32": "Guidance for History instructions",
+        "guidance.nhc-f01": "Guidance for Fleet unit number",
+        "guidance.nhc-f02": "Guidance for Vehicle identification number",
+        "guidance.nhc-f03": "Guidance for Maintenance inspection date",
+        "guidance.nhc-f04": "Guidance for Inspection start time",
+        "guidance.nhc-f05": "Guidance for Odometer reading (km)",
+        "guidance.nhc-f06": "Guidance for Engine hours",
+        "guidance.nhc-f07": "Guidance for Service bay",
+        "guidance.nhc-f08": "Guidance for Vehicle removed from service",
+        "guidance.nhc-f09": "Guidance for Maintenance categories",
+        "guidance.nhc-f10": "Guidance for Repair work orders, parts and measurements",
+        "guidance.nhc-f11": "Guidance for Previous maintenance events",
+        "guidance.nhc-f12": "Guidance for Vehicle system inspection matrix",
+        "guidance.nhc-f13": "Guidance for Roadworthiness score",
+        "guidance.nhc-f14": "Guidance for Brake-release test passed",
+        "guidance.nhc-f15": "Guidance for Repair priority order",
+        "guidance.nhc-f16": "Guidance for Fuel level percentage",
+        "guidance.nhc-f17": "Guidance for Front tire pressure (psi)",
+        "guidance.nhc-f18": "Guidance for Estimated parts cost",
+        "guidance.nhc-f19": "Guidance for Driver defect report",
+        "guidance.nhc-f20": "Guidance for Distance since last service (km)",
+        "guidance.nhc-f21": "Guidance for Primary diagnostic code",
+        "guidance.nhc-f22": "Guidance for Scheduled repair date",
+        "guidance.nhc-f23": "Guidance for Inspector work note",
+        "guidance.nhc-f24": "Guidance for Inspection photograph",
+        "guidance.nhc-f25": "Guidance for Brake wear sketch",
+        "guidance.nhc-f26": "Guidance for Parts availability",
+        "guidance.nhc-f27": "Guidance for Repair authorization mode",
+        "guidance.nhc-f28": "Guidance for Workshop safety instructions",
+        "guidance.nhc-f29": "Guidance for Lead mechanic",
+        "guidance.nhc-f30": "Guidance for Target release time",
+        "guidance.nhc-f31": "Guidance for Technician lockout applied",
+        "guidance.nhc-f32": "Guidance for External vendor reference",
+        "guidance.noApprovedAnswer": "No approved answer is available.",
+        "guidance.rich.heading": "Before you begin",
+        "guidance.rich.item.1": "Provide the requested information.",
+        "guidance.rich.item.2": "Review answers before submission.",
+        "guidance.safeEmailPlaceholder": "name@example.test",
+        "guidance.short": "Select the best answer.",
+        "msg.itemCount.few": "{count} items",
+        "msg.itemCount.many": "{count} items",
+        "msg.itemCount.one": "{count} item",
+        "msg.itemCount.other": "{count} items",
+        "msg.itemCount.two": "{count} items",
+        "msg.itemCount.zero": "{count} items",
+        "narration.equipment": "Equipment questions",
+        "opt.hc.hc-f07.digestive": "digestive",
+        "opt.hc.hc-f07.fatigue": "fatigue",
+        "opt.hc.hc-f07.pain": "pain",
+        "opt.hc.hc-f07.respiratory": "respiratory",
+        "opt.hc.hc-f09.known-allergies": "known allergies",
+        "opt.hc.hc-f09.no-known-allergies": "no known allergies",
+        "opt.hc.hc-f09.unknown": "unknown",
+        "opt.hc.hc-f15.breathing": "breathing",
+        "opt.hc.hc-f15.pain": "pain",
+        "opt.hc.hc-f15.sleep": "sleep",
+        "opt.hc.hc-f22.referral": "referral",
+        "opt.hc.hc-f22.routine-follow-up": "routine follow up",
+        "opt.hc.hc-f22.urgent-review": "urgent review",
+        "opt.hc.hc-f27.current": "current",
+        "opt.hc.hc-f27.former": "former",
+        "opt.hc.hc-f27.never": "never",
+        "opt.hc.hc-f28.frequent": "frequent",
+        "opt.hc.hc-f28.none": "none",
+        "opt.hc.hc-f28.occasional": "occasional",
+        "opt.hc.hc-f29.follow-up-needed": "follow up needed",
+        "opt.hc.hc-f29.no-concern": "no concern",
+        "opt.hc.hc-f29.urgent-escalation": "urgent escalation",
+        "opt.hc.hc-f31.guided": "guided",
+        "opt.hc.hc-f31.summary": "summary",
+        "opt.nhc.nhc-f07.bay-1": "bay 1",
+        "opt.nhc.nhc-f07.bay-2": "bay 2",
+        "opt.nhc.nhc-f07.bay-3": "bay 3",
+        "opt.nhc.nhc-f09.brakes": "brakes",
+        "opt.nhc.nhc-f09.engine": "engine",
+        "opt.nhc.nhc-f09.lighting": "lighting",
+        "opt.nhc.nhc-f09.tires": "tires",
+        "opt.nhc.nhc-f15.brakes": "brakes",
+        "opt.nhc.nhc-f15.lighting": "lighting",
+        "opt.nhc.nhc-f15.tires": "tires",
+        "opt.nhc.nhc-f21.brake-pad-wear": "brake pad wear",
+        "opt.nhc.nhc-f21.lamp-failure": "lamp failure",
+        "opt.nhc.nhc-f21.tire-wear": "tire wear",
+        "opt.nhc.nhc-f26.backordered": "backordered",
+        "opt.nhc.nhc-f26.stocked": "stocked",
+        "opt.nhc.nhc-f26.vendor-order": "vendor order",
+        "opt.nhc.nhc-f27.imported-work-order": "imported work order",
+        "opt.nhc.nhc-f27.mechanic-entry": "mechanic entry",
+        "page.author.about": "About your request",
+        "page.author.equipment": "Equipment",
+        "page.author.review-and-submit": "Review",
+        "page.hc-p1": "Page Intake",
+        "page.hc-p2": "Page Intake",
+        "page.hc-p3": "Page Intake",
+        "page.hc-p4": "Page Intake",
+        "page.hc-p5": "Page Review",
+        "page.intake": "Intake",
+        "page.nhc-p1": "Page Intake",
+        "page.nhc-p2": "Page Intake",
+        "page.nhc-p3": "Page Intake",
+        "page.nhc-p4": "Page Intake",
+        "page.nhc-p5": "Page Review",
+        "page.review": "Review",
+        "q.author.checks": "Checks",
+        "q.author.checks.checkDetails": "Check details",
+        "q.author.checks.checkResult": "Check result",
+        "q.author.email": "Email",
+        "q.author.entryMode": "Entry mode",
+        "q.author.equipment": "Equipment",
+        "q.author.equipment.accessories": "Accessories",
+        "q.author.equipment.accessories.accessoryName": "Accessory name",
+        "q.author.equipment.accessories.tests": "Tests",
+        "q.author.equipment.accessories.tests.testResult": "Test result",
+        "q.author.equipment.equipmentName": "Equipment name",
+        "q.author.equipment.quantity": "Quantity",
+        "q.author.equipment.unitCost": "Unit cost",
+        "q.author.extraAttendees": "Extra attendees",
+        "q.author.needsSetup": "Needs setup",
+        "q.author.note": "Note",
+        "q.author.otherServiceDetails": "Other service details",
+        "q.author.priority": "Priority",
+        "q.author.priorityOrder": "Priority order",
+        "q.author.referenceCode": "Reference code",
+        "q.author.respondentName": "Respondent name",
+        "q.author.reviewAcknowledged": "Review acknowledged",
+        "q.author.services": "Services",
+        "q.author.setupDetails": "Setup details",
+        "q.author.shipping": "Shipping",
+        "q.author.shipping.country": "Country",
+        "q.author.shipping.postalCode": "Postal code",
+        "q.author.supportingFiles": "Supporting files",
+        "q.author.total": "Total",
+        "q.author.visitDate": "Visit date",
+        "q.hc-f10-row": "row",
+        "q.hc-f10-row-value": "value",
+        "q.hc-f11-item": "item",
+        "q.hc-f11-item-l2": "level2",
+        "q.hc-f11-item-l2-item": "item",
+        "q.hc-f11-item-l2-item-l3": "level3",
+        "q.hc-f11-item-l2-item-l3-item": "item",
+        "q.hc-f11-item-l2-item-l3-item-note": "note",
+        "q.hc-f12-row": "row",
+        "q.hc-f12-row-value": "value",
+        "q.hc.f01": "Patient preferred name",
+        "q.hc.f02": "Date of birth",
+        "q.hc.f03": "Encounter start time",
+        "q.hc.f04": "Encounter timestamp",
+        "q.hc.f05": "Contact preference",
+        "q.hc.f06": "Consent to clinical intake",
+        "q.hc.f07": "Current symptom groups",
+        "q.hc.f08": "Symptom intensity today",
+        "q.hc.f09": "Allergy status",
+        "q.hc.f10": "Recorded allergies",
+        "q.hc.f11": "Medication plan and administrations",
+        "q.hc.f12": "Family health history",
+        "q.hc.f13": "Pregnancy-related care applies",
+        "q.hc.f14": "Expected delivery date",
+        "q.hc.f15": "Care priorities",
+        "q.hc.f16": "Height in metres",
+        "q.hc.f17": "Weight in kilograms",
+        "q.hc.f18": "Body mass index",
+        "q.hc.f19": "Blood pressure reading",
+        "q.hc.f20": "Pain score",
+        "q.hc.f21": "Temperature in Celsius",
+        "q.hc.f22": "Clinical assessment",
+        "q.hc.f23": "Clinician narrative",
+        "q.hc.f24": "Follow-up date",
+        "q.hc.f25": "Referral letter",
+        "q.hc.f26": "Symptom body map",
+        "q.hc.f27": "Tobacco use",
+        "q.hc.f28": "Alcohol use pattern",
+        "q.hc.f29": "Mood and safety check",
+        "q.hc.f30": "Safety follow-up detail",
+        "q.hc.f31": "Health-history entry mode",
+        "q.hc.f32": "History instructions",
+        "q.name": "Name",
+        "q.nhc-f10-row": "row",
+        "q.nhc-f10-row-value": "value",
+        "q.nhc-f11-item": "item",
+        "q.nhc-f11-item-l2": "level2",
+        "q.nhc-f11-item-l2-item": "item",
+        "q.nhc-f11-item-l2-item-l3": "level3",
+        "q.nhc-f11-item-l2-item-l3-item": "item",
+        "q.nhc-f11-item-l2-item-l3-item-note": "note",
+        "q.nhc-f12-row": "row",
+        "q.nhc-f12-row-value": "value",
+        "q.nhc.f01": "Fleet unit number",
+        "q.nhc.f02": "Vehicle identification number",
+        "q.nhc.f03": "Maintenance inspection date",
+        "q.nhc.f04": "Inspection start time",
+        "q.nhc.f05": "Odometer reading (km)",
+        "q.nhc.f06": "Engine hours",
+        "q.nhc.f07": "Service bay",
+        "q.nhc.f08": "Vehicle removed from service",
+        "q.nhc.f09": "Maintenance categories",
+        "q.nhc.f10": "Repair work orders, parts and measurements",
+        "q.nhc.f11": "Previous maintenance events",
+        "q.nhc.f12": "Vehicle system inspection matrix",
+        "q.nhc.f13": "Roadworthiness score",
+        "q.nhc.f14": "Brake-release test passed",
+        "q.nhc.f15": "Repair priority order",
+        "q.nhc.f16": "Fuel level percentage",
+        "q.nhc.f17": "Front tire pressure (psi)",
+        "q.nhc.f18": "Estimated parts cost",
+        "q.nhc.f19": "Driver defect report",
+        "q.nhc.f20": "Distance since last service (km)",
+        "q.nhc.f21": "Primary diagnostic code",
+        "q.nhc.f22": "Scheduled repair date",
+        "q.nhc.f23": "Inspector work note",
+        "q.nhc.f24": "Inspection photograph",
+        "q.nhc.f25": "Brake wear sketch",
+        "q.nhc.f26": "Parts availability",
+        "q.nhc.f27": "Repair authorization mode",
+        "q.nhc.f28": "Workshop safety instructions",
+        "q.nhc.f29": "Lead mechanic",
+        "q.nhc.f30": "Target release time",
+        "q.nhc.f31": "Technician lockout applied",
+        "q.nhc.f32": "External vendor reference",
+        "q.quantity": "Quantity",
+        "qa.estimate.answer": "A best available value.",
+        "qa.estimate.paraphrase.1": "Use the closest known value.",
+        "qa.estimate.question": "What does estimate mean?",
+        "review.status.answered": "0",
+        "review.status.declined": "Prefer not to answer",
+        "review.status.notApplicable": "Not applicable",
+        "review.status.respondentNotApplicable": "Not applicable (respondent answer)",
+        "review.status.unanswered": "Not answered",
+        "review.status.unknown": "Unknown",
+        "review.value.false": "No",
+        "review.value.zero": "0",
+        "rtl.mixedDirectionIdentifier": "Patient identifier: asset-ABC-123",
+        "system.notProvided": "Not provided"
+      },
+      "reviewState": "approved-prd-fixed-values",
+      "translationStatus": "approved-prd-fixed-values"
+    },
+    "hi": {
+      "approvalClaim": false,
+      "messageValues": {
+        "accessibility.localeToggle": "हिंदी Language and direction updated; values and item identifiers are unchanged.",
+        "ack.review": "हिंदी I confirm this review.",
+        "confirmation": "हिंदी Submission recorded.",
+        "error.locale.missingMandatoryKey": "हिंदी A mandatory localized message is missing.",
+        "error.locale.staleMandatoryKey": "हिंदी A mandatory localized message is stale.",
+        "error.reviewStale": "हिंदी Review content has changed. Review and acknowledge it again.",
+        "form.description": "हिंदी Complete the required fields.",
+        "form.title": "हिंदी Synthetic intake",
+        "glossary.estimate": "हिंदी Estimate",
+        "guidance.approvedQa.answer": "हिंदी No. This form only collects information.",
+        "guidance.approvedQa.paraphrase": "हिंदी Will this charge me?",
+        "guidance.approvedQa.question": "हिंदी Does an estimate take a payment?",
+        "guidance.detailed": "हिंदी Review each answer before continuing.",
+        "guidance.equipment.narration": "हिंदी Equipment questions",
+        "guidance.hc-f01": "हिंदी Guidance for Patient preferred name",
+        "guidance.hc-f02": "हिंदी Guidance for Date of birth",
+        "guidance.hc-f03": "हिंदी Guidance for Encounter start time",
+        "guidance.hc-f04": "हिंदी Guidance for Encounter timestamp",
+        "guidance.hc-f05": "हिंदी Guidance for Contact preference",
+        "guidance.hc-f06": "हिंदी Guidance for Consent to clinical intake",
+        "guidance.hc-f07": "हिंदी Guidance for Current symptom groups",
+        "guidance.hc-f08": "हिंदी Guidance for Symptom intensity today",
+        "guidance.hc-f09": "हिंदी Guidance for Allergy status",
+        "guidance.hc-f10": "हिंदी Guidance for Recorded allergies",
+        "guidance.hc-f11": "हिंदी Guidance for Medication plan and administrations",
+        "guidance.hc-f12": "हिंदी Guidance for Family health history",
+        "guidance.hc-f13": "हिंदी Guidance for Pregnancy-related care applies",
+        "guidance.hc-f14": "हिंदी Guidance for Expected delivery date",
+        "guidance.hc-f15": "हिंदी Guidance for Care priorities",
+        "guidance.hc-f16": "हिंदी Guidance for Height in metres",
+        "guidance.hc-f17": "हिंदी Guidance for Weight in kilograms",
+        "guidance.hc-f18": "हिंदी Guidance for Body mass index",
+        "guidance.hc-f19": "हिंदी Guidance for Blood pressure reading",
+        "guidance.hc-f20": "हिंदी Guidance for Pain score",
+        "guidance.hc-f21": "हिंदी Guidance for Temperature in Celsius",
+        "guidance.hc-f22": "हिंदी Guidance for Clinical assessment",
+        "guidance.hc-f23": "हिंदी Guidance for Clinician narrative",
+        "guidance.hc-f24": "हिंदी Guidance for Follow-up date",
+        "guidance.hc-f25": "हिंदी Guidance for Referral letter",
+        "guidance.hc-f26": "हिंदी Guidance for Symptom body map",
+        "guidance.hc-f27": "हिंदी Guidance for Tobacco use",
+        "guidance.hc-f28": "हिंदी Guidance for Alcohol use pattern",
+        "guidance.hc-f29": "हिंदी Guidance for Mood and safety check",
+        "guidance.hc-f30": "हिंदी Guidance for Safety follow-up detail",
+        "guidance.hc-f31": "हिंदी Guidance for Health-history entry mode",
+        "guidance.hc-f32": "हिंदी Guidance for History instructions",
+        "guidance.nhc-f01": "हिंदी Guidance for Fleet unit number",
+        "guidance.nhc-f02": "हिंदी Guidance for Vehicle identification number",
+        "guidance.nhc-f03": "हिंदी Guidance for Maintenance inspection date",
+        "guidance.nhc-f04": "हिंदी Guidance for Inspection start time",
+        "guidance.nhc-f05": "हिंदी Guidance for Odometer reading (km)",
+        "guidance.nhc-f06": "हिंदी Guidance for Engine hours",
+        "guidance.nhc-f07": "हिंदी Guidance for Service bay",
+        "guidance.nhc-f08": "हिंदी Guidance for Vehicle removed from service",
+        "guidance.nhc-f09": "हिंदी Guidance for Maintenance categories",
+        "guidance.nhc-f10": "हिंदी Guidance for Repair work orders, parts and measurements",
+        "guidance.nhc-f11": "हिंदी Guidance for Previous maintenance events",
+        "guidance.nhc-f12": "हिंदी Guidance for Vehicle system inspection matrix",
+        "guidance.nhc-f13": "हिंदी Guidance for Roadworthiness score",
+        "guidance.nhc-f14": "हिंदी Guidance for Brake-release test passed",
+        "guidance.nhc-f15": "हिंदी Guidance for Repair priority order",
+        "guidance.nhc-f16": "हिंदी Guidance for Fuel level percentage",
+        "guidance.nhc-f17": "हिंदी Guidance for Front tire pressure (psi)",
+        "guidance.nhc-f18": "हिंदी Guidance for Estimated parts cost",
+        "guidance.nhc-f19": "हिंदी Guidance for Driver defect report",
+        "guidance.nhc-f20": "हिंदी Guidance for Distance since last service (km)",
+        "guidance.nhc-f21": "हिंदी Guidance for Primary diagnostic code",
+        "guidance.nhc-f22": "हिंदी Guidance for Scheduled repair date",
+        "guidance.nhc-f23": "हिंदी Guidance for Inspector work note",
+        "guidance.nhc-f24": "हिंदी Guidance for Inspection photograph",
+        "guidance.nhc-f25": "हिंदी Guidance for Brake wear sketch",
+        "guidance.nhc-f26": "हिंदी Guidance for Parts availability",
+        "guidance.nhc-f27": "हिंदी Guidance for Repair authorization mode",
+        "guidance.nhc-f28": "हिंदी Guidance for Workshop safety instructions",
+        "guidance.nhc-f29": "हिंदी Guidance for Lead mechanic",
+        "guidance.nhc-f30": "हिंदी Guidance for Target release time",
+        "guidance.nhc-f31": "हिंदी Guidance for Technician lockout applied",
+        "guidance.nhc-f32": "हिंदी Guidance for External vendor reference",
+        "guidance.noApprovedAnswer": "हिंदी No approved answer is available.",
+        "guidance.rich.heading": "हिंदी Before you begin",
+        "guidance.rich.item.1": "हिंदी Provide the requested information.",
+        "guidance.rich.item.2": "हिंदी Review answers before submission.",
+        "guidance.safeEmailPlaceholder": "हिंदी name@example.test",
+        "guidance.short": "हिंदी Select the best answer.",
+        "msg.itemCount.few": "हिंदी {count} items",
+        "msg.itemCount.many": "हिंदी {count} items",
+        "msg.itemCount.one": "हिंदी {count} item",
+        "msg.itemCount.other": "हिंदी {count} items",
+        "msg.itemCount.two": "हिंदी {count} items",
+        "msg.itemCount.zero": "हिंदी {count} items",
+        "narration.equipment": "हिंदी Equipment questions",
+        "opt.hc.hc-f07.digestive": "हिंदी digestive",
+        "opt.hc.hc-f07.fatigue": "हिंदी fatigue",
+        "opt.hc.hc-f07.pain": "हिंदी pain",
+        "opt.hc.hc-f07.respiratory": "हिंदी respiratory",
+        "opt.hc.hc-f09.known-allergies": "हिंदी known allergies",
+        "opt.hc.hc-f09.no-known-allergies": "हिंदी no known allergies",
+        "opt.hc.hc-f09.unknown": "हिंदी unknown",
+        "opt.hc.hc-f15.breathing": "हिंदी breathing",
+        "opt.hc.hc-f15.pain": "हिंदी pain",
+        "opt.hc.hc-f15.sleep": "हिंदी sleep",
+        "opt.hc.hc-f22.referral": "हिंदी referral",
+        "opt.hc.hc-f22.routine-follow-up": "हिंदी routine follow up",
+        "opt.hc.hc-f22.urgent-review": "हिंदी urgent review",
+        "opt.hc.hc-f27.current": "हिंदी current",
+        "opt.hc.hc-f27.former": "हिंदी former",
+        "opt.hc.hc-f27.never": "हिंदी never",
+        "opt.hc.hc-f28.frequent": "हिंदी frequent",
+        "opt.hc.hc-f28.none": "हिंदी none",
+        "opt.hc.hc-f28.occasional": "हिंदी occasional",
+        "opt.hc.hc-f29.follow-up-needed": "हिंदी follow up needed",
+        "opt.hc.hc-f29.no-concern": "हिंदी no concern",
+        "opt.hc.hc-f29.urgent-escalation": "हिंदी urgent escalation",
+        "opt.hc.hc-f31.guided": "हिंदी guided",
+        "opt.hc.hc-f31.summary": "हिंदी summary",
+        "opt.nhc.nhc-f07.bay-1": "हिंदी bay 1",
+        "opt.nhc.nhc-f07.bay-2": "हिंदी bay 2",
+        "opt.nhc.nhc-f07.bay-3": "हिंदी bay 3",
+        "opt.nhc.nhc-f09.brakes": "हिंदी brakes",
+        "opt.nhc.nhc-f09.engine": "हिंदी engine",
+        "opt.nhc.nhc-f09.lighting": "हिंदी lighting",
+        "opt.nhc.nhc-f09.tires": "हिंदी tires",
+        "opt.nhc.nhc-f15.brakes": "हिंदी brakes",
+        "opt.nhc.nhc-f15.lighting": "हिंदी lighting",
+        "opt.nhc.nhc-f15.tires": "हिंदी tires",
+        "opt.nhc.nhc-f21.brake-pad-wear": "हिंदी brake pad wear",
+        "opt.nhc.nhc-f21.lamp-failure": "हिंदी lamp failure",
+        "opt.nhc.nhc-f21.tire-wear": "हिंदी tire wear",
+        "opt.nhc.nhc-f26.backordered": "हिंदी backordered",
+        "opt.nhc.nhc-f26.stocked": "हिंदी stocked",
+        "opt.nhc.nhc-f26.vendor-order": "हिंदी vendor order",
+        "opt.nhc.nhc-f27.imported-work-order": "हिंदी imported work order",
+        "opt.nhc.nhc-f27.mechanic-entry": "हिंदी mechanic entry",
+        "page.author.about": "हिंदी About your request",
+        "page.author.equipment": "हिंदी Equipment",
+        "page.author.review-and-submit": "हिंदी Review",
+        "page.hc-p1": "हिंदी Page Intake",
+        "page.hc-p2": "हिंदी Page Intake",
+        "page.hc-p3": "हिंदी Page Intake",
+        "page.hc-p4": "हिंदी Page Intake",
+        "page.hc-p5": "हिंदी Page Review",
+        "page.intake": "हिंदी Intake",
+        "page.nhc-p1": "हिंदी Page Intake",
+        "page.nhc-p2": "हिंदी Page Intake",
+        "page.nhc-p3": "हिंदी Page Intake",
+        "page.nhc-p4": "हिंदी Page Intake",
+        "page.nhc-p5": "हिंदी Page Review",
+        "page.review": "हिंदी Review",
+        "q.author.checks": "हिंदी Checks",
+        "q.author.checks.checkDetails": "हिंदी Check details",
+        "q.author.checks.checkResult": "हिंदी Check result",
+        "q.author.email": "हिंदी Email",
+        "q.author.entryMode": "हिंदी Entry mode",
+        "q.author.equipment": "हिंदी Equipment",
+        "q.author.equipment.accessories": "हिंदी Accessories",
+        "q.author.equipment.accessories.accessoryName": "हिंदी Accessory name",
+        "q.author.equipment.accessories.tests": "हिंदी Tests",
+        "q.author.equipment.accessories.tests.testResult": "हिंदी Test result",
+        "q.author.equipment.equipmentName": "हिंदी Equipment name",
+        "q.author.equipment.quantity": "हिंदी Quantity",
+        "q.author.equipment.unitCost": "हिंदी Unit cost",
+        "q.author.extraAttendees": "हिंदी Extra attendees",
+        "q.author.needsSetup": "हिंदी Needs setup",
+        "q.author.note": "हिंदी Note",
+        "q.author.otherServiceDetails": "हिंदी Other service details",
+        "q.author.priority": "हिंदी Priority",
+        "q.author.priorityOrder": "हिंदी Priority order",
+        "q.author.referenceCode": "हिंदी Reference code",
+        "q.author.respondentName": "हिंदी Respondent name",
+        "q.author.reviewAcknowledged": "हिंदी Review acknowledged",
+        "q.author.services": "हिंदी Services",
+        "q.author.setupDetails": "हिंदी Setup details",
+        "q.author.shipping": "हिंदी Shipping",
+        "q.author.shipping.country": "हिंदी Country",
+        "q.author.shipping.postalCode": "हिंदी Postal code",
+        "q.author.supportingFiles": "हिंदी Supporting files",
+        "q.author.total": "हिंदी Total",
+        "q.author.visitDate": "हिंदी Visit date",
+        "q.hc-f10-row": "हिंदी row",
+        "q.hc-f10-row-value": "हिंदी value",
+        "q.hc-f11-item": "हिंदी item",
+        "q.hc-f11-item-l2": "हिंदी level2",
+        "q.hc-f11-item-l2-item": "हिंदी item",
+        "q.hc-f11-item-l2-item-l3": "हिंदी level3",
+        "q.hc-f11-item-l2-item-l3-item": "हिंदी item",
+        "q.hc-f11-item-l2-item-l3-item-note": "हिंदी note",
+        "q.hc-f12-row": "हिंदी row",
+        "q.hc-f12-row-value": "हिंदी value",
+        "q.hc.f01": "हिंदी Patient preferred name",
+        "q.hc.f02": "हिंदी Date of birth",
+        "q.hc.f03": "हिंदी Encounter start time",
+        "q.hc.f04": "हिंदी Encounter timestamp",
+        "q.hc.f05": "हिंदी Contact preference",
+        "q.hc.f06": "हिंदी Consent to clinical intake",
+        "q.hc.f07": "हिंदी Current symptom groups",
+        "q.hc.f08": "हिंदी Symptom intensity today",
+        "q.hc.f09": "हिंदी Allergy status",
+        "q.hc.f10": "हिंदी Recorded allergies",
+        "q.hc.f11": "हिंदी Medication plan and administrations",
+        "q.hc.f12": "हिंदी Family health history",
+        "q.hc.f13": "हिंदी Pregnancy-related care applies",
+        "q.hc.f14": "हिंदी Expected delivery date",
+        "q.hc.f15": "हिंदी Care priorities",
+        "q.hc.f16": "हिंदी Height in metres",
+        "q.hc.f17": "हिंदी Weight in kilograms",
+        "q.hc.f18": "हिंदी Body mass index",
+        "q.hc.f19": "हिंदी Blood pressure reading",
+        "q.hc.f20": "हिंदी Pain score",
+        "q.hc.f21": "हिंदी Temperature in Celsius",
+        "q.hc.f22": "हिंदी Clinical assessment",
+        "q.hc.f23": "हिंदी Clinician narrative",
+        "q.hc.f24": "हिंदी Follow-up date",
+        "q.hc.f25": "हिंदी Referral letter",
+        "q.hc.f26": "हिंदी Symptom body map",
+        "q.hc.f27": "हिंदी Tobacco use",
+        "q.hc.f28": "हिंदी Alcohol use pattern",
+        "q.hc.f29": "हिंदी Mood and safety check",
+        "q.hc.f30": "हिंदी Safety follow-up detail",
+        "q.hc.f31": "हिंदी Health-history entry mode",
+        "q.hc.f32": "हिंदी History instructions",
+        "q.name": "नाम",
+        "q.nhc-f10-row": "हिंदी row",
+        "q.nhc-f10-row-value": "हिंदी value",
+        "q.nhc-f11-item": "हिंदी item",
+        "q.nhc-f11-item-l2": "हिंदी level2",
+        "q.nhc-f11-item-l2-item": "हिंदी item",
+        "q.nhc-f11-item-l2-item-l3": "हिंदी level3",
+        "q.nhc-f11-item-l2-item-l3-item": "हिंदी item",
+        "q.nhc-f11-item-l2-item-l3-item-note": "हिंदी note",
+        "q.nhc-f12-row": "हिंदी row",
+        "q.nhc-f12-row-value": "हिंदी value",
+        "q.nhc.f01": "हिंदी Fleet unit number",
+        "q.nhc.f02": "हिंदी Vehicle identification number",
+        "q.nhc.f03": "हिंदी Maintenance inspection date",
+        "q.nhc.f04": "हिंदी Inspection start time",
+        "q.nhc.f05": "हिंदी Odometer reading (km)",
+        "q.nhc.f06": "हिंदी Engine hours",
+        "q.nhc.f07": "हिंदी Service bay",
+        "q.nhc.f08": "हिंदी Vehicle removed from service",
+        "q.nhc.f09": "हिंदी Maintenance categories",
+        "q.nhc.f10": "हिंदी Repair work orders, parts and measurements",
+        "q.nhc.f11": "हिंदी Previous maintenance events",
+        "q.nhc.f12": "हिंदी Vehicle system inspection matrix",
+        "q.nhc.f13": "हिंदी Roadworthiness score",
+        "q.nhc.f14": "हिंदी Brake-release test passed",
+        "q.nhc.f15": "हिंदी Repair priority order",
+        "q.nhc.f16": "हिंदी Fuel level percentage",
+        "q.nhc.f17": "हिंदी Front tire pressure (psi)",
+        "q.nhc.f18": "हिंदी Estimated parts cost",
+        "q.nhc.f19": "हिंदी Driver defect report",
+        "q.nhc.f20": "हिंदी Distance since last service (km)",
+        "q.nhc.f21": "हिंदी Primary diagnostic code",
+        "q.nhc.f22": "हिंदी Scheduled repair date",
+        "q.nhc.f23": "हिंदी Inspector work note",
+        "q.nhc.f24": "हिंदी Inspection photograph",
+        "q.nhc.f25": "हिंदी Brake wear sketch",
+        "q.nhc.f26": "हिंदी Parts availability",
+        "q.nhc.f27": "हिंदी Repair authorization mode",
+        "q.nhc.f28": "हिंदी Workshop safety instructions",
+        "q.nhc.f29": "हिंदी Lead mechanic",
+        "q.nhc.f30": "हिंदी Target release time",
+        "q.nhc.f31": "हिंदी Technician lockout applied",
+        "q.nhc.f32": "हिंदी External vendor reference",
+        "q.quantity": "हिंदी Quantity",
+        "qa.estimate.answer": "हिंदी A best available value.",
+        "qa.estimate.paraphrase.1": "हिंदी Use the closest known value.",
+        "qa.estimate.question": "हिंदी What does estimate mean?",
+        "review.status.answered": "हिंदी 0",
+        "review.status.declined": "हिंदी Prefer not to answer",
+        "review.status.notApplicable": "हिंदी Not applicable",
+        "review.status.respondentNotApplicable": "हिंदी Not applicable (respondent answer)",
+        "review.status.unanswered": "हिंदी Not answered",
+        "review.status.unknown": "हिंदी Unknown",
+        "review.value.false": "हिंदी No",
+        "review.value.zero": "हिंदी 0",
+        "rtl.mixedDirectionIdentifier": "हिंदी Patient identifier: asset-ABC-123",
+        "system.notProvided": "हिंदी Not provided"
+      },
+      "reviewState": "pending-native-review",
+      "translationStatus": "evaluator-selected-native-script-bytes-frozen-pending-native-review"
+    }
+  },
+  "records": [
+    {
+      "assertionType": "locale",
+      "blockedReason": "native-language-reviewer-not-yet-assigned",
+      "evidenceLevel": "E0",
+      "expected": {
+        "appliesTo": [
+          "en",
+          "hi",
+          "ar"
+        ],
+        "keyClass": "form.title",
+        "keyPattern": "form.title",
+        "mandatory": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T12"
+      ],
+      "id": "EVAL-LOC-KEY-01",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1342",
+          "quote": "5. Import the evaluator-supplied complete Hindi content pack and Arabic RTL test pack using the locale UI, inspect a deliberately missing mandatory acknowledgment key in a separate invalid variant, and approve only the complete pack. Full native-script packs are required evaluator assets; Roman Hindi or English text labeled Hindi is not a substitute.",
+          "rangeSha256": "cc88309e18732c43709a2d6920c01f7f7cad4c60884733ad1aedb511eca4876d",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-LOC-01",
+        "SF-LOC-02",
+        "SF-LOC-03"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "locale",
+      "blockedReason": "native-language-reviewer-not-yet-assigned",
+      "evidenceLevel": "E0",
+      "expected": {
+        "appliesTo": [
+          "en",
+          "hi",
+          "ar"
+        ],
+        "keyClass": "form.description",
+        "keyPattern": "form.description",
+        "mandatory": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T12"
+      ],
+      "id": "EVAL-LOC-KEY-02",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1342",
+          "quote": "5. Import the evaluator-supplied complete Hindi content pack and Arabic RTL test pack using the locale UI, inspect a deliberately missing mandatory acknowledgment key in a separate invalid variant, and approve only the complete pack. Full native-script packs are required evaluator assets; Roman Hindi or English text labeled Hindi is not a substitute.",
+          "rangeSha256": "cc88309e18732c43709a2d6920c01f7f7cad4c60884733ad1aedb511eca4876d",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-LOC-01",
+        "SF-LOC-02",
+        "SF-LOC-03"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "locale",
+      "blockedReason": "native-language-reviewer-not-yet-assigned",
+      "evidenceLevel": "E0",
+      "expected": {
+        "appliesTo": [
+          "en",
+          "hi",
+          "ar"
+        ],
+        "keyClass": "page.*",
+        "keyPattern": "page.*",
+        "mandatory": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T12"
+      ],
+      "id": "EVAL-LOC-KEY-03",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1342",
+          "quote": "5. Import the evaluator-supplied complete Hindi content pack and Arabic RTL test pack using the locale UI, inspect a deliberately missing mandatory acknowledgment key in a separate invalid variant, and approve only the complete pack. Full native-script packs are required evaluator assets; Roman Hindi or English text labeled Hindi is not a substitute.",
+          "rangeSha256": "cc88309e18732c43709a2d6920c01f7f7cad4c60884733ad1aedb511eca4876d",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-LOC-01",
+        "SF-LOC-02",
+        "SF-LOC-03"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "locale",
+      "blockedReason": "native-language-reviewer-not-yet-assigned",
+      "evidenceLevel": "E0",
+      "expected": {
+        "appliesTo": [
+          "en",
+          "hi",
+          "ar"
+        ],
+        "keyClass": "q.*",
+        "keyPattern": "q.*",
+        "mandatory": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T12"
+      ],
+      "id": "EVAL-LOC-KEY-04",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1342",
+          "quote": "5. Import the evaluator-supplied complete Hindi content pack and Arabic RTL test pack using the locale UI, inspect a deliberately missing mandatory acknowledgment key in a separate invalid variant, and approve only the complete pack. Full native-script packs are required evaluator assets; Roman Hindi or English text labeled Hindi is not a substitute.",
+          "rangeSha256": "cc88309e18732c43709a2d6920c01f7f7cad4c60884733ad1aedb511eca4876d",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-LOC-01",
+        "SF-LOC-02",
+        "SF-LOC-03"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "locale",
+      "blockedReason": "native-language-reviewer-not-yet-assigned",
+      "evidenceLevel": "E0",
+      "expected": {
+        "appliesTo": [
+          "en",
+          "hi",
+          "ar"
+        ],
+        "keyClass": "opt.*",
+        "keyPattern": "opt.*",
+        "mandatory": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T12"
+      ],
+      "id": "EVAL-LOC-KEY-05",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1342",
+          "quote": "5. Import the evaluator-supplied complete Hindi content pack and Arabic RTL test pack using the locale UI, inspect a deliberately missing mandatory acknowledgment key in a separate invalid variant, and approve only the complete pack. Full native-script packs are required evaluator assets; Roman Hindi or English text labeled Hindi is not a substitute.",
+          "rangeSha256": "cc88309e18732c43709a2d6920c01f7f7cad4c60884733ad1aedb511eca4876d",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-LOC-01",
+        "SF-LOC-02",
+        "SF-LOC-03"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "locale",
+      "blockedReason": "native-language-reviewer-not-yet-assigned",
+      "evidenceLevel": "E0",
+      "expected": {
+        "appliesTo": [
+          "en",
+          "hi",
+          "ar"
+        ],
+        "keyClass": "fixedRow.*",
+        "keyPattern": "fixedRow.*",
+        "mandatory": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T12"
+      ],
+      "id": "EVAL-LOC-KEY-06",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1342",
+          "quote": "5. Import the evaluator-supplied complete Hindi content pack and Arabic RTL test pack using the locale UI, inspect a deliberately missing mandatory acknowledgment key in a separate invalid variant, and approve only the complete pack. Full native-script packs are required evaluator assets; Roman Hindi or English text labeled Hindi is not a substitute.",
+          "rangeSha256": "cc88309e18732c43709a2d6920c01f7f7cad4c60884733ad1aedb511eca4876d",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-LOC-01",
+        "SF-LOC-02",
+        "SF-LOC-03"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "locale",
+      "blockedReason": "native-language-reviewer-not-yet-assigned",
+      "evidenceLevel": "E0",
+      "expected": {
+        "appliesTo": [
+          "en",
+          "hi",
+          "ar"
+        ],
+        "keyClass": "guidance.short",
+        "keyPattern": "guidance.short",
+        "mandatory": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T12"
+      ],
+      "id": "EVAL-LOC-KEY-07",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1342",
+          "quote": "5. Import the evaluator-supplied complete Hindi content pack and Arabic RTL test pack using the locale UI, inspect a deliberately missing mandatory acknowledgment key in a separate invalid variant, and approve only the complete pack. Full native-script packs are required evaluator assets; Roman Hindi or English text labeled Hindi is not a substitute.",
+          "rangeSha256": "cc88309e18732c43709a2d6920c01f7f7cad4c60884733ad1aedb511eca4876d",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-LOC-01",
+        "SF-LOC-02",
+        "SF-LOC-03"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "locale",
+      "blockedReason": "native-language-reviewer-not-yet-assigned",
+      "evidenceLevel": "E0",
+      "expected": {
+        "appliesTo": [
+          "en",
+          "hi",
+          "ar"
+        ],
+        "keyClass": "guidance.detailed",
+        "keyPattern": "guidance.detailed",
+        "mandatory": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T12"
+      ],
+      "id": "EVAL-LOC-KEY-08",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1342",
+          "quote": "5. Import the evaluator-supplied complete Hindi content pack and Arabic RTL test pack using the locale UI, inspect a deliberately missing mandatory acknowledgment key in a separate invalid variant, and approve only the complete pack. Full native-script packs are required evaluator assets; Roman Hindi or English text labeled Hindi is not a substitute.",
+          "rangeSha256": "cc88309e18732c43709a2d6920c01f7f7cad4c60884733ad1aedb511eca4876d",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-LOC-01",
+        "SF-LOC-02",
+        "SF-LOC-03"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "locale",
+      "blockedReason": "native-language-reviewer-not-yet-assigned",
+      "evidenceLevel": "E0",
+      "expected": {
+        "appliesTo": [
+          "en",
+          "hi",
+          "ar"
+        ],
+        "keyClass": "glossary.estimate",
+        "keyPattern": "glossary.estimate",
+        "mandatory": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T12"
+      ],
+      "id": "EVAL-LOC-KEY-09",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1342",
+          "quote": "5. Import the evaluator-supplied complete Hindi content pack and Arabic RTL test pack using the locale UI, inspect a deliberately missing mandatory acknowledgment key in a separate invalid variant, and approve only the complete pack. Full native-script packs are required evaluator assets; Roman Hindi or English text labeled Hindi is not a substitute.",
+          "rangeSha256": "cc88309e18732c43709a2d6920c01f7f7cad4c60884733ad1aedb511eca4876d",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-LOC-01",
+        "SF-LOC-02",
+        "SF-LOC-03"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "locale",
+      "blockedReason": "native-language-reviewer-not-yet-assigned",
+      "evidenceLevel": "E0",
+      "expected": {
+        "appliesTo": [
+          "en",
+          "hi",
+          "ar"
+        ],
+        "keyClass": "qa.estimate.question",
+        "keyPattern": "qa.estimate.question",
+        "mandatory": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T12"
+      ],
+      "id": "EVAL-LOC-KEY-10",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1342",
+          "quote": "5. Import the evaluator-supplied complete Hindi content pack and Arabic RTL test pack using the locale UI, inspect a deliberately missing mandatory acknowledgment key in a separate invalid variant, and approve only the complete pack. Full native-script packs are required evaluator assets; Roman Hindi or English text labeled Hindi is not a substitute.",
+          "rangeSha256": "cc88309e18732c43709a2d6920c01f7f7cad4c60884733ad1aedb511eca4876d",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-LOC-01",
+        "SF-LOC-02",
+        "SF-LOC-03"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "locale",
+      "blockedReason": "native-language-reviewer-not-yet-assigned",
+      "evidenceLevel": "E0",
+      "expected": {
+        "appliesTo": [
+          "en",
+          "hi",
+          "ar"
+        ],
+        "keyClass": "qa.estimate.answer",
+        "keyPattern": "qa.estimate.answer",
+        "mandatory": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T12"
+      ],
+      "id": "EVAL-LOC-KEY-11",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1342",
+          "quote": "5. Import the evaluator-supplied complete Hindi content pack and Arabic RTL test pack using the locale UI, inspect a deliberately missing mandatory acknowledgment key in a separate invalid variant, and approve only the complete pack. Full native-script packs are required evaluator assets; Roman Hindi or English text labeled Hindi is not a substitute.",
+          "rangeSha256": "cc88309e18732c43709a2d6920c01f7f7cad4c60884733ad1aedb511eca4876d",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-LOC-01",
+        "SF-LOC-02",
+        "SF-LOC-03"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "locale",
+      "blockedReason": "native-language-reviewer-not-yet-assigned",
+      "evidenceLevel": "E0",
+      "expected": {
+        "appliesTo": [
+          "en",
+          "hi",
+          "ar"
+        ],
+        "keyClass": "qa.estimate.paraphrase.1",
+        "keyPattern": "qa.estimate.paraphrase.1",
+        "mandatory": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T12"
+      ],
+      "id": "EVAL-LOC-KEY-12",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1342",
+          "quote": "5. Import the evaluator-supplied complete Hindi content pack and Arabic RTL test pack using the locale UI, inspect a deliberately missing mandatory acknowledgment key in a separate invalid variant, and approve only the complete pack. Full native-script packs are required evaluator assets; Roman Hindi or English text labeled Hindi is not a substitute.",
+          "rangeSha256": "cc88309e18732c43709a2d6920c01f7f7cad4c60884733ad1aedb511eca4876d",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-LOC-01",
+        "SF-LOC-02",
+        "SF-LOC-03"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "locale",
+      "blockedReason": "native-language-reviewer-not-yet-assigned",
+      "evidenceLevel": "E0",
+      "expected": {
+        "appliesTo": [
+          "en",
+          "hi",
+          "ar"
+        ],
+        "keyClass": "narration.equipment",
+        "keyPattern": "narration.equipment",
+        "mandatory": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T12"
+      ],
+      "id": "EVAL-LOC-KEY-13",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1342",
+          "quote": "5. Import the evaluator-supplied complete Hindi content pack and Arabic RTL test pack using the locale UI, inspect a deliberately missing mandatory acknowledgment key in a separate invalid variant, and approve only the complete pack. Full native-script packs are required evaluator assets; Roman Hindi or English text labeled Hindi is not a substitute.",
+          "rangeSha256": "cc88309e18732c43709a2d6920c01f7f7cad4c60884733ad1aedb511eca4876d",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-LOC-01",
+        "SF-LOC-02",
+        "SF-LOC-03"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "locale",
+      "blockedReason": "native-language-reviewer-not-yet-assigned",
+      "evidenceLevel": "E0",
+      "expected": {
+        "appliesTo": [
+          "en",
+          "hi",
+          "ar"
+        ],
+        "keyClass": "ack.review",
+        "keyPattern": "ack.review",
+        "mandatory": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T12"
+      ],
+      "id": "EVAL-LOC-KEY-14",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1342",
+          "quote": "5. Import the evaluator-supplied complete Hindi content pack and Arabic RTL test pack using the locale UI, inspect a deliberately missing mandatory acknowledgment key in a separate invalid variant, and approve only the complete pack. Full native-script packs are required evaluator assets; Roman Hindi or English text labeled Hindi is not a substitute.",
+          "rangeSha256": "cc88309e18732c43709a2d6920c01f7f7cad4c60884733ad1aedb511eca4876d",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-LOC-01",
+        "SF-LOC-02",
+        "SF-LOC-03"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "locale",
+      "blockedReason": "native-language-reviewer-not-yet-assigned",
+      "evidenceLevel": "E0",
+      "expected": {
+        "appliesTo": [
+          "en",
+          "hi",
+          "ar"
+        ],
+        "keyClass": "confirmation",
+        "keyPattern": "confirmation",
+        "mandatory": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T12"
+      ],
+      "id": "EVAL-LOC-KEY-15",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1342",
+          "quote": "5. Import the evaluator-supplied complete Hindi content pack and Arabic RTL test pack using the locale UI, inspect a deliberately missing mandatory acknowledgment key in a separate invalid variant, and approve only the complete pack. Full native-script packs are required evaluator assets; Roman Hindi or English text labeled Hindi is not a substitute.",
+          "rangeSha256": "cc88309e18732c43709a2d6920c01f7f7cad4c60884733ad1aedb511eca4876d",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-LOC-01",
+        "SF-LOC-02",
+        "SF-LOC-03"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "locale",
+      "blockedReason": "native-language-reviewer-not-yet-assigned",
+      "evidenceLevel": "E0",
+      "expected": {
+        "appliesTo": [
+          "en",
+          "hi",
+          "ar"
+        ],
+        "keyClass": "system.notProvided",
+        "keyPattern": "system.notProvided",
+        "mandatory": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T12"
+      ],
+      "id": "EVAL-LOC-KEY-16",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1342",
+          "quote": "5. Import the evaluator-supplied complete Hindi content pack and Arabic RTL test pack using the locale UI, inspect a deliberately missing mandatory acknowledgment key in a separate invalid variant, and approve only the complete pack. Full native-script packs are required evaluator assets; Roman Hindi or English text labeled Hindi is not a substitute.",
+          "rangeSha256": "cc88309e18732c43709a2d6920c01f7f7cad4c60884733ad1aedb511eca4876d",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-LOC-01",
+        "SF-LOC-02",
+        "SF-LOC-03"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "locale",
+      "blockedReason": "native-language-reviewer-not-yet-assigned",
+      "evidenceLevel": "E0",
+      "expected": {
+        "appliesTo": [
+          "en",
+          "hi",
+          "ar"
+        ],
+        "keyClass": "review.status.*",
+        "keyPattern": "review.status.*",
+        "mandatory": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T12"
+      ],
+      "id": "EVAL-LOC-KEY-17",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1342",
+          "quote": "5. Import the evaluator-supplied complete Hindi content pack and Arabic RTL test pack using the locale UI, inspect a deliberately missing mandatory acknowledgment key in a separate invalid variant, and approve only the complete pack. Full native-script packs are required evaluator assets; Roman Hindi or English text labeled Hindi is not a substitute.",
+          "rangeSha256": "cc88309e18732c43709a2d6920c01f7f7cad4c60884733ad1aedb511eca4876d",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-LOC-01",
+        "SF-LOC-02",
+        "SF-LOC-03"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "locale",
+      "blockedReason": "native-language-reviewer-not-yet-assigned",
+      "evidenceLevel": "E0",
+      "expected": {
+        "appliesTo": [
+          "en",
+          "hi",
+          "ar"
+        ],
+        "keyClass": "msg.itemCount",
+        "keyPattern": "msg.itemCount",
+        "mandatory": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T12"
+      ],
+      "id": "EVAL-LOC-KEY-18",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1342",
+          "quote": "5. Import the evaluator-supplied complete Hindi content pack and Arabic RTL test pack using the locale UI, inspect a deliberately missing mandatory acknowledgment key in a separate invalid variant, and approve only the complete pack. Full native-script packs are required evaluator assets; Roman Hindi or English text labeled Hindi is not a substitute.",
+          "rangeSha256": "cc88309e18732c43709a2d6920c01f7f7cad4c60884733ad1aedb511eca4876d",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-LOC-01",
+        "SF-LOC-02",
+        "SF-LOC-03"
+      ],
+      "status": "not-run"
+    }
+  ],
+  "referenceClosure": {
+    "checker": "locales/check_locale_closure.py",
+    "counts": {
+      "authorPages": 3,
+      "authorQuestions": 30,
+      "fixed": 14,
+      "fixtureGroups": 4,
+      "fixtureKeyOccurrences": 3,
+      "guidance": 84,
+      "packageOptions": 74,
+      "packagePages": 10,
+      "packageQuestions": 84,
+      "reviewStatuses": 7,
+      "staleFixtureKeyOccurrences": 1
+    },
+    "fixtureReferenceRule": "Traverse all four fixture group JSON files for explicit locale message keys. T12 staleKey remains a negative assertion and must not be added to a complete pack.",
+    "keyCount": 277,
+    "missingReferenceCount": 0,
+    "nativeScriptStatus": "Hindi and Arabic evaluator-selected native-script bytes are frozen pending native review; no linguistic approval is claimed.",
+    "sourceScopes": [
+      "packages/package-hc.json",
+      "packages/package-nhc.json",
+      "oracles/author-oracle.json",
+      "oracles/respondent-oracle.json",
+      "oracles/focus-oracle.json",
+      "review/review-projection.json",
+      "review/status-label-map.json",
+      "locales/locale-expectations.json",
+      "locales/plural-map.json",
+      "locales/invalid-variant.json",
+      "fixtures/t01-t07.json",
+      "fixtures/t08-t15.json",
+      "fixtures/t17-t24.json",
+      "fixtures/t25-t32.json"
+    ]
+  }
+}

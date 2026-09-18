@@ -1,0 +1,34 @@
+{
+  "M0": {
+    "executed": [],
+    "prepared": [
+      "EVAL-SNT-01",
+      "EVAL-SNT-02"
+    ]
+  },
+  "M12": [
+    "EVAL-SNT-01",
+    "EVAL-SNT-02",
+    "EVAL-SNT-03",
+    "EVAL-SNT-04",
+    "EVAL-SNT-05",
+    "EVAL-SNT-06",
+    "EVAL-SNT-07"
+  ],
+  "M3": [
+    "EVAL-SNT-01",
+    "EVAL-SNT-02",
+    "EVAL-SNT-03"
+  ],
+  "M8": [
+    "EVAL-SNT-03",
+    "EVAL-SNT-04",
+    "EVAL-SNT-05",
+    "EVAL-SNT-07"
+  ],
+  "rule": "every scheduled sentinel must actually fail its gate; an undetected sentinel is a gate failure, not a warning",
+  "scheduleSemantics": {
+    "M0": "prepared entries are public-freeze inputs; executed is always empty at M0",
+    "M3AndLater": "entries are executed sentinel requirements; held-out commitments block sentinel credit until sealed"
+  }
+}

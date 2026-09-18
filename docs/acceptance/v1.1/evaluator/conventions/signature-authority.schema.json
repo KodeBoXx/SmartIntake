@@ -1,0 +1,31 @@
+{
+  "$id": "urn:smartintake:evaluator:signature-authority:v1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "authority": {
+      "enum": [
+        "independent-agent-review",
+        "human-independent-review"
+      ]
+    },
+    "keyId": {
+      "pattern": "^evaluator-[a-z0-9-]+-ed25519-v[1-9][0-9]*$",
+      "type": "string"
+    },
+    "provider": {
+      "const": "codex-gpt"
+    },
+    "publicKey": {
+      "pattern": "^[A-Za-z0-9_-]{43}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "authority",
+    "provider",
+    "keyId",
+    "publicKey"
+  ],
+  "type": "object"
+}

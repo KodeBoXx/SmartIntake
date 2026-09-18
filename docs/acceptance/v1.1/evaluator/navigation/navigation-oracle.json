@@ -1,0 +1,366 @@
+{
+  "corpusVersion": "2.4.21-m0",
+  "fixtureBinding": "equipment-support",
+  "frozenStrings": [
+    "Answer steps complete. Review and submit remain.",
+    "An answer added a step.",
+    "Remaining steps may change.",
+    "No answer steps. Review and submit remain."
+  ],
+  "records": [
+    {
+      "assertionType": "navigation",
+      "evidenceLevel": "E2",
+      "expected": {
+        "invariants": [
+          "unchecked-final-acknowledgment-does-not-change-ratio",
+          "unchecked-final-acknowledgment-blocks-submission",
+          "accepted-receipt-is-a-separate-state-from-2/2",
+          "pending-save-has-its-own-visible-status",
+          "pending-save-never-presented-as-accepted-submission",
+          "network-latency-alone-never-invalidates-a-valid-page",
+          "submission-waits-for-consistent-server-revision"
+        ],
+        "states": [
+          {
+            "denominator": 2,
+            "display": "0/2",
+            "numerator": 0,
+            "stateId": "about-initial",
+            "supplementalMessage": null
+          },
+          {
+            "denominator": 2,
+            "display": "1/2",
+            "numerator": 1,
+            "stateId": "equipment-after-valid-next",
+            "supplementalMessage": null
+          },
+          {
+            "denominator": 2,
+            "display": "2/2",
+            "numerator": 2,
+            "stateId": "review-arrival",
+            "supplementalMessage": "Answer steps complete. Review and submit remain."
+          }
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T05",
+        "T14"
+      ],
+      "id": "EVAL-NAV-BASE",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1409",
+          "quote": "For the main two-answer-page task: initial About is **0/2**; successful Next to Equipment is **1/2**; arrival at Review after valid Equipment is **2/2**. Unchecked final acknowledgment does not alter that ratio and still blocks submission. Accompany 2/2 with **Answer steps complete. Review and submit remain.** A later accepted receipt is a separate state. Pending save has its own visible status; it never masquerades as an accepted submission or changes a valid page into invalid solely due to network latency. Submission waits for consistent server revision.",
+          "rangeSha256": "af901f816449a44e3476fcecb98c5a0fc84142edbec45922a16da92d25133a71",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-RES-01",
+        "SF-RUL-04",
+        "SF-UX-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "navigation",
+      "evidenceLevel": "E2",
+      "expected": {
+        "invariants": [
+          "optional-page-counts-while-on-route",
+          "optional-page-completes-on-valid-next-with-unanswered-optional-answers"
+        ],
+        "states": [
+          {
+            "denominator": 2,
+            "display": "1/2",
+            "numerator": 1,
+            "stateId": "about-valid"
+          },
+          {
+            "at": "Review",
+            "denominator": 2,
+            "display": "2/2",
+            "numerator": 2,
+            "stateId": "equipment-all-optional-unanswered-valid-next",
+            "supplementalMessage": "Answer steps complete. Review and submit remain."
+          }
+        ],
+        "variant": "explicit all-optional Equipment variant if Equipment has required control"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T05",
+        "T14"
+      ],
+      "id": "EVAL-NAV-01",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1413",
+          "quote": "- **Optional empty page:** About valid → 1/2; leave every optional input on Equipment unanswered and press valid Next → 2/2 at Review. If the fixture's Equipment has a required control, this vector must use its explicit all-optional variant; do not silently waive the main task's required fields.",
+          "rangeSha256": "7d65a5438c70c1cb97d781fbfe72e62e760f9ac87c1c6180f3017c31c971c2e9",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-RES-01",
+        "SF-RUL-04",
+        "SF-UX-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "navigation",
+      "evidenceLevel": "E2",
+      "expected": {
+        "invariants": [
+          "previously-completed-pages-remain-valid",
+          "new-page-starts-incomplete",
+          "back-history-excludes-now-inapplicable-branch"
+        ],
+        "states": [
+          {
+            "denominator": 2,
+            "display": "2/2",
+            "numerator": 2,
+            "stateId": "about+equipment-complete-needsSetup-false"
+          },
+          {
+            "denominator": 3,
+            "display": "2/3",
+            "numerator": 2,
+            "stateId": "review-edit-needsSetup-true",
+            "supplementalMessage": "An answer added a step.",
+            "trigger": "review edit sets needsSetup true"
+          },
+          {
+            "at": "review",
+            "denominator": 3,
+            "display": "3/3",
+            "numerator": 3,
+            "stateId": "detail-page-filled-and-left"
+          }
+        ],
+        "variant": "setupDetails on third conditional answer page after Equipment"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T05",
+        "T14"
+      ],
+      "id": "EVAL-NAV-02",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1414",
+          "quote": "- **New work:** a separate variant moves setupDetails to a third conditional answer page after Equipment. With needsSetup=false, complete About/Equipment → 2/2. From review edit needsSetup=true. Previously completed About/Equipment remain valid; the new detail page is incomplete, so progress becomes 2/3 with **An answer added a step.** Fill and leave that page → 3/3 at review. Back history cannot include a now-inapplicable old branch.",
+          "rangeSha256": "efb5e994719f3c7e8aed4113cef98429f05f6c10c36e00ec30ab5d93f615bbbf",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-RES-01",
+        "SF-RUL-04",
+        "SF-UX-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "navigation",
+      "evidenceLevel": "E2",
+      "expected": {
+        "invariants": [
+          "exact-error-shown",
+          "refreshed-review-required-after-correction"
+        ],
+        "states": [
+          {
+            "denominator": 2,
+            "display": "1/2",
+            "numerator": 1,
+            "stateId": "about-required-cleared"
+          },
+          {
+            "denominator": 2,
+            "display": "2/2",
+            "numerator": 2,
+            "stateId": "about-revalidated"
+          }
+        ],
+        "trigger": "from 2/2, clear a required About value through a review edit link"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T05",
+        "T14"
+      ],
+      "id": "EVAL-NAV-03",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1415",
+          "quote": "- **Invalidated completed page:** from 2/2, clear a required value on About through an edit link. About becomes incomplete and progress becomes 1/2 until it validates again. Show the exact error and require refreshed review after correction.",
+          "rangeSha256": "7160e6bc71b53701762d4b664cac5b02f53b6c348fdde39020df5ed1da1c5c58",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-RES-01",
+        "SF-RUL-04",
+        "SF-UX-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "navigation",
+      "evidenceLevel": "E2",
+      "expected": {
+        "invariants": [
+          "must-not-claim-unknown-route-completed"
+        ],
+        "states": [
+          {
+            "denominator": "known-path count",
+            "numeratorDenominator": "known-path count",
+            "stateId": "branch-unanswered",
+            "supplementalMessage": "Remaining steps may change."
+          },
+          {
+            "denominator": "resolved exact denominator",
+            "stateId": "branch-resolved"
+          }
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T05",
+        "T14"
+      ],
+      "id": "EVAL-NAV-04",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1416",
+          "quote": "- **Unresolved branch:** when the branch decision is unanswered, show the known-path count plus **Remaining steps may change.** Do not claim the unknown route has been completed. Once resolved, display the new exact denominator.",
+          "rangeSha256": "1877e20001deac60c4ee669a425e45d21d3663186e8a56d4ce19e643cb38a03d",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-RES-01",
+        "SF-RUL-04",
+        "SF-UX-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "navigation",
+      "evidenceLevel": "E2",
+      "expected": {
+        "invariants": [
+          "no-division-by-zero",
+          "must-not-imply-submission",
+          "final-acknowledgment-still-gates-submit"
+        ],
+        "states": [
+          {
+            "denominator": 0,
+            "display": null,
+            "numerator": 0,
+            "stateId": "content-only-direct-to-review",
+            "supplementalMessage": "No answer steps. Review and submit remain."
+          }
+        ],
+        "variant": "content-only form"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T05",
+        "T14"
+      ],
+      "id": "EVAL-NAV-05",
+      "milestoneGates": [
+        "M8",
+        "M12"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1417",
+          "quote": "- **No answer pages:** a content-only form goes directly to review with **No answer steps. Review and submit remain.** Do not divide by zero or imply submission; any final acknowledgment still gates Submit.",
+          "rangeSha256": "5b1db3cc95e71ba62b9455fdfb18cf2739c918b4e1cd96a5616f1deff599c89c",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-RES-01",
+        "SF-RUL-04",
+        "SF-UX-01"
+      ],
+      "status": "not-run"
+    }
+  ],
+  "unit": "answerPages"
+}

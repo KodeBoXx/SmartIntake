@@ -1,0 +1,1339 @@
+{
+  "corpusVersion": "2.4.21-m0",
+  "executionStatus": "not-run",
+  "frozenInputProtocol": {
+    "apiExportJobBinding": {
+      "completion": {
+        "mustConsume": "bound create response exportJobId",
+        "required": [
+          "exportJobId",
+          "format",
+          "status",
+          "completed",
+          "completionMilliseconds"
+        ],
+        "status": "completed"
+      },
+      "createOperations": [
+        {
+          "binding": {
+            "exportJobId": "/exportJobId",
+            "format": "/format",
+            "immutableHandle": "format-specific"
+          },
+          "format": "json",
+          "operationId": "ON-post-v1-workspaces-w-exports-380db1264c",
+          "request": {
+            "columns": [
+              "responseId",
+              "submissionId",
+              "submittedAtUtc",
+              "answers"
+            ],
+            "filterSnapshot": {
+              "formId": "form-responses-target",
+              "releaseId": "release-7f0b3b08413bac14",
+              "statuses": [
+                "submitted"
+              ],
+              "submittedAtUtc": {
+                "gte": "2026-01-01T00:00:00Z",
+                "lt": "2026-02-01T00:00:00Z"
+              },
+              "workspaceId": "workspace-responses-10000"
+            },
+            "formId": "form-responses-target",
+            "format": "json",
+            "includeDataDictionary": true,
+            "includeInterpretation": true
+          },
+          "requestSelection": {
+            "columns": [
+              "responseId",
+              "submissionId",
+              "submittedAtUtc",
+              "answers"
+            ],
+            "filterSnapshot": {
+              "formId": "form-responses-target",
+              "releaseId": "release-7f0b3b08413bac14",
+              "statuses": [
+                "submitted"
+              ],
+              "submittedAtUtc": {
+                "gte": "2026-01-01T00:00:00Z",
+                "lt": "2026-02-01T00:00:00Z"
+              },
+              "workspaceId": "workspace-responses-10000"
+            },
+            "formId": "form-responses-target",
+            "includeDataDictionary": true,
+            "includeInterpretation": true
+          },
+          "response": {
+            "httpStatus": 202,
+            "required": [
+              "exportJobId",
+              "format",
+              "status"
+            ],
+            "status": "queued"
+          },
+          "responseBoundIds": [],
+          "semantic": "createExportJson"
+        },
+        {
+          "binding": {
+            "exportJobId": "/exportJobId",
+            "format": "/format",
+            "immutableHandle": "format-specific"
+          },
+          "format": "relational-csv-bundle",
+          "operationId": "ON-post-v1-workspaces-w-exports-380db1264c",
+          "request": {
+            "columns": [
+              "responseId",
+              "submissionId",
+              "submittedAtUtc",
+              "answers"
+            ],
+            "filterSnapshot": {
+              "formId": "form-responses-target",
+              "releaseId": "release-7f0b3b08413bac14",
+              "statuses": [
+                "submitted"
+              ],
+              "submittedAtUtc": {
+                "gte": "2026-01-01T00:00:00Z",
+                "lt": "2026-02-01T00:00:00Z"
+              },
+              "workspaceId": "workspace-responses-10000"
+            },
+            "formId": "form-responses-target",
+            "format": "relational-csv-bundle",
+            "includeDataDictionary": true,
+            "includeInterpretation": true
+          },
+          "requestSelection": {
+            "columns": [
+              "responseId",
+              "submissionId",
+              "submittedAtUtc",
+              "answers"
+            ],
+            "filterSnapshot": {
+              "formId": "form-responses-target",
+              "releaseId": "release-7f0b3b08413bac14",
+              "statuses": [
+                "submitted"
+              ],
+              "submittedAtUtc": {
+                "gte": "2026-01-01T00:00:00Z",
+                "lt": "2026-02-01T00:00:00Z"
+              },
+              "workspaceId": "workspace-responses-10000"
+            },
+            "formId": "form-responses-target",
+            "includeDataDictionary": true,
+            "includeInterpretation": true
+          },
+          "response": {
+            "httpStatus": 202,
+            "required": [
+              "exportJobId",
+              "format",
+              "status"
+            ],
+            "status": "queued"
+          },
+          "responseBoundIds": [],
+          "semantic": "createExportRelationalCsv"
+        }
+      ],
+      "distinctFormats": true,
+      "download": {
+        "mustConsume": "bound create response exportJobId",
+        "required": [
+          "exportJobId",
+          "format",
+          "status",
+          "downloaded",
+          "elapsedMilliseconds"
+        ],
+        "status": "downloaded"
+      },
+      "endToEndMilliseconds": 60000,
+      "timing": {
+        "measuredTotal": "create-through-verified-download",
+        "receipt": "immediately-after-create-response",
+        "start": "immediately-before-product-create-export"
+      }
+    },
+    "browserDiscoveryProbe": {
+      "execution": "Runner retains canonicalized parsed WebDriver HTTP status/header fields and original response-body bytes, plus session-scoped provider AT capability response evidence, as base64 plus SHA-256 before parsing. It does not claim original HTTP status-line/header-byte capture. Each probe records a minimal cleanup lease before stdout; the runner closes every created session on parse/validation failure and in an outer finally after all package series. Unsupported provider-side AT capability or freshness evidence is blocked.",
+      "ownedProbe": {
+        "invocation": [
+          "{ownedProbePath}",
+          "--config-id",
+          "{configId}",
+          "--lease-output",
+          "{leaseOutput}"
+        ],
+        "mode": 755,
+        "repoRelativePath": "assets/t22_browser_discovery_probe.py",
+        "sha256": "bd62401febdc93ead55dce6a60b9d616a6619c23f87a20999385d6264533047c"
+      },
+      "releaseAuthorities": {
+        "independence": "measurement endpoint authority must differ from release authority; production release URLs are HTTPS and host-allowlisted; explicit test mode alone permits loopback release catalogs.",
+        "maximumAgeSeconds": 3600,
+        "rules": {
+          "Chrome": {
+            "hosts": [
+              "googlechromelabs.github.io"
+            ],
+            "parser": "chrome-for-testing",
+            "url": "https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json"
+          },
+          "Edge": {
+            "hosts": [
+              "edgeupdates.microsoft.com"
+            ],
+            "parser": "edge-updates",
+            "url": "https://edgeupdates.microsoft.com/api/products?view=enterprise"
+          },
+          "Firefox": {
+            "hosts": [
+              "product-details.mozilla.org"
+            ],
+            "parser": "mozilla-major-history",
+            "url": "https://product-details.mozilla.org/1.0/firefox_history_major_releases.json"
+          },
+          "Safari": {
+            "hosts": [
+              "developer.apple.com"
+            ],
+            "parser": "apple-safari-release-catalog",
+            "url": "https://developer.apple.com/news/releases/"
+          }
+        },
+        "testCatalogBaseEnvironment": "T22_RELEASE_AUTHORITY_TEST_BASE_URL",
+        "testModeEnvironment": "T22_BROWSER_PROBE_TEST_MODE"
+      },
+      "schemaVersion": "t22-browser-discovery-probe/v3",
+      "sourceEnvironment": {
+        "nativeAndroidAdb": "T22_NATIVE_ANDROID_ADB",
+        "nativeIosXcrun": "T22_NATIVE_IOS_XCRUN",
+        "nativeMacosMdls": "T22_NATIVE_MACOS_MDLS",
+        "nativeWindowsPowerShell": "T22_NATIVE_WINDOWS_POWERSHELL",
+        "note": "These configure frozen real providers or installed channels only; none may select or replace the evaluator probe executable. T22_*_TEST_SEAM values are selfcheck-only provider fixtures and are not command-contract runtime prerequisites.",
+        "playwrightChromeLatestExecutable": "T22_PLAYWRIGHT_CHROME_LATEST_EXECUTABLE",
+        "playwrightChromePreviousMajorExecutable": "T22_PLAYWRIGHT_CHROME_PREVIOUS_MAJOR_EXECUTABLE",
+        "playwrightEdgeLatestExecutable": "T22_PLAYWRIGHT_EDGE_LATEST_EXECUTABLE",
+        "playwrightEdgePreviousMajorExecutable": "T22_PLAYWRIGHT_EDGE_PREVIOUS_MAJOR_EXECUTABLE",
+        "playwrightFirefoxLatestExecutable": "T22_PLAYWRIGHT_FIREFOX_LATEST_EXECUTABLE",
+        "playwrightFirefoxPreviousMajorExecutable": "T22_PLAYWRIGHT_FIREFOX_PREVIOUS_MAJOR_EXECUTABLE",
+        "releaseAuthorityTestCatalogBase": "T22_RELEASE_AUTHORITY_TEST_BASE_URL",
+        "testMode": "T22_BROWSER_PROBE_TEST_MODE",
+        "webdriverEndpoint": "T22_WEBDRIVER_ENDPOINT"
+      },
+      "sourceRules": [
+        {
+          "accessibilitySourceKind": "native-version-command",
+          "browserSourceKind": "webdriver-capabilities",
+          "command": "create-persistent-w3c-session",
+          "configId": "matrix-00a07d3b249b831e",
+          "persistentSession": true,
+          "requiredDeviceCapability": "se:containerName",
+          "tool": "playwright"
+        },
+        {
+          "accessibilitySourceKind": "none",
+          "browserSourceKind": "webdriver-capabilities",
+          "command": "create-persistent-w3c-session",
+          "configId": "matrix-ac7ec55d5c70098b",
+          "persistentSession": true,
+          "requiredDeviceCapability": "se:containerName",
+          "tool": "playwright"
+        },
+        {
+          "accessibilitySourceKind": "native-version-command",
+          "browserSourceKind": "webdriver-capabilities",
+          "command": "create-persistent-w3c-session",
+          "configId": "matrix-6bc3a5f5c932a9b1",
+          "persistentSession": true,
+          "requiredDeviceCapability": "se:containerName",
+          "tool": "playwright"
+        },
+        {
+          "accessibilitySourceKind": "none",
+          "browserSourceKind": "webdriver-capabilities",
+          "command": "create-persistent-w3c-session",
+          "configId": "matrix-4d9fc6b25662f26a",
+          "persistentSession": true,
+          "requiredDeviceCapability": "se:containerName",
+          "tool": "playwright"
+        },
+        {
+          "accessibilitySourceKind": "native-version-command",
+          "browserSourceKind": "webdriver-capabilities",
+          "command": "create-persistent-w3c-session",
+          "configId": "matrix-4053598a6b3bf56a",
+          "persistentSession": true,
+          "requiredDeviceCapability": "se:containerName",
+          "tool": "playwright"
+        },
+        {
+          "accessibilitySourceKind": "none",
+          "browserSourceKind": "webdriver-capabilities",
+          "command": "create-persistent-w3c-session",
+          "configId": "matrix-4b5a3b6ac4a863d0",
+          "persistentSession": true,
+          "requiredDeviceCapability": "se:containerName",
+          "tool": "playwright"
+        },
+        {
+          "accessibilitySourceKind": "native-version-command",
+          "browserSourceKind": "webdriver-capabilities",
+          "command": "create-persistent-w3c-session",
+          "configId": "matrix-8d467c2aadde4a29",
+          "persistentSession": true,
+          "requiredDeviceCapability": "se:containerName",
+          "tool": "webdriver"
+        },
+        {
+          "accessibilitySourceKind": "native-version-command",
+          "browserSourceKind": "webdriver-capabilities",
+          "command": "create-persistent-w3c-session",
+          "configId": "matrix-0231cd62fbff1bd6",
+          "persistentSession": true,
+          "requiredDeviceCapability": "se:containerName",
+          "tool": "webdriver"
+        },
+        {
+          "accessibilitySourceKind": "native-version-command",
+          "browserSourceKind": "webdriver-capabilities",
+          "command": "create-persistent-w3c-session",
+          "configId": "matrix-cffbe7608de996d9",
+          "persistentSession": true,
+          "requiredDeviceCapability": "appium:udid",
+          "tool": "webdriver"
+        },
+        {
+          "accessibilitySourceKind": "native-version-command",
+          "browserSourceKind": "webdriver-capabilities",
+          "command": "create-persistent-w3c-session",
+          "configId": "matrix-89833b9723af74ab",
+          "persistentSession": true,
+          "requiredDeviceCapability": "appium:udid",
+          "tool": "webdriver"
+        }
+      ],
+      "sourceSchemas": {
+        "native-version-command": {
+          "accessibilityKeys": [
+            "name",
+            "version"
+          ],
+          "accessibilitySourceRequiredKeys": [
+            "native",
+            "providerResponses"
+          ],
+          "derive": {
+            "at": "accessibilitySource.native.accessibility.name",
+            "atVersion": "accessibilitySource.native.accessibility.version"
+          },
+          "nativeRequiredKeys": [
+            "accessibility",
+            "platform",
+            "device"
+          ],
+          "platformKeys": [
+            "name",
+            "version"
+          ],
+          "rawOutputKeys": [
+            "accessibilitySource"
+          ],
+          "rawProviderResponse": "providerResponses retains canonicalized parsed HTTP status/header fields and original session-scoped provider AT body bytes in base64 with SHA-256 before parsing. It does not claim original HTTP status-line/header-byte capture. Evaluator-host native output is not a substitute for mobile or remote desktop AT."
+        },
+        "playwright-browser-version": {
+          "browserSourceRequiredKeys": [
+            "browserName",
+            "browserVersion",
+            "platformName",
+            "platformVersion",
+            "deviceName"
+          ],
+          "derive": {
+            "browser": "browserSource.browserName",
+            "browserVersion": "browserSource.browserVersion",
+            "device": "browserSource.deviceName",
+            "os": "browserSource.platformName",
+            "osVersion": "browserSource.platformVersion"
+          },
+          "rawOutputKeys": [
+            "browserSource"
+          ]
+        },
+        "webdriver-capabilities": {
+          "browserSourceKeys": [
+            "endpointUrl",
+            "endpointAuthority",
+            "providerHttp",
+            "providerResponse"
+          ],
+          "capabilitiesRequiredKeys": [
+            "browserName",
+            "browserVersion",
+            "platformName"
+          ],
+          "derive": {
+            "browser": "providerResponse.value.capabilities.browserName",
+            "browserVersion": "providerResponse.value.capabilities.browserVersion",
+            "device": "providerResponse.value.capabilities.appium:deviceName (mobile) or platform mapping",
+            "os": "providerResponse.value.capabilities.platformName"
+          },
+          "extraCapabilities": "Extra standard or provider capabilities are retained verbatim and permitted; ordinary WebDriver accessibilityName/accessibilityVersion claims are never used.",
+          "mobileCapabilitiesRequiredKeys": [
+            "appium:deviceName"
+          ],
+          "persistentSessionBinding": {
+            "deviceId": "appium:udid for mobile; se:containerName otherwise",
+            "endpointAuthority": "browserSource.endpointAuthority",
+            "exactCapabilities": "providerResponse.value.capabilities",
+            "sessionId": "providerResponse.value.sessionId"
+          },
+          "providerResponseRequiredKeys": [
+            "value"
+          ],
+          "rawOutputKeys": [
+            "browserSource"
+          ],
+          "rawProviderResponse": "providerHttp retains canonicalized parsed HTTP status/header fields and original body bytes in base64 with independent SHA-256; providerResponse is a separately derived parsed object. It does not claim original HTTP status-line/header-byte capture."
+        }
+      },
+      "stdout": "exactly one UTF-8 JSON value on stdout; stderr is diagnostic only; output is retained verbatim by the runner",
+      "timeoutSeconds": 10
+    },
+    "browserInstrumentation": {
+      "metrics": [
+        "localRenderMilliseconds",
+        "firstUsableMilliseconds"
+      ],
+      "minSamplesPerSeries": 2,
+      "prohibit": "HTTP latency cannot satisfy browser local-rendering or first-usable buckets. Every frozen matrix configuration and each named package bucket must have minSamplesPerSeries independently identified observations; scalar reuse is prohibited. Desktop latest and previous-major observations must prove adjacent observed browser majors at execution time.",
+      "requiredHook": "browser_instrument",
+      "thresholds": {
+        "firstUsableP95Milliseconds": 5000,
+        "localRenderP95Milliseconds": 100
+      }
+    },
+    "commands": [
+      {
+        "datasetId": "catalog-10000",
+        "dryRunCommand": "python3 docs/acceptance/v1.1/evaluator/assets/t22_workload_runner.py --workload large-catalog --phase cold --dry-run --output /tmp/t22-large_catalog-cold.json",
+        "executionCommand": "python3 docs/acceptance/v1.1/evaluator/assets/t22_workload_runner.py --workload large-catalog --phase cold --base-url \"$T22_BASE_URL\" --adapter \"$T22_RUNTIME_ADAPTER\" --output /tmp/t22-large_catalog-cold.json",
+        "generatorCommand": "python3 docs/acceptance/v1.1/evaluator/assets/t22_dataset_generator.py --dataset catalog-10000 --output /tmp/t22-catalog-10000.json --verify",
+        "purpose": "Runs only inventory-bound operations after adapter materializes M2-unspecified bodies/handles; missing adapter/hooks writes blocked result and returns nonzero.",
+        "runtimeEnvironment": {
+          "optional": [
+            "T22_AUTHORIZATION"
+          ],
+          "required": [
+            "T22_BASE_URL",
+            "T22_RUNTIME_ADAPTER"
+          ],
+          "secretsStoredInCorpus": false
+        },
+        "warmExecutionCommand": "python3 docs/acceptance/v1.1/evaluator/assets/t22_workload_runner.py --workload large-catalog --phase warm --base-url \"$T22_BASE_URL\" --adapter \"$T22_RUNTIME_ADAPTER\" --output /tmp/t22-large_catalog-warm.json",
+        "workloadId": "large-catalog"
+      },
+      {
+        "browserDiscoveryPrerequisites": [
+          "checked-in assets/t22_browser_discovery_probe.py SHA-256=bd62401febdc93ead55dce6a60b9d616a6619c23f87a20999385d6264533047c mode=0755 verified by runner",
+          "frozen per-slot sources: Playwright installed Chrome/Edge/Firefox desktop channels; WebDriver/Appium Safari/iOS Safari/Android Chrome",
+          "closed allowlisted native AT commands for NVDA, VoiceOver, and TalkBack slots",
+          "runtime source configuration: T22_WEBDRIVER_ENDPOINT, T22_PLAYWRIGHT_CHROME_LATEST_EXECUTABLE, T22_PLAYWRIGHT_CHROME_PREVIOUS_MAJOR_EXECUTABLE, T22_PLAYWRIGHT_EDGE_LATEST_EXECUTABLE, T22_PLAYWRIGHT_EDGE_PREVIOUS_MAJOR_EXECUTABLE, T22_PLAYWRIGHT_FIREFOX_LATEST_EXECUTABLE, T22_PLAYWRIGHT_FIREFOX_PREVIOUS_MAJOR_EXECUTABLE, T22_NATIVE_WINDOWS_POWERSHELL, T22_NATIVE_MACOS_MDLS, T22_NATIVE_ANDROID_ADB, T22_NATIVE_IOS_XCRUN"
+        ],
+        "datasetId": "complex-1000",
+        "dryRunCommand": "python3 docs/acceptance/v1.1/evaluator/assets/t22_workload_runner.py --workload complex-form --phase cold --dry-run --output /tmp/t22-complex_form-cold.json",
+        "executionCommand": "python3 docs/acceptance/v1.1/evaluator/assets/t22_workload_runner.py --workload complex-form --phase cold --base-url \"$T22_BASE_URL\" --adapter \"$T22_RUNTIME_ADAPTER\" --output /tmp/t22-complex_form-cold.json",
+        "generatorCommand": "python3 docs/acceptance/v1.1/evaluator/assets/t22_dataset_generator.py --dataset complex-1000 --output /tmp/t22-complex-1000.json --verify",
+        "purpose": "Runs only inventory-bound operations after adapter materializes M2-unspecified bodies/handles; missing adapter/hooks writes blocked result and returns nonzero.",
+        "runtimeEnvironment": {
+          "optional": [
+            "T22_AUTHORIZATION"
+          ],
+          "required": [
+            "T22_BASE_URL",
+            "T22_RUNTIME_ADAPTER",
+            "T22_WEBDRIVER_ENDPOINT",
+            "T22_PLAYWRIGHT_CHROME_LATEST_EXECUTABLE",
+            "T22_PLAYWRIGHT_CHROME_PREVIOUS_MAJOR_EXECUTABLE",
+            "T22_PLAYWRIGHT_EDGE_LATEST_EXECUTABLE",
+            "T22_PLAYWRIGHT_EDGE_PREVIOUS_MAJOR_EXECUTABLE",
+            "T22_PLAYWRIGHT_FIREFOX_LATEST_EXECUTABLE",
+            "T22_PLAYWRIGHT_FIREFOX_PREVIOUS_MAJOR_EXECUTABLE",
+            "T22_NATIVE_WINDOWS_POWERSHELL",
+            "T22_NATIVE_MACOS_MDLS",
+            "T22_NATIVE_ANDROID_ADB",
+            "T22_NATIVE_IOS_XCRUN"
+          ],
+          "secretsStoredInCorpus": false
+        },
+        "warmExecutionCommand": "python3 docs/acceptance/v1.1/evaluator/assets/t22_workload_runner.py --workload complex-form --phase warm --base-url \"$T22_BASE_URL\" --adapter \"$T22_RUNTIME_ADAPTER\" --output /tmp/t22-complex_form-warm.json",
+        "workloadId": "complex-form"
+      },
+      {
+        "browserDiscoveryPrerequisites": [
+          "checked-in assets/t22_browser_discovery_probe.py SHA-256=bd62401febdc93ead55dce6a60b9d616a6619c23f87a20999385d6264533047c mode=0755 verified by runner",
+          "frozen per-slot sources: Playwright installed Chrome/Edge/Firefox desktop channels; WebDriver/Appium Safari/iOS Safari/Android Chrome",
+          "closed allowlisted native AT commands for NVDA, VoiceOver, and TalkBack slots",
+          "runtime source configuration: T22_WEBDRIVER_ENDPOINT, T22_PLAYWRIGHT_CHROME_LATEST_EXECUTABLE, T22_PLAYWRIGHT_CHROME_PREVIOUS_MAJOR_EXECUTABLE, T22_PLAYWRIGHT_EDGE_LATEST_EXECUTABLE, T22_PLAYWRIGHT_EDGE_PREVIOUS_MAJOR_EXECUTABLE, T22_PLAYWRIGHT_FIREFOX_LATEST_EXECUTABLE, T22_PLAYWRIGHT_FIREFOX_PREVIOUS_MAJOR_EXECUTABLE, T22_NATIVE_WINDOWS_POWERSHELL, T22_NATIVE_MACOS_MDLS, T22_NATIVE_ANDROID_ADB, T22_NATIVE_IOS_XCRUN"
+        ],
+        "datasetId": "runtime-100-and-complex",
+        "dryRunCommand": "python3 docs/acceptance/v1.1/evaluator/assets/t22_workload_runner.py --workload respondent-runtime --phase cold --dry-run --output /tmp/t22-respondent_runtime-cold.json",
+        "executionCommand": "python3 docs/acceptance/v1.1/evaluator/assets/t22_workload_runner.py --workload respondent-runtime --phase cold --base-url \"$T22_BASE_URL\" --adapter \"$T22_RUNTIME_ADAPTER\" --output /tmp/t22-respondent_runtime-cold.json",
+        "generatorCommand": "python3 docs/acceptance/v1.1/evaluator/assets/t22_dataset_generator.py --dataset runtime-100-and-complex --output /tmp/t22-runtime-100-and-complex.json --verify",
+        "purpose": "Runs only inventory-bound operations after adapter materializes M2-unspecified bodies/handles; missing adapter/hooks writes blocked result and returns nonzero.",
+        "runtimeEnvironment": {
+          "optional": [
+            "T22_AUTHORIZATION"
+          ],
+          "required": [
+            "T22_BASE_URL",
+            "T22_RUNTIME_ADAPTER",
+            "T22_WEBDRIVER_ENDPOINT",
+            "T22_PLAYWRIGHT_CHROME_LATEST_EXECUTABLE",
+            "T22_PLAYWRIGHT_CHROME_PREVIOUS_MAJOR_EXECUTABLE",
+            "T22_PLAYWRIGHT_EDGE_LATEST_EXECUTABLE",
+            "T22_PLAYWRIGHT_EDGE_PREVIOUS_MAJOR_EXECUTABLE",
+            "T22_PLAYWRIGHT_FIREFOX_LATEST_EXECUTABLE",
+            "T22_PLAYWRIGHT_FIREFOX_PREVIOUS_MAJOR_EXECUTABLE",
+            "T22_NATIVE_WINDOWS_POWERSHELL",
+            "T22_NATIVE_MACOS_MDLS",
+            "T22_NATIVE_ANDROID_ADB",
+            "T22_NATIVE_IOS_XCRUN"
+          ],
+          "secretsStoredInCorpus": false
+        },
+        "warmExecutionCommand": "python3 docs/acceptance/v1.1/evaluator/assets/t22_workload_runner.py --workload respondent-runtime --phase warm --base-url \"$T22_BASE_URL\" --adapter \"$T22_RUNTIME_ADAPTER\" --output /tmp/t22-respondent_runtime-warm.json",
+        "workloadId": "respondent-runtime"
+      },
+      {
+        "datasetId": "sessions-200",
+        "dryRunCommand": "python3 docs/acceptance/v1.1/evaluator/assets/t22_workload_runner.py --workload save-submit --phase cold --dry-run --output /tmp/t22-save_submit-cold.json",
+        "executionCommand": "python3 docs/acceptance/v1.1/evaluator/assets/t22_workload_runner.py --workload save-submit --phase cold --base-url \"$T22_BASE_URL\" --adapter \"$T22_RUNTIME_ADAPTER\" --output /tmp/t22-save_submit-cold.json",
+        "generatorCommand": "python3 docs/acceptance/v1.1/evaluator/assets/t22_dataset_generator.py --dataset sessions-200 --output /tmp/t22-sessions-200.json --verify",
+        "purpose": "Runs only inventory-bound operations after adapter materializes M2-unspecified bodies/handles; missing adapter/hooks writes blocked result and returns nonzero.",
+        "runtimeEnvironment": {
+          "optional": [
+            "T22_AUTHORIZATION"
+          ],
+          "required": [
+            "T22_BASE_URL",
+            "T22_RUNTIME_ADAPTER"
+          ],
+          "secretsStoredInCorpus": false
+        },
+        "warmExecutionCommand": "python3 docs/acceptance/v1.1/evaluator/assets/t22_workload_runner.py --workload save-submit --phase warm --base-url \"$T22_BASE_URL\" --adapter \"$T22_RUNTIME_ADAPTER\" --output /tmp/t22-save_submit-warm.json",
+        "workloadId": "save-submit"
+      },
+      {
+        "datasetId": "compile-1000",
+        "dryRunCommand": "python3 docs/acceptance/v1.1/evaluator/assets/t22_workload_runner.py --workload import-compile --phase cold --dry-run --output /tmp/t22-import_compile-cold.json",
+        "executionCommand": "python3 docs/acceptance/v1.1/evaluator/assets/t22_workload_runner.py --workload import-compile --phase cold --base-url \"$T22_BASE_URL\" --adapter \"$T22_RUNTIME_ADAPTER\" --output /tmp/t22-import_compile-cold.json",
+        "generatorCommand": "python3 docs/acceptance/v1.1/evaluator/assets/t22_dataset_generator.py --dataset compile-1000 --output /tmp/t22-compile-1000.json --verify",
+        "purpose": "Runs only inventory-bound operations after adapter materializes M2-unspecified bodies/handles; missing adapter/hooks writes blocked result and returns nonzero.",
+        "runtimeEnvironment": {
+          "optional": [
+            "T22_AUTHORIZATION"
+          ],
+          "required": [
+            "T22_BASE_URL",
+            "T22_RUNTIME_ADAPTER"
+          ],
+          "secretsStoredInCorpus": false
+        },
+        "warmExecutionCommand": "python3 docs/acceptance/v1.1/evaluator/assets/t22_workload_runner.py --workload import-compile --phase warm --base-url \"$T22_BASE_URL\" --adapter \"$T22_RUNTIME_ADAPTER\" --output /tmp/t22-import_compile-warm.json",
+        "workloadId": "import-compile"
+      },
+      {
+        "datasetId": "responses-10000",
+        "dryRunCommand": "python3 docs/acceptance/v1.1/evaluator/assets/t22_workload_runner.py --workload api-export --phase cold --dry-run --output /tmp/t22-api_export-cold.json",
+        "executionCommand": "python3 docs/acceptance/v1.1/evaluator/assets/t22_workload_runner.py --workload api-export --phase cold --base-url \"$T22_BASE_URL\" --adapter \"$T22_RUNTIME_ADAPTER\" --output /tmp/t22-api_export-cold.json",
+        "generatorCommand": "python3 docs/acceptance/v1.1/evaluator/assets/t22_dataset_generator.py --dataset responses-10000 --export-bundle --output /tmp/t22-responses-10000-export",
+        "purpose": "Runs only inventory-bound operations after adapter materializes M2-unspecified bodies/handles; missing adapter/hooks writes blocked result and returns nonzero.",
+        "runtimeEnvironment": {
+          "optional": [
+            "T22_AUTHORIZATION"
+          ],
+          "required": [
+            "T22_BASE_URL",
+            "T22_RUNTIME_ADAPTER"
+          ],
+          "secretsStoredInCorpus": false
+        },
+        "warmExecutionCommand": "python3 docs/acceptance/v1.1/evaluator/assets/t22_workload_runner.py --workload api-export --phase warm --base-url \"$T22_BASE_URL\" --adapter \"$T22_RUNTIME_ADAPTER\" --output /tmp/t22-api_export-warm.json",
+        "workloadId": "api-export"
+      },
+      {
+        "datasetId": "durability-acknowledged-writes",
+        "dryRunCommand": "python3 docs/acceptance/v1.1/evaluator/assets/t22_workload_runner.py --workload durability --phase cold --dry-run --output /tmp/t22-durability-cold.json",
+        "executionCommand": "python3 docs/acceptance/v1.1/evaluator/assets/t22_workload_runner.py --workload durability --phase cold --base-url \"$T22_BASE_URL\" --adapter \"$T22_RUNTIME_ADAPTER\" --output /tmp/t22-durability-cold.json",
+        "generatorCommand": "python3 docs/acceptance/v1.1/evaluator/assets/t22_dataset_generator.py --dataset durability-acknowledged-writes --output /tmp/t22-durability-acknowledged-writes.json --verify",
+        "purpose": "Runs only inventory-bound operations after adapter materializes M2-unspecified bodies/handles; missing adapter/hooks writes blocked result and returns nonzero.",
+        "runtimeEnvironment": {
+          "optional": [
+            "T22_AUTHORIZATION"
+          ],
+          "required": [
+            "T22_BASE_URL",
+            "T22_RUNTIME_ADAPTER"
+          ],
+          "secretsStoredInCorpus": false
+        },
+        "warmExecutionCommand": "python3 docs/acceptance/v1.1/evaluator/assets/t22_workload_runner.py --workload durability --phase warm --base-url \"$T22_BASE_URL\" --adapter \"$T22_RUNTIME_ADAPTER\" --output /tmp/t22-durability-warm.json",
+        "workloadId": "durability"
+      },
+      {
+        "browserDiscoveryPrerequisites": [
+          "checked-in assets/t22_browser_discovery_probe.py SHA-256=bd62401febdc93ead55dce6a60b9d616a6619c23f87a20999385d6264533047c mode=0755 verified by runner",
+          "frozen per-slot sources: Playwright installed Chrome/Edge/Firefox desktop channels; WebDriver/Appium Safari/iOS Safari/Android Chrome",
+          "closed allowlisted native AT commands for NVDA, VoiceOver, and TalkBack slots",
+          "runtime source configuration: T22_WEBDRIVER_ENDPOINT, T22_PLAYWRIGHT_CHROME_LATEST_EXECUTABLE, T22_PLAYWRIGHT_CHROME_PREVIOUS_MAJOR_EXECUTABLE, T22_PLAYWRIGHT_EDGE_LATEST_EXECUTABLE, T22_PLAYWRIGHT_EDGE_PREVIOUS_MAJOR_EXECUTABLE, T22_PLAYWRIGHT_FIREFOX_LATEST_EXECUTABLE, T22_PLAYWRIGHT_FIREFOX_PREVIOUS_MAJOR_EXECUTABLE, T22_NATIVE_WINDOWS_POWERSHELL, T22_NATIVE_MACOS_MDLS, T22_NATIVE_ANDROID_ADB, T22_NATIVE_IOS_XCRUN"
+        ],
+        "datasetId": "browser-at-matrix",
+        "dryRunCommand": "python3 docs/acceptance/v1.1/evaluator/assets/t22_workload_runner.py --workload accessibility-browser --phase cold --dry-run --output /tmp/t22-accessibility_browser-cold.json",
+        "executionCommand": "python3 docs/acceptance/v1.1/evaluator/assets/t22_workload_runner.py --workload accessibility-browser --phase cold --base-url \"$T22_BASE_URL\" --adapter \"$T22_RUNTIME_ADAPTER\" --output /tmp/t22-accessibility_browser-cold.json",
+        "generatorCommand": "python3 docs/acceptance/v1.1/evaluator/assets/t22_dataset_generator.py --dataset browser-at-matrix --output /tmp/t22-browser-at-matrix.json --verify",
+        "purpose": "Runs only inventory-bound operations after adapter materializes M2-unspecified bodies/handles; missing adapter/hooks writes blocked result and returns nonzero.",
+        "runtimeEnvironment": {
+          "optional": [
+            "T22_AUTHORIZATION"
+          ],
+          "required": [
+            "T22_BASE_URL",
+            "T22_RUNTIME_ADAPTER",
+            "T22_WEBDRIVER_ENDPOINT",
+            "T22_PLAYWRIGHT_CHROME_LATEST_EXECUTABLE",
+            "T22_PLAYWRIGHT_CHROME_PREVIOUS_MAJOR_EXECUTABLE",
+            "T22_PLAYWRIGHT_EDGE_LATEST_EXECUTABLE",
+            "T22_PLAYWRIGHT_EDGE_PREVIOUS_MAJOR_EXECUTABLE",
+            "T22_PLAYWRIGHT_FIREFOX_LATEST_EXECUTABLE",
+            "T22_PLAYWRIGHT_FIREFOX_PREVIOUS_MAJOR_EXECUTABLE",
+            "T22_NATIVE_WINDOWS_POWERSHELL",
+            "T22_NATIVE_MACOS_MDLS",
+            "T22_NATIVE_ANDROID_ADB",
+            "T22_NATIVE_IOS_XCRUN"
+          ],
+          "secretsStoredInCorpus": false
+        },
+        "warmExecutionCommand": "python3 docs/acceptance/v1.1/evaluator/assets/t22_workload_runner.py --workload accessibility-browser --phase warm --base-url \"$T22_BASE_URL\" --adapter \"$T22_RUNTIME_ADAPTER\" --output /tmp/t22-accessibility_browser-warm.json",
+        "workloadId": "accessibility-browser"
+      }
+    ],
+    "controlExecution": {
+      "expectedRateOutcome": {
+        "httpStatus": 429,
+        "queuedClientMutationsPreserved": true,
+        "requiredHeader": "Retry-After"
+      },
+      "limitCasesRequired": 11,
+      "rateControlsRequired": [
+        "administrative",
+        "draft",
+        "tenant-aggregate"
+      ],
+      "requiredAdapterHooks": [
+        "exercise_limit",
+        "exercise_rate_control"
+      ]
+    },
+    "datasetSeeds": {
+      "catalog": "m0-t22-20260914:catalog-10000",
+      "package": "m0-t22-20260914:complex-1000",
+      "responses": "m0-t22-20260914:responses-10000",
+      "sessions": "m0-t22-20260914:sessions-200"
+    },
+    "datasets": [
+      {
+        "algorithm": "fixed SHA-256 seed expansion into canonical 4.0.0 smart-form-package objects (schemaVersion=engineContract=contractVersion), complete graph-bound objectBundle, and O_named operation IDs only.",
+        "content": "forms with 100 selected releases",
+        "count": 10000,
+        "generatorVersion": "t22-dataset/v3",
+        "id": "catalog-10000",
+        "seed": "m0-t22-20260914:catalog-10000"
+      },
+      {
+        "algorithm": "fixed SHA-256 seed expansion into canonical 4.0.0 smart-form-package objects (schemaVersion=engineContract=contractVersion), complete graph-bound objectBundle, and O_named operation IDs only.",
+        "content": "1000 definitions, 2000 instances, 100 pages, 500 expressions, 3 repeater levels",
+        "count": 1000,
+        "generatorVersion": "t22-dataset/v3",
+        "id": "complex-1000",
+        "seed": "m0-t22-20260914:complex-1000"
+      },
+      {
+        "algorithm": "fixed SHA-256 seed expansion into canonical 4.0.0 smart-form-package objects (schemaVersion=engineContract=contractVersion), complete graph-bound objectBundle, and O_named operation IDs only.",
+        "content": "100-field and complex release sessions",
+        "count": 2,
+        "generatorVersion": "t22-dataset/v3",
+        "id": "runtime-100-and-complex",
+        "seed": "m0-t22-20260914:runtime-100-and-complex"
+      },
+      {
+        "algorithm": "fixed SHA-256 seed expansion into canonical 4.0.0 smart-form-package objects (schemaVersion=engineContract=contractVersion), complete graph-bound objectBundle, and O_named operation IDs only.",
+        "content": "200 active session mutation streams",
+        "count": 200,
+        "generatorVersion": "t22-dataset/v3",
+        "id": "sessions-200",
+        "seed": "m0-t22-20260914:sessions-200"
+      },
+      {
+        "algorithm": "fixed SHA-256 seed expansion into canonical 4.0.0 smart-form-package objects (schemaVersion=engineContract=contractVersion), complete graph-bound objectBundle, and O_named operation IDs only.",
+        "content": "1000-field valid and invalid packages",
+        "count": 2,
+        "generatorVersion": "t22-dataset/v3",
+        "id": "compile-1000",
+        "seed": "m0-t22-20260914:compile-1000"
+      },
+      {
+        "algorithm": "fixed SHA-256 seed expansion into canonical 4.0.0 smart-form-package objects (schemaVersion=engineContract=contractVersion), complete graph-bound objectBundle, and O_named operation IDs only.",
+        "content": "immutable response snapshot collection",
+        "count": 10000,
+        "generatorVersion": "t22-dataset/v3",
+        "id": "responses-10000",
+        "seed": "m0-t22-20260914:responses-10000"
+      },
+      {
+        "algorithm": "fixed SHA-256 seed expansion into canonical 4.0.0 smart-form-package objects (schemaVersion=engineContract=contractVersion), complete graph-bound objectBundle, and O_named operation IDs only.",
+        "content": "acknowledged mutations plus restart/failure schedule",
+        "count": 20,
+        "generatorVersion": "t22-dataset/v3",
+        "id": "durability-acknowledged-writes",
+        "seed": "m0-t22-20260914:durability-acknowledged-writes"
+      },
+      {
+        "algorithm": "fixed SHA-256 seed expansion into canonical 4.0.0 smart-form-package objects (schemaVersion=engineContract=contractVersion), complete graph-bound objectBundle, and O_named operation IDs only.",
+        "content": "latest/previous browser and AT selection slots",
+        "count": 10,
+        "generatorVersion": "t22-dataset/v3",
+        "id": "browser-at-matrix",
+        "seed": "m0-t22-20260914:browser-at-matrix"
+      }
+    ],
+    "durabilityProtocol": {
+      "backupRpoMaximumHours": 24,
+      "faults": [
+        {
+          "afterAcknowledgedWrite": 10,
+          "kind": "network"
+        },
+        {
+          "afterAcknowledgedWrite": 20,
+          "kind": "service"
+        }
+      ],
+      "requiredHooks": [
+        "inject_fault",
+        "measure_backup_restore",
+        "restart",
+        "restore",
+        "verify_durability"
+      ],
+      "restartAfterAcknowledgedWrite": 10,
+      "restoreAfterAcknowledgedWrite": 20,
+      "restoreRtoMaximumHours": 4,
+      "verify": "exact acknowledged state after restore; dataLoss=0; all 20 adapter acknowledgements required",
+      "writesAfterRestart": 10,
+      "writesBeforeRestart": 10
+    },
+    "executionStatus": "not-run",
+    "generatorAlgorithm": "See datasets[*].algorithm; generation is input-only and does not read product output.",
+    "generatorTool": {
+      "algorithm": "fixed SHA-256 seed expansion; canonical JSON objects",
+      "path": "assets/t22_dataset_generator.py",
+      "requiredObjectKinds": [
+        "package",
+        "form",
+        "release",
+        "session",
+        "answer",
+        "request"
+      ],
+      "version": "t22-dataset/v3"
+    },
+    "latencyBuckets": {
+      "accessibility-browser": {
+        "firstUsableP95Milliseconds": 5000,
+        "localRenderP95Milliseconds": 100,
+        "source": "browser instrumentation only"
+      },
+      "respondent-runtime": {
+        "complexRuntimeP95Milliseconds": 5000,
+        "runtime100P95Milliseconds": 3000
+      },
+      "save-submit": {
+        "saveP95Milliseconds": 1000,
+        "submitP95Milliseconds": 2000,
+        "validationP95Milliseconds": 1000
+      }
+    },
+    "limits": [
+      {
+        "expected": {
+          "code": "LIMIT_EXCEEDED",
+          "httpStatus": 422,
+          "noCorruption": true,
+          "noTruncation": true
+        },
+        "id": "definitionJsonBytes",
+        "limit": 5242880,
+        "plusOne": 5242881,
+        "unit": "bytes"
+      },
+      {
+        "expected": {
+          "code": "LIMIT_EXCEEDED",
+          "httpStatus": 422,
+          "noCorruption": true,
+          "noTruncation": true
+        },
+        "id": "typedDraftOrSubmissionBytes",
+        "limit": 1048576,
+        "plusOne": 1048577,
+        "unit": "bytes"
+      },
+      {
+        "expected": {
+          "code": "LIMIT_EXCEEDED",
+          "httpStatus": 422,
+          "noCorruption": true,
+          "noTruncation": true
+        },
+        "id": "fileBytes",
+        "limit": 26214400,
+        "plusOne": 26214401,
+        "unit": "bytes"
+      },
+      {
+        "expected": {
+          "code": "LIMIT_EXCEEDED",
+          "httpStatus": 422,
+          "noCorruption": true,
+          "noTruncation": true
+        },
+        "id": "filesPerQuestion",
+        "limit": 10,
+        "plusOne": 11,
+        "unit": "count"
+      },
+      {
+        "expected": {
+          "code": "LIMIT_EXCEEDED",
+          "httpStatus": 422,
+          "noCorruption": true,
+          "noTruncation": true
+        },
+        "id": "attachmentBytesPerSession",
+        "limit": 104857600,
+        "plusOne": 104857601,
+        "unit": "bytes"
+      },
+      {
+        "expected": {
+          "code": "LIMIT_EXCEEDED",
+          "httpStatus": 422,
+          "noCorruption": true,
+          "noTruncation": true
+        },
+        "id": "itemsPerRepeater",
+        "limit": 500,
+        "plusOne": 501,
+        "unit": "count"
+      },
+      {
+        "expected": {
+          "code": "LIMIT_EXCEEDED",
+          "httpStatus": 422,
+          "noCorruption": true,
+          "noTruncation": true
+        },
+        "id": "nestedRepeaterLevels",
+        "limit": 3,
+        "plusOne": 4,
+        "unit": "levels"
+      },
+      {
+        "expected": {
+          "code": "LIMIT_EXCEEDED",
+          "httpStatus": 422,
+          "noCorruption": true,
+          "noTruncation": true
+        },
+        "id": "expandedActiveAnswerCells",
+        "limit": 10000,
+        "plusOne": 10001,
+        "unit": "count"
+      },
+      {
+        "expected": {
+          "code": "LIMIT_EXCEEDED",
+          "httpStatus": 422,
+          "noCorruption": true,
+          "noTruncation": true
+        },
+        "id": "expressionDepth",
+        "limit": 20,
+        "plusOne": 21,
+        "unit": "levels"
+      },
+      {
+        "expected": {
+          "code": "LIMIT_EXCEEDED",
+          "httpStatus": 422,
+          "noCorruption": true,
+          "noTruncation": true
+        },
+        "id": "astNodesPerPackage",
+        "limit": 10000,
+        "plusOne": 10001,
+        "unit": "count"
+      },
+      {
+        "expected": {
+          "code": "LIMIT_EXCEEDED",
+          "httpStatus": 422,
+          "noCorruption": true,
+          "noTruncation": true
+        },
+        "id": "evaluationStepsPerMutation",
+        "limit": 100000,
+        "plusOne": 100001,
+        "unit": "steps"
+      }
+    ],
+    "measurements": [
+      "p50",
+      "p95",
+      "p99",
+      "memoryBytes",
+      "errorCount",
+      "cost"
+    ],
+    "minimumSamplesPerBucket": {
+      "accessibility": 2,
+      "catalog": 2,
+      "compileInvalid": 2,
+      "compileValid": 2,
+      "complexRuntime": 2,
+      "export": 2,
+      "firstUsableMilliseconds": 2,
+      "localRenderMilliseconds": 2,
+      "runtime100": 2,
+      "save": 2,
+      "submit": 2,
+      "validation": 2
+    },
+    "operationInventory": {
+      "path": "../denominators/o-named.json",
+      "policy": "Runner resolves only listed O_named IDs. M2-unfrozen body/extraction/control semantics require runtime adapter hooks and block when absent.",
+      "sha256": "fd88c8b3ea0c8515a4c973f990dfd05c5b770a5b29713af13e2ee09310849af5"
+    },
+    "protocolVersion": "t22-scale-v5",
+    "rateControls": [
+      {
+        "id": "administrative",
+        "limitPerMinute": 60,
+        "scope": "actor"
+      },
+      {
+        "id": "draft",
+        "limitPerMinute": 120,
+        "scope": "session"
+      },
+      {
+        "configuration": "must be declared before execution",
+        "id": "tenant-aggregate",
+        "scope": "tenant"
+      }
+    ],
+    "rateExecution": {
+      "draftMutationsPerSecond": 20,
+      "durationSeconds": 10,
+      "errorRateMaximum": 0.001,
+      "independence": "saveAnswer load is paced independently; validateSession and submit are separate measurements, never replacements for draft mutations."
+    },
+    "rateExpected": {
+      "httpStatus": 429,
+      "queuedClientMutationsPreserved": true,
+      "requiredHeader": "Retry-After"
+    },
+    "rawResultSchema": {
+      "browserDiscoveryConditional": {
+        "fields": [
+          "browserEvidence",
+          "browserChannelDiscovery",
+          "browserChannelDiscoveryRaw",
+          "browserChannelDiscoveryArtifactSha256",
+          "browserReleaseAuthorities"
+        ],
+        "nonBrowser": "allowed-null-or-absent",
+        "whenExecutionStatus": "executed",
+        "workloads": [
+          "complex-form",
+          "respondent-runtime",
+          "accessibility-browser"
+        ]
+      },
+      "completionRule": "Every state must include every required member. A passed verdict requires nonempty measurementSamples and complete non-null metrics. Executed browser workloads require the runner to invoke the frozen shell-free evaluator discovery probe directly once per matrix slot with its bounded timeout, retains each exact raw JSON byte sequence plus SHA-256 digest, rejects duplicate JSON keys and non-finite constants, and parses each source-kind-specific closed schema, and observations that exactly reproduce each parsed discovery identity/timestamp within the run. Every save-submit measurement carries its effective sessionId derived from the final rendered request path; the 200 baseline saves cover the frozen active-session set exactly once. Export success requires per-format product HTTP create responses bound to distinct immutable JSON/relational-CSV job handles, with completion and download IDs/formats exactly matching their corresponding create response, and immutable artifact bytes or paths independently hashed, parsed, and deep-compared to the frozen 10,000-response JSON plus relational CSV bundle. Release authority evidence must retain evaluator-controlled HTTPS status/Date/Age/cache freshness metadata and source generated/published timestamps when declared; each must be no older than maximumAgeSeconds=3600 and retrieval must occur within the run.",
+      "corpusObservationStatus": "not-run",
+      "forbidden": [
+        "credentials",
+        "rawAnswers",
+        "responseBodies"
+      ],
+      "required": [
+        "schemaVersion",
+        "workloadId",
+        "executionStatus",
+        "verdict",
+        "stageExecution",
+        "setupSamples",
+        "measurementSamples",
+        "samples",
+        "latencyBuckets",
+        "ratePerSecond",
+        "durationSeconds",
+        "sampleCount",
+        "errorCount",
+        "errorRate",
+        "memoryBytesPeak",
+        "resourceAllocation",
+        "cost",
+        "requestPlanSha256",
+        "rawSamplesArtifactSha256",
+        "thresholds",
+        "exportJobChains",
+        "thresholdFailures",
+        "blockers"
+      ],
+      "requiredNonNull": [
+        "runId",
+        "startedAtUtc",
+        "endedAtUtc"
+      ],
+      "runnerExecutionStatusEnum": [
+        "dry-run",
+        "executed",
+        "failed",
+        "blocked"
+      ],
+      "saveSubmitSampleRequired": [
+        "sessionId"
+      ],
+      "schemaVersion": "t22-raw-result/v4"
+    },
+    "referenceResources": {
+      "application": "4 vCPU / 8 GiB",
+      "benchmarkResourceCeilings": {
+        "application": {
+          "cpuCores": 4,
+          "memoryGiB": 8,
+          "monthlyCostUsd": 500,
+          "rationale": "PRD reference application/client host: 4 vCPU / 8 GiB."
+        },
+        "client": {
+          "cpuCores": 4,
+          "memoryGiB": 8,
+          "monthlyCostUsd": 100,
+          "rationale": "PRD reference client host: 4 vCPU / 8 GiB."
+        },
+        "databaseOrDurableStorage": {
+          "cpuCores": 4,
+          "memoryGiB": 16,
+          "monthlyCostUsd": 750,
+          "rationale": "evaluator-owned durable database benchmark control."
+        },
+        "loadGenerator": {
+          "cpuCores": 4,
+          "memoryGiB": 8,
+          "monthlyCostUsd": 250,
+          "rationale": "separate evaluator-owned paced-load generator."
+        },
+        "network": {
+          "egressGiB": 1000,
+          "monthlyCostUsd": 100,
+          "rationale": "PRD reference network benchmark control."
+        },
+        "objectStorage": {
+          "cpuCores": 1,
+          "memoryGiB": 1,
+          "monthlyCostUsd": 100,
+          "rationale": "evaluator-owned object storage benchmark control."
+        },
+        "totalMonthlyCostUsd": 1800
+      },
+      "client": "4 modern CPU cores / 8 GiB RAM / 20-Mbit/s downlink / 100-ms RTT",
+      "loadGenerator": "separate machine",
+      "objectStorage": "isolated",
+      "resourceAndCostCeilings": "Evaluator benchmark controls (not product requirements): numeric allocations and cost ceilings are frozen below and bound into each raw evidence envelope before run.",
+      "storage": "PostgreSQL-equivalent durable transactional storage with declared resources"
+    },
+    "runnerTool": {
+      "dryRun": "deterministic no-network materialization plan only",
+      "execution": "Complete t22-raw-result/v4 in every outcome with a non-null unique runId and UTC start/end timestamps. Setup samples/stages are separated from measurements; all 11 limit+1 and all 3 rate controls execute through required adapter hooks; browser metrics are persisted as globally unique config/package/observation/metric/ordinal evidence with observed versions and adjacent desktop channel-major proof, and included in rawSamplesArtifactSha256; compile uses bounded start/job/poll/final lifecycle with local monotonic duration; exports execute two explicit format-specific product HTTP create-export operations through run_operation, bind separate immutable response job handles, and permit completion/download hooks only for their matching bound JSON or relational-CSV-bundle job; each end-to-end measurement is <=60 seconds and bytes are deep-compared; durability injects network/service faults and measures backup RPO/restore RTO.",
+      "path": "assets/t22_workload_runner.py",
+      "phases": [
+        "cold",
+        "warm"
+      ],
+      "runtimeEnvironment": {
+        "optional": [
+          "T22_AUTHORIZATION"
+        ],
+        "required": [
+          "T22_BASE_URL",
+          "T22_RUNTIME_ADAPTER"
+        ],
+        "secretStorage": "none"
+      },
+      "version": "t22-runner/v6"
+    },
+    "seed": "m0-t22-20260914",
+    "sourceBinding": {
+      "PRD": "653-668,820,1267-1277",
+      "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+    },
+    "telemetrySchema": {
+      "executionStatusEnum": [
+        "not-run",
+        "pass",
+        "fail",
+        "blocked",
+        "dry-run"
+      ],
+      "forbidden": [
+        "rawAnswers",
+        "credentials"
+      ],
+      "required": [
+        "runId",
+        "workloadId",
+        "window",
+        "startedAtUtc",
+        "endedAtUtc",
+        "sampleCount",
+        "p50Milliseconds",
+        "p95Milliseconds",
+        "p99Milliseconds",
+        "memoryBytesPeak",
+        "errorCount",
+        "cost",
+        "resourceAllocation",
+        "rawSamplesArtifactSha256",
+        "executionStatus"
+      ]
+    },
+    "workloadCommands": [
+      "python3 docs/acceptance/v1.1/evaluator/assets/t22_workload_runner.py --workload large-catalog --phase cold --base-url \"$T22_BASE_URL\" --adapter \"$T22_RUNTIME_ADAPTER\" --output /tmp/t22-large_catalog-cold.json",
+      "python3 docs/acceptance/v1.1/evaluator/assets/t22_workload_runner.py --workload complex-form --phase cold --base-url \"$T22_BASE_URL\" --adapter \"$T22_RUNTIME_ADAPTER\" --output /tmp/t22-complex_form-cold.json",
+      "python3 docs/acceptance/v1.1/evaluator/assets/t22_workload_runner.py --workload respondent-runtime --phase cold --base-url \"$T22_BASE_URL\" --adapter \"$T22_RUNTIME_ADAPTER\" --output /tmp/t22-respondent_runtime-cold.json",
+      "python3 docs/acceptance/v1.1/evaluator/assets/t22_workload_runner.py --workload save-submit --phase cold --base-url \"$T22_BASE_URL\" --adapter \"$T22_RUNTIME_ADAPTER\" --output /tmp/t22-save_submit-cold.json",
+      "python3 docs/acceptance/v1.1/evaluator/assets/t22_workload_runner.py --workload import-compile --phase cold --base-url \"$T22_BASE_URL\" --adapter \"$T22_RUNTIME_ADAPTER\" --output /tmp/t22-import_compile-cold.json",
+      "python3 docs/acceptance/v1.1/evaluator/assets/t22_workload_runner.py --workload api-export --phase cold --base-url \"$T22_BASE_URL\" --adapter \"$T22_RUNTIME_ADAPTER\" --output /tmp/t22-api_export-cold.json",
+      "python3 docs/acceptance/v1.1/evaluator/assets/t22_workload_runner.py --workload durability --phase cold --base-url \"$T22_BASE_URL\" --adapter \"$T22_RUNTIME_ADAPTER\" --output /tmp/t22-durability-cold.json",
+      "python3 docs/acceptance/v1.1/evaluator/assets/t22_workload_runner.py --workload accessibility-browser --phase cold --base-url \"$T22_BASE_URL\" --adapter \"$T22_RUNTIME_ADAPTER\" --output /tmp/t22-accessibility_browser-cold.json"
+    ],
+    "workloadExecutionRule": "Every provisioningPlan operation and each workload verification stage executes at least once. Paced rate × duration traffic adds samples only; it cannot substitute for a declared stage.",
+    "workloads": [
+      {
+        "coldWarmWindows": [
+          "cold",
+          "warm"
+        ],
+        "datasetId": "catalog-10000",
+        "id": "large-catalog",
+        "observationWindow": "fixed before run; exact UTC start/end are execution evidence, not frozen observed values",
+        "target": "paginated search p95 server time <= 1000 ms; 100 selected releases"
+      },
+      {
+        "browserDiscoveryPrerequisites": [
+          "checked-in assets/t22_browser_discovery_probe.py SHA-256=bd62401febdc93ead55dce6a60b9d616a6619c23f87a20999385d6264533047c mode=0755 verified by runner",
+          "frozen per-slot sources: Playwright installed Chrome/Edge/Firefox desktop channels; WebDriver/Appium Safari/iOS Safari/Android Chrome",
+          "closed allowlisted native AT commands for NVDA, VoiceOver, and TalkBack slots",
+          "runtime source configuration: T22_WEBDRIVER_ENDPOINT, T22_PLAYWRIGHT_CHROME_LATEST_EXECUTABLE, T22_PLAYWRIGHT_CHROME_PREVIOUS_MAJOR_EXECUTABLE, T22_PLAYWRIGHT_EDGE_LATEST_EXECUTABLE, T22_PLAYWRIGHT_EDGE_PREVIOUS_MAJOR_EXECUTABLE, T22_PLAYWRIGHT_FIREFOX_LATEST_EXECUTABLE, T22_PLAYWRIGHT_FIREFOX_PREVIOUS_MAJOR_EXECUTABLE, T22_NATIVE_WINDOWS_POWERSHELL, T22_NATIVE_MACOS_MDLS, T22_NATIVE_ANDROID_ADB, T22_NATIVE_IOS_XCRUN"
+        ],
+        "coldWarmWindows": [
+          "cold",
+          "warm"
+        ],
+        "datasetId": "complex-1000",
+        "id": "complex-form",
+        "observationWindow": "fixed before run; exact UTC start/end are execution evidence, not frozen observed values",
+        "target": "current-step local rule/render p95 <= 100 ms; no long task > 500 ms"
+      },
+      {
+        "browserDiscoveryPrerequisites": [
+          "checked-in assets/t22_browser_discovery_probe.py SHA-256=bd62401febdc93ead55dce6a60b9d616a6619c23f87a20999385d6264533047c mode=0755 verified by runner",
+          "frozen per-slot sources: Playwright installed Chrome/Edge/Firefox desktop channels; WebDriver/Appium Safari/iOS Safari/Android Chrome",
+          "closed allowlisted native AT commands for NVDA, VoiceOver, and TalkBack slots",
+          "runtime source configuration: T22_WEBDRIVER_ENDPOINT, T22_PLAYWRIGHT_CHROME_LATEST_EXECUTABLE, T22_PLAYWRIGHT_CHROME_PREVIOUS_MAJOR_EXECUTABLE, T22_PLAYWRIGHT_EDGE_LATEST_EXECUTABLE, T22_PLAYWRIGHT_EDGE_PREVIOUS_MAJOR_EXECUTABLE, T22_PLAYWRIGHT_FIREFOX_LATEST_EXECUTABLE, T22_PLAYWRIGHT_FIREFOX_PREVIOUS_MAJOR_EXECUTABLE, T22_NATIVE_WINDOWS_POWERSHELL, T22_NATIVE_MACOS_MDLS, T22_NATIVE_ANDROID_ADB, T22_NATIVE_IOS_XCRUN"
+        ],
+        "coldWarmWindows": [
+          "cold",
+          "warm"
+        ],
+        "datasetId": "runtime-100-and-complex",
+        "id": "respondent-runtime",
+        "observationWindow": "fixed before run; exact UTC start/end are execution evidence, not frozen observed values",
+        "target": "100-field runtime p95 <= 3000 ms and complex runtime p95 <= 5000 ms, recorded in separate latency buckets."
+      },
+      {
+        "coldWarmWindows": [
+          "cold",
+          "warm"
+        ],
+        "datasetId": "sessions-200",
+        "id": "save-submit",
+        "observationWindow": "fixed before run; exact UTC start/end are execution evidence, not frozen observed values",
+        "target": "200 active sessions / 20 aggregate draft mutations per second; save p95 <= 1000 ms, submit p95 <= 2000 ms, validation p95 <= 1000 ms, each measured separately; error rate < 0.1% excluding deliberate invalid."
+      },
+      {
+        "coldWarmWindows": [
+          "cold",
+          "warm"
+        ],
+        "datasetId": "compile-1000",
+        "id": "import-compile",
+        "observationWindow": "fixed before run; exact UTC start/end are execution evidence, not frozen observed values",
+        "target": "compile p95 <= 5000 ms; >2000 ms exposes progress/job status; invalid input bounded"
+      },
+      {
+        "coldWarmWindows": [
+          "cold",
+          "warm"
+        ],
+        "datasetId": "responses-10000",
+        "id": "api-export",
+        "observationWindow": "fixed before run; exact UTC start/end are execution evidence, not frozen observed values",
+        "target": "cursor no missing/duplicate; independent 10,000-response JSON and relational CSV jobs each complete end-to-end within 60000 ms"
+      },
+      {
+        "coldWarmWindows": [
+          "cold",
+          "warm"
+        ],
+        "datasetId": "durability-acknowledged-writes",
+        "id": "durability",
+        "observationWindow": "fixed before run; exact UTC start/end are execution evidence, not frozen observed values",
+        "target": "zero loss across restart; retry-safe failures; backup RPO <=24 h and restore RTO <=4 h"
+      },
+      {
+        "browserDiscoveryPrerequisites": [
+          "checked-in assets/t22_browser_discovery_probe.py SHA-256=bd62401febdc93ead55dce6a60b9d616a6619c23f87a20999385d6264533047c mode=0755 verified by runner",
+          "frozen per-slot sources: Playwright installed Chrome/Edge/Firefox desktop channels; WebDriver/Appium Safari/iOS Safari/Android Chrome",
+          "closed allowlisted native AT commands for NVDA, VoiceOver, and TalkBack slots",
+          "runtime source configuration: T22_WEBDRIVER_ENDPOINT, T22_PLAYWRIGHT_CHROME_LATEST_EXECUTABLE, T22_PLAYWRIGHT_CHROME_PREVIOUS_MAJOR_EXECUTABLE, T22_PLAYWRIGHT_EDGE_LATEST_EXECUTABLE, T22_PLAYWRIGHT_EDGE_PREVIOUS_MAJOR_EXECUTABLE, T22_PLAYWRIGHT_FIREFOX_LATEST_EXECUTABLE, T22_PLAYWRIGHT_FIREFOX_PREVIOUS_MAJOR_EXECUTABLE, T22_NATIVE_WINDOWS_POWERSHELL, T22_NATIVE_MACOS_MDLS, T22_NATIVE_ANDROID_ADB, T22_NATIVE_IOS_XCRUN"
+        ],
+        "coldWarmWindows": [
+          "cold",
+          "warm"
+        ],
+        "datasetId": "browser-at-matrix",
+        "id": "accessibility-browser",
+        "observationWindow": "fixed before run; exact UTC start/end are execution evidence, not frozen observed values",
+        "target": "exact versions recorded; manual desktop reader and VoiceOver tasks; separate from automated scan"
+      }
+    ]
+  },
+  "records": [
+    {
+      "assertionType": "workload-protocol",
+      "blockedReason": "reference environment, benchmark runner, raw telemetry store, and declared resource budget are later prerequisites; workload execution remains not-run.",
+      "evidenceLevel": "E2",
+      "expected": {
+        "datasets": {
+          "fieldsPerPackage": 1000,
+          "forms": 10000,
+          "responses": 10000,
+          "sessions": 200
+        },
+        "measurements": [
+          "p50",
+          "p95",
+          "p99",
+          "memory",
+          "errors",
+          "cost"
+        ],
+        "rawBenchmarkDataRequired": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T22"
+      ],
+      "id": "EVAL-T22-SCALE-01",
+      "milestoneGates": [
+        "M0",
+        "M8"
+      ],
+      "oracleProvenance": {
+        "inputs": {
+          "limits": [
+            5242880,
+            1048576,
+            26214400,
+            10,
+            104857600,
+            500,
+            3,
+            10000,
+            20,
+            10000,
+            100000
+          ]
+        },
+        "mode": "source-computed",
+        "outputs": {
+          "capPlusOne": [
+            5242881,
+            1048577,
+            26214401,
+            11,
+            104857601,
+            501,
+            4,
+            10001,
+            21,
+            10001,
+            100001
+          ]
+        },
+        "registryPath": "provenance/rule-registry.json",
+        "ruleId": "cap-plus-one/v1"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "660-668",
+          "quote": "| Save/submit | 200 active sessions at 20 draft mutations/second aggregate; save acknowledgment p95 ≤ 1 second and submit commit p95 ≤ 2 seconds, excluding file transfer/provider speech. Error rate below 0.1% excluding deliberate invalid requests. |\n| Import/compile | 1,000-field package compile p95 ≤ 5 seconds; runs over 2 seconds expose progress/job status. Invalid large input rejected within bounded resources. |\n| API/export | Cursor walk of 10,000 responses has zero missing/duplicate snapshot items; 10,000-response JSON/CSV export completes within 60 seconds in the reference environment. |\n| Durability | Zero loss of acknowledged writes across application restarts; retry-safe acceptance under injected network/service failures. Defined backup RPO ≤ 24 hours, restore RTO ≤ 4 hours; runtime crash recovery is separate from disaster recovery. |\n| Accessibility/browser | Latest and previous major Chrome/Edge/Firefox/Safari at test time; iOS Safari/Android Chrome; record exact versions. Manual NVDA or equivalent desktop reader and VoiceOver mobile/desktop tasks. |\n\nDefault published limits: 5 MiB definition JSON; 1 MiB typed draft/submission JSON excluding attachments; 25 MiB per file; 10 files per question; 100 MiB total attachments per session; 500 items per repeater; three nested repeater levels; 10,000 expanded active answer cells; expression depth 20; 10,000 AST nodes per package; maximum 100,000 evaluation steps per mutation. A field-specific limit may be stricter. Explicitly return limits in capabilities and show them in authoring/respondent UI. Reject rather than truncate. Higher plans/deployments may configure larger tested limits without changing semantics.\n\nDefault rate controls: 60 administrative mutations/minute/actor, 120 draft mutations/minute/session and configurable tenant aggregate limits; use burst allowance to avoid breaking normal typing. Return 429 with Retry-After and maintain queued client mutations. Availability target is 99.9% monthly for the core after deployment, with maintenance accounting documented. A build-tool evaluation must not claim that SLA from a short test; it must demonstrate health checks, observability, recovery and a deployment design that can support it.",
+          "rangeSha256": "786a7c93c5b46140a43bcc7be578a2ac35f72d059fbd83ad97bfe24123da285e",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        {
+          "file": "PRD",
+          "lines": "820",
+          "quote": "| T22 Scale/limits | Agreed 10,000-form and 1,000-field datasets, 200 sessions, prescribed loads; exceed each cap by one; measure p50/p95/p99 and memory/errors/cost. | Reproducible workload commands and raw benchmark data. |",
+          "rangeSha256": "4adadfaf6a4e1d04a4e434865b2a0a46487bcfc622f94bf6211661c608bf9dd2",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Frozen evaluator protocol materialization; status is not-run and no product output was inspected.",
+      "requirements": [
+        "SF-NFR-01"
+      ],
+      "status": "not-run"
+    }
+  ]
+}

@@ -1,0 +1,128 @@
+{
+  "counting_rule": "one hostile import class; each must reject safely before expensive semantic processing",
+  "current_execution_status": "not-run",
+  "independent_review_required": true,
+  "manifest": "H_total",
+  "members": [
+    {
+      "citation": {
+        "lines": "568-572",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "H-duplicate-json-keys-8001696c8d",
+      "import_class": "duplicate-json-keys",
+      "owner": "import/security",
+      "status": "not-run",
+      "title": "duplicate-json-keys"
+    },
+    {
+      "citation": {
+        "lines": "568-572",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "H-malformed-unicode-a3b44f6ff9",
+      "import_class": "malformed-unicode",
+      "owner": "import/security",
+      "status": "not-run",
+      "title": "malformed-unicode"
+    },
+    {
+      "citation": {
+        "lines": "568-572",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "H-excessive-nesting-812046494c",
+      "import_class": "excessive-nesting",
+      "owner": "import/security",
+      "status": "not-run",
+      "title": "excessive-nesting"
+    },
+    {
+      "citation": {
+        "lines": "568-572",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "H-prototype-style-key-48fe95b93b",
+      "import_class": "prototype-style-key",
+      "owner": "import/security",
+      "status": "not-run",
+      "title": "prototype-style-key"
+    },
+    {
+      "citation": {
+        "lines": "568-572",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "H-raw-executable-content-c398e6da07",
+      "import_class": "raw-executable-content",
+      "owner": "import/security",
+      "status": "not-run",
+      "title": "raw-executable-content"
+    },
+    {
+      "citation": {
+        "lines": "568-572",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "H-unsupported-type-or-operator-ae3ec89958",
+      "import_class": "unsupported-type-or-operator",
+      "owner": "import/security",
+      "status": "not-run",
+      "title": "unsupported-type-or-operator"
+    },
+    {
+      "citation": {
+        "lines": "568-572",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "H-remote-reference-6d5a5d7c74",
+      "import_class": "remote-reference",
+      "owner": "import/security",
+      "status": "not-run",
+      "title": "remote-reference"
+    },
+    {
+      "citation": {
+        "lines": "568-572",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "H-secret-like-provider-field-55e7102f66",
+      "import_class": "secret-like-provider-field",
+      "owner": "import/security",
+      "status": "not-run",
+      "title": "secret-like-provider-field"
+    },
+    {
+      "citation": {
+        "lines": "568-572",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "H-oversize-json-0e51b11355",
+      "import_class": "oversize-json",
+      "owner": "import/security",
+      "status": "not-run",
+      "title": "oversize-json"
+    },
+    {
+      "citation": {
+        "lines": "568-572",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "id": "H-candidate-cross-tenant-commit-ad064f3935",
+      "import_class": "candidate-cross-tenant-commit",
+      "owner": "import/security",
+      "status": "not-run",
+      "title": "candidate-cross-tenant-commit"
+    }
+  ],
+  "owner": "acceptance/denominators",
+  "selection": "PRD-derived class inventory",
+  "source_citations": [
+    {
+      "lines": "\u00a711.3 lines 568\u2013572",
+      "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+    }
+  ],
+  "total": 10,
+  "version": "2.0.0-m0"
+}

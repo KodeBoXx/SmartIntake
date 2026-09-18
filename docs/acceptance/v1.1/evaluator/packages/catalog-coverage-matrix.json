@@ -1,0 +1,829 @@
+{
+  "records": [
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "boundaryCase": true,
+        "canonicalType": "text",
+        "hc": [
+          "structural-spec"
+        ],
+        "invalidCase": true,
+        "nhc": [
+          "structural-spec"
+        ],
+        "prdLine": 226,
+        "presentationControlFamily": "text",
+        "row": 1,
+        "validCase": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-CAT-01",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "226",
+          "quote": "| Short/long text, email, phone, URL, identifiers | `text` | Preserve Unicode; configurable length/format; identifiers remain strings so leading zeros survive. Required checks use trimmed emptiness, but storage preserves entered text unless an explicit normalizer is declared in the contract. |",
+          "rangeSha256": "e6f7aeb8f2e0519f296e24cdd65ef087f7612449f756165ae32b9f4e62a9263c",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-FLD-01",
+        "SF-VAL-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "boundaryCase": true,
+        "canonicalType": "integer",
+        "hc": [
+          "structural-spec"
+        ],
+        "invalidCase": true,
+        "nhc": [
+          "structural-spec"
+        ],
+        "prdLine": 227,
+        "presentationControlFamily": "integer",
+        "row": 2,
+        "validCase": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-CAT-02",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "227",
+          "quote": "| Whole number, rating, scale, integer slider | `integer` | Exact signed 64-bit range, canonical decimal-string wire value; enforce min/max/step; distinguish zero from unanswered. Rating endpoints and meaning are labeled. |",
+          "rangeSha256": "fb0a24fc08bbca5a175f0112b80c4fe031733269a092865f74a61405c739964c",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-FLD-01",
+        "SF-VAL-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "boundaryCase": true,
+        "canonicalType": "decimal",
+        "hc": [
+          "structural-spec"
+        ],
+        "invalidCase": true,
+        "nhc": [
+          "structural-spec"
+        ],
+        "prdLine": 228,
+        "presentationControlFamily": "decimal",
+        "row": 3,
+        "validCase": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-CAT-03",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "228",
+          "quote": "| Decimal, amount, currency, fractional slider | `decimal` | Decimal string, no exponent or binary-floating ambiguity; configured scale/unit/currency; round only by declared calculation rules. No payment side effect. |",
+          "rangeSha256": "5d58e6fbb1fd3400b6924c72abe598d41b2217b952d87176ed38b97617b6004d",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-FLD-01",
+        "SF-VAL-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "boundaryCase": true,
+        "canonicalType": [
+          "date",
+          "time",
+          "dateTime"
+        ],
+        "hc": [
+          "structural-spec"
+        ],
+        "invalidCase": true,
+        "nhc": [
+          "structural-spec"
+        ],
+        "prdLine": 229,
+        "presentationControlFamily": "date/time/dateTime",
+        "row": 4,
+        "validCase": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-CAT-04",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "229",
+          "quote": "| Date, time, date/time | `date`, `time`, `dateTime` | ISO calendar date; 24-hour local time; instant plus IANA timezone for date/time. Reject impossible dates and ambiguous nonexistent local times with correction UI. |",
+          "rangeSha256": "fd5335ceb8b041ffda284004033a9c3b99ba332f48c0159aed1e8be0ff965f8a",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-FLD-01",
+        "SF-VAL-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "boundaryCase": true,
+        "canonicalType": "boolean",
+        "hc": [
+          "structural-spec"
+        ],
+        "invalidCase": true,
+        "nhc": [
+          "structural-spec"
+        ],
+        "prdLine": 230,
+        "presentationControlFamily": "boolean",
+        "row": 5,
+        "validCase": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-CAT-05",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "230",
+          "quote": "| Yes/no, checkbox, acknowledgment | `boolean` | False is an answer. A consent/acknowledgment gate uses explicit `requireTrue`; general required boolean does not require Yes. Optional unknown/declined states are distinct. |",
+          "rangeSha256": "5dfbfdd01dd3c8eb8d7a55e564e751d605541a14b074d68e7a8d93136f927a4a",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-FLD-01",
+        "SF-VAL-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "boundaryCase": true,
+        "canonicalType": "choice",
+        "hc": [
+          "structural-spec"
+        ],
+        "invalidCase": true,
+        "nhc": [
+          "structural-spec"
+        ],
+        "prdLine": 231,
+        "presentationControlFamily": "choice",
+        "row": 6,
+        "validCase": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-CAT-06",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "231",
+          "quote": "| Radio, dropdown, searchable combobox, image choice | `choice` | Stable option ID; keyboard search; accessible image labels; option visibility; obsolete selections prompt correction. |",
+          "rangeSha256": "e4c6e2b44c9f6337f0db51e152a2605f7d4d2b3886657902f597e25687277f34",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-FLD-01",
+        "SF-VAL-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "boundaryCase": true,
+        "canonicalType": "multiChoice",
+        "hc": [
+          "structural-spec"
+        ],
+        "invalidCase": true,
+        "nhc": [
+          "structural-spec"
+        ],
+        "prdLine": 232,
+        "presentationControlFamily": "multiChoice",
+        "row": 7,
+        "validCase": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-CAT-07",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "232",
+          "quote": "| Chips, checkbox group, multiple image choice | `multiChoice` | Unique stable option IDs; cardinality; exclusive None/Unknown options through declared constraints/rules. |",
+          "rangeSha256": "8884f8688a439e682b71b8856d70f3ef9001b601ec456916050904df91a5152b",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-FLD-01",
+        "SF-VAL-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "boundaryCase": true,
+        "canonicalType": "multiChoice",
+        "hc": [
+          "structural-spec"
+        ],
+        "invalidCase": true,
+        "nhc": [
+          "structural-spec"
+        ],
+        "ordered": true,
+        "prdLine": 233,
+        "presentationControlFamily": "ranking",
+        "row": 8,
+        "validCase": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-CAT-08",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "233",
+          "quote": "| Ranking | `multiChoice` with `ordered:true` | Ordered option IDs, keyboard move buttons, no duplicate values; order is semantic only when configured. |",
+          "rangeSha256": "7253b50a7858065a3acb201b3a3b33c84f845923c4314f12381ef5e323958807",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-FLD-01",
+        "SF-VAL-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "boundaryCase": true,
+        "canonicalType": "object",
+        "hc": [
+          "structural-spec"
+        ],
+        "invalidCase": true,
+        "nhc": [
+          "structural-spec"
+        ],
+        "prdLine": 234,
+        "presentationControlFamily": "object",
+        "row": 9,
+        "validCase": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-CAT-09",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "234",
+          "quote": "| Address, person/contact, row of related values | `object` | Named child fields with individual validation; locale-aware labels, no US-only required address assumptions. Reuse data without concatenating it into one opaque string. |",
+          "rangeSha256": "270bffa6685fbcbf01a1ffacafc8be698aa185e945a9e0f9bb6afcf96a15d30c",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-FLD-01",
+        "SF-VAL-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "boundaryCase": true,
+        "canonicalType": "list",
+        "hc": [
+          "structural-spec"
+        ],
+        "invalidCase": true,
+        "nhc": [
+          "structural-spec"
+        ],
+        "prdLine": 235,
+        "presentationControlFamily": "list repeating/dynamic matrix",
+        "row": 10,
+        "validCase": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-CAT-10",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "235",
+          "quote": "| Repeating cards, dynamic matrix | `list` of item-field records | Stable item IDs; add/remove/reorder; cardinality; per-item errors; dependent fields and aggregate calculations; nested repeaters to the specified supported depth. |",
+          "rangeSha256": "190a4a8f8dd44688d39f63391619cd005b712ee6d05d99c497a0c1ee5c6f5c82",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-FLD-01",
+        "SF-VAL-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "boundaryCase": true,
+        "canonicalType": "list",
+        "hc": [
+          "structural-spec"
+        ],
+        "invalidCase": true,
+        "nhc": [
+          "structural-spec"
+        ],
+        "prdLine": 236,
+        "presentationControlFamily": "matrix with fixed rows/details",
+        "row": 11,
+        "validCase": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-CAT-11",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "236",
+          "quote": "| Single/multi-choice matrix, yes/no table with details | `list` with fixed item IDs or dynamic rows | Stable row/column definitions, accessible table/card presentation; row details, None/Unknown and per-row validation. Matrix cells use ordinary typed child fields. |",
+          "rangeSha256": "6b09e910f251bb88fdb145e87209dd6d3cb20025d38bbb31761171743eaed85c",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-FLD-01",
+        "SF-VAL-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "boundaryCase": true,
+        "canonicalType": [
+          "object",
+          "list",
+          "choice"
+        ],
+        "hc": [
+          "structural-spec"
+        ],
+        "invalidCase": true,
+        "nhc": [
+          "structural-spec"
+        ],
+        "prdLine": 237,
+        "presentationControlFamily": "family/history/symptom composites",
+        "row": 12,
+        "validCase": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-CAT-12",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "237",
+          "quote": "| Family members, history lists, symptoms by category | Composite object/list/choice fields | Configurable relationship/type options and grouped selectable items, detail follow-ups and summaries. These are reusable controls, not hard-coded medical assumptions. |",
+          "rangeSha256": "dba54688bf1d9e69c78175e02a8376811d06ddba3a18ae1dda0cb02ff382795c",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-FLD-01",
+        "SF-VAL-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "boundaryCase": true,
+        "canonicalType": "attachments",
+        "hc": [
+          "structural-spec"
+        ],
+        "invalidCase": true,
+        "nhc": [
+          "structural-spec"
+        ],
+        "prdLine": 238,
+        "presentationControlFamily": "attachments",
+        "row": 13,
+        "validCase": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-CAT-13",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "238",
+          "quote": "| File upload | `attachments` | References to verified uploaded assets, including ordinary PDFs, not base64 in answer JSON; multiple files, type/size limits, progress/retry and authorized download. |",
+          "rangeSha256": "aee4cbdfc42ed64272f26db1310ee29d1b36a1093984ed021be1dd3d7914d760",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-FLD-01",
+        "SF-VAL-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "boundaryCase": true,
+        "canonicalType": "drawing",
+        "hc": [
+          "structural-spec"
+        ],
+        "invalidCase": true,
+        "nhc": [
+          "structural-spec"
+        ],
+        "prdLine": 239,
+        "presentationControlFamily": "drawing",
+        "row": 14,
+        "validCase": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-CAT-14",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "239",
+          "quote": "| Drawing/initials-style input | `drawing` | Reference to captured image/stroke asset with typed-name/text alternative where a drawing is unnecessary; explicit ordinary-data label; no e-sign claim. |",
+          "rangeSha256": "746a5bc14257f0b67ee967cc3a7601c84bb9b14f4be760487063bc201b2ec281",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-FLD-01",
+        "SF-VAL-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "boundaryCase": true,
+        "canonicalType": "compatible-scalar-or-object",
+        "hc": [
+          "structural-spec"
+        ],
+        "invalidCase": true,
+        "nhc": [
+          "structural-spec"
+        ],
+        "prdLine": 240,
+        "presentationControlFamily": "calculated/read-only",
+        "row": 15,
+        "validCase": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-CAT-15",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "240",
+          "quote": "| Calculated/read-only result | Any compatible scalar or object type | Deterministic server-recomputed value, labeled as derived; cannot be overridden by respondent payload. |",
+          "rangeSha256": "4c14a91f6e1c964aa0155708d0c6ebad841417f83975329ef8b05d928ad00988",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-FLD-01",
+        "SF-VAL-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "boundaryCase": true,
+        "canonicalType": "layout-content-node",
+        "hc": [
+          "structural-spec"
+        ],
+        "invalidCase": true,
+        "nhc": [
+          "structural-spec"
+        ],
+        "prdLine": 241,
+        "presentationControlFamily": "static content/layout/review nodes",
+        "row": 16,
+        "validCase": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-CAT-16",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "241",
+          "quote": "| Static content, collapsible groups, legal/instruction text, review | Layout/content nodes | No answer unless linked acknowledgment or data field; rich readable content, accessible disclosure and review edit links. |",
+          "rangeSha256": "88a3dfe9afef5a8392963aab31aec794e63399b3f61a79a04694d6404f353e6c",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-FLD-01",
+        "SF-VAL-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "structural",
+      "evidenceLevel": "E0",
+      "expected": {
+        "boundaryCase": true,
+        "canonicalType": "choice",
+        "hc": [
+          "structural-spec"
+        ],
+        "invalidCase": true,
+        "nhc": [
+          "structural-spec"
+        ],
+        "prdLine": 242,
+        "presentationControlFamily": "mode selector",
+        "row": 17,
+        "validCase": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-CAT-17",
+      "milestoneGates": [
+        "M3",
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "242",
+          "quote": "| Mode selector / alternate data-entry view | `choice` plus alternative instances | Switch between manual/list/other presentations of the same canonical fields without duplicating answers; hidden-data rules determine data handling. |",
+          "rangeSha256": "3ec1239c21ecf77e8c719acc3dd380abea724042f18c383ccf738f8998102275",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "PRD contract text has no individually assigned SF-ID.",
+      "requirements": [
+        "SF-FLD-01",
+        "SF-VAL-01"
+      ],
+      "status": "not-run"
+    }
+  ]
+}

@@ -1,0 +1,130 @@
+{
+  "counting_rule": "one M2 top-level schema artifact, each with independent positive and negative example validation",
+  "current_execution_status": "not-run",
+  "independent_review_required": true,
+  "manifest": "S_total",
+  "members": [
+    {
+      "artifact": "package",
+      "citation": {
+        "lines": "413,417-435",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "examples": [
+        "positive",
+        "negative"
+      ],
+      "id": "S-package",
+      "owner": "contract/schema",
+      "selection": "plan-selected seven-artifact contract set",
+      "status": "not-run",
+      "title": "package schema positive and negative validation"
+    },
+    {
+      "artifact": "expression",
+      "citation": {
+        "lines": "269-292,424",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "examples": [
+        "positive",
+        "negative"
+      ],
+      "id": "S-expression",
+      "owner": "contract/schema",
+      "selection": "plan-selected seven-artifact contract set",
+      "status": "not-run",
+      "title": "expression schema positive and negative validation"
+    },
+    {
+      "artifact": "input-answer",
+      "citation": {
+        "lines": "479-481",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "examples": [
+        "positive",
+        "negative"
+      ],
+      "id": "S-input-answer",
+      "owner": "contract/schema",
+      "selection": "plan-selected seven-artifact contract set",
+      "status": "not-run",
+      "title": "input-answer schema positive and negative validation"
+    },
+    {
+      "artifact": "typed-answer",
+      "citation": {
+        "lines": "477-504",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "examples": [
+        "positive",
+        "negative"
+      ],
+      "id": "S-typed-answer",
+      "owner": "contract/schema",
+      "selection": "plan-selected seven-artifact contract set",
+      "status": "not-run",
+      "title": "typed-answer schema positive and negative validation"
+    },
+    {
+      "artifact": "runtime-manifest",
+      "citation": {
+        "lines": "365,369,413",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "examples": [
+        "positive",
+        "negative"
+      ],
+      "id": "S-runtime-manifest",
+      "owner": "contract/schema",
+      "selection": "plan-selected seven-artifact contract set",
+      "status": "not-run",
+      "title": "runtime-manifest schema positive and negative validation"
+    },
+    {
+      "artifact": "submission-envelope",
+      "citation": {
+        "lines": "477-504",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "examples": [
+        "positive",
+        "negative"
+      ],
+      "id": "S-submission-envelope",
+      "owner": "contract/schema",
+      "selection": "plan-selected seven-artifact contract set",
+      "status": "not-run",
+      "title": "submission-envelope schema positive and negative validation"
+    },
+    {
+      "artifact": "event",
+      "citation": {
+        "lines": "606-616",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "examples": [
+        "positive",
+        "negative"
+      ],
+      "id": "S-event",
+      "owner": "contract/schema",
+      "selection": "plan-selected seven-artifact contract set",
+      "status": "not-run",
+      "title": "event schema positive and negative validation"
+    }
+  ],
+  "owner": "acceptance/denominators",
+  "selection": "plan-selected",
+  "source_citations": [
+    {
+      "lines": "413-435,477-504,606-616",
+      "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+    }
+  ],
+  "total": 7,
+  "version": "2.0.0-m0"
+}

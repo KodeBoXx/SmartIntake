@@ -1,0 +1,378 @@
+{
+  "counting_rule": "one PRD-named staff screen, with all six mandatory state categories and recorded Certinal intent",
+  "current_execution_status": "not-run",
+  "independent_review_required": true,
+  "manifest": "UI_staff_total",
+  "members": [
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "UISTAFF-sign-in-48d7c508cc",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "sign-in",
+      "status": "not-run",
+      "title": "sign in"
+    },
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "UISTAFF-setup-8fb6d5f37e",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "setup",
+      "status": "not-run",
+      "title": "setup"
+    },
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "UISTAFF-activation-b15526c9c0",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "activation",
+      "status": "not-run",
+      "title": "activation"
+    },
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "UISTAFF-recovery-8c58537851",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "recovery",
+      "status": "not-run",
+      "title": "recovery"
+    },
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "UISTAFF-platform-organizations-4e51b259d7",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "platform-organizations",
+      "status": "not-run",
+      "title": "platform organizations"
+    },
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "UISTAFF-organization-settings-fda862aff8",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "organization-settings",
+      "status": "not-run",
+      "title": "organization settings"
+    },
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "UISTAFF-user-list-e407e36ef9",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "user-list",
+      "status": "not-run",
+      "title": "user list"
+    },
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "UISTAFF-add-user-e539eba177",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "add-user",
+      "status": "not-run",
+      "title": "add user"
+    },
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "UISTAFF-user-detail-51b0fb9cc7",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "user-detail",
+      "status": "not-run",
+      "title": "user detail"
+    },
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "UISTAFF-role-assignment-76db277394",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "role-assignment",
+      "status": "not-run",
+      "title": "role assignment"
+    },
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "UISTAFF-invitation-delivery-57ec613c30",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "invitation-delivery",
+      "status": "not-run",
+      "title": "invitation delivery"
+    },
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "UISTAFF-catalog-652f550162",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "catalog",
+      "status": "not-run",
+      "title": "catalog"
+    },
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "UISTAFF-builder-df6b07176a",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "builder",
+      "status": "not-run",
+      "title": "builder"
+    },
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "UISTAFF-review-publish-27fa51fc15",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "review-publish",
+      "status": "not-run",
+      "title": "review publish"
+    },
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "UISTAFF-responses-e30b3910ff",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "responses",
+      "status": "not-run",
+      "title": "responses"
+    },
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "UISTAFF-response-detail-69fdcd144d",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "response-detail",
+      "status": "not-run",
+      "title": "response detail"
+    },
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "UISTAFF-export-history-870d53877a",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "export-history",
+      "status": "not-run",
+      "title": "export history"
+    },
+    {
+      "certinal_intent": "dedicated edit route; detail drawer for read-only details; confirmation for destructive action",
+      "citation": {
+        "lines": "74-104",
+        "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+      },
+      "id": "UISTAFF-provider-policy-4c8d7de783",
+      "owner": "frontend/staff",
+      "required_states": [
+        "loading",
+        "empty-or-no-access",
+        "invalid",
+        "denied",
+        "expired",
+        "email-unavailable"
+      ],
+      "screen": "provider-policy",
+      "status": "not-run",
+      "title": "provider policy"
+    }
+  ],
+  "owner": "acceptance/denominators",
+  "selection": "plan-selected; labels split as listed",
+  "source_citations": [
+    {
+      "lines": "74-104",
+      "source": "docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md"
+    }
+  ],
+  "total": 18,
+  "version": "2.0.0-m0"
+}

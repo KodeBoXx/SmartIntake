@@ -1,0 +1,200 @@
+{
+  "counting_rule": "one public/staff shell route with its named state cluster and Certinal control intent",
+  "current_execution_status": "not-run",
+  "independent_review_required": true,
+  "manifest": "UI_total",
+  "members": [
+    {
+      "citation": {
+        "lines": "361-409,678-709",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
+      "id": "UI-staff-sign-in-sign-in-sign-in-invalid-throttled-a31817fc51",
+      "owner": "frontend",
+      "route": "/sign-in",
+      "states": "sign-in/invalid/throttled",
+      "status": "not-run",
+      "title": "staff-sign-in"
+    },
+    {
+      "citation": {
+        "lines": "361-409,678-709",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
+      "id": "UI-staff-setup-setup-pending-expired-2b01845605",
+      "owner": "frontend",
+      "route": "/setup",
+      "states": "pending/expired",
+      "status": "not-run",
+      "title": "staff-setup"
+    },
+    {
+      "citation": {
+        "lines": "361-409,678-709",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
+      "id": "UI-catalog-workspaces-w-forms-loading-empty-no-access-7d9b31a6ab",
+      "owner": "frontend",
+      "route": "/workspaces/{w}/forms",
+      "states": "loading/empty/no-access",
+      "status": "not-run",
+      "title": "catalog"
+    },
+    {
+      "citation": {
+        "lines": "361-409,678-709",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
+      "id": "UI-builder-workspaces-w-forms-f-drafts-d-loading-invalid-conflict-7dfb8c8566",
+      "owner": "frontend",
+      "route": "/workspaces/{w}/forms/{f}/drafts/{d}",
+      "states": "loading/invalid/conflict",
+      "status": "not-run",
+      "title": "builder"
+    },
+    {
+      "citation": {
+        "lines": "361-409,678-709",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
+      "id": "UI-preview-preview-d-loading-error-no-side-effects-1a1f061363",
+      "owner": "frontend",
+      "route": "/preview/{d}",
+      "states": "loading/error/no-side-effects",
+      "status": "not-run",
+      "title": "preview"
+    },
+    {
+      "citation": {
+        "lines": "361-409,678-709",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
+      "id": "UI-review-publish-workspaces-w-forms-f-review-pending-denied-stale-e2587ac61c",
+      "owner": "frontend",
+      "route": "/workspaces/{w}/forms/{f}/review",
+      "states": "pending/denied/stale",
+      "status": "not-run",
+      "title": "review-publish"
+    },
+    {
+      "citation": {
+        "lines": "361-409,678-709",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
+      "id": "UI-responses-workspaces-w-submissions-loading-empty-denied-e0c703c5f3",
+      "owner": "frontend",
+      "route": "/workspaces/{w}/submissions",
+      "states": "loading/empty/denied",
+      "status": "not-run",
+      "title": "responses"
+    },
+    {
+      "citation": {
+        "lines": "361-409,678-709",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
+      "id": "UI-response-detail-workspaces-w-submissions-s-loading-tombstone-denied-683a8a9085",
+      "owner": "frontend",
+      "route": "/workspaces/{w}/submissions/{s}",
+      "states": "loading/tombstone/denied",
+      "status": "not-run",
+      "title": "response-detail"
+    },
+    {
+      "citation": {
+        "lines": "361-409,678-709",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
+      "id": "UI-integrations-workspaces-w-integrations-empty-invalid-denied-d6578ba261",
+      "owner": "frontend",
+      "route": "/workspaces/{w}/integrations",
+      "states": "empty/invalid/denied",
+      "status": "not-run",
+      "title": "integrations"
+    },
+    {
+      "citation": {
+        "lines": "361-409,678-709",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
+      "id": "UI-public-entry-f-shareid-closed-expired-start-bfb3ccbe97",
+      "owner": "frontend",
+      "route": "/f/{shareId}",
+      "states": "closed/expired/start",
+      "status": "not-run",
+      "title": "public-entry"
+    },
+    {
+      "citation": {
+        "lines": "361-409,678-709",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
+      "id": "UI-public-form-sessions-s-loading-offline-stale-6dbb56a70b",
+      "owner": "frontend",
+      "route": "/sessions/{s}",
+      "states": "loading/offline/stale",
+      "status": "not-run",
+      "title": "public-form"
+    },
+    {
+      "citation": {
+        "lines": "361-409,678-709",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
+      "id": "UI-public-review-sessions-s-review-stale-invalid-acknowledgment-f051e7fb3d",
+      "owner": "frontend",
+      "route": "/sessions/{s}/review",
+      "states": "stale/invalid/acknowledgment",
+      "status": "not-run",
+      "title": "public-review"
+    },
+    {
+      "citation": {
+        "lines": "361-409,678-709",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
+      "id": "UI-receipt-sessions-s-receipt-pending-succeeded-failed-795814ae14",
+      "owner": "frontend",
+      "route": "/sessions/{s}/receipt",
+      "states": "pending/succeeded/failed",
+      "status": "not-run",
+      "title": "receipt"
+    },
+    {
+      "citation": {
+        "lines": "361-409,678-709",
+        "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+      },
+      "control_intent": "Certinal route/detail drawer/confirmation/inline validation/toast as applicable",
+      "id": "UI-not-found-not-found-not-found-no-access-648364c15e",
+      "owner": "frontend",
+      "route": "/not-found",
+      "states": "not-found/no-access",
+      "status": "not-run",
+      "title": "not-found"
+    }
+  ],
+  "owner": "acceptance/denominators",
+  "selection": "plan-selected",
+  "source_citations": [
+    {
+      "lines": "361-409,678-709",
+      "source": "docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md"
+    }
+  ],
+  "total": 14,
+  "version": "2.0.0-m0"
+}

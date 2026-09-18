@@ -1,0 +1,675 @@
+{
+  "corpusVersion": "2.4.21-m0",
+  "executionStatus": "not-run",
+  "frozenInputProtocol": {
+    "addresses": [
+      {
+        "caseId": "whitespace-required-text",
+        "fieldId": "respondentName",
+        "rowPath": []
+      },
+      {
+        "caseId": "invalid-date",
+        "fieldId": "inspectionDate",
+        "rowPath": []
+      },
+      {
+        "caseId": "invalid-type",
+        "fieldId": "inspectionDate",
+        "rowPath": []
+      },
+      {
+        "caseId": "invalid-choice",
+        "fieldId": "riskLevel",
+        "rowPath": []
+      },
+      {
+        "caseId": "forged-calculated-value",
+        "fieldId": "totalRisk",
+        "rowPath": []
+      },
+      {
+        "caseId": "read-only-edit",
+        "fieldId": "releaseStamp",
+        "rowPath": []
+      },
+      {
+        "caseId": "out-of-range-decimal",
+        "fieldId": "temperature",
+        "rowPath": []
+      },
+      {
+        "caseId": "invalid-nested-row",
+        "fieldId": "quantity",
+        "rowPath": [
+          {
+            "itemId": "eval-item-01",
+            "listFieldId": "equipment"
+          }
+        ]
+      }
+    ],
+    "caseExpectations": [
+      {
+        "accessibleErrorLinked": true,
+        "caseId": "whitespace-required-text",
+        "failureAddress": {
+          "fieldId": "respondentName",
+          "rowPath": []
+        },
+        "failureCode": "validation.invalid",
+        "preserveValidFieldId": "respondentEmail",
+        "reason": "REQUIRED",
+        "reject": true
+      },
+      {
+        "accessibleErrorLinked": true,
+        "caseId": "invalid-date",
+        "failureAddress": {
+          "fieldId": "inspectionDate",
+          "rowPath": []
+        },
+        "failureCode": "validation.invalid",
+        "preserveValidFieldId": "respondentEmail",
+        "reason": "TYPE_DATE",
+        "reject": true
+      },
+      {
+        "accessibleErrorLinked": true,
+        "caseId": "invalid-type",
+        "failureAddress": {
+          "fieldId": "inspectionDate",
+          "rowPath": []
+        },
+        "failureCode": "validation.invalid",
+        "preserveValidFieldId": "respondentEmail",
+        "reason": "TYPE_DATE",
+        "reject": true
+      },
+      {
+        "accessibleErrorLinked": true,
+        "caseId": "invalid-choice",
+        "failureAddress": {
+          "fieldId": "riskLevel",
+          "rowPath": []
+        },
+        "failureCode": "validation.invalid",
+        "preserveValidFieldId": "respondentEmail",
+        "reason": "CHOICE_OPTION",
+        "reject": true
+      },
+      {
+        "accessibleErrorLinked": true,
+        "caseId": "forged-calculated-value",
+        "failureAddress": {
+          "fieldId": "totalRisk",
+          "rowPath": []
+        },
+        "failureCode": "validation.invalid",
+        "preserveValidFieldId": "respondentEmail",
+        "reason": "CALCULATED_READ_ONLY",
+        "reject": true
+      },
+      {
+        "accessibleErrorLinked": true,
+        "caseId": "read-only-edit",
+        "failureAddress": {
+          "fieldId": "releaseStamp",
+          "rowPath": []
+        },
+        "failureCode": "validation.invalid",
+        "preserveValidFieldId": "respondentEmail",
+        "reason": "READ_ONLY",
+        "reject": true
+      },
+      {
+        "accessibleErrorLinked": true,
+        "caseId": "out-of-range-decimal",
+        "failureAddress": {
+          "fieldId": "temperature",
+          "rowPath": []
+        },
+        "failureCode": "validation.invalid",
+        "preserveValidFieldId": "respondentEmail",
+        "reason": "RANGE_MAXIMUM",
+        "reject": true
+      },
+      {
+        "accessibleErrorLinked": true,
+        "caseId": "invalid-nested-row",
+        "failureAddress": {
+          "fieldId": "quantity",
+          "rowPath": [
+            {
+              "itemId": "eval-item-01",
+              "listFieldId": "equipment"
+            }
+          ]
+        },
+        "failureCode": "validation.invalid",
+        "preserveValidFieldId": "respondentEmail",
+        "reason": "RANGE_MINIMUM",
+        "reject": true
+      }
+    ],
+    "executionStatus": "not-run",
+    "packageSessionFieldHandles": {
+      "frozenFields": {
+        "equipment": {
+          "rowIds": [
+            "eval-item-01"
+          ],
+          "type": "list"
+        },
+        "inspectionDate": {
+          "format": "YYYY-MM-DD",
+          "type": "date"
+        },
+        "quantity": {
+          "maximum": "10",
+          "minimum": "1",
+          "parentListFieldId": "equipment",
+          "type": "integer"
+        },
+        "releaseStamp": {
+          "readOnly": true,
+          "type": "text"
+        },
+        "respondentName": {
+          "required": true,
+          "trimWhitespaceForRequired": true,
+          "type": "text"
+        },
+        "riskLevel": {
+          "optionIds": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "type": "choice"
+        },
+        "temperature": {
+          "maximum": "1000.00",
+          "minimum": "-100.00",
+          "type": "decimal"
+        },
+        "totalRisk": {
+          "calculated": true,
+          "type": "decimal"
+        }
+      },
+      "packageHandle": "eval-package-hc-v1",
+      "priorAcceptedUnrelatedMutation": {
+        "expectedAcceptedRevision": 8,
+        "expectedCode": "ACCEPTED",
+        "expectedCurrentRevision": 8,
+        "expectedHttpStatus": 200,
+        "expectedReplayed": false,
+        "requestSha256": "f674f1245fed7308320100ff2c73f1c3e7417b257bd60a3527e9f0f68d53be49",
+        "requestUtf8Hex": "7b22626173655265766973696f6e223a372c22636c69656e744d75746174696f6e4964223a2230303030303030302d303030302d343030302d383030302d303030303030303030373031222c226f7065726174696f6e73223a5b7b226f70223a22736574222c226669656c644964223a22726573706f6e64656e74456d61696c222c22726f7750617468223a5b5d2c22616e73776572223a7b22737461747573223a22616e737765726564222c2276616c7565223a2276616c6964406578616d706c652e74657374227d7d5d7d"
+      },
+      "releaseHandle": "eval-release-hc-v1",
+      "sessionHandle": "eval-session-t08",
+      "sessionRevisionBeforeUnrelatedMutation": 7,
+      "tenantHandle": "eval-tenant-a",
+      "unrelatedValidField": {
+        "fieldId": "respondentEmail",
+        "rowPath": [],
+        "typedAnswer": {
+          "status": "answered",
+          "value": "valid@example.test"
+        }
+      },
+      "workspaceHandle": "eval-workspace-a"
+    },
+    "patchCases": [
+      {
+        "caseId": "whitespace-required-text",
+        "expected": {
+          "atomicity": {
+            "acceptedRevision": 8,
+            "currentRevision": 8,
+            "operationsApplied": 0,
+            "unrelatedValidAnswerStillEquals": "valid@example.test"
+          },
+          "diagnostic": {
+            "code": "REQUIRED",
+            "fieldId": "respondentName",
+            "jsonPointer": "/operations/0/answer/value",
+            "rowPath": [],
+            "severity": "error"
+          },
+          "focusEvidence": {
+            "ariaDescribedBy": "error-whitespace-required-text",
+            "errorSummaryLinkTarget": "/operations/0/answer/value",
+            "inlineErrorFieldId": "respondentName",
+            "rowPath": []
+          },
+          "httpStatus": 422,
+          "problemCode": "VALIDATION_FAILED"
+        },
+        "request": {
+          "baseRevision": 8,
+          "clientMutationId": "00000000-0000-4000-8000-000000000701",
+          "operations": [
+            {
+              "answer": {
+                "status": "answered",
+                "value": "   "
+              },
+              "fieldId": "respondentName",
+              "op": "set",
+              "rowPath": []
+            }
+          ]
+        },
+        "requestSha256": "31c7ddb619a198fb2f9188f9ef00ca41d7d8ea233570903b0e695050da1f9886",
+        "requestUtf8Hex": "7b22626173655265766973696f6e223a382c22636c69656e744d75746174696f6e4964223a2230303030303030302d303030302d343030302d383030302d303030303030303030373031222c226f7065726174696f6e73223a5b7b226f70223a22736574222c226669656c644964223a22726573706f6e64656e744e616d65222c22726f7750617468223a5b5d2c22616e73776572223a7b22737461747573223a22616e737765726564222c2276616c7565223a22202020227d7d5d7d"
+      },
+      {
+        "caseId": "invalid-date",
+        "expected": {
+          "atomicity": {
+            "acceptedRevision": 8,
+            "currentRevision": 8,
+            "operationsApplied": 0,
+            "unrelatedValidAnswerStillEquals": "valid@example.test"
+          },
+          "diagnostic": {
+            "code": "TYPE_DATE",
+            "fieldId": "inspectionDate",
+            "jsonPointer": "/operations/0/answer/value",
+            "rowPath": [],
+            "severity": "error"
+          },
+          "focusEvidence": {
+            "ariaDescribedBy": "error-invalid-date",
+            "errorSummaryLinkTarget": "/operations/0/answer/value",
+            "inlineErrorFieldId": "inspectionDate",
+            "rowPath": []
+          },
+          "httpStatus": 422,
+          "problemCode": "VALIDATION_FAILED"
+        },
+        "request": {
+          "baseRevision": 8,
+          "clientMutationId": "00000000-0000-4000-8000-000000000702",
+          "operations": [
+            {
+              "answer": {
+                "status": "answered",
+                "value": "2026-02-30"
+              },
+              "fieldId": "inspectionDate",
+              "op": "set",
+              "rowPath": []
+            }
+          ]
+        },
+        "requestSha256": "e687bb0c5557eb4f9bde21ffc4d4dc2f8c9a01772873db8a2ebbf538a4ef8251",
+        "requestUtf8Hex": "7b22626173655265766973696f6e223a382c22636c69656e744d75746174696f6e4964223a2230303030303030302d303030302d343030302d383030302d303030303030303030373032222c226f7065726174696f6e73223a5b7b226f70223a22736574222c226669656c644964223a22696e7370656374696f6e44617465222c22726f7750617468223a5b5d2c22616e73776572223a7b22737461747573223a22616e737765726564222c2276616c7565223a22323032362d30322d3330227d7d5d7d"
+      },
+      {
+        "caseId": "invalid-type",
+        "expected": {
+          "atomicity": {
+            "acceptedRevision": 8,
+            "currentRevision": 8,
+            "operationsApplied": 0,
+            "unrelatedValidAnswerStillEquals": "valid@example.test"
+          },
+          "diagnostic": {
+            "code": "TYPE_DATE",
+            "fieldId": "inspectionDate",
+            "jsonPointer": "/operations/0/answer/value",
+            "rowPath": [],
+            "severity": "error"
+          },
+          "focusEvidence": {
+            "ariaDescribedBy": "error-invalid-type",
+            "errorSummaryLinkTarget": "/operations/0/answer/value",
+            "inlineErrorFieldId": "inspectionDate",
+            "rowPath": []
+          },
+          "httpStatus": 422,
+          "problemCode": "VALIDATION_FAILED"
+        },
+        "request": {
+          "baseRevision": 8,
+          "clientMutationId": "00000000-0000-4000-8000-000000000708",
+          "operations": [
+            {
+              "answer": {
+                "status": "answered",
+                "value": 42
+              },
+              "fieldId": "inspectionDate",
+              "op": "set",
+              "rowPath": []
+            }
+          ]
+        },
+        "requestSha256": "c66620d1626b861494e201d2e2191b9f16f65e7252431ad41141f36fb4332faa",
+        "requestUtf8Hex": "7b22626173655265766973696f6e223a382c22636c69656e744d75746174696f6e4964223a2230303030303030302d303030302d343030302d383030302d303030303030303030373038222c226f7065726174696f6e73223a5b7b226f70223a22736574222c226669656c644964223a22696e7370656374696f6e44617465222c22726f7750617468223a5b5d2c22616e73776572223a7b22737461747573223a22616e737765726564222c2276616c7565223a34327d7d5d7d"
+      },
+      {
+        "caseId": "invalid-choice",
+        "expected": {
+          "atomicity": {
+            "acceptedRevision": 8,
+            "currentRevision": 8,
+            "operationsApplied": 0,
+            "unrelatedValidAnswerStillEquals": "valid@example.test"
+          },
+          "diagnostic": {
+            "code": "CHOICE_OPTION",
+            "fieldId": "riskLevel",
+            "jsonPointer": "/operations/0/answer/value",
+            "rowPath": [],
+            "severity": "error"
+          },
+          "focusEvidence": {
+            "ariaDescribedBy": "error-invalid-choice",
+            "errorSummaryLinkTarget": "/operations/0/answer/value",
+            "inlineErrorFieldId": "riskLevel",
+            "rowPath": []
+          },
+          "httpStatus": 422,
+          "problemCode": "VALIDATION_FAILED"
+        },
+        "request": {
+          "baseRevision": 8,
+          "clientMutationId": "00000000-0000-4000-8000-000000000703",
+          "operations": [
+            {
+              "answer": {
+                "status": "answered",
+                "value": "critical-unknown"
+              },
+              "fieldId": "riskLevel",
+              "op": "set",
+              "rowPath": []
+            }
+          ]
+        },
+        "requestSha256": "3b33bef30e8f6a8f7995e21339c5a60beb7aab865da93cb46d83f45aa14ec41a",
+        "requestUtf8Hex": "7b22626173655265766973696f6e223a382c22636c69656e744d75746174696f6e4964223a2230303030303030302d303030302d343030302d383030302d303030303030303030373033222c226f7065726174696f6e73223a5b7b226f70223a22736574222c226669656c644964223a227269736b4c6576656c222c22726f7750617468223a5b5d2c22616e73776572223a7b22737461747573223a22616e737765726564222c2276616c7565223a22637269746963616c2d756e6b6e6f776e227d7d5d7d"
+      },
+      {
+        "caseId": "forged-calculated-value",
+        "expected": {
+          "atomicity": {
+            "acceptedRevision": 8,
+            "currentRevision": 8,
+            "operationsApplied": 0,
+            "unrelatedValidAnswerStillEquals": "valid@example.test"
+          },
+          "diagnostic": {
+            "code": "CALCULATED_READ_ONLY",
+            "fieldId": "totalRisk",
+            "jsonPointer": "/operations/0",
+            "rowPath": [],
+            "severity": "error"
+          },
+          "focusEvidence": {
+            "ariaDescribedBy": "error-forged-calculated-value",
+            "errorSummaryLinkTarget": "/operations/0",
+            "inlineErrorFieldId": "totalRisk",
+            "rowPath": []
+          },
+          "httpStatus": 422,
+          "problemCode": "VALIDATION_FAILED"
+        },
+        "request": {
+          "baseRevision": 8,
+          "clientMutationId": "00000000-0000-4000-8000-000000000704",
+          "operations": [
+            {
+              "answer": {
+                "status": "answered",
+                "value": "999"
+              },
+              "fieldId": "totalRisk",
+              "op": "set",
+              "rowPath": []
+            }
+          ]
+        },
+        "requestSha256": "2e378417ed75b180ba4603203c11cffc38c08121169c0c74ab39cc3677b99e72",
+        "requestUtf8Hex": "7b22626173655265766973696f6e223a382c22636c69656e744d75746174696f6e4964223a2230303030303030302d303030302d343030302d383030302d303030303030303030373034222c226f7065726174696f6e73223a5b7b226f70223a22736574222c226669656c644964223a22746f74616c5269736b222c22726f7750617468223a5b5d2c22616e73776572223a7b22737461747573223a22616e737765726564222c2276616c7565223a22393939227d7d5d7d"
+      },
+      {
+        "caseId": "read-only-edit",
+        "expected": {
+          "atomicity": {
+            "acceptedRevision": 8,
+            "currentRevision": 8,
+            "operationsApplied": 0,
+            "unrelatedValidAnswerStillEquals": "valid@example.test"
+          },
+          "diagnostic": {
+            "code": "READ_ONLY",
+            "fieldId": "releaseStamp",
+            "jsonPointer": "/operations/0",
+            "rowPath": [],
+            "severity": "error"
+          },
+          "focusEvidence": {
+            "ariaDescribedBy": "error-read-only-edit",
+            "errorSummaryLinkTarget": "/operations/0",
+            "inlineErrorFieldId": "releaseStamp",
+            "rowPath": []
+          },
+          "httpStatus": 422,
+          "problemCode": "VALIDATION_FAILED"
+        },
+        "request": {
+          "baseRevision": 8,
+          "clientMutationId": "00000000-0000-4000-8000-000000000705",
+          "operations": [
+            {
+              "answer": {
+                "status": "answered",
+                "value": "changed"
+              },
+              "fieldId": "releaseStamp",
+              "op": "set",
+              "rowPath": []
+            }
+          ]
+        },
+        "requestSha256": "2b4b1787804375de71e8bf47268759e7091fcf8d341f46c953812a98e492b0a7",
+        "requestUtf8Hex": "7b22626173655265766973696f6e223a382c22636c69656e744d75746174696f6e4964223a2230303030303030302d303030302d343030302d383030302d303030303030303030373035222c226f7065726174696f6e73223a5b7b226f70223a22736574222c226669656c644964223a2272656c656173655374616d70222c22726f7750617468223a5b5d2c22616e73776572223a7b22737461747573223a22616e737765726564222c2276616c7565223a226368616e676564227d7d5d7d"
+      },
+      {
+        "caseId": "out-of-range-decimal",
+        "expected": {
+          "atomicity": {
+            "acceptedRevision": 8,
+            "currentRevision": 8,
+            "operationsApplied": 0,
+            "unrelatedValidAnswerStillEquals": "valid@example.test"
+          },
+          "diagnostic": {
+            "code": "RANGE_MAXIMUM",
+            "fieldId": "temperature",
+            "jsonPointer": "/operations/0/answer/value",
+            "rowPath": [],
+            "severity": "error"
+          },
+          "focusEvidence": {
+            "ariaDescribedBy": "error-out-of-range-decimal",
+            "errorSummaryLinkTarget": "/operations/0/answer/value",
+            "inlineErrorFieldId": "temperature",
+            "rowPath": []
+          },
+          "httpStatus": 422,
+          "problemCode": "VALIDATION_FAILED"
+        },
+        "request": {
+          "baseRevision": 8,
+          "clientMutationId": "00000000-0000-4000-8000-000000000706",
+          "operations": [
+            {
+              "answer": {
+                "status": "answered",
+                "value": "1000.01"
+              },
+              "fieldId": "temperature",
+              "op": "set",
+              "rowPath": []
+            }
+          ]
+        },
+        "requestSha256": "589df143b87d8492614dce477e8940d69e1696dbe120c34536afbf2e1dbde5a6",
+        "requestUtf8Hex": "7b22626173655265766973696f6e223a382c22636c69656e744d75746174696f6e4964223a2230303030303030302d303030302d343030302d383030302d303030303030303030373036222c226f7065726174696f6e73223a5b7b226f70223a22736574222c226669656c644964223a2274656d7065726174757265222c22726f7750617468223a5b5d2c22616e73776572223a7b22737461747573223a22616e737765726564222c2276616c7565223a22313030302e3031227d7d5d7d"
+      },
+      {
+        "caseId": "invalid-nested-row",
+        "expected": {
+          "atomicity": {
+            "acceptedRevision": 8,
+            "currentRevision": 8,
+            "operationsApplied": 0,
+            "unrelatedValidAnswerStillEquals": "valid@example.test"
+          },
+          "diagnostic": {
+            "code": "RANGE_MINIMUM",
+            "fieldId": "quantity",
+            "jsonPointer": "/operations/0/answer/value",
+            "rowPath": [
+              {
+                "itemId": "eval-item-01",
+                "listFieldId": "equipment"
+              }
+            ],
+            "severity": "error"
+          },
+          "focusEvidence": {
+            "ariaDescribedBy": "error-invalid-nested-row",
+            "errorSummaryLinkTarget": "/operations/0/answer/value",
+            "inlineErrorFieldId": "quantity",
+            "rowPath": [
+              {
+                "itemId": "eval-item-01",
+                "listFieldId": "equipment"
+              }
+            ]
+          },
+          "httpStatus": 422,
+          "problemCode": "VALIDATION_FAILED"
+        },
+        "request": {
+          "baseRevision": 8,
+          "clientMutationId": "00000000-0000-4000-8000-000000000707",
+          "operations": [
+            {
+              "answer": {
+                "status": "answered",
+                "value": "0"
+              },
+              "fieldId": "quantity",
+              "op": "set",
+              "rowPath": [
+                {
+                  "itemId": "eval-item-01",
+                  "listFieldId": "equipment"
+                }
+              ]
+            }
+          ]
+        },
+        "requestSha256": "d68813fb5069d947122cb87bbc32e6637cc9c7800d649b8ab79e7980aaeeefed",
+        "requestUtf8Hex": "7b22626173655265766973696f6e223a382c22636c69656e744d75746174696f6e4964223a2230303030303030302d303030302d343030302d383030302d303030303030303030373037222c226f7065726174696f6e73223a5b7b226f70223a22736574222c226669656c644964223a227175616e74697479222c22726f7750617468223a5b7b226c6973744669656c644964223a2265717569706d656e74222c226974656d4964223a226576616c2d6974656d2d3031227d5d2c22616e73776572223a7b22737461747573223a22616e737765726564222c2276616c7565223a2230227d7d5d7d"
+      }
+    ],
+    "protocolVersion": "t08-patch-v2",
+    "requestBytes": {
+      "forged-calculated-value": "7b22626173655265766973696f6e223a382c22636c69656e744d75746174696f6e4964223a2230303030303030302d303030302d343030302d383030302d303030303030303030373034222c226f7065726174696f6e73223a5b7b226f70223a22736574222c226669656c644964223a22746f74616c5269736b222c22726f7750617468223a5b5d2c22616e73776572223a7b22737461747573223a22616e737765726564222c2276616c7565223a22393939227d7d5d7d",
+      "invalid-choice": "7b22626173655265766973696f6e223a382c22636c69656e744d75746174696f6e4964223a2230303030303030302d303030302d343030302d383030302d303030303030303030373033222c226f7065726174696f6e73223a5b7b226f70223a22736574222c226669656c644964223a227269736b4c6576656c222c22726f7750617468223a5b5d2c22616e73776572223a7b22737461747573223a22616e737765726564222c2276616c7565223a22637269746963616c2d756e6b6e6f776e227d7d5d7d",
+      "invalid-date": "7b22626173655265766973696f6e223a382c22636c69656e744d75746174696f6e4964223a2230303030303030302d303030302d343030302d383030302d303030303030303030373032222c226f7065726174696f6e73223a5b7b226f70223a22736574222c226669656c644964223a22696e7370656374696f6e44617465222c22726f7750617468223a5b5d2c22616e73776572223a7b22737461747573223a22616e737765726564222c2276616c7565223a22323032362d30322d3330227d7d5d7d",
+      "invalid-nested-row": "7b22626173655265766973696f6e223a382c22636c69656e744d75746174696f6e4964223a2230303030303030302d303030302d343030302d383030302d303030303030303030373037222c226f7065726174696f6e73223a5b7b226f70223a22736574222c226669656c644964223a227175616e74697479222c22726f7750617468223a5b7b226c6973744669656c644964223a2265717569706d656e74222c226974656d4964223a226576616c2d6974656d2d3031227d5d2c22616e73776572223a7b22737461747573223a22616e737765726564222c2276616c7565223a2230227d7d5d7d",
+      "invalid-type": "7b22626173655265766973696f6e223a382c22636c69656e744d75746174696f6e4964223a2230303030303030302d303030302d343030302d383030302d303030303030303030373038222c226f7065726174696f6e73223a5b7b226f70223a22736574222c226669656c644964223a22696e7370656374696f6e44617465222c22726f7750617468223a5b5d2c22616e73776572223a7b22737461747573223a22616e737765726564222c2276616c7565223a34327d7d5d7d",
+      "out-of-range-decimal": "7b22626173655265766973696f6e223a382c22636c69656e744d75746174696f6e4964223a2230303030303030302d303030302d343030302d383030302d303030303030303030373036222c226f7065726174696f6e73223a5b7b226f70223a22736574222c226669656c644964223a2274656d7065726174757265222c22726f7750617468223a5b5d2c22616e73776572223a7b22737461747573223a22616e737765726564222c2276616c7565223a22313030302e3031227d7d5d7d",
+      "read-only-edit": "7b22626173655265766973696f6e223a382c22636c69656e744d75746174696f6e4964223a2230303030303030302d303030302d343030302d383030302d303030303030303030373035222c226f7065726174696f6e73223a5b7b226f70223a22736574222c226669656c644964223a2272656c656173655374616d70222c22726f7750617468223a5b5d2c22616e73776572223a7b22737461747573223a22616e737765726564222c2276616c7565223a226368616e676564227d7d5d7d",
+      "whitespace-required-text": "7b22626173655265766973696f6e223a382c22636c69656e744d75746174696f6e4964223a2230303030303030302d303030302d343030302d383030302d303030303030303030373031222c226f7065726174696f6e73223a5b7b226f70223a22736574222c226669656c644964223a22726573706f6e64656e744e616d65222c22726f7750617468223a5b5d2c22616e73776572223a7b22737461747573223a22616e737765726564222c2276616c7565223a22202020227d7d5d7d"
+    },
+    "responseContract": {
+      "diagnosticMembers": [
+        "code",
+        "severity",
+        "fieldId",
+        "rowPath",
+        "jsonPointer"
+      ],
+      "mediaType": "application/problem+json",
+      "noRawMalformedInput": true,
+      "requiredProblemMembers": [
+        "status",
+        "code",
+        "diagnostics"
+      ]
+    },
+    "secretHandling": "No bearer authorization, cookies, credentials, or generated session secret is frozen.",
+    "sourceBinding": {
+      "PRD": "582,807,1135,1157",
+      "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+    }
+  },
+  "records": [
+    {
+      "assertionType": "deterministic-input-oracle",
+      "blockedReason": "M2 session API/schema and browser/AT environment are later prerequisites; no request was sent.",
+      "evidenceLevel": "E2",
+      "expected": {
+        "addressing": "fieldId plus ordered rowPath ancestors",
+        "cases": [
+          "whitespace-required-text",
+          "invalid-date",
+          "invalid-type-or-option",
+          "forged-calculated-value",
+          "read-only-edit",
+          "out-of-range-decimal",
+          "invalid-nested-row"
+        ],
+        "outcome": "reject each invalid mutation; preserve unrelated valid input; linked accessible errors",
+        "requestEncoding": "utf-8 canonical JSON"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T08"
+      ],
+      "id": "EVAL-T08-API-01",
+      "milestoneGates": [
+        "M0",
+        "M3"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-T08",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "582",
+          "quote": "| `PATCH /v1/sessions/{s}` | Atomic batch `{baseRevision,clientMutationId,operations,currentPageId?,locale?}`. Operations are set, clear, markInvalid, addItem, removeItem, moveItem; item addresses use stable row paths. 200 acceptedRevision/currentRevision/replayed/validation; fetch current state after recovery when revisions differ. Same clientMutationId/body returns its original accepted result before checking stale baseRevision, after current authorization; changed-body reuse conflicts. Other 409 conflicts leave the draft untouched. |",
+          "rangeSha256": "0928c7c3d55d6ae863d8cf528a9f013a4ef2c41ba3f41ffc214889195bc0aab4",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        },
+        {
+          "file": "PRD",
+          "lines": "807",
+          "quote": "| T08 Validation/errors | Direct API bypass: whitespace required text, invalid date/type/option, forged calculated value, read-only field edit, out-of-range decimal, invalid nested row. All rejected correctly; accessible linked errors preserve valid data. | API responses, screen-reader/browser evidence. |",
+          "rangeSha256": "ac689420bfd6cd3603d67f820b481ba70552d70e5b53190f7684b747ad13901f",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Frozen evaluator protocol materialization; status is not-run and no product output was inspected.",
+      "requirements": [
+        "SF-VAL-02"
+      ],
+      "status": "not-run"
+    }
+  ]
+}

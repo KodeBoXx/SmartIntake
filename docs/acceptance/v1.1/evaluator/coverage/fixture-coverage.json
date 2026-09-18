@@ -1,0 +1,2046 @@
+{
+  "corpusVersion": "2.4.21-m0",
+  "coverageSummary": {
+    "fixtureDenominator": 31,
+    "fixturesBlockedMaterialization": 0,
+    "fixturesNotEncoded": 0,
+    "fixturesPolicyOnly": 0,
+    "fixturesWithFrozenOracle": 31,
+    "statement": "All 31 fixture rows use canonical grouped evaluator artifacts; oracle completion requires the group and applicable asset checks to pass. Execution remains not-run."
+  },
+  "records": [
+    {
+      "assertionType": "coverage",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalFixtureId": "T01",
+        "canonicalGroupArtifactId": "EVAL-GROUP-T01-T07",
+        "canonicalGroupArtifactPath": "fixtures/t01-t07.json",
+        "corpusCoverage": "oracle-encoded",
+        "coveringRecordIds": [
+          "EVAL-GROUP-T01-T07",
+          "T01",
+          "EVAL-LSA-02"
+        ],
+        "fixture": "T01",
+        "prdLine": "800",
+        "requirementIds": [
+          "SF-AUTH-04",
+          "SF-ORG-01",
+          "SF-ORG-02",
+          "SF-ORG-03",
+          "SF-ORG-05"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T01"
+      ],
+      "id": "EVAL-FIXCOV-T01",
+      "milestoneGates": [
+        "M0"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "800",
+          "quote": "| T01 Organization/catalog | Two organizations and two workspaces each; normal staff sign-in, Add user using both setup paths and membership invitation acceptance, role changes, create/transfer/archive/restore. An author lacks answer access; export role in A permits all A forms but not B forms. No extra per-form export grant. | Real account journeys with email disabled and configured, authorization tests and admin UI walkthrough. |",
+          "rangeSha256": "e0cc8cd6938c5376edd6ee9bed80a2cba777bd6bf6a30a5c3c473985983bf120",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Truthful M0 encoded coverage declaration; not execution.",
+      "requirements": [
+        "SF-AUTH-04",
+        "SF-ORG-01",
+        "SF-ORG-02",
+        "SF-ORG-03",
+        "SF-ORG-05"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "coverage",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalFixtureId": "T02",
+        "canonicalGroupArtifactId": "EVAL-GROUP-T01-T07",
+        "canonicalGroupArtifactPath": "fixtures/t01-t07.json",
+        "corpusCoverage": "oracle-encoded",
+        "coveringRecordIds": [
+          "EVAL-GROUP-T01-T07",
+          "T02",
+          "EVAL-AUTH-A1",
+          "EVAL-AUTH-F01",
+          "EVAL-AUTH-F02",
+          "EVAL-AUTH-F03",
+          "EVAL-AUTH-F04",
+          "EVAL-AUTH-F05",
+          "EVAL-AUTH-F06",
+          "EVAL-AUTH-F07",
+          "EVAL-AUTH-F08",
+          "EVAL-AUTH-F09",
+          "EVAL-AUTH-F10",
+          "EVAL-AUTH-F11",
+          "EVAL-AUTH-F12",
+          "EVAL-AUTH-F13",
+          "EVAL-AUTH-F14",
+          "EVAL-AUTH-F15",
+          "EVAL-AUTH-F16",
+          "EVAL-AUTH-F17",
+          "EVAL-AUTH-F18",
+          "EVAL-AUTH-F19",
+          "EVAL-AUTH-F20",
+          "EVAL-AUTH-F21",
+          "EVAL-AUTH-F22",
+          "EVAL-AUTH-F23",
+          "EVAL-AUTH-F24",
+          "EVAL-AUTH-F25",
+          "EVAL-AUTH-F26",
+          "EVAL-AUTH-F27",
+          "EVAL-AUTH-F28",
+          "EVAL-AUTH-F29",
+          "EVAL-AUTH-F30"
+        ],
+        "fixture": "T02",
+        "prdLine": "801",
+        "requirementIds": [
+          "SF-AUT-01",
+          "SF-AUT-02",
+          "SF-AUT-03",
+          "SF-AUT-04",
+          "SF-AUT-05",
+          "SF-AUT-09",
+          "SF-UX-01"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T02"
+      ],
+      "id": "EVAL-FIXCOV-T02",
+      "milestoneGates": [
+        "M0"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "801",
+          "quote": "| T02 Author editing | Build a 30-field form in three phases with two authors. Move/delete referenced items, undo 100 actions, reload saved history, produce conflict and resolve without lost work; keyboard alternatives available. | Browser recording, revision/audit assertions. |",
+          "rangeSha256": "d4e0f94250d165df1b1dae8a69a7b88bc5dce1200b183c9181ba36f43de91480",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Truthful M0 encoded coverage declaration; not execution.",
+      "requirements": [
+        "SF-AUT-01",
+        "SF-AUT-02",
+        "SF-AUT-03",
+        "SF-AUT-04",
+        "SF-AUT-05",
+        "SF-AUT-09",
+        "SF-UX-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "coverage",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalFixtureId": "T03",
+        "canonicalGroupArtifactId": "EVAL-GROUP-T01-T07",
+        "canonicalGroupArtifactPath": "fixtures/t01-t07.json",
+        "corpusCoverage": "oracle-encoded",
+        "coveringRecordIds": [
+          "EVAL-GROUP-T01-T07",
+          "T03",
+          "EVAL-AUTH-A6",
+          "EVAL-LSA-09"
+        ],
+        "fixture": "T03",
+        "prdLine": "802",
+        "requirementIds": [
+          "SF-ACC-03",
+          "SF-AUT-06",
+          "SF-VAL-03"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T03"
+      ],
+      "id": "EVAL-FIXCOV-T03",
+      "milestoneGates": [
+        "M0"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "802",
+          "quote": "| T03 Interactive preview | Enter temporary sample inputs for valid/invalid/unknown/hidden branches; inspect diagnostics, reset, vary device and locale. No real response, webhook or email is created; no saved-scenario catalog is required. | Compiler outputs and browser/network evidence. |",
+          "rangeSha256": "1c2c6a8d4eb62a8b02449c3db30f2d8c758318e385f0cad6421be210f2fcd33f",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Truthful M0 encoded coverage declaration; not execution.",
+      "requirements": [
+        "SF-ACC-03",
+        "SF-AUT-06",
+        "SF-VAL-03"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "coverage",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalFixtureId": "T04",
+        "canonicalGroupArtifactId": "EVAL-GROUP-T01-T07",
+        "canonicalGroupArtifactPath": "fixtures/t01-t07.json",
+        "corpusCoverage": "oracle-encoded",
+        "coveringRecordIds": [
+          "EVAL-GROUP-T01-T07",
+          "T04",
+          "EVAL-AUTH-F01",
+          "EVAL-AUTH-F02",
+          "EVAL-AUTH-F03",
+          "EVAL-AUTH-F04",
+          "EVAL-AUTH-F05",
+          "EVAL-AUTH-F06",
+          "EVAL-AUTH-F07",
+          "EVAL-AUTH-F08",
+          "EVAL-AUTH-F09",
+          "EVAL-AUTH-F10",
+          "EVAL-AUTH-F11",
+          "EVAL-AUTH-F12",
+          "EVAL-AUTH-F13",
+          "EVAL-AUTH-F14",
+          "EVAL-AUTH-F15",
+          "EVAL-AUTH-F16",
+          "EVAL-AUTH-F17",
+          "EVAL-AUTH-F18",
+          "EVAL-AUTH-F19",
+          "EVAL-AUTH-F20",
+          "EVAL-AUTH-F21",
+          "EVAL-AUTH-F22",
+          "EVAL-AUTH-F23",
+          "EVAL-AUTH-F24",
+          "EVAL-AUTH-F25",
+          "EVAL-AUTH-F26",
+          "EVAL-AUTH-F27",
+          "EVAL-AUTH-F28",
+          "EVAL-AUTH-F29",
+          "EVAL-AUTH-F30",
+          "EVAL-CAT-01",
+          "EVAL-CAT-02",
+          "EVAL-CAT-03",
+          "EVAL-CAT-04",
+          "EVAL-CAT-05",
+          "EVAL-CAT-06",
+          "EVAL-CAT-07",
+          "EVAL-CAT-08",
+          "EVAL-CAT-09",
+          "EVAL-CAT-10",
+          "EVAL-CAT-11",
+          "EVAL-CAT-12",
+          "EVAL-CAT-13",
+          "EVAL-CAT-14",
+          "EVAL-CAT-15",
+          "EVAL-CAT-16",
+          "EVAL-CAT-17",
+          "EVAL-CRIT-02",
+          "EVAL-CRIT-03",
+          "EVAL-FND-02",
+          "EVAL-FND-04",
+          "EVAL-PKG-BUDGET",
+          "EVAL-PKG-HC",
+          "EVAL-PKG-NHC",
+          "EVAL-RESP-O01",
+          "EVAL-RESP-O02",
+          "EVAL-RESP-O03",
+          "EVAL-RESP-O04",
+          "EVAL-RESP-O05",
+          "EVAL-RESP-O06",
+          "EVAL-RESP-O07",
+          "EVAL-RESP-O08",
+          "EVAL-RESP-O09",
+          "EVAL-RESP-O10",
+          "EVAL-RESP-O11",
+          "EVAL-RESP-O12",
+          "EVAL-RESP-O17",
+          "EVAL-RESP-O18",
+          "EVAL-SNT-02",
+          "EVAL-SNT-03"
+        ],
+        "fixture": "T04",
+        "prdLine": "803",
+        "requirementIds": [
+          "SF-AUT-02",
+          "SF-CON-02",
+          "SF-FLD-01",
+          "SF-FLD-02",
+          "SF-FLD-04",
+          "SF-FLD-07",
+          "SF-VAL-01"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T04"
+      ],
+      "id": "EVAL-FIXCOV-T04",
+      "milestoneGates": [
+        "M0"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "803",
+          "quote": "| T04 Field catalog | At least one valid/invalid/boundary case for every catalog control; zero/false, Unicode/leading-zero identifiers, decimals, date/time, ranking, Other, shared fields, matrix details and drawing alternative. | Shared client/server conformance vectors and browser evidence. |",
+          "rangeSha256": "86bdcff6f5c672dfb47b0f0b466eeeeb0c9b0fa09a620d81fb201947a53b9696",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Truthful M0 encoded coverage declaration; not execution.",
+      "requirements": [
+        "SF-AUT-02",
+        "SF-CON-02",
+        "SF-FLD-01",
+        "SF-FLD-02",
+        "SF-FLD-04",
+        "SF-FLD-07",
+        "SF-VAL-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "coverage",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalFixtureId": "T05",
+        "canonicalGroupArtifactId": "EVAL-GROUP-T01-T07",
+        "canonicalGroupArtifactPath": "fixtures/t01-t07.json",
+        "corpusCoverage": "oracle-encoded",
+        "coveringRecordIds": [
+          "EVAL-GROUP-T01-T07",
+          "T05",
+          "EVAL-AUTH-F06",
+          "EVAL-AUTH-F07",
+          "EVAL-AUTH-F09",
+          "EVAL-AUTH-F10",
+          "EVAL-AUTH-F11",
+          "EVAL-AUTH-F28",
+          "EVAL-CRIT-04",
+          "EVAL-FND-03",
+          "EVAL-FND-04",
+          "EVAL-NAV-01",
+          "EVAL-NAV-02",
+          "EVAL-NAV-03",
+          "EVAL-NAV-04",
+          "EVAL-NAV-05",
+          "EVAL-NAV-BASE",
+          "EVAL-PRED-01",
+          "EVAL-RESP-O19",
+          "EVAL-SNT-01",
+          "EVAL-SNT-02"
+        ],
+        "fixture": "T05",
+        "prdLine": "804",
+        "requirementIds": [
+          "SF-AUT-05",
+          "SF-FLD-07",
+          "SF-RUL-01",
+          "SF-RUL-02",
+          "SF-RUL-03",
+          "SF-RUL-04",
+          "SF-RUL-05",
+          "SF-RUL-06",
+          "SF-VAL-01"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T05"
+      ],
+      "id": "EVAL-FIXCOV-T05",
+      "milestoneGates": [
+        "M0"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "804",
+          "quote": "| T05 Rules | Nested AND/OR/NOT, Unknown truth table, parent hiding, all route outcomes, divide-by-zero, leap dates, changing options, cycles, wrong scopes/types, dead paths and hidden-sensitive data. No excluded value in final envelope. | Deterministic expected-output fixtures and compiler diagnostics. |",
+          "rangeSha256": "966943548c5e01b9a08444e331b1518a327bf75ae7fa8a0df8fc255d49a4215a",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Truthful M0 encoded coverage declaration; not execution.",
+      "requirements": [
+        "SF-AUT-05",
+        "SF-FLD-07",
+        "SF-RUL-01",
+        "SF-RUL-02",
+        "SF-RUL-03",
+        "SF-RUL-04",
+        "SF-RUL-05",
+        "SF-RUL-06",
+        "SF-VAL-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "coverage",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalFixtureId": "T06",
+        "canonicalGroupArtifactId": "EVAL-GROUP-T01-T07",
+        "canonicalGroupArtifactPath": "fixtures/t01-t07.json",
+        "corpusCoverage": "oracle-encoded",
+        "coveringRecordIds": [
+          "EVAL-GROUP-T01-T07",
+          "T06",
+          "EVAL-AUTH-F13",
+          "EVAL-AUTH-F14",
+          "EVAL-AUTH-F15",
+          "EVAL-AUTH-F16",
+          "EVAL-AUTH-F17",
+          "EVAL-AUTH-F18",
+          "EVAL-AUTH-F19",
+          "EVAL-AUTH-F20",
+          "EVAL-AUTH-F21",
+          "EVAL-AUTH-F22",
+          "EVAL-AUTH-F23",
+          "EVAL-CRIT-01",
+          "EVAL-RESP-O13",
+          "EVAL-RESP-O14",
+          "EVAL-RESP-O15",
+          "EVAL-RESP-O16",
+          "EVAL-RESP-S05",
+          "EVAL-RESP-S06"
+        ],
+        "fixture": "T06",
+        "prdLine": "805",
+        "requirementIds": [
+          "SF-FLD-03",
+          "SF-FLD-04",
+          "SF-RUL-03",
+          "SF-RUL-05"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T06"
+      ],
+      "id": "EVAL-FIXCOV-T06",
+      "milestoneGates": [
+        "M0"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "805",
+          "quote": "| T06 Repeaters | Three nested levels; add/delete/reorder 50 items; fixed/dynamic matrices; item/parent references; empty/unknown aggregate semantics; no index identity drift or truncation. | Exact typed output and item-ID assertions. |",
+          "rangeSha256": "b3c67dafac68b7e79d1aeed777993f6818fbef1a380b143deaa69478a115d1b0",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Truthful M0 encoded coverage declaration; not execution.",
+      "requirements": [
+        "SF-FLD-03",
+        "SF-FLD-04",
+        "SF-RUL-03",
+        "SF-RUL-05"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "coverage",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalFixtureId": "T07",
+        "canonicalGroupArtifactId": "EVAL-GROUP-T01-T07",
+        "canonicalGroupArtifactPath": "fixtures/t01-t07.json",
+        "corpusCoverage": "oracle-encoded",
+        "coveringRecordIds": [
+          "EVAL-GROUP-T01-T07",
+          "T07",
+          "EVAL-AUTH-A4"
+        ],
+        "fixture": "T07",
+        "prdLine": "806",
+        "requirementIds": [
+          "SF-AUT-08",
+          "SF-EXT-01",
+          "SF-EXT-02",
+          "SF-IMP-03",
+          "SF-PUB-04",
+          "SF-THM-03"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T07"
+      ],
+      "id": "EVAL-FIXCOV-T07",
+      "milestoneGates": [
+        "M0"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "806",
+          "quote": "| T07 Reuse/versioned dependencies | Insert block twice with explicit ID remaps, fork one, update source block/theme/component. v1 release/session unchanged; update diff accurate; missing dependency fails visibly. | Package hashes, manifests and before/after snapshots. |",
+          "rangeSha256": "fe8480eed22bcfcd5ecd55cd9fb9c502f4f6f5d7d77e311aa26ad703aab67f38",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Truthful M0 encoded coverage declaration; not execution.",
+      "requirements": [
+        "SF-AUT-08",
+        "SF-EXT-01",
+        "SF-EXT-02",
+        "SF-IMP-03",
+        "SF-PUB-04",
+        "SF-THM-03"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "coverage",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalFixtureId": "T08",
+        "canonicalGroupArtifactId": "EVAL-GROUP-T08-T15",
+        "canonicalGroupArtifactPath": "fixtures/t08-t15.json",
+        "corpusCoverage": "oracle-encoded",
+        "coveringRecordIds": [
+          "EVAL-GROUP-T08-T15",
+          "T08",
+          "EVAL-T08-API-01"
+        ],
+        "fixture": "T08",
+        "frozenAssetPath": "assets/t08-validation-errors.json",
+        "prdLine": "807",
+        "requirementIds": [
+          "SF-UX-01",
+          "SF-VAL-01",
+          "SF-VAL-02",
+          "SF-VAL-03"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T08"
+      ],
+      "id": "EVAL-FIXCOV-T08",
+      "milestoneGates": [
+        "M0"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "807",
+          "quote": "| T08 Validation/errors | Direct API bypass: whitespace required text, invalid date/type/option, forged calculated value, read-only field edit, out-of-range decimal, invalid nested row. All rejected correctly; accessible linked errors preserve valid data. | API responses, screen-reader/browser evidence. |",
+          "rangeSha256": "ac689420bfd6cd3603d67f820b481ba70552d70e5b53190f7684b747ad13901f",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Frozen evaluator-owned deterministic input/protocol asset is materialized; execution remains not-run.",
+      "requirements": [
+        "SF-UX-01",
+        "SF-VAL-01",
+        "SF-VAL-02",
+        "SF-VAL-03"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "coverage",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalFixtureId": "T09",
+        "canonicalGroupArtifactId": "EVAL-GROUP-T08-T15",
+        "canonicalGroupArtifactPath": "fixtures/t08-t15.json",
+        "corpusCoverage": "oracle-encoded",
+        "coveringRecordIds": [
+          "EVAL-GROUP-T08-T15",
+          "T09",
+          "EVAL-FND-05",
+          "EVAL-RESP-S08",
+          "EVAL-RESP-S09",
+          "EVAL-RVW-S01",
+          "EVAL-RVW-S02",
+          "EVAL-RVW-S03",
+          "EVAL-RVW-S04",
+          "EVAL-RVW-STATUS",
+          "EVAL-SNT-05"
+        ],
+        "fixture": "T09",
+        "prdLine": "808",
+        "requirementIds": [
+          "SF-API-03",
+          "SF-AUT-04",
+          "SF-RES-02",
+          "SF-RES-03",
+          "SF-UX-01"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T09"
+      ],
+      "id": "EVAL-FIXCOV-T09",
+      "milestoneGates": [
+        "M0"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "808",
+          "quote": "| T09 Draft/recovery | Type after idle and during continuous input; acknowledge save, kill app process, resume. Inject 500/offline, two tabs, stale revision, expired draft and shared-device use. No acknowledged loss or wrong-session access. | Revision timeline, fault injection and recovery recording. |",
+          "rangeSha256": "b2809911f1cc79f4ef5c96f8cf62f793d3a9b1d67693297a952244bbc81b4ae4",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Truthful M0 encoded coverage declaration; not execution.",
+      "requirements": [
+        "SF-API-03",
+        "SF-AUT-04",
+        "SF-RES-02",
+        "SF-RES-03",
+        "SF-UX-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "coverage",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalFixtureId": "T10",
+        "canonicalGroupArtifactId": "EVAL-GROUP-T08-T15",
+        "canonicalGroupArtifactPath": "fixtures/t08-t15.json",
+        "corpusCoverage": "oracle-encoded",
+        "coveringRecordIds": [
+          "EVAL-GROUP-T08-T15",
+          "T10",
+          "EVAL-AUTH-A7"
+        ],
+        "fixture": "T10",
+        "prdLine": "809",
+        "requirementIds": [
+          "SF-AUT-03",
+          "SF-AUT-09",
+          "SF-CON-01",
+          "SF-PUB-01",
+          "SF-PUB-02",
+          "SF-PUB-03",
+          "SF-PUB-04"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T10"
+      ],
+      "id": "EVAL-FIXCOV-T10",
+      "milestoneGates": [
+        "M0"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "809",
+          "quote": "| T10 Publish/lifecycle | Review v1, edit to invalidate approval, publish v1, create active session, publish reordered/translated v2, rollback, retire, emergency-close. Verify exact effects on new/existing sessions. | Release/manifest hashes, state transition and audit tests. |",
+          "rangeSha256": "75c8fd3d94685e3b1b6da3e48930e5d2da7c1f8730546c2802a000af0b03256c",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Truthful M0 encoded coverage declaration; not execution.",
+      "requirements": [
+        "SF-AUT-03",
+        "SF-AUT-09",
+        "SF-CON-01",
+        "SF-PUB-01",
+        "SF-PUB-02",
+        "SF-PUB-03",
+        "SF-PUB-04"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "coverage",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalFixtureId": "T11",
+        "canonicalGroupArtifactId": "EVAL-GROUP-T08-T15",
+        "canonicalGroupArtifactPath": "fixtures/t08-t15.json",
+        "corpusCoverage": "oracle-encoded",
+        "coveringRecordIds": [
+          "EVAL-GROUP-T08-T15",
+          "T11",
+          "EVAL-AUTH-A2",
+          "EVAL-AUTH-A3",
+          "EVAL-CRIT-06",
+          "EVAL-CRIT-09",
+          "EVAL-LSA-08",
+          "EVAL-RESP-S04"
+        ],
+        "fixture": "T11",
+        "prdLine": "810",
+        "requirementIds": [
+          "SF-EXT-04",
+          "SF-GUD-01",
+          "SF-GUD-02",
+          "SF-GUD-03",
+          "SF-GUD-04",
+          "SF-GUD-05",
+          "SF-NFR-05",
+          "SF-SEC-04"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T11"
+      ],
+      "id": "EVAL-FIXCOV-T11",
+      "milestoneGates": [
+        "M0"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "810",
+          "quote": "| T11 Guidance/voice | Only Play/Pause and Click to Ask as permanent voice actions. Verify narration controls, spoken page and field questions, relevant approved answer selection, exact text/audio parity, no-match, English/Hindi/Arabic, branch/locale changes, microphone denial and provider timeout. No typed-question, separate Read help or dictation interface; speech never changes answers or submits. | Browser/control inspection, real speech request/playback evidence and redacted provider logs; mocks labeled separately. |",
+          "rangeSha256": "54925a836d2ac02a74e0309de9251cca6dd02106f22e1e6bc8ca14169fe0feb7",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Truthful M0 encoded coverage declaration; not execution.",
+      "requirements": [
+        "SF-EXT-04",
+        "SF-GUD-01",
+        "SF-GUD-02",
+        "SF-GUD-03",
+        "SF-GUD-04",
+        "SF-GUD-05",
+        "SF-NFR-05",
+        "SF-SEC-04"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "coverage",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalFixtureId": "T12",
+        "canonicalGroupArtifactId": "EVAL-GROUP-T08-T15",
+        "canonicalGroupArtifactPath": "fixtures/t08-t15.json",
+        "corpusCoverage": "oracle-encoded",
+        "coveringRecordIds": [
+          "EVAL-GROUP-T08-T15",
+          "T12",
+          "EVAL-AUTH-A5",
+          "EVAL-CRIT-05",
+          "EVAL-FND-05",
+          "EVAL-FOCUS-10",
+          "EVAL-LOC-EXPECT",
+          "EVAL-LOC-INVALID-01",
+          "EVAL-LOC-INVALID-02",
+          "EVAL-LOC-KEY-01",
+          "EVAL-LOC-KEY-02",
+          "EVAL-LOC-KEY-03",
+          "EVAL-LOC-KEY-04",
+          "EVAL-LOC-KEY-05",
+          "EVAL-LOC-KEY-06",
+          "EVAL-LOC-KEY-07",
+          "EVAL-LOC-KEY-08",
+          "EVAL-LOC-KEY-09",
+          "EVAL-LOC-KEY-10",
+          "EVAL-LOC-KEY-11",
+          "EVAL-LOC-KEY-12",
+          "EVAL-LOC-KEY-13",
+          "EVAL-LOC-KEY-14",
+          "EVAL-LOC-KEY-15",
+          "EVAL-LOC-KEY-16",
+          "EVAL-LOC-KEY-17",
+          "EVAL-LOC-KEY-18",
+          "EVAL-LOC-PLURAL",
+          "EVAL-RESP-S08",
+          "EVAL-RVW-R09",
+          "EVAL-RVW-R10",
+          "EVAL-RVW-R11",
+          "EVAL-RVW-R12",
+          "EVAL-RVW-STATUS",
+          "EVAL-SNT-07"
+        ],
+        "fixture": "T12",
+        "prdLine": "811",
+        "requirementIds": [
+          "SF-LOC-01",
+          "SF-LOC-02",
+          "SF-LOC-03"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T12"
+      ],
+      "id": "EVAL-FIXCOV-T12",
+      "milestoneGates": [
+        "M0"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "811",
+          "quote": "| T12 Localization | English, Hindi and Arabic RTL test bundles, long labels, mixed-direction identifier, plural messages, missing/stale mandatory key. Switching locale changes no canonical values. | Translation checks, screenshots and reviewer sample approval. |",
+          "rangeSha256": "24d0a1e48d5dbdacaa2bdc3178b55c9fa13bc704e5552cf1566523e51a94f97f",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Truthful M0 encoded coverage declaration; not execution.",
+      "requirements": [
+        "SF-LOC-01",
+        "SF-LOC-02",
+        "SF-LOC-03"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "coverage",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalFixtureId": "T13",
+        "canonicalGroupArtifactId": "EVAL-GROUP-T08-T15",
+        "canonicalGroupArtifactPath": "fixtures/t08-t15.json",
+        "corpusCoverage": "oracle-encoded",
+        "coveringRecordIds": [
+          "EVAL-GROUP-T08-T15",
+          "T13",
+          "EVAL-FOCUS-01",
+          "EVAL-FOCUS-02",
+          "EVAL-FOCUS-03",
+          "EVAL-FOCUS-04",
+          "EVAL-FOCUS-05",
+          "EVAL-FOCUS-06",
+          "EVAL-FOCUS-07",
+          "EVAL-FOCUS-08",
+          "EVAL-FOCUS-09",
+          "EVAL-FOCUS-10",
+          "EVAL-FOCUS-11",
+          "EVAL-FOCUS-12",
+          "EVAL-LOC-EXPECT",
+          "EVAL-LOC-PLURAL",
+          "EVAL-RVW-E01",
+          "EVAL-RVW-E02",
+          "EVAL-RVW-E03",
+          "EVAL-RVW-E04",
+          "EVAL-RVW-E05",
+          "EVAL-RVW-R09",
+          "EVAL-RVW-R10",
+          "EVAL-RVW-R11",
+          "EVAL-RVW-R12",
+          "EVAL-RVW-STATUS",
+          "EVAL-SNT-07"
+        ],
+        "fixture": "T13",
+        "prdLine": "812",
+        "requirementIds": [
+          "SF-ACC-01",
+          "SF-ACC-02",
+          "SF-ACC-03",
+          "SF-LOC-03",
+          "SF-THM-01",
+          "SF-THM-02",
+          "SF-THM-03",
+          "SF-UI-01",
+          "SF-VAL-02"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T13"
+      ],
+      "id": "EVAL-FIXCOV-T13",
+      "milestoneGates": [
+        "M0"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "812",
+          "quote": "| T13 Accessibility/responsive | Author and respondent flows with keyboard, screen reader, 320-pixel layout, 200/400% zoom, high-contrast/reduced-motion preferences, repeaters/tables/dialog/errors/voice bar. | Automated scan plus manual assistive-technology task log. |",
+          "rangeSha256": "272f2fd4c14fd5e1114f3bdd021ac79f8a5e94ca7b1b9a1067acd14b0ee15ac7",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Truthful M0 encoded coverage declaration; not execution.",
+      "requirements": [
+        "SF-ACC-01",
+        "SF-ACC-02",
+        "SF-ACC-03",
+        "SF-LOC-03",
+        "SF-THM-01",
+        "SF-THM-02",
+        "SF-THM-03",
+        "SF-UI-01",
+        "SF-VAL-02"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "coverage",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalFixtureId": "T14",
+        "canonicalGroupArtifactId": "EVAL-GROUP-T08-T15",
+        "canonicalGroupArtifactPath": "fixtures/t08-t15.json",
+        "corpusCoverage": "oracle-encoded",
+        "coveringRecordIds": [
+          "EVAL-GROUP-T08-T15",
+          "T14",
+          "EVAL-AUTH-F30",
+          "EVAL-CRIT-08",
+          "EVAL-LSA-POLICY",
+          "EVAL-NAV-01",
+          "EVAL-NAV-02",
+          "EVAL-NAV-03",
+          "EVAL-NAV-04",
+          "EVAL-NAV-05",
+          "EVAL-NAV-BASE",
+          "EVAL-PRED-01",
+          "EVAL-RESP-O01",
+          "EVAL-RESP-O02",
+          "EVAL-RESP-O03",
+          "EVAL-RESP-O04",
+          "EVAL-RESP-O05",
+          "EVAL-RESP-O06",
+          "EVAL-RESP-O07",
+          "EVAL-RESP-O08",
+          "EVAL-RESP-O09",
+          "EVAL-RESP-O10",
+          "EVAL-RESP-O11",
+          "EVAL-RESP-O12",
+          "EVAL-RESP-O13",
+          "EVAL-RESP-O14",
+          "EVAL-RESP-O15",
+          "EVAL-RESP-O16",
+          "EVAL-RESP-O17",
+          "EVAL-RESP-O18",
+          "EVAL-RESP-O19",
+          "EVAL-RESP-O21",
+          "EVAL-RESP-S01",
+          "EVAL-RESP-S02",
+          "EVAL-RESP-S03",
+          "EVAL-RESP-S04",
+          "EVAL-RESP-S05",
+          "EVAL-RESP-S06",
+          "EVAL-RESP-S07",
+          "EVAL-RESP-S08",
+          "EVAL-RESP-S09",
+          "EVAL-RESP-S10",
+          "EVAL-RVW-E01",
+          "EVAL-RVW-E02",
+          "EVAL-RVW-E03",
+          "EVAL-RVW-E04",
+          "EVAL-RVW-E05",
+          "EVAL-RVW-R01",
+          "EVAL-RVW-R02",
+          "EVAL-RVW-R03",
+          "EVAL-RVW-R04",
+          "EVAL-RVW-R05",
+          "EVAL-RVW-R06",
+          "EVAL-RVW-R07",
+          "EVAL-RVW-R08",
+          "EVAL-RVW-R09",
+          "EVAL-RVW-R10",
+          "EVAL-RVW-R11",
+          "EVAL-RVW-R12",
+          "EVAL-RVW-R13",
+          "EVAL-RVW-R14",
+          "EVAL-RVW-R15",
+          "EVAL-RVW-R16",
+          "EVAL-RVW-S01",
+          "EVAL-RVW-S02",
+          "EVAL-RVW-S03",
+          "EVAL-RVW-S04",
+          "EVAL-RVW-STATUS"
+        ],
+        "fixture": "T14",
+        "prdLine": "813",
+        "requirementIds": [
+          "SF-PUB-03",
+          "SF-RES-01",
+          "SF-SHR-01",
+          "SF-SHR-02",
+          "SF-UX-01"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T14"
+      ],
+      "id": "EVAL-FIXCOV-T14",
+      "milestoneGates": [
+        "M0"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "813",
+          "quote": "| T14 Share/embed/navigation | Public links/QR/iframe, windows/caps, allowed/blocked parent origins, cookie-blocked fallback, page history/progress and final review. No staff sign-in is required to fill a public form. | Browser/origin tests and real server acceptance. |",
+          "rangeSha256": "91a11921ef4b276bd1de7ce6c8cacbd5b661e60e81b921d70341ba3c2ad0897d",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Truthful M0 encoded coverage declaration; not execution.",
+      "requirements": [
+        "SF-PUB-03",
+        "SF-RES-01",
+        "SF-SHR-01",
+        "SF-SHR-02",
+        "SF-UX-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "coverage",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalFixtureId": "T15",
+        "canonicalGroupArtifactId": "EVAL-GROUP-T08-T15",
+        "canonicalGroupArtifactPath": "fixtures/t08-t15.json",
+        "corpusCoverage": "oracle-encoded",
+        "coveringRecordIds": [
+          "EVAL-GROUP-T08-T15",
+          "T15",
+          "EVAL-AUTH-F29",
+          "EVAL-CRIT-07",
+          "EVAL-LSA-06",
+          "EVAL-RESP-O20",
+          "EVAL-RESP-S07"
+        ],
+        "fixture": "T15",
+        "prdLine": "814",
+        "requirementIds": [
+          "SF-API-05",
+          "SF-FLD-06",
+          "SF-SEC-06"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T15"
+      ],
+      "id": "EVAL-FIXCOV-T15",
+      "milestoneGates": [
+        "M0"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "814",
+          "quote": "| T15 Attachments | Upload an ordinary PDF and another permitted file; ready/pending/quarantined/oversize/type/digest mismatch/cancel/retry; required-upload gating, unauthorized download, expiry and reference-aware cleanup. No PDF processing is invoked. | Real storage/scan and browser evidence. |",
+          "rangeSha256": "7d75cdeb5f6ec534f55de74d6bb3d05ede963005faae611440ff93cae1b7b3b2",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Truthful M0 encoded coverage declaration; not execution.",
+      "requirements": [
+        "SF-API-05",
+        "SF-FLD-06",
+        "SF-SEC-06"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "coverage",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalFixtureId": "T17",
+        "canonicalGroupArtifactId": "EVAL-GROUP-T17-T24",
+        "canonicalGroupArtifactPath": "fixtures/t17-t24.json",
+        "corpusCoverage": "oracle-encoded",
+        "coveringRecordIds": [
+          "EVAL-GROUP-T17-T24",
+          "T17",
+          "EVAL-CRIT-10",
+          "EVAL-LSA-05",
+          "EVAL-RESP-O21",
+          "EVAL-RESP-S10",
+          "EVAL-SNT-05"
+        ],
+        "fixture": "T17",
+        "prdLine": "815",
+        "requirementIds": [
+          "SF-ADM-04",
+          "SF-API-02",
+          "SF-API-03",
+          "SF-NFR-03",
+          "SF-RES-04"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T17"
+      ],
+      "id": "EVAL-FIXCOV-T17",
+      "milestoneGates": [
+        "M0"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "815",
+          "quote": "| T17 Submission integrity and repeats | Submit identical answers repeatedly in fresh sessions: every accepted submission has a distinct ID and appears in exports. No verified-person/content deduplication. Exercise double-click/retry outcomes, commit failure, restart, stale review and computed values; every recorded success must correspond to a durable snapshot/outbox. Reconcile unknown attempts truthfully. | Database/receipt assertions, failure injection and envelope validation. |",
+          "rangeSha256": "e8d03504bab8a5d6992028dbfe824d467ac71fe6c8e1d4492e03f1e21bc7070f",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Truthful M0 encoded coverage declaration; not execution.",
+      "requirements": [
+        "SF-ADM-04",
+        "SF-API-02",
+        "SF-API-03",
+        "SF-NFR-03",
+        "SF-RES-04"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "coverage",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalFixtureId": "T18",
+        "canonicalGroupArtifactId": "EVAL-GROUP-T17-T24",
+        "canonicalGroupArtifactPath": "fixtures/t17-t24.json",
+        "corpusCoverage": "oracle-encoded",
+        "coveringRecordIds": [
+          "EVAL-GROUP-T17-T24",
+          "T18",
+          "EVAL-FND-02",
+          "EVAL-LSA-04",
+          "EVAL-LSA-05",
+          "EVAL-LSA-07"
+        ],
+        "fixture": "T18",
+        "prdLine": "816",
+        "requirementIds": [
+          "SF-ADM-01",
+          "SF-ADM-02",
+          "SF-API-02",
+          "SF-CON-02",
+          "SF-NFR-05",
+          "SF-SEC-05"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T18"
+      ],
+      "id": "EVAL-FIXCOV-T18",
+      "milestoneGates": [
+        "M0"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "816",
+          "quote": "| T18 Response viewing/export | List/filter/read submitted answers and attachments; JSON and relational CSV with nested repeaters, formula-like text and 10,000-response export. Equal-answer submissions remain separate. Workspace-role authorization applies at request/download; no per-form export grants or response workflow controls. | Export files/dictionaries, role-boundary tests and UI walkthrough. |",
+          "rangeSha256": "3ca7945f25eafbf158f687ba51381cb2f31ad9920ab5f06352152936f5df1b0e",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Truthful M0 encoded coverage declaration; not execution.",
+      "requirements": [
+        "SF-ADM-01",
+        "SF-ADM-02",
+        "SF-API-02",
+        "SF-CON-02",
+        "SF-NFR-05",
+        "SF-SEC-05"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "coverage",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalFixtureId": "T19",
+        "canonicalGroupArtifactId": "EVAL-GROUP-T17-T24",
+        "canonicalGroupArtifactPath": "fixtures/t17-t24.json",
+        "corpusCoverage": "oracle-encoded",
+        "coveringRecordIds": [
+          "EVAL-GROUP-T17-T24",
+          "T19",
+          "EVAL-T19-WEBHOOK-01"
+        ],
+        "fixture": "T19",
+        "frozenAssetPath": "assets/t19-webhooks.json",
+        "prdLine": "817",
+        "requirementIds": [
+          "SF-API-04",
+          "SF-SEC-06",
+          "SF-UX-01"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T19"
+      ],
+      "id": "EVAL-FIXCOV-T19",
+      "milestoneGates": [
+        "M0"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "817",
+          "quote": "| T19 Webhooks | Signed HTTPS delivery, tampered body/old timestamp, duplicate and out-of-order events, 429/500/401/410, retry exhaustion/secret rotation/replay, reference/full payload delivery and deletion tombstone. | Real controlled receiver logs, signature checks and delivery records. |",
+          "rangeSha256": "75c4a1786876ebc30e4f7179e5826b5116119f0fbc300476e20c2a65152342b0",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Frozen evaluator-owned deterministic input/protocol asset is materialized; execution remains not-run.",
+      "requirements": [
+        "SF-API-04",
+        "SF-SEC-06",
+        "SF-UX-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "coverage",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalFixtureId": "T20",
+        "canonicalGroupArtifactId": "EVAL-GROUP-T17-T24",
+        "canonicalGroupArtifactPath": "fixtures/t17-t24.json",
+        "corpusCoverage": "oracle-encoded",
+        "coveringRecordIds": [
+          "EVAL-GROUP-T17-T24",
+          "T20",
+          "EVAL-CRIT-06",
+          "EVAL-LSA-04",
+          "EVAL-SNT-04"
+        ],
+        "fixture": "T20",
+        "prdLine": "818",
+        "requirementIds": [
+          "SF-API-05",
+          "SF-AUTH-01",
+          "SF-AUTH-02",
+          "SF-GUD-05",
+          "SF-IMP-04",
+          "SF-ORG-03",
+          "SF-ORG-05",
+          "SF-PLT-02",
+          "SF-RES-03",
+          "SF-SEC-01",
+          "SF-SEC-02",
+          "SF-SEC-03",
+          "SF-SEC-04",
+          "SF-SEC-05",
+          "SF-SHR-02"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T20"
+      ],
+      "id": "EVAL-FIXCOV-T20",
+      "milestoneGates": [
+        "M0"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "818",
+          "quote": "| T20 Security/privacy | All role/tenant resource paths including background jobs; forged metadata, revoked access, logs/secrets, cookie/CSRF/CSP, respondent-only unfinished-draft access, hidden retention and provider consent. | Negative authorization tests and redacted audit/log inspection. |",
+          "rangeSha256": "5f512c5a8884ea747cca66edf3a17b46f26d95d2072a04554a4f32935f159871",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Truthful M0 encoded coverage declaration; not execution.",
+      "requirements": [
+        "SF-API-05",
+        "SF-AUTH-01",
+        "SF-AUTH-02",
+        "SF-GUD-05",
+        "SF-IMP-04",
+        "SF-ORG-03",
+        "SF-ORG-05",
+        "SF-PLT-02",
+        "SF-RES-03",
+        "SF-SEC-01",
+        "SF-SEC-02",
+        "SF-SEC-03",
+        "SF-SEC-04",
+        "SF-SEC-05",
+        "SF-SHR-02"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "coverage",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalFixtureId": "T21",
+        "canonicalGroupArtifactId": "EVAL-GROUP-T17-T24",
+        "canonicalGroupArtifactPath": "fixtures/t17-t24.json",
+        "corpusCoverage": "oracle-encoded",
+        "coveringRecordIds": [
+          "EVAL-GROUP-T17-T24",
+          "T21",
+          "EVAL-T21-IMPORT-01"
+        ],
+        "fixture": "T21",
+        "frozenAssetPath": "assets/t21-hostile-imports.json",
+        "prdLine": "819",
+        "requirementIds": [
+          "SF-IMP-02",
+          "SF-IMP-04",
+          "SF-NFR-02",
+          "SF-SEC-06"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T21"
+      ],
+      "id": "EVAL-FIXCOV-T21",
+      "milestoneGates": [
+        "M0"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "819",
+          "quote": "| T21 Hostile/large imports | Duplicate keys, unsupported executable property/component URL, unknown operator/type, depth/size bomb, invalid Unicode, cross-tenant candidate, expired candidate and forged approval. | Parser/compiler rejection evidence with bounded resource measurements. |",
+          "rangeSha256": "771e9a96cc6a91e656503435a30a763df722762cf9553ff85928f163217438a0",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Frozen evaluator-owned deterministic input/protocol asset is materialized; execution remains not-run.",
+      "requirements": [
+        "SF-IMP-02",
+        "SF-IMP-04",
+        "SF-NFR-02",
+        "SF-SEC-06"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "coverage",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalFixtureId": "T22",
+        "canonicalGroupArtifactId": "EVAL-GROUP-T17-T24",
+        "canonicalGroupArtifactPath": "fixtures/t17-t24.json",
+        "corpusCoverage": "oracle-encoded",
+        "coveringRecordIds": [
+          "EVAL-GROUP-T17-T24",
+          "T22",
+          "EVAL-T22-SCALE-01"
+        ],
+        "fixture": "T22",
+        "frozenAssetPath": "assets/t22-scale-limits.json",
+        "prdLine": "820",
+        "requirementIds": [
+          "SF-NFR-01",
+          "SF-NFR-02",
+          "SF-NFR-05",
+          "SF-ORG-02"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T22"
+      ],
+      "id": "EVAL-FIXCOV-T22",
+      "milestoneGates": [
+        "M0"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "820",
+          "quote": "| T22 Scale/limits | Agreed 10,000-form and 1,000-field datasets, 200 sessions, prescribed loads; exceed each cap by one; measure p50/p95/p99 and memory/errors/cost. | Reproducible workload commands and raw benchmark data. |",
+          "rangeSha256": "4adadfaf6a4e1d04a4e434865b2a0a46487bcfc622f94bf6211661c608bf9dd2",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Frozen evaluator-owned deterministic input/protocol asset is materialized; execution remains not-run.",
+      "requirements": [
+        "SF-NFR-01",
+        "SF-NFR-02",
+        "SF-NFR-05",
+        "SF-ORG-02"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "coverage",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalFixtureId": "T23",
+        "canonicalGroupArtifactId": "EVAL-GROUP-T17-T24",
+        "canonicalGroupArtifactPath": "fixtures/t17-t24.json",
+        "corpusCoverage": "oracle-encoded",
+        "coveringRecordIds": [
+          "EVAL-GROUP-T17-T24",
+          "T23",
+          "EVAL-FND-06",
+          "EVAL-SNT-06"
+        ],
+        "fixture": "T23",
+        "prdLine": "821",
+        "requirementIds": [
+          "SF-NFR-03",
+          "SF-NFR-04",
+          "SF-OPS-01",
+          "SF-PLT-01",
+          "SF-SEC-03"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T23"
+      ],
+      "id": "EVAL-FIXCOV-T23",
+      "milestoneGates": [
+        "M0"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "821",
+          "quote": "| T23 Recovery/retention | Crash/restart, database failure, restore backup, rerun deletion tombstones, restore tenant isolation, expire drafts/exports/objects, test hold and retries. | Timestamped recovery drill and inventory reconciliation. |",
+          "rangeSha256": "21ad46b5b76fb229973ee4e8ca86cc3e95d7f3705c787b2dd3b7bb46723bdae5",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Truthful M0 encoded coverage declaration; not execution.",
+      "requirements": [
+        "SF-NFR-03",
+        "SF-NFR-04",
+        "SF-OPS-01",
+        "SF-PLT-01",
+        "SF-SEC-03"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "coverage",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalFixtureId": "T24",
+        "canonicalGroupArtifactId": "EVAL-GROUP-T17-T24",
+        "canonicalGroupArtifactPath": "fixtures/t17-t24.json",
+        "corpusCoverage": "oracle-encoded",
+        "coveringRecordIds": [
+          "EVAL-GROUP-T17-T24",
+          "T24",
+          "EVAL-AUTH-A8",
+          "EVAL-AUTH-F03",
+          "EVAL-FND-02"
+        ],
+        "fixture": "T24",
+        "prdLine": "822",
+        "requirementIds": [
+          "SF-ADM-04",
+          "SF-API-01",
+          "SF-API-02",
+          "SF-API-03",
+          "SF-CON-01",
+          "SF-CON-02",
+          "SF-FLD-02",
+          "SF-IMP-01",
+          "SF-IMP-03",
+          "SF-IMP-04",
+          "SF-VAL-03"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T24"
+      ],
+      "id": "EVAL-FIXCOV-T24",
+      "milestoneGates": [
+        "M0"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "822",
+          "quote": "| T24 Producer equivalence | Build the same package through UI and documented HTTP requests under the same staff workspace role, import/export twice, validate schemas and semantic constraints, compare normalized hashes and typed submissions. Copy uses documented remap; update uses preserved IDs. | Golden packages, API transcript, hash/output comparison. No custom CLI/MCP product is required. |",
+          "rangeSha256": "eaed06fd57fed4a1e5eca58461efc24281635658e8a4d42a915ed2193d390413",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Truthful M0 encoded coverage declaration; not execution.",
+      "requirements": [
+        "SF-ADM-04",
+        "SF-API-01",
+        "SF-API-02",
+        "SF-API-03",
+        "SF-CON-01",
+        "SF-CON-02",
+        "SF-FLD-02",
+        "SF-IMP-01",
+        "SF-IMP-03",
+        "SF-IMP-04",
+        "SF-VAL-03"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "coverage",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalFixtureId": "T25",
+        "canonicalGroupArtifactId": "EVAL-GROUP-T25-T32",
+        "canonicalGroupArtifactPath": "fixtures/t25-t32.json",
+        "corpusCoverage": "oracle-encoded",
+        "coveringRecordIds": [
+          "EVAL-GROUP-T25-T32",
+          "T25",
+          "EVAL-T25-USABILITY-01"
+        ],
+        "fixture": "T25",
+        "frozenAssetPath": "assets/t25-usability-protocol.json",
+        "prdLine": "823",
+        "requirementIds": [
+          "SF-UX-02",
+          "SF-UX-03"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T25"
+      ],
+      "id": "EVAL-FIXCOV-T25",
+      "milestoneGates": [
+        "M0"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "823",
+          "quote": "| T25 Usability trials | Five independent authors/respondents per task, defined orientation and scenarios, record success/time/errors/help and critical misunderstandings. | Task script, anonymized observations and pass/fail against SF-UX-02/03. |",
+          "rangeSha256": "c7d57397775ab6e8f08451b5c06702df3dda9515abd2180930f96bf16f108e67",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Frozen evaluator-owned deterministic input/protocol asset is materialized; execution remains not-run.",
+      "requirements": [
+        "SF-UX-02",
+        "SF-UX-03"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "coverage",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalFixtureId": "T26",
+        "canonicalGroupArtifactId": "EVAL-GROUP-T25-T32",
+        "canonicalGroupArtifactPath": "fixtures/t25-t32.json",
+        "corpusCoverage": "oracle-encoded",
+        "coveringRecordIds": [
+          "EVAL-GROUP-T25-T32",
+          "T26",
+          "EVAL-PKG-BUDGET",
+          "EVAL-PKG-HC",
+          "EVAL-PKG-NHC"
+        ],
+        "fixture": "T26",
+        "prdLine": "824",
+        "requirementIds": [
+          "SF-EXT-01",
+          "SF-EXT-02",
+          "SF-EXT-03",
+          "SF-EXT-04"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T26"
+      ],
+      "id": "EVAL-FIXCOV-T26",
+      "milestoneGates": [
+        "M0"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "824",
+          "quote": "| T26 Extensibility/ownership | Add a non-healthcare equipment-list composite using registry contracts; preserve canonical list output; inspect dependency inventory and pin/disable versions. | Extension conformance pack, dependency review and old-release regression. |",
+          "rangeSha256": "dd3acc49342c8c37951dc494381577685cb6ac00d07acfffe86c4ab666d336c5",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Truthful M0 encoded coverage declaration; not execution.",
+      "requirements": [
+        "SF-EXT-01",
+        "SF-EXT-02",
+        "SF-EXT-03",
+        "SF-EXT-04"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "coverage",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalFixtureId": "T27",
+        "canonicalGroupArtifactId": "EVAL-GROUP-T25-T32",
+        "canonicalGroupArtifactPath": "fixtures/t25-t32.json",
+        "corpusCoverage": "oracle-encoded",
+        "coveringRecordIds": [
+          "EVAL-GROUP-T25-T32",
+          "T27",
+          "EVAL-FND-01",
+          "EVAL-LSA-03"
+        ],
+        "fixture": "T27",
+        "prdLine": "832",
+        "requirementIds": [
+          "SF-AUTH-01",
+          "SF-AUTH-02",
+          "SF-UI-01"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T27"
+      ],
+      "id": "EVAL-FIXCOV-T27",
+      "milestoneGates": [
+        "M0"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "832",
+          "quote": "| T27 Staff authentication | Username/password, generic failures/throttling, setup-only guard, normal session expiry/logout/revocation, CSRF, deep-link return and shared-device clearing. | API/browser negative and positive cases, redacted security logs. |",
+          "rangeSha256": "2fe3b1759c682c211a3456777c74ff89670412f12eceda06af57db1fa11cbb97",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Truthful M0 encoded coverage declaration; not execution.",
+      "requirements": [
+        "SF-AUTH-01",
+        "SF-AUTH-02",
+        "SF-UI-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "coverage",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalFixtureId": "T28",
+        "canonicalGroupArtifactId": "EVAL-GROUP-T25-T32",
+        "canonicalGroupArtifactPath": "fixtures/t25-t32.json",
+        "corpusCoverage": "oracle-encoded",
+        "coveringRecordIds": [
+          "EVAL-GROUP-T25-T32",
+          "T28",
+          "EVAL-FND-01",
+          "EVAL-LSA-01",
+          "EVAL-LSA-02"
+        ],
+        "fixture": "T28",
+        "prdLine": "833",
+        "requirementIds": [
+          "SF-AUTH-03",
+          "SF-AUTH-04",
+          "SF-AUTH-06",
+          "SF-AUTH-07",
+          "SF-ORG-05",
+          "SF-PLT-01",
+          "SF-PLT-02",
+          "SF-PLT-03",
+          "SF-UI-01"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T28"
+      ],
+      "id": "EVAL-FIXCOV-T28",
+      "milestoneGates": [
+        "M0"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "833",
+          "quote": "| T28 Administration and onboarding | Bootstrap, pending first owner, last-owner races, platform/tenant boundaries, multiple memberships, both onboarding paths without email and configured invitation delivery. | Transaction/race tests, UI walkthrough, provider evidence separately. |",
+          "rangeSha256": "a18bfbd13c54ec4fdf4aa2227e8896fe9d658efaa65da42dc2a362d3053fcd94",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Truthful M0 encoded coverage declaration; not execution.",
+      "requirements": [
+        "SF-AUTH-03",
+        "SF-AUTH-04",
+        "SF-AUTH-06",
+        "SF-AUTH-07",
+        "SF-ORG-05",
+        "SF-PLT-01",
+        "SF-PLT-02",
+        "SF-PLT-03",
+        "SF-UI-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "coverage",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalFixtureId": "T29",
+        "canonicalGroupArtifactId": "EVAL-GROUP-T25-T32",
+        "canonicalGroupArtifactPath": "fixtures/t25-t32.json",
+        "corpusCoverage": "oracle-encoded",
+        "coveringRecordIds": [
+          "EVAL-GROUP-T25-T32",
+          "T29",
+          "EVAL-FND-01",
+          "EVAL-LSA-01"
+        ],
+        "fixture": "T29",
+        "prdLine": "834",
+        "requirementIds": [
+          "SF-AUTH-05",
+          "SF-AUTH-06",
+          "SF-AUTH-07",
+          "SF-PLT-03",
+          "SF-UI-01"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T29"
+      ],
+      "id": "EVAL-FIXCOV-T29",
+      "milestoneGates": [
+        "M0"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "834",
+          "quote": "| T29 Password lifecycle | First setup vs change vs recovery, no-email admin recovery, email self-recovery, link expiry/reuse/revoke, shared-account boundary and all-session invalidation. | API/browser cases and audited operator recovery drill. |",
+          "rangeSha256": "11d5bfe4905b67876371255107723b84b17c22b89d96f1e4ab26c0dd22090d29",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Truthful M0 encoded coverage declaration; not execution.",
+      "requirements": [
+        "SF-AUTH-05",
+        "SF-AUTH-06",
+        "SF-AUTH-07",
+        "SF-PLT-03",
+        "SF-UI-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "coverage",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalFixtureId": "T30",
+        "canonicalGroupArtifactId": "EVAL-GROUP-T25-T32",
+        "canonicalGroupArtifactPath": "fixtures/t25-t32.json",
+        "corpusCoverage": "oracle-encoded",
+        "coveringRecordIds": [
+          "EVAL-GROUP-T25-T32",
+          "T30",
+          "EVAL-FND-01"
+        ],
+        "fixture": "T30",
+        "prdLine": "835",
+        "requirementIds": [
+          "SF-AUTH-07",
+          "SF-UI-01"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T30"
+      ],
+      "id": "EVAL-FIXCOV-T30",
+      "milestoneGates": [
+        "M0"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "835",
+          "quote": "| T30 Staff UI consistency | All required staff screens, access-empty states, Certinal UI assets/tokens, keyboard/RTL/zoom, role restrictions and meaningful failure recovery. | Versioned design asset manifest and browser evidence. |",
+          "rangeSha256": "104e4c46b02929d720c33b94bc3f0ee6908045fd99b090cd6b3d8cb5775f17a5",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Truthful M0 encoded coverage declaration; not execution.",
+      "requirements": [
+        "SF-AUTH-07",
+        "SF-UI-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "coverage",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalFixtureId": "T31",
+        "canonicalGroupArtifactId": "EVAL-GROUP-T25-T32",
+        "canonicalGroupArtifactPath": "fixtures/t25-t32.json",
+        "corpusCoverage": "oracle-encoded",
+        "coveringRecordIds": [
+          "EVAL-GROUP-T25-T32",
+          "T31",
+          "EVAL-CRIT-02",
+          "EVAL-CRIT-03",
+          "EVAL-FND-02",
+          "EVAL-FND-03",
+          "EVAL-FND-04",
+          "EVAL-PKG-HC",
+          "EVAL-PKG-NHC",
+          "EVAL-RESP-O09",
+          "EVAL-RESP-O10",
+          "EVAL-SNT-01",
+          "EVAL-SNT-03"
+        ],
+        "fixture": "T31",
+        "prdLine": "836",
+        "requirementIds": [
+          "SF-CON-01",
+          "SF-CON-02"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T31"
+      ],
+      "id": "EVAL-FIXCOV-T31",
+      "milestoneGates": [
+        "M0"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "836",
+          "quote": "| T31 Interpretation and numeric fidelity | Signed 64-bit extrema and 2^53 boundary survive input/save/JSON/CSV/calculation; explicit package/manifest contract stamps, mismatched versions rejected, frozen today, derived visibility, repeated placement and typed empty aggregate cases. | Same golden vectors in server/browser plus round-trip files; unsupported version and overflow diagnostics. |",
+          "rangeSha256": "024ce255108fdb229903b9bb74739d4c37308216b164d5566e2fb047de782524",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Truthful M0 encoded coverage declaration; not execution.",
+      "requirements": [
+        "SF-CON-01",
+        "SF-CON-02"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "coverage",
+      "evidenceLevel": "E0",
+      "expected": {
+        "canonicalFixtureId": "T32",
+        "canonicalGroupArtifactId": "EVAL-GROUP-T25-T32",
+        "canonicalGroupArtifactPath": "fixtures/t25-t32.json",
+        "corpusCoverage": "oracle-encoded",
+        "coveringRecordIds": [
+          "EVAL-GROUP-T25-T32",
+          "T32",
+          "EVAL-FND-06"
+        ],
+        "fixture": "T32",
+        "prdLine": "837",
+        "requirementIds": [
+          "SF-OPS-01"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T32"
+      ],
+      "id": "EVAL-FIXCOV-T32",
+      "milestoneGates": [
+        "M0"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "837",
+          "quote": "| T32 Local deployment | Clean documented start/bootstrap/onboarding; stop/restart preserving data; unavailable DB/storage readiness; migrations/restore; email-disabled operation and explicitly configured providers. | Exact environment/commands, persistence assertions and recovery logs. |",
+          "rangeSha256": "820819a9f7eebc1cadea43a920e938462159f1f19fa5617326329c6e34737574",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Truthful M0 encoded coverage declaration; not execution.",
+      "requirements": [
+        "SF-OPS-01"
+      ],
+      "status": "not-run"
+    }
+  ]
+}

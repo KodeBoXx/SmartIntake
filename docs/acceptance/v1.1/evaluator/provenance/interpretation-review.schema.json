@@ -1,0 +1,145 @@
+{
+  "$id": "urn:smartintake:evaluator:interpretation-review:v1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "reviewStatus": {
+            "const": "approved"
+          }
+        },
+        "required": [
+          "reviewStatus"
+        ]
+      },
+      "then": {
+        "required": [
+          "approval"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "reviewStatus": {
+            "const": "pending-independent-review"
+          }
+        },
+        "required": [
+          "reviewStatus"
+        ]
+      },
+      "then": {
+        "not": {
+          "required": [
+            "approval"
+          ]
+        }
+      }
+    }
+  ],
+  "properties": {
+    "approval": {
+      "additionalProperties": false,
+      "properties": {
+        "decision": {
+          "const": "approved"
+        },
+        "reviewedAt": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+          "type": "string"
+        },
+        "reviewer": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "signature": {
+          "additionalProperties": false,
+          "properties": {
+            "algorithm": {
+              "const": "ed25519"
+            },
+            "keyId": {
+              "type": "string"
+            },
+            "payloadDigest": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "value": {
+              "pattern": "^[A-Za-z0-9_-]{86}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "algorithm",
+            "keyId",
+            "payloadDigest",
+            "value"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "decision",
+        "reviewer",
+        "reviewedAt",
+        "signature"
+      ],
+      "type": "object"
+    },
+    "contentBindings": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "recordCanonicalSha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "recordId": {
+            "pattern": "^EVAL-[A-Z0-9]{1,12}-[0-9A-Z-]+$",
+            "type": "string"
+          },
+          "reviewId": {
+            "type": "string"
+          },
+          "sourcePath": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "reviewId",
+          "recordId",
+          "sourcePath",
+          "recordCanonicalSha256"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "corpusVersion": {
+      "type": "string"
+    },
+    "interpretationIds": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "reviewStatus": {
+      "enum": [
+        "pending-independent-review",
+        "approved"
+      ]
+    }
+  },
+  "required": [
+    "corpusVersion",
+    "interpretationIds",
+    "contentBindings",
+    "reviewStatus"
+  ],
+  "type": "object"
+}

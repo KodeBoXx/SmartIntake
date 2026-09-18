@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://smartintake.kodeboxx.example/acceptance/denominator-review-attestation-1.0.0.schema.json",
+  "title": "Denominator technical review attestation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "attestationType", "authority", "status", "decision", "reviewer", "attestedAt", "manifestVersion", "scope", "preAttestationBinding"],
+  "properties": {
+    "schemaVersion": {"const": "1.0.0"},
+    "attestationType": {"const": "denominator-technical-review"},
+    "authority": {"enum": ["independent-agent-review", "human-independent-review", "advisory-non-human"]},
+    "status": {"enum": ["attested", "advisory"]},
+    "decision": {"enum": ["approved", "rejected", "advisory"]},
+    "reviewer": {"type": "string", "pattern": ".*\\S.*"},
+    "attestedAt": {"type": "string", "format": "date-time", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$"},
+    "manifestVersion": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+-m0$"},
+    "scope": {"const": "denominator-technical-review"},
+    "preAttestationBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "manifestIndexSha256", "sha256sumsSha256"],
+      "properties": {
+        "kind": {"const": "pre-attestation-denominator-release/v2"},
+        "manifestIndexSha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "sha256sumsSha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    }
+  },
+  "allOf": [
+    {"if": {"properties": {"authority": {"const": "advisory-non-human"}}}, "then": {"properties": {"status": {"const": "advisory"}, "decision": {"const": "advisory"}}}},
+    {"if": {"properties": {"authority": {"enum": ["independent-agent-review", "human-independent-review"]}}}, "then": {"properties": {"status": {"const": "attested"}, "decision": {"enum": ["approved", "rejected"]}}}}
+  ]
+}

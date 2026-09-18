@@ -1,0 +1,215 @@
+{
+  "$id": "urn:smartintake:evaluator:record:v1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "assertionType": {
+      "enum": [
+        "oracle",
+        "projection",
+        "navigation",
+        "structural",
+        "locale",
+        "sentinel",
+        "predicate",
+        "policy",
+        "coverage",
+        "deterministic-input-oracle",
+        "controlled-receiver-protocol",
+        "hostile-input-protocol",
+        "workload-protocol",
+        "human-study-protocol"
+      ]
+    },
+    "evidenceLevel": {
+      "enum": [
+        "E0",
+        "E1",
+        "E2",
+        "E3",
+        "human"
+      ]
+    },
+    "expected": {},
+    "expectedSource": {
+      "enum": [
+        "prd",
+        "evaluator-derived"
+      ]
+    },
+    "fixtures": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "gateScope": {
+      "type": "string"
+    },
+    "id": {
+      "pattern": "^EVAL-[A-Z0-9]{1,12}-[0-9A-Z\\-]+$",
+      "type": "string"
+    },
+    "milestoneGates": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "notEncodedReason": {
+      "type": "string"
+    },
+    "oracleProvenance": {
+      "description": "Closed record-level provenance discriminator; scalar-level claims are forbidden.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "mode": {
+              "const": "source-literal"
+            }
+          },
+          "required": [
+            "mode"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "inputs": {
+              "type": "object"
+            },
+            "mode": {
+              "const": "source-computed"
+            },
+            "outputs": {
+              "type": "object"
+            },
+            "registryPath": {
+              "const": "provenance/rule-registry.json"
+            },
+            "ruleId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "mode",
+            "ruleId",
+            "registryPath",
+            "inputs",
+            "outputs"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "allowlistId": {
+              "pattern": "^(evaluator-selected-v1|EVAL-[A-Z0-9]{1,12}-[0-9A-Z\\-]+)$",
+              "type": "string"
+            },
+            "allowlistPath": {
+              "const": "provenance/evaluator-selected-allowlist.json"
+            },
+            "mode": {
+              "const": "evaluator-selected"
+            }
+          },
+          "required": [
+            "mode",
+            "allowlistId",
+            "allowlistPath"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "description": {
+              "type": "string"
+            },
+            "mode": {
+              "const": "independently-reviewed-interpretation"
+            },
+            "reviewId": {
+              "type": "string"
+            },
+            "reviewPath": {
+              "const": "provenance/interpretation-review.json"
+            }
+          },
+          "required": [
+            "mode",
+            "reviewId",
+            "reviewPath"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "prdCitations": {
+      "items": {
+        "properties": {
+          "file": {
+            "enum": [
+              "PRD",
+              "PROTO"
+            ]
+          },
+          "lines": {
+            "type": "string"
+          },
+          "quote": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "file",
+          "lines",
+          "quote"
+        ],
+        "type": "object"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "prdFixedSubset": {
+      "type": "object"
+    },
+    "rationale": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "requirements": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "status": {
+      "const": "not-run"
+    }
+  },
+  "required": [
+    "assertionType",
+    "evidenceLevel",
+    "expected",
+    "expectedSource",
+    "fixtures",
+    "id",
+    "milestoneGates",
+    "oracleProvenance",
+    "prdCitations",
+    "rationale",
+    "requirements",
+    "status"
+  ],
+  "type": "object"
+}

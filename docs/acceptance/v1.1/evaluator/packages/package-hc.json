@@ -1,0 +1,1715 @@
+{
+  "assets": [],
+  "contractVersion": "4.0.0",
+  "data": {
+    "fields": [
+      {
+        "constraints": {
+          "maxLength": 120
+        },
+        "descriptionKey": "q.hc.f01",
+        "guidanceId": "hc-f01",
+        "hiddenRetention": "submission-retained",
+        "id": "hc-f01",
+        "key": "f01",
+        "labelKey": "q.hc.f01",
+        "required": false,
+        "requiredExpressionId": "neverRequired",
+        "type": "text",
+        "validationExpressionId": "nonBlankText",
+        "visibilityExpressionId": "alwaysVisible"
+      },
+      {
+        "descriptionKey": "q.hc.f02",
+        "guidanceId": "hc-f02",
+        "hiddenRetention": "submission-retained",
+        "id": "hc-f02",
+        "key": "f02",
+        "labelKey": "q.hc.f02",
+        "required": false,
+        "requiredExpressionId": "neverRequired",
+        "type": "date",
+        "validationExpressionId": "pastDate",
+        "visibilityExpressionId": "alwaysVisible"
+      },
+      {
+        "descriptionKey": "q.hc.f03",
+        "guidanceId": "hc-f03",
+        "hiddenRetention": "submission-retained",
+        "id": "hc-f03",
+        "key": "f03",
+        "labelKey": "q.hc.f03",
+        "required": false,
+        "requiredExpressionId": "neverRequired",
+        "type": "time",
+        "validationExpressionId": "clinicTime",
+        "visibilityExpressionId": "alwaysVisible"
+      },
+      {
+        "descriptionKey": "q.hc.f04",
+        "guidanceId": "hc-f04",
+        "hiddenRetention": "submission-retained",
+        "id": "hc-f04",
+        "key": "f04",
+        "labelKey": "q.hc.f04",
+        "required": false,
+        "requiredExpressionId": "neverRequired",
+        "type": "dateTime",
+        "validationExpressionId": "utcInstant",
+        "visibilityExpressionId": "alwaysVisible"
+      },
+      {
+        "descriptionKey": "q.hc.f05",
+        "guidanceId": "hc-f05",
+        "hiddenRetention": "submission-retained",
+        "id": "hc-f05",
+        "key": "f05",
+        "labelKey": "q.hc.f05",
+        "requiredExpressionId": "neverRequired",
+        "type": "object",
+        "validationExpressionId": "contactObjectValid",
+        "visibilityExpressionId": "alwaysVisible"
+      },
+      {
+        "descriptionKey": "q.hc.f06",
+        "guidanceId": "hc-f06",
+        "hiddenRetention": "submission-retained",
+        "id": "hc-f06",
+        "key": "f06",
+        "labelKey": "q.hc.f06",
+        "required": true,
+        "requiredExpressionId": "alwaysRequired",
+        "type": "boolean",
+        "validationExpressionId": "requiresTrue",
+        "visibilityExpressionId": "alwaysVisible"
+      },
+      {
+        "constraints": {
+          "minItems": "1",
+          "uniqueItems": true
+        },
+        "descriptionKey": "q.hc.f07",
+        "guidanceId": "hc-f07",
+        "hiddenRetention": "submission-retained",
+        "id": "hc-f07",
+        "key": "f07",
+        "labelKey": "q.hc.f07",
+        "options": [
+          {
+            "id": "respiratory",
+            "labelKey": "opt.hc.hc-f07.respiratory"
+          },
+          {
+            "id": "fatigue",
+            "labelKey": "opt.hc.hc-f07.fatigue"
+          },
+          {
+            "id": "pain",
+            "labelKey": "opt.hc.hc-f07.pain"
+          },
+          {
+            "id": "digestive",
+            "labelKey": "opt.hc.hc-f07.digestive"
+          }
+        ],
+        "required": true,
+        "requiredExpressionId": "alwaysRequired",
+        "type": "multiChoice",
+        "validationExpressionId": "validWhenPresent",
+        "visibilityExpressionId": "alwaysVisible"
+      },
+      {
+        "constraints": {
+          "maximum": "10",
+          "minimum": "0",
+          "step": "1",
+          "wireFormat": "canonical-decimal-string"
+        },
+        "descriptionKey": "q.hc.f08",
+        "guidanceId": "hc-f08",
+        "hiddenRetention": "submission-retained",
+        "id": "hc-f08",
+        "key": "f08",
+        "labelKey": "q.hc.f08",
+        "required": false,
+        "requiredExpressionId": "neverRequired",
+        "type": "integer",
+        "validationExpressionId": "integerRange",
+        "visibilityExpressionId": "alwaysVisible"
+      },
+      {
+        "descriptionKey": "q.hc.f09",
+        "guidanceId": "hc-f09",
+        "hiddenRetention": "submission-retained",
+        "id": "hc-f09",
+        "key": "f09",
+        "labelKey": "q.hc.f09",
+        "options": [
+          {
+            "id": "known-allergies",
+            "labelKey": "opt.hc.hc-f09.known-allergies"
+          },
+          {
+            "id": "no-known-allergies",
+            "labelKey": "opt.hc.hc-f09.no-known-allergies"
+          },
+          {
+            "id": "unknown",
+            "labelKey": "opt.hc.hc-f09.unknown"
+          }
+        ],
+        "required": true,
+        "requiredExpressionId": "alwaysRequired",
+        "type": "choice",
+        "validationExpressionId": "validWhenPresent",
+        "visibilityExpressionId": "alwaysVisible"
+      },
+      {
+        "descriptionKey": "q.hc.f10",
+        "guidanceId": "hc-f10",
+        "hiddenRetention": "clear-when-hidden",
+        "id": "hc-f10",
+        "itemSchema": {
+          "descriptionKey": "q.hc-f10-row",
+          "id": "hc-f10-row",
+          "key": "row",
+          "labelKey": "q.hc-f10-row",
+          "properties": [
+            {
+              "descriptionKey": "q.hc-f10-row-value",
+              "id": "hc-f10-row-value",
+              "key": "value",
+              "labelKey": "q.hc-f10-row-value",
+              "required": false,
+              "type": "text"
+            }
+          ],
+          "required": false,
+          "type": "object"
+        },
+        "key": "f10",
+        "labelKey": "q.hc.f10",
+        "required": true,
+        "requiredExpressionId": "hasKnownAllergies",
+        "type": "list",
+        "validationExpressionId": "validWhenPresent",
+        "visibilityExpressionId": "hasKnownAllergies"
+      },
+      {
+        "descriptionKey": "q.hc.f11",
+        "guidanceId": "hc-f11",
+        "hiddenRetention": "submission-retained",
+        "id": "hc-f11",
+        "itemSchema": {
+          "descriptionKey": "q.hc-f11-item",
+          "id": "hc-f11-item",
+          "key": "item",
+          "labelKey": "q.hc-f11-item",
+          "properties": [
+            {
+              "descriptionKey": "q.hc-f11-item-l2",
+              "id": "hc-f11-item-l2",
+              "itemSchema": {
+                "descriptionKey": "q.hc-f11-item-l2-item",
+                "id": "hc-f11-item-l2-item",
+                "key": "item",
+                "labelKey": "q.hc-f11-item-l2-item",
+                "properties": [
+                  {
+                    "descriptionKey": "q.hc-f11-item-l2-item-l3",
+                    "id": "hc-f11-item-l2-item-l3",
+                    "itemSchema": {
+                      "descriptionKey": "q.hc-f11-item-l2-item-l3-item",
+                      "id": "hc-f11-item-l2-item-l3-item",
+                      "key": "item",
+                      "labelKey": "q.hc-f11-item-l2-item-l3-item",
+                      "properties": [
+                        {
+                          "descriptionKey": "q.hc-f11-item-l2-item-l3-item-note",
+                          "id": "hc-f11-item-l2-item-l3-item-note",
+                          "key": "note",
+                          "labelKey": "q.hc-f11-item-l2-item-l3-item-note",
+                          "required": false,
+                          "type": "text"
+                        }
+                      ],
+                      "required": false,
+                      "type": "object"
+                    },
+                    "key": "level3",
+                    "labelKey": "q.hc-f11-item-l2-item-l3",
+                    "required": false,
+                    "type": "list"
+                  }
+                ],
+                "required": false,
+                "type": "object"
+              },
+              "key": "level2",
+              "labelKey": "q.hc-f11-item-l2",
+              "required": false,
+              "type": "list"
+            }
+          ],
+          "required": false,
+          "type": "object"
+        },
+        "key": "f11",
+        "labelKey": "q.hc.f11",
+        "required": true,
+        "requiredExpressionId": "alwaysRequired",
+        "type": "list",
+        "validationExpressionId": "threeLevelRepeaterValid",
+        "visibilityExpressionId": "alwaysVisible"
+      },
+      {
+        "constraints": {
+          "fixedRows": [
+            "parent-1",
+            "sibling-1"
+          ]
+        },
+        "descriptionKey": "q.hc.f12",
+        "guidanceId": "hc-f12",
+        "hiddenRetention": "submission-retained",
+        "id": "hc-f12",
+        "key": "f12",
+        "labelKey": "q.hc.f12",
+        "required": false,
+        "requiredExpressionId": "neverRequired",
+        "rowSchema": {
+          "descriptionKey": "q.hc-f12-row",
+          "id": "hc-f12-row",
+          "key": "row",
+          "labelKey": "q.hc-f12-row",
+          "properties": [
+            {
+              "descriptionKey": "q.hc-f12-row-value",
+              "id": "hc-f12-row-value",
+              "key": "value",
+              "labelKey": "q.hc-f12-row-value",
+              "required": false,
+              "type": "text"
+            }
+          ],
+          "required": false,
+          "type": "object"
+        },
+        "type": "list",
+        "validationExpressionId": "matrixRowsValid",
+        "visibilityExpressionId": "alwaysVisible"
+      },
+      {
+        "descriptionKey": "q.hc.f13",
+        "guidanceId": "hc-f13",
+        "hiddenRetention": "submission-retained",
+        "id": "hc-f13",
+        "key": "f13",
+        "labelKey": "q.hc.f13",
+        "required": false,
+        "requiredExpressionId": "neverRequired",
+        "type": "boolean",
+        "validationExpressionId": "validWhenPresent",
+        "visibilityExpressionId": "alwaysVisible"
+      },
+      {
+        "descriptionKey": "q.hc.f14",
+        "guidanceId": "hc-f14",
+        "hiddenRetention": "clear-when-hidden",
+        "id": "hc-f14",
+        "key": "f14",
+        "labelKey": "q.hc.f14",
+        "required": true,
+        "requiredExpressionId": "pregnancyCareApplies",
+        "type": "date",
+        "validationExpressionId": "futureDate",
+        "visibilityExpressionId": "pregnancyCareApplies"
+      },
+      {
+        "constraints": {
+          "minItems": "3",
+          "uniqueItems": true
+        },
+        "descriptionKey": "q.hc.f15",
+        "guidanceId": "hc-f15",
+        "hiddenRetention": "submission-retained",
+        "id": "hc-f15",
+        "key": "f15",
+        "labelKey": "q.hc.f15",
+        "options": [
+          {
+            "id": "breathing",
+            "labelKey": "opt.hc.hc-f15.breathing"
+          },
+          {
+            "id": "pain",
+            "labelKey": "opt.hc.hc-f15.pain"
+          },
+          {
+            "id": "sleep",
+            "labelKey": "opt.hc.hc-f15.sleep"
+          }
+        ],
+        "ordered": true,
+        "required": false,
+        "requiredExpressionId": "neverRequired",
+        "type": "multiChoice",
+        "validationExpressionId": "validWhenPresent",
+        "visibilityExpressionId": "alwaysVisible"
+      },
+      {
+        "constraints": {
+          "maximum": "2.50",
+          "minimum": "0.50",
+          "scale": 2
+        },
+        "descriptionKey": "q.hc.f16",
+        "guidanceId": "hc-f16",
+        "hiddenRetention": "submission-retained",
+        "id": "hc-f16",
+        "key": "f16",
+        "labelKey": "q.hc.f16",
+        "required": false,
+        "requiredExpressionId": "neverRequired",
+        "type": "decimal",
+        "validationExpressionId": "decimalRange",
+        "visibilityExpressionId": "alwaysVisible"
+      },
+      {
+        "constraints": {
+          "maximum": "400.00",
+          "minimum": "2.00",
+          "scale": 2
+        },
+        "descriptionKey": "q.hc.f17",
+        "guidanceId": "hc-f17",
+        "hiddenRetention": "submission-retained",
+        "id": "hc-f17",
+        "key": "f17",
+        "labelKey": "q.hc.f17",
+        "required": false,
+        "requiredExpressionId": "neverRequired",
+        "type": "decimal",
+        "validationExpressionId": "decimalRange",
+        "visibilityExpressionId": "alwaysVisible"
+      },
+      {
+        "calculated": true,
+        "calculation": {
+          "expressionRef": "#/expressions/calculateBmi",
+          "outputType": "decimal",
+          "readOnly": true,
+          "recomputeOn": [
+            "/answers/hc-f16",
+            "/answers/hc-f17"
+          ],
+          "rounding": {
+            "mode": "half-up",
+            "scale": 1
+          }
+        },
+        "descriptionKey": "q.hc.f18",
+        "guidanceId": "hc-f18",
+        "hiddenRetention": "submission-retained",
+        "id": "hc-f18",
+        "key": "f18",
+        "labelKey": "q.hc.f18",
+        "required": false,
+        "requiredExpressionId": "neverRequired",
+        "type": "decimal",
+        "validationExpressionId": "derivedBmi",
+        "visibilityExpressionId": "alwaysVisible"
+      },
+      {
+        "descriptionKey": "q.hc.f19",
+        "guidanceId": "hc-f19",
+        "hiddenRetention": "submission-retained",
+        "id": "hc-f19",
+        "key": "f19",
+        "labelKey": "q.hc.f19",
+        "requiredExpressionId": "neverRequired",
+        "type": "object",
+        "validationExpressionId": "bloodPressureValid",
+        "visibilityExpressionId": "alwaysVisible"
+      },
+      {
+        "constraints": {
+          "maximum": "10",
+          "minimum": "0",
+          "step": "1",
+          "wireFormat": "canonical-decimal-string"
+        },
+        "descriptionKey": "q.hc.f20",
+        "guidanceId": "hc-f20",
+        "hiddenRetention": "submission-retained",
+        "id": "hc-f20",
+        "key": "f20",
+        "labelKey": "q.hc.f20",
+        "required": false,
+        "requiredExpressionId": "neverRequired",
+        "type": "integer",
+        "validationExpressionId": "validWhenPresent",
+        "visibilityExpressionId": "alwaysVisible"
+      },
+      {
+        "constraints": {
+          "maximum": "45.00",
+          "minimum": "30.00",
+          "scale": 2
+        },
+        "descriptionKey": "q.hc.f21",
+        "guidanceId": "hc-f21",
+        "hiddenRetention": "submission-retained",
+        "id": "hc-f21",
+        "key": "f21",
+        "labelKey": "q.hc.f21",
+        "required": false,
+        "requiredExpressionId": "neverRequired",
+        "type": "decimal",
+        "validationExpressionId": "decimalRange",
+        "visibilityExpressionId": "alwaysVisible"
+      },
+      {
+        "descriptionKey": "q.hc.f22",
+        "guidanceId": "hc-f22",
+        "hiddenRetention": "submission-retained",
+        "id": "hc-f22",
+        "key": "f22",
+        "labelKey": "q.hc.f22",
+        "options": [
+          {
+            "id": "routine-follow-up",
+            "labelKey": "opt.hc.hc-f22.routine-follow-up"
+          },
+          {
+            "id": "urgent-review",
+            "labelKey": "opt.hc.hc-f22.urgent-review"
+          },
+          {
+            "id": "referral",
+            "labelKey": "opt.hc.hc-f22.referral"
+          }
+        ],
+        "required": true,
+        "requiredExpressionId": "alwaysRequired",
+        "type": "choice",
+        "validationExpressionId": "validWhenPresent",
+        "visibilityExpressionId": "alwaysVisible"
+      },
+      {
+        "constraints": {
+          "maxLength": 2000
+        },
+        "descriptionKey": "q.hc.f23",
+        "guidanceId": "hc-f23",
+        "hiddenRetention": "submission-retained",
+        "id": "hc-f23",
+        "key": "f23",
+        "labelKey": "q.hc.f23",
+        "required": false,
+        "requiredExpressionId": "neverRequired",
+        "type": "text",
+        "validationExpressionId": "nonBlankText",
+        "visibilityExpressionId": "alwaysVisible"
+      },
+      {
+        "descriptionKey": "q.hc.f24",
+        "guidanceId": "hc-f24",
+        "hiddenRetention": "submission-retained",
+        "id": "hc-f24",
+        "key": "f24",
+        "labelKey": "q.hc.f24",
+        "required": true,
+        "requiredExpressionId": "followUpRequired",
+        "type": "date",
+        "validationExpressionId": "futureDate",
+        "visibilityExpressionId": "followUpRequired"
+      },
+      {
+        "constraints": {
+          "acceptedMediaTypes": [
+            "application/pdf"
+          ],
+          "maxBytes": "5242880",
+          "maxItems": "1"
+        },
+        "descriptionKey": "q.hc.f25",
+        "guidanceId": "hc-f25",
+        "hiddenRetention": "submission-retained",
+        "id": "hc-f25",
+        "key": "f25",
+        "labelKey": "q.hc.f25",
+        "required": true,
+        "requiredExpressionId": "referralRequired",
+        "type": "attachments",
+        "validationExpressionId": "verifiedAttachment",
+        "visibilityExpressionId": "referralRequired"
+      },
+      {
+        "constraints": {
+          "alternativeTextRequired": true
+        },
+        "descriptionKey": "q.hc.f26",
+        "guidanceId": "hc-f26",
+        "hiddenRetention": "submission-retained",
+        "id": "hc-f26",
+        "key": "f26",
+        "labelKey": "q.hc.f26",
+        "required": false,
+        "requiredExpressionId": "neverRequired",
+        "type": "drawing",
+        "validationExpressionId": "validDrawing",
+        "visibilityExpressionId": "alwaysVisible"
+      },
+      {
+        "descriptionKey": "q.hc.f27",
+        "guidanceId": "hc-f27",
+        "hiddenRetention": "submission-retained",
+        "id": "hc-f27",
+        "key": "f27",
+        "labelKey": "q.hc.f27",
+        "options": [
+          {
+            "id": "never",
+            "labelKey": "opt.hc.hc-f27.never"
+          },
+          {
+            "id": "former",
+            "labelKey": "opt.hc.hc-f27.former"
+          },
+          {
+            "id": "current",
+            "labelKey": "opt.hc.hc-f27.current"
+          }
+        ],
+        "required": false,
+        "requiredExpressionId": "neverRequired",
+        "type": "choice",
+        "validationExpressionId": "validWhenPresent",
+        "visibilityExpressionId": "alwaysVisible"
+      },
+      {
+        "descriptionKey": "q.hc.f28",
+        "guidanceId": "hc-f28",
+        "hiddenRetention": "submission-retained",
+        "id": "hc-f28",
+        "key": "f28",
+        "labelKey": "q.hc.f28",
+        "options": [
+          {
+            "id": "none",
+            "labelKey": "opt.hc.hc-f28.none"
+          },
+          {
+            "id": "occasional",
+            "labelKey": "opt.hc.hc-f28.occasional"
+          },
+          {
+            "id": "frequent",
+            "labelKey": "opt.hc.hc-f28.frequent"
+          }
+        ],
+        "required": false,
+        "requiredExpressionId": "neverRequired",
+        "type": "choice",
+        "validationExpressionId": "validWhenPresent",
+        "visibilityExpressionId": "alwaysVisible"
+      },
+      {
+        "descriptionKey": "q.hc.f29",
+        "guidanceId": "hc-f29",
+        "hiddenRetention": "submission-retained",
+        "id": "hc-f29",
+        "key": "f29",
+        "labelKey": "q.hc.f29",
+        "options": [
+          {
+            "id": "no-concern",
+            "labelKey": "opt.hc.hc-f29.no-concern"
+          },
+          {
+            "id": "follow-up-needed",
+            "labelKey": "opt.hc.hc-f29.follow-up-needed"
+          },
+          {
+            "id": "urgent-escalation",
+            "labelKey": "opt.hc.hc-f29.urgent-escalation"
+          }
+        ],
+        "required": true,
+        "requiredExpressionId": "alwaysRequired",
+        "type": "choice",
+        "validationExpressionId": "validWhenPresent",
+        "visibilityExpressionId": "alwaysVisible"
+      },
+      {
+        "descriptionKey": "q.hc.f30",
+        "guidanceId": "hc-f30",
+        "hiddenRetention": "clear-when-hidden",
+        "id": "hc-f30",
+        "key": "f30",
+        "labelKey": "q.hc.f30",
+        "required": true,
+        "requiredExpressionId": "safetyConcernPresent",
+        "type": "text",
+        "validationExpressionId": "nonBlankText",
+        "visibilityExpressionId": "safetyConcernPresent"
+      },
+      {
+        "descriptionKey": "q.hc.f31",
+        "guidanceId": "hc-f31",
+        "hiddenRetention": "submission-retained",
+        "id": "hc-f31",
+        "key": "f31",
+        "labelKey": "q.hc.f31",
+        "options": [
+          {
+            "id": "guided",
+            "labelKey": "opt.hc.hc-f31.guided"
+          },
+          {
+            "id": "summary",
+            "labelKey": "opt.hc.hc-f31.summary"
+          }
+        ],
+        "required": false,
+        "requiredExpressionId": "neverRequired",
+        "type": "choice",
+        "validationExpressionId": "modeSelectionValid",
+        "visibilityExpressionId": "alwaysVisible"
+      },
+      {
+        "content": {
+          "kind": "instruction",
+          "localeKey": "guidance.detailed",
+          "reviewLinkTarget": "hc-p2"
+        },
+        "descriptionKey": "q.hc.f32",
+        "guidanceId": "hc-f32",
+        "hiddenRetention": "submission-retained",
+        "id": "hc-f32",
+        "key": "f32",
+        "labelKey": "q.hc.f32",
+        "required": false,
+        "requiredExpressionId": "neverRequired",
+        "type": "text",
+        "validationExpressionId": "validWhenPresent",
+        "visibilityExpressionId": "alwaysVisible"
+      }
+    ]
+  },
+  "defaultLocale": "en",
+  "definitionVersion": "1.0.0",
+  "dependencies": [],
+  "descriptionKey": "form.description",
+  "engineContract": "4.0.0",
+  "expressions": {
+    "alwaysRequired": {
+      "op": "literal",
+      "value": true
+    },
+    "alwaysVisible": {
+      "op": "literal",
+      "value": true
+    },
+    "bloodPressureValid": {
+      "args": [
+        {
+          "op": "integerInRange",
+          "path": "$current/systolic"
+        },
+        {
+          "op": "integerInRange",
+          "path": "$current/diastolic"
+        }
+      ],
+      "op": "and"
+    },
+    "clinicTime": {
+      "args": [
+        {
+          "path": "$current"
+        },
+        {
+          "literal": "07:00:00"
+        },
+        {
+          "literal": "19:00:00"
+        }
+      ],
+      "op": "timeBetween"
+    },
+    "contactObjectValid": {
+      "op": "objectKeysValid",
+      "path": "$current"
+    },
+    "decimalRange": {
+      "op": "decimalInRange",
+      "path": "$current"
+    },
+    "derivedBmi": {
+      "args": [
+        {
+          "path": "$current"
+        },
+        {
+          "path": "/computed/hc-bmi"
+        }
+      ],
+      "op": "eq"
+    },
+    "followUpRequired": {
+      "args": [
+        {
+          "path": "/answers/hc-f22"
+        },
+        {
+          "literal": [
+            "routine-follow-up",
+            "urgent-review"
+          ]
+        }
+      ],
+      "op": "in"
+    },
+    "futureDate": {
+      "args": [
+        {
+          "path": "$current"
+        },
+        {
+          "literal": "2026-09-14"
+        }
+      ],
+      "op": "gte"
+    },
+    "hasKnownAllergies": {
+      "args": [
+        {
+          "path": "/answers/hc-f09"
+        },
+        {
+          "literal": "known-allergies"
+        }
+      ],
+      "op": "eq"
+    },
+    "hasMedicationEntries": {
+      "args": [
+        {
+          "op": "count",
+          "path": "/answers/hc-f11"
+        },
+        {
+          "literal": "0"
+        }
+      ],
+      "op": "gt"
+    },
+    "int64Canonical": {
+      "op": "canonicalInt64String",
+      "path": "$current"
+    },
+    "integerRange": {
+      "op": "integerInRange",
+      "path": "$current"
+    },
+    "interpreterRequested": {
+      "args": [
+        {
+          "path": "/answers/hc-f05/method"
+        },
+        {
+          "literal": "portal"
+        }
+      ],
+      "op": "eq"
+    },
+    "matrixRowsValid": {
+      "op": "matrixRowsHaveStableIds",
+      "path": "$current"
+    },
+    "modeSelectionValid": {
+      "op": "choiceFromOptionSet",
+      "path": "$current"
+    },
+    "neverRequired": {
+      "op": "literal",
+      "value": false
+    },
+    "nonBlankText": {
+      "op": "trimmedNonEmpty",
+      "path": "$current"
+    },
+    "pastDate": {
+      "args": [
+        {
+          "path": "$current"
+        },
+        {
+          "literal": "2026-09-14"
+        }
+      ],
+      "op": "lt"
+    },
+    "pregnancyCareApplies": {
+      "args": [
+        {
+          "path": "/answers/hc-f13"
+        },
+        {
+          "literal": true
+        }
+      ],
+      "op": "eq"
+    },
+    "referralRequired": {
+      "args": [
+        {
+          "path": "/answers/hc-f22"
+        },
+        {
+          "literal": "referral"
+        }
+      ],
+      "op": "eq"
+    },
+    "requiresTrue": {
+      "args": [
+        {
+          "path": "$current"
+        },
+        {
+          "literal": true
+        }
+      ],
+      "op": "eq"
+    },
+    "safetyConcernPresent": {
+      "args": [
+        {
+          "path": "/answers/hc-f29"
+        },
+        {
+          "literal": "no-concern"
+        }
+      ],
+      "op": "ne"
+    },
+    "threeLevelRepeaterValid": {
+      "args": [
+        {
+          "path": "$current"
+        },
+        {
+          "literal": "3"
+        }
+      ],
+      "op": "nestedRepeaterDepthEquals"
+    },
+    "utcInstant": {
+      "op": "validUtcInstant",
+      "path": "$current"
+    },
+    "validDrawing": {
+      "op": "drawingGeneratorDigestMatches",
+      "path": "$current"
+    },
+    "validWhenPresent": {
+      "args": [
+        {
+          "args": [
+            {
+              "op": "exists",
+              "path": "$current"
+            }
+          ],
+          "op": "not"
+        },
+        {
+          "op": "validateCurrentType"
+        }
+      ],
+      "op": "or"
+    },
+    "verifiedAttachment": {
+      "args": [
+        {
+          "op": "attachmentsHaveSha256",
+          "path": "$current"
+        },
+        {
+          "op": "attachmentsWithinConfiguredLimits",
+          "path": "$current"
+        }
+      ],
+      "op": "all"
+    }
+  },
+  "flow": {
+    "phases": [
+      {
+        "id": "phase-clinical-history-intake",
+        "pages": [
+          {
+            "defaultNextPageId": "hc-p2",
+            "id": "hc-p1",
+            "routes": [],
+            "sections": [
+              {
+                "id": "section-hc-p1",
+                "layout": "stack",
+                "nodes": [
+                  {
+                    "control": "text",
+                    "fieldId": "hc-f01",
+                    "id": "node-hc-f01",
+                    "kind": "question"
+                  },
+                  {
+                    "control": "date",
+                    "fieldId": "hc-f02",
+                    "id": "node-hc-f02",
+                    "kind": "question"
+                  },
+                  {
+                    "control": "time",
+                    "fieldId": "hc-f03",
+                    "id": "node-hc-f03",
+                    "kind": "question"
+                  },
+                  {
+                    "control": "dateTime",
+                    "fieldId": "hc-f04",
+                    "id": "node-hc-f04",
+                    "kind": "question"
+                  },
+                  {
+                    "control": "object",
+                    "fieldId": "hc-f05",
+                    "id": "node-hc-f05",
+                    "kind": "question"
+                  },
+                  {
+                    "control": "boolean",
+                    "fieldId": "hc-f06",
+                    "id": "node-hc-f06",
+                    "kind": "question"
+                  },
+                  {
+                    "control": "multiChoice",
+                    "fieldId": "hc-f07",
+                    "id": "node-hc-f07",
+                    "kind": "question"
+                  },
+                  {
+                    "control": "integer",
+                    "fieldId": "hc-f08",
+                    "id": "node-hc-f08",
+                    "kind": "question"
+                  }
+                ],
+                "titleKey": "page.intake"
+              }
+            ],
+            "titleKey": "page.intake"
+          },
+          {
+            "defaultNextPageId": "hc-p3",
+            "id": "hc-p2",
+            "routes": [],
+            "sections": [
+              {
+                "id": "section-hc-p2",
+                "layout": "stack",
+                "nodes": [
+                  {
+                    "control": "choice",
+                    "fieldId": "hc-f09",
+                    "id": "node-hc-f09",
+                    "kind": "question"
+                  },
+                  {
+                    "control": "repeatingCards",
+                    "fieldId": "hc-f10",
+                    "id": "node-hc-f10",
+                    "kind": "question",
+                    "presentation": {
+                      "settings": {
+                        "allowAdd": true,
+                        "allowRemove": true,
+                        "allowReorder": true
+                      }
+                    }
+                  },
+                  {
+                    "control": "repeatingCards",
+                    "fieldId": "hc-f11",
+                    "id": "node-hc-f11",
+                    "kind": "question",
+                    "presentation": {
+                      "settings": {
+                        "allowAdd": true,
+                        "allowRemove": true,
+                        "allowReorder": true
+                      }
+                    }
+                  },
+                  {
+                    "control": "dynamicMatrix",
+                    "fieldId": "hc-f12",
+                    "id": "node-hc-f12",
+                    "kind": "question",
+                    "presentation": {
+                      "settings": {
+                        "allowAdd": true,
+                        "allowRemove": true,
+                        "allowReorder": true
+                      }
+                    }
+                  },
+                  {
+                    "control": "boolean",
+                    "fieldId": "hc-f13",
+                    "id": "node-hc-f13",
+                    "kind": "question"
+                  },
+                  {
+                    "control": "date",
+                    "fieldId": "hc-f14",
+                    "id": "node-hc-f14",
+                    "kind": "question"
+                  },
+                  {
+                    "control": "multiChoice",
+                    "fieldId": "hc-f15",
+                    "id": "node-hc-f15",
+                    "kind": "question"
+                  },
+                  {
+                    "control": "decimal",
+                    "fieldId": "hc-f16",
+                    "id": "node-hc-f16",
+                    "kind": "question"
+                  }
+                ],
+                "titleKey": "page.intake"
+              }
+            ],
+            "titleKey": "page.intake"
+          },
+          {
+            "defaultNextPageId": "hc-p4",
+            "id": "hc-p3",
+            "routes": [],
+            "sections": [
+              {
+                "id": "section-hc-p3",
+                "layout": "stack",
+                "nodes": [
+                  {
+                    "control": "decimal",
+                    "fieldId": "hc-f17",
+                    "id": "node-hc-f17",
+                    "kind": "question"
+                  },
+                  {
+                    "control": "decimal",
+                    "fieldId": "hc-f18",
+                    "id": "node-hc-f18",
+                    "kind": "question"
+                  },
+                  {
+                    "control": "object",
+                    "fieldId": "hc-f19",
+                    "id": "node-hc-f19",
+                    "kind": "question"
+                  },
+                  {
+                    "control": "integer",
+                    "fieldId": "hc-f20",
+                    "id": "node-hc-f20",
+                    "kind": "question"
+                  },
+                  {
+                    "control": "decimal",
+                    "fieldId": "hc-f21",
+                    "id": "node-hc-f21",
+                    "kind": "question"
+                  },
+                  {
+                    "control": "choice",
+                    "fieldId": "hc-f22",
+                    "id": "node-hc-f22",
+                    "kind": "question"
+                  },
+                  {
+                    "control": "text",
+                    "fieldId": "hc-f23",
+                    "id": "node-hc-f23",
+                    "kind": "question"
+                  },
+                  {
+                    "control": "date",
+                    "fieldId": "hc-f24",
+                    "id": "node-hc-f24",
+                    "kind": "question"
+                  },
+                  {
+                    "control": "attachments",
+                    "fieldId": "hc-f25",
+                    "id": "node-hc-f25",
+                    "kind": "question"
+                  }
+                ],
+                "titleKey": "page.intake"
+              }
+            ],
+            "titleKey": "page.intake"
+          },
+          {
+            "defaultNextPageId": "hc-p5",
+            "id": "hc-p4",
+            "routes": [],
+            "sections": [
+              {
+                "id": "section-hc-p4",
+                "layout": "stack",
+                "nodes": [
+                  {
+                    "control": "drawing",
+                    "fieldId": "hc-f26",
+                    "id": "node-hc-f26",
+                    "kind": "question"
+                  },
+                  {
+                    "control": "choice",
+                    "fieldId": "hc-f27",
+                    "id": "node-hc-f27",
+                    "kind": "question"
+                  },
+                  {
+                    "control": "choice",
+                    "fieldId": "hc-f28",
+                    "id": "node-hc-f28",
+                    "kind": "question"
+                  },
+                  {
+                    "control": "choice",
+                    "fieldId": "hc-f29",
+                    "id": "node-hc-f29",
+                    "kind": "question"
+                  },
+                  {
+                    "control": "text",
+                    "fieldId": "hc-f30",
+                    "id": "node-hc-f30",
+                    "kind": "question"
+                  },
+                  {
+                    "control": "choice",
+                    "fieldId": "hc-f31",
+                    "id": "node-hc-f31",
+                    "kind": "question"
+                  },
+                  {
+                    "control": "text",
+                    "fieldId": "hc-f32",
+                    "id": "node-hc-f32",
+                    "kind": "question"
+                  }
+                ],
+                "titleKey": "page.intake"
+              }
+            ],
+            "titleKey": "page.intake"
+          },
+          {
+            "id": "hc-p5",
+            "routes": [],
+            "sections": [
+              {
+                "id": "section-hc-p5",
+                "layout": "stack",
+                "nodes": [],
+                "titleKey": "page.review"
+              }
+            ],
+            "titleKey": "page.review"
+          }
+        ],
+        "titleKey": "form.title"
+      }
+    ],
+    "startPageId": "hc-p1"
+  },
+  "formKey": "clinical-history-intake",
+  "guidance": {
+    "hc-f01": {
+      "id": "hc-f01",
+      "messageKey": "hc-f01"
+    },
+    "hc-f02": {
+      "id": "hc-f02",
+      "messageKey": "hc-f02"
+    },
+    "hc-f03": {
+      "id": "hc-f03",
+      "messageKey": "hc-f03"
+    },
+    "hc-f04": {
+      "id": "hc-f04",
+      "messageKey": "hc-f04"
+    },
+    "hc-f05": {
+      "id": "hc-f05",
+      "messageKey": "hc-f05"
+    },
+    "hc-f06": {
+      "id": "hc-f06",
+      "messageKey": "hc-f06"
+    },
+    "hc-f07": {
+      "id": "hc-f07",
+      "messageKey": "hc-f07"
+    },
+    "hc-f08": {
+      "id": "hc-f08",
+      "messageKey": "hc-f08"
+    },
+    "hc-f09": {
+      "id": "hc-f09",
+      "messageKey": "hc-f09"
+    },
+    "hc-f10": {
+      "id": "hc-f10",
+      "messageKey": "hc-f10"
+    },
+    "hc-f11": {
+      "id": "hc-f11",
+      "messageKey": "hc-f11"
+    },
+    "hc-f12": {
+      "id": "hc-f12",
+      "messageKey": "hc-f12"
+    },
+    "hc-f13": {
+      "id": "hc-f13",
+      "messageKey": "hc-f13"
+    },
+    "hc-f14": {
+      "id": "hc-f14",
+      "messageKey": "hc-f14"
+    },
+    "hc-f15": {
+      "id": "hc-f15",
+      "messageKey": "hc-f15"
+    },
+    "hc-f16": {
+      "id": "hc-f16",
+      "messageKey": "hc-f16"
+    },
+    "hc-f17": {
+      "id": "hc-f17",
+      "messageKey": "hc-f17"
+    },
+    "hc-f18": {
+      "id": "hc-f18",
+      "messageKey": "hc-f18"
+    },
+    "hc-f19": {
+      "id": "hc-f19",
+      "messageKey": "hc-f19"
+    },
+    "hc-f20": {
+      "id": "hc-f20",
+      "messageKey": "hc-f20"
+    },
+    "hc-f21": {
+      "id": "hc-f21",
+      "messageKey": "hc-f21"
+    },
+    "hc-f22": {
+      "id": "hc-f22",
+      "messageKey": "hc-f22"
+    },
+    "hc-f23": {
+      "id": "hc-f23",
+      "messageKey": "hc-f23"
+    },
+    "hc-f24": {
+      "id": "hc-f24",
+      "messageKey": "hc-f24"
+    },
+    "hc-f25": {
+      "id": "hc-f25",
+      "messageKey": "hc-f25"
+    },
+    "hc-f26": {
+      "id": "hc-f26",
+      "messageKey": "hc-f26"
+    },
+    "hc-f27": {
+      "id": "hc-f27",
+      "messageKey": "hc-f27"
+    },
+    "hc-f28": {
+      "id": "hc-f28",
+      "messageKey": "hc-f28"
+    },
+    "hc-f29": {
+      "id": "hc-f29",
+      "messageKey": "hc-f29"
+    },
+    "hc-f30": {
+      "id": "hc-f30",
+      "messageKey": "hc-f30"
+    },
+    "hc-f31": {
+      "id": "hc-f31",
+      "messageKey": "hc-f31"
+    },
+    "hc-f32": {
+      "id": "hc-f32",
+      "messageKey": "hc-f32"
+    },
+    "hc-f33": {
+      "id": "hc-f33",
+      "messageKey": "hc-f33"
+    },
+    "hc-f34": {
+      "id": "hc-f34",
+      "messageKey": "hc-f34"
+    },
+    "hc-f35": {
+      "id": "hc-f35",
+      "messageKey": "hc-f35"
+    },
+    "hc-f36": {
+      "id": "hc-f36",
+      "messageKey": "hc-f36"
+    },
+    "hc-f37": {
+      "id": "hc-f37",
+      "messageKey": "hc-f37"
+    },
+    "hc-f38": {
+      "id": "hc-f38",
+      "messageKey": "hc-f38"
+    },
+    "hc-f39": {
+      "id": "hc-f39",
+      "messageKey": "hc-f39"
+    },
+    "hc-f40": {
+      "id": "hc-f40",
+      "messageKey": "hc-f40"
+    },
+    "hc-f41": {
+      "id": "hc-f41",
+      "messageKey": "hc-f41"
+    },
+    "hc-f42": {
+      "id": "hc-f42",
+      "messageKey": "hc-f42"
+    }
+  },
+  "kind": "smart-form-package",
+  "policies": {
+    "allowVoiceQuestions": false,
+    "confirmationKey": "confirmation",
+    "draftExpiryDays": 30,
+    "guidanceMode": "text",
+    "narrationAutoplay": false,
+    "presentation": "grouped",
+    "responseAccess": "anonymous",
+    "retentionPolicyKey": "standard-intake",
+    "reviewBeforeSubmit": true,
+    "showProgress": true
+  },
+  "schemaVersion": "4.0.0",
+  "supportedLocales": [
+    "en",
+    "hi",
+    "ar"
+  ],
+  "theme": {
+    "themeKey": "accessible-default",
+    "tokens": {
+      "accent": "#175CD3",
+      "background": "#FFFFFF",
+      "density": "comfortable",
+      "fontFamily": "system",
+      "radius": 8,
+      "text": "#182230"
+    },
+    "version": "1.0.0"
+  },
+  "titleKey": "form.title",
+  "translations": {
+    "ar": {
+      "direction": "rtl",
+      "messages": {
+        "confirmation": "تم تسجيل الإرسال.",
+        "form.description": "أكمل الحقول المطلوبة.",
+        "form.title": "استبيان تجريبي",
+        "opt.hc.hc-f07.digestive": "Digestive",
+        "opt.hc.hc-f07.fatigue": "Fatigue",
+        "opt.hc.hc-f07.pain": "Pain",
+        "opt.hc.hc-f07.respiratory": "Respiratory",
+        "opt.hc.hc-f09.known-allergies": "Known allergies",
+        "opt.hc.hc-f09.no-known-allergies": "No known allergies",
+        "opt.hc.hc-f09.unknown": "Unknown",
+        "opt.hc.hc-f15.breathing": "Breathing",
+        "opt.hc.hc-f15.pain": "Pain",
+        "opt.hc.hc-f15.sleep": "Sleep",
+        "opt.hc.hc-f22.referral": "Referral",
+        "opt.hc.hc-f22.routine-follow-up": "Routine follow-up",
+        "opt.hc.hc-f22.urgent-review": "Urgent review",
+        "opt.hc.hc-f27.current": "Current",
+        "opt.hc.hc-f27.former": "Former",
+        "opt.hc.hc-f27.never": "Never",
+        "opt.hc.hc-f28.frequent": "Frequent",
+        "opt.hc.hc-f28.none": "None",
+        "opt.hc.hc-f28.occasional": "Occasional",
+        "opt.hc.hc-f29.follow-up-needed": "Follow-up needed",
+        "opt.hc.hc-f29.no-concern": "No concern",
+        "opt.hc.hc-f29.urgent-escalation": "Urgent escalation",
+        "opt.hc.hc-f31.guided": "Guided intake",
+        "opt.hc.hc-f31.summary": "History summary",
+        "page.intake": "الصفحة ١٩٣",
+        "page.review": "الصفحة ١٩٩",
+        "q.hc-f10-row": "row",
+        "q.hc-f10-row-value": "value",
+        "q.hc-f11-item": "item",
+        "q.hc-f11-item-l2": "level2",
+        "q.hc-f11-item-l2-item": "item",
+        "q.hc-f11-item-l2-item-l3": "level3",
+        "q.hc-f11-item-l2-item-l3-item": "item",
+        "q.hc-f11-item-l2-item-l3-item-note": "note",
+        "q.hc-f12-row": "row",
+        "q.hc-f12-row-value": "value",
+        "q.hc.f01": "السؤال ٢٣٠",
+        "q.hc.f02": "السؤال ٢٣١",
+        "q.hc.f03": "السؤال ٢٣٢",
+        "q.hc.f04": "السؤال ٢٣٣",
+        "q.hc.f05": "السؤال ٢٣٤",
+        "q.hc.f06": "السؤال ٢٣٥",
+        "q.hc.f07": "السؤال ٢٣٦",
+        "q.hc.f08": "السؤال ٢٣٧",
+        "q.hc.f09": "السؤال ٢٣٨",
+        "q.hc.f10": "السؤال ٢٣٩",
+        "q.hc.f11": "السؤال ٢٤٠",
+        "q.hc.f12": "السؤال ٢٤١",
+        "q.hc.f13": "السؤال ٢٤٢",
+        "q.hc.f14": "السؤال ٢٤٣",
+        "q.hc.f15": "السؤال ٢٤٤",
+        "q.hc.f16": "السؤال ٢٤٥",
+        "q.hc.f17": "السؤال ٢٤٦",
+        "q.hc.f18": "السؤال ٢٤٧",
+        "q.hc.f19": "السؤال ٢٤٨",
+        "q.hc.f20": "السؤال ٢٤٩",
+        "q.hc.f21": "السؤال ٢٥٠",
+        "q.hc.f22": "السؤال ٢٥١",
+        "q.hc.f23": "السؤال ٢٥٢",
+        "q.hc.f24": "السؤال ٢٥٣",
+        "q.hc.f25": "السؤال ٢٥٤",
+        "q.hc.f26": "السؤال ٢٥٥",
+        "q.hc.f27": "السؤال ٢٥٦",
+        "q.hc.f28": "السؤال ٢٥٧",
+        "q.hc.f29": "السؤال ٢٥٨",
+        "q.hc.f30": "السؤال ٢٥٩",
+        "q.hc.f31": "السؤال ٢٦٠",
+        "q.hc.f32": "السؤال ٢٦١",
+        "q.hc.f33": "السؤال ٢٦٢",
+        "q.hc.f34": "السؤال ٢٦٣",
+        "q.hc.f35": "السؤال ٢٦٤",
+        "q.hc.f36": "السؤال ٢٦٥",
+        "q.hc.f37": "السؤال ٢٦٦",
+        "q.hc.f38": "السؤال ٢٦٧",
+        "q.hc.f39": "السؤال ٢٦٨",
+        "q.hc.f40": "السؤال ٢٦٩",
+        "q.hc.f41": "السؤال ٢٧٠",
+        "q.hc.f42": "السؤال ٢٧١"
+      },
+      "pronunciations": [],
+      "reviewState": "pending-native-review"
+    },
+    "en": {
+      "direction": "ltr",
+      "messages": {
+        "confirmation": "Submission recorded.",
+        "form.description": "Complete the required fields.",
+        "form.title": "Synthetic intake",
+        "opt.hc.hc-f07.digestive": "digestive",
+        "opt.hc.hc-f07.fatigue": "fatigue",
+        "opt.hc.hc-f07.pain": "pain",
+        "opt.hc.hc-f07.respiratory": "respiratory",
+        "opt.hc.hc-f09.known-allergies": "known allergies",
+        "opt.hc.hc-f09.no-known-allergies": "no known allergies",
+        "opt.hc.hc-f09.unknown": "unknown",
+        "opt.hc.hc-f15.breathing": "breathing",
+        "opt.hc.hc-f15.pain": "pain",
+        "opt.hc.hc-f15.sleep": "sleep",
+        "opt.hc.hc-f22.referral": "referral",
+        "opt.hc.hc-f22.routine-follow-up": "routine follow up",
+        "opt.hc.hc-f22.urgent-review": "urgent review",
+        "opt.hc.hc-f27.current": "current",
+        "opt.hc.hc-f27.former": "former",
+        "opt.hc.hc-f27.never": "never",
+        "opt.hc.hc-f28.frequent": "frequent",
+        "opt.hc.hc-f28.none": "none",
+        "opt.hc.hc-f28.occasional": "occasional",
+        "opt.hc.hc-f29.follow-up-needed": "follow up needed",
+        "opt.hc.hc-f29.no-concern": "no concern",
+        "opt.hc.hc-f29.urgent-escalation": "urgent escalation",
+        "opt.hc.hc-f31.guided": "guided",
+        "opt.hc.hc-f31.summary": "summary",
+        "page.intake": "Intake",
+        "page.review": "Review",
+        "q.hc-f10-row": "row",
+        "q.hc-f10-row-value": "value",
+        "q.hc-f11-item": "item",
+        "q.hc-f11-item-l2": "level2",
+        "q.hc-f11-item-l2-item": "item",
+        "q.hc-f11-item-l2-item-l3": "level3",
+        "q.hc-f11-item-l2-item-l3-item": "item",
+        "q.hc-f11-item-l2-item-l3-item-note": "note",
+        "q.hc-f12-row": "row",
+        "q.hc-f12-row-value": "value",
+        "q.hc.f01": "Patient preferred name",
+        "q.hc.f02": "Date of birth",
+        "q.hc.f03": "Encounter start time",
+        "q.hc.f04": "Encounter timestamp",
+        "q.hc.f05": "Contact preference",
+        "q.hc.f06": "Consent to clinical intake",
+        "q.hc.f07": "Current symptom groups",
+        "q.hc.f08": "Symptom intensity today",
+        "q.hc.f09": "Allergy status",
+        "q.hc.f10": "Recorded allergies",
+        "q.hc.f11": "Medication plan and administrations",
+        "q.hc.f12": "Family health history",
+        "q.hc.f13": "Pregnancy-related care applies",
+        "q.hc.f14": "Expected delivery date",
+        "q.hc.f15": "Care priorities",
+        "q.hc.f16": "Height in metres",
+        "q.hc.f17": "Weight in kilograms",
+        "q.hc.f18": "Body mass index",
+        "q.hc.f19": "Blood pressure reading",
+        "q.hc.f20": "Pain score",
+        "q.hc.f21": "Temperature in Celsius",
+        "q.hc.f22": "Clinical assessment",
+        "q.hc.f23": "Clinician narrative",
+        "q.hc.f24": "Follow-up date",
+        "q.hc.f25": "Referral letter",
+        "q.hc.f26": "Symptom body map",
+        "q.hc.f27": "Tobacco use",
+        "q.hc.f28": "Alcohol use pattern",
+        "q.hc.f29": "Mood and safety check",
+        "q.hc.f30": "Safety follow-up detail",
+        "q.hc.f31": "Health-history entry mode",
+        "q.hc.f32": "History instructions",
+        "q.hc.f33": "Care coordinator name",
+        "q.hc.f34": "Preferred appointment window",
+        "q.hc.f35": "Emergency contact acknowledged",
+        "q.hc.f36": "Interpreter notes",
+        "q.hc.f37": "Medication adherence note",
+        "q.hc.f38": "Long-term condition summary",
+        "q.hc.f39": "Reviewed by patient",
+        "q.hc.f40": "Visit reference number",
+        "q.hc.f41": "Completion note",
+        "q.hc.f42": "Care plan acknowledgement"
+      },
+      "pronunciations": [],
+      "reviewState": "approved-prd-fixed-values"
+    },
+    "hi": {
+      "direction": "ltr",
+      "messages": {
+        "confirmation": "सबमिशन दर्ज हो गया।",
+        "form.description": "आवश्यक फ़ील्ड भरें।",
+        "form.title": "कृत्रिम विवरण",
+        "opt.hc.hc-f07.digestive": "digestive",
+        "opt.hc.hc-f07.fatigue": "fatigue",
+        "opt.hc.hc-f07.pain": "pain",
+        "opt.hc.hc-f07.respiratory": "respiratory",
+        "opt.hc.hc-f09.known-allergies": "known allergies",
+        "opt.hc.hc-f09.no-known-allergies": "no known allergies",
+        "opt.hc.hc-f09.unknown": "unknown",
+        "opt.hc.hc-f15.breathing": "breathing",
+        "opt.hc.hc-f15.pain": "pain",
+        "opt.hc.hc-f15.sleep": "sleep",
+        "opt.hc.hc-f22.referral": "referral",
+        "opt.hc.hc-f22.routine-follow-up": "routine follow up",
+        "opt.hc.hc-f22.urgent-review": "urgent review",
+        "opt.hc.hc-f27.current": "current",
+        "opt.hc.hc-f27.former": "former",
+        "opt.hc.hc-f27.never": "never",
+        "opt.hc.hc-f28.frequent": "frequent",
+        "opt.hc.hc-f28.none": "none",
+        "opt.hc.hc-f28.occasional": "occasional",
+        "opt.hc.hc-f29.follow-up-needed": "follow up needed",
+        "opt.hc.hc-f29.no-concern": "no concern",
+        "opt.hc.hc-f29.urgent-escalation": "urgent escalation",
+        "opt.hc.hc-f31.guided": "guided",
+        "opt.hc.hc-f31.summary": "summary",
+        "page.intake": "पृष्ठ १९३",
+        "page.review": "पृष्ठ १९९",
+        "q.hc-f10-row": "row",
+        "q.hc-f10-row-value": "value",
+        "q.hc-f11-item": "item",
+        "q.hc-f11-item-l2": "level2",
+        "q.hc-f11-item-l2-item": "item",
+        "q.hc-f11-item-l2-item-l3": "level3",
+        "q.hc-f11-item-l2-item-l3-item": "item",
+        "q.hc-f11-item-l2-item-l3-item-note": "note",
+        "q.hc-f12-row": "row",
+        "q.hc-f12-row-value": "value",
+        "q.hc.f01": "प्रश्न २३०",
+        "q.hc.f02": "प्रश्न २३१",
+        "q.hc.f03": "प्रश्न २३२",
+        "q.hc.f04": "प्रश्न २३३",
+        "q.hc.f05": "प्रश्न २३४",
+        "q.hc.f06": "प्रश्न २३५",
+        "q.hc.f07": "प्रश्न २३६",
+        "q.hc.f08": "प्रश्न २३७",
+        "q.hc.f09": "प्रश्न २३८",
+        "q.hc.f10": "प्रश्न २३९",
+        "q.hc.f11": "प्रश्न २४०",
+        "q.hc.f12": "प्रश्न २४१",
+        "q.hc.f13": "प्रश्न २४२",
+        "q.hc.f14": "प्रश्न २४३",
+        "q.hc.f15": "प्रश्न २४४",
+        "q.hc.f16": "प्रश्न २४५",
+        "q.hc.f17": "प्रश्न २४६",
+        "q.hc.f18": "प्रश्न २४७",
+        "q.hc.f19": "प्रश्न २४८",
+        "q.hc.f20": "प्रश्न २४९",
+        "q.hc.f21": "प्रश्न २५०",
+        "q.hc.f22": "प्रश्न २५१",
+        "q.hc.f23": "प्रश्न २५२",
+        "q.hc.f24": "प्रश्न २५३",
+        "q.hc.f25": "प्रश्न २५४",
+        "q.hc.f26": "प्रश्न २५५",
+        "q.hc.f27": "प्रश्न २५६",
+        "q.hc.f28": "प्रश्न २५७",
+        "q.hc.f29": "प्रश्न २५८",
+        "q.hc.f30": "प्रश्न २५९",
+        "q.hc.f31": "प्रश्न २६०",
+        "q.hc.f32": "प्रश्न २६१",
+        "q.hc.f33": "प्रश्न २६२",
+        "q.hc.f34": "प्रश्न २६३",
+        "q.hc.f35": "प्रश्न २६४",
+        "q.hc.f36": "प्रश्न २६५",
+        "q.hc.f37": "प्रश्न २६६",
+        "q.hc.f38": "प्रश्न २६७",
+        "q.hc.f39": "प्रश्न २६८",
+        "q.hc.f40": "प्रश्न २६९",
+        "q.hc.f41": "प्रश्न २७०",
+        "q.hc.f42": "प्रश्न २७१"
+      },
+      "pronunciations": [],
+      "reviewState": "pending-native-review"
+    }
+  }
+}

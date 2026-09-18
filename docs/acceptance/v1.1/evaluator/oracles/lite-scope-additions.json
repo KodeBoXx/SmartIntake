@@ -1,0 +1,446 @@
+{
+  "records": [
+    {
+      "assertionType": "oracle",
+      "evidenceLevel": "E2",
+      "expected": {
+        "setupModes": [
+          "temporary-password",
+          "normal-invitation"
+        ],
+        "verifyOrder": [
+          "without-email",
+          "with-configured-delivery"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T28",
+        "T29"
+      ],
+      "id": "EVAL-LSA-01",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1445",
+          "quote": "- Staff Add user supports temporary-password setup or a normal invitation. Verify both without email, then with configured delivery; accepting an invitation creates only the currently authorized offered membership. Normal sign-in works without SSO or actor/code-selection screens.",
+          "rangeSha256": "33d7044b754209d877d687836807b88b2a9b202e60a74ddb65e52f9a91a754e0",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Appendix C §8 freezes this expected outcome without reporting product execution.",
+      "requirements": [
+        "SF-AUTH-03",
+        "SF-AUTH-04",
+        "SF-AUTH-06"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "oracle",
+      "evidenceLevel": "E2",
+      "expected": {
+        "invitationAcceptanceCreates": "only the currently authorized offered membership",
+        "mustNotCreate": [
+          "additional memberships",
+          "respondent invitation"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T01",
+        "T28"
+      ],
+      "id": "EVAL-LSA-02",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1445",
+          "quote": "- Staff Add user supports temporary-password setup or a normal invitation. Verify both without email, then with configured delivery; accepting an invitation creates only the currently authorized offered membership. Normal sign-in works without SSO or actor/code-selection screens.",
+          "rangeSha256": "33d7044b754209d877d687836807b88b2a9b202e60a74ddb65e52f9a91a754e0",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Appendix C §8 freezes this expected outcome without reporting product execution.",
+      "requirements": [
+        "SF-AUTH-04",
+        "SF-ORG-05"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "oracle",
+      "evidenceLevel": "E2",
+      "expected": {
+        "normalSignInWithout": [
+          "SSO",
+          "actor-selection screen",
+          "code-selection screen"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T27"
+      ],
+      "id": "EVAL-LSA-03",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1445",
+          "quote": "- Staff Add user supports temporary-password setup or a normal invitation. Verify both without email, then with configured delivery; accepting an invitation creates only the currently authorized offered membership. Normal sign-in works without SSO or actor/code-selection screens.",
+          "rangeSha256": "33d7044b754209d877d687836807b88b2a9b202e60a74ddb65e52f9a91a754e0",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Appendix C §8 freezes this expected outcome without reporting product execution.",
+      "requirements": [
+        "SF-AUTH-01",
+        "SF-UI-01"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "oracle",
+      "evidenceLevel": "E2",
+      "expected": {
+        "absent": [
+          "per-form grant prerequisite",
+          "extra export-permission screen"
+        ],
+        "exporterWorkspaceA": "exports any A form",
+        "workspaceB": "denied unless separately granted export in B"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T18",
+        "T20"
+      ],
+      "id": "EVAL-LSA-04",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1446",
+          "quote": "- An exporter in workspace A exports any A form and is denied B unless separately granted export in B. There is no per-form grant prerequisite or extra export-permission screen.",
+          "rangeSha256": "70b570b58aac4cb17f4947f624c57d8b3b6cd918e5c03ed97eb5f64bae645356",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Appendix C §8 freezes this expected outcome without reporting product execution.",
+      "requirements": [
+        "SF-ADM-02",
+        "SF-SEC-01",
+        "SF-SEC-02"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "oracle",
+      "evidenceLevel": "E2",
+      "expected": {
+        "deduplication": "none (person or content)",
+        "independent": [
+          "form-wide closing windows",
+          "explicitly configured caps"
+        ],
+        "repeatedIdenticalFreshSubmissions": "distinct submitted responses and distinct export rows"
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T17",
+        "T18"
+      ],
+      "id": "EVAL-LSA-05",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1447",
+          "quote": "- Repeated fresh submissions with identical values are visible as distinct submitted responses and distinct export rows. No person/content deduplication is performed. Form-wide closing windows and explicitly configured caps remain independent.",
+          "rangeSha256": "3e9248af5b343b9b4bc3a70ba9e6071a7af89cf4e71a972c0844c58f7e7fdda2",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Appendix C §8 freezes this expected outcome without reporting product execution.",
+      "requirements": [
+        "SF-ADM-02",
+        "SF-RES-04"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "oracle",
+      "evidenceLevel": "E2",
+      "expected": {
+        "cases": [
+          "valid PDF",
+          "misleading MIME/type",
+          "rejected scan",
+          "unauthorized download"
+        ],
+        "outcomes": {
+          "misleading MIME/type": "not accepted as Ready",
+          "rejected scan": "required-file blocked",
+          "unauthorized download": "denied with no bearer URL",
+          "valid PDF": "Ready + authorized download"
+        },
+        "pdfFollowsSameRules": [
+          "scan",
+          "readiness",
+          "download"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T15"
+      ],
+      "id": "EVAL-LSA-06",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1448",
+          "quote": "- Ordinary PDF upload follows the same scan/readiness/download rules as other permitted files. Test a valid PDF, misleading MIME/type, rejected scan and unauthorized download.",
+          "rangeSha256": "8fbf42f2c1461b97bd4f42cd4ef827b5256ad51cb1ebd528cbc723b8a6e1c7e3",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Appendix C §8 freezes this expected outcome without reporting product execution.",
+      "requirements": [
+        "SF-API-05",
+        "SF-FLD-06",
+        "SF-SEC-06"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "oracle",
+      "evidenceLevel": "E2",
+      "expected": {
+        "mustNotExpose": [
+          "post-submission corrections",
+          "revision selection",
+          "private notes",
+          "assignments",
+          "tags",
+          "processing statuses"
+        ],
+        "supported": [
+          "listing",
+          "viewing answers/attachments",
+          "exporting"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T18"
+      ],
+      "id": "EVAL-LSA-07",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1449",
+          "quote": "- The response area supports listing, viewing answers/attachments and exporting only. It does not expose post-submission corrections, revision selection, private notes, assignments, tags or processing statuses.",
+          "rangeSha256": "1d58ba4655afc7edbe1ab0db4e2477a096c7607655f93d9379f5a6dc6f98526e",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Appendix C §8 freezes this expected outcome without reporting product execution.",
+      "requirements": [
+        "SF-ADM-01",
+        "SF-ADM-02"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "oracle",
+      "evidenceLevel": "E2",
+      "expected": {
+        "absentControls": [
+          "typed questions",
+          "separate Read help",
+          "answer dictation"
+        ],
+        "checks": [
+          "relevant field help asked from the page bar",
+          "approved exact answer text/audio",
+          "no-match",
+          "hidden-scope exclusion"
+        ],
+        "onMicrophoneOrProviderFailure": "normal manual form entry preserved",
+        "speechMayNotSet": [
+          "any field",
+          "acknowledgment"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T11"
+      ],
+      "id": "EVAL-LSA-08",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1450",
+          "quote": "- The compact voice test checks relevant field help asked from the page bar, approved exact answer text/audio, no-match and hidden-scope exclusion. Typed questions, separate Read help and answer dictation controls are absent. Microphone/provider failure preserves normal manual form entry; speech cannot set any field or acknowledgment.",
+          "rangeSha256": "e57e07cd916505d0082a255b55bf19fe53f6fbb75455808544127677d3453bc4",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Appendix C §8 freezes this expected outcome without reporting product execution.",
+      "requirements": [
+        "SF-GUD-02",
+        "SF-GUD-03",
+        "SF-GUD-04",
+        "SF-SEC-04"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "oracle",
+      "evidenceLevel": "E2",
+      "expected": {
+        "mustNotProduce": [
+          "saved scenario resources",
+          "live response side effects",
+          "live provider side effects"
+        ],
+        "previewRunsTemporaryInputCases": true,
+        "stillRequired": [
+          "test fixtures",
+          "development tests"
+        ]
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T03"
+      ],
+      "id": "EVAL-LSA-09",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1451",
+          "quote": "- Ordinary preview runs temporary input cases without saving scenario resources or generating live response/provider side effects. Test fixtures and development tests are still required.",
+          "rangeSha256": "16c8c654a19ee527e48d4ec554fdb3631703246828cd1b7584d62a0e790b6237",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Appendix C §8 freezes this expected outcome without reporting product execution.",
+      "requirements": [
+        "SF-AUT-06",
+        "SF-VAL-03"
+      ],
+      "status": "not-run"
+    },
+    {
+      "assertionType": "policy",
+      "evidenceLevel": "E2",
+      "expected": {
+        "everyOutcomeRequiresEvidence": true,
+        "outcomeVocabulary": [
+          "pass",
+          "fail",
+          "blocked",
+          "not-run"
+        ],
+        "protocolAuthoringExecutedNoProductTests": true
+      },
+      "expectedSource": "prd",
+      "fixtures": [
+        "T14"
+      ],
+      "id": "EVAL-LSA-POLICY",
+      "milestoneGates": [
+        "M8"
+      ],
+      "oracleProvenance": {
+        "mode": "independently-reviewed-interpretation",
+        "reviewId": "IR-LEGACY-SEMANTIC",
+        "reviewPath": "provenance/interpretation-review.json"
+      },
+      "prdCitations": [
+        {
+          "file": "PRD",
+          "lines": "1453",
+          "quote": "All observed outcomes must record pass/fail/blocked/not-run with evidence. No product tests were executed by writing this protocol.",
+          "rangeSha256": "1cc9392c1ed0289f8ab8cb4fadf4dde8a4c68ded0a28fa606f4a885891526d2b",
+          "sourceSha256": "6bb234273705e341ef1c401dd2a7f764b10d834bb95673b71e0f62e4aea2e41e"
+        }
+      ],
+      "rationale": "Appendix C §8 freezes this expected outcome without reporting product execution.",
+      "requirements": [
+        "SF-UX-01"
+      ],
+      "status": "not-run"
+    }
+  ]
+}
