@@ -11,6 +11,7 @@ From the repository root:
 
 ```bash
 python3 tools/acceptance/run_baseline.py \
+  --baseline-database-url jdbc:postgresql://localhost:5432/smartintake_baseline_YYYYMMDDTHHMMSSZ \
   --output docs/acceptance/v1.1/evidence/baselines/baseline-$(date -u +%Y%m%dT%H%M%SZ).json
 ```
 
@@ -18,12 +19,22 @@ Without `--output`, the JSON is written to stdout. `--now 2026-09-14T00:00:00Z`
 is available only to make fixture/unit-test output reproducible. It does not
 replace the real UTC observation time in retained evidence.
 
-The runner never starts, resets, or stops PostgreSQL. Start the repository
-service separately when an integrated baseline is intended:
+The caller must provision a disposable, credential-free PostgreSQL database whose
+name starts with `smartintake_baseline_`. The runner refuses the default
+`smartintake` database and the current application `DATABASE_URL`. The runner
+never creates, resets, drops, starts, or stops PostgreSQL. Maven, Flyway, and
+tests can mutate only the explicitly supplied disposable database. Start the
+repository service and create the disposable database separately when an
+integrated baseline is intended:
 
 ```bash
 docker compose up -d postgres
-python3 tools/acceptance/run_baseline.py --output docs/acceptance/v1.1/evidence/baselines/baseline.json
+docker compose exec postgres createdb -U smartintake smartintake_baseline_YYYYMMDDTHHMMSSZ
+python3 tools/acceptance/run_baseline.py \
+  --baseline-database-url jdbc:postgresql://localhost:5432/smartintake_baseline_YYYYMMDDTHHMMSSZ \
+  --output docs/acceptance/v1.1/evidence/baselines/baseline.json
+# After retaining the required evidence, the caller can remove the disposable database.
+docker compose exec postgres dropdb -U smartintake smartintake_baseline_YYYYMMDDTHHMMSSZ
 ```
 
 Use a retention-controlled evidence location for retained observations. Records
@@ -65,6 +76,7 @@ repository record:
 
 ```bash
 python3 tools/acceptance/run_baseline.py \
+  --baseline-database-url jdbc:postgresql://localhost:5432/smartintake_baseline_YYYYMMDDTHHMMSSZ \
   --output docs/acceptance/v1.1/evidence/baselines/baseline-final.json \
   --attestation-output docs/acceptance/v1.1/evidence/baselines/baseline-final.attestation.json \
   --attestation-status retained \
@@ -88,7 +100,7 @@ The baseline includes these bounded observations:
 | Observation | Denominator and boundary |
 | --- | --- |
 | Handoff integrity | 14 manifested files; integrity only. |
-| PostgreSQL / Maven / Flyway | PostgreSQL is checked without being started by the tool. Maven is `blocked` rather than skipped if it is unavailable, runs as `mvn -q clean test`, and only consumes reports from that attempt. V1--V4 are separately hashed; read-only Flyway history checks application only after Maven succeeds. |
+| PostgreSQL / Maven / Flyway | PostgreSQL is checked without being started by the tool. The caller-provisioned `smartintake_baseline_*` database is the only permitted mutation boundary; Maven, Flyway, and tests can modify it. The runner neither creates nor drops it and refuses the default/current application database. Maven is `blocked` rather than skipped if unavailable, runs as `mvn -q clean test`, and only consumes reports from that attempt. V1--V4 are separately hashed; Flyway history is read after Maven succeeds. |
 | Expression corpus | The conformance task is always `not-run` until all 101 vectors execute. It separately records the 34 selected IDs discovered in the source and 67 explicitly unexecuted vectors; discovery is not conformance. |
 | Frontend build/test | A build is compilation evidence only. `npm test` plus the Angular target configuration identifies a broken or missing test target; it never becomes a pass through a build. |
 | JSON Schema / OpenAPI | JSON parsing, optional Draft 2020-12 meta-schema compilation, and YAML parsing are separate. Missing validator tooling is `blocked`; absent pinned OpenAPI semantic validation is `not-run`, never inferred from YAML syntax. |
