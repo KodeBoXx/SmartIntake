@@ -70,6 +70,13 @@ application until the transaction below has committed and its post-checks pass.
    target database, including `compatibility_profiles`,
    `record_migration_state`, and `compatibility_quarantine_evidence`; the SQL
    below intentionally removes those M1 interpretation records.
+   Before continuing, the responsible change owner must explicitly approve the
+   invalidation or expiry of every active M1 bearer session identified by the
+   preflight. An M1 bearer digest differs from the retained V3 token digest;
+   dropping `respondent_secret_sha256` would otherwise strand that session on
+   the older binary. There is no bypass: invalidate those sessions through the
+   approved operational process (or wait for their expiry), record the approval,
+   and rerun the preflight.
 2. Run the preflight transaction below with a role permitted to lock and alter
    these tables. It fails closed for an incomplete/failed V5--V7 application or
    for any later successful migration. Do not substitute `CASCADE`, disable
@@ -97,13 +104,33 @@ begin
   if exists (select 1 from flyway_schema_history where not success) then
     raise exception 'Rollback refused: Flyway history contains a failed migration';
   end if;
-  if (select count(*) from flyway_schema_history
-      where version in ('5', '6', '7') and success) <> 3 then
-    raise exception 'Rollback refused: expected successful V5, V6, and V7';
+  if exists (
+      select 1
+      from flyway_schema_history
+      where success
+        and not coalesce(
+          (version = '1' and type = 'SQL' and script = 'V1__smart_intake.sql' and checksum = 1285295916)
+          or (version = '2' and type = 'SQL' and script = 'V2__identity_workspaces_and_release_binding.sql' and checksum = -906896927)
+          or (version = '3' and type = 'SQL' and script = 'V3__respondent_session_secret.sql' and checksum = -549079748)
+          or (version = '4' and type = 'SQL' and script = 'V4__session_mutation_replay.sql' and checksum = -758059602)
+          or (version = '5' and type = 'SQL' and script = 'V5__compatibility_profiles_and_reconciliation_state.sql' and checksum = 125753238)
+          or (version = '6' and type = 'SQL' and script = 'V6__compatibility_reconciliation_indexes.sql' and checksum = -848544773)
+          or (version = '7' and type = 'SQL' and script = 'V7__m1_current_profile_and_submission_uniqueness.sql' and checksum = -648692813),
+          false)
+  )
+  or (select count(*) from flyway_schema_history where success) <> 7
+  or (select count(distinct (version, type, script, checksum))
+      from flyway_schema_history where success) <> 7 then
+    raise exception 'Rollback refused: successful Flyway history is not the exact V1-V7 SQL allowlist';
   end if;
-  if exists (select 1 from flyway_schema_history
-             where success and version ~ '^[0-9]+$' and version::integer > 7) then
-    raise exception 'Rollback refused: a migration later than V7 is installed';
+  if exists (
+      select 1
+      from sessions
+      where expires_at > transaction_timestamp()
+        and respondent_secret_sha256 is not null
+        and respondent_secret_sha256 <> encode(digest(respondent_token::text, 'sha256'), 'hex')
+  ) then
+    raise exception 'Rollback refused: active M1 bearer sessions require approved invalidation or expiry';
   end if;
   if not exists (select 1 from pg_constraint
                  where conrelid = 'submissions'::regclass

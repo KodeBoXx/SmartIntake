@@ -1,6 +1,6 @@
 # M1 delivery status
 
-Recorded: 2026-09-16
+Recorded: 2026-09-18
 
 M1 establishes additive compatibility and modular boundaries while preserving M0 as provisional and unaccepted. It does not claim M0 evidence, signature, baseline, or product acceptance.
 
@@ -14,7 +14,8 @@ M1 establishes additive compatibility and modular boundaries while preserving M0
 - Persists a SHA-256 digest of a newly returned bearer secret while retaining a distinct, unreturned V3 compatibility placeholder; acknowledged V3-only sessions lazily backfill only a null digest after their retained token first matches.
 - Split the monolithic Spring controller into focused web controllers with application, authorization, audit-persistence, and compatibility seams while preserving current routes and response behavior.
 - Split the Angular root into typed models, pure state/rule helpers, an HTTP facade, and a bounded toolbar component while preserving the current UI journeys; response administration remains in the parent view after live testing exposed unreliable event propagation across its extracted boundary.
-- Completed the local usable flow: a stored staff session is validated and recovered through bootstrap/sign-in when expired, the authoritative default draft rehydrates after authentication, draft save persists the in-memory definition with revision preconditions, imports reload canonical draft state, and publish serializes any dirty draft save before release creation.
+- Completed the local usable flow: a stored staff session is validated and recovered through bootstrap/sign-in when expired, and authoring remains fail-closed until form-list lookup and authoritative default-draft rehydration complete. An existing-form draft lookup failure stays blocked with visible retry rather than creating a duplicate. Draft save persists the in-memory definition with revision preconditions, imports reload canonical draft state, and authoring controls and mutation helpers lock during save/publish serialization so the published bytes cannot be superseded by an in-flight edit.
+- Response-detail selection tracks request generation, so a delayed older success or failure cannot replace or clear the most recently selected detail; closing or reloading response administration invalidates pending detail requests.
 - Fixed the existing CSV export query ambiguity and malformed header line ending; CSV export now returns a valid workspace-scoped response with formula-safe cells.
 
 ## Characterization evidence
@@ -34,7 +35,7 @@ The 21 observational `N_current` surfaces are covered as follows:
 Latest local results:
 
 - Backend: 31 route, compatibility, transactional concurrency, contract, and real closed-context restart tests passed with no failures, errors, or skips.
-- Frontend: focused Angular journey, HTTP-contract, toolbar, and responsive response-administration tests passed; production build passed.
+- Frontend: 28 focused Angular journey, HTTP-contract, toolbar, rehydration/serialization, and responsive response-administration tests passed; production build passed.
 - Live lifecycle: create → publish → start session → mutation → exact replay → submit → CSV export passed; the created session stored a 64-character secret digest.
 - Historical public preview check: frontend and proxied API returned HTTP 200 and author/public-preview screens rendered. This is developer verification only and does not claim fresh browser or acceptance evidence.
 

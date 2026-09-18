@@ -58,13 +58,20 @@ describe('AppToolbarComponent', () => {
     expect(responseAdmin).toHaveBeenCalledOnce();
   });
 
-  it('disables publishing while the parent reports an unsafe draft operation', () => {
+  it('disables save, publish, and definition import while the parent reports an unsafe draft operation', () => {
     const fixture: ComponentFixture<AppToolbarComponent> = TestBed.createComponent(AppToolbarComponent);
+    fixture.componentRef.setInput('saveDisabled', true);
     fixture.componentRef.setInput('publishDisabled', true);
+    fixture.componentRef.setInput('importDisabled', true);
     fixture.detectChanges();
 
+    const save = [...fixture.nativeElement.querySelectorAll('button')]
+      .find((button) => button.textContent?.trim() === 'Save draft') as HTMLButtonElement;
     const publish = [...fixture.nativeElement.querySelectorAll('button')]
       .find((button) => button.textContent?.trim() === 'Publish') as HTMLButtonElement;
+    const importInput = fixture.nativeElement.querySelector('input[type="file"]') as HTMLInputElement;
+    expect(save.disabled).toBe(true);
     expect(publish.disabled).toBe(true);
+    expect(importInput.disabled).toBe(true);
   });
 });

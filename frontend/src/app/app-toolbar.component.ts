@@ -6,17 +6,19 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   template: `
     <button class="pill" (click)="author.emit()">Author</button>
     <button class="pill" (click)="preview.emit()">Public preview</button>
-    <button class="pill" (click)="save.emit()">Save draft</button>
+    <button class="pill" [disabled]="saveDisabled" (click)="save.emit()">Save draft</button>
     <button class="pill" [disabled]="publishDisabled" (click)="publish.emit()">Publish</button>
     <button class="pill" (click)="definitionExport.emit()">Export definition</button>
-    <label class="pill">Import definition<input type="file" accept="application/json" hidden (change)="definitionImport.emit($event)"></label>
+    <label class="pill">Import definition<input type="file" accept="application/json" hidden [disabled]="importDisabled" (change)="definitionImport.emit($event)"></label>
     <button class="pill" (click)="responsesExport.emit()">Export responses</button>
     <button class="pill" (click)="responseAdmin.emit()">Response admin</button>
   `,
 })
 export class AppToolbarComponent {
   @Input() staffToken = '';
+  @Input() saveDisabled = false;
   @Input() publishDisabled = false;
+  @Input() importDisabled = false;
   @Output() author = new EventEmitter<void>();
   @Output() preview = new EventEmitter<void>();
   @Output() save = new EventEmitter<void>();

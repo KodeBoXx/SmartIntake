@@ -41,6 +41,18 @@ class DatabaseCompatibilityIntegrationTests {
               "cfb30d4fbddab1bff009d1901956803871bdcdc7858f881dcadc2390fc6b55d1",
           "V4__session_mutation_replay.sql",
               "d535f190c37efdc29f74b51815cdfad8e1f525fddbea27fb3e805e5c0cf1754f");
+  private static final List<FlywayHistory> ROLLBACK_FLYWAY_ALLOWLIST =
+      List.of(
+          new FlywayHistory("1", "SQL", "V1__smart_intake.sql", 1285295916),
+          new FlywayHistory(
+              "2", "SQL", "V2__identity_workspaces_and_release_binding.sql", -906896927),
+          new FlywayHistory("3", "SQL", "V3__respondent_session_secret.sql", -549079748),
+          new FlywayHistory("4", "SQL", "V4__session_mutation_replay.sql", -758059602),
+          new FlywayHistory(
+              "5", "SQL", "V5__compatibility_profiles_and_reconciliation_state.sql", 125753238),
+          new FlywayHistory("6", "SQL", "V6__compatibility_reconciliation_indexes.sql", -848544773),
+          new FlywayHistory(
+              "7", "SQL", "V7__m1_current_profile_and_submission_uniqueness.sql", -648692813));
 
   @Autowired JdbcTemplate db;
   @Autowired CompatibilityReconciliationService reconciliation;
@@ -60,6 +72,21 @@ class DatabaseCompatibilityIntegrationTests {
                 .formatHex(MessageDigest.getInstance("SHA-256").digest(input.readAllBytes())));
       }
     }
+  }
+
+  @Test
+  void rollback_preflight_allowlist_matches_successful_flyway_history() {
+    assertEquals(
+        ROLLBACK_FLYWAY_ALLOWLIST,
+        db.query(
+            "select version,type,script,checksum from flyway_schema_history where success"
+                + " order by installed_rank",
+            (rs, rowNum) ->
+                new FlywayHistory(
+                    rs.getString("version"),
+                    rs.getString("type"),
+                    rs.getString("script"),
+                    rs.getInt("checksum"))));
   }
 
   @Test
@@ -855,4 +882,6 @@ class DatabaseCompatibilityIntegrationTests {
   private static String validDefinition() {
     return "{\"contractVersion\":\"4.0.0\",\"formKey\":\"legacy\",\"title\":\"Legacy\",\"pages\":[{\"id\":\"page\",\"title\":\"Page\",\"fields\":[]}]}";
   }
+
+  private record FlywayHistory(String version, String type, String script, int checksum) {}
 }
