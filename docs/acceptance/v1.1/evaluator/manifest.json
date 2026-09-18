@@ -2,11 +2,11 @@
   "artifacts": [
     {
       "path": "README.md",
-      "sha256": "d4558dd90b2168f7874de6fbd7c570f460a009b7f5bb81d7c95ef1663e8f0a44"
+      "sha256": "a33ff83e011e70b2013e7f9ce78faf4028a6f8ebaae2a461e20c474bbfd04f55"
     },
     {
       "path": "assets/priority_asset_selfcheck.py",
-      "sha256": "c95462e4219c6621c2f5e22bddb0333aa68c16b5869159c5d34bf30887afcb0f"
+      "sha256": "3d1a5634f32d64a740486a7a927a0a6bc2d1b156d24f44f1be16bb8114270238"
     },
     {
       "path": "assets/t08-validation-errors.json",
@@ -22,11 +22,11 @@
     },
     {
       "path": "assets/t22-scale-limits.json",
-      "sha256": "e73cdcbca9227bb747a6660ee0b45b07db82f927a25c9b4c1adacdbfabc690c2"
+      "sha256": "82e8df1b083c462758c018e18ed512eee0e26c9f16384c3d3482f1e9e5c365a6"
     },
     {
       "path": "assets/t22_browser_discovery_probe.py",
-      "sha256": "230e9061eff59895286d11d1f2ee3d2100320df6856395b9a0bda8afb4d4c9d2"
+      "sha256": "bd62401febdc93ead55dce6a60b9d616a6619c23f87a20999385d6264533047c"
     },
     {
       "path": "assets/t22_dataset_generator.py",
@@ -38,7 +38,7 @@
     },
     {
       "path": "assets/t22_workload_runner.py",
-      "sha256": "c39f57ad112b9d90a01eb862100fe3fcee31aa0103fb060b2cecb2625d43f018"
+      "sha256": "20999eec9de49b88678626fa104bdb1d8d202b61eb8eec550fe60d6c4e3c3267"
     },
     {
       "path": "assets/t25-usability-protocol.json",
@@ -94,7 +94,7 @@
     },
     {
       "path": "fixtures/t17-t24.json",
-      "sha256": "32fe6ef63ad4fa9f399dff035a2cce511130545ebcff37f1917d3737e37355e5"
+      "sha256": "de37fd0355cb05bb1f011348d20e04742f26d36f3eb01d1373e558fc44ca7275"
     },
     {
       "path": "fixtures/t25-t32.json",
@@ -218,7 +218,7 @@
     },
     {
       "path": "tools/validate_corpus.py",
-      "sha256": "9c12322dc805f13e16522a37754f418277f6188235e651f2bdca5180de3aae96"
+      "sha256": "66028c5cc299ed1b4e0f57a71b20ee63aa2e07e1031a0bd934d3880fe3bcdd8a"
     }
   ],
   "attestationState": "unsigned; no reviewer, signature, product-conformance, fixture-execution, or M0-exit claim",
@@ -255,7 +255,7 @@
   ],
   "branch": "vorflux/m0-acceptance-foundation",
   "candidateSha": "66e96756d3e7d00c60e8d974b34a113b9ca60586",
-  "corpusDigest": "f68366b5dc00f0c68ac741c87c970fb83e50489d6802280239c0f12e8ac5db99",
+  "corpusDigest": "dcec91d8f8f6d05b4e948a842eb95974dceebdebec3162589bd3b538d529ba1a",
   "corpusName": "Smart Form Builder Lite v1.1 independent evaluator corpus",
   "corpusVersion": "2.4.21-m0",
   "crossScopeRefs": {
@@ -295,7 +295,7 @@
     "algorithm": "SHA-256",
     "computedBy": "validate_corpus.canonical_manifest_digest",
     "normalization": "canonical JSON (sort_keys, UTF-8, trailing LF); normalize signature.value, signature.payloadDigest, and preSignatureManifestDigest.storedValue to null",
-    "storedValue": "5740d0e75d8a6114f58ba9d365853bf170668864f515c6e403e3d1f57eab5961"
+    "storedValue": "5a16106d7f74b12d4793b7da065fbd82e7e59ba510a63affb105c629916363f7"
   },
   "provenanceSummary": {
     "booleanAndNullCitationProhibited": true,
@@ -404,5 +404,8 @@
     "schemasGenerated": false,
     "sentinelsSealed": false,
     "statement": "This corpus states expected outcomes only. No measured conformance run has been executed and no result in this tree may be read as evidence about the implementation."
+  },
+  "evidenceSemantics": {
+    "t22ProviderHttp": "urllib provides parsed status/header fields. T22 retains canonicalized parsed status/header fields and original response-body bytes; it does not claim original HTTP status-line/header-byte capture."
   }
 }

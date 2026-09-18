@@ -53,13 +53,17 @@ class FakeExecutor:
 class BaselineRecordTests(unittest.TestCase):
     def setUp(self):
         self.root = Path(__file__).resolve().parents[2]
+        self.database_url = "jdbc:postgresql://localhost:5432/smartintake_baseline_test"
+
+    def build_record(self, executor=None, root=None):
+        return baseline.build_record(root or self.root, executor or FakeExecutor(), "2026-09-14T00:00:00Z", self.database_url)
 
     def task_by_id(self, record, identifier):
         return next(item for item in record["tasks"] if item["id"] == identifier)
 
     def test_complete_record_is_non_acceptance_and_has_fixed_attempt_policy(self):
         fake = FakeExecutor()
-        record = baseline.build_record(self.root, fake, "2026-09-14T00:00:00Z")
+        record = self.build_record(fake)
         baseline.validate_record(record)
 
         self.assertEqual("m0-baseline-observation", record["recordType"])
@@ -69,7 +73,8 @@ class BaselineRecordTests(unittest.TestCase):
         self.assertTrue(all(not task["acceptance"]["countsTowardAcceptance"] for task in record["tasks"]))
         self.assertTrue(all(attempt["number"] == 1 and not attempt["retried"]
                             for task in record["tasks"] for attempt in task["attempts"]))
-        self.assertIn(("mvn", "-q", "clean", "test"), fake.commands)
+        self.assertIn(("mvn", "-q", "clean", "test", f"-Dspring.datasource.url={self.database_url}"), fake.commands)
+        self.assertIn("caller-provisioned disposable PostgreSQL database 'smartintake_baseline_test'", record["executionPolicy"]["mutationBoundary"])
         self.assertTrue(record["recordValidation"]["valid"])
         self.assertIn(record["recordValidation"]["mode"], {"full-jsonschema", "structural-fallback"})
 
@@ -86,7 +91,7 @@ class BaselineRecordTests(unittest.TestCase):
 
     def test_postgres_block_is_distinct_and_prevents_maven_execution(self):
         fake = FakeExecutor(postgres_running=False)
-        record = baseline.build_record(self.root, fake, "2026-09-14T00:00:00Z")
+        record = self.build_record(fake)
         prerequisite = self.task_by_id(record, "postgres-prerequisite")
         backend = self.task_by_id(record, "backend-maven-tests")
         flyway = self.task_by_id(record, "flyway-migration-application")
@@ -96,7 +101,32 @@ class BaselineRecordTests(unittest.TestCase):
         self.assertFalse(backend["attempts"][0]["executed"])
         self.assertEqual("not-run", backend["attempts"][0]["result"])
         self.assertEqual("blocked", flyway["status"])
-        self.assertNotIn(("mvn", "-q", "clean", "test"), fake.commands)
+        self.assertNotIn(("mvn", "-q", "clean", "test", f"-Dspring.datasource.url={self.database_url}"), fake.commands)
+
+    def test_baseline_database_is_explicit_disposable_and_fail_closed_before_any_command(self):
+        for url, message in (
+            (None, "explicit --baseline-database-url"),
+            ("jdbc:postgresql://localhost:5432/smartintake", "default or current application database"),
+            ("jdbc:postgresql://localhost:5432/smartintake_shared", "must start with"),
+            ("jdbc:postgresql://user:password@localhost:5432/smartintake_baseline_test", "credential-free"),
+        ):
+            with self.subTest(url=url):
+                fake = FakeExecutor()
+                with self.assertRaisesRegex(ValueError, message):
+                    baseline.build_record(self.root, fake, "2026-09-14T00:00:00Z", url)
+                self.assertEqual([], fake.commands)
+
+    def test_baseline_database_refuses_the_current_application_database(self):
+        original = os.environ.get("DATABASE_URL")
+        os.environ["DATABASE_URL"] = self.database_url
+        try:
+            with self.assertRaisesRegex(ValueError, "default or current application database"):
+                baseline.baseline_database(self.database_url)
+        finally:
+            if original is None:
+                os.environ.pop("DATABASE_URL", None)
+            else:
+                os.environ["DATABASE_URL"] = original
 
     def test_output_summary_redacts_headers_uri_credentials_and_is_bounded(self):
         result = baseline.CommandResult(("example",), 1, "\n".join((
@@ -140,21 +170,26 @@ class BaselineRecordTests(unittest.TestCase):
             report.parent.mkdir(parents=True)
             report.write_text('<testsuite tests="9" failures="0" errors="0" skipped="0"/>', encoding="utf-8")
             os.utime(report, (0, 0))
-            backend, passed = baseline.backend_task(root, FakeExecutor(), "2026-09-14T00:00:00Z", postgres_ready=True)
+            backend, passed = baseline.backend_task(root, FakeExecutor(), "2026-09-14T00:00:00Z", postgres_ready=True, database=baseline.baseline_database(self.database_url))
         self.assertFalse(passed)
         self.assertEqual("blocked", backend["status"])
         self.assertEqual("not-run: mtime/attempt-window skew", backend["denominator"]["reportEvidence"])
         self.assertEqual("pass", backend["attempts"][0]["result"])
 
     def test_structural_validation_rejects_acceptance_and_schema_metadata_drift(self):
-        record = baseline.build_record(self.root, FakeExecutor(), "2026-09-14T00:00:00Z")
+        record = self.build_record()
         record["tasks"][0]["acceptance"]["countsTowardAcceptance"] = True
         with self.assertRaisesRegex(ValueError, "may not count toward acceptance"):
             baseline.validate_record(record, self.root)
 
-        record = baseline.build_record(self.root, FakeExecutor(), "2026-09-14T00:00:00Z")
+        record = self.build_record()
         record["acceptanceBoundary"] = "This record grants acceptance."
         with self.assertRaisesRegex(ValueError, "acceptance boundary"):
+            baseline.validate_record(record, self.root)
+
+        record = self.build_record()
+        record["executionPolicy"]["mutationBoundary"] = "Maven may use any database."
+        with self.assertRaisesRegex(ValueError, "mutation boundary"):
             baseline.validate_record(record, self.root)
 
         with tempfile.TemporaryDirectory() as directory:
@@ -172,7 +207,7 @@ class BaselineRecordTests(unittest.TestCase):
             import jsonschema
         except ImportError:
             self.skipTest("jsonschema is not installed")
-        record = baseline.build_record(self.root, FakeExecutor(), "2026-09-14T00:00:00Z")
+        record = self.build_record()
         record_schema = json.loads((self.root / baseline.EVIDENCE_SCHEMA).read_text(encoding="utf-8"))
         with self.assertRaises(jsonschema.ValidationError):
             jsonschema.validate(dict(record, acceptanceBoundary="This record grants acceptance."), record_schema)
@@ -194,7 +229,7 @@ class BaselineRecordTests(unittest.TestCase):
             jsonschema.validate(attestation, attestation_schema)
 
     def test_dependency_free_attestation_validation_rejects_positive_boundary(self):
-        record = baseline.build_record(self.root, FakeExecutor(), "2026-09-14T00:00:00Z")
+        record = self.build_record()
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             for schema_path in (baseline.EVIDENCE_SCHEMA, baseline.ATTESTATION_SCHEMA):
@@ -210,7 +245,7 @@ class BaselineRecordTests(unittest.TestCase):
                 baseline.validate_attestation(attestation, root, {attestation["recordLocation"]: record_path.resolve()})
 
     def test_attestation_binds_retained_record_digest_and_provisional_status(self):
-        record = baseline.build_record(self.root, FakeExecutor(), "2026-09-14T00:00:00Z")
+        record = self.build_record()
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             record_path = root / "docs/acceptance/v1.1/evidence/baselines/baseline.json"
@@ -237,7 +272,7 @@ class BaselineRecordTests(unittest.TestCase):
                     jsonschema.validate(invalid, schema)
 
     def test_attestation_rejects_records_outside_repository_root(self):
-        record = baseline.build_record(self.root, FakeExecutor(), "2026-09-14T00:00:00Z")
+        record = self.build_record()
         with tempfile.TemporaryDirectory() as repository, tempfile.TemporaryDirectory() as external:
             (Path(repository) / baseline.BASELINES_DIRECTORY).mkdir(parents=True)
             external_record = Path(external) / "baseline.json"
@@ -261,7 +296,7 @@ class BaselineRecordTests(unittest.TestCase):
             root = Path(directory)
             baseline_dir = root / baseline.BASELINES_DIRECTORY
             baseline_dir.mkdir(parents=True)
-            record = baseline.build_record(self.root, FakeExecutor(), "2026-09-14T00:00:00Z")
+            record = self.build_record()
             target = baseline_dir / "baseline.json"
             target.write_text(json.dumps(record), encoding="utf-8")
             (baseline_dir / "duplicate.json").symlink_to(target.name)
@@ -269,7 +304,7 @@ class BaselineRecordTests(unittest.TestCase):
                 baseline.validate_retained_baselines(root)
 
     def test_retained_baseline_requires_clean_final_sibling_attestation(self):
-        record = baseline.build_record(self.root, FakeExecutor(), "2026-09-14T00:00:00Z")
+        record = self.build_record()
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             for schema_path in (baseline.EVIDENCE_SCHEMA, baseline.ATTESTATION_SCHEMA):
@@ -299,7 +334,7 @@ class BaselineRecordTests(unittest.TestCase):
                     destination = root / schema_path
                     destination.parent.mkdir(parents=True, exist_ok=True)
                     destination.write_bytes((self.root / schema_path).read_bytes())
-                record = baseline.build_record(self.root, FakeExecutor(), "2026-09-14T00:00:00Z")
+                record = self.build_record()
                 record_path = root / baseline.BASELINES_DIRECTORY / "baseline.json"
                 record_path.parent.mkdir(parents=True)
                 record_path.write_text(json.dumps(record, sort_keys=True), encoding="utf-8")

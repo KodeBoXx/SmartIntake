@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Pinned T22 browser-session acquisition probe.
 
-The evaluator selects the matrix slot.  This probe creates one persistent W3C
-WebDriver/Appium session, returns the complete create-session response and the
-provider-bound session/device identity, and deliberately does not delete it.
-The runner owns deletion after browser instrumentation completes.
+The evaluator selects the matrix slot. This probe creates one persistent W3C
+WebDriver/Appium session, records a minimal cleanup lease before emitting its
+result, then returns the parsed provider response and bound session/device
+identity. The runner owns deletion after browser instrumentation completes;
+the lease lets it close a session if output parsing or validation fails.
 """
 from __future__ import annotations
 import argparse, base64, hashlib, json, os, re, shutil, subprocess, sys, urllib.error, urllib.request
@@ -56,15 +57,16 @@ def raw_http(request):
    body=response.read(); status=response.status; headers=response.getheaders()
  except urllib.error.HTTPError as error:
   body=error.read(); status=error.code; headers=error.headers.items()
- # urllib exposes header fields as decoded ISO-8859-1 values.  Preserve the
- # exact octets it received for every field before parsing any provider JSON.
+ # urllib exposes a parsed status and decoded ISO-8859-1 header fields, not
+ # original status-line/header bytes. Retain a canonical re-encoding of those
+ # parsed fields and the original response body before parsing provider JSON.
  header_bytes=b''.join(name.encode('iso-8859-1')+b': '+value.encode('iso-8859-1')+b'\r\n' for name,value in headers)
  return {'status':status,'headersBase64':base64.b64encode(header_bytes).decode(),'headersSha256':hashlib.sha256(header_bytes).hexdigest(),'bodyBase64':base64.b64encode(body).decode(),'bodySha256':hashlib.sha256(body).hexdigest()}
 def decoded_http(record,label):
- if not isinstance(record,dict) or set(record)!={'status','headersBase64','headersSha256','bodyBase64','bodySha256'}: fail(label+' raw HTTP record is malformed')
+ if not isinstance(record,dict) or set(record)!={'status','headersBase64','headersSha256','bodyBase64','bodySha256'}: fail(label+' canonical HTTP evidence is malformed')
  try: body=base64.b64decode(record['bodyBase64'],validate=True); headers=base64.b64decode(record['headersBase64'],validate=True)
- except Exception as error: raise RuntimeError(label+' raw HTTP record is not base64') from error
- if hashlib.sha256(body).hexdigest()!=record['bodySha256'] or hashlib.sha256(headers).hexdigest()!=record['headersSha256']: fail(label+' raw HTTP digest differs')
+ except Exception as error: raise RuntimeError(label+' canonical HTTP evidence is not base64') from error
+ if hashlib.sha256(body).hexdigest()!=record['bodySha256'] or hashlib.sha256(headers).hexdigest()!=record['headersSha256']: fail(label+' canonical HTTP evidence digest differs')
  if not isinstance(record['status'],int): fail(label+' HTTP status is invalid')
  return strict(body,label)
 def native(config,device_id,browser):
@@ -106,8 +108,13 @@ def close(browser):
  request=urllib.request.Request(browser['endpointUrl'].rstrip()+'/session/'+session,method='DELETE')
  try: raw_http(request)
  except Exception: pass
+def write_lease(path,config,browser,device_id):
+ binding={'sessionId':browser['providerResponse']['value']['sessionId'],'deviceId':device_id,'endpointUrl':browser['endpointUrl'],'endpointAuthority':browser['endpointAuthority']}
+ document={'configId':config['id'],'sessionBinding':binding}
+ target=Path(path); target.parent.mkdir(parents=True,exist_ok=True); temporary=target.with_suffix(target.suffix+'.tmp')
+ temporary.write_bytes(json.dumps(document,separators=(',',':'),ensure_ascii=False,allow_nan=False).encode()); temporary.replace(target)
 def main():
- parser=argparse.ArgumentParser();parser.add_argument('--config-id',required=True);parser.add_argument('--selfcheck-fixtures',help=argparse.SUPPRESS);args=parser.parse_args()
+ parser=argparse.ArgumentParser();parser.add_argument('--config-id',required=True);parser.add_argument('--lease-output',required=True);parser.add_argument('--selfcheck-fixtures',help=argparse.SUPPRESS);args=parser.parse_args()
  global SELF_CHECK_FIXTURES
  if args.selfcheck_fixtures:
   SELF_CHECK_FIXTURES=strict(Path(args.selfcheck_fixtures).read_bytes(),'self-check fixtures')
@@ -119,10 +126,11 @@ def main():
   if not isinstance(device_id,str) or not device_id:fail('provider omitted frozen device/UDID capability')
   result={'browserSource':browser}
   if rule['accessibilitySourceKind']=='native-version-command':result['accessibilitySource']=native(config,device_id,browser)
+  write_lease(args.lease_output,config,browser,device_id)
   sys.stdout.buffer.write(json.dumps(result,separators=(',',':'),ensure_ascii=False,allow_nan=False).encode()); handed_off=True
  finally:
-  # If a partially discovered slot cannot be handed to the runner, the probe
-  # owns and closes it; successful slots transfer ownership to the runner.
+  # Before the lease is written, the probe owns the session. Once the lease is
+  # written, the runner can close it even when stdout cannot be parsed.
   if browser is not None and not handed_off: close(browser)
 if __name__=='__main__':
  try:main()

@@ -12,6 +12,7 @@ import hashlib
 import json
 import os
 import stat
+import subprocess
 import warnings
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -240,11 +241,11 @@ def check_t22(deep=True):
         fail("T22 stale/invalid handle delta was accepted")
     require(p["generatorTool"]["version"] == "t22-dataset/v3" and p["runnerTool"]["version"] == "t22-runner/v6", "T22 pinned code versions")
     probe=p.get("browserDiscoveryProbe", {})
-    require(probe.get("schemaVersion") == "t22-browser-discovery-probe/v3" and probe.get("ownedProbe", {}).get("repoRelativePath") == "assets/t22_browser_discovery_probe.py" and probe.get("ownedProbe", {}).get("invocation") == ["{ownedProbePath}", "--config-id", "{configId}"] and probe.get("ownedProbe", {}).get("mode") == 755, "T22 frozen evaluator-owned browser probe contract")
+    require(probe.get("schemaVersion") == "t22-browser-discovery-probe/v3" and probe.get("ownedProbe", {}).get("repoRelativePath") == "assets/t22_browser_discovery_probe.py" and probe.get("ownedProbe", {}).get("invocation") == ["{ownedProbePath}", "--config-id", "{configId}", "--lease-output", "{leaseOutput}"] and probe.get("ownedProbe", {}).get("mode") == 755, "T22 frozen evaluator-owned browser probe contract")
     owned_probe = ROOT / "t22_browser_discovery_probe.py"
     require(probe.get("ownedProbe", {}).get("sha256") == sha(owned_probe.read_bytes()) and stat.S_IMODE(owned_probe.stat().st_mode) == 0o755, "T22 owned browser probe SHA-256 and executable-mode pins")
     webdriver_schema=probe["sourceSchemas"]["webdriver-capabilities"]
-    require(webdriver_schema["browserSourceKeys"] == ["endpointUrl","endpointAuthority","providerHttp","providerResponse"] and probe["releaseAuthorities"]["maximumAgeSeconds"] == 3600, "T22 preserves raw provider HTTP evidence and freezes release freshness")
+    require(webdriver_schema["browserSourceKeys"] == ["endpointUrl","endpointAuthority","providerHttp","providerResponse"] and probe["releaseAuthorities"]["maximumAgeSeconds"] == 3600, "T22 preserves canonicalized provider HTTP evidence and freezes release freshness")
     require("outer finally" in probe["execution"] and "session-scoped provider AT" in probe["sourceSchemas"]["native-version-command"]["rawProviderResponse"] and "Evaluator-host" in probe["sourceSchemas"]["native-version-command"]["rawProviderResponse"], "T22 binds AT/session lifecycle without evaluator-host substitution")
     require(all("--adapter" in row["executionCommand"] and "--dry-run" in row["dryRunCommand"] for row in p["commands"]), "T22 command adapter/dry-run semantics")
     if not deep:
@@ -502,6 +503,24 @@ def exercise_rate_control(*a): return {'verified':True,'httpStatus':429,'queuedC
         source_kinds={slot["configId"]:slot["detection"]["sourceKind"] for slot in passed["browserChannelDiscovery"]}
         require({config_id:"webdriver-capabilities" for config_id in matrix_by_id} == source_kinds, "T22 owned probe dispatches every frozen browser source kind")
         require(len(FakeWebDriver.sessions)==10 and len(FakeWebDriver.deleted)==10, "T22 loopback WebDriver serves and evaluator closes every persistent frozen session")
+        original_probe_run=runner.subprocess.run; malformed_once={"used":False}; deleted_before=len(FakeWebDriver.deleted)
+        def malformed_probe_stdout(command, **kwargs):
+            completed=original_probe_run(command, **kwargs)
+            if not malformed_once["used"] and "--config-id" in command:
+                malformed_once["used"]=True
+                return subprocess.CompletedProcess(command,completed.returncode,b"{",completed.stderr)
+            return completed
+        try:
+            runner.subprocess.run=malformed_probe_stdout
+            try:
+                original_resolve_browser_discovery(list(matrix_by_id.values()), selfcheck_fixtures=provider_fixtures)
+            except RuntimeError:
+                pass
+            else:
+                fail("T22 malformed probe stdout was accepted")
+            require(len(FakeWebDriver.deleted)==deleted_before+1, "T22 malformed probe stdout closes the leased provider session")
+        finally:
+            runner.subprocess.run=original_probe_run
         FakeWebDriver.fabricate_nonstandard_at=True
         fabricated_provider, fabricated_provider_code=runner.run("complex-form","cold","http://adapter.invalid",handle.name,False,p)
         require(fabricated_provider_code==1 and fabricated_provider["verdict"]=="failed", "T22 fabricated ordinary-WebDriver accessibility fields are rejected")

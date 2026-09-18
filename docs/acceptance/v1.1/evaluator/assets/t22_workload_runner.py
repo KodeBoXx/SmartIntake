@@ -6,7 +6,7 @@ extraction unspecified.  A runtime adapter is therefore mandatory for execution;
 without it this runner writes a complete blocked v4 record and exits nonzero.
 """
 from __future__ import annotations
-import argparse, base64, concurrent.futures, copy, csv, dataclasses, datetime, email.utils, hashlib, importlib.util, json, math, multiprocessing, os, re, signal, stat, subprocess, threading, time, urllib.error, urllib.request, uuid
+import argparse, base64, concurrent.futures, copy, csv, dataclasses, datetime, email.utils, hashlib, importlib.util, json, math, multiprocessing, os, re, signal, stat, subprocess, tempfile, threading, time, urllib.error, urllib.request, uuid
 from pathlib import Path
 from urllib.parse import urljoin, urlsplit
 from t22_dataset_generator import EXPORT_OUTPUT_COLUMNS, EXPORT_SUBMISSION_WINDOW, EXPORT_TARGET_FORM_ID, EXPORT_WORKSPACE_ID, canonical, generate
@@ -370,16 +370,16 @@ def canonical_platform_name(value):
     return normalized
 
 def retained_http_json(record, description):
-    """Revalidate exact provider HTTP status/header/body evidence before use."""
+    """Revalidate canonicalized parsed status/header fields and original body bytes."""
     required={"status","headersBase64","headersSha256","bodyBase64","bodySha256"}
     if not isinstance(record,dict) or set(record)!=required or not isinstance(record["status"],int):
-        raise RuntimeError(description+" raw HTTP record is malformed")
+        raise RuntimeError(description+" canonical HTTP evidence is malformed")
     try:
         headers=base64.b64decode(record["headersBase64"],validate=True)
         body=base64.b64decode(record["bodyBase64"],validate=True)
-    except Exception as error: raise RuntimeError(description+" raw HTTP record is not base64") from error
+    except Exception as error: raise RuntimeError(description+" canonical HTTP evidence is not base64") from error
     if hashlib.sha256(headers).hexdigest()!=record["headersSha256"] or hashlib.sha256(body).hexdigest()!=record["bodySha256"]:
-        raise RuntimeError(description+" raw HTTP SHA-256 differs")
+        raise RuntimeError(description+" canonical HTTP evidence SHA-256 differs")
     return strict_json(body,description+" response")
 
 def raw_browser_identity(document, config, rule):
@@ -534,15 +534,38 @@ def validate_release_bindings(slots, authorities):
         expected=authority["latestMajor"] if slot["requestedChannel"]=="latest" else authority["previousMajor"]
         if browser_major(slot["browserVersion"]) != expected: raise RuntimeError("persistent session browser major is stale or does not match release authority")
 
-def close_browser_sessions(discovery):
+def close_browser_session_bindings(bindings):
     failures=[]
-    for slot in discovery["slots"]:
-        binding=slot["sessionBinding"]
+    closed=set()
+    for binding in bindings:
+        identity=(binding["endpointUrl"],binding["sessionId"])
+        if identity in closed:
+            continue
+        closed.add(identity)
         try:
             request=urllib.request.Request(binding["endpointUrl"].rstrip("/")+"/session/"+binding["sessionId"],method="DELETE")
             with urllib.request.urlopen(request,timeout=8): pass
-        except Exception as error: failures.append(slot["configId"]+": "+str(error))
+        except Exception as error: failures.append(binding["sessionId"]+": "+str(error))
     if failures: raise RuntimeError("evaluator could not close persistent browser sessions: "+"; ".join(failures))
+
+
+def close_browser_sessions(discovery):
+    close_browser_session_bindings([slot["sessionBinding"] for slot in discovery["slots"]])
+
+
+def lease_session_binding(path, config_id):
+    """Read only the minimal binding a probe registered before it wrote stdout."""
+    document=strict_json(path.read_bytes(), "browser discovery cleanup lease")
+    document=require_exact_object(document,{"configId","sessionBinding"},"browser discovery cleanup lease")
+    if document["configId"] != config_id:
+        raise RuntimeError("browser discovery cleanup lease config ID differs")
+    binding=require_exact_object(document["sessionBinding"],{"sessionId","deviceId","endpointUrl","endpointAuthority"},"browser discovery cleanup lease binding")
+    if any(not isinstance(value,str) or not value for value in binding.values()):
+        raise RuntimeError("browser discovery cleanup lease binding is incomplete")
+    parsed=urlsplit(binding["endpointUrl"])
+    if parsed.scheme+"://"+parsed.netloc != binding["endpointAuthority"] or parsed.username or parsed.password:
+        raise RuntimeError("browser discovery cleanup lease endpoint is invalid")
+    return binding
 
 def owned_browser_probe():
     """Return only the frozen, contained, digest-pinned evaluator executable."""
@@ -561,23 +584,40 @@ def resolve_browser_discovery(matrix_entries, selfcheck_fixtures=None, run_start
     run_started_at=now() if run_started_at is None else run_started_at
     release_authorities=resolve_release_authorities(matrix_entries,run_started_at)
     timeout=DISCOVERY_PROBE_PROTOCOL["timeoutSeconds"]; slots=[]; retained=[]
-    try:
-      for config in matrix_entries:
+    with tempfile.TemporaryDirectory(prefix="t22-browser-discovery-") as temporary:
+      leases=[]
+      try:
+        for config in matrix_entries:
+            lease_path=Path(temporary)/(config["id"]+".lease.json")
+            leases.append((config["id"],lease_path))
+            command=[str(probe_executable),"--config-id",config["id"],"--lease-output",str(lease_path)]
+            if selfcheck_fixtures is not None:
+                command.extend(["--selfcheck-fixtures",str(selfcheck_fixtures)])
+            try:
+                completed=subprocess.run(command, shell=False, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout)
+            except (OSError, subprocess.TimeoutExpired) as error:
+                raise RuntimeError("browser discovery probe failed or timed out for "+config["id"]+": "+str(error)) from error
+            if completed.returncode != 0: raise RuntimeError("browser discovery probe returned nonzero for "+config["id"]+": "+completed.stderr.decode("utf-8","replace").strip())
+            raw=bytes(completed.stdout)
+            slot=parse_probe_output(raw,config)
+            lease_binding=lease_session_binding(lease_path,config["id"])
+            if any(slot["sessionBinding"][key] != value for key,value in lease_binding.items()):
+                raise RuntimeError("browser discovery stdout binding differs from its cleanup lease")
+            slots.append(slot); retained.append({"configId":config["id"],"resolvedAtUtc":slot["resolvedAtUtc"],"sha256":hashlib.sha256(raw).hexdigest(),"rawBase64":base64.b64encode(raw).decode("ascii")})
+        validate_discovery_slots(slots,matrix_entries)
+        validate_release_bindings(slots,release_authorities)
+      except Exception as error:
+        # A probe records a minimal binding before stdout. Thus malformed output
+        # and later validation errors close every created session, including one
+        # that never became a parsed slot.
+        bindings=[slot["sessionBinding"] for slot in slots]
         try:
-            completed=subprocess.run([str(probe_executable),"--config-id",config["id"]]+([] if selfcheck_fixtures is None else ["--selfcheck-fixtures",str(selfcheck_fixtures)]), shell=False, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout)
-        except (OSError, subprocess.TimeoutExpired) as error:
-            raise RuntimeError("browser discovery probe failed or timed out for "+config["id"]+": "+str(error)) from error
-        if completed.returncode != 0: raise RuntimeError("browser discovery probe returned nonzero for "+config["id"]+": "+completed.stderr.decode("utf-8","replace").strip())
-        raw=bytes(completed.stdout)
-        slot=parse_probe_output(raw,config)
-        slots.append(slot); retained.append({"configId":config["id"],"resolvedAtUtc":slot["resolvedAtUtc"],"sha256":hashlib.sha256(raw).hexdigest(),"rawBase64":base64.b64encode(raw).decode("ascii")})
-      validate_discovery_slots(slots,matrix_entries)
-      validate_release_bindings(slots,release_authorities)
-    except Exception:
-      # A partial discovery has already created live provider sessions.  Close
-      # exactly those sessions before reporting the discovery failure.
-      if slots: close_browser_sessions({"slots":slots})
-      raise
+            bindings.extend(lease_session_binding(path,config_id) for config_id,path in leases if path.is_file())
+            if bindings:
+                close_browser_session_bindings(bindings)
+        except Exception as cleanup_error:
+            raise RuntimeError("browser discovery cleanup failed after "+str(error)+": "+str(cleanup_error)) from error
+        raise
     return {"slots":slots,"raw":retained,"artifactSha256":hashlib.sha256(canonical(retained)).hexdigest(),"releaseAuthorities":release_authorities}
 
 def validate_discovery_slots(slots,matrix_entries):

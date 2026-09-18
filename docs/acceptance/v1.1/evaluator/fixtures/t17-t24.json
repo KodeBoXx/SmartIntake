@@ -5122,7 +5122,7 @@
             {
               "commands": {
                 "browserDiscoveryPrerequisites": [
-                  "checked-in assets/t22_browser_discovery_probe.py SHA-256=230e9061eff59895286d11d1f2ee3d2100320df6856395b9a0bda8afb4d4c9d2 mode=0755 verified by runner",
+                  "checked-in assets/t22_browser_discovery_probe.py SHA-256=bd62401febdc93ead55dce6a60b9d616a6619c23f87a20999385d6264533047c mode=0755 verified by runner",
                   "frozen per-slot sources: Playwright installed Chrome/Edge/Firefox desktop channels; WebDriver/Appium Safari/iOS Safari/Android Chrome",
                   "closed allowlisted native AT commands for NVDA, VoiceOver, and TalkBack slots",
                   "runtime source configuration: T22_WEBDRIVER_ENDPOINT, T22_PLAYWRIGHT_CHROME_LATEST_EXECUTABLE, T22_PLAYWRIGHT_CHROME_PREVIOUS_MAJOR_EXECUTABLE, T22_PLAYWRIGHT_EDGE_LATEST_EXECUTABLE, T22_PLAYWRIGHT_EDGE_PREVIOUS_MAJOR_EXECUTABLE, T22_PLAYWRIGHT_FIREFOX_LATEST_EXECUTABLE, T22_PLAYWRIGHT_FIREFOX_PREVIOUS_MAJOR_EXECUTABLE, T22_NATIVE_WINDOWS_POWERSHELL, T22_NATIVE_MACOS_MDLS, T22_NATIVE_ANDROID_ADB, T22_NATIVE_IOS_XCRUN"
@@ -5227,7 +5227,7 @@
             {
               "commands": {
                 "browserDiscoveryPrerequisites": [
-                  "checked-in assets/t22_browser_discovery_probe.py SHA-256=230e9061eff59895286d11d1f2ee3d2100320df6856395b9a0bda8afb4d4c9d2 mode=0755 verified by runner",
+                  "checked-in assets/t22_browser_discovery_probe.py SHA-256=bd62401febdc93ead55dce6a60b9d616a6619c23f87a20999385d6264533047c mode=0755 verified by runner",
                   "frozen per-slot sources: Playwright installed Chrome/Edge/Firefox desktop channels; WebDriver/Appium Safari/iOS Safari/Android Chrome",
                   "closed allowlisted native AT commands for NVDA, VoiceOver, and TalkBack slots",
                   "runtime source configuration: T22_WEBDRIVER_ENDPOINT, T22_PLAYWRIGHT_CHROME_LATEST_EXECUTABLE, T22_PLAYWRIGHT_CHROME_PREVIOUS_MAJOR_EXECUTABLE, T22_PLAYWRIGHT_EDGE_LATEST_EXECUTABLE, T22_PLAYWRIGHT_EDGE_PREVIOUS_MAJOR_EXECUTABLE, T22_PLAYWRIGHT_FIREFOX_LATEST_EXECUTABLE, T22_PLAYWRIGHT_FIREFOX_PREVIOUS_MAJOR_EXECUTABLE, T22_NATIVE_WINDOWS_POWERSHELL, T22_NATIVE_MACOS_MDLS, T22_NATIVE_ANDROID_ADB, T22_NATIVE_IOS_XCRUN"
@@ -5684,7 +5684,7 @@
             {
               "commands": {
                 "browserDiscoveryPrerequisites": [
-                  "checked-in assets/t22_browser_discovery_probe.py SHA-256=230e9061eff59895286d11d1f2ee3d2100320df6856395b9a0bda8afb4d4c9d2 mode=0755 verified by runner",
+                  "checked-in assets/t22_browser_discovery_probe.py SHA-256=bd62401febdc93ead55dce6a60b9d616a6619c23f87a20999385d6264533047c mode=0755 verified by runner",
                   "frozen per-slot sources: Playwright installed Chrome/Edge/Firefox desktop channels; WebDriver/Appium Safari/iOS Safari/Android Chrome",
                   "closed allowlisted native AT commands for NVDA, VoiceOver, and TalkBack slots",
                   "runtime source configuration: T22_WEBDRIVER_ENDPOINT, T22_PLAYWRIGHT_CHROME_LATEST_EXECUTABLE, T22_PLAYWRIGHT_CHROME_PREVIOUS_MAJOR_EXECUTABLE, T22_PLAYWRIGHT_EDGE_LATEST_EXECUTABLE, T22_PLAYWRIGHT_EDGE_PREVIOUS_MAJOR_EXECUTABLE, T22_PLAYWRIGHT_FIREFOX_LATEST_EXECUTABLE, T22_PLAYWRIGHT_FIREFOX_PREVIOUS_MAJOR_EXECUTABLE, T22_NATIVE_WINDOWS_POWERSHELL, T22_NATIVE_MACOS_MDLS, T22_NATIVE_ANDROID_ADB, T22_NATIVE_IOS_XCRUN"
