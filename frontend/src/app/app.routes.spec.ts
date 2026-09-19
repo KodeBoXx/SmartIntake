@@ -28,9 +28,19 @@ describe('M5 route architecture', () => {
     const staffShell = appRoutes.find((route) => route.path === '' && route.canActivate);
     const staffRoutes = (staffShell?.children ?? []).filter((route) => route.data?.['screen']);
     const componentNames = new Set<string>();
+    const expectedComponent = (screen: string): string => {
+      if (['platform-organizations', 'user-list', 'add-user', 'user-detail', 'role-assignment', 'invitation-delivery'].includes(screen)) return 'AdminStaffPageComponent';
+      if (['catalog', 'builder', 'preview', 'review-publish'].includes(screen)) return 'CatalogStaffPageComponent';
+      if (['responses', 'response-detail', 'export-history'].includes(screen)) return 'ResponseStaffPageComponent';
+      return 'SettingsStaffPageComponent';
+    };
     for (const route of staffRoutes) {
       const component = await route.loadComponent?.();
-      if (typeof component === 'function') componentNames.add(component.name.replace(/^_/, ''));
+      if (typeof component === 'function') {
+        const name = component.name.replace(/^_/, '');
+        componentNames.add(name);
+        expect(name, `screen ${route.data?.['screen']} must use its owned domain boundary`).toBe(expectedComponent(route.data?.['screen']));
+      }
     }
     expect(componentNames).toEqual(new Set(['AdminStaffPageComponent', 'CatalogStaffPageComponent', 'ResponseStaffPageComponent', 'SettingsStaffPageComponent']));
   });

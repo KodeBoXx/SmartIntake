@@ -36,11 +36,11 @@ async function expectSemanticState(page: Page, shell: Shell, state: string): Pro
   if (shell === 'staff' && state === 'loading') await expect(root.getByText(/Loading .*…/)).toBeVisible();
   if (shell === 'staff' && ['empty', 'empty-or-no-access', 'denied', 'no-access', 'email-unavailable'].includes(state)) await expect(root.locator('cui-empty-state')).toBeVisible();
   if (shell === 'staff' && ['invalid', 'denied', 'no-access', 'expired', 'email-unavailable', 'conflict', 'throttled', 'error', 'stale', 'tombstone', 'pending'].includes(state)) await expect(root.locator('cui-alert')).toBeVisible();
-  if (shell === 'staff' && ['loading', 'empty-or-no-access', 'invalid', 'denied', 'no-access', 'expired', 'email-unavailable', 'no-side-effects', 'error', 'stale', 'tombstone', 'pending'].includes(state)) {
+  if (shell === 'staff' && ['loading', 'empty', 'empty-or-no-access', 'invalid', 'denied', 'no-access', 'expired', 'email-unavailable', 'no-side-effects', 'error', 'stale', 'tombstone', 'pending', 'conflict'].includes(state)) {
     const actions = root.getByRole('button', { name: /Create form|Save draft|View|Archive|Quick status|More actions/ });
     await expect(actions).toHaveCount(0);
   }
-  if (shell === 'auth' && ['invalid', 'denied', 'no-access', 'empty-or-no-access', 'email-unavailable', 'throttled'].includes(state)) {
+  if (shell === 'auth' && ['invalid', 'expired', 'denied', 'no-access', 'empty-or-no-access', 'email-unavailable', 'throttled'].includes(state)) {
     await expect(root.locator('cui-alert')).toBeVisible();
     await expect(root.getByLabel('Email')).toHaveCount(0);
     await expect(root.getByRole('button', { name: 'Continue' })).toHaveCount(0);
@@ -58,9 +58,9 @@ const axeCases = [
   { id: 'sign-in', path: '/sign-in?state=invalid', shell: 'auth' as const },
   // These immutable 0.0.1 components set aria-expanded on wrapper divs. Exclude
   // only those component roots; all remaining page nodes and axe rules still run.
-  { id: 'catalog', path: '/workspaces/demo/forms?state=empty', shell: 'staff' as const, upstreamExclusions: ['cui-popover', 'cui-dropdown', 'cui-sidebar-shell footer', 'cui-header cui-icon-button > button'] },
-  { id: 'builder', path: '/workspaces/demo/forms/demo/drafts/demo?state=conflict', shell: 'staff' as const, upstreamExclusions: ['cui-popover', 'cui-dropdown', 'cui-sidebar-shell footer', 'cui-header cui-icon-button > button'] },
-  { id: 'denied staff no-access', path: '/workspaces/demo/submissions?state=no-access', shell: 'staff' as const, upstreamExclusions: ['cui-popover', 'cui-dropdown', 'cui-sidebar-shell footer', 'cui-header cui-icon-button > button'] },
+  { id: 'catalog', path: '/workspaces/demo/forms?state=empty', shell: 'staff' as const, upstreamExclusions: ['cui-sidebar-shell footer', 'cui-header cui-icon-button > button'] },
+  { id: 'builder', path: '/workspaces/demo/forms/demo/drafts/demo?state=conflict', shell: 'staff' as const, upstreamExclusions: ['cui-sidebar-shell footer', 'cui-header cui-icon-button > button'] },
+  { id: 'denied staff no-access', path: '/workspaces/demo/submissions?state=no-access', shell: 'staff' as const, upstreamExclusions: ['cui-sidebar-shell footer', 'cui-header cui-icon-button > button'] },
   { id: 'public form', path: '/sessions/demo?state=offline', shell: 'public' as const },
   { id: 'public review', path: '/sessions/demo/review?state=acknowledgment', shell: 'public' as const },
   { id: 'receipt', path: '/sessions/demo/receipt?state=succeeded', shell: 'public' as const },
@@ -87,7 +87,7 @@ test.describe('M5 routed Certinal shell', () => {
   test('preserves protected deep links through the M5 stub guard', async ({ page }) => {
     await page.goto('/workspaces/demo/forms?m5Auth=expired');
     await waitForLazyPage(page, 'auth');
-    await page.getByRole('button', { name: 'Continue' }).click();
+    await page.getByRole('button', { name: 'Sign in again' }).click();
     await expect(page).toHaveURL(/\/workspaces\/demo\/forms/);
   });
 

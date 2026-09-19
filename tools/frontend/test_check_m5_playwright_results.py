@@ -35,8 +35,8 @@ class PlaywrightResultMutationTests(unittest.TestCase):
 
     def test_rejects_result_with_mutated_state_case(self) -> None:
         result = passing_result()
-        spec = result['suites'][0]['specs'][0]
-        spec['title'] = 'renders M5 staff screen catalog in ready'
+        spec = next(spec for spec in result['suites'][0]['specs'] if spec['title'].startswith('opens and reloads '))
+        spec['title'] = 'opens and reloads catalog in fabricated-state'
         with self.assertRaises(SystemExit):
             checker.verify_result(result)
 

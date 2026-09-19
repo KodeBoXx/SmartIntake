@@ -1,5 +1,5 @@
 import { DOCUMENT } from '@angular/common';
-import { Component, HostListener, inject, signal } from '@angular/core';
+import { Component, HostListener, InjectionToken, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CuiAlertComponent, CuiButtonComponent, CuiCardComponent, CuiDataTableComponent, CuiDrawerComponent, CuiEmptyStateComponent, CuiPopoverComponent, CuiStatsStripComponent, CuiDropdownComponent, CuiConfirmDialogComponent, CuiIconComponent, CuiToastService } from '@certinal/ui';
 import { M5StubState } from '../../core/m5-session.store';
@@ -7,13 +7,15 @@ import { m5RouteState, titleCase } from '../../shared/m5-route-state';
 
 interface StubRow { id: string; name: string; status: string; }
 const rows: StubRow[] = [{ id: 'demo-form', name: 'Clinical history intake', status: 'Draft' }];
+export type M5StaffDomain = 'admin' | 'catalog' | 'responses' | 'settings';
+export const M5_STAFF_DOMAIN = new InjectionToken<M5StaffDomain>('M5_STAFF_DOMAIN');
 
 @Component({
   selector: 'app-staff-page',
   standalone: true,
   imports: [CuiAlertComponent, CuiButtonComponent, CuiCardComponent, CuiDataTableComponent, CuiDrawerComponent, CuiEmptyStateComponent, CuiStatsStripComponent, CuiPopoverComponent, CuiDropdownComponent, CuiConfirmDialogComponent, CuiIconComponent],
   template: `
-    <section class="mx-auto max-w-6xl space-y-5" data-testid="staff-page" [attr.data-state]="state">
+    <section class="mx-auto max-w-6xl space-y-5" data-testid="staff-page" [attr.data-state]="state" [attr.data-domain]="domain">
       <div class="flex flex-wrap items-center justify-between gap-3"><div><p class="type-caption">STAFF WORKSPACE</p><h1 class="type-h3">{{ title }}</h1><p class="type-caption" data-testid="state-evidence">State: {{ state }}</p></div>@if (primaryAction && actionsAllowed) { <cui-button (buttonClick)="edit()"><span class="flex items-center gap-1.5"><cui-icon name="pencil" size="sm" />{{ primaryAction }}</span></cui-button> }</div>
       @if (isAlertState()) { <cui-alert class="mt-4" [variant]="state === 'denied' || state === 'invalid' || state === 'no-access' ? 'error' : 'warning'" [title]="state">{{ stateMessage }}</cui-alert> }
       @if (state === 'loading') { <cui-card class="mt-5"><p class="type-body">Loading {{ title.toLowerCase() }}…</p></cui-card> }
@@ -42,6 +44,7 @@ export class StaffPageComponent {
   private readonly document = inject(DOCUMENT);
   private returnFocus: HTMLElement | null = null;
   private drawerHasOpened = false;
+  readonly domain = inject(M5_STAFF_DOMAIN, { optional: true }) ?? 'catalog';
   readonly screen = this.route.snapshot.data['screen'] as string;
   readonly title = titleCase(this.screen);
   readonly state: M5StubState = m5RouteState(this.route);
@@ -65,7 +68,7 @@ export class StaffPageComponent {
   }
 
   get primaryAction(): string { return this.screen === 'catalog' ? 'Create form' : this.screen === 'builder' ? 'Save draft' : ''; }
-  get actionsAllowed(): boolean { return !['loading', 'empty-or-no-access', 'invalid', 'denied', 'no-access', 'expired', 'email-unavailable', 'no-side-effects', 'error', 'stale', 'tombstone', 'pending'].includes(this.state); }
+  get actionsAllowed(): boolean { return !['loading', 'empty', 'empty-or-no-access', 'invalid', 'denied', 'no-access', 'expired', 'email-unavailable', 'no-side-effects', 'error', 'stale', 'tombstone', 'pending', 'conflict'].includes(this.state); }
   get recordActionsAllowed(): boolean { return ['catalog', 'responses', 'response-detail', 'user-list', 'user-detail'].includes(this.screen); }
   get stateMessage(): string { return `The ${this.title.toLowerCase()} M5 stub is ${this.state}. Real authority is deferred to M6.`; }
   isAlertState(): boolean { return ['invalid', 'denied', 'no-access', 'expired', 'email-unavailable', 'conflict', 'throttled', 'error', 'stale', 'tombstone', 'pending'].includes(this.state); }
