@@ -123,11 +123,7 @@ class ExpressionContractVectorTests {
   }
 
   private static boolean matchesExpected(JsonNode actual, JsonNode expected) {
-    if (!actual.path("state").asText().equals(expected.path("state").asText())) return false;
-    if (expected.has("type") && !actual.path("type").asText().equals(expected.path("type").asText())) return false;
-    if (expected.has("value") && !actual.path("value").equals(expected.path("value"))) return false;
-    if (expected.has("reason") && !actual.path("reason").asText().equals(expected.path("reason").asText())) return false;
-    return !expected.has("code") || actual.path("code").asText().equals(expected.path("code").asText());
+    return actual.equals(expected);
   }
 
   private static String git(String... args) throws Exception {

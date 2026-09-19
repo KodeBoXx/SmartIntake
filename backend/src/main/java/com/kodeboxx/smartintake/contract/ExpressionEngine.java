@@ -264,7 +264,8 @@ public final class ExpressionEngine {
         || ref.fieldNames().hasNext() && !closedRef(ref)) {
       throw fail("EXPR_SHAPE");
     }
-    String scope = ref.path("scope").asText("root");
+    if (!ref.path("scope").isTextual()) throw fail("EXPR_SHAPE");
+    String scope = ref.path("scope").asText();
     int parentDepth = ref.has("parentDepth") ? ref.path("parentDepth").asInt(-1) : 1;
     if (!Set.of("root", "item", "parentItem").contains(scope)) throw fail("EXPR_SCOPE");
     if (("root".equals(scope) || "item".equals(scope)) && ref.has("parentDepth")) throw fail("EXPR_SCOPE");
@@ -543,7 +544,7 @@ public final class ExpressionEngine {
 
   private static void validateAnswerValue(String type, JsonNode value) {
     if ("decimal".equals(type) && value.isTextual() && value.textValue().matches("-0(?:\\.0+)?")) {
-      throw fail("DECIMAL_ENCODING");
+      throw fail("INVALID_LITERAL");
     }
     validateLiteral(type, value);
   }

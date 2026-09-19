@@ -24,7 +24,7 @@ class ExpressionCanonicalAnswerTests {
 
     assertThat(engine.evaluate(expression, context))
         .extracting(ExpressionEngine.Result::state, ExpressionEngine.Result::code)
-        .containsExactly("error", "DECIMAL_ENCODING");
+        .containsExactly("error", "INVALID_LITERAL");
   }
 
   @Test

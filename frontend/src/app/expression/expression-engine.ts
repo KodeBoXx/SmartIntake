@@ -416,7 +416,7 @@ function validateAnswerScalar(type: ScalarType, value: unknown): void {
   // Expression literals retain the contract's input-decimal grammar, including
   // EXPR-081's -0.000. Answer wire values are final canonical values and must
   // reject negative zero before ExactDecimal normalizes it to zero.
-  if (type === 'decimal') { if (negativeZeroWire(value)) throw new Fault('DECIMAL_ENCODING'); ExactDecimal.parse(value).assertFinal(); return; }
+  if (type === 'decimal') { if (negativeZeroWire(value)) throw new Fault('INVALID_LITERAL'); ExactDecimal.parse(value).assertFinal(); return; }
   if (type === 'text' || type === 'choice') { if (typeof value !== 'string') throw new Fault('INVALID_LITERAL'); return; }
   if (type === 'boolean') { if (typeof value !== 'boolean') throw new Fault('INVALID_LITERAL'); return; }
   if (type === 'date') { if (!validDate(value)) throw new Fault('INVALID_LITERAL'); return; }

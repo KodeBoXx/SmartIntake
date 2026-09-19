@@ -68,7 +68,7 @@ describe('ExpressionEngine', () => {
       fieldDefinitions: [{ id: 'amount', type: 'decimal' }],
       answers: { amount: { type: 'decimal', status: 'answered', applicable: true, value: '-0.00' } },
     });
-    expect(result).toEqual({ state: 'error', code: 'DECIMAL_ENCODING' });
+    expect(result).toEqual({ state: 'error', code: 'INVALID_LITERAL' });
   });
 
   it('retains scalar array item types and permits an array result', () => {
