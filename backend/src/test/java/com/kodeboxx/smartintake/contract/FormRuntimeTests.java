@@ -11,7 +11,7 @@ class FormRuntimeTests {
   Map<String,Object> age=Map.of("id","age","type","integer","required",true);
   Map<String,Object> amount=Map.of("id","amount","type","decimal");
   Map<String,Object> channels=Map.of("id","channels","type","multiChoice","options",List.of(Map.of("id","email","label","Email")));
-  Map<String,Object> rule=Map.of("op","eq","args",List.of(Map.of("ref",Map.of("fieldId","age")),Map.of("literal",Map.of("type","text","value","21"))));
+  Map<String,Object> rule=Map.of("op","eq","args",List.of(Map.of("ref",Map.of("fieldId","age")),Map.of("literal",Map.of("type","integer","value","21"))));
   Map<String,Object> followup=Map.of("id","followup","type","text","requiredRule",rule);
   return Map.of("contractVersion","4.0.0","pages",List.of(Map.of("id","one","fields",List.of(age,amount,channels,followup))));
  }

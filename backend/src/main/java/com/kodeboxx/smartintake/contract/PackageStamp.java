@@ -9,10 +9,12 @@ import java.util.Objects;
 /** Immutable package identity. The digest excludes packageStamp itself to avoid recursion. */
 public record PackageStamp(String contractVersion, String evaluatorContract, String canonicalSha256, String timeZoneDatabaseVersion) {
   private static final ObjectMapper MAPPER = new ObjectMapper();
+  public static final String EVALUATOR_CONTRACT = "lite-expression-1";
 
   public static PackageStamp stamp(JsonNode packageBody, String evaluatorContract, String timeZoneDatabaseVersion) {
     requirePackage(packageBody);
-    if (evaluatorContract == null || evaluatorContract.isBlank()) throw new IllegalArgumentException("evaluatorContract is required");
+    if (!EVALUATOR_CONTRACT.equals(evaluatorContract) || !TimeZoneRegistry.VERSION.equals(timeZoneDatabaseVersion))
+      throw new IllegalArgumentException("PACKAGE_EVALUATOR_BINDING");
     return new PackageStamp(ContractValue.VERSION, evaluatorContract, CanonicalJson.sha256(bodyWithoutStamp(packageBody)), timeZoneDatabaseVersion);
   }
 
@@ -32,6 +34,10 @@ public record PackageStamp(String contractVersion, String evaluatorContract, Str
     requirePackage(stampedPackage);
     JsonNode raw = stampedPackage.path("packageStamp");
     if (!raw.isObject()) throw new IllegalArgumentException("packageStamp is required");
+    if (raw.size() != 4 || !raw.has("contractVersion") || !raw.has("evaluatorContract")
+        || !raw.has("canonicalSha256") || !raw.has("timeZoneDatabaseVersion")) {
+      throw new IllegalArgumentException("PACKAGE_STAMP_SHAPE");
+    }
     PackageStamp expected = stamp(stampedPackage, raw.path("evaluatorContract").asText(null), raw.path("timeZoneDatabaseVersion").asText(null));
     if (!Objects.equals(raw.path("contractVersion").asText(), expected.contractVersion())
         || !Objects.equals(raw.path("canonicalSha256").asText(), expected.canonicalSha256())) throw new IllegalArgumentException("PACKAGE_HASH_MISMATCH");

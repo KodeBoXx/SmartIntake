@@ -51,8 +51,12 @@ class DatabaseCompatibilityIntegrationTests {
           new FlywayHistory(
               "5", "SQL", "V5__compatibility_profiles_and_reconciliation_state.sql", 125753238),
           new FlywayHistory("6", "SQL", "V6__compatibility_reconciliation_indexes.sql", -848544773),
+      new FlywayHistory(
+              "7", "SQL", "V7__m1_current_profile_and_submission_uniqueness.sql", -648692813),
           new FlywayHistory(
-              "7", "SQL", "V7__m1_current_profile_and_submission_uniqueness.sql", -648692813));
+              "8", "SQL", "V8__freeze_expression_session_context.sql", 874801699),
+          new FlywayHistory(
+              "9", "SQL", "V9__default_frozen_session_context.sql", 1901026173));
 
   @Autowired JdbcTemplate db;
   @Autowired CompatibilityReconciliationService reconciliation;
