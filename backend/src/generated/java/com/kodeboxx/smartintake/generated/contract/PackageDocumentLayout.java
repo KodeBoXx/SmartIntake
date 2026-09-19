@@ -88,7 +88,7 @@ public class PackageDocumentLayout {
   private KindEnum kind;
 
   public static final String JSON_PROPERTY_LABEL_KEY = "labelKey";
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   private String labelKey;
 
   public static final String JSON_PROPERTY_CHILDREN = "children";
@@ -152,7 +152,7 @@ public class PackageDocumentLayout {
     this.kind = kind;
   }
 
-  public PackageDocumentLayout labelKey(@jakarta.annotation.Nonnull String labelKey) {
+  public PackageDocumentLayout labelKey(@jakarta.annotation.Nullable String labelKey) {
     
     this.labelKey = labelKey;
     return this;
@@ -162,9 +162,9 @@ public class PackageDocumentLayout {
    * Get labelKey
    * @return labelKey
    */
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_LABEL_KEY)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
   public String getLabelKey() {
     return labelKey;
@@ -172,8 +172,8 @@ public class PackageDocumentLayout {
 
 
   @JsonProperty(JSON_PROPERTY_LABEL_KEY)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setLabelKey(@jakarta.annotation.Nonnull String labelKey) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setLabelKey(@jakarta.annotation.Nullable String labelKey) {
     this.labelKey = labelKey;
   }
 

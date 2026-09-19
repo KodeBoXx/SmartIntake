@@ -62,9 +62,8 @@ paths:
                   displayName: A. Author
               invalid:
                 value: {}
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
-        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
-        plus body.
+      x-replay: Authentication proofs are operation-specific and one-time where applicable; retries never replay credentials,
+        tokens, cookies, reset links, activation links or transfer capabilities.
       x-secret-issuance-replay: Secret, activation, reset and session issuance never replay credentials, tokens, cookies or
         transfer capabilities; a replay response is redacted.
   /v1/auth/password-change:
@@ -122,9 +121,8 @@ paths:
                   newPassword: new-correct-horse-battery
               invalid:
                 value: {}
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
-        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
-        plus body.
+      x-replay: Authentication proofs are operation-specific and one-time where applicable; retries never replay credentials,
+        tokens, cookies, reset links, activation links or transfer capabilities.
   /v1/auth/recovery:
     post:
       operationId: ON-post-v1-auth-recovery-759d7b6e5a
@@ -191,9 +189,8 @@ paths:
                   email: author@example.test
               invalid:
                 value: {}
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
-        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
-        plus body.
+      x-replay: Authentication proofs are operation-specific and one-time where applicable; retries never replay credentials,
+        tokens, cookies, reset links, activation links or transfer capabilities.
       x-secret-issuance-replay: Secret, activation, reset and session issuance never replay credentials, tokens, cookies or
         transfer capabilities; a replay response is redacted.
   /v1/auth/reset:
@@ -248,9 +245,8 @@ paths:
                   newPassword: new-correct-horse-battery
               invalid:
                 value: {}
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
-        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
-        plus body.
+      x-replay: Authentication proofs are operation-specific and one-time where applicable; retries never replay credentials,
+        tokens, cookies, reset links, activation links or transfer capabilities.
       x-secret-issuance-replay: Secret, activation, reset and session issuance never replay credentials, tokens, cookies or
         transfer capabilities; a replay response is redacted.
   /v1/auth/session:
@@ -266,33 +262,26 @@ paths:
         source: docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md
       x-authorization:
         roles:
-        - staff.session.self
-        tenantScope: account-session
+        - anonymous.login-csrf.bootstrap
+        tenantScope: anonymous
       x-implementation-status: contract-published
       responses:
         '200':
           description: Successful response.
           headers:
-            ETag:
-              $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/headers/ETag
+            Set-Cookie:
+              $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/headers/LoginCsrfSetCookie
           content:
             application/json:
               schema:
-                $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/schemas/StaffSessionResponse
+                $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/schemas/LoginCsrfBootstrapResponse
               examples:
                 success:
                   value:
                     requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
-                    staffSession:
-                      id: staffsession-01J2W5RFR3K24SFWDX2C0N9VW3
-                      kind: StaffSession
-                      revision: 7
-                      status: active
-                      createdAt: '2026-09-18T00:00:00Z'
-                      updatedAt: '2026-09-18T00:00:00Z'
-                      userId: user-01J2W5RFR3K24SFWDX2C0N9VW3
-                      expiresAt: '2026-09-19T00:00:00Z'
-                      csrfToken: csrf-01J2W5RFR3K24SFWDX2C0N9VW3
+                    loginCsrfBootstrap:
+                      csrfToken: login-csrf-01J2W5RFR3K24SFWDX2C0N9VW3
+                      expiresAt: '2026-09-18T00:05:00Z'
         '400':
           $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/responses/BadRequest
         '401':
@@ -305,8 +294,10 @@ paths:
           $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/responses/RateLimited
         '500':
           $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/responses/InternalError
-      security:
-      - staffCookie: []
+      x-replay: Authentication proofs are operation-specific and one-time where applicable; retries never replay credentials,
+        tokens, cookies, reset links, activation links or transfer capabilities.
+      x-login-csrf-bootstrap: Anonymous bootstrap issues one short-lived one-time token and its bound Secure, HttpOnly, SameSite=Strict
+        cookie; a consumed or expired token requires a fresh bootstrap response.
   /v1/auth/sign-in:
     post:
       operationId: ON-post-v1-auth-sign-in-7c9d8ac3a9
@@ -363,6 +354,9 @@ paths:
           $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/responses/Conflict
         '422':
           $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/responses/Unprocessable
+      parameters:
+      - $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/parameters/LoginCsrfToken
+      - $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/parameters/LoginCsrfCookie
       requestBody:
         required: true
         content:
@@ -376,9 +370,8 @@ paths:
                   password: correct-horse-battery-staple
               invalid:
                 value: {}
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
-        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
-        plus body.
+      x-replay: Authentication proofs are operation-specific and one-time where applicable; retries never replay credentials,
+        tokens, cookies, reset links, activation links or transfer capabilities.
       x-secret-issuance-replay: Secret, activation, reset and session issuance never replay credentials, tokens, cookies or
         transfer capabilities; a replay response is redacted.
       x-login-csrf-origin-protection: Validate an allow-listed Origin and a one-time login-CSRF token before issuing a SameSite,
@@ -435,9 +428,8 @@ paths:
                   name: Example resource
               invalid:
                 value: {}
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
-        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
-        plus body.
+      x-replay: Authentication proofs are operation-specific and one-time where applicable; retries never replay credentials,
+        tokens, cookies, reset links, activation links or transfer capabilities.
   /v1/capabilities:
     get:
       operationId: ON-get-v1-capabilities-ca77d2f932
@@ -544,9 +536,8 @@ paths:
                   password: correct-horse-battery-staple
               invalid:
                 value: {}
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
-        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
-        plus body.
+      x-replay: Authentication proofs are operation-specific and one-time where applicable; retries never replay credentials,
+        tokens, cookies, reset links, activation links or transfer capabilities.
       x-secret-issuance-replay: Secret, activation, reset and session issuance never replay credentials, tokens, cookies or
         transfer capabilities; a replay response is redacted.
   /v1/organizations/{o}/invitations/{i}:
@@ -2653,11 +2644,6 @@ paths:
                     requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
                     authorizedAsset:
                       id: authorizedasset-01J2W5RFR3K24SFWDX2C0N9VW3
-                      kind: AuthorizedAsset
-                      revision: 7
-                      status: active
-                      createdAt: '2026-09-18T00:00:00Z'
-                      updatedAt: '2026-09-18T00:00:00Z'
                       downloadUrl: https://transfer.example.test/assets/asset-01J2W5RFR3K24SFWDX2C0N9VW3?capability=redacted
                       expiresAt: '2026-09-18T00:05:00Z'
                       contentType: application/pdf

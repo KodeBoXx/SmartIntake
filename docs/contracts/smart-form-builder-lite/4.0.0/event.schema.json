@@ -134,9 +134,6 @@
       },
       "then": {
         "properties": {
-          "dataMode": {
-            "const": "full"
-          },
           "resource": {
             "required": [
               "formId",
@@ -144,8 +141,43 @@
             ]
           }
         },
-        "required": [
-          "envelope"
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "dataMode": {
+                  "const": "full"
+                }
+              },
+              "required": [
+                "dataMode"
+              ]
+            },
+            "then": {
+              "required": [
+                "envelope"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "dataMode": {
+                  "const": "reference"
+                }
+              },
+              "required": [
+                "dataMode"
+              ]
+            },
+            "then": {
+              "not": {
+                "required": [
+                  "envelope"
+                ]
+              }
+            }
+          }
         ]
       }
     },

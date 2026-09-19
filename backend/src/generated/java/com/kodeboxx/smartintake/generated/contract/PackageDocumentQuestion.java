@@ -128,7 +128,7 @@ public class PackageDocumentQuestion extends HashMap<String, Object> {
   }
 
   public static final String JSON_PROPERTY_FIELD_TYPE = "fieldType";
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   private FieldTypeEnum fieldType;
 
   /**
@@ -136,6 +136,8 @@ public class PackageDocumentQuestion extends HashMap<String, Object> {
    */
   public enum ControlEnum {
     TEXT(String.valueOf("text")),
+    
+    SHORT_TEXT(String.valueOf("shortText")),
     
     TEXTAREA(String.valueOf("textarea")),
     
@@ -243,7 +245,7 @@ public class PackageDocumentQuestion extends HashMap<String, Object> {
   private ControlEnum control;
 
   public static final String JSON_PROPERTY_LABEL_KEY = "labelKey";
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   private String labelKey;
 
   public static final String JSON_PROPERTY_GUIDANCE_ID = "guidanceId";
@@ -369,7 +371,7 @@ public class PackageDocumentQuestion extends HashMap<String, Object> {
     this.fieldId = fieldId;
   }
 
-  public PackageDocumentQuestion fieldType(@jakarta.annotation.Nonnull FieldTypeEnum fieldType) {
+  public PackageDocumentQuestion fieldType(@jakarta.annotation.Nullable FieldTypeEnum fieldType) {
     
     this.fieldType = fieldType;
     return this;
@@ -379,9 +381,9 @@ public class PackageDocumentQuestion extends HashMap<String, Object> {
    * Get fieldType
    * @return fieldType
    */
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_FIELD_TYPE)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
   public FieldTypeEnum getFieldType() {
     return fieldType;
@@ -389,8 +391,8 @@ public class PackageDocumentQuestion extends HashMap<String, Object> {
 
 
   @JsonProperty(JSON_PROPERTY_FIELD_TYPE)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setFieldType(@jakarta.annotation.Nonnull FieldTypeEnum fieldType) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setFieldType(@jakarta.annotation.Nullable FieldTypeEnum fieldType) {
     this.fieldType = fieldType;
   }
 
@@ -419,7 +421,7 @@ public class PackageDocumentQuestion extends HashMap<String, Object> {
     this.control = control;
   }
 
-  public PackageDocumentQuestion labelKey(@jakarta.annotation.Nonnull String labelKey) {
+  public PackageDocumentQuestion labelKey(@jakarta.annotation.Nullable String labelKey) {
     
     this.labelKey = labelKey;
     return this;
@@ -429,9 +431,9 @@ public class PackageDocumentQuestion extends HashMap<String, Object> {
    * Get labelKey
    * @return labelKey
    */
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_LABEL_KEY)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
   public String getLabelKey() {
     return labelKey;
@@ -439,8 +441,8 @@ public class PackageDocumentQuestion extends HashMap<String, Object> {
 
 
   @JsonProperty(JSON_PROPERTY_LABEL_KEY)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setLabelKey(@jakarta.annotation.Nonnull String labelKey) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setLabelKey(@jakarta.annotation.Nullable String labelKey) {
     this.labelKey = labelKey;
   }
 

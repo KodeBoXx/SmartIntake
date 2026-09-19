@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "4.0.0",
+  "engineContract": "4.0.0",
+  "contractVersion": "4.0.0",
+  "kind": "smart-form-package",
+  "formKey": "simple-request",
+  "definitionVersion": "1.0.0",
+  "titleKey": "form.title",
+  "descriptionKey": "form.description",
+  "defaultLocale": "en",
+  "supportedLocales": ["en"],
+  "data": {"fields": [{"id": "fld_name", "key": "name", "type": "text", "labelKey": "q.name", "sensitivity": "personal", "mode": "input", "hiddenRetention": "clear", "normalizer": "preserve", "constraints": {"required": true, "maxLength": 120}}]},
+  "flow": {"startPageId": "page_name", "phases": [{"id": "phase_request", "titleKey": "form.title", "pages": [{"id": "page_name", "titleKey": "q.name", "sections": [{"id": "section_name", "titleKey": "q.name", "layout": "stack", "nodes": [{"id": "node_name", "kind": "question", "fieldId": "fld_name", "control": "shortText"}]}], "routes": [], "defaultNextPageId": "page_review"}, {"id": "page_review", "titleKey": "page.review", "sections": [{"id": "section_review", "titleKey": "page.review", "layout": "stack", "nodes": [{"id": "node_review", "kind": "review"}]}], "routes": []}]}]},
+  "expressions": {},
+  "guidance": {},
+  "translations": {"en": {"direction": "ltr", "reviewState": "approved", "messages": {"form.title": "Service information request", "form.description": "A synthetic, general-purpose guided intake.", "q.name": "Full name", "page.review": "Review and submit", "confirmation": "Your response has been received."}, "pronunciations": []}},
+  "theme": {"themeKey": "accessible-default", "version": "1.0.0", "tokens": {"accent": "#175CD3", "background": "#FFFFFF", "text": "#182230", "fontFamily": "system", "density": "comfortable", "radius": 8}},
+  "policies": {"reviewBeforeSubmit": true, "draftExpiryDays": 30, "showProgress": true, "presentation": "grouped", "guidanceMode": "text", "narrationAutoplay": false, "allowVoiceQuestions": false, "retentionPolicyKey": "standard-intake", "responseAccess": "anonymous", "confirmationKey": "confirmation"},
+  "dependencies": [],
+  "assets": []
+}

@@ -59,7 +59,10 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   PackageDocumentField.JSON_PROPERTY_GUIDANCE_ID,
   PackageDocumentField.JSON_PROPERTY_VISIBILITY_EXPRESSION_ID,
   PackageDocumentField.JSON_PROPERTY_REQUIRED_EXPRESSION_ID,
-  PackageDocumentField.JSON_PROPERTY_VALIDATION_EXPRESSION_ID
+  PackageDocumentField.JSON_PROPERTY_VALIDATION_EXPRESSION_ID,
+  PackageDocumentField.JSON_PROPERTY_SENSITIVITY,
+  PackageDocumentField.JSON_PROPERTY_MODE,
+  PackageDocumentField.JSON_PROPERTY_NORMALIZER
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
 public class PackageDocumentField extends HashMap<String, Object> {
@@ -248,6 +251,94 @@ public class PackageDocumentField extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_VALIDATION_EXPRESSION_ID = "validationExpressionId";
   @jakarta.annotation.Nullable
   private String validationExpressionId;
+
+  public static final String JSON_PROPERTY_SENSITIVITY = "sensitivity";
+  @jakarta.annotation.Nullable
+  private String sensitivity;
+
+  /**
+   * Gets or Sets mode
+   */
+  public enum ModeEnum {
+    INPUT(String.valueOf("input")),
+    
+    CALCULATED(String.valueOf("calculated")),
+    
+    DISPLAY(String.valueOf("display"));
+
+    private String value;
+
+    ModeEnum(String value) {
+      this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    @JsonCreator
+    public static ModeEnum fromValue(String value) {
+      for (ModeEnum b : ModeEnum.values()) {
+        if (b.value.equals(value)) {
+          return b;
+        }
+      }
+      throw new IllegalArgumentException("Unexpected value '" + value + "'");
+    }
+  }
+
+  public static final String JSON_PROPERTY_MODE = "mode";
+  @jakarta.annotation.Nullable
+  private ModeEnum mode;
+
+  /**
+   * Gets or Sets normalizer
+   */
+  public enum NormalizerEnum {
+    PRESERVE(String.valueOf("preserve")),
+    
+    TRIM(String.valueOf("trim")),
+    
+    LOWERCASE(String.valueOf("lowercase")),
+    
+    UPPERCASE(String.valueOf("uppercase"));
+
+    private String value;
+
+    NormalizerEnum(String value) {
+      this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    @JsonCreator
+    public static NormalizerEnum fromValue(String value) {
+      for (NormalizerEnum b : NormalizerEnum.values()) {
+        if (b.value.equals(value)) {
+          return b;
+        }
+      }
+      throw new IllegalArgumentException("Unexpected value '" + value + "'");
+    }
+  }
+
+  public static final String JSON_PROPERTY_NORMALIZER = "normalizer";
+  @jakarta.annotation.Nullable
+  private NormalizerEnum normalizer;
 
   public PackageDocumentField() {
 
@@ -845,6 +936,81 @@ public class PackageDocumentField extends HashMap<String, Object> {
     this.validationExpressionId = validationExpressionId;
   }
 
+  public PackageDocumentField sensitivity(@jakarta.annotation.Nullable String sensitivity) {
+    
+    this.sensitivity = sensitivity;
+    return this;
+  }
+
+  /**
+   * Get sensitivity
+   * @return sensitivity
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_SENSITIVITY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public String getSensitivity() {
+    return sensitivity;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_SENSITIVITY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setSensitivity(@jakarta.annotation.Nullable String sensitivity) {
+    this.sensitivity = sensitivity;
+  }
+
+  public PackageDocumentField mode(@jakarta.annotation.Nullable ModeEnum mode) {
+    
+    this.mode = mode;
+    return this;
+  }
+
+  /**
+   * Get mode
+   * @return mode
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_MODE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public ModeEnum getMode() {
+    return mode;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_MODE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setMode(@jakarta.annotation.Nullable ModeEnum mode) {
+    this.mode = mode;
+  }
+
+  public PackageDocumentField normalizer(@jakarta.annotation.Nullable NormalizerEnum normalizer) {
+    
+    this.normalizer = normalizer;
+    return this;
+  }
+
+  /**
+   * Get normalizer
+   * @return normalizer
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_NORMALIZER)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public NormalizerEnum getNormalizer() {
+    return normalizer;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_NORMALIZER)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setNormalizer(@jakarta.annotation.Nullable NormalizerEnum normalizer) {
+    this.normalizer = normalizer;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -877,12 +1043,15 @@ public class PackageDocumentField extends HashMap<String, Object> {
         Objects.equals(this.visibilityExpressionId, packageDocumentField.visibilityExpressionId) &&
         Objects.equals(this.requiredExpressionId, packageDocumentField.requiredExpressionId) &&
         Objects.equals(this.validationExpressionId, packageDocumentField.validationExpressionId) &&
+        Objects.equals(this.sensitivity, packageDocumentField.sensitivity) &&
+        Objects.equals(this.mode, packageDocumentField.mode) &&
+        Objects.equals(this.normalizer, packageDocumentField.normalizer) &&
         super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, key, type, labelKey, descriptionKey, required, readOnly, calculated, hiddenRetention, allowUnknown, allowDeclined, allowNotApplicable, ordered, unit, options, constraints, _default, itemSchema, extensions, guidanceId, visibilityExpressionId, requiredExpressionId, validationExpressionId, super.hashCode());
+    return Objects.hash(id, key, type, labelKey, descriptionKey, required, readOnly, calculated, hiddenRetention, allowUnknown, allowDeclined, allowNotApplicable, ordered, unit, options, constraints, _default, itemSchema, extensions, guidanceId, visibilityExpressionId, requiredExpressionId, validationExpressionId, sensitivity, mode, normalizer, super.hashCode());
   }
 
   @Override
@@ -913,6 +1082,9 @@ public class PackageDocumentField extends HashMap<String, Object> {
     sb.append("    visibilityExpressionId: ").append(toIndentedString(visibilityExpressionId)).append("\n");
     sb.append("    requiredExpressionId: ").append(toIndentedString(requiredExpressionId)).append("\n");
     sb.append("    validationExpressionId: ").append(toIndentedString(validationExpressionId)).append("\n");
+    sb.append("    sensitivity: ").append(toIndentedString(sensitivity)).append("\n");
+    sb.append("    mode: ").append(toIndentedString(mode)).append("\n");
+    sb.append("    normalizer: ").append(toIndentedString(normalizer)).append("\n");
     sb.append("}");
     return sb.toString();
   }

@@ -132,6 +132,32 @@ def content_examples(content: dict[str, Any], components: dict[str, Any]) -> lis
     return values
 
 
+def validate_success_examples(operation_id: str, responses: dict[str, Any], components: dict[str, Any], errors: list[str]) -> None:
+    """Require every published supplemental response example to match its concrete schema."""
+    for code, response in responses.items():
+        if not str(code).startswith("2") or not isinstance(response, dict):
+            continue
+        for media_type, media in response.get("content", {}).items():
+            if not isinstance(media, dict):
+                errors.append(f"supplemental success response {operation_id} has malformed {media_type} content")
+                continue
+            if media_type == "application/octet-stream":
+                if media.get("schema", {}).get("format") != "binary":
+                    errors.append(f"supplemental binary response {operation_id} must declare binary body")
+                continue
+            name, schema = schema_for(media.get("schema", {}), components)
+            if name in FORBIDDEN_FALLBACKS or schema is None:
+                errors.append(f"supplemental success response {operation_id} must select a concrete component response schema")
+                continue
+            values = content_examples(media, components)
+            if not values:
+                errors.append(f"supplemental success response {operation_id} lacks a representative example")
+            for value in values:
+                example_error = validate_example(schema, value, components)
+                if example_error:
+                    errors.append(f"supplemental success response {operation_id} example is invalid: {example_error}")
+
+
 def validate(check_generated: bool) -> list[str]:
     errors: list[str] = []
     document, components = load_yaml(API), load_yaml(COMPONENTS)
@@ -144,8 +170,8 @@ def validate(check_generated: bool) -> list[str]:
     named_ids = {member["id"] for member in named["members"]}
     schemas = components.get("components", {}).get("schemas", {})
     published_schema = schemas.get("PublishedSchema", {})
-    if published_schema.get("additionalProperties") is False:
-        errors.append("PublishedSchema must accept complete Draft 2020-12 documents, including $defs and extension annotations")
+    if published_schema.get("additionalProperties") is not True:
+        errors.append("PublishedSchema must explicitly accept complete Draft 2020-12 documents, including $defs and extension annotations")
     for filename in sorted(SCHEMA_FILES):
         document_schema = json.loads((COMPONENTS.parent / filename).read_text(encoding="utf-8"))
         error = validate_example(published_schema, document_schema, components)
@@ -222,6 +248,22 @@ def validate(check_generated: bool) -> list[str]:
                     errors.append(f"staff mutation {operation_id} lacks Idempotency-Key")
             if op.get("x-implementation-status") not in {"implemented", "contract-published"}:
                 errors.append(f"counted operation {operation_id} lacks implementation publication status")
+            if path.startswith("/v1/auth/") or path == "/v1/invitations/accept":
+                replay = op.get("x-replay", "")
+                if not isinstance(replay, str) or "never replay credentials" not in replay or "Idempotency-Key" in replay:
+                    errors.append(f"auth operation {operation_id} must use credential-safe operation-specific replay semantics")
+            if path == "/v1/auth/sign-in":
+                parameter_refs = {parameter.get("$ref") for parameter in op.get("parameters", []) if isinstance(parameter, dict)}
+                if not {"LoginCsrfToken", "LoginCsrfCookie"}.issubset({reference.rsplit("/", 1)[-1] for reference in parameter_refs if isinstance(reference, str)}):
+                    errors.append("sign-in must require the bound login-CSRF header and cookie parameters")
+            if path == "/v1/auth/session":
+                response = responses.get("200", {})
+                headers = response.get("headers", {}) if isinstance(response, dict) else {}
+                content = response.get("content", {}).get("application/json", {}) if isinstance(response, dict) else {}
+                response_name, _ = schema_for(content.get("schema", {}), components)
+                set_cookie = headers.get("Set-Cookie", {}).get("$ref", "")
+                if response_name != "LoginCsrfBootstrapResponse" or not isinstance(set_cookie, str) or not set_cookie.endswith("/headers/LoginCsrfSetCookie"):
+                    errors.append("GET /v1/auth/session must publish the one-time login-CSRF body and bound Set-Cookie contract")
             for code, response in responses.items():
                 if not str(code).startswith("2") or not isinstance(response, dict):
                     continue
@@ -273,6 +315,8 @@ def validate(check_generated: bool) -> list[str]:
         errors.append("authorized asset supplemental operation lacks its M0 source/rationale")
     elif schema_for(supplemental[0]["responses"]["200"]["content"]["application/json"]["schema"], components)[0] != "AuthorizedAssetResponse":
         errors.append("authorized asset supplement must return AuthorizedAssetResponse")
+    for operation in supplemental:
+        validate_success_examples(str(operation.get("operationId")), operation.get("responses", {}), components, errors)
     refs = external_refs(document) | external_refs(components)
     referenced_names = {ref.rsplit("/", 1)[-1].split("#", 1)[0] for ref in refs if ".schema.json" in ref}
     if not SCHEMA_FILES.issubset(referenced_names):

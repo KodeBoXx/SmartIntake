@@ -40,7 +40,7 @@ def is_canonical_int64(value: object) -> bool:
 def is_canonical_decimal(value: object) -> bool:
     if not isinstance(value, str):
         return False
-    return bool(re.fullmatch(r"(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?", value)) and digits(value) <= 34
+    return bool(re.fullmatch(r"(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?", value)) and decimal_is_bounded(value)
 
 
 @FORMAT_CHECKER.checks("stored-decimal")
@@ -48,11 +48,38 @@ def is_stored_decimal(value: object) -> bool:
     """Destination values retain declared scale, unlike expression results."""
     if not isinstance(value, str):
         return False
-    return bool(re.fullmatch(r"-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?", value)) and digits(value) <= 34
+    return bool(re.fullmatch(r"(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]+)?", value)) and decimal_is_bounded(value)
 
 
-def digits(value: str) -> int:
-    return len(value.removeprefix("-").replace(".", ""))
+@FORMAT_CHECKER.checks("expression-decimal-input")
+def is_expression_decimal_input(value: object) -> bool:
+    """Expression literals may declare negative zero; evaluation normalizes it."""
+    if not isinstance(value, str):
+        return False
+    return bool(re.fullmatch(r"-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?", value)) and decimal_is_bounded(value)
+
+
+def decimal_is_bounded(value: str) -> bool:
+    """Validate the exact decimal coefficient and adjusted-exponent bounds.
+
+    Precision removes insignificant leading and trailing coefficient zeros, so
+    expanded exact powers of ten do not consume one significant digit per zero.
+    The adjusted exponent is calculated from the wire digits, never a binary
+    float. Zero has neither a precision nor an exponent-bound failure.
+    """
+    unsigned = value.removeprefix("-")
+    integer, _, fraction = unsigned.partition(".")
+    coefficient = (integer + fraction).lstrip("0")
+    if not coefficient:
+        return True
+    if len(coefficient.rstrip("0")) > 34:
+        return False
+    integer_without_leading_zeroes = integer.lstrip("0")
+    if integer_without_leading_zeroes:
+        adjusted_exponent = len(integer_without_leading_zeroes) - 1
+    else:
+        adjusted_exponent = -(len(fraction) - len(fraction.lstrip("0")) + 1)
+    return -6143 <= adjusted_exponent <= 6144
 
 
 def load_json(path: Path) -> Any:
@@ -137,7 +164,10 @@ def validate_authoritative_expression_vectors(validator: Draft202012Validator) -
     failures: list[str] = []
     if actual_hash != expected_hash:
         return [f"{fixture_path}: source hash does not match authoritative expression contract"]
-    source_vectors = {vector["id"]: vector for vector in load_json(source_path)["vectors"]}
+    source_vector_list = load_json(source_path)["vectors"]
+    source_vectors = {vector["id"]: vector for vector in source_vector_list}
+    if [vector["id"] for vector in fixture["vectors"]] != [vector["id"] for vector in source_vector_list]:
+        failures.append(f"{fixture_path}: must freeze every authoritative vector in source order")
     for vector in fixture["vectors"]:
         source = source_vectors.get(vector["id"])
         if source is None or source.get("expression") != vector["expression"]:
@@ -200,12 +230,15 @@ def main() -> int:
 
     supplemental = [
         ("package", "fixtures/package-prd-minimal.positive.json", True),
+        ("package", "fixtures/package-prd-inline-minimal.positive.json", True),
         ("package", "fixtures/package-prd-rich.positive.json", True),
         ("package", "fixtures/package-extension-binding.negative.json", False),
         ("typed-answer", "fixtures/typed-answer-decimal-storage.positive.json", True),
         ("typed-answer", "fixtures/typed-answer-decimal-storage.negative.json", False),
         ("event", "fixtures/event-submission-deleted.positive.json", True),
         ("event", "fixtures/event-submission-deleted.negative.json", False),
+        ("event", "fixtures/event-submission-created-reference.positive.json", True),
+        ("event", "fixtures/event-submission-created-reference.negative.json", False),
     ]
     for kind, path, should_validate in supplemental:
         validator = validators.get(kind)
@@ -230,6 +263,20 @@ def main() -> int:
             failures.append("expression result decimal fixture should accept canonical 12.5")
         if not list(result_validator.iter_errors(decimal_fixture["invalid"])):
             failures.append("expression result decimal fixture should reject scale-preserving 12.50")
+        decimal_formats = load_json(CONTRACT_ROOT / "fixtures/decimal-formats.json")
+        decimal_definitions = {
+            "stored": schemas["typed-answer"]["$defs"]["decimalStorage"],
+            "expressionInput": schemas["expression"]["$defs"]["expressionDecimalInput"],
+            "expressionResult": schemas["expression"]["$defs"]["decimalResult"],
+        }
+        for name, definition in decimal_definitions.items():
+            decimal_validator = Draft202012Validator(definition, format_checker=FORMAT_CHECKER)
+            for value in decimal_formats[name]["valid"]:
+                if list(decimal_validator.iter_errors(value)):
+                    failures.append(f"decimal {name} should accept {value!r}")
+            for value in decimal_formats[name]["invalid"]:
+                if not list(decimal_validator.iter_errors(value)):
+                    failures.append(f"decimal {name} should reject {value!r}")
         event_coverage = load_json(CONTRACT_ROOT / "fixtures/event-type-coverage.positive.json")
         for event in event_coverage:
             if list(validators["event"].iter_errors(event)):

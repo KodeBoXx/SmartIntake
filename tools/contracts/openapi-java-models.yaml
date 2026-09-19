@@ -61,9 +61,8 @@ paths:
                   displayName: A. Author
               invalid:
                 value: {}
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
-        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
-        plus body.
+      x-replay: Authentication proofs are operation-specific and one-time where applicable; retries never replay credentials,
+        tokens, cookies, reset links, activation links or transfer capabilities.
       x-secret-issuance-replay: Secret, activation, reset and session issuance never replay credentials, tokens, cookies or
         transfer capabilities; a replay response is redacted.
   /v1/auth/password-change:
@@ -121,9 +120,8 @@ paths:
                   newPassword: new-correct-horse-battery
               invalid:
                 value: {}
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
-        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
-        plus body.
+      x-replay: Authentication proofs are operation-specific and one-time where applicable; retries never replay credentials,
+        tokens, cookies, reset links, activation links or transfer capabilities.
   /v1/auth/recovery:
     post:
       operationId: ON-post-v1-auth-recovery-759d7b6e5a
@@ -190,9 +188,8 @@ paths:
                   email: author@example.test
               invalid:
                 value: {}
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
-        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
-        plus body.
+      x-replay: Authentication proofs are operation-specific and one-time where applicable; retries never replay credentials,
+        tokens, cookies, reset links, activation links or transfer capabilities.
       x-secret-issuance-replay: Secret, activation, reset and session issuance never replay credentials, tokens, cookies or
         transfer capabilities; a replay response is redacted.
   /v1/auth/reset:
@@ -247,9 +244,8 @@ paths:
                   newPassword: new-correct-horse-battery
               invalid:
                 value: {}
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
-        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
-        plus body.
+      x-replay: Authentication proofs are operation-specific and one-time where applicable; retries never replay credentials,
+        tokens, cookies, reset links, activation links or transfer capabilities.
       x-secret-issuance-replay: Secret, activation, reset and session issuance never replay credentials, tokens, cookies or
         transfer capabilities; a replay response is redacted.
   /v1/auth/session:
@@ -265,33 +261,26 @@ paths:
         source: docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md
       x-authorization:
         roles:
-        - staff.session.self
-        tenantScope: account-session
+        - anonymous.login-csrf.bootstrap
+        tenantScope: anonymous
       x-implementation-status: contract-published
       responses:
         '200':
           description: Successful response.
           headers:
-            ETag:
-              $ref: '#/components/headers/ETag'
+            Set-Cookie:
+              $ref: '#/components/headers/LoginCsrfSetCookie'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StaffSessionResponse'
+                $ref: '#/components/schemas/LoginCsrfBootstrapResponse'
               examples:
                 success:
                   value:
                     requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
-                    staffSession:
-                      id: staffsession-01J2W5RFR3K24SFWDX2C0N9VW3
-                      kind: StaffSession
-                      revision: 7
-                      status: active
-                      createdAt: '2026-09-18T00:00:00Z'
-                      updatedAt: '2026-09-18T00:00:00Z'
-                      userId: user-01J2W5RFR3K24SFWDX2C0N9VW3
-                      expiresAt: '2026-09-19T00:00:00Z'
-                      csrfToken: csrf-01J2W5RFR3K24SFWDX2C0N9VW3
+                    loginCsrfBootstrap:
+                      csrfToken: login-csrf-01J2W5RFR3K24SFWDX2C0N9VW3
+                      expiresAt: '2026-09-18T00:05:00Z'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -304,8 +293,10 @@ paths:
           $ref: '#/components/responses/RateLimited'
         '500':
           $ref: '#/components/responses/InternalError'
-      security:
-      - staffCookie: []
+      x-replay: Authentication proofs are operation-specific and one-time where applicable; retries never replay credentials,
+        tokens, cookies, reset links, activation links or transfer capabilities.
+      x-login-csrf-bootstrap: Anonymous bootstrap issues one short-lived one-time token and its bound Secure, HttpOnly, SameSite=Strict
+        cookie; a consumed or expired token requires a fresh bootstrap response.
   /v1/auth/sign-in:
     post:
       operationId: ON-post-v1-auth-sign-in-7c9d8ac3a9
@@ -362,6 +353,9 @@ paths:
           $ref: '#/components/responses/Conflict'
         '422':
           $ref: '#/components/responses/Unprocessable'
+      parameters:
+      - $ref: '#/components/parameters/LoginCsrfToken'
+      - $ref: '#/components/parameters/LoginCsrfCookie'
       requestBody:
         required: true
         content:
@@ -375,9 +369,8 @@ paths:
                   password: correct-horse-battery-staple
               invalid:
                 value: {}
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
-        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
-        plus body.
+      x-replay: Authentication proofs are operation-specific and one-time where applicable; retries never replay credentials,
+        tokens, cookies, reset links, activation links or transfer capabilities.
       x-secret-issuance-replay: Secret, activation, reset and session issuance never replay credentials, tokens, cookies or
         transfer capabilities; a replay response is redacted.
       x-login-csrf-origin-protection: Validate an allow-listed Origin and a one-time login-CSRF token before issuing a SameSite,
@@ -436,9 +429,8 @@ paths:
                   name: Example resource
               invalid:
                 value: {}
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
-        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
-        plus body.
+      x-replay: Authentication proofs are operation-specific and one-time where applicable; retries never replay credentials,
+        tokens, cookies, reset links, activation links or transfer capabilities.
   /v1/capabilities:
     get:
       operationId: ON-get-v1-capabilities-ca77d2f932
@@ -545,9 +537,8 @@ paths:
                   password: correct-horse-battery-staple
               invalid:
                 value: {}
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
-        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
-        plus body.
+      x-replay: Authentication proofs are operation-specific and one-time where applicable; retries never replay credentials,
+        tokens, cookies, reset links, activation links or transfer capabilities.
       x-secret-issuance-replay: Secret, activation, reset and session issuance never replay credentials, tokens, cookies or
         transfer capabilities; a replay response is redacted.
   /v1/organizations/{o}/invitations/{i}:
@@ -2687,11 +2678,6 @@ paths:
                     requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
                     authorizedAsset:
                       id: authorizedasset-01J2W5RFR3K24SFWDX2C0N9VW3
-                      kind: AuthorizedAsset
-                      revision: 7
-                      status: active
-                      createdAt: '2026-09-18T00:00:00Z'
-                      updatedAt: '2026-09-18T00:00:00Z'
                       downloadUrl: https://transfer.example.test/assets/asset-01J2W5RFR3K24SFWDX2C0N9VW3?capability=redacted
                       expiresAt: '2026-09-18T00:05:00Z'
                       contentType: application/pdf
@@ -6783,6 +6769,22 @@ components:
         default: 50
         minimum: 1
         maximum: 200
+    LoginCsrfToken:
+      name: X-Login-CSRF-Token
+      in: header
+      required: true
+      schema:
+        type: string
+        minLength: 24
+      description: One-time value returned by GET /v1/auth/session; it must match the server-bound login-CSRF cookie.
+    LoginCsrfCookie:
+      name: smartintake_login_csrf
+      in: cookie
+      required: true
+      schema:
+        type: string
+        minLength: 24
+      description: Secure, HttpOnly, SameSite=Strict cookie set by GET /v1/auth/session and consumed with the matching X-Login-CSRF-Token.
   headers:
     ETag:
       schema:
@@ -6801,6 +6803,11 @@ components:
         type: integer
         minimum: 1
       description: Seconds until the caller may retry a 429 response.
+    LoginCsrfSetCookie:
+      schema:
+        type: string
+      description: Sets smartintake_login_csrf as a Secure, HttpOnly, SameSite=Strict, short-lived cookie bound to the returned
+        one-time token.
   examples:
     Problem:
       value:
@@ -6915,6 +6922,7 @@ components:
           - text
           controls:
           - text
+          - shortText
           - textarea
           - email
           - phone
@@ -7047,14 +7055,14 @@ components:
         generation:
           absolutePathPolicy: forbidden
           generator: tools/contracts/generate_contract_artifacts.py
-          generatorVersion: 1.3.0
+          generatorVersion: 1.3.1
           javaOpenApiGenerator: 7.10.0 (pinned; generated by openapi-generator-maven-plugin from a deterministic local OpenAPI
             bundle)
           jsonSchemaToTypeScript: 15.0.4
           modelStrategy: schema-derived-transport-projections-require-ContractRegistry-validation
           openapi: 3.1.0
           openapiTypeScript: 7.6.1
-          python: '3.12'
+          python: 3.12.3
           schemaDialect: https://json-schema.org/draft/2020-12/schema
           timestampPolicy: none
         limits:
@@ -7830,13 +7838,13 @@ components:
           id: https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/package.schema.json
           kind: package
           resource: contracts/smart-form-builder-lite/4.0.0/package.schema.json
-          sha256: 70eef04301c1a46e0851483bc5626e174784d0d442bd27144fd5738eb42abd7b
+          sha256: 06208fec2155bc39371b4f35c349bfa25cf18a96f054def179986d1d3a22d01f
           version: 4.0.0
         - file: expression.schema.json
           id: https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/expression.schema.json
           kind: expression
           resource: contracts/smart-form-builder-lite/4.0.0/expression.schema.json
-          sha256: 393732395faa4b3dac3401bfc4347f583465ff143c6345c5fe8522d7927a9aca
+          sha256: 30a0d06cac619c7bfed718ceaec1c6767670d63d61c39d861883d08f7d2ba4c0
           version: 4.0.0
         - file: input-answer.schema.json
           id: https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/input-answer.schema.json
@@ -7848,7 +7856,7 @@ components:
           id: https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/typed-answer.schema.json
           kind: typed-answer
           resource: contracts/smart-form-builder-lite/4.0.0/typed-answer.schema.json
-          sha256: 52748b96244070197dae1a95107713712a8f8e5c9877bc53d851a1a4d290c4df
+          sha256: eba3edf86bccd3e1ed006d538b36884c4e4daf36b9acfa18d5f532f2e91fd349
           version: 4.0.0
         - file: runtime-manifest.schema.json
           id: https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/runtime-manifest.schema.json
@@ -7860,13 +7868,13 @@ components:
           id: https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/submission-envelope.schema.json
           kind: submission-envelope
           resource: contracts/smart-form-builder-lite/4.0.0/submission-envelope.schema.json
-          sha256: 6959c452798c6893aeb2cfe4004440fdfa28261cba143cb00518bb2a4a6631e0
+          sha256: 5d647799accd7f384296e6e3f180eb85485c1f7a9a021026519b64d4560c8a44
           version: 4.0.0
         - file: event.schema.json
           id: https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/event.schema.json
           kind: event
           resource: contracts/smart-form-builder-lite/4.0.0/event.schema.json
-          sha256: 51a54916d61abda125beda9a2e470e647232ef14629e3d5f99e0884b9423f23f
+          sha256: fcacc8ab2455d398b3d06d712276ec39422871e96947eb69815f7ec890e7b9ff
           version: 4.0.0
         versions:
           contract: 4.0.0
@@ -8222,6 +8230,7 @@ components:
           format: date-time
     PublishedSchema:
       type: object
+      additionalProperties: true
       required:
       - $schema
       - $id
@@ -8403,6 +8412,20 @@ components:
           description: M1 compatibility alias derived from operatorSignatures; use operatorSignatures for arity metadata.
         xGeneratedEventModel:
           $ref: '#/components/schemas/EventDocument'
+    LoginCsrfBootstrap:
+      type: object
+      additionalProperties: false
+      required:
+      - csrfToken
+      - expiresAt
+      properties:
+        csrfToken:
+          type: string
+          minLength: 24
+        expiresAt:
+          type: string
+          format: date-time
+      description: One-time anonymous login-CSRF token bound to the smartintake_login_csrf cookie.
     Form:
       type: object
       additionalProperties: false
@@ -9898,7 +9921,7 @@ components:
           type: string
           minLength: 1
           maxLength: 160
-    StaffSessionUpdateRequest:
+    LoginCsrfBootstrapUpdateRequest:
       type: object
       additionalProperties: false
       required:
@@ -10871,6 +10894,46 @@ components:
               anyOf:
               - type: string
               - type: 'null'
+    LoginCsrfBootstrapResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - requestId
+      - loginCsrfBootstrap
+      properties:
+        requestId:
+          $ref: '#/components/schemas/OpaqueId'
+        loginCsrfBootstrap:
+          $ref: '#/components/schemas/LoginCsrfBootstrap'
+    LoginCsrfBootstrapCollection:
+      type: object
+      additionalProperties: false
+      required:
+      - requestId
+      - items
+      - page
+      properties:
+        requestId:
+          $ref: '#/components/schemas/OpaqueId'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/LoginCsrfBootstrap'
+        page:
+          type: object
+          additionalProperties: false
+          required:
+          - limit
+          - nextCursor
+          properties:
+            limit:
+              type: integer
+              minimum: 1
+              maximum: 200
+            nextCursor:
+              anyOf:
+              - type: string
+              - type: 'null'
     OrganizationResponse:
       type: object
       additionalProperties: false
@@ -11733,7 +11796,6 @@ components:
       - dependencies
       - policies
       - assets
-      - extensions
       - guidance
       - theme
       properties:
@@ -11823,6 +11885,7 @@ components:
       - row: 1
         controls:
         - text
+        - shortText
         - textarea
         - email
         - phone
@@ -12031,7 +12094,7 @@ components:
           pattern: ^[A-Za-z][A-Za-z0-9_-]{0,127}$
         key:
           type: string
-          pattern: ^[a-z][a-z0-9_]{0,63}$
+          pattern: ^[A-Za-z][A-Za-z0-9_.-]{0,127}$
         sha256:
           type: string
           pattern: ^sha256:[0-9a-f]{64}$
@@ -12041,7 +12104,7 @@ components:
           format: canonical-int64
         decimal:
           type: string
-          pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
+          pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]+)?$
           format: stored-decimal
         date:
           type: string
@@ -12143,6 +12206,16 @@ components:
               items:
                 $ref: '#/components/schemas/PackageDocumentId'
               uniqueItems: true
+            required:
+              type: boolean
+            minLength:
+              type: integer
+              minimum: 0
+              maximum: 100000
+            maxLength:
+              type: integer
+              minimum: 0
+              maximum: 100000
         field:
           type: object
           additionalProperties: false
@@ -12222,6 +12295,21 @@ components:
               $ref: '#/components/schemas/PackageDocumentId'
             validationExpressionId:
               $ref: '#/components/schemas/PackageDocumentId'
+            sensitivity:
+              type: string
+              minLength: 1
+              maxLength: 64
+            mode:
+              enum:
+              - input
+              - calculated
+              - display
+            normalizer:
+              enum:
+              - preserve
+              - trim
+              - lowercase
+              - uppercase
           required:
           - id
           - key
@@ -12273,6 +12361,7 @@ components:
             control:
               enum:
               - text
+              - shortText
               - textarea
               - email
               - phone
@@ -12353,14 +12442,23 @@ components:
           - id
           - kind
           - fieldId
-          - fieldType
           - control
-          - labelKey
           allOf:
           - if:
               properties:
                 control:
                   const: text
+              required:
+              - control
+            then:
+              properties:
+                fieldType:
+                  enum:
+                  - text
+          - if:
+              properties:
+                control:
+                  const: shortText
               required:
               - control
             then:
@@ -12806,7 +12904,6 @@ components:
           required:
           - id
           - kind
-          - labelKey
         node:
           oneOf:
           - $ref: '#/components/schemas/PackageDocumentQuestion'
@@ -12838,8 +12935,6 @@ components:
               $ref: '#/components/schemas/PackageDocumentKey'
           required:
           - id
-          - key
-          - labelKey
           - nodes
         page:
           type: object
@@ -12871,8 +12966,6 @@ components:
               uniqueItems: true
           required:
           - id
-          - key
-          - labelKey
           - sections
         phase:
           type: object
@@ -12885,6 +12978,8 @@ components:
               minItems: 1
               items:
                 $ref: '#/components/schemas/PackageDocumentPage'
+            titleKey:
+              $ref: '#/components/schemas/PackageDocumentKey'
           required:
           - id
           - pages
@@ -12972,7 +13067,7 @@ components:
           - mediaType
         decimalStorage:
           type: string
-          pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
+          pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]+)?$
           format: stored-decimal
         expressionResultDecimal:
           type: string
@@ -13211,8 +13306,7 @@ components:
               type: boolean
             extensions:
               $ref: '#/components/schemas/PackageDocumentExtensionNamespaces'
-          required:
-          - attachmentsRequiredReady
+          required: []
       allOf:
       - $comment: Control/type consistency is checked for each instance; fieldId resolution is semantic.
       - $comment: text accepts ['text']
@@ -13263,7 +13357,7 @@ components:
       pattern: ^[A-Za-z][A-Za-z0-9_-]{0,127}$
     PackageDocumentKey:
       type: string
-      pattern: ^[a-z][a-z0-9_]{0,63}$
+      pattern: ^[A-Za-z][A-Za-z0-9_.-]{0,127}$
     PackageDocumentSha256:
       type: string
       pattern: ^sha256:[0-9a-f]{64}$
@@ -13273,7 +13367,7 @@ components:
       format: canonical-int64
     PackageDocumentDecimal:
       type: string
-      pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
+      pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]+)?$
       format: stored-decimal
     PackageDocumentDate:
       type: string
@@ -13375,6 +13469,16 @@ components:
           items:
             $ref: '#/components/schemas/PackageDocumentId'
           uniqueItems: true
+        required:
+          type: boolean
+        minLength:
+          type: integer
+          minimum: 0
+          maximum: 100000
+        maxLength:
+          type: integer
+          minimum: 0
+          maximum: 100000
     PackageDocumentField:
       type: object
       additionalProperties: false
@@ -13454,6 +13558,21 @@ components:
           $ref: '#/components/schemas/PackageDocumentId'
         validationExpressionId:
           $ref: '#/components/schemas/PackageDocumentId'
+        sensitivity:
+          type: string
+          minLength: 1
+          maxLength: 64
+        mode:
+          enum:
+          - input
+          - calculated
+          - display
+        normalizer:
+          enum:
+          - preserve
+          - trim
+          - lowercase
+          - uppercase
       required:
       - id
       - key
@@ -13505,6 +13624,7 @@ components:
         control:
           enum:
           - text
+          - shortText
           - textarea
           - email
           - phone
@@ -13585,14 +13705,23 @@ components:
       - id
       - kind
       - fieldId
-      - fieldType
       - control
-      - labelKey
       allOf:
       - if:
           properties:
             control:
               const: text
+          required:
+          - control
+        then:
+          properties:
+            fieldType:
+              enum:
+              - text
+      - if:
+          properties:
+            control:
+              const: shortText
           required:
           - control
         then:
@@ -14038,7 +14167,6 @@ components:
       required:
       - id
       - kind
-      - labelKey
     PackageDocumentNode:
       oneOf:
       - $ref: '#/components/schemas/PackageDocumentQuestion'
@@ -14070,8 +14198,6 @@ components:
           $ref: '#/components/schemas/PackageDocumentKey'
       required:
       - id
-      - key
-      - labelKey
       - nodes
     PackageDocumentPage:
       type: object
@@ -14103,8 +14229,6 @@ components:
           uniqueItems: true
       required:
       - id
-      - key
-      - labelKey
       - sections
     PackageDocumentPhase:
       type: object
@@ -14117,6 +14241,8 @@ components:
           minItems: 1
           items:
             $ref: '#/components/schemas/PackageDocumentPage'
+        titleKey:
+          $ref: '#/components/schemas/PackageDocumentKey'
       required:
       - id
       - pages
@@ -14204,7 +14330,7 @@ components:
       - mediaType
     PackageDocumentDecimalStorage:
       type: string
-      pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
+      pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]+)?$
       format: stored-decimal
     PackageDocumentExpressionResultDecimal:
       type: string
@@ -14443,8 +14569,7 @@ components:
           type: boolean
         extensions:
           $ref: '#/components/schemas/PackageDocumentExtensionNamespaces'
-      required:
-      - attachmentsRequiredReady
+      required: []
     ExpressionDocument:
       title: Smart Form Builder Lite expression AST 4.0.0
       x-operatorArity:
@@ -14567,8 +14692,8 @@ components:
         decimal:
           type: string
           pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
-          format: stored-decimal
-          description: Destination storage preserves declared scale, e.g. 12.50.
+          format: expression-decimal-input
+          description: Expression decimal input; -0.000 is accepted and evaluates to canonical 0.
         date:
           type: string
           pattern: ^\d{4}-\d{2}-\d{2}$
@@ -14685,7 +14810,7 @@ components:
                 then:
                   properties:
                     value:
-                      $ref: '#/components/schemas/ExpressionDocumentDecimalStorage'
+                      $ref: '#/components/schemas/ExpressionDocumentExpressionDecimalInput'
                   not:
                     required:
                     - itemType
@@ -14811,7 +14936,7 @@ components:
                     value:
                       type: array
                       items:
-                        $ref: '#/components/schemas/ExpressionDocumentDecimalStorage'
+                        $ref: '#/components/schemas/ExpressionDocumentExpressionDecimalInput'
               - if:
                   properties:
                     type:
@@ -14985,7 +15110,7 @@ components:
           - args
         decimalStorage:
           type: string
-          pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
+          pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]+)?$
           format: stored-decimal
           description: Destination storage preserves declared scale, e.g. 12.50.
         decimalResult:
@@ -15015,6 +15140,11 @@ components:
           - version
           - digest
           - value
+        expressionDecimalInput:
+          type: string
+          pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
+          format: expression-decimal-input
+          description: Expression decimal input; -0.000 is accepted and evaluates to canonical 0.
       type: object
       additionalProperties: false
       required: []
@@ -15084,7 +15214,7 @@ components:
             then:
               properties:
                 value:
-                  $ref: '#/components/schemas/ExpressionDocumentDecimalStorage'
+                  $ref: '#/components/schemas/ExpressionDocumentExpressionDecimalInput'
               not:
                 required:
                 - itemType
@@ -15210,7 +15340,7 @@ components:
                 value:
                   type: array
                   items:
-                    $ref: '#/components/schemas/ExpressionDocumentDecimalStorage'
+                    $ref: '#/components/schemas/ExpressionDocumentExpressionDecimalInput'
           - if:
               properties:
                 type:
@@ -15377,8 +15507,8 @@ components:
     ExpressionDocumentDecimal:
       type: string
       pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
-      format: stored-decimal
-      description: Destination storage preserves declared scale, e.g. 12.50.
+      format: expression-decimal-input
+      description: Expression decimal input; -0.000 is accepted and evaluates to canonical 0.
     ExpressionDocumentDate:
       type: string
       pattern: ^\d{4}-\d{2}-\d{2}$
@@ -15495,7 +15625,7 @@ components:
             then:
               properties:
                 value:
-                  $ref: '#/components/schemas/ExpressionDocumentDecimalStorage'
+                  $ref: '#/components/schemas/ExpressionDocumentExpressionDecimalInput'
               not:
                 required:
                 - itemType
@@ -15621,7 +15751,7 @@ components:
                 value:
                   type: array
                   items:
-                    $ref: '#/components/schemas/ExpressionDocumentDecimalStorage'
+                    $ref: '#/components/schemas/ExpressionDocumentExpressionDecimalInput'
           - if:
               properties:
                 type:
@@ -15795,7 +15925,7 @@ components:
       - args
     ExpressionDocumentDecimalStorage:
       type: string
-      pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
+      pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]+)?$
       format: stored-decimal
       description: Destination storage preserves declared scale, e.g. 12.50.
     ExpressionDocumentDecimalResult:
@@ -15825,6 +15955,11 @@ components:
       - version
       - digest
       - value
+    ExpressionDocumentExpressionDecimalInput:
+      type: string
+      pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
+      format: expression-decimal-input
+      description: Expression decimal input; -0.000 is accepted and evaluates to canonical 0.
     InputAnswerDocument:
       title: Smart Form Builder Lite InputAnswer 4.0.0
       description: Recursive metadata-free input wrapper. Field type is resolved by the pinned definition.
@@ -16177,7 +16312,7 @@ components:
           format: canonical-int64
         decimal:
           type: string
-          pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
+          pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]+)?$
           format: stored-decimal
         date:
           type: string
@@ -16354,7 +16489,7 @@ components:
           - provenance
         decimalStorage:
           type: string
-          pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
+          pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]+)?$
           format: stored-decimal
         decimalResult:
           type: string
@@ -16430,7 +16565,7 @@ components:
       format: canonical-int64
     TypedAnswerDocumentDecimal:
       type: string
-      pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
+      pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]+)?$
       format: stored-decimal
     TypedAnswerDocumentDate:
       type: string
@@ -16607,7 +16742,7 @@ components:
       - provenance
     TypedAnswerDocumentDecimalStorage:
       type: string
-      pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
+      pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]+)?$
       format: stored-decimal
     TypedAnswerDocumentDecimalResult:
       type: string
@@ -17031,7 +17166,7 @@ components:
           format: canonical-int64
         decimal:
           type: string
-          pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
+          pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]+)?$
           format: stored-decimal
         date:
           type: string
@@ -17202,7 +17337,7 @@ components:
           - contractVersion
         decimalStorage:
           type: string
-          pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
+          pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]+)?$
           format: stored-decimal
         decimalResult:
           type: string
@@ -17245,7 +17380,7 @@ components:
       format: canonical-int64
     SubmissionEnvelopeDocumentDecimal:
       type: string
-      pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
+      pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]+)?$
       format: stored-decimal
     SubmissionEnvelopeDocumentDate:
       type: string
@@ -17416,7 +17551,7 @@ components:
       - contractVersion
     SubmissionEnvelopeDocumentDecimalStorage:
       type: string
-      pattern: ^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$
+      pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]+)?$
       format: stored-decimal
     SubmissionEnvelopeDocumentDecimalResult:
       type: string
@@ -17534,14 +17669,30 @@ components:
           - type
         then:
           properties:
-            dataMode:
-              const: full
             resource:
               required:
               - formId
               - submissionId
-          required:
-          - envelope
+          allOf:
+          - if:
+              properties:
+                dataMode:
+                  const: full
+              required:
+              - dataMode
+            then:
+              required:
+              - envelope
+          - if:
+              properties:
+                dataMode:
+                  const: reference
+              required:
+              - dataMode
+            then:
+              not:
+                required:
+                - envelope
       - if:
           properties:
             type:

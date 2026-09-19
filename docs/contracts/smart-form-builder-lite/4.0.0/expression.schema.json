@@ -855,8 +855,8 @@
     "decimal": {
       "type": "string",
       "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
-      "format": "stored-decimal",
-      "description": "Destination storage preserves declared scale, e.g. 12.50."
+      "format": "expression-decimal-input",
+      "description": "Expression decimal input; -0.000 is accepted and evaluates to canonical 0."
     },
     "date": {
       "type": "string",
@@ -1025,7 +1025,7 @@
               "then": {
                 "properties": {
                   "value": {
-                    "$ref": "#/$defs/decimalStorage"
+                    "$ref": "#/$defs/expressionDecimalInput"
                   }
                 },
                 "not": {
@@ -1250,7 +1250,7 @@
                   "value": {
                     "type": "array",
                     "items": {
-                      "$ref": "#/$defs/decimalStorage"
+                      "$ref": "#/$defs/expressionDecimalInput"
                     }
                   }
                 }
@@ -1521,7 +1521,7 @@
     },
     "decimalStorage": {
       "type": "string",
-      "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+      "pattern": "^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\\.[0-9]+)?$",
       "format": "stored-decimal",
       "description": "Destination storage preserves declared scale, e.g. 12.50."
     },
@@ -1560,6 +1560,12 @@
         "digest",
         "value"
       ]
+    },
+    "expressionDecimalInput": {
+      "type": "string",
+      "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+      "format": "expression-decimal-input",
+      "description": "Expression decimal input; -0.000 is accepted and evaluates to canonical 0."
     }
   },
   "$schema": "https://json-schema.org/draft/2020-12/schema",

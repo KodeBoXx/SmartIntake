@@ -1,0 +1,86 @@
+{
+  "schemaVersion": "4.0.0",
+  "eventId": "event1",
+  "type": "submission.created",
+  "occurredAt": "2026-09-05T10:00:01Z",
+  "tenantId": "tenant1",
+  "workspaceId": "workspace1",
+  "formSequence": 1,
+  "dataMode": "reference",
+  "resource": {
+    "formId": "form1",
+    "submissionId": "submission1"
+  },
+  "extensions": {},
+  "envelope": {
+    "schemaVersion": "4.0.0",
+    "submissionId": "submission1",
+    "tenantId": "tenant1",
+    "workspaceId": "workspace1",
+    "formId": "form1",
+    "sessionId": "session1",
+    "sessionRevision": 2,
+    "submittedAt": "2026-09-05T10:00:00Z",
+    "status": "accepted",
+    "locale": "en",
+    "evaluationContext": {
+      "sessionDate": "2026-09-05",
+      "timeZone": "Asia/Kolkata"
+    },
+    "release": {
+      "releaseId": "release1",
+      "definitionVersion": "1",
+      "packageSchemaVersion": "4.0.0",
+      "runtimeManifestVersion": "1",
+      "runtimeManifestHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "packageHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "engineContract": "4.0.0",
+      "contractVersion": "4.0.0"
+    },
+    "answers": {
+      "amount": {
+        "status": "answered",
+        "type": "integer",
+        "value": "9007199254740993",
+        "provenance": {
+          "source": "respondent",
+          "changedAt": "2026-09-05T10:00:00Z"
+        }
+      },
+      "note": {
+        "status": "unknown",
+        "type": "text",
+        "provenance": {
+          "source": "respondent",
+          "changedAt": "2026-09-05T10:00:00Z"
+        }
+      }
+    },
+    "attachments": [
+      {
+        "attachmentId": "attachment1",
+        "fileName": "note.txt",
+        "mediaType": "text/plain",
+        "sizeBytes": 8,
+        "sha256": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "status": "ready",
+        "createdAt": "2026-09-05T09:00:00Z"
+      }
+    ],
+    "acknowledgments": [
+      {
+        "kind": "field",
+        "fieldId": "consent",
+        "instanceId": "consent_node",
+        "rowPath": [],
+        "locale": "en",
+        "contentKey": "consent",
+        "contentHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "acceptedAt": "2026-09-05T10:00:00Z"
+      }
+    ],
+    "extensions": {},
+    "startedAt": "2026-09-05T09:30:00Z",
+    "receivedAt": "2026-09-05T10:00:01Z"
+  }
+}

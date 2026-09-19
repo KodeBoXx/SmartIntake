@@ -81,9 +81,15 @@ class ContractRegistryTests {
     }
     assertThat(registry.validate("expression", "4.0.0", json.readTree("{\"literal\":{\"type\":\"decimal\",\"value\":\"12.50\"}}"))).matches(ContractRegistry.ValidationResult::valid);
     assertThat(registry.validate("expression", "4.0.0", json.readTree("{\"literal\":{\"type\":\"decimal\",\"value\":\"1234567890123456789012345678901234\"}}"))).matches(ContractRegistry.ValidationResult::valid);
+    for (String value : new String[] {"12:30:00", "12:30:00.123456789"}) {
+      assertThat(registry.validate("expression", "4.0.0", json.readTree("{\"literal\":{\"type\":\"time\",\"value\":\"" + value + "\"}}")))
+          .matches(ContractRegistry.ValidationResult::valid);
+    }
     for (String document : new String[] {
         "{\"literal\":{\"type\":\"date\",\"value\":\"2026-02-30\"}}",
         "{\"literal\":{\"type\":\"time\",\"value\":\"24:00:00\"}}",
+        "{\"literal\":{\"type\":\"time\",\"value\":\"12:30:00Z\"}}",
+        "{\"literal\":{\"type\":\"time\",\"value\":\"12:30:00.1234567890\"}}",
         "{\"literal\":{\"type\":\"dateTime\",\"value\":{\"instant\":\"2026-02-30T10:00:00Z\",\"timeZone\":\"America/Toronto\"}}}",
     }) assertThat(registry.validate("expression", "4.0.0", json.readTree(document))).matches(result -> !result.valid());
   }

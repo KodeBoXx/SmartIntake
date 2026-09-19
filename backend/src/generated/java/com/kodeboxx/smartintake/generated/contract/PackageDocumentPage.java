@@ -55,11 +55,11 @@ public class PackageDocumentPage {
   private String id;
 
   public static final String JSON_PROPERTY_KEY = "key";
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   private String key;
 
   public static final String JSON_PROPERTY_LABEL_KEY = "labelKey";
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   private String labelKey;
 
   public static final String JSON_PROPERTY_SECTIONS = "sections";
@@ -114,7 +114,7 @@ public class PackageDocumentPage {
     this.id = id;
   }
 
-  public PackageDocumentPage key(@jakarta.annotation.Nonnull String key) {
+  public PackageDocumentPage key(@jakarta.annotation.Nullable String key) {
     
     this.key = key;
     return this;
@@ -124,9 +124,9 @@ public class PackageDocumentPage {
    * Get key
    * @return key
    */
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_KEY)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
   public String getKey() {
     return key;
@@ -134,12 +134,12 @@ public class PackageDocumentPage {
 
 
   @JsonProperty(JSON_PROPERTY_KEY)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setKey(@jakarta.annotation.Nonnull String key) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setKey(@jakarta.annotation.Nullable String key) {
     this.key = key;
   }
 
-  public PackageDocumentPage labelKey(@jakarta.annotation.Nonnull String labelKey) {
+  public PackageDocumentPage labelKey(@jakarta.annotation.Nullable String labelKey) {
     
     this.labelKey = labelKey;
     return this;
@@ -149,9 +149,9 @@ public class PackageDocumentPage {
    * Get labelKey
    * @return labelKey
    */
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_LABEL_KEY)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
   public String getLabelKey() {
     return labelKey;
@@ -159,8 +159,8 @@ public class PackageDocumentPage {
 
 
   @JsonProperty(JSON_PROPERTY_LABEL_KEY)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setLabelKey(@jakarta.annotation.Nonnull String labelKey) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setLabelKey(@jakarta.annotation.Nullable String labelKey) {
     this.labelKey = labelKey;
   }
 

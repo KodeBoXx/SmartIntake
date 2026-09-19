@@ -4,6 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { afterEach, describe, expect, it } from 'vitest';
 import { createDefaultDefinition } from './models/form-definition.models';
 import { SmartIntakeApiService } from './smart-intake-api.service';
+import type { PublishedSchema } from './smart-intake-api.service';
 
 describe('SmartIntakeApiService', () => {
   let api: SmartIntakeApiService;
@@ -128,5 +129,23 @@ describe('SmartIntakeApiService', () => {
     expect(responses.request.method).toBe('GET');
     expect(responses.request.headers.get('X-Staff-Session')).toBe('staff-token');
     responses.flush([]);
+  });
+
+  it('exposes arbitrary Draft 2020-12 keywords from the published schema response type', () => {
+    api.publishedSchema('package').subscribe(document => {
+      const properties: unknown = document.properties;
+      const definitions: unknown = document.$defs;
+      expect(properties).toEqual({ formKey: { type: 'string' } });
+      expect(definitions).toEqual({ field: { type: 'object' } });
+    });
+    const request = http.expectOne('/v1/schemas/package/4.0.0');
+    expect(request.request.method).toBe('GET');
+    const published: PublishedSchema = {
+      $schema: 'https://json-schema.org/draft/2020-12/schema',
+      $id: 'https://contracts.smartintake.invalid/schemas/package/4.0.0',
+      properties: { formKey: { type: 'string' } },
+      $defs: { field: { type: 'object' } },
+    };
+    request.flush(published);
   });
 });

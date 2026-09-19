@@ -53,7 +53,11 @@ describe('AjvContractValidationAdapter', () => {
     // Storage values retain their declared scale while expression results do not.
     expect(adapter.validate('expression', expression('decimal', '12.50')).valid).toBe(true);
     expect(adapter.validate('expression', expression('date', '2026-02-30')).valid).toBe(false);
+    expect(adapter.validate('expression', expression('time', '12:30:00')).valid).toBe(true);
+    expect(adapter.validate('expression', expression('time', '12:30:00.123456789')).valid).toBe(true);
     expect(adapter.validate('expression', expression('time', '24:00:00')).valid).toBe(false);
+    expect(adapter.validate('expression', expression('time', '12:30:00Z')).valid).toBe(false);
+    expect(adapter.validate('expression', expression('time', '12:30:00.1234567890')).valid).toBe(false);
     expect(adapter.validate('expression', expression('dateTime', { instant: '2026-02-30T10:00:00Z', timeZone: 'America/Toronto' })).valid).toBe(false);
   });
 });

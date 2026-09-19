@@ -1280,6 +1280,21 @@ export interface components {
             resetToken: string;
             newPassword: string;
         };
+        /** @description One-time anonymous login-CSRF token bound to the smartintake_login_csrf cookie. */
+        LoginCsrfBootstrap: {
+            csrfToken: string;
+            /** Format: date-time */
+            expiresAt: string;
+        };
+        LoginCsrfBootstrapResponse: {
+            requestId: components["schemas"]["OpaqueId"];
+            loginCsrfBootstrap: components["schemas"]["LoginCsrfBootstrap"];
+        };
+        SignInRequest: {
+            /** Format: email */
+            email: string;
+            password: string;
+        };
         /** @description Concrete StaffSession resource representation. */
         StaffSession: {
             id: components["schemas"]["OpaqueId"];
@@ -1299,11 +1314,6 @@ export interface components {
         StaffSessionResponse: {
             requestId: components["schemas"]["OpaqueId"];
             staffSession: components["schemas"]["StaffSession"];
-        };
-        SignInRequest: {
-            /** Format: email */
-            email: string;
-            password: string;
         };
         AccountActionCreateRequest: {
             name: string;
@@ -1623,6 +1633,8 @@ export interface components {
             $schema: "https://json-schema.org/draft/2020-12/schema";
             /** Format: uri */
             $id: string;
+        } & {
+            [key: string]: unknown;
         };
         id: string;
         sha256: string;
@@ -2054,8 +2066,8 @@ export interface components {
                 /** Format: canonical-int64 */
                 int64: string;
                 /**
-                 * Format: stored-decimal
-                 * @description Destination storage preserves declared scale, e.g. 12.50.
+                 * Format: expression-decimal-input
+                 * @description Expression decimal input; -0.000 is accepted and evaluates to canonical 0.
                  */
                 decimal: string;
                 /** Format: date */
@@ -2119,15 +2131,20 @@ export interface components {
                     digest: components["schemas"]["sha256"];
                     value: string | number | boolean | null;
                 };
+                /**
+                 * Format: expression-decimal-input
+                 * @description Expression decimal input; -0.000 is accepted and evaluates to canonical 0.
+                 */
+                expressionDecimalInput: string;
             };
         } & (unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown)) & (components["schemas"]["literal"] | components["schemas"]["reference"] | components["schemas"]["context"] | components["schemas"]["apply"]);
         /** Format: canonical-int64 */
         int64: string;
         /**
-         * Format: stored-decimal
-         * @description Destination storage preserves declared scale, e.g. 12.50.
+         * Format: expression-decimal-input
+         * @description Expression decimal input; -0.000 is accepted and evaluates to canonical 0.
          */
-        decimalStorage: string;
+        expressionDecimalInput: string;
         /** Format: date */
         date: string;
         /** Format: time */
@@ -2175,6 +2192,9 @@ export interface components {
             maxItems?: number;
             fixedItemIds?: components["schemas"]["id"][];
             exclusiveOptionIds?: components["schemas"]["id"][];
+            required?: boolean;
+            minLength?: number;
+            maxLength?: number;
         };
         field: {
             id: components["schemas"]["id"];
@@ -2204,6 +2224,11 @@ export interface components {
             visibilityExpressionId?: components["schemas"]["id"];
             requiredExpressionId?: components["schemas"]["id"];
             validationExpressionId?: components["schemas"]["id"];
+            sensitivity?: string;
+            /** @enum {unknown} */
+            mode?: "input" | "calculated" | "display";
+            /** @enum {unknown} */
+            normalizer?: "preserve" | "trim" | "lowercase" | "uppercase";
         };
         /** @description Closed, dependency-bound extension descriptor; unregistered bindings are compiler errors. */
         extensionNamespaces: {
@@ -2223,10 +2248,10 @@ export interface components {
             kind: "question";
             fieldId: components["schemas"]["id"];
             /** @enum {unknown} */
-            fieldType: "text" | "integer" | "decimal" | "boolean" | "date" | "time" | "dateTime" | "choice" | "multiChoice" | "attachments" | "drawing" | "object" | "list";
+            fieldType?: "text" | "integer" | "decimal" | "boolean" | "date" | "time" | "dateTime" | "choice" | "multiChoice" | "attachments" | "drawing" | "object" | "list";
             /** @enum {unknown} */
-            control: "text" | "textarea" | "email" | "phone" | "url" | "identifier" | "integer" | "rating" | "scale" | "integerSlider" | "decimal" | "amount" | "currency" | "fractionalSlider" | "date" | "time" | "dateTime" | "yesNo" | "checkbox" | "acknowledgment" | "radio" | "dropdown" | "combobox" | "imageChoice" | "modeSelector" | "chips" | "checkboxGroup" | "multipleImageChoice" | "ranking" | "address" | "contact" | "person" | "repeatingCards" | "dynamicMatrix" | "fixedMatrix" | "fileUpload" | "drawing" | "calculated";
-            labelKey: components["schemas"]["key"];
+            control: "text" | "shortText" | "textarea" | "email" | "phone" | "url" | "identifier" | "integer" | "rating" | "scale" | "integerSlider" | "decimal" | "amount" | "currency" | "fractionalSlider" | "date" | "time" | "dateTime" | "yesNo" | "checkbox" | "acknowledgment" | "radio" | "dropdown" | "combobox" | "imageChoice" | "modeSelector" | "chips" | "checkboxGroup" | "multipleImageChoice" | "ranking" | "address" | "contact" | "person" | "repeatingCards" | "dynamicMatrix" | "fixedMatrix" | "fileUpload" | "drawing" | "calculated";
+            labelKey?: components["schemas"]["key"];
             guidanceId?: components["schemas"]["id"];
             acknowledgmentContentKey?: components["schemas"]["key"];
             presentation?: {
@@ -2244,20 +2269,20 @@ export interface components {
             visibilityExpressionId?: components["schemas"]["id"];
             requiredExpressionId?: components["schemas"]["id"];
             validationExpressionId?: components["schemas"]["id"];
-        } & (unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown);
+        } & (unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown);
         layout: {
             id: components["schemas"]["id"];
             /** @enum {unknown} */
             kind: "content" | "group" | "review";
-            labelKey: components["schemas"]["key"];
+            labelKey?: components["schemas"]["key"];
             children?: components["schemas"]["node"][];
             extensions?: components["schemas"]["extensionNamespaces"];
         };
         node: components["schemas"]["question"] | components["schemas"]["layout"];
         section: {
             id: components["schemas"]["id"];
-            key: components["schemas"]["key"];
-            labelKey: components["schemas"]["key"];
+            key?: components["schemas"]["key"];
+            labelKey?: components["schemas"]["key"];
             nodes: components["schemas"]["node"][];
             extensions?: components["schemas"]["extensionNamespaces"];
             guidanceId?: components["schemas"]["id"];
@@ -2272,8 +2297,8 @@ export interface components {
         };
         page: {
             id: components["schemas"]["id"];
-            key: components["schemas"]["key"];
-            labelKey: components["schemas"]["key"];
+            key?: components["schemas"]["key"];
+            labelKey?: components["schemas"]["key"];
             sections: components["schemas"]["section"][];
             extensions?: components["schemas"]["extensionNamespaces"];
             titleKey?: components["schemas"]["key"];
@@ -2341,6 +2366,7 @@ export interface components {
         phase: {
             id: components["schemas"]["id"];
             pages: components["schemas"]["page"][];
+            titleKey?: components["schemas"]["key"];
         };
         dependency: {
             /** @enum {unknown} */
@@ -2350,7 +2376,7 @@ export interface components {
             digest: components["schemas"]["sha256"];
         };
         policies: {
-            attachmentsRequiredReady: boolean;
+            attachmentsRequiredReady?: boolean;
             allowVoiceQuestions?: boolean;
             confirmationKey?: components["schemas"]["key"];
             draftExpiryDays?: number;
@@ -2416,7 +2442,7 @@ export interface components {
             dependencies: components["schemas"]["dependency"][];
             policies: components["schemas"]["policies"];
             assets: components["schemas"]["asset"][];
-            extensions: components["schemas"]["extensionNamespaces"];
+            extensions?: components["schemas"]["extensionNamespaces"];
             guidance: components["schemas"]["guidance"];
             theme: components["schemas"]["theme"];
             $defs: {
@@ -2461,6 +2487,9 @@ export interface components {
                     maxItems?: number;
                     fixedItemIds?: components["schemas"]["id"][];
                     exclusiveOptionIds?: components["schemas"]["id"][];
+                    required?: boolean;
+                    minLength?: number;
+                    maxLength?: number;
                 };
                 field: {
                     id: components["schemas"]["id"];
@@ -2490,6 +2519,11 @@ export interface components {
                     visibilityExpressionId?: components["schemas"]["id"];
                     requiredExpressionId?: components["schemas"]["id"];
                     validationExpressionId?: components["schemas"]["id"];
+                    sensitivity?: string;
+                    /** @enum {unknown} */
+                    mode?: "input" | "calculated" | "display";
+                    /** @enum {unknown} */
+                    normalizer?: "preserve" | "trim" | "lowercase" | "uppercase";
                 };
                 settings: {
                     allowAdd?: boolean;
@@ -2505,10 +2539,10 @@ export interface components {
                     kind: "question";
                     fieldId: components["schemas"]["id"];
                     /** @enum {unknown} */
-                    fieldType: "text" | "integer" | "decimal" | "boolean" | "date" | "time" | "dateTime" | "choice" | "multiChoice" | "attachments" | "drawing" | "object" | "list";
+                    fieldType?: "text" | "integer" | "decimal" | "boolean" | "date" | "time" | "dateTime" | "choice" | "multiChoice" | "attachments" | "drawing" | "object" | "list";
                     /** @enum {unknown} */
-                    control: "text" | "textarea" | "email" | "phone" | "url" | "identifier" | "integer" | "rating" | "scale" | "integerSlider" | "decimal" | "amount" | "currency" | "fractionalSlider" | "date" | "time" | "dateTime" | "yesNo" | "checkbox" | "acknowledgment" | "radio" | "dropdown" | "combobox" | "imageChoice" | "modeSelector" | "chips" | "checkboxGroup" | "multipleImageChoice" | "ranking" | "address" | "contact" | "person" | "repeatingCards" | "dynamicMatrix" | "fixedMatrix" | "fileUpload" | "drawing" | "calculated";
-                    labelKey: components["schemas"]["key"];
+                    control: "text" | "shortText" | "textarea" | "email" | "phone" | "url" | "identifier" | "integer" | "rating" | "scale" | "integerSlider" | "decimal" | "amount" | "currency" | "fractionalSlider" | "date" | "time" | "dateTime" | "yesNo" | "checkbox" | "acknowledgment" | "radio" | "dropdown" | "combobox" | "imageChoice" | "modeSelector" | "chips" | "checkboxGroup" | "multipleImageChoice" | "ranking" | "address" | "contact" | "person" | "repeatingCards" | "dynamicMatrix" | "fixedMatrix" | "fileUpload" | "drawing" | "calculated";
+                    labelKey?: components["schemas"]["key"];
                     guidanceId?: components["schemas"]["id"];
                     acknowledgmentContentKey?: components["schemas"]["key"];
                     presentation?: {
@@ -2526,20 +2560,20 @@ export interface components {
                     visibilityExpressionId?: components["schemas"]["id"];
                     requiredExpressionId?: components["schemas"]["id"];
                     validationExpressionId?: components["schemas"]["id"];
-                } & (unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown);
+                } & (unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown & unknown);
                 layout: {
                     id: components["schemas"]["id"];
                     /** @enum {unknown} */
                     kind: "content" | "group" | "review";
-                    labelKey: components["schemas"]["key"];
+                    labelKey?: components["schemas"]["key"];
                     children?: components["schemas"]["node"][];
                     extensions?: components["schemas"]["extensionNamespaces"];
                 };
                 node: components["schemas"]["question"] | components["schemas"]["layout"];
                 section: {
                     id: components["schemas"]["id"];
-                    key: components["schemas"]["key"];
-                    labelKey: components["schemas"]["key"];
+                    key?: components["schemas"]["key"];
+                    labelKey?: components["schemas"]["key"];
                     nodes: components["schemas"]["node"][];
                     extensions?: components["schemas"]["extensionNamespaces"];
                     guidanceId?: components["schemas"]["id"];
@@ -2549,8 +2583,8 @@ export interface components {
                 };
                 page: {
                     id: components["schemas"]["id"];
-                    key: components["schemas"]["key"];
-                    labelKey: components["schemas"]["key"];
+                    key?: components["schemas"]["key"];
+                    labelKey?: components["schemas"]["key"];
                     sections: components["schemas"]["section"][];
                     extensions?: components["schemas"]["extensionNamespaces"];
                     titleKey?: components["schemas"]["key"];
@@ -2561,6 +2595,7 @@ export interface components {
                 phase: {
                     id: components["schemas"]["id"];
                     pages: components["schemas"]["page"][];
+                    titleKey?: components["schemas"]["key"];
                 };
                 translation: string | components["schemas"]["message"];
                 message: {
@@ -2656,7 +2691,7 @@ export interface components {
                     draftDays?: number;
                 };
                 policies: {
-                    attachmentsRequiredReady: boolean;
+                    attachmentsRequiredReady?: boolean;
                     allowVoiceQuestions?: boolean;
                     confirmationKey?: components["schemas"]["key"];
                     draftExpiryDays?: number;
@@ -3136,6 +3171,10 @@ export interface components {
         };
     };
     parameters: {
+        /** @description One-time value returned by GET /v1/auth/session; it must match the server-bound login-CSRF cookie. */
+        LoginCsrfToken: string;
+        /** @description Secure, HttpOnly, SameSite=Strict cookie set by GET /v1/auth/session and consumed with the matching X-Login-CSRF-Token. */
+        LoginCsrfCookie: string;
         /**
          * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
          * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
@@ -3153,6 +3192,8 @@ export interface components {
         ETag: string;
         /** @description Seconds until the caller may retry a 429 response. */
         RetryAfter: number;
+        /** @description Sets smartintake_login_csrf as a Secure, HttpOnly, SameSite=Strict, short-lived cookie bound to the returned one-time token. */
+        LoginCsrfSetCookie: string;
         /** @description Content digest for immutable publication bytes. */
         Digest: string;
         /** @description Published contract SHA-256. */
@@ -3300,11 +3341,11 @@ export interface operations {
             /** @description Successful response. */
             200: {
                 headers: {
-                    ETag: components["headers"]["ETag"];
+                    "Set-Cookie": components["headers"]["LoginCsrfSetCookie"];
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["StaffSessionResponse"];
+                    "application/json": components["schemas"]["LoginCsrfBootstrapResponse"];
                 };
             };
             400: components["responses"]["BadRequest"];
@@ -3318,9 +3359,15 @@ export interface operations {
     "ON-post-v1-auth-sign-in-7c9d8ac3a9": {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                /** @description One-time value returned by GET /v1/auth/session; it must match the server-bound login-CSRF cookie. */
+                "X-Login-CSRF-Token": components["parameters"]["LoginCsrfToken"];
+            };
             path?: never;
-            cookie?: never;
+            cookie: {
+                /** @description Secure, HttpOnly, SameSite=Strict cookie set by GET /v1/auth/session and consumed with the matching X-Login-CSRF-Token. */
+                smartintake_login_csrf: components["parameters"]["LoginCsrfCookie"];
+            };
         };
         requestBody: {
             content: {

@@ -31,11 +31,13 @@ dependency; extensions are therefore not an unrestricted escape hatch.
 
 - `schemaVersion`, `contractVersion`, and `engineContract` are exactly `4.0.0`.
 - Integers use canonical signed-int64 decimal strings. Destination decimal
-  storage preserves the declared scale (for example, `"12.50"`); it rejects
-  exponent and leading-plus encodings. Exact expression results use the
-  distinct canonical-result decimal definition, which rejects redundant
-  trailing fractional zeroes. The validator enforces the 34-significant-digit
-  bound in both contexts.
+  storage preserves declared scale (for example, `"12.50"`) and rejects
+  negative zero, exponent, and leading-plus encodings. Expression decimal
+  input is distinct: `"-0.000"` is valid input and evaluates to canonical
+  `"0"`. Exact expression results reject negative zero and redundant trailing
+  fractional zeroes. All decimal formats enforce 34 significant coefficient
+  digits and the inclusive adjusted-exponent range `-6143..6144`; padding and
+  exact powers of ten do not consume extra significant digits.
 - Date and time values are canonical strings; date-time is the explicit
   `{instant,timeZone}` object. UTC server timestamps use RFC 3339 `Z` form.
 - The six statuses are `answered`, `unanswered`, `unknown`, `declined`,
@@ -52,18 +54,26 @@ dependency; extensions are therefore not an unrestricted escape hatch.
   appears for `parentItem`. Literals are typed scalar values or homogeneous
   scalar arrays with `itemType`; only `sessionDate` and `sessionTimeZone` are
   contexts.
-- Packages require root `guidance` and `theme`, locale-bundle translations,
-  route/default-next-page structures, visibility/guidance references, full
-  policy fields, and component/extension dependency records. Message parts
-  include safe value and cardinal-plural variants.
+- Packages require the PRD's root `guidance` and `theme` structure and support
+  locale-bundle translations, route/default-next-page structures,
+  visibility/guidance references, optional policy fields, and component/
+  extension dependency records. Root `extensions` and
+  `policies.attachmentsRequiredReady` are optional; when extensions are
+  present, their dependency bindings remain enforced. Message parts include
+  safe value and cardinal-plural variants. The harness includes the unchanged
+  PRD inline minimal package as a positive fixture.
 - Submission envelopes require `startedAt`, `submittedAt`, and `receivedAt` in
-  UTC RFC 3339 form. Event types are discriminated; `submission.deleted` is
-  reference-only and requires submission/deletion IDs plus `accessRevokedAt`.
+  UTC RFC 3339 form. Event types are discriminated; `submission.created` may
+  be reference-only or full (with an envelope only for full delivery), while
+  `submission.deleted` is reference-only and requires submission/deletion IDs
+  plus `accessRevokedAt`.
 
 The authority is the PRD v1.1, `Lite-Contract-Details.md`, and the frozen
-`expression-contract.json`. The harness checks selected authoritative AST
-vectors against the source file hash. The compact and rich package fixtures
-are PRD-derived contract examples, not evaluator acceptance evidence.
+`expression-contract.json`. The harness checks all 101 authoritative AST
+vectors against the source file hash; schema validity is intentionally limited
+to structural grammar, so semantic evaluator failures remain schema-valid.
+The compact, rich, and exact inline-minimal package fixtures are PRD-derived
+contract examples, not evaluator acceptance evidence.
 
 ## Validation
 
@@ -79,7 +89,8 @@ sh tools/contracts/test_schemas.sh
 It uses `jsonschema==4.10.3` (`tools/contracts/requirements.txt`), which is
 available in the repository environment. Each schema has an independent
 representative positive fixture and a negative fixture under `fixtures/`; the
-harness also validates PRD minimal/rich package examples, extension binding,
-stored versus result decimal behavior, all five event discriminators, and
-frozen expression vectors. Run `git diff --check` after validation when
+harness also validates PRD minimal/rich/inline package examples, extension
+binding, all three decimal wire contexts, reference/full event delivery, all
+five event discriminators, and frozen authoritative expression vectors. Run
+`git diff --check` after validation when
 changing this corpus.

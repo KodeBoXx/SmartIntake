@@ -48,7 +48,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
 public class PackageDocumentPolicies {
   public static final String JSON_PROPERTY_ATTACHMENTS_REQUIRED_READY = "attachmentsRequiredReady";
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   private Boolean attachmentsRequiredReady;
 
   public static final String JSON_PROPERTY_ALLOW_VOICE_QUESTIONS = "allowVoiceQuestions";
@@ -209,7 +209,7 @@ public class PackageDocumentPolicies {
   public PackageDocumentPolicies() {
   }
 
-  public PackageDocumentPolicies attachmentsRequiredReady(@jakarta.annotation.Nonnull Boolean attachmentsRequiredReady) {
+  public PackageDocumentPolicies attachmentsRequiredReady(@jakarta.annotation.Nullable Boolean attachmentsRequiredReady) {
     
     this.attachmentsRequiredReady = attachmentsRequiredReady;
     return this;
@@ -219,9 +219,9 @@ public class PackageDocumentPolicies {
    * Get attachmentsRequiredReady
    * @return attachmentsRequiredReady
    */
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_ATTACHMENTS_REQUIRED_READY)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
   public Boolean getAttachmentsRequiredReady() {
     return attachmentsRequiredReady;
@@ -229,8 +229,8 @@ public class PackageDocumentPolicies {
 
 
   @JsonProperty(JSON_PROPERTY_ATTACHMENTS_REQUIRED_READY)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setAttachmentsRequiredReady(@jakarta.annotation.Nonnull Boolean attachmentsRequiredReady) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setAttachmentsRequiredReady(@jakarta.annotation.Nullable Boolean attachmentsRequiredReady) {
     this.attachmentsRequiredReady = attachmentsRequiredReady;
   }
 

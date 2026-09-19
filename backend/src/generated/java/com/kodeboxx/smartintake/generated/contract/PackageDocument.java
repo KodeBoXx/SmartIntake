@@ -135,7 +135,7 @@ public class PackageDocument extends HashMap<String, Object> {
   private Set<PackageDocumentAsset> assets = new LinkedHashSet<>();
 
   public static final String JSON_PROPERTY_EXTENSIONS = "extensions";
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   private Map<String, PackageDocumentExtensionValue> extensions = new HashMap<>();
 
   public static final String JSON_PROPERTY_GUIDANCE = "guidance";
@@ -612,13 +612,16 @@ public class PackageDocument extends HashMap<String, Object> {
     this.assets = assets;
   }
 
-  public PackageDocument extensions(@jakarta.annotation.Nonnull Map<String, PackageDocumentExtensionValue> extensions) {
+  public PackageDocument extensions(@jakarta.annotation.Nullable Map<String, PackageDocumentExtensionValue> extensions) {
     
     this.extensions = extensions;
     return this;
   }
 
   public PackageDocument putExtensionsItem(String key, PackageDocumentExtensionValue extensionsItem) {
+    if (this.extensions == null) {
+      this.extensions = new HashMap<>();
+    }
     this.extensions.put(key, extensionsItem);
     return this;
   }
@@ -627,9 +630,9 @@ public class PackageDocument extends HashMap<String, Object> {
    * Closed, dependency-bound extension descriptor; unregistered bindings are compiler errors.
    * @return extensions
    */
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_EXTENSIONS)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
   public Map<String, PackageDocumentExtensionValue> getExtensions() {
     return extensions;
@@ -637,8 +640,8 @@ public class PackageDocument extends HashMap<String, Object> {
 
 
   @JsonProperty(JSON_PROPERTY_EXTENSIONS)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setExtensions(@jakarta.annotation.Nonnull Map<String, PackageDocumentExtensionValue> extensions) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setExtensions(@jakarta.annotation.Nullable Map<String, PackageDocumentExtensionValue> extensions) {
     this.extensions = extensions;
   }
 

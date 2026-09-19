@@ -49,7 +49,7 @@ export namespace ContractSchemaDocuments {
       dependencies: Dependency[];
       policies: Policies;
       assets: Asset[];
-      extensions: ExtensionNamespaces;
+      extensions?: ExtensionNamespaces;
       guidance: Guidance;
       theme: Theme;
     };
@@ -145,10 +145,12 @@ export namespace ContractSchemaDocuments {
     } & {
       [k: string]: unknown;
     } & {
+      [k: string]: unknown;
+    } & {
       id: Id;
       kind: 'question';
       fieldId: Id;
-      fieldType:
+      fieldType?:
         | 'text'
         | 'integer'
         | 'decimal'
@@ -164,6 +166,7 @@ export namespace ContractSchemaDocuments {
         | 'list';
       control:
         | 'text'
+        | 'shortText'
         | 'textarea'
         | 'email'
         | 'phone'
@@ -201,7 +204,7 @@ export namespace ContractSchemaDocuments {
         | 'fileUpload'
         | 'drawing'
         | 'calculated';
-      labelKey: Key;
+      labelKey?: Key;
       guidanceId?: Id;
       acknowledgmentContentKey?: Key;
       presentation?: {
@@ -223,7 +226,7 @@ export namespace ContractSchemaDocuments {
       id: Id;
       kind: 'question';
       fieldId: Id;
-      fieldType:
+      fieldType?:
         | 'text'
         | 'integer'
         | 'decimal'
@@ -239,6 +242,7 @@ export namespace ContractSchemaDocuments {
         | 'list';
       control:
         | 'text'
+        | 'shortText'
         | 'textarea'
         | 'email'
         | 'phone'
@@ -276,7 +280,7 @@ export namespace ContractSchemaDocuments {
         | 'fileUpload'
         | 'drawing'
         | 'calculated';
-      labelKey: Key;
+      labelKey?: Key;
       guidanceId?: Id;
       acknowledgmentContentKey?: Key;
       presentation?: {
@@ -437,6 +441,9 @@ export namespace ContractSchemaDocuments {
       visibilityExpressionId?: Id;
       requiredExpressionId?: Id;
       validationExpressionId?: Id;
+      sensitivity?: string;
+      mode?: 'input' | 'calculated' | 'display';
+      normalizer?: 'preserve' | 'trim' | 'lowercase' | 'uppercase';
     }
     export interface Option {
       id: Id;
@@ -452,6 +459,9 @@ export namespace ContractSchemaDocuments {
       maxItems?: number;
       fixedItemIds?: Id[];
       exclusiveOptionIds?: Id[];
+      required?: boolean;
+      minLength?: number;
+      maxLength?: number;
     }
     export interface Answered {
       status: 'answered';
@@ -496,11 +506,12 @@ export namespace ContractSchemaDocuments {
        * @minItems 1
        */
       pages: [Page, ...Page[]];
+      titleKey?: Key;
     }
     export interface Page {
       id: Id;
-      key: Key;
-      labelKey: Key;
+      key?: Key;
+      labelKey?: Key;
       /**
        * @minItems 1
        */
@@ -513,8 +524,8 @@ export namespace ContractSchemaDocuments {
     }
     export interface Section {
       id: Id;
-      key: Key;
-      labelKey: Key;
+      key?: Key;
+      labelKey?: Key;
       /**
        * @minItems 1
        */
@@ -534,7 +545,7 @@ export namespace ContractSchemaDocuments {
     export interface Layout {
       id: Id;
       kind: 'content' | 'group' | 'review';
-      labelKey: Key;
+      labelKey?: Key;
       children?: Node[];
       extensions?: ExtensionNamespaces;
     }
@@ -550,7 +561,7 @@ export namespace ContractSchemaDocuments {
       digest: Sha256;
     }
     export interface Policies {
-      attachmentsRequiredReady: boolean;
+      attachmentsRequiredReady?: boolean;
       allowVoiceQuestions?: boolean;
       confirmationKey?: Key;
       draftExpiryDays?: number;

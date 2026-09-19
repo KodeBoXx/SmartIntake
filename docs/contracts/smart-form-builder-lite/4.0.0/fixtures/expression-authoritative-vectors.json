@@ -3,6 +3,37 @@
   "sourceSha256": "sha256:6fd9cd69b123418209b9ae21d1b7a76af2a7ceb76689f2aad0fbe261d2a00aa7",
   "vectors": [
     {
+      "id": "EXPR-001",
+      "expression": {
+        "literal": {
+          "type": "decimal",
+          "value": "12345678901234567890123456789012.34"
+        }
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-002",
+      "expression": {
+        "op": "eq",
+        "args": [
+          {
+            "literal": {
+              "type": "text",
+              "value": "1"
+            }
+          },
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "1"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
       "id": "EXPR-003",
       "expression": {
         "op": "add",
@@ -17,6 +48,384 @@
             "literal": {
               "type": "integer",
               "value": "3"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-004",
+      "expression": {
+        "op": "eq",
+        "args": [
+          {
+            "literal": {
+              "type": "integer",
+              "value": "2"
+            }
+          },
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "2.00"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-005",
+      "expression": {
+        "op": "gte",
+        "args": [
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "2.1"
+            }
+          },
+          {
+            "literal": {
+              "type": "integer",
+              "value": "2"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-006",
+      "expression": {
+        "op": "ne",
+        "args": [
+          {
+            "literal": {
+              "type": "text",
+              "value": "A"
+            }
+          },
+          {
+            "literal": {
+              "type": "text",
+              "value": "a"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-007",
+      "expression": {
+        "op": "lt",
+        "args": [
+          {
+            "literal": {
+              "type": "date",
+              "value": "2024-02-29"
+            }
+          },
+          {
+            "literal": {
+              "type": "date",
+              "value": "2024-03-01"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-008",
+      "expression": {
+        "op": "lte",
+        "args": [
+          {
+            "literal": {
+              "type": "time",
+              "value": "09:30:00"
+            }
+          },
+          {
+            "literal": {
+              "type": "time",
+              "value": "09:30:00"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-009",
+      "expression": {
+        "op": "gt",
+        "args": [
+          {
+            "literal": {
+              "type": "integer",
+              "value": "5"
+            }
+          },
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "4.99"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-010",
+      "expression": {
+        "op": "gt",
+        "args": [
+          {
+            "literal": {
+              "type": "text",
+              "value": "b"
+            }
+          },
+          {
+            "literal": {
+              "type": "text",
+              "value": "a"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-011",
+      "expression": {
+        "op": "divide",
+        "args": [
+          {
+            "literal": {
+              "type": "integer",
+              "value": "1"
+            }
+          },
+          {
+            "literal": {
+              "type": "integer",
+              "value": "8"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-012",
+      "expression": {
+        "op": "divide",
+        "args": [
+          {
+            "literal": {
+              "type": "integer",
+              "value": "1"
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_runtime_zero",
+              "scope": "root"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-013",
+      "expression": {
+        "op": "divide",
+        "args": [
+          {
+            "literal": {
+              "type": "integer",
+              "value": "1"
+            }
+          },
+          {
+            "literal": {
+              "type": "integer",
+              "value": "3"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-014",
+      "expression": {
+        "op": "add",
+        "args": [
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "1234567890123456789012345678901234"
+            }
+          },
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "0.1"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-015",
+      "expression": {
+        "op": "multiply",
+        "args": [
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "0.1"
+            }
+          },
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "0.2"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-016",
+      "expression": {
+        "op": "subtract",
+        "args": [
+          {
+            "literal": {
+              "type": "integer",
+              "value": "1"
+            }
+          },
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "0.1"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-017",
+      "expression": {
+        "op": "round",
+        "args": [
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "2.345"
+            }
+          },
+          {
+            "literal": {
+              "type": "integer",
+              "value": "2"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-018",
+      "expression": {
+        "op": "round",
+        "args": [
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "2.355"
+            }
+          },
+          {
+            "literal": {
+              "type": "integer",
+              "value": "2"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-019",
+      "expression": {
+        "op": "round",
+        "args": [
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "-2.345"
+            }
+          },
+          {
+            "literal": {
+              "type": "integer",
+              "value": "2"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-020",
+      "expression": {
+        "op": "min",
+        "args": [
+          {
+            "literal": {
+              "type": "integer",
+              "value": "2"
+            }
+          },
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "1.5"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-021",
+      "expression": {
+        "op": "max",
+        "args": [
+          {
+            "literal": {
+              "type": "integer",
+              "value": "2"
+            }
+          },
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "1.5"
             }
           }
         ]
@@ -49,6 +458,619 @@
       "schemaValid": true
     },
     {
+      "id": "EXPR-023",
+      "expression": {
+        "op": "contains",
+        "args": [
+          {
+            "literal": {
+              "type": "array",
+              "itemType": "integer",
+              "value": [
+                "1",
+                "2"
+              ]
+            }
+          },
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "2.0"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-024",
+      "expression": {
+        "op": "containsAll",
+        "args": [
+          {
+            "literal": {
+              "type": "array",
+              "itemType": "integer",
+              "value": [
+                "1",
+                "2"
+              ]
+            }
+          },
+          {
+            "literal": {
+              "type": "array",
+              "itemType": "integer",
+              "value": [
+                "2",
+                "2",
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-025",
+      "expression": {
+        "op": "eq",
+        "args": [
+          {
+            "literal": {
+              "type": "array",
+              "itemType": "integer",
+              "value": [
+                "1",
+                "2"
+              ]
+            }
+          },
+          {
+            "literal": {
+              "type": "array",
+              "itemType": "integer",
+              "value": [
+                "1",
+                "2"
+              ]
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-026",
+      "expression": {
+        "op": "contains",
+        "args": [
+          {
+            "literal": {
+              "type": "text",
+              "value": "hello"
+            }
+          },
+          {
+            "literal": {
+              "type": "text",
+              "value": "ell"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-027",
+      "expression": {
+        "op": "concat",
+        "args": [
+          {
+            "literal": {
+              "type": "text",
+              "value": "Hello"
+            }
+          },
+          {
+            "literal": {
+              "type": "text",
+              "value": " "
+            }
+          },
+          {
+            "literal": {
+              "type": "text",
+              "value": "world"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-028",
+      "expression": {
+        "op": "length",
+        "args": [
+          {
+            "literal": {
+              "type": "text",
+              "value": "A\ud83d\ude00"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-029",
+      "expression": {
+        "op": "length",
+        "args": [
+          {
+            "literal": {
+              "type": "array",
+              "itemType": "choice",
+              "value": [
+                "opt_red",
+                "opt_blue"
+              ]
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-030",
+      "expression": {
+        "op": "coalesce",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_text",
+              "scope": "root"
+            }
+          },
+          {
+            "literal": {
+              "type": "text",
+              "value": "fallback"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-031",
+      "expression": {
+        "op": "coalesce",
+        "args": [
+          {
+            "literal": {
+              "type": "integer",
+              "value": "1"
+            }
+          },
+          {
+            "op": "divide",
+            "args": [
+              {
+                "literal": {
+                  "type": "integer",
+                  "value": "1"
+                }
+              },
+              {
+                "ref": {
+                  "fieldId": "fld_runtime_zero",
+                  "scope": "root"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-032",
+      "expression": {
+        "op": "if",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_flag",
+              "scope": "root"
+            }
+          },
+          {
+            "op": "divide",
+            "args": [
+              {
+                "literal": {
+                  "type": "integer",
+                  "value": "1"
+                }
+              },
+              {
+                "ref": {
+                  "fieldId": "fld_runtime_zero",
+                  "scope": "root"
+                }
+              }
+            ]
+          },
+          {
+            "literal": {
+              "type": "integer",
+              "value": "4"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-033",
+      "expression": {
+        "op": "if",
+        "args": [
+          {
+            "literal": {
+              "type": "boolean",
+              "value": false
+            }
+          },
+          {
+            "op": "divide",
+            "args": [
+              {
+                "literal": {
+                  "type": "integer",
+                  "value": "1"
+                }
+              },
+              {
+                "ref": {
+                  "fieldId": "fld_runtime_zero",
+                  "scope": "root"
+                }
+              }
+            ]
+          },
+          {
+            "literal": {
+              "type": "integer",
+              "value": "4"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-034",
+      "expression": {
+        "op": "and",
+        "args": [
+          {
+            "literal": {
+              "type": "boolean",
+              "value": false
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_flag",
+              "scope": "root"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-035",
+      "expression": {
+        "op": "and",
+        "args": [
+          {
+            "literal": {
+              "type": "boolean",
+              "value": true
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_flag",
+              "scope": "root"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-036",
+      "expression": {
+        "op": "or",
+        "args": [
+          {
+            "literal": {
+              "type": "boolean",
+              "value": true
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_flag",
+              "scope": "root"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-037",
+      "expression": {
+        "op": "or",
+        "args": [
+          {
+            "literal": {
+              "type": "boolean",
+              "value": false
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_flag",
+              "scope": "root"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-038",
+      "expression": {
+        "op": "not",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_flag",
+              "scope": "root"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-039",
+      "expression": {
+        "op": "exists",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_flag",
+              "scope": "root"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-040",
+      "expression": {
+        "op": "isAnswered",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_number",
+              "scope": "root"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-041",
+      "expression": {
+        "op": "statusIs",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_text",
+              "scope": "root"
+            }
+          },
+          {
+            "literal": {
+              "type": "text",
+              "value": "declined"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-042",
+      "expression": {
+        "op": "statusIs",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_text",
+              "scope": "root"
+            }
+          },
+          {
+            "literal": {
+              "type": "text",
+              "value": "missing"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-043",
+      "expression": {
+        "op": "dateDiffDays",
+        "args": [
+          {
+            "literal": {
+              "type": "date",
+              "value": "2024-02-28"
+            }
+          },
+          {
+            "literal": {
+              "type": "date",
+              "value": "2024-03-01"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-044",
+      "expression": {
+        "op": "dateDiffDays",
+        "args": [
+          {
+            "literal": {
+              "type": "date",
+              "value": "2024-03-01"
+            }
+          },
+          {
+            "literal": {
+              "type": "date",
+              "value": "2024-02-28"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-045",
+      "expression": {
+        "op": "ageYears",
+        "args": [
+          {
+            "literal": {
+              "type": "date",
+              "value": "2024-02-29"
+            }
+          },
+          {
+            "literal": {
+              "type": "date",
+              "value": "2025-02-28"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-046",
+      "expression": {
+        "op": "ageYears",
+        "args": [
+          {
+            "literal": {
+              "type": "date",
+              "value": "2024-02-29"
+            }
+          },
+          {
+            "literal": {
+              "type": "date",
+              "value": "2025-03-01"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-047",
+      "expression": {
+        "op": "ageYears",
+        "args": [
+          {
+            "literal": {
+              "type": "date",
+              "value": "2000-01-01"
+            }
+          },
+          {
+            "literal": {
+              "type": "date",
+              "value": "1999-12-31"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-048",
+      "expression": {
+        "op": "dateAddDays",
+        "args": [
+          {
+            "literal": {
+              "type": "date",
+              "value": "2024-01-31"
+            }
+          },
+          {
+            "literal": {
+              "type": "integer",
+              "value": "29"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-049",
+      "expression": {
+        "op": "dateAddDays",
+        "args": [
+          {
+            "literal": {
+              "type": "date",
+              "value": "2024-03-01"
+            }
+          },
+          {
+            "literal": {
+              "type": "integer",
+              "value": "-1"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
       "id": "EXPR-050",
       "expression": {
         "context": "sessionDate"
@@ -59,6 +1081,461 @@
       "id": "EXPR-051",
       "expression": {
         "context": "sessionTimeZone"
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-052",
+      "expression": {
+        "context": "locale"
+      },
+      "schemaValid": false
+    },
+    {
+      "id": "EXPR-053",
+      "expression": {
+        "literal": {
+          "type": "array",
+          "itemType": "integer",
+          "value": [
+            [
+              1
+            ]
+          ]
+        }
+      },
+      "schemaValid": false
+    },
+    {
+      "id": "EXPR-054",
+      "expression": {
+        "literal": "1"
+      },
+      "schemaValid": false
+    },
+    {
+      "id": "EXPR-055",
+      "expression": {
+        "literal": null
+      },
+      "schemaValid": false
+    },
+    {
+      "id": "EXPR-056",
+      "expression": {
+        "literal": {
+          "type": "array",
+          "itemType": "integer",
+          "value": [
+            "1",
+            "2"
+          ]
+        }
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-057",
+      "expression": {
+        "op": "sum",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_items",
+              "scope": "root"
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_amount",
+              "scope": "item"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-058",
+      "expression": {
+        "op": "count",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_items",
+              "scope": "root"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-059",
+      "expression": {
+        "op": "any",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_items",
+              "scope": "root"
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_selected",
+              "scope": "item"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-060",
+      "expression": {
+        "op": "all",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_items",
+              "scope": "root"
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_selected",
+              "scope": "item"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-061",
+      "expression": {
+        "op": "sum",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_items",
+              "scope": "root"
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_amount",
+              "scope": "item"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-062",
+      "expression": {
+        "op": "sum",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_items",
+              "scope": "root"
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_amount",
+              "scope": "item"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-063",
+      "expression": {
+        "op": "count",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_items",
+              "scope": "root"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-064",
+      "expression": {
+        "op": "any",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_items",
+              "scope": "root"
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_selected",
+              "scope": "item"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-065",
+      "expression": {
+        "op": "all",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_items",
+              "scope": "root"
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_selected",
+              "scope": "item"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-066",
+      "expression": {
+        "op": "any",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_items",
+              "scope": "root"
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_selected",
+              "scope": "item"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-067",
+      "expression": {
+        "op": "all",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_items",
+              "scope": "root"
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_selected",
+              "scope": "item"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-068",
+      "expression": {
+        "op": "any",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_items",
+              "scope": "root"
+            }
+          },
+          {
+            "op": "eq",
+            "args": [
+              {
+                "op": "divide",
+                "args": [
+                  {
+                    "literal": {
+                      "type": "integer",
+                      "value": "1"
+                    }
+                  },
+                  {
+                    "ref": {
+                      "fieldId": "fld_amount",
+                      "scope": "item"
+                    }
+                  }
+                ]
+              },
+              {
+                "literal": {
+                  "type": "integer",
+                  "value": "1"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-069",
+      "expression": {
+        "op": "all",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_items",
+              "scope": "root"
+            }
+          },
+          {
+            "op": "eq",
+            "args": [
+              {
+                "op": "divide",
+                "args": [
+                  {
+                    "literal": {
+                      "type": "integer",
+                      "value": "1"
+                    }
+                  },
+                  {
+                    "ref": {
+                      "fieldId": "fld_amount",
+                      "scope": "item"
+                    }
+                  }
+                ]
+              },
+              {
+                "literal": {
+                  "type": "integer",
+                  "value": "1"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-070",
+      "expression": {
+        "op": "count",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_items",
+              "scope": "root"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-071",
+      "expression": {
+        "op": "sum",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_items",
+              "scope": "root"
+            }
+          }
+        ]
+      },
+      "schemaValid": false
+    },
+    {
+      "id": "EXPR-072",
+      "expression": {
+        "ref": {
+          "fieldId": "fld_amount",
+          "scope": "root"
+        }
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-073",
+      "expression": {
+        "literal": {
+          "type": "integer",
+          "value": "9007199254740992"
+        }
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-074",
+      "expression": {
+        "literal": {
+          "type": "date",
+          "value": "2023-02-29"
+        }
+      },
+      "schemaValid": false
+    },
+    {
+      "id": "EXPR-075",
+      "expression": {
+        "op": "eq",
+        "args": [
+          {
+            "literal": {
+              "type": "dateTime",
+              "value": {
+                "instant": "2026-09-05T10:00:00Z",
+                "timeZone": "UTC"
+              }
+            }
+          },
+          {
+            "literal": {
+              "type": "dateTime",
+              "value": {
+                "instant": "2026-09-05T10:00:00Z",
+                "timeZone": "Asia/Kolkata"
+              }
+            }
+          }
+        ]
+      },
+      "schemaValid": false
+    },
+    {
+      "id": "EXPR-076",
+      "expression": {
+        "literal": {
+          "type": "dateTime",
+          "value": {
+            "instant": "2026-09-05T10:00:00Z",
+            "timeZone": "Not/AZone"
+          }
+        }
       },
       "schemaValid": true
     },
@@ -124,35 +1601,6 @@
       "schemaValid": true
     },
     {
-      "id": "EXPR-052",
-      "expression": {
-        "context": "locale"
-      },
-      "schemaValid": false
-    },
-    {
-      "id": "EXPR-053",
-      "expression": {
-        "literal": {
-          "type": "array",
-          "itemType": "integer",
-          "value": [
-            [
-              1
-            ]
-          ]
-        }
-      },
-      "schemaValid": false
-    },
-    {
-      "id": "EXPR-054",
-      "expression": {
-        "literal": "1"
-      },
-      "schemaValid": false
-    },
-    {
       "id": "EXPR-078",
       "expression": {
         "ref": {
@@ -162,6 +1610,360 @@
         }
       },
       "schemaValid": false
+    },
+    {
+      "id": "EXPR-079",
+      "expression": {
+        "ref": {
+          "fieldId": "fld_number",
+          "scope": "root"
+        }
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-080",
+      "expression": {
+        "op": "eq",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_flag",
+              "scope": "root"
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_flag",
+              "scope": "root"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-081",
+      "expression": {
+        "literal": {
+          "type": "decimal",
+          "value": "-0.000"
+        }
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-082",
+      "expression": {
+        "op": "eval",
+        "args": [
+          {
+            "literal": {
+              "type": "text",
+              "value": "1+1"
+            }
+          }
+        ]
+      },
+      "schemaValid": false
+    },
+    {
+      "id": "EXPR-083",
+      "expression": {
+        "op": "statusIs",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_reason",
+              "scope": "root"
+            }
+          },
+          {
+            "literal": {
+              "type": "text",
+              "value": "respondentNotApplicable"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-084",
+      "expression": {
+        "op": "statusIs",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_reason",
+              "scope": "root"
+            }
+          },
+          {
+            "literal": {
+              "type": "text",
+              "value": "notApplicable"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-085",
+      "expression": {
+        "ref": {
+          "fieldId": "fld_reason",
+          "scope": "root"
+        }
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-086",
+      "expression": {
+        "op": "statusIs",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_reason",
+              "scope": "root"
+            }
+          },
+          {
+            "literal": {
+              "type": "text",
+              "value": "notApplicable"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-087",
+      "expression": {
+        "op": "add",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_number",
+              "scope": "root"
+            }
+          },
+          {
+            "op": "divide",
+            "args": [
+              {
+                "literal": {
+                  "type": "integer",
+                  "value": "1"
+                }
+              },
+              {
+                "ref": {
+                  "fieldId": "fld_runtime_zero",
+                  "scope": "root"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-088",
+      "expression": {
+        "op": "round",
+        "args": [
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "1.23"
+            }
+          },
+          {
+            "literal": {
+              "type": "integer",
+              "value": "13"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-089",
+      "expression": {
+        "op": "round",
+        "args": [
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "1.23"
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_scale",
+              "scope": "root"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-090",
+      "expression": {
+        "op": "sum",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_items",
+              "scope": "root"
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_amount",
+              "scope": "item"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "EXPR-091",
+      "expression": {
+        "op": "sum",
+        "args": [
+          {
+            "ref": {
+              "fieldId": "fld_items",
+              "scope": "root"
+            }
+          },
+          {
+            "ref": {
+              "fieldId": "fld_amount",
+              "scope": "item"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "INT64-01",
+      "expression": {
+        "literal": {
+          "type": "integer",
+          "value": "9223372036854775807"
+        }
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "INT64-02",
+      "expression": {
+        "literal": {
+          "type": "integer",
+          "value": "-9223372036854775808"
+        }
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "INT64-03",
+      "expression": {
+        "literal": {
+          "type": "integer",
+          "value": "9223372036854775808"
+        }
+      },
+      "schemaValid": false
+    },
+    {
+      "id": "INT64-04",
+      "expression": {
+        "literal": {
+          "type": "integer",
+          "value": "-9223372036854775809"
+        }
+      },
+      "schemaValid": false
+    },
+    {
+      "id": "INT64-05",
+      "expression": {
+        "literal": {
+          "type": "integer",
+          "value": "9007199254740993"
+        }
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "INT64-06",
+      "expression": {
+        "literal": {
+          "type": "integer",
+          "value": 1
+        }
+      },
+      "schemaValid": false
+    },
+    {
+      "id": "INT64-07",
+      "expression": {
+        "literal": {
+          "type": "integer",
+          "value": "-0"
+        }
+      },
+      "schemaValid": false
+    },
+    {
+      "id": "INT64-08",
+      "expression": {
+        "literal": {
+          "type": "integer",
+          "value": "01"
+        }
+      },
+      "schemaValid": false
+    },
+    {
+      "id": "TODAY-01",
+      "expression": {
+        "op": "today",
+        "args": []
+      },
+      "schemaValid": true
+    },
+    {
+      "id": "DIV-COMPILE-01",
+      "expression": {
+        "op": "divide",
+        "args": [
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "1"
+            }
+          },
+          {
+            "literal": {
+              "type": "decimal",
+              "value": "0"
+            }
+          }
+        ]
+      },
+      "schemaValid": true
     }
   ]
 }

@@ -13,6 +13,7 @@ import hashlib
 import json
 import shutil
 import subprocess
+import sys
 import tempfile
 
 import yaml
@@ -20,6 +21,7 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
+REQUIRED_PYTHON = (3, 12)
 CONTRACT = ROOT / "docs/contracts/smart-form-builder-lite/4.0.0"
 INDEX = CONTRACT / "index.json"
 OPENAPI = ROOT / "docs/api/openapi.yaml"
@@ -38,8 +40,8 @@ FRONTEND_ASSETS = ROOT / "frontend/src/assets/contracts/smart-form-builder-lite/
 
 GENERATION = {
     "generator": "tools/contracts/generate_contract_artifacts.py",
-    "generatorVersion": "1.3.0",
-    "python": "3.12",
+    "generatorVersion": "1.3.1",
+    "python": "3.12.3",
     "schemaDialect": "https://json-schema.org/draft/2020-12/schema",
     "openapi": "3.1.0",
     "modelStrategy": "schema-derived-transport-projections-require-ContractRegistry-validation",
@@ -286,7 +288,9 @@ import type {
   SubmissionEnvelopeDocument,
   TypedAnswerDocument,
 } from './contracts';
+import type { operations } from './api';
 import { positiveFixtures } from './contract-fixtures';
+import type { PublishedSchema as ServicePublishedSchema } from '../smart-intake-api.service';
 
 const positivePackage: PackageDocument = positiveFixtures.package;
 const positiveExpression: ExpressionDocument = positiveFixtures.expression;
@@ -302,6 +306,18 @@ void positiveTypedAnswer;
 void positiveRuntimeManifest;
 void positiveSubmissionEnvelope;
 void positiveEvent;
+
+type GeneratedPublishedSchema = operations['ON-get-v1-schemas-kind-version-4c108bde88']['responses'][200]['content']['application/schema+json'];
+declare const generatedPublishedSchema: GeneratedPublishedSchema;
+declare const servicePublishedSchema: ServicePublishedSchema;
+const generatedSchemaProperties: unknown = generatedPublishedSchema.properties;
+const generatedSchemaDefinitions: unknown = generatedPublishedSchema.$defs;
+const serviceSchemaProperties: unknown = servicePublishedSchema.properties;
+const serviceSchemaDefinitions: unknown = servicePublishedSchema.$defs;
+void generatedSchemaProperties;
+void generatedSchemaDefinitions;
+void serviceSchemaProperties;
+void serviceSchemaDefinitions;
 
 // @ts-expect-error Package root documents require the contract identity fields.
 const missingPackageIdentity: PackageDocument = { kind: 'smart-form-package' };
@@ -408,6 +424,10 @@ def apply(files: dict[Path, bytes], check: bool, scope: str) -> list[str]:
     return errors
 
 def main() -> int:
+    if sys.version_info[:2] != REQUIRED_PYTHON:
+        found = ".".join(map(str, sys.version_info[:3]))
+        required = ".".join(map(str, REQUIRED_PYTHON))
+        raise SystemExit(f"generate_contract_artifacts.py requires Python {required}; found {found}")
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true", help="regenerate to a temporary directory and reject byte drift")
     parser.add_argument("--scope", choices=("all", "backend", "frontend"), default="all", help="limit drift work to an independently installed toolchain")

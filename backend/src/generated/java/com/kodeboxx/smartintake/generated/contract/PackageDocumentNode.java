@@ -166,7 +166,7 @@ public class PackageDocumentNode {
   }
 
   public static final String JSON_PROPERTY_FIELD_TYPE = "fieldType";
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   private FieldTypeEnum fieldType;
 
   /**
@@ -174,6 +174,8 @@ public class PackageDocumentNode {
    */
   public enum ControlEnum {
     TEXT(String.valueOf("text")),
+    
+    SHORT_TEXT(String.valueOf("shortText")),
     
     TEXTAREA(String.valueOf("textarea")),
     
@@ -281,7 +283,7 @@ public class PackageDocumentNode {
   private ControlEnum control;
 
   public static final String JSON_PROPERTY_LABEL_KEY = "labelKey";
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   private String labelKey;
 
   public static final String JSON_PROPERTY_GUIDANCE_ID = "guidanceId";
@@ -406,7 +408,7 @@ public class PackageDocumentNode {
     this.fieldId = fieldId;
   }
 
-  public PackageDocumentNode fieldType(@jakarta.annotation.Nonnull FieldTypeEnum fieldType) {
+  public PackageDocumentNode fieldType(@jakarta.annotation.Nullable FieldTypeEnum fieldType) {
     
     this.fieldType = fieldType;
     return this;
@@ -416,9 +418,9 @@ public class PackageDocumentNode {
    * Get fieldType
    * @return fieldType
    */
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_FIELD_TYPE)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
   public FieldTypeEnum getFieldType() {
     return fieldType;
@@ -426,8 +428,8 @@ public class PackageDocumentNode {
 
 
   @JsonProperty(JSON_PROPERTY_FIELD_TYPE)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setFieldType(@jakarta.annotation.Nonnull FieldTypeEnum fieldType) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setFieldType(@jakarta.annotation.Nullable FieldTypeEnum fieldType) {
     this.fieldType = fieldType;
   }
 
@@ -456,7 +458,7 @@ public class PackageDocumentNode {
     this.control = control;
   }
 
-  public PackageDocumentNode labelKey(@jakarta.annotation.Nonnull String labelKey) {
+  public PackageDocumentNode labelKey(@jakarta.annotation.Nullable String labelKey) {
     
     this.labelKey = labelKey;
     return this;
@@ -466,9 +468,9 @@ public class PackageDocumentNode {
    * Get labelKey
    * @return labelKey
    */
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_LABEL_KEY)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
   public String getLabelKey() {
     return labelKey;
@@ -476,8 +478,8 @@ public class PackageDocumentNode {
 
 
   @JsonProperty(JSON_PROPERTY_LABEL_KEY)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setLabelKey(@jakarta.annotation.Nonnull String labelKey) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setLabelKey(@jakarta.annotation.Nullable String labelKey) {
     this.labelKey = labelKey;
   }
 

@@ -32,7 +32,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
  */
 @JsonPropertyOrder({
   PackageDocumentPhase.JSON_PROPERTY_ID,
-  PackageDocumentPhase.JSON_PROPERTY_PAGES
+  PackageDocumentPhase.JSON_PROPERTY_PAGES,
+  PackageDocumentPhase.JSON_PROPERTY_TITLE_KEY
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
 public class PackageDocumentPhase {
@@ -43,6 +44,10 @@ public class PackageDocumentPhase {
   public static final String JSON_PROPERTY_PAGES = "pages";
   @jakarta.annotation.Nonnull
   private List<PackageDocumentPage> pages = new ArrayList<>();
+
+  public static final String JSON_PROPERTY_TITLE_KEY = "titleKey";
+  @jakarta.annotation.Nullable
+  private String titleKey;
 
   public PackageDocumentPhase() {
   }
@@ -105,6 +110,31 @@ public class PackageDocumentPhase {
     this.pages = pages;
   }
 
+  public PackageDocumentPhase titleKey(@jakarta.annotation.Nullable String titleKey) {
+    
+    this.titleKey = titleKey;
+    return this;
+  }
+
+  /**
+   * Get titleKey
+   * @return titleKey
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_TITLE_KEY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public String getTitleKey() {
+    return titleKey;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_TITLE_KEY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setTitleKey(@jakarta.annotation.Nullable String titleKey) {
+    this.titleKey = titleKey;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -115,12 +145,13 @@ public class PackageDocumentPhase {
     }
     PackageDocumentPhase packageDocumentPhase = (PackageDocumentPhase) o;
     return Objects.equals(this.id, packageDocumentPhase.id) &&
-        Objects.equals(this.pages, packageDocumentPhase.pages);
+        Objects.equals(this.pages, packageDocumentPhase.pages) &&
+        Objects.equals(this.titleKey, packageDocumentPhase.titleKey);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, pages);
+    return Objects.hash(id, pages, titleKey);
   }
 
   @Override
@@ -129,6 +160,7 @@ public class PackageDocumentPhase {
     sb.append("class PackageDocumentPhase {\n");
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    pages: ").append(toIndentedString(pages)).append("\n");
+    sb.append("    titleKey: ").append(toIndentedString(titleKey)).append("\n");
     sb.append("}");
     return sb.toString();
   }

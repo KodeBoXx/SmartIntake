@@ -10,7 +10,9 @@ import type {
   SubmissionEnvelopeDocument,
   TypedAnswerDocument,
 } from './contracts';
+import type { operations } from './api';
 import { positiveFixtures } from './contract-fixtures';
+import type { PublishedSchema as ServicePublishedSchema } from '../smart-intake-api.service';
 
 const positivePackage: PackageDocument = positiveFixtures.package;
 const positiveExpression: ExpressionDocument = positiveFixtures.expression;
@@ -26,6 +28,18 @@ void positiveTypedAnswer;
 void positiveRuntimeManifest;
 void positiveSubmissionEnvelope;
 void positiveEvent;
+
+type GeneratedPublishedSchema = operations['ON-get-v1-schemas-kind-version-4c108bde88']['responses'][200]['content']['application/schema+json'];
+declare const generatedPublishedSchema: GeneratedPublishedSchema;
+declare const servicePublishedSchema: ServicePublishedSchema;
+const generatedSchemaProperties: unknown = generatedPublishedSchema.properties;
+const generatedSchemaDefinitions: unknown = generatedPublishedSchema.$defs;
+const serviceSchemaProperties: unknown = servicePublishedSchema.properties;
+const serviceSchemaDefinitions: unknown = servicePublishedSchema.$defs;
+void generatedSchemaProperties;
+void generatedSchemaDefinitions;
+void serviceSchemaProperties;
+void serviceSchemaDefinitions;
 
 // @ts-expect-error Package root documents require the contract identity fields.
 const missingPackageIdentity: PackageDocument = { kind: 'smart-form-package' };

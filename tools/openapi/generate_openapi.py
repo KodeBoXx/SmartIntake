@@ -42,6 +42,8 @@ def closed(required: list[str], properties: dict[str, Any], description: str | N
 def roles_and_scope(method: str, path: str) -> tuple[list[str], str, list[dict[str, list[str]]]]:
     if path == "/v1/capabilities" or path.startswith("/v1/schemas/"):
         return ["public.contract.read"], "public", []
+    if path == "/v1/auth/session":
+        return ["anonymous.login-csrf.bootstrap"], "anonymous", []
     if path.startswith("/v1/public/"):
         return ["public.share.start"], "share-bound", []
     if path.startswith("/v1/sessions/"):
@@ -104,6 +106,7 @@ def path_parameters(path: str) -> list[dict[str, Any]]:
 def resource_for(path: str) -> str:
     if path == "/v1/capabilities": return "CapabilityRegistry"
     if path.startswith("/v1/schemas/"): return "PublishedSchema"
+    if path == "/v1/auth/session": return "LoginCsrfBootstrap"
     if "/assets/" in path: return "AuthorizedAsset"
     if path == "/v1/organizations/{o}/users/{u}/recovery": return "OrganizationRecovery"
     if path == "/v1/platform/accounts/{a}/recovery": return "PlatformRecovery"
@@ -231,6 +234,10 @@ def response_model(resource: str, is_collection: bool) -> str:
 
 def resource_example(resource: str) -> dict[str, Any]:
     now = "2026-09-18T00:00:00Z"
+    if resource == "AuthorizedAsset":
+        return {"id": "authorizedasset-01J2W5RFR3K24SFWDX2C0N9VW3", "downloadUrl": "https://transfer.example.test/assets/asset-01J2W5RFR3K24SFWDX2C0N9VW3?capability=redacted", "expiresAt": "2026-09-18T00:05:00Z", "contentType": "application/pdf"}
+    if resource == "LoginCsrfBootstrap":
+        return {"csrfToken": "login-csrf-01J2W5RFR3K24SFWDX2C0N9VW3", "expiresAt": "2026-09-18T00:05:00Z"}
     value: dict[str, Any] = {"id": f"{resource.lower()}-01J2W5RFR3K24SFWDX2C0N9VW3", "kind": resource, "revision": 7, "status": "active", "createdAt": now, "updatedAt": now}
     extras: dict[str, dict[str, Any]] = {
         "Form": {"formKey": "example-form", "title": "Example form"}, "Draft": {"formId": "form-01J2W5RFR3K24SFWDX2C0N9VW3", "packageHash": "0" * 64},
@@ -244,7 +251,6 @@ def resource_example(resource: str) -> dict[str, Any]:
         "Block": {"blockType": "markdown"}, "Theme": {"name": "Default"}, "LocaleBundle": {"locale": "en-US"}, "ShareChannel": {"channelType": "link", "name": "Public link"},
         "Policy": {"policyType": "retention", "effect": "allow"}, "Organization": {"name": "Example organization"}, "OrganizationUser": {"email": "author@example.test", "roles": ["administrator"]},
         "PlatformAccount": {"accountStatus": "active"}, "WorkspaceRole": {"roles": ["editor"]}, "Invitation": {"email": "author@example.test", "expiresAt": "2026-09-19T00:00:00Z"},
-        "AuthorizedAsset": {"downloadUrl": "https://transfer.example.test/assets/asset-01J2W5RFR3K24SFWDX2C0N9VW3?capability=redacted", "expiresAt": "2026-09-18T00:05:00Z", "contentType": "application/pdf"},
         "OrganizationRecovery": {"safeDelivery": "verified-email", "revocation": "sessions-revoked", "ownerSafety": "confirmed", "idempotencyReplay": "redacted"},
         "PlatformRecovery": {"safeDelivery": "manual-security-review", "revocation": "sessions-revoked", "ownerSafety": "confirmed", "idempotencyReplay": "redacted"},
         "ImportCandidate": {"candidateDigest": "0" * 64, "expiresAt": "2026-09-19T00:00:00Z"}, "ValidationReport": {"valid": True, "diagnostics": []},
@@ -272,7 +278,13 @@ def resource_schemas() -> dict[str, Any]:
         "OrganizationRecovery": {"safeDelivery": {"enum": ["verified-email", "administrator-assisted"]}, "revocation": {"const": "sessions-revoked"}, "ownerSafety": {"const": "confirmed"}, "idempotencyReplay": {"const": "redacted"}},
         "PlatformRecovery": {"safeDelivery": {"enum": ["verified-email", "manual-security-review"]}, "revocation": {"const": "sessions-revoked"}, "ownerSafety": {"const": "confirmed"}, "idempotencyReplay": {"const": "redacted"}},
     })
-    result: dict[str, Any] = {}
+    result: dict[str, Any] = {
+        "LoginCsrfBootstrap": closed(
+            ["csrfToken", "expiresAt"],
+            {"csrfToken": {"type": "string", "minLength": 24}, "expiresAt": {"type": "string", "format": "date-time"}},
+            "One-time anonymous login-CSRF token bound to the smartintake_login_csrf cookie.",
+        ),
+    }
     for name, extra in extras.items():
         props = dict(base); props["kind"] = {"const": name}; props.update(extra)
         result[name] = closed(["id", "kind", "revision", "status", "createdAt", "updatedAt", *extra.keys()], props, f"Concrete {name} resource representation.")
@@ -294,7 +306,7 @@ def build_components(members: list[dict[str, Any]]) -> dict[str, Any]:
             closed(["op", "fieldId", "itemId"], {"op": {"enum": ["addItem", "removeItem"]}, "fieldId": {"type": "string"}, "itemId": {"$ref": "#/components/schemas/OpaqueId"}}),
         ]},
         "SubmissionFilter": closed(["status"], {"status": {"type": "array", "minItems": 1, "items": {"enum": ["submitted", "voided"]}}, "from": {"type": "string", "format": "date-time"}, "to": {"type": "string", "format": "date-time"}}),
-        "PublishedSchema": {"type": "object", "required": ["$schema", "$id"], "properties": {"$schema": {"const": "https://json-schema.org/draft/2020-12/schema"}, "$id": {"type": "string", "format": "uri"}}, "description": "A complete Draft 2020-12 schema document. Keywords, $defs, recursive references and extension annotations are intentionally preserved."},
+        "PublishedSchema": {"type": "object", "additionalProperties": True, "required": ["$schema", "$id"], "properties": {"$schema": {"const": "https://json-schema.org/draft/2020-12/schema"}, "$id": {"type": "string", "format": "uri"}}, "description": "A complete Draft 2020-12 schema document. Keywords, $defs, recursive references and extension annotations are intentionally preserved."},
         "CapabilityRegistry": closed(["registryVersion", "contractVersion", "versions", "schemas", "fieldCatalog", "controlValueCompatibility", "operatorSignatures", "limits", "operations", "assetSupplement", "openapi", "generation"], {"registryVersion": {"type": "string"}, "contractVersion": {"const": "4.0.0"}, "versions": {"type": "object", "required": ["contract", "openapi", "schemaDialect", "java", "typescript"], "additionalProperties": {"type": "string"}}, "schemas": {"type": "array", "minItems": 7, "items": closed(["kind", "version", "id", "sha256", "file", "resource"], {"kind": {"type": "string"}, "version": {"const": "4.0.0"}, "id": {"type": "string"}, "sha256": {"$ref": "#/components/schemas/Sha256"}, "file": {"type": "string"}, "resource": {"type": "string"}})}, "fieldCatalog": {"type": "array", "minItems": 17, "items": closed(["row", "controls", "canonicalTypes"], {"row": {"type": "integer", "minimum": 1}, "controls": {"type": "array", "minItems": 1, "items": {"type": "string"}}, "canonicalTypes": {"type": "array", "items": {"type": "string"}}})}, "controlValueCompatibility": {"type": "object", "minProperties": 17, "additionalProperties": {"type": "array", "minItems": 1, "items": {"type": "string"}}}, "operatorSignatures": {"type": "array", "minItems": 34, "items": {"type": "object"}}, "limits": {"type": "array", "minItems": 11, "items": {"type": "object"}}, "operations": closed(["count", "items", "statusPolicy"], {"count": {"const": 82}, "items": {"type": "array", "minItems": 82, "items": {"type": "object"}}, "statusPolicy": {"type": "string"}}), "assetSupplement": closed(["counted", "id", "implementationStatus", "reason"], {"counted": {"const": False}, "id": {"const": "M2-get-v1-workspaces-w-assets-assetid-authorized-asset"}, "implementationStatus": {"const": "planned"}, "reason": {"type": "string"}}), "openapi": closed(["file", "resource", "sha256", "version"], {"file": {"type": "string"}, "resource": {"type": "string"}, "sha256": {"$ref": "#/components/schemas/Sha256"}, "version": {"const": "3.1.0"}}), "generation": {"type": "object", "minProperties": 1, "additionalProperties": {"type": ["string", "object", "array"]}}}),
     }
     capability_registry = schemas["CapabilityRegistry"]
@@ -328,7 +340,16 @@ def build_components(members: list[dict[str, Any]]) -> dict[str, Any]:
     # representative OpenAPI example deterministic without feeding its own
     # OpenAPI digest back into the generated component bundle.
     registry["openapi"]["sha256"] = "0" * 64
-    return {"openapi": "3.1.0", "info": {"title": "Smart Form Builder Lite 4.0.0 OpenAPI components", "version": "4.0.0"}, "components": {"securitySchemes": {"staffCookie": {"type": "apiKey", "in": "cookie", "name": "smartintake_staff", "description": "Opaque HttpOnly staff session cookie; sign-in validates Origin and binds a login-CSRF token before issuing it."}, "csrfHeader": {"type": "apiKey", "in": "header", "name": "X-CSRF-Token", "description": "Required for cookie-authenticated mutations."}, "respondentSession": {"type": "http", "scheme": "bearer", "bearerFormat": "opaque-session", "description": "Respondent authorization, valid only for its session or receipt."}}, "parameters": {"IfMatch": {"name": "If-Match", "in": "header", "required": True, "schema": {"type": "string", "pattern": '^"[A-Za-z0-9._-]+"$'}, "example": '"rev-7"'}, "IdempotencyKey": {"name": "Idempotency-Key", "in": "header", "required": True, "schema": {"$ref": "#/components/schemas/OpaqueId"}, "example": "idem-01J2W5RFR3K24SFWDX2C0N9VW3", "description": "Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days."}, "Cursor": {"name": "cursor", "in": "query", "schema": {"type": "string"}, "description": "Opaque stable-snapshot cursor. Pages are stable-sorted, duplicate-free and collectively contain every item exactly once."}, "Limit": {"name": "limit", "in": "query", "schema": {"type": "integer", "default": 50, "minimum": 1, "maximum": 200}}}, "headers": {"ETag": {"schema": {"type": "string"}, "description": "Strong entity tag."}, "Digest": {"schema": {"type": "string"}, "description": "Content digest for immutable publication bytes."}, "ContractSha256": {"schema": {"$ref": "#/components/schemas/Sha256"}, "description": "Published contract SHA-256."}, "RetryAfter": {"schema": {"type": "integer", "minimum": 1}, "description": "Seconds until the caller may retry a 429 response."}}, "examples": {"Problem": {"value": problem_example}, "CapabilityRegistry": {"value": registry}}, "responses": {}, "schemas": schemas, "x-contract-schema-resources": [{"$ref": f"./{name}"} for name in ["package.schema.json", "expression.schema.json", "input-answer.schema.json", "typed-answer.schema.json", "runtime-manifest.schema.json", "submission-envelope.schema.json", "event.schema.json"]]}}
+    component_bundle = {"openapi": "3.1.0", "info": {"title": "Smart Form Builder Lite 4.0.0 OpenAPI components", "version": "4.0.0"}, "components": {"securitySchemes": {"staffCookie": {"type": "apiKey", "in": "cookie", "name": "smartintake_staff", "description": "Opaque HttpOnly staff session cookie; sign-in validates Origin and binds a login-CSRF token before issuing it."}, "csrfHeader": {"type": "apiKey", "in": "header", "name": "X-CSRF-Token", "description": "Required for cookie-authenticated mutations."}, "respondentSession": {"type": "http", "scheme": "bearer", "bearerFormat": "opaque-session", "description": "Respondent authorization, valid only for its session or receipt."}}, "parameters": {"IfMatch": {"name": "If-Match", "in": "header", "required": True, "schema": {"type": "string", "pattern": '^"[A-Za-z0-9._-]+"$'}, "example": '"rev-7"'}, "IdempotencyKey": {"name": "Idempotency-Key", "in": "header", "required": True, "schema": {"$ref": "#/components/schemas/OpaqueId"}, "example": "idem-01J2W5RFR3K24SFWDX2C0N9VW3", "description": "Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days."}, "Cursor": {"name": "cursor", "in": "query", "schema": {"type": "string"}, "description": "Opaque stable-snapshot cursor. Pages are stable-sorted, duplicate-free and collectively contain every item exactly once."}, "Limit": {"name": "limit", "in": "query", "schema": {"type": "integer", "default": 50, "minimum": 1, "maximum": 200}}}, "headers": {"ETag": {"schema": {"type": "string"}, "description": "Strong entity tag."}, "Digest": {"schema": {"type": "string"}, "description": "Content digest for immutable publication bytes."}, "ContractSha256": {"schema": {"$ref": "#/components/schemas/Sha256"}, "description": "Published contract SHA-256."}, "RetryAfter": {"schema": {"type": "integer", "minimum": 1}, "description": "Seconds until the caller may retry a 429 response."}}, "examples": {"Problem": {"value": problem_example}, "CapabilityRegistry": {"value": registry}}, "responses": {}, "schemas": schemas, "x-contract-schema-resources": [{"$ref": f"./{name}"} for name in ["package.schema.json", "expression.schema.json", "input-answer.schema.json", "typed-answer.schema.json", "runtime-manifest.schema.json", "submission-envelope.schema.json", "event.schema.json"]]}}
+
+    component_definitions = component_bundle["components"]
+    component_definitions["parameters"].update({
+        "LoginCsrfToken": {"name": "X-Login-CSRF-Token", "in": "header", "required": True, "schema": {"type": "string", "minLength": 24}, "description": "One-time value returned by GET /v1/auth/session; it must match the server-bound login-CSRF cookie."},
+        "LoginCsrfCookie": {"name": "smartintake_login_csrf", "in": "cookie", "required": True, "schema": {"type": "string", "minLength": 24}, "description": "Secure, HttpOnly, SameSite=Strict cookie set by GET /v1/auth/session and consumed with the matching X-Login-CSRF-Token."},
+    })
+    component_definitions["headers"]["LoginCsrfSetCookie"] = {"schema": {"type": "string"}, "description": "Sets smartintake_login_csrf as a Secure, HttpOnly, SameSite=Strict, short-lived cookie bound to the returned one-time token."}
+    return component_bundle
+
 
 
 def add_problem_responses(components: dict[str, Any]) -> None:
@@ -360,7 +381,9 @@ def success_content(resource: str, path: str, method: str, components: dict[str,
         example = {"requestId": "req-01J2W5RFR3K24SFWDX2C0N9VW3", "items": [resource_example(resource)], "page": {"limit": 50, "nextCursor": None}}
     else:
         example = {"requestId": "req-01J2W5RFR3K24SFWDX2C0N9VW3", resource[0].lower() + resource[1:]: resource_example(resource)}
-    return {"application/json": {"schema": ref("schemas", name), "examples": {"success": {"value": example}}}}, {"ETag": ref("headers", "ETag")}
+    headers = {"ETag": ref("headers", "ETag")}
+    if path == "/v1/auth/session": headers = {"Set-Cookie": ref("headers", "LoginCsrfSetCookie")}
+    return {"application/json": {"schema": ref("schemas", name), "examples": {"success": {"value": example}}}}, headers
 
 
 def operation(member: dict[str, Any], components: dict[str, Any], counted: bool = True) -> dict[str, Any]:
@@ -372,6 +395,7 @@ def operation(member: dict[str, Any], components: dict[str, Any], counted: bool 
     if collection_response(path, method): params += [ref("parameters", "Cursor"), ref("parameters", "Limit")]
     if needs_etag(method, path): params.append(ref("parameters", "IfMatch"))
     if is_mutation(method) and not path.startswith("/v1/auth/") and path != "/v1/invitations/accept": params.append(ref("parameters", "IdempotencyKey"))
+    if path == "/v1/auth/sign-in": params += [ref("parameters", "LoginCsrfToken"), ref("parameters", "LoginCsrfCookie")]
     content, headers = success_content(resource, path, method, components)
     responses: dict[str, Any] = {status: {"description": "Successful response.", **({"headers": headers} if headers else {}), "content": {} if status == "204" else content}, "400": ref("responses", "BadRequest"), "401": ref("responses", "Unauthenticated"), "403": ref("responses", "Forbidden"), "404": ref("responses", "NotFound"), "429": ref("responses", "RateLimited"), "500": ref("responses", "InternalError")}
     if is_mutation(method): responses.update({"409": ref("responses", "Conflict"), "422": ref("responses", "Unprocessable")})
@@ -389,10 +413,14 @@ def operation(member: dict[str, Any], components: dict[str, Any], counted: bool 
             name, _, valid, invalid = definition
             result["requestBody"] = {"required": True, "content": {"application/json": {"schema": ref("schemas", name), "examples": {"valid": {"value": valid}, "invalid": {"value": invalid}}}}}
         result["x-replay"] = "Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId plus body."
+    if path.startswith("/v1/auth/") or path == "/v1/invitations/accept":
+        result["x-replay"] = "Authentication proofs are operation-specific and one-time where applicable; retries never replay credentials, tokens, cookies, reset links, activation links or transfer capabilities."
     if path in {"/v1/auth/sign-in", "/v1/auth/activate", "/v1/auth/recovery", "/v1/auth/reset", "/v1/invitations/accept"}:
         result["x-secret-issuance-replay"] = "Secret, activation, reset and session issuance never replay credentials, tokens, cookies or transfer capabilities; a replay response is redacted."
     if path == "/v1/auth/sign-in":
         result["x-login-csrf-origin-protection"] = "Validate an allow-listed Origin and a one-time login-CSRF token before issuing a SameSite, HttpOnly staff cookie."
+    if path == "/v1/auth/session":
+        result["x-login-csrf-bootstrap"] = "Anonymous bootstrap issues one short-lived one-time token and its bound Secure, HttpOnly, SameSite=Strict cookie; a consumed or expired token requires a fresh bootstrap response."
     if collection_response(path, method):
         result["x-pagination"] = "Results use a stable total order and a snapshot cursor: no duplicate items, no missing items, and deterministic continuation while the cursor is valid."
     if needs_etag(method, path): result["x-concurrency"] = "Strong ETag and If-Match are required; missing is 428, stale is 412."

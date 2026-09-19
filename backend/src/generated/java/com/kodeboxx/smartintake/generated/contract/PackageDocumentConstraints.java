@@ -38,7 +38,10 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   PackageDocumentConstraints.JSON_PROPERTY_MIN_ITEMS,
   PackageDocumentConstraints.JSON_PROPERTY_MAX_ITEMS,
   PackageDocumentConstraints.JSON_PROPERTY_FIXED_ITEM_IDS,
-  PackageDocumentConstraints.JSON_PROPERTY_EXCLUSIVE_OPTION_IDS
+  PackageDocumentConstraints.JSON_PROPERTY_EXCLUSIVE_OPTION_IDS,
+  PackageDocumentConstraints.JSON_PROPERTY_REQUIRED,
+  PackageDocumentConstraints.JSON_PROPERTY_MIN_LENGTH,
+  PackageDocumentConstraints.JSON_PROPERTY_MAX_LENGTH
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
 public class PackageDocumentConstraints {
@@ -73,6 +76,18 @@ public class PackageDocumentConstraints {
   public static final String JSON_PROPERTY_EXCLUSIVE_OPTION_IDS = "exclusiveOptionIds";
   @jakarta.annotation.Nullable
   private Set<String> exclusiveOptionIds = new LinkedHashSet<>();
+
+  public static final String JSON_PROPERTY_REQUIRED = "required";
+  @jakarta.annotation.Nullable
+  private Boolean required;
+
+  public static final String JSON_PROPERTY_MIN_LENGTH = "minLength";
+  @jakarta.annotation.Nullable
+  private Integer minLength;
+
+  public static final String JSON_PROPERTY_MAX_LENGTH = "maxLength";
+  @jakarta.annotation.Nullable
+  private Integer maxLength;
 
   public PackageDocumentConstraints() {
   }
@@ -301,6 +316,85 @@ public class PackageDocumentConstraints {
     this.exclusiveOptionIds = exclusiveOptionIds;
   }
 
+  public PackageDocumentConstraints required(@jakarta.annotation.Nullable Boolean required) {
+    
+    this.required = required;
+    return this;
+  }
+
+  /**
+   * Get required
+   * @return required
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_REQUIRED)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public Boolean getRequired() {
+    return required;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_REQUIRED)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setRequired(@jakarta.annotation.Nullable Boolean required) {
+    this.required = required;
+  }
+
+  public PackageDocumentConstraints minLength(@jakarta.annotation.Nullable Integer minLength) {
+    
+    this.minLength = minLength;
+    return this;
+  }
+
+  /**
+   * Get minLength
+   * minimum: 0
+   * maximum: 100000
+   * @return minLength
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_MIN_LENGTH)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public Integer getMinLength() {
+    return minLength;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_MIN_LENGTH)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setMinLength(@jakarta.annotation.Nullable Integer minLength) {
+    this.minLength = minLength;
+  }
+
+  public PackageDocumentConstraints maxLength(@jakarta.annotation.Nullable Integer maxLength) {
+    
+    this.maxLength = maxLength;
+    return this;
+  }
+
+  /**
+   * Get maxLength
+   * minimum: 0
+   * maximum: 100000
+   * @return maxLength
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_MAX_LENGTH)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public Integer getMaxLength() {
+    return maxLength;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_MAX_LENGTH)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setMaxLength(@jakarta.annotation.Nullable Integer maxLength) {
+    this.maxLength = maxLength;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -317,12 +411,15 @@ public class PackageDocumentConstraints {
         Objects.equals(this.minItems, packageDocumentConstraints.minItems) &&
         Objects.equals(this.maxItems, packageDocumentConstraints.maxItems) &&
         Objects.equals(this.fixedItemIds, packageDocumentConstraints.fixedItemIds) &&
-        Objects.equals(this.exclusiveOptionIds, packageDocumentConstraints.exclusiveOptionIds);
+        Objects.equals(this.exclusiveOptionIds, packageDocumentConstraints.exclusiveOptionIds) &&
+        Objects.equals(this.required, packageDocumentConstraints.required) &&
+        Objects.equals(this.minLength, packageDocumentConstraints.minLength) &&
+        Objects.equals(this.maxLength, packageDocumentConstraints.maxLength);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(min, max, step, scale, minItems, maxItems, fixedItemIds, exclusiveOptionIds);
+    return Objects.hash(min, max, step, scale, minItems, maxItems, fixedItemIds, exclusiveOptionIds, required, minLength, maxLength);
   }
 
   @Override
@@ -337,6 +434,9 @@ public class PackageDocumentConstraints {
     sb.append("    maxItems: ").append(toIndentedString(maxItems)).append("\n");
     sb.append("    fixedItemIds: ").append(toIndentedString(fixedItemIds)).append("\n");
     sb.append("    exclusiveOptionIds: ").append(toIndentedString(exclusiveOptionIds)).append("\n");
+    sb.append("    required: ").append(toIndentedString(required)).append("\n");
+    sb.append("    minLength: ").append(toIndentedString(minLength)).append("\n");
+    sb.append("    maxLength: ").append(toIndentedString(maxLength)).append("\n");
     sb.append("}");
     return sb.toString();
   }

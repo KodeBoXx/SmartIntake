@@ -53,11 +53,15 @@ function createAjv(): Ajv2020 {
   });
   ajv.addFormat('canonical-decimal', {
     type: 'string',
-    validate: value => /^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$/.test(value) && decimalDigits(value) <= 34,
+    validate: value => /^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$/.test(value) && decimalIsBounded(value),
   });
   ajv.addFormat('stored-decimal', {
     type: 'string',
-    validate: value => /^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$/.test(value) && decimalDigits(value) <= 34,
+    validate: value => /^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]+)?$/.test(value) && decimalIsBounded(value),
+  });
+  ajv.addFormat('expression-decimal-input', {
+    type: 'string',
+    validate: value => /^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$/.test(value) && decimalIsBounded(value),
   });
   // Contract times are local wall-clock values, not RFC 3339 offset times.
   ajv.addFormat('time', {
@@ -67,7 +71,18 @@ function createAjv(): Ajv2020 {
   return ajv;
 }
 
-function decimalDigits(value: string): number { return value.replace('-', '').replace('.', '').length; }
+function decimalIsBounded(value: string): boolean {
+  const unsigned = value.startsWith('-') ? value.slice(1) : value;
+  const [integer, fraction = ''] = unsigned.split('.');
+  const coefficient = `${integer}${fraction}`.replace(/^0+/, '');
+  if (!coefficient) return true;
+  if (coefficient.replace(/0+$/, '').length > 34) return false;
+  const integerWithoutLeadingZeroes = integer.replace(/^0+/, '');
+  const adjustedExponent = integerWithoutLeadingZeroes
+    ? integerWithoutLeadingZeroes.length - 1
+    : -(fraction.length - fraction.replace(/^0+/, '').length + 1);
+  return adjustedExponent >= -6143 && adjustedExponent <= 6144;
+}
 
 function diagnostic(error: ErrorObject): ContractDiagnostic {
   return { pointer: error.instancePath || '', message: error.message ?? 'Schema validation failed', keyword: error.keyword };

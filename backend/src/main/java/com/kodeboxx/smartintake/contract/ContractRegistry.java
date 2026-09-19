@@ -42,6 +42,7 @@ public final class ContractRegistry {
 
   private static final BigInteger INT64_MIN = BigInteger.valueOf(Long.MIN_VALUE);
   private static final BigInteger INT64_MAX = BigInteger.valueOf(Long.MAX_VALUE);
+  private static final String LOCAL_TIME_PATTERN = "^(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,9})?$";
 
   public ContractRegistry(ObjectMapper json) {
     this.json = json;
@@ -61,6 +62,9 @@ public final class ContractRegistry {
           .addFormat(format("canonical-int64", ContractRegistry::isCanonicalInt64))
           .addFormat(format("canonical-decimal", ContractRegistry::isCanonicalDecimal))
           .addFormat(format("stored-decimal", ContractRegistry::isStoredDecimal))
+          .addFormat(format("expression-decimal-input", ContractRegistry::isExpressionDecimalInput))
+          // Contract times are offset-free local wall-clock values, matching AJV.
+          .addFormat(format("time", ContractRegistry::isLocalWallClockTime))
           .build();
       JsonSchemaFactory factory = JsonSchemaFactory.builder()
           .defaultMetaSchemaIri(metaSchema.getIri())
@@ -96,15 +100,35 @@ public final class ContractRegistry {
 
   private static boolean isCanonicalDecimal(String value) {
     if (!value.matches("^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\\.[0-9]*[1-9])?$")) return false;
-    return digits(value) <= 34;
+    return decimalIsBounded(value);
   }
 
   private static boolean isStoredDecimal(String value) {
-    if (!value.matches("^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$")) return false;
-    return digits(value) <= 34;
+    if (!value.matches("^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\\.[0-9]+)?$")) return false;
+    return decimalIsBounded(value);
   }
 
-  private static int digits(String value) { return value.replace("-", "").replace(".", "").length(); }
+  private static boolean isLocalWallClockTime(String value) { return value.matches(LOCAL_TIME_PATTERN); }
+
+  private static boolean isExpressionDecimalInput(String value) {
+    if (!value.matches("^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$")) return false;
+    return decimalIsBounded(value);
+  }
+
+  private static boolean decimalIsBounded(String value) {
+    String unsigned = value.startsWith("-") ? value.substring(1) : value;
+    String[] parts = unsigned.split("\\.", -1);
+    String integer = parts[0];
+    String fraction = parts.length == 2 ? parts[1] : "";
+    String coefficient = (integer + fraction).replaceFirst("^0+", "");
+    if (coefficient.isEmpty()) return true;
+    if (coefficient.replaceFirst("0+$", "").length() > 34) return false;
+    String integerWithoutLeadingZeroes = integer.replaceFirst("^0+", "");
+    int adjustedExponent = !integerWithoutLeadingZeroes.isEmpty()
+        ? integerWithoutLeadingZeroes.length() - 1
+        : -(fraction.length() - fraction.replaceFirst("^0+", "").length() + 1);
+    return adjustedExponent >= -6143 && adjustedExponent <= 6144;
+  }
 
   public Map<String, Object> capabilities() {
     return capabilities;
