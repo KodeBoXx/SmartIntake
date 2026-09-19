@@ -58,9 +58,9 @@ const axeCases = [
   { id: 'sign-in', path: '/sign-in?state=invalid', shell: 'auth' as const },
   // These immutable 0.0.1 components set aria-expanded on wrapper divs. Exclude
   // only those component roots; all remaining page nodes and axe rules still run.
-  { id: 'catalog', path: '/workspaces/demo/forms?state=empty', shell: 'staff' as const, upstreamExclusions: ['cui-sidebar-shell footer', 'cui-header cui-icon-button > button', '.py-2 > cui-nav-item > button'] },
-  { id: 'builder', path: '/workspaces/demo/forms/demo/drafts/demo?state=conflict', shell: 'staff' as const, upstreamExclusions: ['cui-sidebar-shell footer', 'cui-header cui-icon-button > button', '.py-2 > cui-nav-item > button'] },
-  { id: 'denied staff no-access', path: '/workspaces/demo/submissions?state=no-access', shell: 'staff' as const, upstreamExclusions: ['cui-sidebar-shell footer', 'cui-header cui-icon-button > button', '.py-2 > cui-nav-item > button'] },
+  { id: 'catalog', path: '/workspaces/demo/forms?state=empty', shell: 'staff' as const, upstreamExclusions: ['cui-sidebar-shell footer', 'cui-header cui-icon-button > button'] },
+  { id: 'builder', path: '/workspaces/demo/forms/demo/drafts/demo?state=conflict', shell: 'staff' as const, upstreamExclusions: ['cui-sidebar-shell footer', 'cui-header cui-icon-button > button'] },
+  { id: 'denied staff no-access', path: '/workspaces/demo/submissions?state=no-access', shell: 'staff' as const, upstreamExclusions: ['cui-sidebar-shell footer', 'cui-header cui-icon-button > button'] },
   { id: 'public form', path: '/sessions/demo?state=offline', shell: 'public' as const },
   { id: 'public review', path: '/sessions/demo/review?state=acknowledgment', shell: 'public' as const },
   { id: 'receipt', path: '/sessions/demo/receipt?state=succeeded', shell: 'public' as const },
@@ -122,6 +122,15 @@ test.describe('M5 routed Certinal shell', () => {
     await waitForLazyPage(page, 'staff');
     await expect(page.getByRole('navigation', { name: 'Primary navigation' })).toHaveCount(1);
     await expect(page.locator('cui-sidebar-shell')).toBeHidden();
+    await expect(page.getByRole('button', { name: /Collapse sidebar|Expand sidebar/ })).toHaveCount(0);
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.reload();
+    await waitForLazyPage(page, 'staff');
+    const desktopSidebar = page.locator('.staff-desktop-sidebar');
+    await expect(desktopSidebar).toBeVisible();
+    await expect(page.getByRole('button', { name: /Collapse sidebar|Expand sidebar/ })).toHaveCount(0);
+    const footerBox = await desktopSidebar.locator('footer').boundingBox();
+    expect(footerBox && footerBox.y + footerBox.height).toBeLessThanOrEqual(900);
   });
 
   test('keeps guarded M1 compatibility shell-less with its own viewport landmarks', async ({ page }) => {

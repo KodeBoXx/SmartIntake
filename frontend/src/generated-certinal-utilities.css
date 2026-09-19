@@ -640,6 +640,9 @@ body {
 .items-start {
   align-items: flex-start;
 }
+.items-stretch {
+  align-items: stretch;
+}
 .justify-between {
   justify-content: space-between;
 }
