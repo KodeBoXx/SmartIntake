@@ -1395,7 +1395,7 @@ components:
       description: Canonical signed int64 base-10 string; JSON number is forbidden.
     CanonicalDecimal:
       type: string
-      pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$
+      pattern: ^(?:0|-?[1-9][0-9]*|-?(?:0|[1-9][0-9]*)\.[0-9]*[1-9])$
       format: canonical-decimal
       description: Canonical expression-result decimal string with no redundant fractional zeroes; JSON number is forbidden.
     Diagnostic:

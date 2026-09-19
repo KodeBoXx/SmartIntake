@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import importlib.util
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -169,6 +170,14 @@ def validate(check_generated: bool) -> list[str]:
     inventory_by_id = {member["id"]: member for member in total["members"]}
     named_ids = {member["id"] for member in named["members"]}
     schemas = components.get("components", {}).get("schemas", {})
+    canonical_decimal_pattern = schemas.get("CanonicalDecimal", {}).get("pattern")
+    if not isinstance(canonical_decimal_pattern, str):
+        errors.append("CanonicalDecimal must declare its wire pattern")
+    else:
+        if re.fullmatch(canonical_decimal_pattern, "-0.5") is None:
+            errors.append("CanonicalDecimal must accept valid negative fractions such as -0.5")
+        if re.fullmatch(canonical_decimal_pattern, "-0") is not None:
+            errors.append("CanonicalDecimal must reject negative zero")
     published_schema = schemas.get("PublishedSchema", {})
     if published_schema.get("additionalProperties") is not True:
         errors.append("PublishedSchema must explicitly accept complete Draft 2020-12 documents, including $defs and extension annotations")
