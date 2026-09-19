@@ -6,7 +6,8 @@ import { CuiAppShellComponent, CuiHeaderComponent, CuiHeaderDrawerDirective, Cui
   standalone: true,
   imports: [RouterOutlet, RouterLink, CuiAppShellComponent, CuiHeaderComponent, CuiHeaderDrawerDirective, CuiNavItemComponent, CuiSidebarShellComponent],
   template: `
-    <cui-app-shell #staffAppShell data-testid="staff-shell" [desktopBreakpoint]="899">
+    <div data-testid="staff-shell">
+    <cui-app-shell>
       <!-- Cui 0.0.1 renders a native header inside a host that also declares
            role=banner. Suppress the duplicate host landmark at the consumer. -->
       <cui-header #staffHeader header role="presentation">
@@ -24,13 +25,14 @@ import { CuiAppShellComponent, CuiHeaderComponent, CuiHeaderDrawerDirective, Cui
           </nav>
         </ng-template>
       </cui-header>
-      <cui-sidebar-shell sidebar class="staff-desktop-sidebar" [collapsed]="staffAppShell.sidebarCollapsed()">
-        <cui-nav-item label="Forms" icon="file-text" [collapsed]="staffAppShell.sidebarCollapsed()" [active]="isFormsActive()" (navClick)="go('/workspaces/demo/forms')" />
-        <cui-nav-item label="Responses" icon="inbox" [collapsed]="staffAppShell.sidebarCollapsed()" [active]="isResponsesActive()" (navClick)="go('/workspaces/demo/submissions')" />
-        <cui-nav-item label="Settings" icon="settings" [collapsed]="staffAppShell.sidebarCollapsed()" [active]="isSettingsActive()" (navClick)="go('/settings/organization')" />
-      </cui-sidebar-shell>
       <router-outlet />
     </cui-app-shell>
+    <cui-sidebar-shell class="staff-desktop-sidebar" [collapsed]="false">
+      <cui-nav-item label="Forms" icon="file-text" [active]="isFormsActive()" (navClick)="go('/workspaces/demo/forms')" />
+      <cui-nav-item label="Responses" icon="inbox" [active]="isResponsesActive()" (navClick)="go('/workspaces/demo/submissions')" />
+      <cui-nav-item label="Settings" icon="settings" [active]="isSettingsActive()" (navClick)="go('/settings/organization')" />
+    </cui-sidebar-shell>
+    </div>
   `,
 })
 export class StaffShellComponent {

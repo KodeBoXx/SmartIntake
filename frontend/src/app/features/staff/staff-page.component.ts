@@ -22,12 +22,15 @@ export const M5_STAFF_DOMAIN = new InjectionToken<M5StaffDomain>('M5_STAFF_DOMAI
       @else if (isEmptyState()) { <cui-empty-state class="mt-5" icon="inbox" [title]="state === 'empty' ? 'Nothing here yet' : 'No access'" [description]="stateMessage" /> }
       @else {
         <cui-stats-strip class="mt-5" [items]="stats" />
-        <cui-card class="mt-5"><cui-data-table [columns]="columns" [rows]="rows" rowKey="id" /></cui-card>
-        @if (actionsAllowed && recordActionsAllowed) { <div class="mt-4 flex flex-wrap items-center justify-between gap-3"><p class="type-caption">Actions</p><div class="flex flex-wrap gap-2"><cui-button size="sm" variant="secondary" (buttonClick)="openDetails(rows[0].id)"><span class="flex items-center gap-1.5"><cui-icon name="eye" size="sm" />View</span></cui-button><cui-button size="sm" variant="danger" (buttonClick)="confirmOpen = true"><span class="flex items-center gap-1.5"><cui-icon name="trash-2" size="sm" />Archive</span></cui-button></div></div> }
+        @if (screen === 'catalog') {
+          <cui-card class="mt-5"><div class="flex flex-wrap items-center justify-between gap-4"><div><p class="type-body font-medium">Clinical history intake</p><p class="type-caption">Draft</p></div>@if (actionsAllowed) { <div class="flex flex-wrap gap-2"><cui-button size="sm" variant="secondary" (buttonClick)="openDetails(rows[0].id)"><span class="flex items-center gap-1.5"><cui-icon name="eye" size="sm" />View</span></cui-button><cui-button size="sm" variant="danger" (buttonClick)="confirmOpen = true"><span class="flex items-center gap-1.5"><cui-icon name="trash-2" size="sm" />Archive</span></cui-button></div> }</div></cui-card>
+        } @else {
+          <cui-card class="mt-5"><cui-data-table [columns]="columns" [rows]="rows" rowKey="id" /></cui-card>
+          @if (actionsAllowed && recordActionsAllowed) { <div class="mt-4 flex flex-wrap items-center justify-between gap-3"><p class="type-caption">Actions</p><div class="flex flex-wrap gap-2"><cui-button size="sm" variant="secondary" (buttonClick)="openDetails(rows[0].id)"><span class="flex items-center gap-1.5"><cui-icon name="eye" size="sm" />View</span></cui-button><cui-button size="sm" variant="danger" (buttonClick)="confirmOpen = true"><span class="flex items-center gap-1.5"><cui-icon name="trash-2" size="sm" />Archive</span></cui-button></div></div> }
+        }
       }
       @if (actionsAllowed) {
-        <cui-popover class="mt-4"><cui-button cuiPopoverTrigger variant="secondary">Quick status</cui-button><p cuiPopoverContent class="type-body">Quick mutations use this anchored popover.</p></cui-popover>
-        <cui-dropdown class="mt-4" [items]="quickActions" (itemClick)="notify()"><cui-button cuiDropdownTrigger variant="tertiary">More actions</cui-button></cui-dropdown>
+        <div class="flex flex-wrap items-center gap-3 pt-1"><cui-popover><cui-button cuiPopoverTrigger variant="secondary">Quick status</cui-button><p cuiPopoverContent class="type-body">Quick mutations use this anchored popover.</p></cui-popover><cui-dropdown [items]="quickActions" (itemClick)="notify()"><cui-button cuiDropdownTrigger variant="tertiary">More actions</cui-button></cui-dropdown></div>
       }
       <cui-confirm-dialog [(open)]="confirmOpen" title="Archive draft?" message="This M5-only confirmation stub has no server side effect." tone="danger" icon="trash-2" confirmText="Archive" (confirmed)="archive()" />
       <cui-drawer tabindex="-1" [(open)]="detailsOpen" (closed)="onDrawerClosed()" position="right" size="lg" [title]="title + ' details'" [showClose]="false">

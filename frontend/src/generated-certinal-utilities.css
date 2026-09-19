@@ -1066,6 +1066,9 @@ body {
 .py-\[6px\] {
   padding-block: 6px;
 }
+.pt-1 {
+  padding-top: var(--spacing-1);
+}
 .pt-2 {
   padding-top: var(--spacing-2);
 }

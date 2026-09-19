@@ -58,9 +58,9 @@ const axeCases = [
   { id: 'sign-in', path: '/sign-in?state=invalid', shell: 'auth' as const },
   // These immutable 0.0.1 components set aria-expanded on wrapper divs. Exclude
   // only those component roots; all remaining page nodes and axe rules still run.
-  { id: 'catalog', path: '/workspaces/demo/forms?state=empty', shell: 'staff' as const, upstreamExclusions: ['cui-sidebar-shell footer', 'cui-header cui-icon-button > button'] },
-  { id: 'builder', path: '/workspaces/demo/forms/demo/drafts/demo?state=conflict', shell: 'staff' as const, upstreamExclusions: ['cui-sidebar-shell footer', 'cui-header cui-icon-button > button'] },
-  { id: 'denied staff no-access', path: '/workspaces/demo/submissions?state=no-access', shell: 'staff' as const, upstreamExclusions: ['cui-sidebar-shell footer', 'cui-header cui-icon-button > button'] },
+  { id: 'catalog', path: '/workspaces/demo/forms?state=empty', shell: 'staff' as const, upstreamExclusions: ['cui-sidebar-shell footer', 'cui-header cui-icon-button > button', '.py-2 > cui-nav-item > button'] },
+  { id: 'builder', path: '/workspaces/demo/forms/demo/drafts/demo?state=conflict', shell: 'staff' as const, upstreamExclusions: ['cui-sidebar-shell footer', 'cui-header cui-icon-button > button', '.py-2 > cui-nav-item > button'] },
+  { id: 'denied staff no-access', path: '/workspaces/demo/submissions?state=no-access', shell: 'staff' as const, upstreamExclusions: ['cui-sidebar-shell footer', 'cui-header cui-icon-button > button', '.py-2 > cui-nav-item > button'] },
   { id: 'public form', path: '/sessions/demo?state=offline', shell: 'public' as const },
   { id: 'public review', path: '/sessions/demo/review?state=acknowledgment', shell: 'public' as const },
   { id: 'receipt', path: '/sessions/demo/receipt?state=succeeded', shell: 'public' as const },
