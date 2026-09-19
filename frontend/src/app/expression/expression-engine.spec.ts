@@ -50,7 +50,7 @@ describe('ExpressionEngine', () => {
     expect(new ExpressionEngine().compile({ op: 'if', args: [
       { literal: { type: 'boolean', value: true } },
       { literal: { type: 'text', value: 'missing else' } },
-    ] })).toEqual({ state: 'error', code: 'EXPR_ARITY' });
+    ] })).toEqual({ state: 'error', code: 'EXPR_ARITY', expressionPointer: '/' });
   });
 
   it('validates an answered value against its static field type before predicates', () => {
@@ -59,7 +59,7 @@ describe('ExpressionEngine', () => {
       fieldDefinitions: [{ id: 'age', type: 'integer' }],
       answers: { age: { type: 'integer', status: 'answered', applicable: true, value: '01' } },
     });
-    expect(result).toEqual({ state: 'error', code: 'INTEGER_ENCODING' });
+    expect(result).toEqual({ state: 'error', code: 'INTEGER_ENCODING', expressionPointer: '/' });
   });
 
   it('rejects a referenced decimal negative-zero wire encoding before normalization', () => {
@@ -68,7 +68,7 @@ describe('ExpressionEngine', () => {
       fieldDefinitions: [{ id: 'amount', type: 'decimal' }],
       answers: { amount: { type: 'decimal', status: 'answered', applicable: true, value: '-0.00' } },
     });
-    expect(result).toEqual({ state: 'error', code: 'INVALID_LITERAL' });
+    expect(result).toEqual({ state: 'error', code: 'INVALID_LITERAL', expressionPointer: '/' });
   });
 
   it('retains scalar array item types and permits an array result', () => {
@@ -78,5 +78,39 @@ describe('ExpressionEngine', () => {
       answers: { tags: { type: 'array', itemType: 'integer', status: 'answered', applicable: true, value: ['1', '2'] } },
     });
     expect(result).toEqual({ state: 'available', type: 'array', value: ['1', '2'] });
+  });
+
+  it('resolves recursively declared object descendants and requires answered applicable ancestors', () => {
+    const engine = new ExpressionEngine();
+    const vector = {
+      expression: { ref: { fieldId: 'age', scope: 'root' } },
+      fieldDefinitions: [{ id: 'profile', type: 'object' as const, fields: [{ id: 'age', type: 'integer' as const }] }],
+      answers: { profile: { type: 'object' as const, status: 'answered', applicable: true, value: { fields: {
+        age: { type: 'integer' as const, status: 'answered', applicable: true, value: '42' },
+      } } } },
+    };
+    expect(engine.evaluateVector(vector)).toEqual({ state: 'available', type: 'integer', value: '42' });
+    expect(engine.evaluateVector({ ...vector, answers: { profile: { ...vector.answers.profile, applicable: false } } }))
+      .toEqual({ state: 'unknown', reason: 'UNAVAILABLE_OPERAND', expressionPointer: '/', fieldPointer: '/root/fields/profile/fields/age' });
+  });
+
+  it('enforces the shared 10,000-node compile budget and 100,000-step clamp', () => {
+    const expression = (depth: number): unknown => depth === 0
+      ? { literal: { type: 'boolean', value: true } }
+      : { op: 'and', args: [expression(depth - 1), expression(depth - 1)] };
+    expect(new ExpressionEngine().compile(expression(14))).toEqual({
+      state: 'error', code: 'EVALUATION_BUDGET', expressionPointer: '/',
+    });
+
+    const predicate = { op: 'exists', args: [{ ref: { fieldId: 'accepted', scope: 'root' } }] };
+    const vector = {
+      expression: predicate,
+      fieldDefinitions: [{ id: 'accepted', type: 'boolean' as const }],
+      answers: { accepted: { type: 'boolean' as const, status: 'answered', applicable: true, value: true } },
+      context: { maximumSteps: 1 },
+    };
+    expect(new ExpressionEngine().evaluateVector(vector)).toEqual({ state: 'error', code: 'EVALUATION_BUDGET', expressionPointer: '/' });
+    expect(new ExpressionEngine().evaluateVector({ ...vector, context: { maximumSteps: 100_001 } }))
+      .toEqual({ state: 'available', type: 'boolean', value: true });
   });
 });

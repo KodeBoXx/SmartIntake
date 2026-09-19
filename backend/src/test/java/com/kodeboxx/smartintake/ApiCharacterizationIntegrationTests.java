@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kodeboxx.smartintake.compatibility.CompatibilityReconciliationService;
 import com.kodeboxx.smartintake.compatibility.RespondentSecretVerifier;
 import com.kodeboxx.smartintake.contract.PackageStamp;
+import com.kodeboxx.smartintake.contract.TimeZoneRegistry;
 import java.util.*;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.*;
@@ -443,7 +444,7 @@ class ApiCharacterizationIntegrationTests {
     Map<String, Object> stampedMalformed =
         json.convertValue(
             PackageStamp.attach(
-                json.valueToTree(missingOptionLabel), "lite-expression-1", "tzdb-system"),
+                json.valueToTree(missingOptionLabel), "lite-expression-1", TimeZoneRegistry.VERSION),
             new TypeReference<Map<String, Object>>() {});
     assertEquals(
         HttpStatus.UNPROCESSABLE_ENTITY,
@@ -586,7 +587,7 @@ class ApiCharacterizationIntegrationTests {
 
   private Map<String, Object> stamped(Map<String, Object> definition) {
     return json.convertValue(
-        PackageStamp.attach(json.valueToTree(definition), "lite-expression-1", "tzdb-system"),
+        PackageStamp.attach(json.valueToTree(definition), "lite-expression-1", TimeZoneRegistry.VERSION),
         new TypeReference<Map<String, Object>>() {});
   }
 

@@ -488,8 +488,12 @@ public final class ExpressionEngine {
     if (expression.type.startsWith("array:")) {
       String itemType = expression.type.substring(6);
       if (!cell.value.isArray()) throw fail("INVALID_LITERAL");
-      for (JsonNode member : cell.value) validateAnswerValue(itemType, member);
-      return new Value(expression.type, cell.value.deepCopy());
+      var canonical = JsonNodeFactory.instance.arrayNode();
+      for (JsonNode member : cell.value) {
+        validateAnswerValue(itemType, member);
+        canonical.add(canonical(itemType, member));
+      }
+      return new Value(expression.type, canonical);
     }
     if (SCALAR_TYPES.contains(expression.type)) validateAnswerValue(expression.type, cell.value);
     return new Value(expression.type, canonical(expression.type, cell.value));
@@ -503,15 +507,23 @@ public final class ExpressionEngine {
           : environment.itemScopes.get(environment.itemScopes.size() - 1 - expression.parentDepth);
     };
     Cell result = null;
-    for (String part : expression.valuePath) {
+    for (int index = 0; index < expression.valuePath.size(); index++) {
+      String part = expression.valuePath.get(index);
       if (result == null) result = values.get(part);
       else if (result.value != null && result.value.path("fields").isObject()) {
         JsonNode child = result.value.path("fields").get(part);
+        if (child != null && (!child.path("type").isTextual() || !child.path("status").isTextual()
+            || !child.path("applicable").isBoolean())) throw fail("EXPR_SHAPE");
         result = child == null ? null : new Cell(child.path("type").asText(), child.path("itemType").asText(null),
-            child.path("status").asText("unanswered"), child.path("applicable").asBoolean(true), child.get("value"));
+            child.path("status").asText(), child.path("applicable").asBoolean(), child.get("value"));
       } else result = null;
       if (result == null) return new Cell(externalType(expression.type), expression.field.itemType,
           "unanswered", true, null);
+      if (index < expression.valuePath.size() - 1
+          && (!result.applicable || !"answered".equals(result.status))) {
+        return new Cell(externalType(expression.type), expression.field.itemType,
+            result.status, result.applicable, null);
+      }
     }
     return result;
   }
@@ -752,8 +764,10 @@ public final class ExpressionEngine {
     input.fields().forEachRemaining(entry -> {
       JsonNode answer = entry.getValue();
       if (answer.isObject() && answer.has("status")) {
+        if (!answer.path("type").isTextual() || !answer.path("status").isTextual()
+            || !answer.path("applicable").isBoolean()) throw fail("EXPR_SHAPE");
         result.put(entry.getKey(), new Cell(answer.path("type").asText(), answer.path("itemType").asText(null),
-            answer.path("status").asText("unanswered"), answer.path("applicable").asBoolean(true), answer.get("value")));
+            answer.path("status").asText(), answer.path("applicable").asBoolean(), answer.get("value")));
       }
     });
     return result;

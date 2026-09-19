@@ -332,7 +332,8 @@ public class IntakeApplicationService {
     String locale = in == null || in.locale() == null ? "en" : in.locale();
     String timeZone = in == null || in.timeZone() == null ? "UTC" : in.timeZone();
     if (!TimeZoneRegistry.contains(timeZone)) throw bad("INVALID_TIMEZONE", "Unsupported timezone");
-    java.time.LocalDate sessionDate = java.time.LocalDate.now(java.time.ZoneId.of(timeZone));
+    Instant sessionInstant = Instant.now();
+    java.time.LocalDate sessionDate = sessionInstant.atZone(java.time.ZoneId.of(timeZone)).toLocalDate();
     db.update(
         "insert into"
             + " sessions(id,form_id,release_id,respondent_token,respondent_secret_sha256,compatibility_profile_key,locale,answers,session_date,time_zone,tzdb_version)"

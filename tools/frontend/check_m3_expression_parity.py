@@ -16,6 +16,7 @@ SOURCE = ROOT / "docs/source-handoff/smart-form-builder-lite-prd-v1.1/expression
 JAVA_DEFAULT = ROOT / "backend/target/m3-expression-vectors.json"
 BROWSER_DEFAULT = ROOT / "frontend/test-results/m3-expression-vectors.json"
 RESULT_KEYS = ("state", "type", "value", "reason", "code")
+POINTER_KEYS = ("expressionPointer", "fieldPointer", "itemPointer")
 PINNED_SOURCE_SHA256 = "6fd9cd69b123418209b9ae21d1b7a76af2a7ceb76689f2aad0fbe261d2a00aa7"
 TIMEZONE_REGISTRY = ROOT / "backend/src/main/resources/contracts/m3-timezone-registry.json"
 
@@ -27,6 +28,16 @@ def load(path: Path) -> dict:
 
 def normalized(result: dict) -> dict:
     return {key: result[key] for key in RESULT_KEYS if key in result and result[key] is not None}
+
+
+def diagnostic_pointers(actual: dict, expected: dict, runtime: str, vector_id: str) -> None:
+    """Validate safe diagnostic locations without making absent legacy pointers pass as values."""
+    for key in POINTER_KEYS:
+        value = actual.get(key)
+        if value is not None:
+            require(isinstance(value, str) and value.startswith("/"), f"{runtime} {vector_id} {key}")
+        if key in expected:
+            require(value == expected[key], f"{runtime} {vector_id} {key}")
 
 
 def require(condition: bool, message: str) -> None:
@@ -105,6 +116,7 @@ def main() -> None:
     expected_ids = [vector["id"] for vector in source["vectors"]]
     expected_operators = [operator["name"] for operator in source["operators"]]
     expected_by_id = {vector["id"]: normalized(vector["expected"]) for vector in source["vectors"]}
+    expected_vectors = {vector["id"]: vector["expected"] for vector in source["vectors"]}
 
     artifacts = {"java": load(args.java), "browser": load(args.browser)}
     actual_by_runtime: dict[str, dict[str, dict]] = {}
@@ -132,6 +144,8 @@ def main() -> None:
         actual_by_runtime[runtime] = {
             row["id"]: normalized(row["actual"]) for row in artifact["results"]
         }
+        for row in artifact["results"]:
+            diagnostic_pointers(row["actual"], expected_vectors[row["id"]], runtime, row["id"])
         require(actual_by_runtime[runtime] == expected_by_id, f"{runtime} expected-result mismatch")
 
     require(actual_by_runtime["java"] == actual_by_runtime["browser"], "Java/browser result mismatch")

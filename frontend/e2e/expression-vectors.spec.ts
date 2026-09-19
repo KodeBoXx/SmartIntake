@@ -14,6 +14,9 @@ const corpusBytes = readFileSync(corpusPath);
 const corpus = JSON.parse(corpusBytes.toString()) as { operators: { name: string }[]; vectors: Vector[] };
 const candidateCommit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: resolve(process.cwd(), '..'), encoding: 'utf8' }).trim();
 const candidateTree = execFileSync('git', ['rev-parse', 'HEAD^{tree}'], { cwd: resolve(process.cwd(), '..'), encoding: 'utf8' }).trim();
+function resultMatchesExpected(actual: Record<string, unknown>, expected: Record<string, unknown>): boolean {
+  return Object.entries(expected).every(([key, value]) => JSON.stringify(actual[key]) === JSON.stringify(value));
+}
 function digestArtifact(artifact: Record<string, unknown>): string { const copy = { ...artifact }; delete copy.artifactSha256; return createHash('sha256').update(JSON.stringify(copy)).digest('hex'); }
 function worktreeBytesSha256(): string {
   const root = resolve(process.cwd(), '..');
@@ -49,7 +52,7 @@ test('executes every frozen expression contract vector in Chromium', async ({ pa
       ? (window as any)[seam].compile(vector.expression, vector.fieldDefinitions)
       : (window as any)[seam].evaluateVector(vector),
   })), { vectors: corpus.vectors, seam: EXPRESSION_TEST_SEAM });
-  const failures = results.filter((result: any) => JSON.stringify(result.actual) !== JSON.stringify(result.expected));
+  const failures = results.filter((result: any) => !resultMatchesExpected(result.actual, result.expected));
   const output = {
     runner: 'smart-intake-browser-expression-v1',
     browser: browserName,

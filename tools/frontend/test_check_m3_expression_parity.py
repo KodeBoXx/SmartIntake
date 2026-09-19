@@ -89,6 +89,14 @@ def main() -> None:
         write(recomputed_worktree_path, recomputed_worktree)
         run(recomputed_worktree_path, BROWSER, False)
 
+        unsafe_pointer = json.loads(json.dumps(browser))
+        diagnostic = next(row["actual"] for row in unsafe_pointer["results"] if row["actual"].get("expressionPointer"))
+        diagnostic["expressionPointer"] = "respondent-value"
+        redigest(unsafe_pointer)
+        unsafe_pointer_path = temporary / "unsafe-pointer.json"
+        write(unsafe_pointer_path, unsafe_pointer)
+        run(JAVA, unsafe_pointer_path, False)
+
     print("M3 parity guard mutation checks passed.")
 
 

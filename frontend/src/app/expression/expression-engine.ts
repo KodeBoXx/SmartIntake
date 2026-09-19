@@ -9,13 +9,13 @@ export type ValueType = ScalarType | 'array' | 'list' | 'object';
 import { PINNED_TIMEZONES } from './pinned-timezone-registry';
 export type ExpressionResult =
   | { state: 'available'; type: ValueType; value: unknown }
-  | { state: 'unknown'; reason: 'UNAVAILABLE_OPERAND' | 'UNKNOWN_CONDITION' | 'UNAVAILABLE_AGGREGATE_ITEM' }
-  | { state: 'error'; code: string };
+  | { state: 'unknown'; reason: 'UNAVAILABLE_OPERAND' | 'UNKNOWN_CONDITION' | 'UNAVAILABLE_AGGREGATE_ITEM'; expressionPointer: string; fieldPointer?: string; itemPointer?: string }
+  | { state: 'error'; code: string; expressionPointer: string; fieldPointer?: string; itemPointer?: string };
 
 type TypeSpec = { kind: ValueType; item?: ScalarType; fields?: Map<string, FieldDefinition> };
-export type FieldDefinition = { id: string; type: ValueType; itemType?: ScalarType; itemFields?: FieldDefinition[] };
+export type FieldDefinition = { id: string; type: ValueType; itemType?: ScalarType; itemFields?: FieldDefinition[]; fields?: FieldDefinition[] };
 type AnswerCell = { type: ValueType; itemType?: ScalarType; status: string; applicable: boolean; value?: unknown };
-type ItemContext = { fields: Record<string, AnswerCell> };
+type ItemContext = { itemId?: string; fields: Record<string, AnswerCell> };
 type EvaluationContext = { sessionDate: string; sessionTimeZone: string; maximumSteps?: number };
 type InternalValue = { type: ValueType; value: unknown; item?: ScalarType };
 type InternalResult = { state: 'available'; value: InternalValue } | { state: 'unknown'; reason: 'UNAVAILABLE_OPERAND' | 'UNKNOWN_CONDITION' | 'UNAVAILABLE_AGGREGATE_ITEM' } | { state: 'error'; code: string };
@@ -30,11 +30,15 @@ const MAX_INT64 = 9223372036854775807n;
 const MIN_INT64 = -9223372036854775808n;
 const MAX_DEPTH = 20;
 const MAX_ARGS = 100;
+const MAX_COMPILE_NODES = 10_000;
+const MAX_EVALUATION_STEPS = 100_000;
 const DEFAULT_CONTEXT: EvaluationContext = { sessionDate: '2026-09-05', sessionTimeZone: 'UTC', maximumSteps: 100000 };
 
 class Fault extends Error {
   constructor(readonly code: string) { super(code); }
 }
+type CompileBudget = { nodes: number };
+type DiagnosticState = { fieldPointer?: string; itemPointer?: string };
 
 /** Exact signed decimal. scale is the number of digits after the decimal point. */
 class ExactDecimal {
@@ -128,13 +132,13 @@ export class ExpressionEngine {
 
   compile(expression: unknown, definitions: FieldDefinition[] = []): ExpressionResult | { state: 'compiled' } {
     try {
-      const output = this.compileNode(expression, environment(definitions), 1);
+      const output = this.compileNode(expression, environment(definitions), { nodes: 0 }, 1);
       // An array is a legal typed expression result, but a bare array literal
       // is not a top-level program in the frozen compile profile (EXPR-056).
       if (output.kind === 'array' && isObject(expression) && 'literal' in expression) throw new Fault('INVALID_LITERAL');
       return { state: 'compiled' };
     } catch (error) {
-      return { state: 'error', code: codeOf(error) };
+      return diagnosticError(error);
     }
   }
 
@@ -142,23 +146,33 @@ export class ExpressionEngine {
     const definitions = vector.fieldDefinitions ?? [];
     let outputType: TypeSpec;
     try {
-      outputType = this.compileNode(vector.expression, environment(definitions), 1);
+      outputType = this.compileNode(vector.expression, environment(definitions), { nodes: 0 }, 1);
     } catch (error) {
-      return { state: 'error', code: codeOf(error) };
+      return diagnosticError(error);
     }
     const context = { ...DEFAULT_CONTEXT, ...(vector.context ?? {}) };
-    if (!validDate(context.sessionDate) || !validZone(context.sessionTimeZone)) return { state: 'error', code: 'INVALID_LITERAL' };
-    try { validateAnswerRecord(definitions, vector.answers ?? {}); } catch (error) { return { state: 'error', code: codeOf(error) }; }
-    const state = { steps: 0, maximumSteps: context.maximumSteps ?? DEFAULT_CONTEXT.maximumSteps!, answers: vector.answers ?? {}, contexts: [] as ItemContext[], context };
+    if (!validDate(context.sessionDate) || !validZone(context.sessionTimeZone)) return diagnosticError(new Fault('INVALID_LITERAL'));
+    try { validateAnswerRecord(definitions, vector.answers ?? {}); } catch (error) { return diagnosticError(error); }
+    const state: RuntimeState = {
+      steps: 0,
+      maximumSteps: Math.min((context.maximumSteps ?? 0) > 0 ? context.maximumSteps! : MAX_EVALUATION_STEPS, MAX_EVALUATION_STEPS),
+      answers: vector.answers ?? {},
+      definitions,
+      contexts: [],
+      definitionContexts: [],
+      context,
+      diagnostic: {},
+    };
     try {
-      return external(this.evaluateNode(vector.expression, state), outputType!);
+      return external(this.evaluateNode(vector.expression, state), outputType!, state.diagnostic);
     } catch (error) {
-      return { state: 'error', code: codeOf(error) };
+      return diagnosticError(error, state.diagnostic);
     }
   }
 
-  private compileNode(node: unknown, env: CompileEnvironment, depth: number): TypeSpec {
-    if (depth > MAX_DEPTH || !isObject(node)) throw new Fault('EXPR_SHAPE');
+  private compileNode(node: unknown, env: CompileEnvironment, budget: CompileBudget, depth: number): TypeSpec {
+    if (depth > MAX_DEPTH || ++budget.nodes > MAX_COMPILE_NODES) throw new Fault('EVALUATION_BUDGET');
+    if (!isObject(node)) throw new Fault('EXPR_SHAPE');
     if ('literal' in node) { if (Object.keys(node).length !== 1) throw new Fault('EXPR_SHAPE'); return this.compileLiteral(node.literal); }
     if ('ref' in node) { if (Object.keys(node).length !== 1) throw new Fault('EXPR_SHAPE'); return this.compileReference(node.ref, env); }
     if ('context' in node) { if (Object.keys(node).length !== 1) throw new Fault('EXPR_SHAPE');
@@ -172,13 +186,13 @@ export class ExpressionEngine {
     if (node.args.length > MAX_ARGS || !arity(operator, node.args.length)) throw new Fault('EXPR_ARITY');
     // The list item expression has a deliberately deeper compile context.
     if (operator === 'sum' || operator === 'any' || operator === 'all') {
-      const list = this.compileNode(node.args[0], env, depth + 1);
+      const list = this.compileNode(node.args[0], env, budget, depth + 1);
       if (list.kind !== 'list' || !list.fields) throw new Fault('EXPR_TYPE');
-      const item = this.compileNode(node.args[1], { ...env, items: [...env.items, list.fields] }, depth + 1);
+      const item = this.compileNode(node.args[1], { ...env, items: [...env.items, list.fields] }, budget, depth + 1);
       if ((operator === 'sum' && !numeric(item)) || ((operator === 'any' || operator === 'all') && item.kind !== 'boolean')) throw new Fault('EXPR_TYPE');
       return operator === 'sum' ? { kind: 'decimal' } : { kind: 'boolean' };
     }
-    const args = node.args.map((argument) => this.compileNode(argument, env, depth + 1));
+    const args = node.args.map((argument) => this.compileNode(argument, env, budget, depth + 1));
     return operatorType(operator, args, node.args);
   }
 
@@ -219,22 +233,22 @@ export class ExpressionEngine {
     if (keys.some((key) => key !== 'fieldId' && key !== 'scope' && key !== 'parentDepth')) throw new Fault('EXPR_SHAPE');
     if (reference.scope === 'root') {
       if ('parentDepth' in reference) throw new Fault('EXPR_SCOPE');
-      const definition = env.root.get(reference.fieldId);
-      if (!definition) throw new Fault(env.known.has(reference.fieldId) ? 'EXPR_SCOPE' : 'UNKNOWN_FIELD');
-      return definitionType(definition);
+      const resolved = resolveDefinition(env.root, reference.fieldId);
+      if (!resolved) throw new Fault(env.known.has(reference.fieldId) ? 'EXPR_SCOPE' : 'UNKNOWN_FIELD');
+      return definitionType(resolved.definition);
     }
     if (reference.scope === 'item') {
       if ('parentDepth' in reference || env.items.length === 0) throw new Fault('EXPR_SCOPE');
-      const definition = env.items.at(-1)!.get(reference.fieldId);
-      if (!definition) throw new Fault(env.known.has(reference.fieldId) ? 'EXPR_SCOPE' : 'UNKNOWN_FIELD');
-      return definitionType(definition);
+      const resolved = resolveDefinition(env.items.at(-1)!, reference.fieldId);
+      if (!resolved) throw new Fault(env.known.has(reference.fieldId) ? 'EXPR_SCOPE' : 'UNKNOWN_FIELD');
+      return definitionType(resolved.definition);
     }
     if (reference.scope === 'parentItem') {
       const parentDepth = reference.parentDepth ?? 1;
       if (!Number.isInteger(parentDepth) || parentDepth < 1 || parentDepth > 3 || parentDepth >= env.items.length) throw new Fault('EXPR_SCOPE');
-      const definition = env.items[env.items.length - 1 - parentDepth].get(reference.fieldId);
-      if (!definition) throw new Fault('EXPR_SCOPE');
-      return definitionType(definition);
+      const resolved = resolveDefinition(env.items[env.items.length - 1 - parentDepth], reference.fieldId);
+      if (!resolved) throw new Fault('EXPR_SCOPE');
+      return definitionType(resolved.definition);
     }
     throw new Fault('EXPR_SCOPE');
   }
@@ -274,9 +288,32 @@ export class ExpressionEngine {
   }
 
   private cell(reference: any, state: RuntimeState): AnswerCell | undefined {
-    if (reference.scope === 'root') return state.answers[reference.fieldId];
-    if (reference.scope === 'item') return state.contexts.at(-1)?.fields[reference.fieldId];
-    return state.contexts[state.contexts.length - 1 - (reference.parentDepth ?? 1)]?.fields[reference.fieldId];
+    const scope = this.scope(reference, state);
+    if (!scope) return undefined;
+    const resolved = resolveDefinition(toMap(scope.definitions), reference.fieldId);
+    if (!resolved) return undefined;
+    state.diagnostic.fieldPointer = fieldPointer(reference.scope, resolved.valuePath);
+    let cell: AnswerCell | undefined;
+    for (const segment of resolved.valuePath) {
+      if (cell && (!cell.applicable || cell.status !== 'answered' || cell.value === undefined)) return undefined;
+      cell = cell ? childCell(cell, segment) : scope.answers[segment];
+      if (!cell) return undefined;
+    }
+    return cell;
+  }
+
+  private scope(reference: any, state: RuntimeState): { definitions: FieldDefinition[]; answers: Record<string, AnswerCell> } | undefined {
+    if (reference.scope === 'root') return { definitions: state.definitions, answers: state.answers };
+    if (reference.scope === 'item') {
+      const context = state.contexts.at(-1);
+      const definitions = state.definitionContexts.at(-1);
+      return context && definitions ? { definitions, answers: context.fields } : undefined;
+    }
+    const parentDepth = reference.parentDepth ?? 1;
+    const index = state.contexts.length - 1 - parentDepth;
+    return index >= 0 && state.definitionContexts[index]
+      ? { definitions: state.definitionContexts[index], answers: state.contexts[index].fields }
+      : undefined;
   }
 
   private logical(op: 'and' | 'or', args: any[], state: RuntimeState): InternalResult {
@@ -292,8 +329,11 @@ export class ExpressionEngine {
   }
 
   private statusOperation(op: string, args: any[], state: RuntimeState): InternalResult {
+    // Java counts the metadata reference and status literal as evaluated operands even though
+    // predicates inspect cells without materializing their values.
+    this.step(state);
     const cell = this.cell(args[0].ref, state);
-    if (op === 'statusIs') return available('boolean', cell?.status === args[1].literal.value);
+    if (op === 'statusIs') { this.step(state); return available('boolean', cell?.status === args[1].literal.value); }
     return available('boolean', !!cell && cell.applicable && cell.status === 'answered' && cell.value !== undefined);
   }
 
@@ -303,20 +343,47 @@ export class ExpressionEngine {
     const items = ((list.value.value as any)?.items ?? []) as ItemContext[];
     if (!Array.isArray(items)) return { state: 'error', code: 'EXPR_TYPE' };
     if (op === 'count') return available('integer', BigInt(items.length));
+    const listDefinition = this.definition(args[0].ref, state);
+    if (!listDefinition || listDefinition.type !== 'list') return { state: 'error', code: 'EXPR_TYPE' };
     if (op === 'sum') {
       let total = ExactDecimal.integer(0n); let unavailableSeen = false;
-      for (const item of items) { state.contexts.push(item); const value = this.evaluateNode(args[1], state); state.contexts.pop(); if (value.state === 'error') return value; if (value.state === 'unknown') { unavailableSeen = true; continue; } total = total.add(decimal(value.value)); }
+      for (const [index, item] of items.entries()) {
+        this.enterItem(state, item, listDefinition, index);
+        const value = this.evaluateNode(args[1], state);
+        this.leaveItem(state);
+        if (value.state === 'error') return value;
+        if (value.state === 'unknown') { unavailableSeen = true; continue; }
+        total = total.add(decimal(value.value));
+      }
       return unavailableSeen ? unknown('UNAVAILABLE_AGGREGATE_ITEM') : available('decimal', total.assertFinal());
     }
     let unknownSeen = false;
-    for (const item of items) {
-      state.contexts.push(item); const result = this.evaluateNode(args[1], state); state.contexts.pop();
+    for (const [index, item] of items.entries()) {
+      this.enterItem(state, item, listDefinition, index);
+      const result = this.evaluateNode(args[1], state);
+      this.leaveItem(state);
       if (result.state === 'error') return result;
       if (result.state === 'unknown') { unknownSeen = true; continue; }
       const predicate = bool(result.value);
       if ((op === 'any' && predicate) || (op === 'all' && !predicate)) return available('boolean', predicate);
     }
     return unknownSeen ? unknown('UNAVAILABLE_AGGREGATE_ITEM') : available('boolean', op === 'all');
+  }
+
+  private definition(reference: any, state: RuntimeState): FieldDefinition | undefined {
+    const scope = this.scope(reference, state);
+    return scope ? resolveDefinition(toMap(scope.definitions), reference.fieldId)?.definition : undefined;
+  }
+
+  private enterItem(state: RuntimeState, item: ItemContext, list: FieldDefinition, index: number): void {
+    state.contexts.push(item);
+    state.definitionContexts.push(childrenOf(list));
+    state.diagnostic.itemPointer = stableItemPointer(item, index);
+  }
+
+  private leaveItem(state: RuntimeState): void {
+    state.contexts.pop();
+    state.definitionContexts.pop();
   }
 
   private apply(op: string, args: InternalValue[]): InternalResult {
@@ -348,7 +415,16 @@ export class ExpressionEngine {
 }
 
 type CompileEnvironment = { root: Map<string, FieldDefinition>; items: Map<string, FieldDefinition>[]; known: Set<string> };
-type RuntimeState = { steps: number; maximumSteps: number; answers: Record<string, AnswerCell>; contexts: ItemContext[]; context: EvaluationContext };
+type RuntimeState = {
+  steps: number;
+  maximumSteps: number;
+  answers: Record<string, AnswerCell>;
+  definitions: FieldDefinition[];
+  contexts: ItemContext[];
+  definitionContexts: FieldDefinition[][];
+  context: EvaluationContext;
+  diagnostic: DiagnosticState;
+};
 const OPERATORS = new Set(['and', 'or', 'not', 'eq', 'ne', 'lt', 'lte', 'gt', 'gte', 'in', 'contains', 'containsAll', 'exists', 'isAnswered', 'statusIs', 'add', 'subtract', 'multiply', 'divide', 'round', 'min', 'max', 'sum', 'count', 'any', 'all', 'concat', 'length', 'coalesce', 'if', 'dateDiffDays', 'ageYears', 'dateAddDays', 'today']);
 
 function arity(operator: string, count: number): boolean { if (operator === 'if') return count === 3; if (['and', 'or', 'min', 'max', 'concat', 'coalesce'].includes(operator)) return count >= 2 && count <= MAX_ARGS; if (operator === 'today') return count === 0; return ['not', 'exists', 'isAnswered', 'count', 'length'].includes(operator) ? count === 1 : count === 2; }
@@ -378,12 +454,35 @@ function compatible(a: TypeSpec, b: TypeSpec): boolean { return a.kind === b.kin
 function numeric(type: TypeSpec): boolean { return type.kind === 'integer' || type.kind === 'decimal'; }
 function scalarType(type: TypeSpec): boolean { return scalar(type.kind); }
 function scalar(type: unknown): type is ScalarType { return ['text', 'integer', 'decimal', 'boolean', 'date', 'time', 'dateTime', 'choice'].includes(type as string); }
-function definitionType(definition: FieldDefinition): TypeSpec { if (definition.type === 'list') return { kind: 'list', fields: toMap(definition.itemFields ?? []) }; if (definition.type === 'array') { if (!definition.itemType || !scalar(definition.itemType)) throw new Fault('EXPR_TYPE'); return { kind: 'array', item: definition.itemType }; } return { kind: definition.type }; }
+function definitionType(definition: FieldDefinition): TypeSpec { if (definition.type === 'list') return { kind: 'list', fields: toMap(childrenOf(definition)) }; if (definition.type === 'array') { if (!definition.itemType || !scalar(definition.itemType)) throw new Fault('EXPR_TYPE'); return { kind: 'array', item: definition.itemType }; } return { kind: definition.type }; }
 function toMap(definitions: FieldDefinition[]): Map<string, FieldDefinition> { return new Map(definitions.map((definition) => [definition.id, definition])); }
-function environment(definitions: FieldDefinition[]): CompileEnvironment { const known = new Set<string>(); const walk = (items: FieldDefinition[]) => items.forEach((item) => { known.add(item.id); if (item.itemFields) walk(item.itemFields); }); walk(definitions); return { root: toMap(definitions), items: [], known }; }
+function childrenOf(definition: FieldDefinition): FieldDefinition[] { return [...(definition.fields ?? []), ...(definition.itemFields ?? [])]; }
+function environment(definitions: FieldDefinition[]): CompileEnvironment { const known = new Set<string>(); const walk = (items: FieldDefinition[]) => items.forEach((item) => { known.add(item.id); walk(childrenOf(item)); }); walk(definitions); return { root: toMap(definitions), items: [], known }; }
+function resolveDefinition(fields: Map<string, FieldDefinition>, id: string): { definition: FieldDefinition; valuePath: string[] } | undefined {
+  const direct = fields.get(id);
+  if (direct) return { definition: direct, valuePath: [id] };
+  for (const container of fields.values()) {
+    if (container.type !== 'object') continue;
+    const child = resolveDefinition(toMap(childrenOf(container)), id);
+    if (child) return { definition: child.definition, valuePath: [container.id, ...child.valuePath] };
+  }
+  return undefined;
+}
+function childCell(cell: AnswerCell, id: string): AnswerCell | undefined {
+  const fields = isObject(cell.value) && isObject(cell.value.fields) ? cell.value.fields : undefined;
+  const child = fields?.[id];
+  return isAnswerCell(child) ? child : undefined;
+}
+function isAnswerCell(value: unknown): value is AnswerCell { return isObject(value) && typeof value.type === 'string' && typeof value.status === 'string' && typeof value.applicable === 'boolean'; }
+function escapePointer(value: string): string { return value.replaceAll('~', '~0').replaceAll('/', '~1'); }
+function fieldPointer(scope: string, valuePath: string[]): string { return `/${scope}/fields/${valuePath.map(escapePointer).join('/fields/')}`; }
+function stableItemPointer(item: ItemContext, index: number): string { return `/items/${escapePointer(typeof item.itemId === 'string' ? item.itemId : String(index))}`; }
 function isObject(value: unknown): value is Record<string, any> { return typeof value === 'object' && value !== null && !Array.isArray(value); }
 function isReference(node: unknown): boolean { return isObject(node) && isObject(node.ref); }
 function codeOf(error: unknown): string { return error instanceof Fault ? error.code : 'EXPR_SHAPE'; }
+function diagnosticError(error: unknown, diagnostic: DiagnosticState = {}): Extract<ExpressionResult, { state: 'error' }> {
+  return { state: 'error', code: codeOf(error), expressionPointer: '/', ...diagnostic };
+}
 function unknown(reason: 'UNAVAILABLE_OPERAND' | 'UNKNOWN_CONDITION' | 'UNAVAILABLE_AGGREGATE_ITEM'): InternalResult { return { state: 'unknown', reason }; }
 function available(type: ValueType, value: unknown, item?: ScalarType): InternalResult { return { state: 'available', value: { type, value, item } }; }
 function mapAvailable(result: InternalResult, transform: (value: InternalValue) => InternalResult): InternalResult { return result.state === 'available' ? transform(result.value) : result; }
@@ -404,10 +503,14 @@ function validateAnswerRecord(definitions: FieldDefinition[], answers: Record<st
     if (definition.type === 'list') {
       const items = (cell.value as any)?.items;
       if (!Array.isArray(items)) throw new Fault('INVALID_LITERAL');
-      for (const item of items) { if (!isObject(item) || !isObject(item.fields)) throw new Fault('INVALID_LITERAL'); validateAnswerRecord(definition.itemFields ?? [], item.fields); }
+      for (const item of items) { if (!isObject(item) || !isObject(item.fields)) throw new Fault('INVALID_LITERAL'); validateAnswerRecord(childrenOf(definition), item.fields); }
       continue;
     }
-    if (definition.type === 'object') { if (!isObject(cell.value)) throw new Fault('INVALID_LITERAL'); continue; }
+    if (definition.type === 'object') {
+      if (!isObject(cell.value) || !isObject(cell.value.fields)) throw new Fault('INVALID_LITERAL');
+      validateAnswerRecord(childrenOf(definition), cell.value.fields);
+      continue;
+    }
     validateAnswerScalar(definition.type, cell.value);
   }
 }
@@ -430,7 +533,16 @@ function decimal(value: InternalValue): ExactDecimal { if (value.type === 'integ
 function bool(value: InternalValue): boolean { if (value.type !== 'boolean') throw new Fault('EXPR_TYPE'); return value.value as boolean; }
 function compare(a: InternalValue, b: InternalValue): number { if (a.type === 'integer' || a.type === 'decimal') return decimal(a).compare(decimal(b)); const av: string = a.type === 'dateTime' ? instantKey((a.value as any).instant) : a.value as string; const bv: string = b.type === 'dateTime' ? instantKey((b.value as any).instant) : b.value as string; return av < bv ? -1 : av > bv ? 1 : 0; }
 function instantKey(value: string): string { const [whole, fraction = ''] = value.slice(0, -1).split('.'); return `${whole}.${fraction.padEnd(9, '0')}`; }
-function external(result: InternalResult, outputType?: TypeSpec): ExpressionResult { if (result.state !== 'available') return result; let { type, value, item } = result.value; if (outputType?.kind === 'decimal' && type === 'integer') { type = 'decimal'; value = ExactDecimal.integer(value as bigint); } if (type === 'integer') return { state: 'available', type, value: (value as bigint).toString() }; if (type === 'decimal') return { state: 'available', type, value: (value as ExactDecimal).canonical() }; if (type === 'array') return { state: 'available', type, value: (value as unknown[]).map((entry) => item === 'integer' ? (entry as bigint).toString() : item === 'decimal' ? (entry as ExactDecimal).canonical() : entry) }; return { state: 'available', type, value }; }
+function external(result: InternalResult, outputType?: TypeSpec, diagnostic: DiagnosticState = {}): ExpressionResult {
+  if (result.state === 'error') return { state: 'error', code: result.code, expressionPointer: '/', ...diagnostic };
+  if (result.state === 'unknown') return { ...result, expressionPointer: '/', ...diagnostic };
+  let { type, value, item } = result.value;
+  if (outputType?.kind === 'decimal' && type === 'integer') { type = 'decimal'; value = ExactDecimal.integer(value as bigint); }
+  if (type === 'integer') return { state: 'available', type, value: (value as bigint).toString() };
+  if (type === 'decimal') return { state: 'available', type, value: (value as ExactDecimal).canonical() };
+  if (type === 'array') return { state: 'available', type, value: (value as unknown[]).map((entry) => item === 'integer' ? (entry as bigint).toString() : item === 'decimal' ? (entry as ExactDecimal).canonical() : entry) };
+  return { state: 'available', type, value };
+}
 function validDate(value: unknown): value is string { if (typeof value !== 'string') return false; const match = DATE.exec(value); if (!match) return false; const [year, month, day] = match.slice(1).map(Number); return year >= 1 && year <= 9999 && month >= 1 && month <= 12 && day >= 1 && day <= daysInMonth(year, month); }
 function validInstant(value: string): boolean { if (!INSTANT.test(value)) return false; return validDate(value.slice(0, 10)) && !Number.isNaN(Date.parse(value)); }
 function validZone(value: string): boolean { return PINNED_TIMEZONES.has(value); }
