@@ -12,11 +12,11 @@ import { m5RouteState, titleCase } from '../../shared/m5-route-state';
       <cui-card padding="lg">
         <p class="type-caption">SMART INTAKE STAFF</p><h1 class="type-h3">{{ title }}</h1>
         <p class="type-caption mt-4" data-testid="state-evidence">State: {{ state }}</p>
-        @if (state === 'invalid' || state === 'expired' || state === 'denied' || state === 'email-unavailable' || state === 'throttled') {
+        @if (isRestricted) {
           <cui-alert [variant]="state === 'invalid' ? 'error' : 'warning'" [title]="state === 'invalid' ? 'Check your details' : title">{{ message }}</cui-alert>
         }
         @if (state === 'loading') { <p class="type-body">Loading secure sign-in…</p> }
-        @else {
+        @else if (!isRestricted) {
           <cui-input label="Email" type="email" placeholder="you@example.test" />
           <cui-input class="mt-4" label="Password or temporary password" type="password" />
           <cui-button class="mt-5" (buttonClick)="continue()">Continue</cui-button>
@@ -33,6 +33,7 @@ export class AuthPageComponent {
   readonly screen = this.route.snapshot.data['screen'] as string;
   readonly title = titleCase(this.screen);
   readonly state = m5RouteState(this.route, this.screen === 'setup' ? 'pending' : 'ready');
+  get isRestricted(): boolean { return ['invalid', 'denied', 'no-access', 'empty-or-no-access', 'email-unavailable', 'throttled'].includes(this.state); }
   get message(): string { return this.state === 'email-unavailable' ? 'Email delivery is unavailable; use the M6 no-email path.' : `${this.title} is ${this.state}.`; }
   continue(): void {
     this.session.setAuthority('authenticated');

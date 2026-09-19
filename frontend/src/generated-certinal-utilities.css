@@ -39,6 +39,7 @@
   --spacing: 0.25rem;
   --container-md: 28rem;
   --container-2xl: 42rem;
+  --container-6xl: 72rem;
   --container-7xl: 80rem;
   --text-xs: 0.75rem;
   --text-xs--line-height: calc(1 / 0.75);
@@ -507,6 +508,9 @@ body {
 .max-w-2xl {
   max-width: var(--container-2xl);
 }
+.max-w-6xl {
+  max-width: var(--container-6xl);
+}
 .max-w-7xl {
   max-width: var(--container-7xl);
 }
@@ -675,6 +679,11 @@ body {
   --tw-space-y-reverse: 0;
   margin-block-start: calc(var(--spacing-3) * var(--tw-space-y-reverse));
   margin-block-end: calc(var(--spacing-3) * calc(1 - var(--tw-space-y-reverse)));
+}
+:where(.space-y-5 > :not(:last-child)) {
+  --tw-space-y-reverse: 0;
+  margin-block-start: calc(var(--spacing-5) * var(--tw-space-y-reverse));
+  margin-block-end: calc(var(--spacing-5) * calc(1 - var(--tw-space-y-reverse)));
 }
 :where(.-space-x-2 > :not(:last-child)) {
   --tw-space-x-reverse: 0;
@@ -1618,10 +1627,12 @@ body {
     display: flex;
   }
 }
-@media (width >= 64rem) {
-  .lg\:hidden {
+@media (width >= 1025px) {
+  .min-\[1025px\]\:hidden {
     display: none;
   }
+}
+@media (width >= 64rem) {
   .lg\:grid-cols-\[15rem_1fr_19rem\] {
     grid-template-columns: 15rem 1fr 19rem;
   }

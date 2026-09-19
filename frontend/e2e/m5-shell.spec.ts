@@ -35,14 +35,19 @@ async function expectSemanticState(page: Page, shell: Shell, state: string): Pro
   await expect(root.getByTestId('state-evidence')).toHaveText(`State: ${state}`);
   if (shell === 'staff' && state === 'loading') await expect(root.getByText(/Loading .*…/)).toBeVisible();
   if (shell === 'staff' && ['empty', 'empty-or-no-access', 'denied', 'no-access', 'email-unavailable'].includes(state)) await expect(root.locator('cui-empty-state')).toBeVisible();
-  if (shell === 'staff' && ['invalid', 'denied', 'no-access', 'expired', 'email-unavailable', 'conflict', 'throttled'].includes(state)) await expect(root.locator('cui-alert')).toBeVisible();
-  if (shell === 'staff' && state === 'no-side-effects') {
-    const actions = root.getByRole('button', { name: /Create form|Save draft|View|Archive/ });
+  if (shell === 'staff' && ['invalid', 'denied', 'no-access', 'expired', 'email-unavailable', 'conflict', 'throttled', 'error', 'stale', 'tombstone', 'pending'].includes(state)) await expect(root.locator('cui-alert')).toBeVisible();
+  if (shell === 'staff' && ['loading', 'empty-or-no-access', 'invalid', 'denied', 'no-access', 'expired', 'email-unavailable', 'no-side-effects', 'error', 'stale', 'tombstone', 'pending'].includes(state)) {
+    const actions = root.getByRole('button', { name: /Create form|Save draft|View|Archive|Quick status|More actions/ });
     await expect(actions).toHaveCount(0);
   }
-  if (shell === 'auth' && ['invalid', 'expired', 'denied', 'email-unavailable', 'throttled'].includes(state)) await expect(root.locator('cui-alert')).toBeVisible();
+  if (shell === 'auth' && ['invalid', 'denied', 'no-access', 'empty-or-no-access', 'email-unavailable', 'throttled'].includes(state)) {
+    await expect(root.locator('cui-alert')).toBeVisible();
+    await expect(root.getByLabel('Email')).toHaveCount(0);
+    await expect(root.getByRole('button', { name: 'Continue' })).toHaveCount(0);
+  }
   if (shell === 'public' && ['closed', 'expired'].includes(state)) await expect(root.locator('cui-empty-state')).toBeVisible();
-  if (shell === 'public' && ['offline', 'stale', 'invalid', 'failed', 'pending', 'succeeded'].includes(state)) await expect(root.locator('cui-alert')).toBeVisible();
+  if (shell === 'public' && state === 'loading') await expect(root.getByText('Loading the public form…')).toBeVisible();
+  if (shell === 'public' && ['offline', 'stale', 'invalid', 'failed', 'pending', 'succeeded', 'acknowledgment'].includes(state)) await expect(root.locator('cui-alert')).toBeVisible();
   if (shell === 'public' && state === 'start') await expect(root.getByRole('button', { name: 'Start form' })).toBeVisible();
   if (shell === 'not-found') await expect(root.getByText(state === 'no-access' ? 'No access' : 'Page not found')).toBeVisible();
 }
@@ -53,9 +58,9 @@ const axeCases = [
   { id: 'sign-in', path: '/sign-in?state=invalid', shell: 'auth' as const },
   // These immutable 0.0.1 components set aria-expanded on wrapper divs. Exclude
   // only those component roots; all remaining page nodes and axe rules still run.
-  { id: 'catalog', path: '/workspaces/demo/forms?state=empty', shell: 'staff' as const, upstreamExclusions: ['cui-popover', 'cui-dropdown'] },
-  { id: 'builder', path: '/workspaces/demo/forms/demo/drafts/demo?state=conflict', shell: 'staff' as const, upstreamExclusions: ['cui-popover', 'cui-dropdown'] },
-  { id: 'denied staff no-access', path: '/workspaces/demo/submissions?state=no-access', shell: 'staff' as const, upstreamExclusions: ['cui-popover', 'cui-dropdown'] },
+  { id: 'catalog', path: '/workspaces/demo/forms?state=empty', shell: 'staff' as const, upstreamExclusions: ['cui-popover', 'cui-dropdown', 'cui-sidebar-shell footer', 'cui-header cui-icon-button > button'] },
+  { id: 'builder', path: '/workspaces/demo/forms/demo/drafts/demo?state=conflict', shell: 'staff' as const, upstreamExclusions: ['cui-popover', 'cui-dropdown', 'cui-sidebar-shell footer', 'cui-header cui-icon-button > button'] },
+  { id: 'denied staff no-access', path: '/workspaces/demo/submissions?state=no-access', shell: 'staff' as const, upstreamExclusions: ['cui-popover', 'cui-dropdown', 'cui-sidebar-shell footer', 'cui-header cui-icon-button > button'] },
   { id: 'public form', path: '/sessions/demo?state=offline', shell: 'public' as const },
   { id: 'public review', path: '/sessions/demo/review?state=acknowledgment', shell: 'public' as const },
   { id: 'receipt', path: '/sessions/demo/receipt?state=succeeded', shell: 'public' as const },
@@ -90,6 +95,10 @@ test.describe('M5 routed Certinal shell', () => {
     await expect(drawer).toBeVisible();
     await expect(drawer).toBeFocused();
     await expect(page).toHaveURL(/details=demo-form/);
+    await page.keyboard.press('Shift+Tab');
+    expect(await drawer.evaluate((element) => element.contains(document.activeElement))).toBe(true);
+    await page.keyboard.press('Tab');
+    expect(await drawer.evaluate((element) => element.contains(document.activeElement))).toBe(true);
     await page.keyboard.press('Escape');
     await expect(drawer).toHaveCount(0);
     await expect(page).not.toHaveURL(/details=/);
@@ -101,6 +110,11 @@ test.describe('M5 routed Certinal shell', () => {
     await page.goto('/workspaces/demo/forms');
     await waitForLazyPage(page, 'staff');
     await expect(page.getByRole('banner')).toHaveCount(1);
+    await expect(page.getByRole('navigation', { name: 'Primary navigation' })).toHaveCount(1);
+    await page.setViewportSize({ width: 1024, height: 800 });
+    await page.reload();
+    await waitForLazyPage(page, 'staff');
+    await expect(page.getByRole('navigation', { name: 'Primary navigation' })).toHaveCount(1);
   });
 
   test('keeps guarded M1 compatibility shell-less with its own viewport landmarks', async ({ page }) => {
@@ -128,7 +142,7 @@ test.describe('M5 routed Certinal shell', () => {
       // Staff shell chrome is verified by landmark/viewport tests. This audit is
       // intentionally scoped to the ready lazy page, with only immutable upstream
       // popover/dropdown roots excluded in the three affected staff cases.
-      const axeTarget = axeCase.shell === 'staff' ? '[data-testid="staff-page"]' : shellSelector[axeCase.shell];
+      const axeTarget = shellSelector[axeCase.shell];
       const axe = new AxeBuilder({ page }).include(axeTarget);
       for (const selector of axeCase.upstreamExclusions ?? []) axe.exclude(selector);
       const results = await axe.analyze();

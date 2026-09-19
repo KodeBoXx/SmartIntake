@@ -28,3 +28,7 @@ button { cursor: pointer; }
    supplies its directional transition without changing snapshot-owned component CSS. */
 cui-drawer[position="right"] .animate-cui-drawer-in { animation-name: m5-drawer-slide-right; }
 @keyframes m5-drawer-slide-right { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+@media (max-width: 1023px) {
+  .staff-desktop-sidebar { display: none !important; }
+}

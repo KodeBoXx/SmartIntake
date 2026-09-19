@@ -10,8 +10,10 @@ import { m5RouteState, titleCase } from '../../shared/m5-route-state';
   template: `
     <section data-testid="public-page" [attr.data-state]="state"><cui-card padding="lg"><p class="type-caption">PUBLIC FORM</p><h1 class="type-h3">{{ title }}</h1><p class="type-caption" data-testid="state-evidence">State: {{ state }}</p>
       @if (state === 'closed' || state === 'expired') { <cui-empty-state icon="shield" [title]="state === 'closed' ? 'This form is closed' : 'This link has expired'" [description]="message" /> }
+      @else if (state === 'loading') { <p class="type-body">Loading the public form…</p> }
       @else if (state === 'offline' || state === 'stale' || state === 'invalid') { <cui-alert variant="warning" [title]="state">{{ message }}</cui-alert> }
       @else if (state === 'failed') { <cui-alert variant="error" title="Submission failed">{{ message }}</cui-alert> }
+      @else if (state === 'acknowledgment') { <cui-alert variant="info" title="Acknowledgment required">{{ message }}</cui-alert> }
       @else if (screen === 'receipt') { <cui-alert [variant]="state === 'succeeded' ? 'success' : 'info'" title="Receipt {{ state }}">{{ message }}</cui-alert> }
       @else { <cui-input label="Example answer" placeholder="M5 route stub" /><cui-button class="mt-5">{{ state === 'start' ? 'Start form' : 'Continue' }}</cui-button> }
     </cui-card></section>

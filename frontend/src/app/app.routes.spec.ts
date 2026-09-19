@@ -23,4 +23,15 @@ describe('M5 route architecture', () => {
     expect(compatibility?.loadComponent).toBeTypeOf('function');
     expect(compatibility?.children).toBeUndefined();
   });
+
+  it('keeps staff domains in distinct lazy component boundaries', async () => {
+    const staffShell = appRoutes.find((route) => route.path === '' && route.canActivate);
+    const staffRoutes = (staffShell?.children ?? []).filter((route) => route.data?.['screen']);
+    const componentNames = new Set<string>();
+    for (const route of staffRoutes) {
+      const component = await route.loadComponent?.();
+      if (typeof component === 'function') componentNames.add(component.name.replace(/^_/, ''));
+    }
+    expect(componentNames).toEqual(new Set(['AdminStaffPageComponent', 'CatalogStaffPageComponent', 'ResponseStaffPageComponent', 'SettingsStaffPageComponent']));
+  });
 });

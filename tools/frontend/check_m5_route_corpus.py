@@ -68,7 +68,7 @@ def expected_template(requirement_route: str) -> str:
 
 def route_templates(route_source: str) -> dict[str, str]:
     templates: dict[str, str] = {}
-    for kind in ('auth', 'staff', 'publicPage'):
+    for kind in ('auth', 'adminStaff', 'catalogStaff', 'responseStaff', 'settingsStaff', 'publicPage'):
         for path, screen in re.findall(rf"{kind}\('([^']+)',\s*'([^']+)'\)", route_source):
             # Catalog intentionally has a secondary /new route. The denominator
             # binds its canonical screen route, which is declared first.

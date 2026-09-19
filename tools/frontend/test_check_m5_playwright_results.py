@@ -47,6 +47,33 @@ class PlaywrightResultMutationTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             checker.verify_result(result)
 
+    def test_rejects_omitted_route_state_result(self) -> None:
+        result = passing_result()
+        specs = result['suites'][0]['specs']
+        specs.remove(next(spec for spec in specs if spec['title'].startswith('opens and reloads ')))
+        with self.assertRaises(SystemExit):
+            checker.verify_result(result)
+
+    def test_rejects_omitted_staff_state_result(self) -> None:
+        result = passing_result()
+        specs = result['suites'][0]['specs']
+        specs.remove(next(spec for spec in specs if spec['title'].startswith('renders M5 staff screen ')))
+        with self.assertRaises(SystemExit):
+            checker.verify_result(result)
+
+    def test_rejects_wrong_browser_project(self) -> None:
+        result = passing_result()
+        result['suites'][0]['specs'][0]['tests'][0]['projectName'] = 'firefox'
+        with self.assertRaises(SystemExit):
+            checker.verify_result(result)
+
+    def test_rejects_multiple_executions(self) -> None:
+        result = passing_result()
+        results = result['suites'][0]['specs'][0]['tests'][0]['results']
+        results.append({'status': 'passed'})
+        with self.assertRaises(SystemExit):
+            checker.verify_result(result)
+
 
 if __name__ == '__main__':
     unittest.main()

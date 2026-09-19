@@ -73,6 +73,16 @@ class DenominatorRouteAuthorityTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'required state categories mismatch'):
             checker.validate_denominator_semantics(self.ui_total, ui_staff)
 
+    def test_rejects_omitted_ui_total_state_implementation(self) -> None:
+        states = self.states.replace(" | 'acknowledgment'", '')
+        with self.assertRaisesRegex(ValueError, 'omits frozen denominator states'):
+            checker.validate_route_template_bindings(self.corpus, self.ui_total, self.ui_staff, self.routes, states)
+
+    def test_rejects_omitted_staff_state_implementation(self) -> None:
+        states = self.states.replace(" | 'email-unavailable'", '')
+        with self.assertRaisesRegex(ValueError, 'omits frozen denominator states'):
+            checker.validate_route_template_bindings(self.corpus, self.ui_total, self.ui_staff, self.routes, states)
+
 
 if __name__ == '__main__':
     unittest.main()
