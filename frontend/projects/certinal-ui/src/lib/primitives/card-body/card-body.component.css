@@ -1,0 +1,7 @@
+:host {
+  display: block;
+  font-family: var(--font-body);
+  font-size: var(--text-t-300);
+  line-height: 1.7;
+  color: var(--cui-card-body-color, var(--color-text-secondary));
+}

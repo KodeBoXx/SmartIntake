@@ -1,0 +1,39 @@
+/* Focus is handled on the wrapper via focus-within: — kill the native outline
+   on the inner control so we don't double up with the global *:focus-visible rule. */
+:host input:focus,
+:host input:focus-visible,
+:host textarea:focus,
+:host textarea:focus-visible {
+  outline: none !important;
+  outline-offset: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Hide native date/time picker indicator tweak so it inherits text color */
+input[type='date']::-webkit-calendar-picker-indicator,
+input[type='datetime-local']::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.6;
+}
+input[type='date']::-webkit-calendar-picker-indicator:hover,
+input[type='datetime-local']::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* Remove default number spinner arrows in some browsers for consistency */
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+/* Search type: hide the native clear "x" (we don't wire it up) */
+input[type='search']::-webkit-search-decoration,
+input[type='search']::-webkit-search-cancel-button,
+input[type='search']::-webkit-search-results-button,
+input[type='search']::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+}

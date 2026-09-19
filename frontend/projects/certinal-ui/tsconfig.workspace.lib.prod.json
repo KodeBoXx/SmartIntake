@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.lib.prod.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM", "ES2021.Intl"],
+    "inlineSourceMap": true
+  }
+}

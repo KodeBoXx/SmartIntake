@@ -1,0 +1,8 @@
+/* Hide visible scrollbar while preserving scroll functionality */
+nav {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge legacy */
+}
+nav::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Opera */
+}

@@ -1,0 +1,33 @@
+<ul class="list-none m-0 p-1" role="tree">
+  @for (item of visibleNodes(); track item.node.id) {
+    <li
+      [class]="rowClasses(item)"
+      [style.padding-left.px]="item.depth * 24 + 8"
+      role="treeitem"
+      [attr.aria-expanded]="item.hasChildren ? isExpanded(item.node.id) : null"
+      [attr.aria-selected]="selectedId() === item.node.id ? 'true' : null"
+      [attr.aria-disabled]="item.node.disabled ? 'true' : null"
+      tabindex="0"
+      (click)="onNodeClick(item.node)"
+    >
+      @if (item.hasChildren) {
+        <button
+          type="button"
+          class="inline-flex items-center justify-center w-5 h-5 rounded border-0 bg-transparent cursor-pointer p-0 hover:text-text-primary"
+          [attr.aria-label]="isExpanded(item.node.id) ? 'Collapse' : 'Expand'"
+          (click)="toggleNode(item.node, $event)"
+        >
+          <cui-icon name="chevron-right" size="xs" [class]="chevronClasses(item.node.id)" />
+        </button>
+      } @else {
+        <span class="inline-block w-5 h-5 shrink-0" aria-hidden="true"></span>
+      }
+
+      @if (item.node.icon) {
+        <cui-icon [name]="item.node.icon" size="sm" class="text-text-muted shrink-0" />
+      }
+
+      <span class="flex-1 truncate">{{ item.node.label }}</span>
+    </li>
+  }
+</ul>

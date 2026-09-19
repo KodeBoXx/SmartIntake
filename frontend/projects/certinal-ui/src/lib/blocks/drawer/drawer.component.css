@@ -1,0 +1,34 @@
+.cui-drawer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal, 200);
+  background: rgba(15, 23, 42, 0.5);
+  animation: cui-drawer-overlay-in var(--dur-fast, 150ms) var(--ease-out, ease-out);
+}
+
+@keyframes cui-drawer-overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.animate-cui-drawer-in {
+  animation: cui-drawer-slide var(--dur-base, 200ms) var(--ease-out, ease-out);
+}
+
+@keyframes cui-drawer-slide {
+  from {
+    transform: scale(0.98);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cui-drawer-overlay,
+  .animate-cui-drawer-in {
+    animation: none;
+  }
+}

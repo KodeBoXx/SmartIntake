@@ -1,0 +1,9 @@
+@if (title()) {
+  <h2 class="cui-modal-header__title" [id]="titleId() ?? null">
+    {{ title() }}
+  </h2>
+  @if (subtitle()) {
+    <p class="cui-modal-header__subtitle">{{ subtitle() }}</p>
+  }
+}
+<ng-content />

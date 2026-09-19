@@ -1,0 +1,36 @@
+@if (open()) {
+  <div
+    class="cui-drawer-overlay"
+    (click)="onOverlayClick($event)"
+    (keydown)="onKeydown($event)"
+  >
+    <div [class]="panelClasses()" role="dialog" aria-modal="true" tabindex="-1">
+      @if (title() || showClose()) {
+        <div class="flex items-center justify-between gap-3 p-4 border-b border-border-default shrink-0">
+          @if (title()) {
+            <h2 class="type-h4 text-text-primary m-0">{{ title() }}</h2>
+          } @else {
+            <span></span>
+          }
+          @if (showClose()) {
+            <cui-icon-button
+              size="sm"
+              ariaLabel="Close drawer"
+              (buttonClick)="close()"
+            >
+              <cui-icon name="close" size="sm" />
+            </cui-icon-button>
+          }
+        </div>
+      }
+
+      <div class="flex-1 overflow-y-auto p-4">
+        <ng-content />
+      </div>
+
+      <div class="cui-drawer-footer-slot empty:hidden border-t border-border-default p-4 shrink-0">
+        <ng-content select="[cuiDrawerFooter]" />
+      </div>
+    </div>
+  </div>
+}

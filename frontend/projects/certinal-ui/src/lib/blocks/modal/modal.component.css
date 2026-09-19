@@ -1,0 +1,73 @@
+/* ================================================================
+   cui-modal — overlay + centered dialog container.
+   Uses position: fixed + high z-index. Focus trap + ESC + overlay
+   click are handled in the component class.
+   ================================================================ */
+
+.cui-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal, 200);
+  background: rgba(15, 23, 42, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: cui-modal-fade-in var(--dur-fast, 150ms) var(--ease-out, ease-out);
+}
+
+.cui-modal-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: 90vh;
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-xl);
+  outline: none;
+  animation: cui-modal-scale-in var(--dur-base, 200ms) var(--ease-out, ease-out);
+  overflow: hidden; /* clip child borders to the rounded corners */
+}
+
+/* Size variants (max-width) */
+.cui-modal-container--sm { max-width: 400px; }
+.cui-modal-container--md { max-width: 600px; }
+.cui-modal-container--lg { max-width: 800px; }
+.cui-modal-container--xl { max-width: 1100px; }
+.cui-modal-container--full {
+  max-width: 95vw;
+  max-height: 95vh;
+}
+
+/* Close button — absolute, top-right.
+   Visual styling lives in cui-icon-button; this class is positioning only. */
+.cui-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 1;
+}
+
+/* Animations */
+@keyframes cui-modal-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes cui-modal-scale-in {
+  from {
+    transform: scale(0.96) translateY(4px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cui-modal-overlay,
+  .cui-modal-container {
+    animation: none;
+  }
+}

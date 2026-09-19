@@ -1,0 +1,22 @@
+<cui-modal [(open)]="open" size="sm" [ariaLabel]="title()">
+  <cui-modal-header [title]="title()" />
+  <cui-modal-body>
+    <div class="flex flex-col items-center text-center gap-3 py-2">
+      @if (icon()) {
+        <div [class]="iconClasses()">
+          <cui-icon [name]="icon()!" size="lg" />
+        </div>
+      }
+      @if (message()) {
+        <p class="font-body text-t-300 leading-relaxed text-text-secondary m-0" [innerHTML]="message()"></p>
+      }
+      <ng-content />
+    </div>
+  </cui-modal-body>
+  <cui-modal-footer>
+    <cui-button variant="tertiary" (click)="onCancel()">{{ cancelText() }}</cui-button>
+    <cui-button [variant]="confirmVariant()" (click)="onConfirm()">
+      {{ confirmText() }}
+    </cui-button>
+  </cui-modal-footer>
+</cui-modal>

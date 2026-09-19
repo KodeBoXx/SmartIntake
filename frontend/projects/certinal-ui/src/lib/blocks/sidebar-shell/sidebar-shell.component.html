@@ -1,0 +1,18 @@
+<aside
+  class="h-full bg-emerald-900 text-white flex flex-col overflow-hidden"
+  [style]="asideStyle()"
+  [attr.data-collapsed]="collapsed()"
+  aria-label="Primary navigation"
+>
+  <nav class="flex-1 overflow-y-auto overflow-x-hidden py-2">
+    <ng-content />
+  </nav>
+
+  <footer class="flex-shrink-0 border-t border-white/10 text-white/40 type-caption leading-none text-center py-3 px-2">
+    @if (collapsed()) {
+      <span aria-label="Copyright Certinal Inc.">©</span>
+    } @else {
+      ©{{ currentYear }} — Certinal Inc.
+    }
+  </footer>
+</aside>

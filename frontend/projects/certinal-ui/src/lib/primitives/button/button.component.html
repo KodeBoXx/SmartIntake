@@ -1,0 +1,12 @@
+<!-- For Button click events -->
+<button
+  [type]="type()"
+  [disabled]="disabled() || loading()"
+  [class]="buttonClasses()"
+  (click)="buttonClick.emit($event)"
+>
+  <ng-content />
+  @if (loading()) {
+    <span class="cui-btn-spinner" aria-hidden="true"></span>
+  }
+</button>

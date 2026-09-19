@@ -1,0 +1,9 @@
+<span [class]="containerClasses()" [attr.role]="'img'" [attr.aria-label]="alt() || initials() || null">
+  @if (src()) {
+    <img [src]="src()" [alt]="alt()" class="block w-full h-full object-cover" />
+  } @else if (initials()) {
+    {{ initials() }}
+  } @else {
+    <ng-content />
+  }
+</span>

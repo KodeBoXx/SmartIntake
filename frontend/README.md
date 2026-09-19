@@ -34,4 +34,13 @@ curl http://localhost:8080/v1/workspaces/local/forms
 
 ## Design system provenance
 
-Certinal UI v0.0.1 snapshot is vendored under `assets/certinal/certinal-ui/`; root UI `tokens.css` and `typography.css` are copied into `frontend/src/assets/certinal/styles/` and imported once by `src/styles.css`. See `frontend/src/assets/certinal/` for component and interaction references. The snapshot must be retained when moving this project.
+Certinal UI v0.0.1 is authoritative under `assets/certinal/certinal-ui/` and byte-for-byte materialized as the local Angular library at `frontend/projects/certinal-ui/`. `src/styles.css` imports the byte-verified materialized token and typography files once; `src/index.html` loads the matching DM Sans and DM Mono font declaration. Run `npm run certinal:check` for provenance/API/mapping drift checks and `npm run certinal:build` to package `@certinal/ui` locally. The snapshot must be retained when moving this project.
+
+### M5 routed shell
+
+The Angular browser shell now uses lazy staff, authentication, and public routes.
+`/catalog/builder` remains the M1 lifecycle compatibility route while M6 replaces
+M5's typed stub session/guard authority with server-authoritative role, expiry,
+and denial checks. Browser route evidence is denominator-bound in
+`frontend/e2e/m5-route-corpus.json`; run `npm run m5:check` from `frontend`.
+Automated axe output is browser evidence only and is not human accessibility acceptance.

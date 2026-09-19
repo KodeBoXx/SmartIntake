@@ -1,0 +1,66 @@
+<!-- Hours -->
+<div
+  class="flex flex-col w-14 max-h-[286px] overflow-y-auto py-1"
+  role="listbox"
+  aria-label="Hour"
+>
+  @for (h of hourList(); track h) {
+    <button
+      type="button"
+      role="option"
+      [attr.aria-selected]="isHourActive(h) || null"
+      [class]="cellClasses(isHourActive(h))"
+      (click)="setHour(h)"
+    >
+      {{ use24Hour() ? pad2(h) : h }}
+    </button>
+  }
+</div>
+
+<!-- Minutes -->
+<div
+  class="flex flex-col w-14 max-h-[286px] overflow-y-auto py-1 border-l border-border-default"
+  role="listbox"
+  aria-label="Minute"
+>
+  @for (m of minuteList(); track m) {
+    <button
+      type="button"
+      role="option"
+      [attr.aria-selected]="isMinuteActive(m) || null"
+      [class]="cellClasses(isMinuteActive(m))"
+      (click)="setMinute(m)"
+    >
+      {{ pad2(m) }}
+    </button>
+  }
+</div>
+
+<!-- Seconds (optional) -->
+@if (showSeconds()) {
+  <div
+    class="flex flex-col w-14 max-h-[286px] overflow-y-auto py-1 border-l border-border-default"
+    role="listbox"
+    aria-label="Second"
+  >
+    @for (s of secondList(); track s) {
+      <button
+        type="button"
+        role="option"
+        [attr.aria-selected]="isSecondActive(s) || null"
+        [class]="cellClasses(isSecondActive(s))"
+        (click)="setSecond(s)"
+      >
+        {{ pad2(s) }}
+      </button>
+    }
+  </div>
+}
+
+<!-- AM/PM toggle (12-hour only) -->
+@if (!use24Hour()) {
+  <div class="flex flex-col w-12 py-2 border-l border-border-default gap-1 px-1">
+    <button type="button" [class]="cellClasses(!isPm())" (click)="setAm()">AM</button>
+    <button type="button" [class]="cellClasses(isPm())" (click)="setPm()">PM</button>
+  </div>
+}

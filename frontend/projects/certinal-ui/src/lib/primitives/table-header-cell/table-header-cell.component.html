@@ -1,0 +1,6 @@
+<span [class]="contentWrapperClasses()">
+  <ng-content />
+  @if (sortable()) {
+    <cui-icon name="chevron-down" size="xs" [class]="sortIconClasses()" />
+  }
+</span>

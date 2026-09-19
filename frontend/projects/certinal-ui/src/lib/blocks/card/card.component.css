@@ -1,0 +1,158 @@
+/* ================================================================
+   cui-card — surface container, 4 variants, 4 paddings,
+   hoverable / accentTop / clickable modifiers.
+   Children (cui-card-icon / -title / -body) read theme vars
+   set here, so variants recolor inner content automatically.
+   ================================================================ */
+
+:host {
+  display: block;
+  position: relative;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-2xl);
+  transition:
+    box-shadow var(--dur-base) var(--ease-out),
+    transform var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out);
+
+  /* Theme variables consumed by child sub-components */
+  --cui-card-title-color: var(--color-text-primary);
+  --cui-card-body-color: var(--color-text-secondary);
+  --cui-card-icon-bg: var(--color-emerald-50);
+  --cui-card-icon-color: var(--color-emerald-500);
+}
+
+/* ------------ Padding ------------ */
+:host(.cui-card--pad-none) {
+  padding: 0;
+}
+:host(.cui-card--pad-sm) {
+  padding: var(--spacing-4);
+}
+:host(.cui-card--pad-md) {
+  padding: var(--spacing-6);
+}
+:host(.cui-card--pad-lg) {
+  padding: var(--spacing-8);
+}
+
+/* ------------ Variants ------------ */
+:host(.cui-card--elevated) {
+  box-shadow: var(--shadow-md);
+}
+
+:host(.cui-card--feature) {
+  background: linear-gradient(
+    135deg,
+    var(--color-emerald-50) 0%,
+    var(--color-lime-50) 100%
+  );
+  border-color: var(--color-emerald-200);
+  --cui-card-title-color: var(--color-emerald-900);
+  --cui-card-body-color: var(--color-emerald-700);
+  --cui-card-icon-bg: rgba(255, 255, 255, 0.5);
+  --cui-card-icon-color: var(--color-emerald-700);
+}
+
+:host(.cui-card--dark) {
+  background: var(--color-slate-900);
+  border-color: var(--color-slate-700);
+  color: #ffffff;
+  --cui-card-title-color: #ffffff;
+  --cui-card-body-color: var(--color-slate-400);
+  --cui-card-icon-bg: rgba(255, 255, 255, 0.08);
+  --cui-card-icon-color: var(--color-lime-400);
+}
+
+/* ------------ Hoverable ------------ */
+:host(.cui-card--hoverable) {
+  cursor: pointer;
+}
+:host(.cui-card--hoverable:hover) {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+/* ------------ Clickable (keyboard activation) ------------ */
+:host(.cui-card--clickable) {
+  cursor: pointer;
+}
+:host(.cui-card--clickable:focus-visible) {
+  outline: 3px solid var(--color-emerald-400);
+  outline-offset: 2px;
+}
+
+/* ------------ Disabled state (only meaningful when clickable) ------------ */
+:host(.cui-card--disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ------------ Status tints (metric-card pattern) ------------ */
+:host(.cui-card--status-success) {
+  background: var(--color-emerald-50);
+  border-color: var(--color-emerald-200);
+  --cui-card-title-color: var(--color-emerald-900);
+  --cui-card-body-color: var(--color-emerald-700);
+}
+
+:host(.cui-card--status-warning) {
+  background: var(--color-warning-light);
+  border-color: var(--color-warning);
+  --cui-card-title-color: var(--color-warning-dark);
+  --cui-card-body-color: var(--color-warning-dark);
+}
+
+:host(.cui-card--status-info) {
+  background: var(--color-info-light);
+  border-color: var(--color-cyan-200);
+  --cui-card-title-color: var(--color-info-dark);
+  --cui-card-body-color: var(--color-cyan-700);
+}
+
+:host(.cui-card--status-error) {
+  background: var(--color-error-light);
+  border-color: var(--color-error);
+  --cui-card-title-color: var(--color-error-dark);
+  --cui-card-body-color: var(--color-error-dark);
+}
+
+/* ------------ Accent top bar ------------
+   Uses a real 4px top border (matching the old app's dashboard cards:
+   `border-top: 4px solid <color>`). With border-radius on the card the
+   browser smoothly tapers the thicker top border into the 1px sides
+   around the rounded corners — no pseudo-element needed.
+   ------------------------------------------------------------------ */
+:host(.cui-card--accent-top) {
+  border-top-width: 4px;
+}
+
+:host(.cui-card--accent-top.cui-card--accent-emerald) { border-top-color: var(--color-emerald-700); }
+:host(.cui-card--accent-top.cui-card--accent-lime)    { border-top-color: var(--color-lime-500); }
+:host(.cui-card--accent-top.cui-card--accent-cyan)    { border-top-color: var(--color-cyan-500); }
+:host(.cui-card--accent-top.cui-card--accent-neutral) { border-top-color: var(--color-slate-300); }
+:host(.cui-card--accent-top.cui-card--accent-success) { border-top-color: var(--color-success-dark); }
+:host(.cui-card--accent-top.cui-card--accent-warning) { border-top-color: var(--color-warning); }
+:host(.cui-card--accent-top.cui-card--accent-error)   { border-top-color: var(--color-error); }
+:host(.cui-card--accent-top.cui-card--accent-info)    { border-top-color: var(--color-info); }
+
+/* ------------ Accent left bar ------------ */
+:host(.cui-card--accent-left) {
+  border-left-width: 4px;
+}
+
+:host(.cui-card--accent-left.cui-card--accent-emerald) { border-left-color: var(--color-emerald-700); }
+:host(.cui-card--accent-left.cui-card--accent-lime)    { border-left-color: var(--color-lime-500); }
+:host(.cui-card--accent-left.cui-card--accent-cyan)    { border-left-color: var(--color-cyan-500); }
+:host(.cui-card--accent-left.cui-card--accent-neutral) { border-left-color: var(--color-slate-300); }
+:host(.cui-card--accent-left.cui-card--accent-success) { border-left-color: var(--color-success-dark); }
+:host(.cui-card--accent-left.cui-card--accent-warning) { border-left-color: var(--color-warning); }
+:host(.cui-card--accent-left.cui-card--accent-error)   { border-left-color: var(--color-error); }
+:host(.cui-card--accent-left.cui-card--accent-info)    { border-left-color: var(--color-info); }
+
+/* When dark card has accent with default emerald, prefer lime-400 for contrast. */
+:host(.cui-card--dark.cui-card--accent-top.cui-card--accent-emerald) {
+  border-top-color: var(--color-lime-400);
+}

@@ -1,0 +1,18 @@
+{
+  "snapshotRoot": "assets/certinal/certinal-ui",
+  "snapshotFileCount": 181,
+  "snapshotDigest": "47cfe1ca59ca1ba52bd6041d26abb44473d88acf449456dd6c8afd73b2ba31bc",
+  "libraryRoot": "assets/certinal/certinal-ui/library/ui",
+  "libraryFileCount": 167,
+  "libraryDigest": "4a61a64d5ef40f6ce7430dc18011921fbcf908881e8a0b54546f90e16deded7e",
+  "materializedRoot": "frontend/projects/certinal-ui",
+  "materializationWrapperFiles": [
+    "README.integration.md",
+    "ng-package.workspace.json",
+    "tsconfig.workspace.lib.prod.json"
+  ],
+  "version": "0.0.1",
+  "packageJsonSha256": "b20ca1cf080c5a69b77d9bf5d8d1cf69bbfd4af9ec7a8e0f1518b6956a2b0049",
+  "publicApiSha256": "9fe693f2e6a008b98c424a0541dfda35bd380f0bbd3d2423646361308fcc644c",
+  "componentApiSha256": "61b89b707d375365f8a738613665f9c41a797fc73d47126e6b8ca315258e06a0"
+}

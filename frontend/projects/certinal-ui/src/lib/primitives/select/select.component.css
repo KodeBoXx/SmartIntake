@@ -1,0 +1,7 @@
+/* Kill the global *:focus-visible outline on our trigger button —
+   focus is shown by the wrapper's border + ring state classes. */
+:host button:focus,
+:host button:focus-visible {
+  outline: none !important;
+  outline-offset: 0 !important;
+}

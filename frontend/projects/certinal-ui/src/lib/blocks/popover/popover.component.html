@@ -1,0 +1,18 @@
+<div
+  class="cui-popover-trigger inline-flex"
+  [attr.aria-haspopup]="'dialog'"
+  [attr.aria-expanded]="isOpen()"
+  (click)="toggle()"
+>
+  <ng-content select="[cuiPopoverTrigger]" />
+</div>
+
+@if (isOpen()) {
+  <div
+    [class]="panelClasses()"
+    [style.width]="width()"
+    role="dialog"
+  >
+    <ng-content />
+  </div>
+}

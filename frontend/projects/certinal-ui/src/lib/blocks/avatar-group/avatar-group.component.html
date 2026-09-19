@@ -1,0 +1,15 @@
+<div class="inline-flex -space-x-2">
+  @for (item of visibleItems(); track $index) {
+    <div class="ring-2 ring-bg-surface rounded-full">
+      <cui-avatar
+        [size]="size()"
+        [initials]="item.initials ?? ''"
+        [src]="item.src ?? ''"
+        [alt]="item.alt ?? ''"
+      />
+    </div>
+  }
+  @if (overflowCount() > 0) {
+    <div [class]="overflowClasses()">+{{ overflowCount() }}</div>
+  }
+</div>

@@ -1,0 +1,15 @@
+<!-- For Button click events -->
+<button
+  [type]="type()"
+  [disabled]="disabled()"
+  [class]="buttonClasses()"
+  [attr.aria-label]="ariaLabel() || null"
+  [attr.aria-expanded]="ariaExpanded()"
+  [attr.aria-controls]="ariaControls()"
+  (click)="buttonClick.emit($event)"
+>
+  <ng-content />
+  @if (badge()) {
+    <span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-error" aria-hidden="true"></span>
+  }
+</button>

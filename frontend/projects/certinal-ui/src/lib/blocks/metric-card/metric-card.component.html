@@ -1,0 +1,41 @@
+<cui-card
+  padding="none"
+  [accentTop]="accentTop()"
+  [accentLeft]="accentLeft()"
+  [accentColor]="accentColor()"
+  [hoverable]="hoverable()"
+  [clickable]="clickable()"
+  (click)="cardClick.emit()"
+>
+  <div [class]="rootClasses()">
+    <div class="cui-metric-card__top">
+      <div class="cui-metric-card__icon">
+        <cui-icon [name]="icon()" size="md" />
+      </div>
+      <div class="cui-metric-card__hero">
+        <div class="cui-metric-card__value">{{ value() }}</div>
+        @if (valueLabel()) {
+          <div class="cui-metric-card__value-label">{{ valueLabel() }}</div>
+        }
+      </div>
+    </div>
+
+    <h3 class="cui-metric-card__title">{{ title() }}</h3>
+
+    @if (stats().length > 0) {
+      <div
+        class="cui-metric-card__stats"
+        [style.grid-template-columns]="'repeat(' + stats().length + ', minmax(0, 1fr))'"
+      >
+        @for (stat of stats(); track stat.label) {
+          <div>
+            <div class="cui-metric-card__stat-label">{{ stat.label }}</div>
+            <div [class]="statValueClass(stat)">{{ stat.value }}</div>
+          </div>
+        }
+      </div>
+    }
+
+    <ng-content />
+  </div>
+</cui-card>

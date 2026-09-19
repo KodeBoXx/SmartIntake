@@ -1,0 +1,84 @@
+@let stickyClass = sticky() ? 'sticky top-0 z-[100]' : '';
+@let elevationClass = elevated() ? 'shadow-sm' : '';
+
+<div class="@container {{ stickyClass }}">
+  <header
+    class="flex items-center gap-4 h-16 bg-bg-surface border-b border-border-default px-4 @md:px-6 @7xl:px-10 {{ elevationClass }}"
+  >
+    <!-- Hamburger — shown when container < 900px, leftmost -->
+    <cui-icon-button
+      class="flex @[900px]:hidden flex-shrink-0"
+      size="lg"
+      [ariaLabel]="isDrawerOpen() ? 'Close menu' : 'Open menu'"
+      [ariaExpanded]="isDrawerOpen()"
+      ariaControls="cui-header-drawer"
+      (click)="openDrawer()"
+    >
+      <cui-icon name="menu" size="md" />
+    </cui-icon-button>
+
+    <!-- Logo slot — always visible -->
+    <div class="flex items-center flex-shrink-0">
+      <ng-content select="[logo]" />
+    </div>
+
+    <!-- Tabs slot — shown when container ≥ 900px -->
+    <div class="hidden @[900px]:flex flex-1 justify-center items-end h-full">
+      @if (tabs) {
+        <ng-container *ngTemplateOutlet="tabs.template" />
+      }
+    </div>
+
+    <!-- Spacer when tabs hidden (keeps avatar pinned right in collapsed mode) -->
+    <div class="flex-1 @[900px]:hidden"></div>
+
+    <!-- Icons slot — shown when container ≥ 900px -->
+    <div class="hidden @[900px]:flex items-center gap-2 h-11 self-end">
+      @if (icons) {
+        <ng-container *ngTemplateOutlet="icons.template" />
+      }
+    </div>
+
+    <!-- Avatar slot — always visible, far right; baseline-aligned on full mode -->
+    <div class="flex items-center flex-shrink-0 @[900px]:h-11 @[900px]:self-end">
+      <ng-content select="[avatar]" />
+    </div>
+  </header>
+
+  <!-- Drawer — collapsed mode only, left slide-in -->
+  @if (isDrawerOpen()) {
+    <div
+      class="@[900px]:hidden fixed inset-0 z-[200] bg-slate-900/60 backdrop-blur-[2px]"
+      aria-hidden="true"
+      (click)="closeDrawer()"
+    ></div>
+
+    <aside
+      id="cui-header-drawer"
+      class="@[900px]:hidden fixed inset-y-0 left-0 z-[201] w-80 max-w-[85vw] bg-emerald-900 text-white shadow-xl flex flex-col"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Main menu"
+    >
+      <!-- Drawer header: MENU label + close button -->
+      <div class="flex items-center justify-between px-5 h-16 border-b border-white/15 flex-shrink-0">
+        <span class="type-label text-white/40 uppercase tracking-wider">Menu</span>
+        <cui-icon-button
+          variant="inverse"
+          size="lg"
+          ariaLabel="Close menu"
+          (click)="closeDrawer()"
+        >
+          <cui-icon name="close" size="md" />
+        </cui-icon-button>
+      </div>
+
+      <!-- Drawer body: custom content only (tabs don't stack well) -->
+      <div class="flex-1 min-h-0 flex flex-col">
+        @if (drawer) {
+          <ng-container *ngTemplateOutlet="drawer.template" />
+        }
+      </div>
+    </aside>
+  }
+</div>
