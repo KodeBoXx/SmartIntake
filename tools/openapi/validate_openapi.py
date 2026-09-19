@@ -258,12 +258,42 @@ def validate(check_generated: bool) -> list[str]:
                     errors.append("sign-in must require the bound login-CSRF header and cookie parameters")
             if path == "/v1/auth/session":
                 response = responses.get("200", {})
-                headers = response.get("headers", {}) if isinstance(response, dict) else {}
                 content = response.get("content", {}).get("application/json", {}) if isinstance(response, dict) else {}
                 response_name, _ = schema_for(content.get("schema", {}), components)
-                set_cookie = headers.get("Set-Cookie", {}).get("$ref", "")
-                if response_name != "LoginCsrfBootstrapResponse" or not isinstance(set_cookie, str) or not set_cookie.endswith("/headers/LoginCsrfSetCookie"):
-                    errors.append("GET /v1/auth/session must publish the one-time login-CSRF body and bound Set-Cookie contract")
+                if op.get("security") != [{"staffCookie": []}] or op.get("x-authorization", {}).get("roles") != ["staff.session.self"]:
+                    errors.append("GET /v1/auth/session must require its authenticated staff session")
+                if response_name != "AuthenticatedSessionResponse":
+                    errors.append("GET /v1/auth/session 200 must publish authenticated safe identity, activation state and permitted choices")
+                session_schema = components.get("components", {}).get("schemas", {}).get("AuthenticatedSession", {})
+                setup_with_private_choice = {
+                    "safeIdentity": {"accountId": "account-01J2W5RFR3K24SFWDX2C0N9VW3", "username": "setup@example.test", "displayName": "Setup user"},
+                    "activationState": "awaiting-setup",
+                    "accountStatus": "active",
+                    "organizations": [{"organizationId": "organization-01J2W5RFR3K24SFWDX2C0N9VW3", "name": "Private organization", "membershipState": "active", "workspaces": []}],
+                    "currentOrganizationId": "organization-01J2W5RFR3K24SFWDX2C0N9VW3",
+                }
+                if not isinstance(session_schema, dict) or not session_schema.get("if") or not session_schema.get("then") or not validate_example(session_schema, setup_with_private_choice, components):
+                    errors.append("GET /v1/auth/session setup-only state must conceal private organization/workspace choices")
+                unauthenticated = responses.get("401", {})
+                unauthenticated_ref = unauthenticated.get("$ref") if isinstance(unauthenticated, dict) else None
+                if not isinstance(unauthenticated_ref, str) or not unauthenticated_ref.endswith("/responses/UnauthenticatedLoginCsrf"):
+                    errors.append("GET /v1/auth/session 401 must be the login-CSRF bootstrap response")
+                login_csrf = components.get("components", {}).get("responses", {}).get("UnauthenticatedLoginCsrf", {})
+                csrf_headers = login_csrf.get("headers", {}) if isinstance(login_csrf, dict) else {}
+                token_ref = csrf_headers.get("X-Login-CSRF-Token", {}).get("$ref", "") if isinstance(csrf_headers.get("X-Login-CSRF-Token", {}), dict) else ""
+                cookie_ref = csrf_headers.get("Set-Cookie", {}).get("$ref", "") if isinstance(csrf_headers.get("Set-Cookie", {}), dict) else ""
+                csrf_content = login_csrf.get("content", {}).get("application/problem+json", {}) if isinstance(login_csrf, dict) else {}
+                csrf_name, csrf_schema = schema_for(csrf_content.get("schema", {}), components) if isinstance(csrf_content, dict) else (None, None)
+                csrf_examples = content_examples(csrf_content, components) if isinstance(csrf_content, dict) else []
+                if not (isinstance(token_ref, str) and token_ref.endswith("/headers/LoginCsrfToken") and isinstance(cookie_ref, str) and cookie_ref.endswith("/headers/LoginCsrfSetCookie")):
+                    errors.append("GET /v1/auth/session 401 must issue explicit one-time login-CSRF header and bound Set-Cookie contract")
+                if csrf_name != "Problem" or not csrf_examples or csrf_schema is None:
+                    errors.append("GET /v1/auth/session 401 must include a representative anonymous login-CSRF problem example")
+                else:
+                    for csrf_example in csrf_examples:
+                        example_error = validate_example(csrf_schema, csrf_example, components)
+                        if example_error:
+                            errors.append(f"GET /v1/auth/session 401 login-CSRF example is invalid: {example_error}")
             for code, response in responses.items():
                 if not str(code).startswith("2") or not isinstance(response, dict):
                     continue

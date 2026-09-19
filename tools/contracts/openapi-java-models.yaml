@@ -261,30 +261,44 @@ paths:
         source: docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md
       x-authorization:
         roles:
-        - anonymous.login-csrf.bootstrap
-        tenantScope: anonymous
+        - staff.session.self
+        tenantScope: account-session
       x-implementation-status: contract-published
       responses:
         '200':
           description: Successful response.
           headers:
-            Set-Cookie:
-              $ref: '#/components/headers/LoginCsrfSetCookie'
+            ETag:
+              $ref: '#/components/headers/ETag'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LoginCsrfBootstrapResponse'
+                $ref: '#/components/schemas/AuthenticatedSessionResponse'
               examples:
                 success:
                   value:
                     requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
-                    loginCsrfBootstrap:
-                      csrfToken: login-csrf-01J2W5RFR3K24SFWDX2C0N9VW3
-                      expiresAt: '2026-09-18T00:05:00Z'
+                    authenticatedSession:
+                      safeIdentity:
+                        accountId: account-01J2W5RFR3K24SFWDX2C0N9VW3
+                        username: author@example.test
+                        displayName: A. Author
+                      activationState: active
+                      accountStatus: active
+                      organizations:
+                      - organizationId: organization-01J2W5RFR3K24SFWDX2C0N9VW3
+                        name: Example organization
+                        membershipState: active
+                        workspaces:
+                        - workspaceId: workspace-01J2W5RFR3K24SFWDX2C0N9VW3
+                          name: Research
+                          roles:
+                          - author
+                      currentOrganizationId: organization-01J2W5RFR3K24SFWDX2C0N9VW3
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
-          $ref: '#/components/responses/Unauthenticated'
+          $ref: '#/components/responses/UnauthenticatedLoginCsrf'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
@@ -293,10 +307,13 @@ paths:
           $ref: '#/components/responses/RateLimited'
         '500':
           $ref: '#/components/responses/InternalError'
+      security:
+      - staffCookie: []
       x-replay: Authentication proofs are operation-specific and one-time where applicable; retries never replay credentials,
         tokens, cookies, reset links, activation links or transfer capabilities.
-      x-login-csrf-bootstrap: Anonymous bootstrap issues one short-lived one-time token and its bound Secure, HttpOnly, SameSite=Strict
-        cookie; a consumed or expired token requires a fresh bootstrap response.
+      x-login-csrf-bootstrap: The unauthenticated 401 response issues one short-lived one-time X-Login-CSRF-Token header and
+        its bound Secure, HttpOnly, SameSite=Strict cookie; a consumed or expired token requires a fresh unauthenticated session
+        response.
   /v1/auth/sign-in:
     post:
       operationId: ON-post-v1-auth-sign-in-7c9d8ac3a9
@@ -6776,7 +6793,8 @@ components:
       schema:
         type: string
         minLength: 24
-      description: One-time value returned by GET /v1/auth/session; it must match the server-bound login-CSRF cookie.
+      description: One-time value returned in the unauthenticated GET /v1/auth/session 401 response; it must match the server-bound
+        login-CSRF cookie.
     LoginCsrfCookie:
       name: smartintake_login_csrf
       in: cookie
@@ -6784,7 +6802,8 @@ components:
       schema:
         type: string
         minLength: 24
-      description: Secure, HttpOnly, SameSite=Strict cookie set by GET /v1/auth/session and consumed with the matching X-Login-CSRF-Token.
+      description: Secure, HttpOnly, SameSite=Strict cookie set by unauthenticated GET /v1/auth/session and consumed with
+        the matching X-Login-CSRF-Token.
   headers:
     ETag:
       schema:
@@ -6803,9 +6822,16 @@ components:
         type: integer
         minimum: 1
       description: Seconds until the caller may retry a 429 response.
+    LoginCsrfToken:
+      schema:
+        type: string
+        minLength: 24
+      example: login-csrf-01J2W5RFR3K24SFWDX2C0N9VW3
+      description: One-time login-CSRF token issued only with an unauthenticated session response; sign-in consumes it.
     LoginCsrfSetCookie:
       schema:
         type: string
+      example: smartintake_login_csrf=bound-01J2W5RFR3K24SFWDX2C0N9VW3; Secure; HttpOnly; SameSite=Strict; Path=/v1/auth
       description: Sets smartintake_login_csrf as a Secure, HttpOnly, SameSite=Strict, short-lived cookie bound to the returned
         one-time token.
   examples:
@@ -6907,6 +6933,8 @@ components:
           - list
           scale:
           - integer
+          shortText:
+          - text
           text:
           - text
           textarea:
@@ -7838,43 +7866,43 @@ components:
           id: https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/package.schema.json
           kind: package
           resource: contracts/smart-form-builder-lite/4.0.0/package.schema.json
-          sha256: 06208fec2155bc39371b4f35c349bfa25cf18a96f054def179986d1d3a22d01f
+          sha256: ed6947e3d2fbfd0e46824d23d23b1e06358d48d7da641d0fc705d7c1eb5bba1e
           version: 4.0.0
         - file: expression.schema.json
           id: https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/expression.schema.json
           kind: expression
           resource: contracts/smart-form-builder-lite/4.0.0/expression.schema.json
-          sha256: 30a0d06cac619c7bfed718ceaec1c6767670d63d61c39d861883d08f7d2ba4c0
+          sha256: 647ff1439354942566c6034e38989d6cbd1300cf55231d0865c416af7f4823f6
           version: 4.0.0
         - file: input-answer.schema.json
           id: https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/input-answer.schema.json
           kind: input-answer
           resource: contracts/smart-form-builder-lite/4.0.0/input-answer.schema.json
-          sha256: 2537946ae3434c01c80bb58d36a52f36a0c40afac24a31304bba21f32c44afbc
+          sha256: ab82cf65b2936b7518c102a705f49f74e9023d1c439b2f55c34d4317c2041bee
           version: 4.0.0
         - file: typed-answer.schema.json
           id: https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/typed-answer.schema.json
           kind: typed-answer
           resource: contracts/smart-form-builder-lite/4.0.0/typed-answer.schema.json
-          sha256: eba3edf86bccd3e1ed006d538b36884c4e4daf36b9acfa18d5f532f2e91fd349
+          sha256: 47ddc3f43c1adeb4879b4684caf8ea343d8b0ce59b62ff1b566e1d67f6eec93a
           version: 4.0.0
         - file: runtime-manifest.schema.json
           id: https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/runtime-manifest.schema.json
           kind: runtime-manifest
           resource: contracts/smart-form-builder-lite/4.0.0/runtime-manifest.schema.json
-          sha256: a8e2992416b97203265836eac4b288d7c51d9272d40415e3e8ef89b35dbba31d
+          sha256: e361297f3bbcf01261cb5f7b7a2a60c0f045b0ed2a09232d8002dad925a21923
           version: 4.0.0
         - file: submission-envelope.schema.json
           id: https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/submission-envelope.schema.json
           kind: submission-envelope
           resource: contracts/smart-form-builder-lite/4.0.0/submission-envelope.schema.json
-          sha256: 5d647799accd7f384296e6e3f180eb85485c1f7a9a021026519b64d4560c8a44
+          sha256: 43eebeb1da1b0c5f1f4ee02b8294dd112c4fb9d47e4d65ac4626a957bd73a64f
           version: 4.0.0
         - file: event.schema.json
           id: https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/event.schema.json
           kind: event
           resource: contracts/smart-form-builder-lite/4.0.0/event.schema.json
-          sha256: fcacc8ab2455d398b3d06d712276ec39422871e96947eb69815f7ec890e7b9ff
+          sha256: b0c70b90bea1911896f97af00c2899e1860f406ec3d7dd85e6e4d42763f01e9e
           version: 4.0.0
         versions:
           contract: 4.0.0
@@ -8060,6 +8088,28 @@ components:
                 status: 500
                 code: INTERNALERROR
                 detail: Unexpected failure
+                requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
+                errors: []
+    UnauthenticatedLoginCsrf:
+      description: No authenticated staff session is present. A one-time login-CSRF token and bound cookie are issued for
+        the next sign-in attempt.
+      headers:
+        X-Login-CSRF-Token:
+          $ref: '#/components/headers/LoginCsrfToken'
+        Set-Cookie:
+          $ref: '#/components/headers/LoginCsrfSetCookie'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            anonymousLoginCsrf:
+              value:
+                type: https://api.smartintake.invalid/problems/unauthenticated
+                title: Authentication is required
+                status: 401
+                code: LOGIN_REQUIRED
+                detail: Sign in with the one-time login-CSRF token and bound cookie issued in this response.
                 requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
                 errors: []
   schemas:
@@ -8412,20 +8462,112 @@ components:
           description: M1 compatibility alias derived from operatorSignatures; use operatorSignatures for arity metadata.
         xGeneratedEventModel:
           $ref: '#/components/schemas/EventDocument'
-    LoginCsrfBootstrap:
+    SafeAccountIdentity:
       type: object
       additionalProperties: false
       required:
-      - csrfToken
-      - expiresAt
+      - accountId
+      - username
+      - displayName
       properties:
-        csrfToken:
+        accountId:
+          $ref: '#/components/schemas/OpaqueId'
+        username:
           type: string
-          minLength: 24
-        expiresAt:
+          minLength: 1
+          maxLength: 320
+        displayName:
           type: string
-          format: date-time
-      description: One-time anonymous login-CSRF token bound to the smartintake_login_csrf cookie.
+          minLength: 1
+          maxLength: 120
+      description: Safe staff identity; it excludes passwords, hashes, bearer credentials and session secrets.
+    PermittedWorkspaceChoice:
+      type: object
+      additionalProperties: false
+      required:
+      - workspaceId
+      - name
+      - roles
+      properties:
+        workspaceId:
+          $ref: '#/components/schemas/OpaqueId'
+        name:
+          type: string
+          minLength: 1
+          maxLength: 160
+        roles:
+          type: array
+          minItems: 1
+          items:
+            enum:
+            - administrator
+            - author
+            - reviewer
+            - translator
+            - publisher
+            - response-viewer
+            - response-exporter
+            - auditor
+    PermittedOrganizationChoice:
+      type: object
+      additionalProperties: false
+      required:
+      - organizationId
+      - name
+      - membershipState
+      - workspaces
+      properties:
+        organizationId:
+          $ref: '#/components/schemas/OpaqueId'
+        name:
+          type: string
+          minLength: 1
+          maxLength: 160
+        membershipState:
+          const: active
+        workspaces:
+          type: array
+          items:
+            $ref: '#/components/schemas/PermittedWorkspaceChoice'
+    AuthenticatedSession:
+      type: object
+      additionalProperties: false
+      required:
+      - safeIdentity
+      - activationState
+      - accountStatus
+      - organizations
+      - currentOrganizationId
+      properties:
+        safeIdentity:
+          $ref: '#/components/schemas/SafeAccountIdentity'
+        activationState:
+          enum:
+          - awaiting-setup
+          - active
+        accountStatus:
+          const: active
+        organizations:
+          type: array
+          items:
+            $ref: '#/components/schemas/PermittedOrganizationChoice'
+        currentOrganizationId:
+          anyOf:
+          - $ref: '#/components/schemas/OpaqueId'
+          - type: 'null'
+      description: Authenticated safe identity, activation state and server-authorized organization/workspace choices.
+      if:
+        properties:
+          activationState:
+            const: awaiting-setup
+        required:
+        - activationState
+      then:
+        properties:
+          organizations:
+            maxItems: 0
+          currentOrganizationId:
+            type: 'null'
     Form:
       type: object
       additionalProperties: false
@@ -9921,7 +10063,7 @@ components:
           type: string
           minLength: 1
           maxLength: 160
-    LoginCsrfBootstrapUpdateRequest:
+    AuthenticatedSessionUpdateRequest:
       type: object
       additionalProperties: false
       required:
@@ -10475,6 +10617,46 @@ components:
               anyOf:
               - type: string
               - type: 'null'
+    AuthenticatedSessionResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - requestId
+      - authenticatedSession
+      properties:
+        requestId:
+          $ref: '#/components/schemas/OpaqueId'
+        authenticatedSession:
+          $ref: '#/components/schemas/AuthenticatedSession'
+    AuthenticatedSessionCollection:
+      type: object
+      additionalProperties: false
+      required:
+      - requestId
+      - items
+      - page
+      properties:
+        requestId:
+          $ref: '#/components/schemas/OpaqueId'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuthenticatedSession'
+        page:
+          type: object
+          additionalProperties: false
+          required:
+          - limit
+          - nextCursor
+          properties:
+            limit:
+              type: integer
+              minimum: 1
+              maximum: 200
+            nextCursor:
+              anyOf:
+              - type: string
+              - type: 'null'
     AuthorizedAsset:
       type: object
       additionalProperties: false
@@ -10879,46 +11061,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/LocaleBundle'
-        page:
-          type: object
-          additionalProperties: false
-          required:
-          - limit
-          - nextCursor
-          properties:
-            limit:
-              type: integer
-              minimum: 1
-              maximum: 200
-            nextCursor:
-              anyOf:
-              - type: string
-              - type: 'null'
-    LoginCsrfBootstrapResponse:
-      type: object
-      additionalProperties: false
-      required:
-      - requestId
-      - loginCsrfBootstrap
-      properties:
-        requestId:
-          $ref: '#/components/schemas/OpaqueId'
-        loginCsrfBootstrap:
-          $ref: '#/components/schemas/LoginCsrfBootstrap'
-    LoginCsrfBootstrapCollection:
-      type: object
-      additionalProperties: false
-      required:
-      - requestId
-      - items
-      - page
-      properties:
-        requestId:
-          $ref: '#/components/schemas/OpaqueId'
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/LoginCsrfBootstrap'
         page:
           type: object
           additionalProperties: false
@@ -12088,6 +12230,8 @@ components:
         - choice
         - multiChoice
         - object
+        shortText:
+        - text
       $defs:
         id:
           type: string
@@ -12104,7 +12248,7 @@ components:
           format: canonical-int64
         decimal:
           type: string
-          pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]+)?$
+          pattern: ^(?:0(?:\.[0-9]+)?|[1-9][0-9]*(?:\.[0-9]+)?|-[1-9][0-9]*(?:\.[0-9]+)?|-0\.[0-9]*[1-9][0-9]*)$
           format: stored-decimal
         date:
           type: string
@@ -12147,7 +12291,7 @@ components:
               $ref: '#/components/schemas/PackageDocumentInstant'
             timeZone:
               type: string
-              pattern: ^[A-Za-z]+(?:[_+-][A-Za-z]+)*(?:/[A-Za-z_+-]+)+$
+              pattern: ^(?:UTC|[A-Za-z]+(?:[_+-][A-Za-z]+)*(?:/[A-Za-z_+-]+)+)$
           required:
           - instant
           - timeZone
@@ -13067,11 +13211,11 @@ components:
           - mediaType
         decimalStorage:
           type: string
-          pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]+)?$
+          pattern: ^(?:0(?:\.[0-9]+)?|[1-9][0-9]*(?:\.[0-9]+)?|-[1-9][0-9]*(?:\.[0-9]+)?|-0\.[0-9]*[1-9][0-9]*)$
           format: stored-decimal
         expressionResultDecimal:
           type: string
-          pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$
+          pattern: ^(?:0|[1-9][0-9]*(?:\.[0-9]*[1-9])?|-[1-9][0-9]*(?:\.[0-9]*[1-9])?|-0\.[0-9]*[1-9])$
           format: canonical-decimal
         extensionValue:
           type: object
@@ -13367,7 +13511,7 @@ components:
       format: canonical-int64
     PackageDocumentDecimal:
       type: string
-      pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]+)?$
+      pattern: ^(?:0(?:\.[0-9]+)?|[1-9][0-9]*(?:\.[0-9]+)?|-[1-9][0-9]*(?:\.[0-9]+)?|-0\.[0-9]*[1-9][0-9]*)$
       format: stored-decimal
     PackageDocumentDate:
       type: string
@@ -13410,7 +13554,7 @@ components:
           $ref: '#/components/schemas/PackageDocumentInstant'
         timeZone:
           type: string
-          pattern: ^[A-Za-z]+(?:[_+-][A-Za-z]+)*(?:/[A-Za-z_+-]+)+$
+          pattern: ^(?:UTC|[A-Za-z]+(?:[_+-][A-Za-z]+)*(?:/[A-Za-z_+-]+)+)$
       required:
       - instant
       - timeZone
@@ -14330,11 +14474,11 @@ components:
       - mediaType
     PackageDocumentDecimalStorage:
       type: string
-      pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]+)?$
+      pattern: ^(?:0(?:\.[0-9]+)?|[1-9][0-9]*(?:\.[0-9]+)?|-[1-9][0-9]*(?:\.[0-9]+)?|-0\.[0-9]*[1-9][0-9]*)$
       format: stored-decimal
     PackageDocumentExpressionResultDecimal:
       type: string
-      pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$
+      pattern: ^(?:0|[1-9][0-9]*(?:\.[0-9]*[1-9])?|-[1-9][0-9]*(?:\.[0-9]*[1-9])?|-0\.[0-9]*[1-9])$
       format: canonical-decimal
     PackageDocumentExtensionValue:
       type: object
@@ -14735,7 +14879,7 @@ components:
               $ref: '#/components/schemas/ExpressionDocumentInstant'
             timeZone:
               type: string
-              pattern: ^[A-Za-z]+(?:[_+-][A-Za-z]+)*(?:/[A-Za-z_+-]+)+$
+              pattern: ^(?:UTC|[A-Za-z]+(?:[_+-][A-Za-z]+)*(?:/[A-Za-z_+-]+)+)$
           required:
           - instant
           - timeZone
@@ -15110,12 +15254,12 @@ components:
           - args
         decimalStorage:
           type: string
-          pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]+)?$
+          pattern: ^(?:0(?:\.[0-9]+)?|[1-9][0-9]*(?:\.[0-9]+)?|-[1-9][0-9]*(?:\.[0-9]+)?|-0\.[0-9]*[1-9][0-9]*)$
           format: stored-decimal
           description: Destination storage preserves declared scale, e.g. 12.50.
         decimalResult:
           type: string
-          pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$
+          pattern: ^(?:0|[1-9][0-9]*(?:\.[0-9]*[1-9])?|-[1-9][0-9]*(?:\.[0-9]*[1-9])?|-0\.[0-9]*[1-9])$
           format: canonical-decimal
           description: Exact expression result; no redundant trailing fractional zeroes.
         extensionValue:
@@ -15550,7 +15694,7 @@ components:
           $ref: '#/components/schemas/ExpressionDocumentInstant'
         timeZone:
           type: string
-          pattern: ^[A-Za-z]+(?:[_+-][A-Za-z]+)*(?:/[A-Za-z_+-]+)+$
+          pattern: ^(?:UTC|[A-Za-z]+(?:[_+-][A-Za-z]+)*(?:/[A-Za-z_+-]+)+)$
       required:
       - instant
       - timeZone
@@ -15925,12 +16069,12 @@ components:
       - args
     ExpressionDocumentDecimalStorage:
       type: string
-      pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]+)?$
+      pattern: ^(?:0(?:\.[0-9]+)?|[1-9][0-9]*(?:\.[0-9]+)?|-[1-9][0-9]*(?:\.[0-9]+)?|-0\.[0-9]*[1-9][0-9]*)$
       format: stored-decimal
       description: Destination storage preserves declared scale, e.g. 12.50.
     ExpressionDocumentDecimalResult:
       type: string
-      pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$
+      pattern: ^(?:0|[1-9][0-9]*(?:\.[0-9]*[1-9])?|-[1-9][0-9]*(?:\.[0-9]*[1-9])?|-0\.[0-9]*[1-9])$
       format: canonical-decimal
       description: Exact expression result; no redundant trailing fractional zeroes.
     ExpressionDocumentExtensionValue:
@@ -15979,7 +16123,7 @@ components:
           format: canonical-int64
         decimal:
           type: string
-          pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$
+          pattern: ^(?:0|[1-9][0-9]*(?:\.[0-9]*[1-9])?|-[1-9][0-9]*(?:\.[0-9]*[1-9])?|-0\.[0-9]*[1-9])$
           format: canonical-decimal
         date:
           type: string
@@ -16022,7 +16166,7 @@ components:
               $ref: '#/components/schemas/InputAnswerDocumentInstant'
             timeZone:
               type: string
-              pattern: ^[A-Za-z]+(?:[_+-][A-Za-z]+)*(?:/[A-Za-z_+-]+)+$
+              pattern: ^(?:UTC|[A-Za-z]+(?:[_+-][A-Za-z]+)*(?:/[A-Za-z_+-]+)+)$
           required:
           - instant
           - timeZone
@@ -16150,7 +16294,7 @@ components:
       format: canonical-int64
     InputAnswerDocumentDecimal:
       type: string
-      pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$
+      pattern: ^(?:0|[1-9][0-9]*(?:\.[0-9]*[1-9])?|-[1-9][0-9]*(?:\.[0-9]*[1-9])?|-0\.[0-9]*[1-9])$
       format: canonical-decimal
     InputAnswerDocumentDate:
       type: string
@@ -16193,7 +16337,7 @@ components:
           $ref: '#/components/schemas/InputAnswerDocumentInstant'
         timeZone:
           type: string
-          pattern: ^[A-Za-z]+(?:[_+-][A-Za-z]+)*(?:/[A-Za-z_+-]+)+$
+          pattern: ^(?:UTC|[A-Za-z]+(?:[_+-][A-Za-z]+)*(?:/[A-Za-z_+-]+)+)$
       required:
       - instant
       - timeZone
@@ -16312,7 +16456,7 @@ components:
           format: canonical-int64
         decimal:
           type: string
-          pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]+)?$
+          pattern: ^(?:0(?:\.[0-9]+)?|[1-9][0-9]*(?:\.[0-9]+)?|-[1-9][0-9]*(?:\.[0-9]+)?|-0\.[0-9]*[1-9][0-9]*)$
           format: stored-decimal
         date:
           type: string
@@ -16355,7 +16499,7 @@ components:
               $ref: '#/components/schemas/TypedAnswerDocumentInstant'
             timeZone:
               type: string
-              pattern: ^[A-Za-z]+(?:[_+-][A-Za-z]+)*(?:/[A-Za-z_+-]+)+$
+              pattern: ^(?:UTC|[A-Za-z]+(?:[_+-][A-Za-z]+)*(?:/[A-Za-z_+-]+)+)$
           required:
           - instant
           - timeZone
@@ -16489,11 +16633,11 @@ components:
           - provenance
         decimalStorage:
           type: string
-          pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]+)?$
+          pattern: ^(?:0(?:\.[0-9]+)?|[1-9][0-9]*(?:\.[0-9]+)?|-[1-9][0-9]*(?:\.[0-9]+)?|-0\.[0-9]*[1-9][0-9]*)$
           format: stored-decimal
         decimalResult:
           type: string
-          pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$
+          pattern: ^(?:0|[1-9][0-9]*(?:\.[0-9]*[1-9])?|-[1-9][0-9]*(?:\.[0-9]*[1-9])?|-0\.[0-9]*[1-9])$
           format: canonical-decimal
         extensionValue:
           type: object
@@ -16565,7 +16709,7 @@ components:
       format: canonical-int64
     TypedAnswerDocumentDecimal:
       type: string
-      pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]+)?$
+      pattern: ^(?:0(?:\.[0-9]+)?|[1-9][0-9]*(?:\.[0-9]+)?|-[1-9][0-9]*(?:\.[0-9]+)?|-0\.[0-9]*[1-9][0-9]*)$
       format: stored-decimal
     TypedAnswerDocumentDate:
       type: string
@@ -16608,7 +16752,7 @@ components:
           $ref: '#/components/schemas/TypedAnswerDocumentInstant'
         timeZone:
           type: string
-          pattern: ^[A-Za-z]+(?:[_+-][A-Za-z]+)*(?:/[A-Za-z_+-]+)+$
+          pattern: ^(?:UTC|[A-Za-z]+(?:[_+-][A-Za-z]+)*(?:/[A-Za-z_+-]+)+)$
       required:
       - instant
       - timeZone
@@ -16742,11 +16886,11 @@ components:
       - provenance
     TypedAnswerDocumentDecimalStorage:
       type: string
-      pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]+)?$
+      pattern: ^(?:0(?:\.[0-9]+)?|[1-9][0-9]*(?:\.[0-9]+)?|-[1-9][0-9]*(?:\.[0-9]+)?|-0\.[0-9]*[1-9][0-9]*)$
       format: stored-decimal
     TypedAnswerDocumentDecimalResult:
       type: string
-      pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$
+      pattern: ^(?:0|[1-9][0-9]*(?:\.[0-9]*[1-9])?|-[1-9][0-9]*(?:\.[0-9]*[1-9])?|-0\.[0-9]*[1-9])$
       format: canonical-decimal
     TypedAnswerDocumentExtensionValue:
       type: object
@@ -16834,7 +16978,7 @@ components:
           format: canonical-int64
         decimal:
           type: string
-          pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$
+          pattern: ^(?:0|[1-9][0-9]*(?:\.[0-9]*[1-9])?|-[1-9][0-9]*(?:\.[0-9]*[1-9])?|-0\.[0-9]*[1-9])$
           format: canonical-decimal
         date:
           type: string
@@ -16877,7 +17021,7 @@ components:
               $ref: '#/components/schemas/RuntimeManifestDocumentInstant'
             timeZone:
               type: string
-              pattern: ^[A-Za-z]+(?:[_+-][A-Za-z]+)*(?:/[A-Za-z_+-]+)+$
+              pattern: ^(?:UTC|[A-Za-z]+(?:[_+-][A-Za-z]+)*(?:/[A-Za-z_+-]+)+)$
           required:
           - instant
           - timeZone
@@ -16958,7 +17102,7 @@ components:
       format: canonical-int64
     RuntimeManifestDocumentDecimal:
       type: string
-      pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$
+      pattern: ^(?:0|[1-9][0-9]*(?:\.[0-9]*[1-9])?|-[1-9][0-9]*(?:\.[0-9]*[1-9])?|-0\.[0-9]*[1-9])$
       format: canonical-decimal
     RuntimeManifestDocumentDate:
       type: string
@@ -17001,7 +17145,7 @@ components:
           $ref: '#/components/schemas/RuntimeManifestDocumentInstant'
         timeZone:
           type: string
-          pattern: ^[A-Za-z]+(?:[_+-][A-Za-z]+)*(?:/[A-Za-z_+-]+)+$
+          pattern: ^(?:UTC|[A-Za-z]+(?:[_+-][A-Za-z]+)*(?:/[A-Za-z_+-]+)+)$
       required:
       - instant
       - timeZone
@@ -17166,7 +17310,7 @@ components:
           format: canonical-int64
         decimal:
           type: string
-          pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]+)?$
+          pattern: ^(?:0(?:\.[0-9]+)?|[1-9][0-9]*(?:\.[0-9]+)?|-[1-9][0-9]*(?:\.[0-9]+)?|-0\.[0-9]*[1-9][0-9]*)$
           format: stored-decimal
         date:
           type: string
@@ -17209,7 +17353,7 @@ components:
               $ref: '#/components/schemas/SubmissionEnvelopeDocumentInstant'
             timeZone:
               type: string
-              pattern: ^[A-Za-z]+(?:[_+-][A-Za-z]+)*(?:/[A-Za-z_+-]+)+$
+              pattern: ^(?:UTC|[A-Za-z]+(?:[_+-][A-Za-z]+)*(?:/[A-Za-z_+-]+)+)$
           required:
           - instant
           - timeZone
@@ -17337,11 +17481,11 @@ components:
           - contractVersion
         decimalStorage:
           type: string
-          pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]+)?$
+          pattern: ^(?:0(?:\.[0-9]+)?|[1-9][0-9]*(?:\.[0-9]+)?|-[1-9][0-9]*(?:\.[0-9]+)?|-0\.[0-9]*[1-9][0-9]*)$
           format: stored-decimal
         decimalResult:
           type: string
-          pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$
+          pattern: ^(?:0|[1-9][0-9]*(?:\.[0-9]*[1-9])?|-[1-9][0-9]*(?:\.[0-9]*[1-9])?|-0\.[0-9]*[1-9])$
           format: canonical-decimal
         extensionValue:
           type: object
@@ -17380,7 +17524,7 @@ components:
       format: canonical-int64
     SubmissionEnvelopeDocumentDecimal:
       type: string
-      pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]+)?$
+      pattern: ^(?:0(?:\.[0-9]+)?|[1-9][0-9]*(?:\.[0-9]+)?|-[1-9][0-9]*(?:\.[0-9]+)?|-0\.[0-9]*[1-9][0-9]*)$
       format: stored-decimal
     SubmissionEnvelopeDocumentDate:
       type: string
@@ -17423,7 +17567,7 @@ components:
           $ref: '#/components/schemas/SubmissionEnvelopeDocumentInstant'
         timeZone:
           type: string
-          pattern: ^[A-Za-z]+(?:[_+-][A-Za-z]+)*(?:/[A-Za-z_+-]+)+$
+          pattern: ^(?:UTC|[A-Za-z]+(?:[_+-][A-Za-z]+)*(?:/[A-Za-z_+-]+)+)$
       required:
       - instant
       - timeZone
@@ -17551,11 +17695,11 @@ components:
       - contractVersion
     SubmissionEnvelopeDocumentDecimalStorage:
       type: string
-      pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]+)?$
+      pattern: ^(?:0(?:\.[0-9]+)?|[1-9][0-9]*(?:\.[0-9]+)?|-[1-9][0-9]*(?:\.[0-9]+)?|-0\.[0-9]*[1-9][0-9]*)$
       format: stored-decimal
     SubmissionEnvelopeDocumentDecimalResult:
       type: string
-      pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$
+      pattern: ^(?:0|[1-9][0-9]*(?:\.[0-9]*[1-9])?|-[1-9][0-9]*(?:\.[0-9]*[1-9])?|-0\.[0-9]*[1-9])$
       format: canonical-decimal
     SubmissionEnvelopeDocumentExtensionValue:
       type: object
@@ -17745,7 +17889,7 @@ components:
           format: canonical-int64
         decimal:
           type: string
-          pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$
+          pattern: ^(?:0|[1-9][0-9]*(?:\.[0-9]*[1-9])?|-[1-9][0-9]*(?:\.[0-9]*[1-9])?|-0\.[0-9]*[1-9])$
           format: canonical-decimal
         date:
           type: string
@@ -17788,7 +17932,7 @@ components:
               $ref: '#/components/schemas/EventDocumentInstant'
             timeZone:
               type: string
-              pattern: ^[A-Za-z]+(?:[_+-][A-Za-z]+)*(?:/[A-Za-z_+-]+)+$
+              pattern: ^(?:UTC|[A-Za-z]+(?:[_+-][A-Za-z]+)*(?:/[A-Za-z_+-]+)+)$
           required:
           - instant
           - timeZone
@@ -17849,7 +17993,7 @@ components:
       format: canonical-int64
     EventDocumentDecimal:
       type: string
-      pattern: ^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$
+      pattern: ^(?:0|[1-9][0-9]*(?:\.[0-9]*[1-9])?|-[1-9][0-9]*(?:\.[0-9]*[1-9])?|-0\.[0-9]*[1-9])$
       format: canonical-decimal
     EventDocumentDate:
       type: string
@@ -17892,7 +18036,7 @@ components:
           $ref: '#/components/schemas/EventDocumentInstant'
         timeZone:
           type: string
-          pattern: ^[A-Za-z]+(?:[_+-][A-Za-z]+)*(?:/[A-Za-z_+-]+)+$
+          pattern: ^(?:UTC|[A-Za-z]+(?:[_+-][A-Za-z]+)*(?:/[A-Za-z_+-]+)+)$
       required:
       - instant
       - timeZone

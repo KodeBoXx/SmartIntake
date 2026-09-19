@@ -26,22 +26,22 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
- * LoginCsrfBootstrapUpdateRequest
+ * AuthenticatedSessionUpdateRequest
  */
 @JsonPropertyOrder({
-  LoginCsrfBootstrapUpdateRequest.JSON_PROPERTY_NAME
+  AuthenticatedSessionUpdateRequest.JSON_PROPERTY_NAME
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class LoginCsrfBootstrapUpdateRequest extends HashMap<String, Object> {
+public class AuthenticatedSessionUpdateRequest extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_NAME = "name";
   @jakarta.annotation.Nonnull
   private String name;
 
-  public LoginCsrfBootstrapUpdateRequest() {
+  public AuthenticatedSessionUpdateRequest() {
 
   }
 
-  public LoginCsrfBootstrapUpdateRequest name(@jakarta.annotation.Nonnull String name) {
+  public AuthenticatedSessionUpdateRequest name(@jakarta.annotation.Nonnull String name) {
     
     this.name = name;
     return this;
@@ -74,8 +74,8 @@ public class LoginCsrfBootstrapUpdateRequest extends HashMap<String, Object> {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    LoginCsrfBootstrapUpdateRequest loginCsrfBootstrapUpdateRequest = (LoginCsrfBootstrapUpdateRequest) o;
-    return Objects.equals(this.name, loginCsrfBootstrapUpdateRequest.name) &&
+    AuthenticatedSessionUpdateRequest authenticatedSessionUpdateRequest = (AuthenticatedSessionUpdateRequest) o;
+    return Objects.equals(this.name, authenticatedSessionUpdateRequest.name) &&
         super.equals(o);
   }
 
@@ -87,7 +87,7 @@ public class LoginCsrfBootstrapUpdateRequest extends HashMap<String, Object> {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class LoginCsrfBootstrapUpdateRequest {\n");
+    sb.append("class AuthenticatedSessionUpdateRequest {\n");
     sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("}");

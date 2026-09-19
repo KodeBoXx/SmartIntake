@@ -262,30 +262,44 @@ paths:
         source: docs/source-handoff/smart-form-builder-lite-prd-v1.1/Authentication-and-Administration.md
       x-authorization:
         roles:
-        - anonymous.login-csrf.bootstrap
-        tenantScope: anonymous
+        - staff.session.self
+        tenantScope: account-session
       x-implementation-status: contract-published
       responses:
         '200':
           description: Successful response.
           headers:
-            Set-Cookie:
-              $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/headers/LoginCsrfSetCookie
+            ETag:
+              $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/headers/ETag
           content:
             application/json:
               schema:
-                $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/schemas/LoginCsrfBootstrapResponse
+                $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/schemas/AuthenticatedSessionResponse
               examples:
                 success:
                   value:
                     requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
-                    loginCsrfBootstrap:
-                      csrfToken: login-csrf-01J2W5RFR3K24SFWDX2C0N9VW3
-                      expiresAt: '2026-09-18T00:05:00Z'
+                    authenticatedSession:
+                      safeIdentity:
+                        accountId: account-01J2W5RFR3K24SFWDX2C0N9VW3
+                        username: author@example.test
+                        displayName: A. Author
+                      activationState: active
+                      accountStatus: active
+                      organizations:
+                      - organizationId: organization-01J2W5RFR3K24SFWDX2C0N9VW3
+                        name: Example organization
+                        membershipState: active
+                        workspaces:
+                        - workspaceId: workspace-01J2W5RFR3K24SFWDX2C0N9VW3
+                          name: Research
+                          roles:
+                          - author
+                      currentOrganizationId: organization-01J2W5RFR3K24SFWDX2C0N9VW3
         '400':
           $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/responses/BadRequest
         '401':
-          $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/responses/Unauthenticated
+          $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/responses/UnauthenticatedLoginCsrf
         '403':
           $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/responses/Forbidden
         '404':
@@ -294,10 +308,13 @@ paths:
           $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/responses/RateLimited
         '500':
           $ref: ../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/responses/InternalError
+      security:
+      - staffCookie: []
       x-replay: Authentication proofs are operation-specific and one-time where applicable; retries never replay credentials,
         tokens, cookies, reset links, activation links or transfer capabilities.
-      x-login-csrf-bootstrap: Anonymous bootstrap issues one short-lived one-time token and its bound Secure, HttpOnly, SameSite=Strict
-        cookie; a consumed or expired token requires a fresh bootstrap response.
+      x-login-csrf-bootstrap: The unauthenticated 401 response issues one short-lived one-time X-Login-CSRF-Token header and
+        its bound Secure, HttpOnly, SameSite=Strict cookie; a consumed or expired token requires a fresh unauthenticated session
+        response.
   /v1/auth/sign-in:
     post:
       operationId: ON-post-v1-auth-sign-in-7c9d8ac3a9

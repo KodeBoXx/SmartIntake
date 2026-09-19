@@ -1280,15 +1280,37 @@ export interface components {
             resetToken: string;
             newPassword: string;
         };
-        /** @description One-time anonymous login-CSRF token bound to the smartintake_login_csrf cookie. */
-        LoginCsrfBootstrap: {
-            csrfToken: string;
-            /** Format: date-time */
-            expiresAt: string;
+        /** @description Safe staff identity; it excludes passwords, hashes, bearer credentials and session secrets. */
+        SafeAccountIdentity: {
+            accountId: components["schemas"]["OpaqueId"];
+            username: string;
+            displayName: string;
         };
-        LoginCsrfBootstrapResponse: {
+        PermittedWorkspaceChoice: {
+            workspaceId: components["schemas"]["OpaqueId"];
+            name: string;
+            roles: ("administrator" | "author" | "reviewer" | "translator" | "publisher" | "response-viewer" | "response-exporter" | "auditor")[];
+        };
+        PermittedOrganizationChoice: {
+            organizationId: components["schemas"]["OpaqueId"];
+            name: string;
+            /** @constant */
+            membershipState: "active";
+            workspaces: components["schemas"]["PermittedWorkspaceChoice"][];
+        };
+        /** @description Authenticated safe identity, activation state and server-authorized organization/workspace choices. */
+        AuthenticatedSession: {
+            safeIdentity: components["schemas"]["SafeAccountIdentity"];
+            /** @enum {unknown} */
+            activationState: "awaiting-setup" | "active";
+            /** @constant */
+            accountStatus: "active";
+            organizations: components["schemas"]["PermittedOrganizationChoice"][];
+            currentOrganizationId: components["schemas"]["OpaqueId"] | null;
+        };
+        AuthenticatedSessionResponse: {
             requestId: components["schemas"]["OpaqueId"];
-            loginCsrfBootstrap: components["schemas"]["LoginCsrfBootstrap"];
+            authenticatedSession: components["schemas"]["AuthenticatedSession"];
         };
         SignInRequest: {
             /** Format: email */
@@ -3142,6 +3164,17 @@ export interface components {
                 "application/problem+json": components["schemas"]["Problem"];
             };
         };
+        /** @description No authenticated staff session is present. A one-time login-CSRF token and bound cookie are issued for the next sign-in attempt. */
+        UnauthenticatedLoginCsrf: {
+            headers: {
+                "X-Login-CSRF-Token": components["headers"]["LoginCsrfToken"];
+                "Set-Cookie": components["headers"]["LoginCsrfSetCookie"];
+                [name: string]: unknown;
+            };
+            content: {
+                "application/problem+json": components["schemas"]["Problem"];
+            };
+        };
         /** @description ETag is stale */
         PreconditionFailed: {
             headers: {
@@ -3171,9 +3204,9 @@ export interface components {
         };
     };
     parameters: {
-        /** @description One-time value returned by GET /v1/auth/session; it must match the server-bound login-CSRF cookie. */
+        /** @description One-time value returned in the unauthenticated GET /v1/auth/session 401 response; it must match the server-bound login-CSRF cookie. */
         LoginCsrfToken: string;
-        /** @description Secure, HttpOnly, SameSite=Strict cookie set by GET /v1/auth/session and consumed with the matching X-Login-CSRF-Token. */
+        /** @description Secure, HttpOnly, SameSite=Strict cookie set by unauthenticated GET /v1/auth/session and consumed with the matching X-Login-CSRF-Token. */
         LoginCsrfCookie: string;
         /**
          * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
@@ -3192,7 +3225,15 @@ export interface components {
         ETag: string;
         /** @description Seconds until the caller may retry a 429 response. */
         RetryAfter: number;
-        /** @description Sets smartintake_login_csrf as a Secure, HttpOnly, SameSite=Strict, short-lived cookie bound to the returned one-time token. */
+        /**
+         * @description One-time login-CSRF token issued only with an unauthenticated session response; sign-in consumes it.
+         * @example login-csrf-01J2W5RFR3K24SFWDX2C0N9VW3
+         */
+        LoginCsrfToken: string;
+        /**
+         * @description Sets smartintake_login_csrf as a Secure, HttpOnly, SameSite=Strict, short-lived cookie bound to the returned one-time token.
+         * @example smartintake_login_csrf=bound-01J2W5RFR3K24SFWDX2C0N9VW3; Secure; HttpOnly; SameSite=Strict; Path=/v1/auth
+         */
         LoginCsrfSetCookie: string;
         /** @description Content digest for immutable publication bytes. */
         Digest: string;
@@ -3341,15 +3382,15 @@ export interface operations {
             /** @description Successful response. */
             200: {
                 headers: {
-                    "Set-Cookie": components["headers"]["LoginCsrfSetCookie"];
+                    ETag: components["headers"]["ETag"];
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["LoginCsrfBootstrapResponse"];
+                    "application/json": components["schemas"]["AuthenticatedSessionResponse"];
                 };
             };
             400: components["responses"]["BadRequest"];
-            401: components["responses"]["Unauthenticated"];
+            401: components["responses"]["UnauthenticatedLoginCsrf"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             429: components["responses"]["RateLimited"];
@@ -3360,12 +3401,12 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @description One-time value returned by GET /v1/auth/session; it must match the server-bound login-CSRF cookie. */
+                /** @description One-time value returned in the unauthenticated GET /v1/auth/session 401 response; it must match the server-bound login-CSRF cookie. */
                 "X-Login-CSRF-Token": components["parameters"]["LoginCsrfToken"];
             };
             path?: never;
             cookie: {
-                /** @description Secure, HttpOnly, SameSite=Strict cookie set by GET /v1/auth/session and consumed with the matching X-Login-CSRF-Token. */
+                /** @description Secure, HttpOnly, SameSite=Strict cookie set by unauthenticated GET /v1/auth/session and consumed with the matching X-Login-CSRF-Token. */
                 smartintake_login_csrf: components["parameters"]["LoginCsrfCookie"];
             };
         };

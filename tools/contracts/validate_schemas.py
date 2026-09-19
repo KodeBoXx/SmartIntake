@@ -40,7 +40,7 @@ def is_canonical_int64(value: object) -> bool:
 def is_canonical_decimal(value: object) -> bool:
     if not isinstance(value, str):
         return False
-    return bool(re.fullmatch(r"(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?", value)) and decimal_is_bounded(value)
+    return bool(re.fullmatch(r"(?:0|[1-9][0-9]*(?:\.[0-9]*[1-9])?|-[1-9][0-9]*(?:\.[0-9]*[1-9])?|-0\.[0-9]*[1-9])", value)) and decimal_is_bounded(value)
 
 
 @FORMAT_CHECKER.checks("stored-decimal")
@@ -48,7 +48,7 @@ def is_stored_decimal(value: object) -> bool:
     """Destination values retain declared scale, unlike expression results."""
     if not isinstance(value, str):
         return False
-    return bool(re.fullmatch(r"(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]+)?", value)) and decimal_is_bounded(value)
+    return bool(re.fullmatch(r"(?:0(?:\.[0-9]+)?|[1-9][0-9]*(?:\.[0-9]+)?|-[1-9][0-9]*(?:\.[0-9]+)?|-0\.[0-9]*[1-9][0-9]*)", value)) and decimal_is_bounded(value)
 
 
 @FORMAT_CHECKER.checks("expression-decimal-input")
@@ -277,6 +277,18 @@ def main() -> int:
             for value in decimal_formats[name]["invalid"]:
                 if not list(decimal_validator.iter_errors(value)):
                     failures.append(f"decimal {name} should reject {value!r}")
+        timezone_fixture = load_json(CONTRACT_ROOT / "fixtures/timezone-utc.json")
+        for kind, schema in schemas.items():
+            date_time_validator = Draft202012Validator(
+                {"$ref": "#/$defs/dateTime", "$defs": schema["$defs"]}, format_checker=FORMAT_CHECKER
+            )
+            for time_zone in (timezone_fixture["valid"], timezone_fixture["alsoValid"]):
+                if list(date_time_validator.iter_errors({"instant": "2026-09-05T10:00:00Z", "timeZone": time_zone})):
+                    failures.append(f"{kind} dateTime should accept time zone {time_zone!r}")
+            if not list(date_time_validator.iter_errors({"instant": "2026-09-05T10:00:00Z", "timeZone": timezone_fixture["invalid"]})):
+                failures.append(f"{kind} dateTime should reject a non-IANA time zone")
+        if schemas["package"].get("x-controlCompatibility", {}).get("shortText") != ["text"]:
+            failures.append("package shortText control must declare text compatibility")
         event_coverage = load_json(CONTRACT_ROOT / "fixtures/event-type-coverage.positive.json")
         for event in event_coverage:
             if list(validators["event"].iter_errors(event)):

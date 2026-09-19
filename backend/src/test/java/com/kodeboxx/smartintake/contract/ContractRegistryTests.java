@@ -80,7 +80,12 @@ class ContractRegistryTests {
       assertThat(registry.validate("expression", "4.0.0", json.readTree("{\"literal\":{\"type\":\"" + type + "\",\"value\":\"" + value + "\"}}"))).matches(result -> !result.valid());
     }
     assertThat(registry.validate("expression", "4.0.0", json.readTree("{\"literal\":{\"type\":\"decimal\",\"value\":\"12.50\"}}"))).matches(ContractRegistry.ValidationResult::valid);
+    assertThat(registry.validate("expression", "4.0.0", json.readTree("{\"literal\":{\"type\":\"decimal\",\"value\":\"-0.5\"}}"))).matches(ContractRegistry.ValidationResult::valid);
     assertThat(registry.validate("expression", "4.0.0", json.readTree("{\"literal\":{\"type\":\"decimal\",\"value\":\"1234567890123456789012345678901234\"}}"))).matches(ContractRegistry.ValidationResult::valid);
+    assertThat(registry.validate("expression", "4.0.0", json.readTree("{\"literal\":{\"type\":\"dateTime\",\"value\":{\"instant\":\"2026-02-28T10:00:00Z\",\"timeZone\":\"UTC\"}}}")).valid()).isTrue();
+    JsonNode negativeStoredZero = json.readTree(Files.readString(Path.of("../docs/contracts/smart-form-builder-lite/4.0.0/fixtures/typed-answer.positive.json")));
+    ((com.fasterxml.jackson.databind.node.ObjectNode) negativeStoredZero.at("/value/items/0/fields/amount")).put("value", "-0.00");
+    assertThat(registry.validate("typed-answer", "4.0.0", negativeStoredZero).valid()).isFalse();
     for (String value : new String[] {"12:30:00", "12:30:00.123456789"}) {
       assertThat(registry.validate("expression", "4.0.0", json.readTree("{\"literal\":{\"type\":\"time\",\"value\":\"" + value + "\"}}")))
           .matches(ContractRegistry.ValidationResult::valid);

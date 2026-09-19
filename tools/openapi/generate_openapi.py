@@ -43,7 +43,7 @@ def roles_and_scope(method: str, path: str) -> tuple[list[str], str, list[dict[s
     if path == "/v1/capabilities" or path.startswith("/v1/schemas/"):
         return ["public.contract.read"], "public", []
     if path == "/v1/auth/session":
-        return ["anonymous.login-csrf.bootstrap"], "anonymous", []
+        return ["staff.session.self"], "account-session", STAFF_SECURITY
     if path.startswith("/v1/public/"):
         return ["public.share.start"], "share-bound", []
     if path.startswith("/v1/sessions/"):
@@ -106,7 +106,7 @@ def path_parameters(path: str) -> list[dict[str, Any]]:
 def resource_for(path: str) -> str:
     if path == "/v1/capabilities": return "CapabilityRegistry"
     if path.startswith("/v1/schemas/"): return "PublishedSchema"
-    if path == "/v1/auth/session": return "LoginCsrfBootstrap"
+    if path == "/v1/auth/session": return "AuthenticatedSession"
     if "/assets/" in path: return "AuthorizedAsset"
     if path == "/v1/organizations/{o}/users/{u}/recovery": return "OrganizationRecovery"
     if path == "/v1/platform/accounts/{a}/recovery": return "PlatformRecovery"
@@ -236,8 +236,19 @@ def resource_example(resource: str) -> dict[str, Any]:
     now = "2026-09-18T00:00:00Z"
     if resource == "AuthorizedAsset":
         return {"id": "authorizedasset-01J2W5RFR3K24SFWDX2C0N9VW3", "downloadUrl": "https://transfer.example.test/assets/asset-01J2W5RFR3K24SFWDX2C0N9VW3?capability=redacted", "expiresAt": "2026-09-18T00:05:00Z", "contentType": "application/pdf"}
-    if resource == "LoginCsrfBootstrap":
-        return {"csrfToken": "login-csrf-01J2W5RFR3K24SFWDX2C0N9VW3", "expiresAt": "2026-09-18T00:05:00Z"}
+    if resource == "AuthenticatedSession":
+        return {
+            "safeIdentity": {"accountId": "account-01J2W5RFR3K24SFWDX2C0N9VW3", "username": "author@example.test", "displayName": "A. Author"},
+            "activationState": "active",
+            "accountStatus": "active",
+            "organizations": [{
+                "organizationId": "organization-01J2W5RFR3K24SFWDX2C0N9VW3",
+                "name": "Example organization",
+                "membershipState": "active",
+                "workspaces": [{"workspaceId": "workspace-01J2W5RFR3K24SFWDX2C0N9VW3", "name": "Research", "roles": ["author"]}],
+            }],
+            "currentOrganizationId": "organization-01J2W5RFR3K24SFWDX2C0N9VW3",
+        }
     value: dict[str, Any] = {"id": f"{resource.lower()}-01J2W5RFR3K24SFWDX2C0N9VW3", "kind": resource, "revision": 7, "status": "active", "createdAt": now, "updatedAt": now}
     extras: dict[str, dict[str, Any]] = {
         "Form": {"formKey": "example-form", "title": "Example form"}, "Draft": {"formId": "form-01J2W5RFR3K24SFWDX2C0N9VW3", "packageHash": "0" * 64},
@@ -278,12 +289,31 @@ def resource_schemas() -> dict[str, Any]:
         "OrganizationRecovery": {"safeDelivery": {"enum": ["verified-email", "administrator-assisted"]}, "revocation": {"const": "sessions-revoked"}, "ownerSafety": {"const": "confirmed"}, "idempotencyReplay": {"const": "redacted"}},
         "PlatformRecovery": {"safeDelivery": {"enum": ["verified-email", "manual-security-review"]}, "revocation": {"const": "sessions-revoked"}, "ownerSafety": {"const": "confirmed"}, "idempotencyReplay": {"const": "redacted"}},
     })
+    safe_identity = closed(
+        ["accountId", "username", "displayName"],
+        {"accountId": {"$ref": "#/components/schemas/OpaqueId"}, "username": {"type": "string", "minLength": 1, "maxLength": 320}, "displayName": {"type": "string", "minLength": 1, "maxLength": 120}},
+        "Safe staff identity; it excludes passwords, hashes, bearer credentials and session secrets.",
+    )
+    workspace_choice = closed(
+        ["workspaceId", "name", "roles"],
+        {"workspaceId": {"$ref": "#/components/schemas/OpaqueId"}, "name": {"type": "string", "minLength": 1, "maxLength": 160}, "roles": {"type": "array", "minItems": 1, "items": {"enum": ["administrator", "author", "reviewer", "translator", "publisher", "response-viewer", "response-exporter", "auditor"]}}},
+    )
+    organization_choice = closed(
+        ["organizationId", "name", "membershipState", "workspaces"],
+        {"organizationId": {"$ref": "#/components/schemas/OpaqueId"}, "name": {"type": "string", "minLength": 1, "maxLength": 160}, "membershipState": {"const": "active"}, "workspaces": {"type": "array", "items": {"$ref": "#/components/schemas/PermittedWorkspaceChoice"}}},
+    )
+    authenticated_session = closed(
+        ["safeIdentity", "activationState", "accountStatus", "organizations", "currentOrganizationId"],
+        {"safeIdentity": {"$ref": "#/components/schemas/SafeAccountIdentity"}, "activationState": {"enum": ["awaiting-setup", "active"]}, "accountStatus": {"const": "active"}, "organizations": {"type": "array", "items": {"$ref": "#/components/schemas/PermittedOrganizationChoice"}}, "currentOrganizationId": {"anyOf": [{"$ref": "#/components/schemas/OpaqueId"}, {"type": "null"}]}},
+        "Authenticated safe identity, activation state and server-authorized organization/workspace choices.",
+    )
+    authenticated_session["if"] = {"properties": {"activationState": {"const": "awaiting-setup"}}, "required": ["activationState"]}
+    authenticated_session["then"] = {"properties": {"organizations": {"maxItems": 0}, "currentOrganizationId": {"type": "null"}}}
     result: dict[str, Any] = {
-        "LoginCsrfBootstrap": closed(
-            ["csrfToken", "expiresAt"],
-            {"csrfToken": {"type": "string", "minLength": 24}, "expiresAt": {"type": "string", "format": "date-time"}},
-            "One-time anonymous login-CSRF token bound to the smartintake_login_csrf cookie.",
-        ),
+        "SafeAccountIdentity": safe_identity,
+        "PermittedWorkspaceChoice": workspace_choice,
+        "PermittedOrganizationChoice": organization_choice,
+        "AuthenticatedSession": authenticated_session,
     }
     for name, extra in extras.items():
         props = dict(base); props["kind"] = {"const": name}; props.update(extra)
@@ -344,10 +374,11 @@ def build_components(members: list[dict[str, Any]]) -> dict[str, Any]:
 
     component_definitions = component_bundle["components"]
     component_definitions["parameters"].update({
-        "LoginCsrfToken": {"name": "X-Login-CSRF-Token", "in": "header", "required": True, "schema": {"type": "string", "minLength": 24}, "description": "One-time value returned by GET /v1/auth/session; it must match the server-bound login-CSRF cookie."},
-        "LoginCsrfCookie": {"name": "smartintake_login_csrf", "in": "cookie", "required": True, "schema": {"type": "string", "minLength": 24}, "description": "Secure, HttpOnly, SameSite=Strict cookie set by GET /v1/auth/session and consumed with the matching X-Login-CSRF-Token."},
+        "LoginCsrfToken": {"name": "X-Login-CSRF-Token", "in": "header", "required": True, "schema": {"type": "string", "minLength": 24}, "description": "One-time value returned in the unauthenticated GET /v1/auth/session 401 response; it must match the server-bound login-CSRF cookie."},
+        "LoginCsrfCookie": {"name": "smartintake_login_csrf", "in": "cookie", "required": True, "schema": {"type": "string", "minLength": 24}, "description": "Secure, HttpOnly, SameSite=Strict cookie set by unauthenticated GET /v1/auth/session and consumed with the matching X-Login-CSRF-Token."},
     })
-    component_definitions["headers"]["LoginCsrfSetCookie"] = {"schema": {"type": "string"}, "description": "Sets smartintake_login_csrf as a Secure, HttpOnly, SameSite=Strict, short-lived cookie bound to the returned one-time token."}
+    component_definitions["headers"]["LoginCsrfToken"] = {"schema": {"type": "string", "minLength": 24}, "example": "login-csrf-01J2W5RFR3K24SFWDX2C0N9VW3", "description": "One-time login-CSRF token issued only with an unauthenticated session response; sign-in consumes it."}
+    component_definitions["headers"]["LoginCsrfSetCookie"] = {"schema": {"type": "string"}, "example": "smartintake_login_csrf=bound-01J2W5RFR3K24SFWDX2C0N9VW3; Secure; HttpOnly; SameSite=Strict; Path=/v1/auth", "description": "Sets smartintake_login_csrf as a Secure, HttpOnly, SameSite=Strict, short-lived cookie bound to the returned one-time token."}
     return component_bundle
 
 
@@ -367,6 +398,11 @@ def add_problem_responses(components: dict[str, Any]) -> None:
         if status == 429:
             response["headers"] = {"Retry-After": {"$ref": "#/components/headers/RetryAfter"}}
         components["components"]["responses"][name] = response
+    components["components"]["responses"]["UnauthenticatedLoginCsrf"] = {
+        "description": "No authenticated staff session is present. A one-time login-CSRF token and bound cookie are issued for the next sign-in attempt.",
+        "headers": {"X-Login-CSRF-Token": {"$ref": "#/components/headers/LoginCsrfToken"}, "Set-Cookie": {"$ref": "#/components/headers/LoginCsrfSetCookie"}},
+        "content": {"application/problem+json": {"schema": {"$ref": "#/components/schemas/Problem"}, "examples": {"anonymousLoginCsrf": {"value": {"type": "https://api.smartintake.invalid/problems/unauthenticated", "title": "Authentication is required", "status": 401, "code": "LOGIN_REQUIRED", "detail": "Sign in with the one-time login-CSRF token and bound cookie issued in this response.", "requestId": "req-01J2W5RFR3K24SFWDX2C0N9VW3", "errors": []}}}}},
+    }
 
 
 def success_content(resource: str, path: str, method: str, components: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
@@ -382,7 +418,6 @@ def success_content(resource: str, path: str, method: str, components: dict[str,
     else:
         example = {"requestId": "req-01J2W5RFR3K24SFWDX2C0N9VW3", resource[0].lower() + resource[1:]: resource_example(resource)}
     headers = {"ETag": ref("headers", "ETag")}
-    if path == "/v1/auth/session": headers = {"Set-Cookie": ref("headers", "LoginCsrfSetCookie")}
     return {"application/json": {"schema": ref("schemas", name), "examples": {"success": {"value": example}}}}, headers
 
 
@@ -398,6 +433,7 @@ def operation(member: dict[str, Any], components: dict[str, Any], counted: bool 
     if path == "/v1/auth/sign-in": params += [ref("parameters", "LoginCsrfToken"), ref("parameters", "LoginCsrfCookie")]
     content, headers = success_content(resource, path, method, components)
     responses: dict[str, Any] = {status: {"description": "Successful response.", **({"headers": headers} if headers else {}), "content": {} if status == "204" else content}, "400": ref("responses", "BadRequest"), "401": ref("responses", "Unauthenticated"), "403": ref("responses", "Forbidden"), "404": ref("responses", "NotFound"), "429": ref("responses", "RateLimited"), "500": ref("responses", "InternalError")}
+    if path == "/v1/auth/session": responses["401"] = ref("responses", "UnauthenticatedLoginCsrf")
     if is_mutation(method): responses.update({"409": ref("responses", "Conflict"), "422": ref("responses", "Unprocessable")})
     if needs_etag(method, path): responses.update({"412": ref("responses", "PreconditionFailed"), "428": ref("responses", "PreconditionRequired")})
     if path.startswith("/v1/sessions/") or path.startswith("/v1/public/"): responses["410"] = ref("responses", "Gone")
@@ -420,7 +456,7 @@ def operation(member: dict[str, Any], components: dict[str, Any], counted: bool 
     if path == "/v1/auth/sign-in":
         result["x-login-csrf-origin-protection"] = "Validate an allow-listed Origin and a one-time login-CSRF token before issuing a SameSite, HttpOnly staff cookie."
     if path == "/v1/auth/session":
-        result["x-login-csrf-bootstrap"] = "Anonymous bootstrap issues one short-lived one-time token and its bound Secure, HttpOnly, SameSite=Strict cookie; a consumed or expired token requires a fresh bootstrap response."
+        result["x-login-csrf-bootstrap"] = "The unauthenticated 401 response issues one short-lived one-time X-Login-CSRF-Token header and its bound Secure, HttpOnly, SameSite=Strict cookie; a consumed or expired token requires a fresh unauthenticated session response."
     if collection_response(path, method):
         result["x-pagination"] = "Results use a stable total order and a snapshot cursor: no duplicate items, no missing items, and deterministic continuation while the cursor is valid."
     if needs_etag(method, path): result["x-concurrency"] = "Strong ETag and If-Match are required; missing is 428, stale is 412."

@@ -20,31 +20,31 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.kodeboxx.smartintake.generated.contract.LoginCsrfBootstrap;
+import com.kodeboxx.smartintake.generated.contract.AuthenticatedSession;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
- * LoginCsrfBootstrapResponse
+ * AuthenticatedSessionResponse
  */
 @JsonPropertyOrder({
-  LoginCsrfBootstrapResponse.JSON_PROPERTY_REQUEST_ID,
-  LoginCsrfBootstrapResponse.JSON_PROPERTY_LOGIN_CSRF_BOOTSTRAP
+  AuthenticatedSessionResponse.JSON_PROPERTY_REQUEST_ID,
+  AuthenticatedSessionResponse.JSON_PROPERTY_AUTHENTICATED_SESSION
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class LoginCsrfBootstrapResponse {
+public class AuthenticatedSessionResponse {
   public static final String JSON_PROPERTY_REQUEST_ID = "requestId";
   @jakarta.annotation.Nonnull
   private String requestId;
 
-  public static final String JSON_PROPERTY_LOGIN_CSRF_BOOTSTRAP = "loginCsrfBootstrap";
+  public static final String JSON_PROPERTY_AUTHENTICATED_SESSION = "authenticatedSession";
   @jakarta.annotation.Nonnull
-  private LoginCsrfBootstrap loginCsrfBootstrap;
+  private AuthenticatedSession authenticatedSession;
 
-  public LoginCsrfBootstrapResponse() {
+  public AuthenticatedSessionResponse() {
   }
 
-  public LoginCsrfBootstrapResponse requestId(@jakarta.annotation.Nonnull String requestId) {
+  public AuthenticatedSessionResponse requestId(@jakarta.annotation.Nonnull String requestId) {
     
     this.requestId = requestId;
     return this;
@@ -69,29 +69,29 @@ public class LoginCsrfBootstrapResponse {
     this.requestId = requestId;
   }
 
-  public LoginCsrfBootstrapResponse loginCsrfBootstrap(@jakarta.annotation.Nonnull LoginCsrfBootstrap loginCsrfBootstrap) {
+  public AuthenticatedSessionResponse authenticatedSession(@jakarta.annotation.Nonnull AuthenticatedSession authenticatedSession) {
     
-    this.loginCsrfBootstrap = loginCsrfBootstrap;
+    this.authenticatedSession = authenticatedSession;
     return this;
   }
 
   /**
-   * Get loginCsrfBootstrap
-   * @return loginCsrfBootstrap
+   * Get authenticatedSession
+   * @return authenticatedSession
    */
   @jakarta.annotation.Nonnull
-  @JsonProperty(JSON_PROPERTY_LOGIN_CSRF_BOOTSTRAP)
+  @JsonProperty(JSON_PROPERTY_AUTHENTICATED_SESSION)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public LoginCsrfBootstrap getLoginCsrfBootstrap() {
-    return loginCsrfBootstrap;
+  public AuthenticatedSession getAuthenticatedSession() {
+    return authenticatedSession;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_LOGIN_CSRF_BOOTSTRAP)
+  @JsonProperty(JSON_PROPERTY_AUTHENTICATED_SESSION)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setLoginCsrfBootstrap(@jakarta.annotation.Nonnull LoginCsrfBootstrap loginCsrfBootstrap) {
-    this.loginCsrfBootstrap = loginCsrfBootstrap;
+  public void setAuthenticatedSession(@jakarta.annotation.Nonnull AuthenticatedSession authenticatedSession) {
+    this.authenticatedSession = authenticatedSession;
   }
 
   @Override
@@ -102,22 +102,22 @@ public class LoginCsrfBootstrapResponse {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    LoginCsrfBootstrapResponse loginCsrfBootstrapResponse = (LoginCsrfBootstrapResponse) o;
-    return Objects.equals(this.requestId, loginCsrfBootstrapResponse.requestId) &&
-        Objects.equals(this.loginCsrfBootstrap, loginCsrfBootstrapResponse.loginCsrfBootstrap);
+    AuthenticatedSessionResponse authenticatedSessionResponse = (AuthenticatedSessionResponse) o;
+    return Objects.equals(this.requestId, authenticatedSessionResponse.requestId) &&
+        Objects.equals(this.authenticatedSession, authenticatedSessionResponse.authenticatedSession);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(requestId, loginCsrfBootstrap);
+    return Objects.hash(requestId, authenticatedSession);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class LoginCsrfBootstrapResponse {\n");
+    sb.append("class AuthenticatedSessionResponse {\n");
     sb.append("    requestId: ").append(toIndentedString(requestId)).append("\n");
-    sb.append("    loginCsrfBootstrap: ").append(toIndentedString(loginCsrfBootstrap)).append("\n");
+    sb.append("    authenticatedSession: ").append(toIndentedString(authenticatedSession)).append("\n");
     sb.append("}");
     return sb.toString();
   }

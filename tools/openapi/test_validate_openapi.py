@@ -52,6 +52,22 @@ class OpenApiInventoryValidationTests(unittest.TestCase):
         errors = validator.validate(check_generated=False)
         self.assertTrue(any("success response" in error and "example is invalid" in error for error in errors), errors)
 
+    def test_session_contract_keeps_authenticated_200_and_anonymous_login_csrf_401(self) -> None:
+        document = validator.load_yaml(self.api)
+        components = validator.load_yaml(self.components)
+        session = document["paths"]["/v1/auth/session"]["get"]
+        success = session["responses"]["200"]
+        success_ref = success["content"]["application/json"]["schema"]["$ref"]
+        success_example = success["content"]["application/json"]["examples"]["success"]["value"]["authenticatedSession"]
+        self.assertTrue(success_ref.endswith("/schemas/AuthenticatedSessionResponse"))
+        self.assertEqual("active", success_example["activationState"])
+        self.assertEqual("author", success_example["organizations"][0]["workspaces"][0]["roles"][0])
+        self.assertTrue(session["responses"]["401"]["$ref"].endswith("/responses/UnauthenticatedLoginCsrf"))
+        anonymous = components["components"]["responses"]["UnauthenticatedLoginCsrf"]
+        self.assertTrue(anonymous["headers"]["X-Login-CSRF-Token"]["$ref"].endswith("/headers/LoginCsrfToken"))
+        self.assertTrue(anonymous["headers"]["Set-Cookie"]["$ref"].endswith("/headers/LoginCsrfSetCookie"))
+        self.assertEqual(401, anonymous["content"]["application/problem+json"]["examples"]["anonymousLoginCsrf"]["value"]["status"])
+
 
 if __name__ == "__main__":
     unittest.main()

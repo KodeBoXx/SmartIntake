@@ -99,12 +99,12 @@ public final class ContractRegistry {
   }
 
   private static boolean isCanonicalDecimal(String value) {
-    if (!value.matches("^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\\.[0-9]*[1-9])?$")) return false;
+    if (!value.matches("^(?:0|[1-9][0-9]*(?:\\.[0-9]*[1-9])?|-[1-9][0-9]*(?:\\.[0-9]*[1-9])?|-0\\.[0-9]*[1-9])$")) return false;
     return decimalIsBounded(value);
   }
 
   private static boolean isStoredDecimal(String value) {
-    if (!value.matches("^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\\.[0-9]+)?$")) return false;
+    if (!value.matches("^(?:0(?:\\.[0-9]+)?|[1-9][0-9]*(?:\\.[0-9]+)?|-[1-9][0-9]*(?:\\.[0-9]+)?|-0\\.[0-9]*[1-9][0-9]*)$")) return false;
     return decimalIsBounded(value);
   }
 

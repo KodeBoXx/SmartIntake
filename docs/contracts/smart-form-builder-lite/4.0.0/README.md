@@ -31,7 +31,8 @@ dependency; extensions are therefore not an unrestricted escape hatch.
 
 - `schemaVersion`, `contractVersion`, and `engineContract` are exactly `4.0.0`.
 - Integers use canonical signed-int64 decimal strings. Destination decimal
-  storage preserves declared scale (for example, `"12.50"`) and rejects
+  storage preserves declared scale (for example, `"12.50"`) and accepts
+  nonzero negative fractions (for example, `"-0.50"`), while rejecting
   negative zero, exponent, and leading-plus encodings. Expression decimal
   input is distinct: `"-0.000"` is valid input and evaluates to canonical
   `"0"`. Exact expression results reject negative zero and redundant trailing
@@ -39,7 +40,8 @@ dependency; extensions are therefore not an unrestricted escape hatch.
   digits and the inclusive adjusted-exponent range `-6143..6144`; padding and
   exact powers of ten do not consume extra significant digits.
 - Date and time values are canonical strings; date-time is the explicit
-  `{instant,timeZone}` object. UTC server timestamps use RFC 3339 `Z` form.
+  `{instant,timeZone}` object. Time zones accept `UTC` and IANA area/location
+  forms. UTC server timestamps use RFC 3339 `Z` form.
 - The six statuses are `answered`, `unanswered`, `unknown`, `declined`,
   `respondentNotApplicable`, and `notApplicable`; only `answered` carries a
   value. Input answers deliberately omit provenance, while typed envelope cells

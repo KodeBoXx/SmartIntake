@@ -1524,7 +1524,7 @@
           }
         ]
       },
-      "schemaValid": false
+      "schemaValid": true
     },
     {
       "id": "EXPR-076",

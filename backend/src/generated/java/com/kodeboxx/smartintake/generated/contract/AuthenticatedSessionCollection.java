@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.kodeboxx.smartintake.generated.contract.AccountActionCollectionPage;
-import com.kodeboxx.smartintake.generated.contract.LoginCsrfBootstrap;
+import com.kodeboxx.smartintake.generated.contract.AuthenticatedSession;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -31,32 +31,32 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
- * LoginCsrfBootstrapCollection
+ * AuthenticatedSessionCollection
  */
 @JsonPropertyOrder({
-  LoginCsrfBootstrapCollection.JSON_PROPERTY_REQUEST_ID,
-  LoginCsrfBootstrapCollection.JSON_PROPERTY_ITEMS,
-  LoginCsrfBootstrapCollection.JSON_PROPERTY_PAGE
+  AuthenticatedSessionCollection.JSON_PROPERTY_REQUEST_ID,
+  AuthenticatedSessionCollection.JSON_PROPERTY_ITEMS,
+  AuthenticatedSessionCollection.JSON_PROPERTY_PAGE
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class LoginCsrfBootstrapCollection extends HashMap<String, Object> {
+public class AuthenticatedSessionCollection extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_REQUEST_ID = "requestId";
   @jakarta.annotation.Nonnull
   private String requestId;
 
   public static final String JSON_PROPERTY_ITEMS = "items";
   @jakarta.annotation.Nonnull
-  private List<LoginCsrfBootstrap> items = new ArrayList<>();
+  private List<AuthenticatedSession> items = new ArrayList<>();
 
   public static final String JSON_PROPERTY_PAGE = "page";
   @jakarta.annotation.Nonnull
   private AccountActionCollectionPage page;
 
-  public LoginCsrfBootstrapCollection() {
+  public AuthenticatedSessionCollection() {
 
   }
 
-  public LoginCsrfBootstrapCollection requestId(@jakarta.annotation.Nonnull String requestId) {
+  public AuthenticatedSessionCollection requestId(@jakarta.annotation.Nonnull String requestId) {
     
     this.requestId = requestId;
     return this;
@@ -81,13 +81,13 @@ public class LoginCsrfBootstrapCollection extends HashMap<String, Object> {
     this.requestId = requestId;
   }
 
-  public LoginCsrfBootstrapCollection items(@jakarta.annotation.Nonnull List<LoginCsrfBootstrap> items) {
+  public AuthenticatedSessionCollection items(@jakarta.annotation.Nonnull List<AuthenticatedSession> items) {
     
     this.items = items;
     return this;
   }
 
-  public LoginCsrfBootstrapCollection addItemsItem(LoginCsrfBootstrap itemsItem) {
+  public AuthenticatedSessionCollection addItemsItem(AuthenticatedSession itemsItem) {
     if (this.items == null) {
       this.items = new ArrayList<>();
     }
@@ -103,18 +103,18 @@ public class LoginCsrfBootstrapCollection extends HashMap<String, Object> {
   @JsonProperty(JSON_PROPERTY_ITEMS)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public List<LoginCsrfBootstrap> getItems() {
+  public List<AuthenticatedSession> getItems() {
     return items;
   }
 
 
   @JsonProperty(JSON_PROPERTY_ITEMS)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setItems(@jakarta.annotation.Nonnull List<LoginCsrfBootstrap> items) {
+  public void setItems(@jakarta.annotation.Nonnull List<AuthenticatedSession> items) {
     this.items = items;
   }
 
-  public LoginCsrfBootstrapCollection page(@jakarta.annotation.Nonnull AccountActionCollectionPage page) {
+  public AuthenticatedSessionCollection page(@jakarta.annotation.Nonnull AccountActionCollectionPage page) {
     
     this.page = page;
     return this;
@@ -147,10 +147,10 @@ public class LoginCsrfBootstrapCollection extends HashMap<String, Object> {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    LoginCsrfBootstrapCollection loginCsrfBootstrapCollection = (LoginCsrfBootstrapCollection) o;
-    return Objects.equals(this.requestId, loginCsrfBootstrapCollection.requestId) &&
-        Objects.equals(this.items, loginCsrfBootstrapCollection.items) &&
-        Objects.equals(this.page, loginCsrfBootstrapCollection.page) &&
+    AuthenticatedSessionCollection authenticatedSessionCollection = (AuthenticatedSessionCollection) o;
+    return Objects.equals(this.requestId, authenticatedSessionCollection.requestId) &&
+        Objects.equals(this.items, authenticatedSessionCollection.items) &&
+        Objects.equals(this.page, authenticatedSessionCollection.page) &&
         super.equals(o);
   }
 
@@ -162,7 +162,7 @@ public class LoginCsrfBootstrapCollection extends HashMap<String, Object> {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class LoginCsrfBootstrapCollection {\n");
+    sb.append("class AuthenticatedSessionCollection {\n");
     sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    requestId: ").append(toIndentedString(requestId)).append("\n");
     sb.append("    items: ").append(toIndentedString(items)).append("\n");

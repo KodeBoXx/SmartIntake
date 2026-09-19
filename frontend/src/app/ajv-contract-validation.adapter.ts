@@ -53,11 +53,11 @@ function createAjv(): Ajv2020 {
   });
   ajv.addFormat('canonical-decimal', {
     type: 'string',
-    validate: value => /^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]*[1-9])?$/.test(value) && decimalIsBounded(value),
+    validate: value => /^(?:0|[1-9][0-9]*(?:\.[0-9]*[1-9])?|-[1-9][0-9]*(?:\.[0-9]*[1-9])?|-0\.[0-9]*[1-9])$/.test(value) && decimalIsBounded(value),
   });
   ajv.addFormat('stored-decimal', {
     type: 'string',
-    validate: value => /^(?:0|-[1-9][0-9]*|[1-9][0-9]*)(?:\.[0-9]+)?$/.test(value) && decimalIsBounded(value),
+    validate: value => /^(?:0(?:\.[0-9]+)?|[1-9][0-9]*(?:\.[0-9]+)?|-[1-9][0-9]*(?:\.[0-9]+)?|-0\.[0-9]*[1-9][0-9]*)$/.test(value) && decimalIsBounded(value),
   });
   ajv.addFormat('expression-decimal-input', {
     type: 'string',
