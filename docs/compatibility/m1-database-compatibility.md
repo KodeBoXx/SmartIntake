@@ -117,13 +117,14 @@ begin
           or (version = '6' and type = 'SQL' and script = 'V6__compatibility_reconciliation_indexes.sql' and checksum = -848544773)
           or (version = '7' and type = 'SQL' and script = 'V7__m1_current_profile_and_submission_uniqueness.sql' and checksum = -648692813)
           or (version = '8' and type = 'SQL' and script = 'V8__freeze_expression_session_context.sql' and checksum = 874801699)
-          or (version = '9' and type = 'SQL' and script = 'V9__default_frozen_session_context.sql' and checksum = 1901026173),
+          or (version = '9' and type = 'SQL' and script = 'V9__default_frozen_session_context.sql' and checksum = 1901026173)
+          or (version = '10' and type = 'SQL' and script = 'V10__bind_session_mutation_request_digest.sql' and checksum = 1365084057),
           false)
   )
-  or (select count(*) from flyway_schema_history where success) <> 9
+  or (select count(*) from flyway_schema_history where success) <> 10
   or (select count(distinct (version, type, script, checksum))
-      from flyway_schema_history where success) <> 9 then
-    raise exception 'Rollback refused: successful Flyway history is not the exact V1-V9 SQL allowlist';
+      from flyway_schema_history where success) <> 10 then
+    raise exception 'Rollback refused: successful Flyway history is not the exact V1-V10 SQL allowlist';
   end if;
   if exists (
       select 1

@@ -111,6 +111,39 @@ describe('SmartIntakeApiService', () => {
     submitted.flush({ receiptId: 'receipt-1' });
   });
 
+  it('serializes typed mutations with stable row paths and identity-based moves', () => {
+    api.patchTypedSession('session-1', 'respondent-token', 4, 'mutation-typed', [
+      { kind: 'set', target: { fieldId: 'amount' }, value: '9223372036854775807' },
+      {
+        kind: 'set',
+        target: { fieldId: 'reason', rowPath: [{ listFieldId: 'rows', itemId: 'row-a' }] },
+        answer: { status: 'declined' },
+      },
+      { kind: 'moveItem', target: { fieldId: 'rows' }, itemId: 'row-b', beforeItemId: 'row-a' },
+    ], 'page-review').subscribe();
+    const request = http.expectOne('/v1/sessions/session-1');
+    expect(request.request.method).toBe('PATCH');
+    expect(request.request.headers.get('X-Respondent-Session')).toBe('respondent-token');
+    expect(request.request.body).toEqual({
+      baseRevision: 4,
+      clientMutationId: 'mutation-typed',
+      currentPageId: 'page-review',
+      operations: [
+        { op: 'set', fieldId: 'amount', value: '9223372036854775807' },
+        {
+          op: 'set', fieldId: 'reason',
+          rowPath: [{ listFieldId: 'rows', itemId: 'row-a' }],
+          value: { status: 'declined' },
+        },
+        { op: 'moveItem', fieldId: 'rows', itemId: 'row-b', beforeItemId: 'row-a' },
+      ],
+    });
+    request.flush({
+      acceptedRevision: 5, answers: {}, validation: [], reachablePageIds: ['page-review'],
+      requiredCount: 0, completedRequiredCount: 0,
+    });
+  });
+
   it('keeps response administration paths and staff headers intact', () => {
     api.listResponses('staff-token').subscribe();
     const list = http.expectOne('/v1/workspaces/local/submissions');

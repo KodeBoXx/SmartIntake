@@ -1,19 +1,23 @@
 package com.kodeboxx.smartintake.application;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kodeboxx.smartintake.compatibility.CompatibilityProfile;
 import com.kodeboxx.smartintake.compatibility.CompatibilityProfileRegistry;
 import com.kodeboxx.smartintake.compatibility.LegacyDefinitionAdapter;
 import com.kodeboxx.smartintake.compatibility.RespondentSecretVerifier;
 import com.kodeboxx.smartintake.contract.CsvSafety;
+import com.kodeboxx.smartintake.contract.CanonicalJson;
 import com.kodeboxx.smartintake.contract.FormRuntime;
 import com.kodeboxx.smartintake.contract.PackageStamp;
 import com.kodeboxx.smartintake.contract.TimeZoneRegistry;
-import com.kodeboxx.smartintake.contract.TimeZoneRegistry;
+import com.kodeboxx.smartintake.contract.compiler.FormCompiler;
+import com.kodeboxx.smartintake.contract.runtime.TypedSessionRuntimeService;
 import com.kodeboxx.smartintake.persistence.AuditEventRepository;
 import com.kodeboxx.smartintake.security.StaffAuthorization;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -37,6 +41,8 @@ public class IntakeApplicationService {
   private final RespondentSecretVerifier respondentSecrets;
   private final CompatibilityProfileRegistry profiles;
   private final LegacyDefinitionAdapter definitions;
+  private final FormCompiler compiler;
+  private final TypedSessionRuntimeService typedRuntime;
 
   public IntakeApplicationService(
       JdbcTemplate db,
@@ -45,7 +51,9 @@ public class IntakeApplicationService {
       AuditEventRepository audits,
       RespondentSecretVerifier respondentSecrets,
       CompatibilityProfileRegistry profiles,
-      LegacyDefinitionAdapter definitions) {
+      LegacyDefinitionAdapter definitions,
+      FormCompiler compiler,
+      TypedSessionRuntimeService typedRuntime) {
     this.db = db;
     this.json = json;
     this.authorization = authorization;
@@ -53,6 +61,8 @@ public class IntakeApplicationService {
     this.respondentSecrets = respondentSecrets;
     this.profiles = profiles;
     this.definitions = definitions;
+    this.compiler = compiler;
+    this.typedRuntime = typedRuntime;
   }
 
   public record Bootstrap(
@@ -65,7 +75,15 @@ public class IntakeApplicationService {
   public record StartSession(String locale, String timeZone) {}
 
   public record PatchSession(
-      Long baseRevision, UUID clientMutationId, Map<String, Object> answers) {}
+      Long baseRevision,
+      UUID clientMutationId,
+      Map<String, Object> answers,
+      List<Map<String, Object>> operations,
+      String currentPageId) {
+    public PatchSession(Long baseRevision, UUID clientMutationId, Map<String, Object> answers) {
+      this(baseRevision, clientMutationId, answers, null, null);
+    }
+  }
 
   public record Submit(Long sessionRevision) {}
 
@@ -377,42 +395,69 @@ public class IntakeApplicationService {
     var s = respondent(id, token, true);
     if (in.clientMutationId() == null)
       throw bad("MUTATION_ID_REQUIRED", "clientMutationId required");
+    String requestDigest = CanonicalJson.sha256(json.valueToTree(in));
     try {
-      return parse(
-          db.queryForObject(
-              "select response::text from session_mutations where session_id=? and"
-                  + " client_mutation_id=?",
-              String.class,
-              id,
-              in.clientMutationId()));
+      Replay replay = db.queryForObject(
+          "select response::text,request_digest from session_mutations where session_id=? and"
+              + " client_mutation_id=?",
+          (rs, row) -> new Replay(rs.getString(1), rs.getString(2)),
+          id,
+          in.clientMutationId());
+      if (replay.requestDigest() != null && !replay.requestDigest().equals(requestDigest)) {
+        throw new ResponseStatusException(HttpStatus.CONFLICT, "MUTATION_ID_REUSED");
+      }
+      return parse(replay.response());
     } catch (Exception ignored) {
+      if (ignored instanceof ResponseStatusException response) throw response;
     }
     if (!s.status().equals("DRAFT")) throw bad("SESSION_CLOSED", "Submitted");
     if (!Objects.equals(in.baseRevision(), s.revision()))
       throw new ResponseStatusException(HttpStatus.CONFLICT, "SESSION_REVISION_CONFLICT");
-    Map<String, Object> answers =
-        new FormRuntime(json).respondentAnswers(parse(release(s.releaseId()).pkg()), in.answers());
+    R release = release(s.releaseId());
+    JsonNode releaseNode = json.valueToTree(parse(release.pkg()));
+    Map<String, Object> answers;
+    List<Map<String, Object>> validation;
+    Map<String, Object> runtimeProjection = new LinkedHashMap<>();
+    if (typedRuntime.canonical(releaseNode)) {
+      if (in.operations() == null || in.operations().isEmpty() || in.answers() != null) {
+        throw bad("OPERATIONS_REQUIRED", "Canonical sessions require one non-empty typed operation batch");
+      }
+      var outcome = typedRuntime.mutate(releaseNode, json.valueToTree(parse(s.answers())), in.operations(),
+          s.sessionDate().toString(), s.timeZone(), Instant.now());
+      if (!outcome.accepted()) {
+        String code = outcome.validation().isEmpty()
+            ? "MUTATION_INVALID" : Objects.toString(outcome.validation().get(0).get("code"));
+        throw bad(code, "Typed mutation batch rejected");
+      }
+      answers = outcome.answers();
+      validation = outcome.validation();
+      runtimeProjection.put("reachablePageIds", outcome.reachablePageIds());
+      runtimeProjection.put("requiredCount", outcome.requiredCount());
+      runtimeProjection.put("completedRequiredCount", outcome.completedRequiredCount());
+    } else {
+      if (in.answers() == null) throw bad("ANSWERS_REQUIRED", "Legacy answer map required");
+      answers = new FormRuntime(json).respondentAnswers(parse(release.pkg()), in.answers());
+      validation = validateAnswers(release.pkg(), answers, s);
+    }
     long next = s.revision() + 1;
-    Map<String, Object> out =
-        Map.of(
-            "acceptedRevision",
-            next,
-            "answers",
-            answers,
-            "validation",
-            validateAnswers(release(s.releaseId()).pkg(), answers, s));
+    Map<String, Object> out = new LinkedHashMap<>();
+    out.put("acceptedRevision", next);
+    out.put("answers", answers);
+    out.put("validation", validation);
+    out.putAll(runtimeProjection);
     db.update(
         "update sessions set answers=cast(? as jsonb),revision=? where id=?",
         stringify(answers),
         next,
         id);
     db.update(
-        "insert into session_mutations(session_id,client_mutation_id,accepted_revision,response)"
-            + " values(?,?,?,cast(? as jsonb))",
+        "insert into session_mutations(session_id,client_mutation_id,accepted_revision,response,request_digest)"
+            + " values(?,?,?,cast(? as jsonb),?)",
         id,
         in.clientMutationId(),
         next,
-        stringify(out));
+        stringify(out),
+        requestDigest);
     return out;
   }
 
@@ -554,6 +599,7 @@ public class IntakeApplicationService {
       java.time.LocalDate sessionDate, String timeZone, String tzdbVersion) {}
 
   private record RespondentRow(S session, String secretDigest, UUID retainedLegacyToken) {}
+  private record Replay(String response, String requestDigest) {}
 
   private R release(UUID id) {
     return db.queryForObject(
@@ -662,13 +708,22 @@ public class IntakeApplicationService {
 
   private Map<String, Object> sessionView(S s) {
     Map<String, Object> definition = parse(release(s.releaseId()).pkg());
+    JsonNode definitionNode = json.valueToTree(definition);
+    Object answers;
+    if (typedRuntime.canonical(definitionNode)) {
+      answers = typedRuntime.mutate(definitionNode, json.valueToTree(parse(s.answers())), List.of(),
+          s.sessionDate().toString(), s.timeZone(), Instant.now()).answers();
+    } else {
+      answers = new FormRuntime(json, s.sessionDate().toString(), s.timeZone())
+          .calculatedAnswers(definition, parse(s.answers()));
+    }
     return Map.of(
         "sessionId",
         s.id(),
         "revision",
         s.revision(),
         "answers",
-        new FormRuntime(json, s.sessionDate().toString(), s.timeZone()).calculatedAnswers(definition, parse(s.answers())),
+        answers,
         "status",
         s.status(),
         "runtimeManifest",
@@ -743,7 +798,16 @@ public class IntakeApplicationService {
 
   private void validateDefinition(Map<String, Object> d) {
     try {
-      definitions.validateCurrentLite(json.valueToTree(d));
+      var candidate = json.valueToTree(d);
+      if (candidate.has("schemaVersion") || candidate.has("engineContract") || candidate.has("data")) {
+        var result = compiler.compile(candidate);
+        if (!result.valid()) {
+          var diagnostic = result.diagnostics().get(0);
+          throw new IllegalArgumentException(diagnostic.code() + " at " + diagnostic.pointer());
+        }
+      } else {
+        definitions.validateCurrentLite(candidate);
+      }
     } catch (IllegalArgumentException e) {
       throw bad(e.getMessage(), "Invalid field registry, page, or rule AST.");
     }
@@ -753,6 +817,11 @@ public class IntakeApplicationService {
       String definition, Map<String, Object> answers, S session) {
     if (!TimeZoneRegistry.VERSION.equals(session.tzdbVersion())) {
       throw bad("TIMEZONE_DATABASE_UNSUPPORTED", "Session runtime manifest is unsupported");
+    }
+    JsonNode definitionNode = json.valueToTree(parse(definition));
+    if (typedRuntime.canonical(definitionNode)) {
+      return typedRuntime.mutate(definitionNode, json.valueToTree(answers), List.of(),
+          session.sessionDate().toString(), session.timeZone(), Instant.now()).validation();
     }
     return new FormRuntime(json, session.sessionDate().toString(), session.timeZone())
         .validate(parse(definition), answers);
