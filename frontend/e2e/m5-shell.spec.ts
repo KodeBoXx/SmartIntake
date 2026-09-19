@@ -128,6 +128,7 @@ test.describe('M5 routed Certinal shell', () => {
     await waitForLazyPage(page, 'staff');
     const desktopSidebar = page.locator('.staff-desktop-sidebar');
     await expect(desktopSidebar).toBeVisible();
+    await expect(desktopSidebar.locator('cui-button', { hasText: 'Forms' })).toHaveAttribute('aria-current', 'page');
     await expect(page.getByRole('button', { name: /Collapse sidebar|Expand sidebar/ })).toHaveCount(0);
     const footerBox = await desktopSidebar.locator('footer').boundingBox();
     expect(footerBox && footerBox.y + footerBox.height).toBeLessThanOrEqual(900);

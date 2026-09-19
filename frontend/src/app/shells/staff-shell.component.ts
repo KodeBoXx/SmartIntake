@@ -19,9 +19,9 @@ import { CuiAppShellComponent, CuiButtonComponent, CuiHeaderComponent, CuiHeader
         </nav>
         <ng-template cuiHeaderDrawer>
           <nav aria-label="Primary navigation" class="flex flex-col items-stretch gap-2 p-4">
-            <cui-button variant="tertiary" (buttonClick)="go('/workspaces/demo/forms', staffHeader)"><span class="flex items-center gap-2"><cui-icon name="file-text" size="sm" />Forms</span></cui-button>
-            <cui-button variant="tertiary" (buttonClick)="go('/workspaces/demo/submissions', staffHeader)"><span class="flex items-center gap-2"><cui-icon name="inbox" size="sm" />Responses</span></cui-button>
-            <cui-button variant="tertiary" (buttonClick)="go('/settings/organization', staffHeader)"><span class="flex items-center gap-2"><cui-icon name="settings" size="sm" />Settings</span></cui-button>
+            <cui-button [attr.aria-current]="isFormsActive() ? 'page' : null" [variant]="isFormsActive() ? 'secondary02' : 'secondary'" (buttonClick)="go('/workspaces/demo/forms', staffHeader)"><span class="flex items-center gap-2"><cui-icon name="file-text" size="sm" />Forms</span></cui-button>
+            <cui-button [attr.aria-current]="isResponsesActive() ? 'page' : null" [variant]="isResponsesActive() ? 'secondary02' : 'secondary'" (buttonClick)="go('/workspaces/demo/submissions', staffHeader)"><span class="flex items-center gap-2"><cui-icon name="inbox" size="sm" />Responses</span></cui-button>
+            <cui-button [attr.aria-current]="isSettingsActive() ? 'page' : null" [variant]="isSettingsActive() ? 'secondary02' : 'secondary'" (buttonClick)="go('/settings/organization', staffHeader)"><span class="flex items-center gap-2"><cui-icon name="settings" size="sm" />Settings</span></cui-button>
           </nav>
         </ng-template>
       </cui-header>
@@ -29,9 +29,9 @@ import { CuiAppShellComponent, CuiButtonComponent, CuiHeaderComponent, CuiHeader
     </cui-app-shell>
     <cui-sidebar-shell class="staff-desktop-sidebar" [collapsed]="false">
       <div class="flex flex-col items-stretch gap-2 p-3">
-        <cui-button variant="tertiary" (buttonClick)="go('/workspaces/demo/forms')"><span class="flex items-center gap-2"><cui-icon name="file-text" size="sm" />Forms</span></cui-button>
-        <cui-button variant="tertiary" (buttonClick)="go('/workspaces/demo/submissions')"><span class="flex items-center gap-2"><cui-icon name="inbox" size="sm" />Responses</span></cui-button>
-        <cui-button variant="tertiary" (buttonClick)="go('/settings/organization')"><span class="flex items-center gap-2"><cui-icon name="settings" size="sm" />Settings</span></cui-button>
+        <cui-button [attr.aria-current]="isFormsActive() ? 'page' : null" [variant]="isFormsActive() ? 'secondary02' : 'secondary'" (buttonClick)="go('/workspaces/demo/forms')"><span class="flex items-center gap-2"><cui-icon name="file-text" size="sm" />Forms</span></cui-button>
+        <cui-button [attr.aria-current]="isResponsesActive() ? 'page' : null" [variant]="isResponsesActive() ? 'secondary02' : 'secondary'" (buttonClick)="go('/workspaces/demo/submissions')"><span class="flex items-center gap-2"><cui-icon name="inbox" size="sm" />Responses</span></cui-button>
+        <cui-button [attr.aria-current]="isSettingsActive() ? 'page' : null" [variant]="isSettingsActive() ? 'secondary02' : 'secondary'" (buttonClick)="go('/settings/organization')"><span class="flex items-center gap-2"><cui-icon name="settings" size="sm" />Settings</span></cui-button>
       </div>
     </cui-sidebar-shell>
     </div>
@@ -48,4 +48,5 @@ export class StaffShellComponent {
   isFormsActive(): boolean { return this.router.url.startsWith('/workspaces/') && this.router.url.includes('/forms'); }
   isResponsesActive(): boolean { return this.router.url.startsWith('/workspaces/') && this.router.url.includes('/submissions'); }
   isSettingsActive(): boolean { return this.router.url.startsWith('/settings/'); }
+
 }
