@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import subprocess
 import tempfile
 from pathlib import Path
@@ -29,6 +30,12 @@ def run(java: Path, browser: Path, succeeds: bool) -> None:
 
 def write(path: Path, value: dict) -> None:
     path.write_text(json.dumps(value), encoding="utf-8")
+
+
+def redigest(artifact: dict) -> None:
+    payload = dict(artifact)
+    payload.pop("artifactSha256", None)
+    artifact["artifactSha256"] = hashlib.sha256(json.dumps(payload, separators=(",", ":")).encode()).hexdigest()
 
 
 def main() -> None:
@@ -67,6 +74,20 @@ def main() -> None:
         wrong_artifact_path = temporary / "wrong-artifact.json"
         write(wrong_artifact_path, wrong_artifact)
         run(JAVA, wrong_artifact_path, False)
+
+        omitted_evidence = json.loads(json.dumps(browser))
+        omitted_evidence.pop("browserVersion")
+        redigest(omitted_evidence)
+        omitted_evidence_path = temporary / "omitted-evidence.json"
+        write(omitted_evidence_path, omitted_evidence)
+        run(JAVA, omitted_evidence_path, False)
+
+        recomputed_worktree = json.loads(json.dumps(java))
+        recomputed_worktree["candidateWorktreeSha256"] = "0" * 64
+        redigest(recomputed_worktree)
+        recomputed_worktree_path = temporary / "recomputed-worktree.json"
+        write(recomputed_worktree_path, recomputed_worktree)
+        run(recomputed_worktree_path, BROWSER, False)
 
     print("M3 parity guard mutation checks passed.")
 

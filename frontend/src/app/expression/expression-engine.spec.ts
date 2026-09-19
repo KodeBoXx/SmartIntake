@@ -62,6 +62,15 @@ describe('ExpressionEngine', () => {
     expect(result).toEqual({ state: 'error', code: 'INTEGER_ENCODING' });
   });
 
+  it('rejects a referenced decimal negative-zero wire encoding before normalization', () => {
+    const result = new ExpressionEngine().evaluateVector({
+      expression: { op: 'exists', args: [{ ref: { fieldId: 'amount', scope: 'root' } }] },
+      fieldDefinitions: [{ id: 'amount', type: 'decimal' }],
+      answers: { amount: { type: 'decimal', status: 'answered', applicable: true, value: '-0.00' } },
+    });
+    expect(result).toEqual({ state: 'error', code: 'DECIMAL_ENCODING' });
+  });
+
   it('retains scalar array item types and permits an array result', () => {
     const result = new ExpressionEngine().evaluateVector({
       expression: { ref: { fieldId: 'tags', scope: 'root' } },

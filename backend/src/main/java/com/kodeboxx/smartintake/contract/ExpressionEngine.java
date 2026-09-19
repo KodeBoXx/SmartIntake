@@ -53,17 +53,19 @@ public final class ExpressionEngine {
     }
   }
 
-  public record Result(String state, String type, JsonNode value, String reason, String code) {
+  /** Pointers identify structure only; no respondent values are included in diagnostics. */
+  public record Result(String state, String type, JsonNode value, String reason, String code,
+      String expressionPointer, String fieldPointer, String itemPointer) {
     static Result available(String type, JsonNode value) {
-      return new Result("available", type, value, null, null);
+      return new Result("available", type, value, null, null, null, null, null);
     }
 
     static Result unknown(String reason) {
-      return new Result("unknown", null, null, reason, null);
+      return new Result("unknown", null, null, reason, null, "/", null, null);
     }
 
     static Result error(String code) {
-      return new Result("error", null, null, null, code);
+      return new Result("error", null, null, null, code, "/", null, null);
     }
   }
 
@@ -100,6 +102,15 @@ public final class ExpressionEngine {
 
   public Result evaluate(JsonNode expression, Context context, MutationBudget budget) {
     return evaluate(expression, legacy(context), budget);
+  }
+
+  /** Adapts legacy answer literals while compiling against the package-declared field types. */
+  public static EvaluationContext typedLegacy(Map<String, String> declaredTypes, Context context) {
+    EvaluationContext legacy = legacy(context);
+    Map<String, Field> fields = new LinkedHashMap<>();
+    declaredTypes.forEach((id, type) -> fields.put(id, new Field(id, type, null, Map.of())));
+    return new EvaluationContext(fields, legacy.rootCells, context.sessionDate(), context.sessionTimeZone(),
+        context.stepLimit(), true);
   }
 
   public Result evaluate(JsonNode expression, EvaluationContext context) {
@@ -148,11 +159,12 @@ public final class ExpressionEngine {
     @Override public String type() { return value.type; }
   }
 
-  private record RefExpr(String fieldId, String scope, int parentDepth, String type, Field field) implements Expr {}
+  private record RefExpr(String fieldId, String scope, int parentDepth, String type, Field field,
+      List<String> valuePath) implements Expr {}
   private record ContextExpr(String name, String type) implements Expr {}
   private record OperationExpr(String op, List<Expr> args, String type, Field aggregateList) implements Expr {}
   private record Value(String type, JsonNode node) {}
-  private record Field(String id, String type, Map<String, Field> itemFields) {}
+  private record Field(String id, String type, String itemType, Map<String, Field> itemFields) {}
   private record Cell(String type, String status, boolean applicable, JsonNode value) {}
   private record CompileEnv(Map<String, Field> root, List<Map<String, Field>> itemScopes, boolean strict) {}
   private record RuntimeEnv(Map<String, Cell> root, List<Map<String, Cell>> itemScopes, EvaluationContext context) {}
@@ -176,15 +188,13 @@ public final class ExpressionEngine {
   private static final class CompileBudget {
     private int nodes;
     private void enter(int depth) {
-      if (depth > 20) throw fail("EXPR_DEPTH");
-      if (++nodes > 10_000) throw fail("EXPR_NODE_LIMIT");
+      if (depth > 20 || ++nodes > 10_000) throw fail("EVALUATION_BUDGET");
     }
   }
 
   private Expr compileTop(JsonNode node, CompileEnv env) {
     Expr expression = compile(node, env, new CompileBudget(), 1);
-    // Arrays are typed operand values in this profile; a bare array cannot be a calculated scalar result.
-    // This keeps EXPR-056's declared homogeneous-array rejection distinct from membership/length arrays.
+    // A bare array has no destination type. Array literals remain legal typed operands and branches.
     if (expression instanceof LiteralExpr && expression.type().startsWith("array:")) throw fail("INVALID_LITERAL");
     return expression;
   }
@@ -266,14 +276,17 @@ public final class ExpressionEngine {
     };
     if (available.isEmpty() && !"root".equals(scope) && env.strict) throw fail("EXPR_SCOPE");
     String fieldId = ref.path("fieldId").asText();
-    Field field = resolve(available, fieldId);
+    ResolvedField resolved = resolve(available, fieldId);
+    Field field = resolved == null ? null : resolved.field;
     if (field == null) {
-      if ("root".equals(scope) && containsNested(env.root, fieldId)) throw fail("EXPR_SCOPE");
+      if (containsNested(env.root, fieldId)) throw fail("EXPR_SCOPE");
       if (env.strict || !env.root.isEmpty()) throw fail("UNKNOWN_FIELD");
       // Legacy FormRuntime has no field registry. Preserve prior dynamic references as unknown text.
-      field = new Field(ref.path("fieldId").asText(), "text", Map.of());
+      field = new Field(ref.path("fieldId").asText(), "text", null, Map.of());
+      resolved = new ResolvedField(field, List.of(fieldId));
     }
-    return new RefExpr(fieldId, scope, parentDepth, field.type, field);
+    return new RefExpr(fieldId, scope, parentDepth, "array".equals(field.type) ? "array:" + field.itemType : field.type,
+        field, resolved.valuePath);
   }
 
   private Expr context(JsonNode node) {
@@ -464,10 +477,17 @@ public final class ExpressionEngine {
 
   private static Value referenceValue(RefExpr expression, RuntimeEnv environment) {
     Cell cell = cell(expression, environment);
-    if (!STATUSES.contains(cell.status)) throw fail("INVALID_STATUS");
+    validateAnswerCell(expression, cell);
     if (!cell.applicable || !"answered".equals(cell.status) || cell.value == null || cell.value.isMissingNode()) {
       throw unknown("UNAVAILABLE_OPERAND");
     }
+    if (expression.type.startsWith("array:")) {
+      String itemType = expression.type.substring(6);
+      if (!cell.value.isArray()) throw fail("INVALID_LITERAL");
+      for (JsonNode member : cell.value) validateAnswerValue(itemType, member);
+      return new Value(expression.type, cell.value.deepCopy());
+    }
+    if (SCALAR_TYPES.contains(expression.type)) validateAnswerValue(expression.type, cell.value);
     return new Value(expression.type, canonical(expression.type, cell.value));
   }
 
@@ -479,7 +499,7 @@ public final class ExpressionEngine {
           : environment.itemScopes.get(environment.itemScopes.size() - 1 - expression.parentDepth);
     };
     Cell result = null;
-    for (String part : expression.fieldId.split("\\.")) {
+    for (String part : expression.valuePath) {
       if (result == null) result = values.get(part);
       else if (result.value != null && result.value.path("fields").isObject()) {
         JsonNode child = result.value.path("fields").get(part);
@@ -493,13 +513,31 @@ public final class ExpressionEngine {
 
   private static boolean answered(RefExpr expression, RuntimeEnv environment) {
     Cell cell = cell(expression, environment);
-    return STATUSES.contains(cell.status) && cell.applicable && "answered".equals(cell.status) && cell.value != null;
+    validateAnswerCell(expression, cell);
+    return cell.applicable && "answered".equals(cell.status) && cell.value != null;
   }
 
   private static String status(RefExpr expression, RuntimeEnv environment) {
     Cell cell = cell(expression, environment);
-    if (!STATUSES.contains(cell.status)) throw fail("INVALID_STATUS");
+    validateAnswerCell(expression, cell);
     return cell.applicable ? cell.status : "notApplicable";
+  }
+
+  private static void validateAnswerCell(RefExpr expression, Cell cell) {
+    if (!STATUSES.contains(cell.status)) throw fail("INVALID_STATUS");
+    if (!cell.applicable || !"answered".equals(cell.status) || cell.value == null || cell.value.isMissingNode()) return;
+    if (expression.type.startsWith("array:")) {
+      if (!cell.value.isArray()) throw fail("INVALID_LITERAL");
+      String itemType = expression.type.substring(6);
+      for (JsonNode member : cell.value) validateAnswerValue(itemType, member);
+    } else if (SCALAR_TYPES.contains(expression.type)) validateAnswerValue(expression.type, cell.value);
+  }
+
+  private static void validateAnswerValue(String type, JsonNode value) {
+    if ("decimal".equals(type) && value.isTextual() && value.textValue().matches("-0(?:\\.0+)?")) {
+      throw fail("DECIMAL_ENCODING");
+    }
+    validateLiteral(type, value);
   }
 
   private static Value divide(Value left, Value right) {
@@ -583,8 +621,10 @@ public final class ExpressionEngine {
 
   private static String unified(List<Expr> expressions) {
     String type = expressions.get(0).type();
+    if ("object".equals(type) || "list".equals(type)) throw fail("EXPR_TYPE");
     for (int index = 1; index < expressions.size(); index++) {
       String next = expressions.get(index).type();
+      if ("object".equals(next) || "list".equals(next)) throw fail("EXPR_TYPE");
       if (type.equals(next)) continue;
       if (numeric(type) && numeric(next)) { type = "decimal"; continue; }
       if (type.startsWith("array:") && next.startsWith("array:") && type.equals(next)) continue;
@@ -690,7 +730,9 @@ public final class ExpressionEngine {
       if (id.isBlank() || type.isBlank()) continue;
       Map<String, Field> children = fields(definition.path("fields"));
       children.putAll(fields(definition.path("itemFields")));
-      result.put(id, new Field(id, type, Map.copyOf(children)));
+      String itemType = definition.path("itemType").asText(null);
+      if ("array".equals(type) && !SCALAR_TYPES.contains(itemType)) continue;
+      result.put(id, new Field(id, type, itemType, Map.copyOf(children)));
     }
     return result;
   }
@@ -715,7 +757,7 @@ public final class ExpressionEngine {
       try {
         JsonNode literal = expression.path("literal");
         String type = literal.path("type").asText("text");
-        fields.put(id, new Field(id, type, Map.of()));
+        fields.put(id, new Field(id, type, literal.path("itemType").asText(null), Map.of()));
         cells.put(id, new Cell(type, "answered", true, canonical(type, literal.get("value"))));
       } catch (RuntimeException ignored) { /* unavailable legacy value */ }
     });
@@ -740,13 +782,22 @@ public final class ExpressionEngine {
     return true;
   }
 
-  private static Field resolve(Map<String, Field> fields, String path) {
-    Field field = null;
-    for (String part : path.split("\\.")) {
-      field = field == null ? fields.get(part) : field.itemFields.get(part);
-      if (field == null) return null;
+  private record ResolvedField(Field field, List<String> valuePath) {}
+
+  private static ResolvedField resolve(Map<String, Field> fields, String id) {
+    Field direct = fields.get(id);
+    if (direct != null) return new ResolvedField(direct, List.of(id));
+    for (Field container : fields.values()) {
+      if (!"object".equals(container.type)) continue;
+      ResolvedField child = resolve(container.itemFields, id);
+      if (child != null) {
+        List<String> path = new ArrayList<>();
+        path.add(container.id);
+        path.addAll(child.valuePath);
+        return new ResolvedField(child.field, List.copyOf(path));
+      }
     }
-    return field;
+    return null;
   }
 
   private static boolean containsNested(Map<String, Field> fields, String id) {

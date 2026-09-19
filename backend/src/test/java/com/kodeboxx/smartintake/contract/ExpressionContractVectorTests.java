@@ -10,6 +10,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.time.Instant;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HexFormat;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -72,10 +76,13 @@ class ExpressionContractVectorTests {
     output.put("runner", "smart-intake-java-expression-v1");
     output.put("candidateCommit", git("rev-parse", "HEAD"));
     output.put("candidateTree", git("rev-parse", "HEAD^{tree}"));
+    output.put("candidateWorktreeSha256", worktreeBytesSha256());
     output.put("executedAtUtc", Instant.now().toString());
     output.put("runtimeVersion", System.getProperty("java.version"));
     output.put("invocation", "mvn -q -Dtest=ExpressionContractVectorTests test");
     output.put("timezoneDatabase", TimeZoneRegistry.VERSION);
+    output.put("timezoneRegistryVersion", TimeZoneRegistry.VERSION);
+    output.put("timezoneRegistrySha256", TimeZoneRegistry.SHA256);
     output.put("sourceHandoff",
         "docs/source-handoff/smart-form-builder-lite-prd-v1.1/expression-contract.json");
     output.put("sourceSha256", HexFormat.of().formatHex(
@@ -86,15 +93,20 @@ class ExpressionContractVectorTests {
     contract.path("operators").forEach(operator -> expectedOperators.add(operator.path("name").asText()));
     assertThat(ExpressionEngine.operators()).containsExactlyInAnyOrderElementsOf(expectedOperators);
     expectedOperators.forEach(operators::add);
-    output.put("passed", ACTUAL_RESULTS.size());
-    output.put("failed", 0);
+    int[] totals = new int[2];
     ArrayNode results = output.putArray("results");
     contract.path("vectors").forEach(vector -> {
       ObjectNode row = results.addObject();
       row.put("id", vector.path("id").asText());
       row.put("phase", vector.path("phase").asText());
-      row.set("actual", ACTUAL_RESULTS.get(vector.path("id").asText()));
+      ObjectNode actual = ACTUAL_RESULTS.get(vector.path("id").asText());
+      row.set("actual", actual);
+      boolean matches = matchesExpected(actual, vector.path("expected"));
+      row.put("passed", matches);
+      if (matches) totals[0]++; else totals[1]++;
     });
+    output.put("passed", totals[0]);
+    output.put("failed", totals[1]);
     output.put("artifactSha256", HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
         .digest(JSON.writeValueAsBytes(output))));
     Files.createDirectories(RESULT.getParent());
@@ -110,6 +122,14 @@ class ExpressionContractVectorTests {
     return actual;
   }
 
+  private static boolean matchesExpected(JsonNode actual, JsonNode expected) {
+    if (!actual.path("state").asText().equals(expected.path("state").asText())) return false;
+    if (expected.has("type") && !actual.path("type").asText().equals(expected.path("type").asText())) return false;
+    if (expected.has("value") && !actual.path("value").equals(expected.path("value"))) return false;
+    if (expected.has("reason") && !actual.path("reason").asText().equals(expected.path("reason").asText())) return false;
+    return !expected.has("code") || actual.path("code").asText().equals(expected.path("code").asText());
+  }
+
   private static String git(String... args) throws Exception {
     java.util.List<String> command = new java.util.ArrayList<>();
     command.add("git");
@@ -117,5 +137,24 @@ class ExpressionContractVectorTests {
     Process process = new ProcessBuilder(command).directory(Path.of("..").toFile()).start();
     if (process.waitFor() != 0) throw new IllegalStateException("cannot resolve candidate git identity");
     return new String(process.getInputStream().readAllBytes()).trim();
+  }
+
+  private static String worktreeBytesSha256() throws Exception {
+    Process process = new ProcessBuilder("git", "ls-files", "-co", "--exclude-standard", "-z")
+        .directory(Path.of("..").toFile()).start();
+    byte[] output = process.getInputStream().readAllBytes();
+    if (process.waitFor() != 0) throw new IllegalStateException("cannot enumerate candidate worktree");
+    ArrayList<String> paths = new ArrayList<>(Arrays.asList(
+        new String(output, StandardCharsets.UTF_8).split("\0")));
+    paths.removeIf(path -> path.isEmpty() || path.startsWith("frontend/test-results/"));
+    paths.sort(Comparator.naturalOrder());
+    MessageDigest digest = MessageDigest.getInstance("SHA-256");
+    for (String path : paths) {
+      digest.update(path.getBytes(StandardCharsets.UTF_8));
+      digest.update((byte) 0);
+      digest.update(Files.readAllBytes(Path.of("..", path)));
+      digest.update((byte) 0);
+    }
+    return HexFormat.of().formatHex(digest.digest());
   }
 }

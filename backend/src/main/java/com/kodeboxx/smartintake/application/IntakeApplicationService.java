@@ -8,6 +8,7 @@ import com.kodeboxx.smartintake.compatibility.RespondentSecretVerifier;
 import com.kodeboxx.smartintake.contract.CsvSafety;
 import com.kodeboxx.smartintake.contract.FormRuntime;
 import com.kodeboxx.smartintake.contract.PackageStamp;
+import com.kodeboxx.smartintake.contract.TimeZoneRegistry;
 import com.kodeboxx.smartintake.persistence.AuditEventRepository;
 import com.kodeboxx.smartintake.security.StaffAuthorization;
 import java.time.Duration;
@@ -250,7 +251,7 @@ public class IntakeApplicationService {
         PackageStamp.attach(
             json.valueToTree(parse(formRow(form).definition())),
             "lite-expression-1",
-            "tzdb-system"),
+            TimeZoneRegistry.VERSION),
         Map.class);
   }
 

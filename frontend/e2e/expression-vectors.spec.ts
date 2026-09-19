@@ -4,7 +4,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { EXPRESSION_TEST_MODE_FLAG, EXPRESSION_TEST_SEAM } from '../src/app/expression/expression-test-mode';
-import { PINNED_TIMEZONE_DATABASE } from '../src/app/expression/pinned-timezone-registry';
+import { PINNED_TIMEZONE_DATABASE, PINNED_TIMEZONE_REGISTRY_SHA256 } from '../src/app/expression/pinned-timezone-registry';
 
 type Vector = { id: string; phase: 'compile' | 'evaluate'; expression: unknown; expected: unknown; [key: string]: unknown };
 
@@ -15,6 +15,14 @@ const corpus = JSON.parse(corpusBytes.toString()) as { operators: { name: string
 const candidateCommit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: resolve(process.cwd(), '..'), encoding: 'utf8' }).trim();
 const candidateTree = execFileSync('git', ['rev-parse', 'HEAD^{tree}'], { cwd: resolve(process.cwd(), '..'), encoding: 'utf8' }).trim();
 function digestArtifact(artifact: Record<string, unknown>): string { const copy = { ...artifact }; delete copy.artifactSha256; return createHash('sha256').update(JSON.stringify(copy)).digest('hex'); }
+function worktreeBytesSha256(): string {
+  const root = resolve(process.cwd(), '..');
+  const paths = execFileSync('git', ['ls-files', '-co', '--exclude-standard', '-z'], { cwd: root })
+    .toString().split('\0').filter((path) => path && !path.startsWith('frontend/test-results/')).sort();
+  const digest = createHash('sha256');
+  for (const path of paths) digest.update(path).update('\0').update(readFileSync(resolve(root, path))).update('\0');
+  return digest.digest('hex');
+}
 
 test('does not expose the evaluator seam in an unprepared production browser', async ({ page }) => {
   await page.goto('/');
@@ -48,9 +56,12 @@ test('executes every frozen expression contract vector in Chromium', async ({ pa
     browserVersion: browser.version(),
     candidateCommit,
     candidateTree,
+    candidateWorktreeSha256: worktreeBytesSha256(),
     executedAtUtc: new Date().toISOString(),
     invocation: 'playwright test e2e/expression-vectors.spec.ts',
     timezoneDatabase: PINNED_TIMEZONE_DATABASE,
+    timezoneRegistryVersion: PINNED_TIMEZONE_DATABASE,
+    timezoneRegistrySha256: PINNED_TIMEZONE_REGISTRY_SHA256,
     sourceHandoff: 'docs/source-handoff/smart-form-builder-lite-prd-v1.1/expression-contract.json',
     sourceSha256: createHash('sha256').update(corpusBytes).digest('hex'),
     vectorsDiscovered: corpus.vectors.length,

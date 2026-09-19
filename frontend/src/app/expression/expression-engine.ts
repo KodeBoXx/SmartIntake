@@ -413,13 +413,17 @@ function validateAnswerRecord(definitions: FieldDefinition[], answers: Record<st
 }
 function validateAnswerScalar(type: ScalarType, value: unknown): void {
   if (type === 'integer') { if (typeof value !== 'string' || !INTEGER.test(value)) throw new Fault('INTEGER_ENCODING'); const parsed = BigInt(value); if (parsed < MIN_INT64 || parsed > MAX_INT64) throw new Fault('INTEGER_RANGE'); return; }
-  if (type === 'decimal') { ExactDecimal.parse(value).assertFinal(); return; }
+  // Expression literals retain the contract's input-decimal grammar, including
+  // EXPR-081's -0.000. Answer wire values are final canonical values and must
+  // reject negative zero before ExactDecimal normalizes it to zero.
+  if (type === 'decimal') { if (negativeZeroWire(value)) throw new Fault('DECIMAL_ENCODING'); ExactDecimal.parse(value).assertFinal(); return; }
   if (type === 'text' || type === 'choice') { if (typeof value !== 'string') throw new Fault('INVALID_LITERAL'); return; }
   if (type === 'boolean') { if (typeof value !== 'boolean') throw new Fault('INVALID_LITERAL'); return; }
   if (type === 'date') { if (!validDate(value)) throw new Fault('INVALID_LITERAL'); return; }
   if (type === 'time') { if (typeof value !== 'string' || !TIME.test(value)) throw new Fault('INVALID_LITERAL'); return; }
   if (!isObject(value) || Object.keys(value).length !== 2 || typeof value.instant !== 'string' || typeof value.timeZone !== 'string' || !validInstant(value.instant) || !validZone(value.timeZone)) throw new Fault('INVALID_LITERAL');
 }
+function negativeZeroWire(value: unknown): boolean { return typeof value === 'string' && /^-0(?:\.0+)?$/.test(value); }
 function answerValue(cell: AnswerCell): InternalValue { if (cell.type === 'array') return { type: 'array', item: (cell as AnswerCell & { itemType: ScalarType }).itemType, value: (cell.value as unknown[]).map((value) => rawScalar((cell as AnswerCell & { itemType: ScalarType }).itemType, value)) }; if (cell.type === 'list') return { type: 'list', value: cell.value }; return { type: cell.type, value: rawScalar(cell.type, cell.value) }; }
 function integer(value: InternalValue): bigint { if (value.type !== 'integer') throw new Fault('EXPR_TYPE'); return value.value as bigint; }
 function decimal(value: InternalValue): ExactDecimal { if (value.type === 'integer') return ExactDecimal.integer(value.value as bigint); if (value.type === 'decimal') return value.value as ExactDecimal; throw new Fault('EXPR_TYPE'); }
