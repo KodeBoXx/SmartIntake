@@ -295,7 +295,14 @@ export class ExpressionEngine {
     state.diagnostic.fieldPointer = fieldPointer(reference.scope, resolved.valuePath);
     let cell: AnswerCell | undefined;
     for (const segment of resolved.valuePath) {
-      if (cell && (!cell.applicable || cell.status !== 'answered' || cell.value === undefined)) return undefined;
+      if (cell && (!cell.applicable || cell.status !== 'answered' || cell.value === undefined)) {
+        return {
+          type: resolved.definition.type,
+          itemType: resolved.definition.itemType,
+          status: cell.applicable ? cell.status : 'notApplicable',
+          applicable: cell.applicable,
+        };
+      }
       cell = cell ? childCell(cell, segment) : scope.answers[segment];
       if (!cell) return undefined;
     }

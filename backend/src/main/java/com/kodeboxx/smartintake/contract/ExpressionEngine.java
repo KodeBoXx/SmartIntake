@@ -244,13 +244,17 @@ public final class ExpressionEngine {
       if (literal.size() != 3 || !literal.path("itemType").isTextual() || !literal.path("value").isArray()
           || !SCALAR_TYPES.contains(literal.path("itemType").asText())) throw fail("EXPR_SHAPE");
       String itemType = literal.path("itemType").asText();
+      var canonicalValues = JsonNodeFactory.instance.arrayNode();
       try {
-        for (JsonNode value : literal.path("value")) validateLiteral(itemType, value);
+        for (JsonNode value : literal.path("value")) {
+          validateLiteral(itemType, value);
+          canonicalValues.add(canonical(itemType, value));
+        }
       } catch (ExpressionFailure failure) {
         // Array members are a homogeneous aggregate; malformed members have no scalar wire-code.
         throw fail("INVALID_LITERAL");
       }
-      return new LiteralExpr(new Value("array:" + itemType, literal.path("value").deepCopy()));
+      return new LiteralExpr(new Value("array:" + itemType, canonicalValues));
     }
     if (literal.size() != 2 || !SCALAR_TYPES.contains(type) || literal.path("value").isNull()) throw fail("EXPR_SHAPE");
     JsonNode value = literal.path("value");
@@ -541,6 +545,7 @@ public final class ExpressionEngine {
   }
 
   private static void validateAnswerCell(RefExpr expression, Cell cell) {
+    if ("__invalid__".equals(cell.type)) throw fail("EXPR_SHAPE");
     if (!STATUSES.contains(cell.status)) throw fail("INVALID_STATUS");
     if (!externalType(expression.type).equals(cell.type)) throw fail("EXPR_TYPE");
     if (expression.type.startsWith("array:") && !expression.type.substring(6).equals(cell.itemType)) {
@@ -763,12 +768,13 @@ public final class ExpressionEngine {
     if (!input.isObject()) return result;
     input.fields().forEachRemaining(entry -> {
       JsonNode answer = entry.getValue();
-      if (answer.isObject() && answer.has("status")) {
-        if (!answer.path("type").isTextual() || !answer.path("status").isTextual()
-            || !answer.path("applicable").isBoolean()) throw fail("EXPR_SHAPE");
-        result.put(entry.getKey(), new Cell(answer.path("type").asText(), answer.path("itemType").asText(null),
-            answer.path("status").asText(), answer.path("applicable").asBoolean(), answer.get("value")));
+      if (!answer.isObject() || !answer.path("type").isTextual() || !answer.path("status").isTextual()
+          || !answer.path("applicable").isBoolean()) {
+        result.put(entry.getKey(), new Cell("__invalid__", null, "unknown", true, null));
+        return;
       }
+      result.put(entry.getKey(), new Cell(answer.path("type").asText(), answer.path("itemType").asText(null),
+          answer.path("status").asText(), answer.path("applicable").asBoolean(), answer.get("value")));
     });
     return result;
   }

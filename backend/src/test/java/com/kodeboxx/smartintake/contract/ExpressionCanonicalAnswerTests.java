@@ -104,4 +104,33 @@ class ExpressionCanonicalAnswerTests {
     assertThat(result.value()).hasSize(2);
   }
 
+  @Test
+  void canonicalizes_decimal_array_literal_branches() throws Exception {
+    JsonNode expression = JSON.readTree("""
+        {"op":"if","args":[
+          {"literal":{"type":"boolean","value":true}},
+          {"literal":{"type":"array","itemType":"decimal","value":["1.0"]}},
+          {"literal":{"type":"array","itemType":"decimal","value":["2.00"]}}
+        ]}
+        """);
+
+    ExpressionEngine.Result result = new ExpressionEngine().evaluate(expression,
+        ExpressionEngine.projection(JSON.readTree("[]"), JSON.readTree("{}"),
+            "2026-09-05", "UTC", 100_000));
+
+    assertThat(result.state()).isEqualTo("available");
+    assertThat(result.value().get(0).asText()).isEqualTo("1");
+  }
+
+  @Test
+  void rejects_supplied_cells_with_missing_required_metadata() throws Exception {
+    JsonNode definitions = JSON.readTree("[{\"id\":\"age\",\"type\":\"integer\"}]");
+    JsonNode malformed = JSON.readTree("{\"age\":{\"type\":\"integer\",\"applicable\":true,\"value\":\"1\"}}");
+    JsonNode reference = JSON.readTree("{\"ref\":{\"fieldId\":\"age\",\"scope\":\"root\"}}");
+
+    assertThat(new ExpressionEngine().evaluate(reference,
+        ExpressionEngine.projection(definitions, malformed, "2026-09-05", "UTC", 100_000)).code())
+        .isEqualTo("EXPR_SHAPE");
+  }
+
 }

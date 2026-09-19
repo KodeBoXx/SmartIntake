@@ -92,6 +92,14 @@ describe('ExpressionEngine', () => {
     expect(engine.evaluateVector(vector)).toEqual({ state: 'available', type: 'integer', value: '42' });
     expect(engine.evaluateVector({ ...vector, answers: { profile: { ...vector.answers.profile, applicable: false } } }))
       .toEqual({ state: 'unknown', reason: 'UNAVAILABLE_OPERAND', expressionPointer: '/', fieldPointer: '/root/fields/profile/fields/age' });
+    expect(engine.evaluateVector({
+      ...vector,
+      expression: { op: 'statusIs', args: [
+        { ref: { fieldId: 'age', scope: 'root' } },
+        { literal: { type: 'text', value: 'notApplicable' } },
+      ] },
+      answers: { profile: { ...vector.answers.profile, applicable: false } },
+    })).toEqual({ state: 'available', type: 'boolean', value: true });
   });
 
   it('enforces the shared 10,000-node compile budget and 100,000-step clamp', () => {
