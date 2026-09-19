@@ -1,0 +1,42 @@
+<div
+  class="cui-dropdown-trigger inline-flex"
+  [attr.aria-haspopup]="'menu'"
+  [attr.aria-expanded]="isOpen()"
+  (click)="toggle()"
+>
+  <ng-content select="[cuiDropdownTrigger]" />
+</div>
+
+@if (isOpen()) {
+  <ul #menuRef [class]="menuClasses()" [style]="menuStyle()" role="menu">
+    @for (item of items(); track $index) {
+      @switch (item.type ?? 'item') {
+        @case ('divider') {
+          <li class="h-px bg-border-default my-1 mx-1" role="separator" aria-hidden="true"></li>
+        }
+        @case ('header') {
+          <li
+            class="type-caption-bold text-text-faint uppercase tracking-wider px-3 py-1.5"
+            role="presentation"
+          >{{ item.label }}</li>
+        }
+        @default {
+          <li role="none">
+            <button
+              type="button"
+              role="menuitem"
+              [class]="itemButtonClasses(item)"
+              [disabled]="!!item.disabled"
+              (click)="onItemClick(item)"
+            >
+              @if (item.icon) {
+                <cui-icon [name]="item.icon" size="sm" />
+              }
+              <span class="flex-1">{{ item.label }}</span>
+            </button>
+          </li>
+        }
+      }
+    }
+  </ul>
+}

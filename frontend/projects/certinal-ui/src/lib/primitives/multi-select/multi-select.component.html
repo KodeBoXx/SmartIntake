@@ -1,0 +1,101 @@
+<div
+  [class]="triggerClasses()"
+  role="combobox"
+  [attr.aria-expanded]="isOpen()"
+  [attr.aria-controls]="inputId() + '-listbox'"
+  [attr.tabindex]="isDisabled() ? null : 0"
+  (click)="toggle()"
+>
+  <div class="flex flex-wrap gap-1 flex-1 items-center min-w-0">
+    @if (selectedOptions().length === 0) {
+      <span class="text-text-faint">{{ placeholder() }}</span>
+    } @else if (compactDisplay()) {
+      <span class="text-text-primary type-body-sm truncate">{{ compactLabel() }}</span>
+    } @else {
+      @for (opt of visibleChips(); track opt.value) {
+        <cui-chip size="sm" removable (remove)="removeChip(opt.value)">
+          {{ opt.label }}
+        </cui-chip>
+      }
+      @if (overflowCount() > 0) {
+        <span class="type-caption-bold text-text-muted px-1 self-center">
+          +{{ overflowCount() }} more
+        </span>
+      }
+    }
+  </div>
+
+  <span class="flex items-center gap-1 shrink-0">
+    @if (hasValue() && !isDisabled() && !compactDisplay()) {
+      <button
+        type="button"
+        class="inline-flex items-center justify-center w-5 h-5 rounded-full text-text-muted hover:bg-bg-subtle hover:text-text-secondary transition-colors duration-150 border-0 bg-transparent cursor-pointer p-0"
+        aria-label="Clear all"
+        (click)="clearAll($event)"
+      >
+        <cui-icon name="close" size="xs" />
+      </button>
+    }
+    <span
+      class="flex items-center justify-center text-text-muted transition-transform duration-150"
+      [class.rotate-180]="isOpen()"
+    >
+      <cui-icon name="chevron-down" size="sm" />
+    </span>
+  </span>
+</div>
+
+@if (isOpen()) {
+  <div class="absolute left-0 right-0 top-full z-[100] bg-bg-surface border border-border-default rounded-lg shadow-lg max-h-96 overflow-hidden flex flex-col">
+    @if (searchable()) {
+      <div class="p-2 border-b border-border-default">
+        <input
+          type="text"
+          class="w-full px-2 py-1 type-body-sm text-text-primary bg-transparent border-0 outline-none"
+          placeholder="Search…"
+          [value]="searchQuery()"
+          (input)="onSearchInput($event)"
+          (click)="$event.stopPropagation()"
+        />
+      </div>
+    }
+
+    <ul
+      [id]="inputId() + '-listbox'"
+      class="list-none m-0 py-1 overflow-y-auto flex-1"
+      role="listbox"
+      aria-multiselectable="true"
+    >
+      @for (opt of filteredOptions(); track opt.value) {
+        <li
+          [class]="optionClasses(opt)"
+          [attr.aria-selected]="isSelected(opt)"
+          [attr.aria-disabled]="opt.disabled ? 'true' : null"
+          role="option"
+          (click)="toggleOption(opt); $event.stopPropagation()"
+        >
+          <span [class]="checkboxClasses(opt)">
+            @if (isSelected(opt)) {
+              <cui-icon name="check" size="xs" class="text-white" />
+            }
+          </span>
+          <span class="flex-1 truncate">{{ opt.label }}</span>
+        </li>
+      }
+      @if (filteredOptions().length === 0) {
+        <li class="px-3 py-2 type-body-sm text-text-muted">No results</li>
+      }
+    </ul>
+
+    @if (confirmable()) {
+      <div class="flex items-center justify-end gap-2 p-3 border-t border-border-default bg-bg-surface shrink-0">
+        <cui-button size="sm" variant="tertiary" (buttonClick)="onCancel(); $event.stopPropagation()">
+          Cancel
+        </cui-button>
+        <cui-button size="sm" variant="primary" (buttonClick)="onDone(); $event.stopPropagation()">
+          Done
+        </cui-button>
+      </div>
+    }
+  </div>
+}

@@ -1,0 +1,28 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-xl);
+  background: var(--cui-card-icon-bg, var(--color-emerald-50));
+  color: var(--cui-card-icon-color, var(--color-emerald-500));
+  margin-bottom: var(--spacing-4);
+  flex-shrink: 0;
+}
+
+:host(.cui-card-icon--sm) {
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
+}
+
+:host(.cui-card-icon--md) {
+  width: 48px;
+  height: 48px;
+  font-size: 22px;
+}
+
+:host(.cui-card-icon--lg) {
+  width: 56px;
+  height: 56px;
+  font-size: 26px;
+}

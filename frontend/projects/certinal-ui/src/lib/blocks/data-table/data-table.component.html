@@ -1,0 +1,73 @@
+<div class="bg-bg-surface border border-border-default rounded-2xl overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="w-full border-collapse">
+      <thead>
+        <tr>
+          @for (col of columns(); track col.key) {
+            <th
+              cuiTableHeaderCell
+              [align]="col.align ?? 'left'"
+              [sortable]="!!col.sortable"
+              [sort]="getSort(col.key)"
+              [style.width]="col.width || null"
+              (sortChange)="onSortChange(col.key, $event)"
+            >
+              {{ col.label }}
+            </th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @if (loading()) {
+          @for (s of skeletonRowIndexes(); track s) {
+            <tr cuiTableRow>
+              @for (col of columns(); track col.key) {
+                <td cuiTableCell [align]="col.align ?? 'left'">
+                  <cui-skeleton width="80%" />
+                </td>
+              }
+            </tr>
+          }
+        } @else if (rows().length === 0) {
+          <tr>
+            <td
+              [attr.colspan]="columns().length"
+              class="px-6 py-16 text-center border-b border-border-default"
+            >
+              <cui-icon name="inbox" size="lg" class="text-text-faint inline-flex mb-2" />
+              <div class="type-body-sm text-text-secondary">{{ emptyMessage() }}</div>
+              @if (emptyHint()) {
+                <div class="type-caption text-text-faint mt-1">{{ emptyHint() }}</div>
+              }
+            </td>
+          </tr>
+        } @else {
+          @for (row of rows(); track trackRow($index, row)) {
+            <tr
+              cuiTableRow
+              [clickable]="clickable()"
+              (rowClick)="rowClick.emit(row)"
+            >
+              @for (col of columns(); track col.key) {
+                <td
+                  cuiTableCell
+                  [align]="col.align ?? 'left'"
+                  [truncate]="!!col.truncate"
+                  [nowrap]="!!col.nowrap"
+                >
+                  @if (col.cellTemplate) {
+                    <ng-container
+                      *ngTemplateOutlet="col.cellTemplate; context: { $implicit: row, row: row }"
+                    />
+                  } @else {
+                    {{ getCellValue(row, col) }}
+                  }
+                </td>
+              }
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

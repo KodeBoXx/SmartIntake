@@ -1,0 +1,18 @@
+/* ================================================================
+   cui-card-footer — footer slot inside cui-card.
+   Top divider + spacing. Commonly used for stat grids or action rows.
+   ================================================================ */
+
+:host {
+  display: block;
+  padding-top: var(--spacing-4);
+  border-top: 1px solid var(--color-border-default);
+  margin-top: var(--spacing-4);
+}
+
+:host-context(.cui-card--dark) {
+  border-top-color: var(--color-slate-700);
+}
+:host-context(.cui-card--feature) {
+  border-top-color: var(--color-emerald-200);
+}

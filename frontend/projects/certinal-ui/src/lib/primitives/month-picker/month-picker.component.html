@@ -1,0 +1,91 @@
+@if (label()) {
+  <label [for]="inputId()" class="block type-label text-text-secondary mb-1.5">
+    {{ label() }}
+    @if (required()) {
+      <span class="text-error ml-0.5" aria-hidden="true">*</span>
+    }
+  </label>
+}
+
+<div class="relative">
+  <button
+    type="button"
+    [id]="inputId()"
+    role="combobox"
+    [attr.aria-haspopup]="'dialog'"
+    [attr.aria-expanded]="isOpen()"
+    [attr.aria-invalid]="hasError() ? 'true' : null"
+    [attr.aria-required]="required() ? 'true' : null"
+    [disabled]="isDisabled()"
+    [attr.name]="name() ?? null"
+    (click)="toggle()"
+    (keydown)="onTriggerKeydown($event)"
+    [class]="triggerClasses()"
+  >
+    @if (prefixIcon()) {
+      <span [class]="iconWrapperClasses()">
+        <cui-icon [name]="prefixIcon()!" [size]="iconSize()" />
+      </span>
+    }
+    <span [class]="labelClasses()">{{ displayLabel() }}</span>
+  </button>
+
+  @if (isOpen()) {
+    <div [class]="panelClasses" role="dialog" style="width: 280px">
+      <div class="flex items-center justify-between px-2 pt-2 pb-1">
+        <button
+          type="button"
+          aria-label="Previous year"
+          [disabled]="!canGoPrevYear()"
+          class="w-8 h-8 inline-flex items-center justify-center rounded-md text-text-muted hover:bg-bg-subtle hover:text-text-primary disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent transition-colors"
+          (click)="goToPrevYear()"
+        >
+          <cui-icon name="chevron-left" size="sm" />
+        </button>
+        <div class="font-medium text-t-300 text-text-primary" aria-live="polite">
+          {{ viewYear() }}
+        </div>
+        <button
+          type="button"
+          aria-label="Next year"
+          [disabled]="!canGoNextYear()"
+          class="w-8 h-8 inline-flex items-center justify-center rounded-md text-text-muted hover:bg-bg-subtle hover:text-text-primary disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent transition-colors"
+          (click)="goToNextYear()"
+        >
+          <cui-icon name="chevron-right" size="sm" />
+        </button>
+      </div>
+
+      <div class="grid grid-cols-3 gap-1 px-2 pb-2">
+        @for (label of monthLabels(); track $index; let i = $index) {
+          <button
+            type="button"
+            [class]="monthCellClasses(i)"
+            [disabled]="isMonthDisabled(i)"
+            [attr.aria-selected]="isMonthSelected(i) || null"
+            (click)="onMonthClick(i)"
+          >
+            {{ label }}
+          </button>
+        }
+      </div>
+
+      <div [class]="footerClasses">
+        <button type="button" [class]="footerLinkClasses" (click)="onThisMonthClick()">
+          This month
+        </button>
+        @if (clearable() && hasValue()) {
+          <button type="button" [class]="footerLinkClasses" (click)="onClearClick()">
+            Clear
+          </button>
+        }
+      </div>
+    </div>
+  }
+</div>
+
+@if (error()) {
+  <p class="type-caption text-error mt-1.5">{{ error() }}</p>
+} @else if (hint()) {
+  <p class="type-caption text-text-muted mt-1.5">{{ hint() }}</p>
+}

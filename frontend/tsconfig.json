@@ -1,1 +1,21 @@
-{"compilerOptions":{"strict":true,"target":"ES2022","module":"preserve","moduleResolution":"bundler","experimentalDecorators":true,"skipLibCheck":true,"outDir":"./dist/out-tsc"},"angularCompilerOptions":{"strictTemplates":true,"strictInjectionParameters":true}}
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "ES2022",
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "experimentalDecorators": true,
+    "skipLibCheck": true,
+    "outDir": "./dist/out-tsc",
+    "baseUrl": ".",
+    "paths": {
+      "@certinal/ui": [
+        "projects/certinal-ui/src/public-api.ts"
+      ]
+    }
+  },
+  "angularCompilerOptions": {
+    "strictTemplates": true,
+    "strictInjectionParameters": true
+  }
+}

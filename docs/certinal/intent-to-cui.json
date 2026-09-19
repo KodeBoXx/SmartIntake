@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "authority": {
+    "componentApi": "assets/certinal/certinal-ui/references/component-api.md",
+    "interactionLaw": "assets/certinal/certinal-ui/references/interaction-patterns.md#canonical-intent-container-mapping"
+  },
+  "rules": {
+    "detail": "right-drawer-lg",
+    "edit": "route-page",
+    "create": "route-page",
+    "destructive": "danger-confirm-dialog",
+    "quickMutation": "anchored-dropdown-or-popover",
+    "feedback": "toast",
+    "validation": "inline-alert"
+  },
+  "mappings": [
+    {"id":"staff-shell","intent":"Staff navigation and shared chrome","container":"route-shell","components":["CuiAppShellComponent","CuiSidebarShellComponent","CuiHeaderComponent"],"status":"m5-shell-stub"},
+    {"id":"form-registry","intent":"Browse staff forms and releases","container":"main-page","components":["CuiDataTableComponent","CuiSearchBarComponent","CuiStatsStripComponent","CuiButtonComponent"],"status":"m5-shell-stub"},
+    {"id":"form-detail","intent":"See a form or release without losing registry context","container":"right-drawer-lg","components":["CuiDrawerComponent","CuiBadgeComponent","CuiButtonComponent"],"status":"m5-shell-stub"},
+    {"id":"form-create-edit","intent":"Create or edit a form definition","container":"route-page","components":["CuiInputComponent","CuiSelectComponent","CuiAlertComponent","CuiButtonComponent"],"status":"planned-later-milestone"},
+    {"id":"field-configure","intent":"Configure nested fields, options, rules, repeaters, and matrices","container":"inline-edit-page-section","components":["CuiInputComponent","CuiSelectComponent","CuiAccordionComponent","CuiButtonComponent"],"status":"planned-later-milestone"},
+    {"id":"release-publish","intent":"Publish a prepared release","container":"route-page-action","components":["CuiButtonComponent","CuiAlertComponent","CuiToastService"],"status":"planned-later-milestone"},
+    {"id":"form-delete","intent":"Archive or delete a draft","container":"danger-confirm-dialog","components":["CuiConfirmService","CuiConfirmDialogComponent"],"status":"planned-later-milestone"},
+    {"id":"response-registry","intent":"Browse, filter, and export submitted responses","container":"main-page","components":["CuiDataTableComponent","CuiSearchBarComponent","CuiSelectComponent","CuiButtonComponent"],"status":"m5-shell-stub"},
+    {"id":"response-detail","intent":"See a submitted response while preserving response-list context","container":"right-drawer-lg","components":["CuiDrawerComponent","CuiBadgeComponent","CuiButtonComponent"],"status":"m5-shell-stub"},
+    {"id":"response-quick-action","intent":"Set one response status or owner","container":"anchored-dropdown-or-popover","components":["CuiDropdownComponent","CuiPopoverComponent"],"status":"m5-shell-stub"},
+    {"id":"respondent-runtime","intent":"Complete a published multi-page form","container":"route-page","components":["CuiStepperComponent","CuiInputComponent","CuiSelectComponent","CuiCheckboxComponent","CuiRadioComponent","CuiAlertComponent"],"status":"m5-shell-stub"},
+    {"id":"validation-feedback","intent":"Show validation errors next to the affected data","container":"inline-alert","components":["CuiAlertComponent"],"status":"m5-shell-stub"},
+    {"id":"post-action-feedback","intent":"Acknowledge save, publish, submit, or export completion","container":"toast","components":["CuiToastService","CuiToastHostComponent"],"status":"m5-shell-stub"},
+    {"id":"m1-current-ui","intent":"Preserve the existing M1 editor, preview, and response administration until routed shells land","container":"frozen-existing-screen","components":[],"status":"preserved-not-migrated"}
+  ]
+}

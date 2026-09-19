@@ -1,0 +1,30 @@
+<nav aria-label="Breadcrumb">
+  <ol class="flex items-center gap-2 list-none m-0 p-0 flex-wrap">
+    @for (item of items(); track $index; let last = $last) {
+      <li class="flex items-center gap-2">
+        @if (last) {
+          <span
+            class="type-body-sm text-text-primary font-medium"
+            aria-current="page"
+          >{{ item.label }}</span>
+        } @else if (item.href) {
+          <a
+            [href]="item.href"
+            class="type-body-sm text-text-muted hover:text-emerald-700 transition-colors duration-200 ease-out"
+            (click)="onClick(item, $event)"
+          >{{ item.label }}</a>
+        } @else {
+          <button
+            type="button"
+            class="type-body-sm text-text-muted hover:text-emerald-700 transition-colors duration-200 ease-out border-0 bg-transparent cursor-pointer p-0"
+            (click)="onClick(item, $event)"
+          >{{ item.label }}</button>
+        }
+
+        @if (!last) {
+          <cui-icon name="chevron-right" size="xs" class="text-text-faint" />
+        }
+      </li>
+    }
+  </ol>
+</nav>

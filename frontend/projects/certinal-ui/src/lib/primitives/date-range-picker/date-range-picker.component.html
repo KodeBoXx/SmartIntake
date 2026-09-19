@@ -1,0 +1,107 @@
+@if (label()) {
+  <label [for]="inputId()" class="block type-label text-text-secondary mb-1.5">
+    {{ label() }}
+    @if (required()) {
+      <span class="text-error ml-0.5" aria-hidden="true">*</span>
+    }
+  </label>
+}
+
+<div class="relative">
+  <button
+    type="button"
+    [id]="inputId()"
+    role="combobox"
+    [attr.aria-haspopup]="'dialog'"
+    [attr.aria-expanded]="isOpen()"
+    [attr.aria-invalid]="hasError() ? 'true' : null"
+    [attr.aria-required]="required() ? 'true' : null"
+    [disabled]="isDisabled()"
+    [attr.name]="name() ?? null"
+    (click)="toggle()"
+    (keydown)="onTriggerKeydown($event)"
+    [class]="triggerClasses()"
+  >
+    @if (prefixIcon()) {
+      <span [class]="iconWrapperClasses()">
+        <cui-icon [name]="prefixIcon()!" [size]="iconSize()" />
+      </span>
+    }
+    <span [class]="labelClasses()">{{ displayLabel() }}</span>
+  </button>
+
+  @if (isOpen()) {
+    <div [class]="panelClasses" role="dialog">
+      <div class="flex">
+        <!-- Preset rail -->
+        @if (presets().length > 0) {
+          <div class="flex flex-col gap-0.5 py-2 px-2 border-r border-border-default min-w-[140px]">
+            @for (p of presets(); track p.label) {
+              <button
+                type="button"
+                class="text-left px-3 py-1.5 rounded-md text-t-200 text-text-primary hover:bg-bg-subtle cursor-pointer transition-colors"
+                (click)="onPresetClick(p)"
+              >
+                {{ p.label }}
+              </button>
+            }
+          </div>
+        }
+
+        <!-- Calendars -->
+        <div class="flex">
+          <cui-calendar
+            mode="range"
+            [selected]="pending()"
+            [rangeHover]="rangeHover()"
+            [(viewMonth)]="viewMonthLeft"
+            [min]="min()"
+            [max]="max()"
+            [disabledDates]="disabledDates()"
+            [weekStartsOn]="weekStartsOn()"
+            [locale]="locale()"
+            (daySelect)="onDaySelect($event)"
+            (dayHover)="onDayHover($event)"
+          />
+          @if (numberOfMonths() > 1) {
+            <div class="border-l border-border-default">
+              <cui-calendar
+                mode="range"
+                [selected]="pending()"
+                [rangeHover]="rangeHover()"
+                [viewMonth]="viewMonthRight()"
+                (viewMonthChange)="onRightViewMonthChange($event)"
+                [min]="min()"
+                [max]="max()"
+                [disabledDates]="disabledDates()"
+                [weekStartsOn]="weekStartsOn()"
+                [locale]="locale()"
+                (daySelect)="onDaySelect($event)"
+                (dayHover)="onDayHover($event)"
+              />
+            </div>
+          }
+        </div>
+      </div>
+
+      <div [class]="footerClasses">
+        <div class="flex items-center gap-1">
+          @if (clearable() && hasValue()) {
+            <button type="button" [class]="footerLinkClasses" (click)="onClearClick()">
+              Clear
+            </button>
+          }
+        </div>
+        <button type="button" [class]="footerLinkClasses" (click)="onCancelClick()">
+          Cancel
+        </button>
+      </div>
+    </div>
+  }
+</div>
+
+@if (error()) {
+  <p class="type-caption text-error mt-1.5">{{ error() }}</p>
+} @else if (hint()) {
+  <p class="type-caption text-text-muted mt-1.5">{{ hint() }}</p>
+}

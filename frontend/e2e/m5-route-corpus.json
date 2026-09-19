@@ -1,0 +1,32 @@
+{
+  "version": 2,
+  "authority": {
+    "uiTotal": "docs/acceptance/v1.1/denominators/ui-total.json",
+    "uiStaffTotal": "docs/acceptance/v1.1/denominators/ui-staff-total.json",
+    "uiTotalSha256": "cadab8f2c28350c065d22f2ca71681e9781a89cd0efe719ec8d63bb28c2c0375",
+    "uiStaffTotalSha256": "3daf76e9fe17043aadbb18ccf623539bc06b4252f5ffd0619b31ff15a3e84c9f",
+    "evaluatorManifest": "docs/acceptance/v1.1/evaluator/manifest.json",
+    "evaluatorManifestSha256": "01d74f5346d317e697cf9d17a3fbfb571cc21c7e92d7cc34ef6299bb8085b255",
+    "corpusDigest": "dcec91d8f8f6d05b4e948a842eb95974dceebdebec3162589bd3b538d529ba1a"
+  },
+  "staffScreenTemplates": {
+    "sign-in": "/sign-in",
+    "setup": "/setup",
+    "activation": "/activation",
+    "recovery": "/recovery",
+    "platform-organizations": "/platform/organizations",
+    "organization-settings": "/settings/organization",
+    "user-list": "/users",
+    "add-user": "/users/new",
+    "user-detail": "/users/:userId",
+    "role-assignment": "/users/:userId/roles",
+    "invitation-delivery": "/invitations",
+    "catalog": "/workspaces/:workspaceId/forms",
+    "builder": "/workspaces/:workspaceId/forms/:formId/drafts/:draftId",
+    "review-publish": "/workspaces/:workspaceId/forms/:formId/review",
+    "responses": "/workspaces/:workspaceId/submissions",
+    "response-detail": "/workspaces/:workspaceId/submissions/:submissionId",
+    "export-history": "/workspaces/:workspaceId/exports",
+    "provider-policy": "/settings/provider-policy"
+  }
+}

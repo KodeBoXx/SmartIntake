@@ -1,0 +1,13 @@
+:host {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--color-border-default);
+  flex-shrink: 0;
+}
+
+:host(.cui-modal-footer--align-end)     { justify-content: flex-end; }
+:host(.cui-modal-footer--align-start)   { justify-content: flex-start; }
+:host(.cui-modal-footer--align-center)  { justify-content: center; }
+:host(.cui-modal-footer--align-between) { justify-content: space-between; }

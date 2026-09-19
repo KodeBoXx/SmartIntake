@@ -1,0 +1,14 @@
+<div class="flex border-b border-border-default" role="tablist">
+  @for (t of tabs(); track $index) {
+    <cui-tab
+      [label]="t.label"
+      [active]="activeIndex() === $index"
+      [disabled]="!!t.disabled"
+      [size]="size()"
+      (tabClick)="onTabClick($index)"
+    />
+  }
+</div>
+<div role="tabpanel" class="pt-4">
+  <ng-content />
+</div>

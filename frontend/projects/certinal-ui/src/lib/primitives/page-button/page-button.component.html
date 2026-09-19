@@ -1,0 +1,10 @@
+<button
+  [type]="type()"
+  [disabled]="disabled()"
+  [class]="buttonClasses()"
+  [attr.aria-current]="active() ? 'page' : null"
+  [attr.aria-label]="'Go to page ' + page()"
+  (click)="onClick()"
+>
+  {{ page() }}
+</button>

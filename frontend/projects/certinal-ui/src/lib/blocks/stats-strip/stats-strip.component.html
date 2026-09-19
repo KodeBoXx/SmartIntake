@@ -1,0 +1,13 @@
+<div class="cui-stats-strip">
+  @for (item of resolvedItems(); track item.label) {
+    <div class="cui-stats-strip__cell" [class.cui-stats-strip__cell--last]="item.isLast">
+      <div class="cui-stats-strip__icon" [style]="tileStyle(item.accent)">
+        <lucide-icon [name]="item.icon" [size]="16" />
+      </div>
+      <div class="cui-stats-strip__content">
+        <div class="cui-stats-strip__value">{{ item.value }}</div>
+        <div class="cui-stats-strip__label">{{ item.label }}</div>
+      </div>
+    </div>
+  }
+</div>

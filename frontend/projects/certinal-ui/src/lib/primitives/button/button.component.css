@@ -1,0 +1,15 @@
+.cui-btn-spinner {
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 9999px;
+  animation: cui-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes cui-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
