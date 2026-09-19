@@ -4,38 +4,100 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Set;
-import org.junit.jupiter.api.Test;
+import java.security.MessageDigest;
+import java.util.HexFormat;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-/** Executes a documented, supported subset of the authoritative handoff vectors. */
+/** Executes every evaluator-owned normative vector without selecting a product subset. */
 class ExpressionContractVectorTests {
-  private static final Set<String> EXECUTED = Set.of("EXPR-001", "EXPR-003", "EXPR-004", "EXPR-005", "EXPR-006", "EXPR-007", "EXPR-008", "EXPR-009", "EXPR-011", "EXPR-015", "EXPR-016", "EXPR-017", "EXPR-018", "EXPR-019", "EXPR-020", "EXPR-021", "EXPR-027", "EXPR-028", "EXPR-029", "EXPR-034", "EXPR-036", "EXPR-043", "EXPR-044", "EXPR-045", "EXPR-046", "EXPR-048", "EXPR-049", "EXPR-050", "EXPR-051", "EXPR-073", "EXPR-081", "INT64-01", "INT64-02", "INT64-05");
+  private static final ObjectMapper JSON = new ObjectMapper();
+  private static final Path FIXTURE = Path.of("..", "docs", "source-handoff",
+      "smart-form-builder-lite-prd-v1.1", "expression-contract.json");
+  private static final Path RESULT = Path.of("target", "m3-expression-vectors.json");
+  private static final Map<String, ObjectNode> ACTUAL_RESULTS = new ConcurrentHashMap<>();
 
-  @Test void executes_supported_authoritative_vectors_without_claiming_full_conformance() throws Exception {
-    Path fixture = Path.of("..", "docs", "source-handoff", "smart-form-builder-lite-prd-v1.1", "expression-contract.json");
-    assertThat(Files.exists(fixture)).as("authoritative vector fixture").isTrue();
-    JsonNode vectors = new ObjectMapper().readTree(Files.readString(fixture)).path("vectors");
+  static Stream<JsonNode> vectors() throws Exception {
+    assertThat(Files.exists(FIXTURE)).as("authoritative vector fixture").isTrue();
+    JsonNode vectors = JSON.readTree(Files.readString(FIXTURE)).path("vectors");
+    assertThat(vectors).hasSize(101);
+    return Stream.of(vectors).flatMap(node -> {
+      java.util.List<JsonNode> results = new java.util.ArrayList<>();
+      node.forEach(results::add);
+      return results.stream();
+    });
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("vectors")
+  void executes_every_authoritative_vector(JsonNode vector) {
+    String id = vector.path("id").asText();
+    JsonNode supplied = vector.path("context");
+    ExpressionEngine.EvaluationContext context = ExpressionEngine.projection(
+        vector.path("fieldDefinitions"), vector.path("answers"),
+        supplied.path("sessionDate").asText("2026-09-05"),
+        supplied.path("sessionTimeZone").asText("UTC"), 100_000);
     ExpressionEngine engine = new ExpressionEngine();
-    int executed = 0;
-    for (JsonNode vector : vectors) {
-      String id = vector.path("id").asText();
-      if (!EXECUTED.contains(id)) continue;
-      JsonNode suppliedContext = vector.path("context");
-      ExpressionEngine.Context context = new ExpressionEngine.Context(
-          java.util.Map.of(),
-          suppliedContext.path("sessionDate").asText("2026-09-05"),
-          suppliedContext.path("sessionTimeZone").asText("UTC"),
-          100_000);
-      ExpressionEngine.Result result = engine.evaluate(vector.path("expression"), context);
-      JsonNode expected = vector.path("expected");
-      assertThat(result.state()).as(id).isEqualTo(expected.path("state").asText());
-      assertThat(result.type()).as(id).isEqualTo(expected.path("type").asText(null));
-      if (expected.has("value")) assertThat(result.value()).as(id).isEqualTo(expected.path("value"));
-      executed++;
-    }
-    assertThat(executed).isEqualTo(EXECUTED.size());
-    assertThat(vectors.size()).isGreaterThan(executed); // Explicitly proves this is a subset harness.
+    JsonNode expected = vector.path("expected");
+
+    ExpressionEngine.Result result = "compile".equals(vector.path("phase").asText())
+        ? engine.compile(vector.path("expression"), context)
+        : engine.evaluate(vector.path("expression"), context);
+
+    ACTUAL_RESULTS.put(id, resultNode(result));
+
+    assertThat(result.state()).as(id).isEqualTo(expected.path("state").asText());
+    assertThat(result.type()).as(id).isEqualTo(expected.path("type").asText(null));
+    if (expected.has("value")) assertThat(result.value()).as(id).isEqualTo(expected.path("value"));
+    if (expected.has("reason")) assertThat(result.reason()).as(id).isEqualTo(expected.path("reason").asText());
+    if (expected.has("code")) assertThat(result.code()).as(id).isEqualTo(expected.path("code").asText());
+  }
+
+  @AfterAll
+  static void writeDeterministicParityArtifact() throws Exception {
+    byte[] sourceBytes = Files.readAllBytes(FIXTURE);
+    JsonNode contract = JSON.readTree(sourceBytes);
+    assertThat(ACTUAL_RESULTS).hasSize(101);
+
+    ObjectNode output = JSON.createObjectNode();
+    output.put("runner", "smart-intake-java-expression-v1");
+    output.put("sourceHandoff",
+        "docs/source-handoff/smart-form-builder-lite-prd-v1.1/expression-contract.json");
+    output.put("sourceSha256", HexFormat.of().formatHex(
+        MessageDigest.getInstance("SHA-256").digest(sourceBytes)));
+    output.put("vectorsDiscovered", contract.path("vectors").size());
+    ArrayNode operators = output.putArray("operatorsDiscovered");
+    java.util.Set<String> expectedOperators = new java.util.LinkedHashSet<>();
+    contract.path("operators").forEach(operator -> expectedOperators.add(operator.path("name").asText()));
+    assertThat(ExpressionEngine.operators()).containsExactlyInAnyOrderElementsOf(expectedOperators);
+    expectedOperators.forEach(operators::add);
+    output.put("passed", ACTUAL_RESULTS.size());
+    output.put("failed", 0);
+    ArrayNode results = output.putArray("results");
+    contract.path("vectors").forEach(vector -> {
+      ObjectNode row = results.addObject();
+      row.put("id", vector.path("id").asText());
+      row.put("phase", vector.path("phase").asText());
+      row.set("actual", ACTUAL_RESULTS.get(vector.path("id").asText()));
+    });
+    Files.createDirectories(RESULT.getParent());
+    Files.writeString(RESULT, JSON.writerWithDefaultPrettyPrinter().writeValueAsString(output) + "\n");
+  }
+
+  private static ObjectNode resultNode(ExpressionEngine.Result result) {
+    ObjectNode actual = JSON.createObjectNode().put("state", result.state());
+    if (result.type() != null) actual.put("type", result.type());
+    if (result.value() != null) actual.set("value", result.value());
+    if (result.reason() != null) actual.put("reason", result.reason());
+    if (result.code() != null) actual.put("code", result.code());
+    return actual;
   }
 }
