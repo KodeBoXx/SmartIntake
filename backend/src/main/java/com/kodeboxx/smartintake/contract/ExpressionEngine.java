@@ -73,7 +73,46 @@ public final class ExpressionEngine {
   public static EvaluationContext projection(JsonNode definitions, JsonNode answers, String sessionDate,
       String sessionTimeZone, int stepLimit) {
     Map<String, Field> fields = fields(definitions);
-    return new EvaluationContext(fields, cells(answers), sessionDate, sessionTimeZone, stepLimit, true);
+    return new EvaluationContext(fields, cells(answers), List.of(), List.of(), sessionDate, sessionTimeZone,
+        stepLimit, true);
+  }
+
+  /** Builds a strict context at one stable repeated-row path. */
+  public static EvaluationContext projectionAt(
+      JsonNode definitions,
+      JsonNode answers,
+      List<String> listFieldIds,
+      List<String> itemIds,
+      String sessionDate,
+      String sessionTimeZone,
+      int stepLimit) {
+    if (listFieldIds.size() != itemIds.size()) throw fail("EXPR_SCOPE");
+    Map<String, Field> rootFields = fields(definitions);
+    Map<String, Cell> rootCells = cells(answers);
+    Map<String, Field> currentFields = rootFields;
+    Map<String, Cell> currentCells = rootCells;
+    List<Map<String, Field>> itemFields = new ArrayList<>();
+    List<Map<String, Cell>> itemCells = new ArrayList<>();
+    for (int index = 0; index < listFieldIds.size(); index++) {
+      Field list = currentFields.get(listFieldIds.get(index));
+      Cell listCell = currentCells.get(listFieldIds.get(index));
+      if (list == null || listCell == null || !"array".equals(list.type) || listCell.value == null)
+        throw fail("EXPR_SCOPE");
+      JsonNode selected = null;
+      for (JsonNode item : listCell.value.path("items")) {
+        if (itemIds.get(index).equals(item.path("itemId").asText())) {
+          selected = item;
+          break;
+        }
+      }
+      if (selected == null) throw fail("EXPR_SCOPE");
+      currentFields = list.itemFields;
+      currentCells = cells(selected.path("fields"));
+      itemFields.add(currentFields);
+      itemCells.add(currentCells);
+    }
+    return new EvaluationContext(rootFields, rootCells, itemFields, itemCells, sessionDate, sessionTimeZone,
+        stepLimit, true);
   }
 
   /** A typed compile result, useful to callers that compile against a package field registry. */
@@ -112,8 +151,8 @@ public final class ExpressionEngine {
       String itemType = type.startsWith("array:") ? type.substring(6) : null;
       fields.put(id, new Field(id, itemType == null ? type : "array", itemType, Map.of()));
     });
-    return new EvaluationContext(fields, legacy.rootCells, context.sessionDate(), context.sessionTimeZone(),
-        context.stepLimit(), true);
+    return new EvaluationContext(fields, legacy.rootCells, List.of(), List.of(), context.sessionDate(),
+        context.sessionTimeZone(), context.stepLimit(), true);
   }
 
   public Result evaluate(JsonNode expression, EvaluationContext context) {
@@ -124,9 +163,9 @@ public final class ExpressionEngine {
   public Result evaluate(JsonNode expression, EvaluationContext context, MutationBudget budget) {
     try {
       validateCellEnvelopes(context.rootCells);
-      Expr compiled = compileTop(expression, new CompileEnv(context.fields, List.of(), context.strict));
+      Expr compiled = compileTop(expression, new CompileEnv(context.fields, context.itemFields, context.strict));
       validateFrozenContext(context);
-      Value value = evaluate(compiled, new RuntimeEnv(context.rootCells, List.of(), context), budget);
+      Value value = evaluate(compiled, new RuntimeEnv(context.rootCells, context.itemCells, context), budget);
       return Result.available(externalType(value.type), value.node);
     } catch (UnknownValue unknown) {
       return Result.unknown(unknown.reason);
@@ -139,15 +178,20 @@ public final class ExpressionEngine {
   public static final class EvaluationContext {
     private final Map<String, Field> fields;
     private final Map<String, Cell> rootCells;
+    private final List<Map<String, Field>> itemFields;
+    private final List<Map<String, Cell>> itemCells;
     private final String sessionDate;
     private final String sessionTimeZone;
     private final int stepLimit;
     private final boolean strict;
 
-    private EvaluationContext(Map<String, Field> fields, Map<String, Cell> rootCells, String sessionDate,
+    private EvaluationContext(Map<String, Field> fields, Map<String, Cell> rootCells,
+        List<Map<String, Field>> itemFields, List<Map<String, Cell>> itemCells, String sessionDate,
         String sessionTimeZone, int stepLimit, boolean strict) {
       this.fields = Map.copyOf(fields);
       this.rootCells = Map.copyOf(rootCells);
+      this.itemFields = List.copyOf(itemFields);
+      this.itemCells = List.copyOf(itemCells);
       this.sessionDate = sessionDate == null ? "2026-09-05" : sessionDate;
       this.sessionTimeZone = sessionTimeZone == null ? "UTC" : sessionTimeZone;
       this.stepLimit = stepLimit <= 0 ? 100_000 : Math.min(stepLimit, 100_000);
@@ -815,7 +859,8 @@ public final class ExpressionEngine {
             canonical(type, literal.get("value"))));
       } catch (RuntimeException ignored) { /* unavailable legacy value */ }
     });
-    return new EvaluationContext(fields, cells, context.sessionDate(), context.sessionTimeZone(), context.stepLimit(), false);
+    return new EvaluationContext(fields, cells, List.of(), List.of(), context.sessionDate(),
+        context.sessionTimeZone(), context.stepLimit(), false);
   }
 
   private static void validateFrozenContext(EvaluationContext context) {

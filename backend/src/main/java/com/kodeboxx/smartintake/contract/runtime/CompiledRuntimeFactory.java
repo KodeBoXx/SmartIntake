@@ -17,9 +17,8 @@ public final class CompiledRuntimeFactory {
 
   private Field field(JsonNode source) {
     Map<String, Field> children = new LinkedHashMap<>();
-    JsonNode childFields = "object".equals(source.path("type").asText())
-        ? source.path("fields")
-        : source.path("itemSchema").path("fields");
+    // Canonical 4.0.0 stores recursive children under itemSchema.fields for both composites.
+    JsonNode childFields = source.path("itemSchema").path("fields");
     for (JsonNode child : childFields) {
       Field compiled = field(child);
       children.put(compiled.id(), compiled);
@@ -31,13 +30,15 @@ public final class CompiledRuntimeFactory {
     Integer scale = null;
     if (source.path("constraints").has("scale")) {
       scale = source.path("constraints").path("scale").intValue();
-    } else if (source.path("calculation").path("rounding").has("scale")) {
-      scale = source.path("calculation").path("rounding").path("scale").intValue();
     }
+    JsonNode constraints = source.path("constraints");
+    Set<String> exclusive = new LinkedHashSet<>();
+    constraints.path("exclusiveOptionIds").forEach(option -> exclusive.add(option.asText()));
     return new Field(
         source.path("id").asText(),
         source.path("type").asText(),
-        source.path("calculated").asBoolean(false) || "calculated".equals(source.path("mode").asText()),
+        source.path("calculated").asBoolean(false) || "calculated".equals(source.path("mode").asText())
+            || source.path("extensions").has("x-kodeboxx.calculation"),
         source.path("readOnly").asBoolean(false),
         source.path("allowUnknown").asBoolean(false),
         source.path("allowDeclined").asBoolean(false),
@@ -45,6 +46,17 @@ public final class CompiledRuntimeFactory {
         scale,
         options,
         children,
-        fixedRows);
+        fixedRows,
+        source.path("hiddenRetention").asText("clear"),
+        source.path("normalizer").asText("preserve"),
+        source.has("default") ? source.get("default") : null,
+        constraints.get("min"),
+        constraints.get("max"),
+        constraints.get("step"),
+        constraints.has("minLength") ? constraints.path("minLength").intValue() : null,
+        constraints.has("maxLength") ? constraints.path("maxLength").intValue() : null,
+        constraints.has("minItems") ? constraints.path("minItems").intValue() : null,
+        constraints.has("maxItems") ? constraints.path("maxItems").intValue() : null,
+        exclusive);
   }
 }

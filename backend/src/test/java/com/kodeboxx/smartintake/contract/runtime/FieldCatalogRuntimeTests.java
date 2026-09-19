@@ -97,7 +97,7 @@ class FieldCatalogRuntimeTests {
     Field child = new Field("child", "text", false, false, false, false, false, null, Set.of(), Map.of(), List.of());
     Field object = new Field("field", "object", false, false, false, false, false, null, Set.of(), Map.of("child", child), List.of());
     // Object values are initialized structurally; direct whole-object replacement stays forbidden.
-    return new TypedAnswerRuntime(List.of(object, child)).apply(new State(), List.of(
+    return new TypedAnswerRuntime(List.of(object)).apply(new State(), List.of(
         new SetValue(new Address("child", List.of()), Status.answered, JSON.readTree("\"ok\""))), NOW);
   }
 

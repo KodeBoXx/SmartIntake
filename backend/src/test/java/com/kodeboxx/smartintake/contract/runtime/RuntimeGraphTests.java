@@ -35,7 +35,7 @@ class RuntimeGraphTests {
     assertEquals(Provenance.calculated, hidden.state().cells().get(new Address("total", List.of())).provenance());
     assertEquals(List.of("page-input", "page-review"), hidden.reachablePageIds());
     assertEquals(1, hidden.requiredCount());
-    assertEquals(1, hidden.completedRequiredCount());
+    assertEquals(0, hidden.completedRequiredCount());
 
     State visibleInput = runtime.apply(hidden.state(), List.of(
         new SetValue(new Address("flag", List.of()), Status.answered, JSON.readTree("true"))), NOW.plusSeconds(2)).state();
@@ -71,7 +71,7 @@ class RuntimeGraphTests {
           "data":{"fields":[
             {"id":"flag","key":"flag","type":"boolean","labelKey":"flag","required":true},
             {"id":"amount","key":"amount","type":"integer","labelKey":"amount"},
-            {"id":"secret","key":"secret","type":"text","labelKey":"secret","visibilityExpressionId":"showSecret"},
+            {"id":"secret","key":"secret","type":"text","labelKey":"secret","hiddenRetention":"draft","visibilityExpressionId":"showSecret"},
             {"id":"total","key":"total","type":"integer","labelKey":"total","calculated":true,
              "calculation":{"expressionRef":"#/expressions/totalExpression","outputType":"integer","readOnly":true,"recomputeOn":["/answers/amount"]}}
           ]},

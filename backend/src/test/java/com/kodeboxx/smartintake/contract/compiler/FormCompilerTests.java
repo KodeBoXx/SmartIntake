@@ -21,6 +21,15 @@ class FormCompilerTests {
     ObjectNode form = canonical();
     ObjectNode amount = (ObjectNode) form.at("/data/fields/1");
     amount.put("calculated", true);
+    ((ArrayNode) form.path("dependencies")).add(json.readTree("""
+        {"kind":"extension","id":"calculation-runtime","version":"1","digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}"""));
+    ObjectNode binding = amount.putObject("extensions").putObject("x-kodeboxx.calculation");
+    binding.put("dependencyId", "calculation-runtime");
+    binding.put("version", "1");
+    binding.put("digest", "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+    binding.put("value", "calculation");
+    ((ObjectNode) form.path("expressions")).set("calculation", json.readTree("""
+        {"literal":{"type":"integer","value":"7"}}"""));
 
     CompilationResult result = compiler.compile(form);
 
@@ -107,6 +116,18 @@ class FormCompilerTests {
     child.put("type", "list"); child.set("itemSchema", json.readTree("""
         {"fields":[{"id":"l2","key":"l2","type":"list","labelKey":"name","itemSchema":{"fields":[{"id":"l3","key":"l3","type":"list","labelKey":"name","itemSchema":{"fields":[{"id":"l4","key":"l4","type":"text","labelKey":"name"}]}}]}}]}"""));
     assertCode(compiler.compile(nested), "NESTED_REPEATER_DEPTH"); // C nested-repeater-depth
+  }
+
+  @Test
+  void compiles_nested_object_and_list_children_and_requires_bound_calculation_extension() throws Exception {
+    ObjectNode form = canonical();
+    CompilationResult nested = compiler.compile(form);
+    assertThat(nested.valid()).as(nested.diagnostics().toString()).isTrue();
+    assertThat(nested.compiled().orElseThrow().fields()).containsKey("attendeeName");
+
+    ObjectNode calculated = canonical();
+    ((ObjectNode) calculated.at("/data/fields/1")).put("calculated", true);
+    assertCode(compiler.compile(calculated), "CALCULATION_BINDING_REQUIRED");
   }
 
   private ObjectNode canonical() throws Exception {

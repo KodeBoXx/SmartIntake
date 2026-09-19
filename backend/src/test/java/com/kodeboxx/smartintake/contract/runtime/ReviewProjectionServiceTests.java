@@ -42,7 +42,7 @@ class ReviewProjectionServiceTests {
     assertFalse(projection.answers().get(0).value().booleanValue());
     assertEquals("0", projection.answers().get(1).value().textValue());
     assertEquals("", projection.answers().get(2).value().textValue());
-    assertEquals(List.of("Unknown", "Prefer not to answer", "Not applicable"),
+    assertEquals(List.of("Unknown", "Prefer not to answer", "Not applicable (respondent answer)"),
         projection.answers().subList(3, 6).stream().map(ReviewProjectionService.ReviewRow::statusLabel).toList());
   }
 
@@ -60,6 +60,18 @@ class ReviewProjectionServiceTests {
     assertEquals(List.of("visible"), projection.answers().stream().map(ReviewProjectionService.ReviewRow::fieldId).toList());
     assertEquals(List.of("gate"), projection.reviewGates().stream().map(ReviewProjectionService.ReviewRow::fieldId).toList());
     assertFalse(projection.export().toString().contains("private"));
+  }
+
+  @Test
+  void keeps_declared_placement_order_and_explicit_unanswered_rows() {
+    var runtime = new TypedAnswerRuntime(List.of(field("first", "text"), field("second", "text")));
+    var projection = new ReviewProjectionService().project(runtime.initialize(), List.of(
+        new Placement("second-placement", "second", "Second", false, false, List.of()),
+        new Placement("first-placement", "first", "First", false, false, List.of())));
+    assertEquals(List.of("second-placement", "first-placement"),
+        projection.answers().stream().map(ReviewProjectionService.ReviewRow::instanceId).toList());
+    assertEquals(List.of(Status.unanswered, Status.unanswered),
+        projection.answers().stream().map(ReviewProjectionService.ReviewRow::status).toList());
   }
 
   @Test

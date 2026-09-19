@@ -129,11 +129,11 @@ describe('SmartIntakeApiService', () => {
       clientMutationId: 'mutation-typed',
       currentPageId: 'page-review',
       operations: [
-        { op: 'set', fieldId: 'amount', value: '9223372036854775807' },
+        { op: 'set', fieldId: 'amount', answer: { status: 'answered', value: '9223372036854775807' } },
         {
           op: 'set', fieldId: 'reason',
           rowPath: [{ listFieldId: 'rows', itemId: 'row-a' }],
-          value: { status: 'declined' },
+          answer: { status: 'declined' },
         },
         { op: 'moveItem', fieldId: 'rows', itemId: 'row-b', beforeItemId: 'row-a' },
       ],

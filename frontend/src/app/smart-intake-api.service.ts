@@ -132,7 +132,8 @@ export class SmartIntakeApiService {
     };
     switch (operation.kind) {
       case 'set': return {
-        op: 'set', ...target, value: operation.answer ?? operation.value,
+        op: 'set', ...target,
+        answer: operation.answer ?? { status: 'answered', value: operation.value },
       };
       case 'clear': return { op: 'clear', ...target };
       case 'markInvalid': return { op: 'markInvalid', ...target, reason: operation.reason };

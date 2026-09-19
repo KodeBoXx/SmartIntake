@@ -3,6 +3,7 @@ package com.kodeboxx.smartintake.contract.runtime;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.kodeboxx.smartintake.contract.runtime.TypedAnswerRuntime.*;
 import java.time.Instant;
 import java.util.*;
@@ -106,7 +107,7 @@ class TypedAnswerRuntimeTests {
   }
 
   @Test
-  void fixedRowsCanMoveButCannotBeAddedOrRemoved() {
+  void fixedRowsCannotBeAddedRemovedOrMoved() {
     Field value = scalar("value", "boolean");
     Field fixed = new Field("checks", "list", false, false, false, false, false, null, Set.of(), Map.of("value", value), List.of("power", "space"));
     var runtime = new TypedAnswerRuntime(List.of(fixed));
@@ -116,8 +117,8 @@ class TypedAnswerRuntimeTests {
     assertFalse(runtime.apply(initial, List.of(new AddItem(address, "other", Map.of())), NOW).accepted());
     assertFalse(runtime.apply(initial, List.of(new RemoveItem(address, "power")), NOW).accepted());
     var moved = runtime.apply(initial, List.of(new MoveItem(address, "space", "power")), NOW);
-    assertTrue(moved.accepted());
-    assertEquals(List.of("space", "power"), moved.state().itemIds(address));
+    assertFalse(moved.accepted());
+    assertEquals(List.of("power", "space"), moved.state().itemIds(address));
   }
 
   @Test
@@ -202,13 +203,30 @@ class TypedAnswerRuntimeTests {
         Set.of(), Map.of("child", child), List.of());
     var runtime = new TypedAnswerRuntime(List.of(rows));
     Address address = new Address("rows", List.of());
-    State populated = runtime.apply(new State(), List.of(new AddItem(address, "row-a", Map.of())), NOW).state();
+    AddItem add = new AddItem(address, "row-a", Map.of(
+        "child", new SetValue(new Address("child", List.of()), Status.answered,
+            com.fasterxml.jackson.databind.node.TextNode.valueOf("retained"))));
+    State populated = runtime.apply(new State(), List.of(add), NOW).state();
     State hidden = runtime.projectApplicability(populated, Map.of(address, false), NOW.plusSeconds(1));
+    hidden = runtime.fromStorage(runtime.storage(hidden));
     assertEquals("notApplicable", runtime.projection(hidden).at("/rows/status").asText());
     assertTrue(runtime.projection(hidden).at("/rows/value").isMissingNode());
     assertEquals(List.of("row-a"), hidden.itemIds(address));
     assertFalse(runtime.apply(hidden, List.of(new RemoveItem(address, "row-a")), NOW.plusSeconds(2)).accepted());
     State restored = runtime.projectApplicability(hidden, Map.of(address, true), NOW.plusSeconds(3));
     assertEquals("row-a", runtime.projection(restored).at("/rows/value/items/0/itemId").asText());
+    assertEquals("retained", runtime.projection(restored).at("/rows/value/items/0/fields/child/value").asText());
+  }
+
+  @Test
+  void cellValuesRemainImmutableAcrossAccessAndStateCopies() throws Exception {
+    var runtime = new TypedAnswerRuntime(List.of(scalar("choices", "multiChoice")));
+    Address address = new Address("choices", List.of());
+    State original = runtime.apply(new State(), List.of(new SetValue(
+        address, Status.answered, JSON.readTree("[\"a\"]"))), NOW).state();
+    State copy = original.copy();
+    ((ArrayNode) original.cells().get(address).value()).add("forged");
+    assertEquals(1, original.cells().get(address).value().size());
+    assertEquals(1, copy.cells().get(address).value().size());
   }
 }

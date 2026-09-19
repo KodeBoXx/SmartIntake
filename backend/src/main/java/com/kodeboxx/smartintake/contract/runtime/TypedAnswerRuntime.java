@@ -5,9 +5,9 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.kodeboxx.smartintake.contract.ContractValue;
+import com.kodeboxx.smartintake.contract.TimeZoneRegistry;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.OffsetDateTime;
 import java.util.*;
 
 /**
@@ -70,19 +70,48 @@ public final class TypedAnswerRuntime {
       Integer decimalScale,
       Set<String> optionIds,
       Map<String, Field> children,
-      List<String> fixedItemIds) {
+      List<String> fixedItemIds,
+      String hiddenRetention,
+      String normalizer,
+      JsonNode defaultAnswer,
+      JsonNode minimum,
+      JsonNode maximum,
+      JsonNode step,
+      Integer minLength,
+      Integer maxLength,
+      Integer minItems,
+      Integer maxItems,
+      Set<String> exclusiveOptionIds) {
+    public Field(
+        String id, String type, boolean calculated, boolean readOnly, boolean allowUnknown,
+        boolean allowDeclined, boolean allowNotApplicable, Integer decimalScale, Set<String> optionIds,
+        Map<String, Field> children, List<String> fixedItemIds) {
+      this(id, type, calculated, readOnly, allowUnknown, allowDeclined, allowNotApplicable,
+          decimalScale, optionIds, children, fixedItemIds, "draft", "preserve", null,
+          null, null, null, null, null, null, null, Set.of());
+    }
+
     public Field {
       requireId(id, "FIELD_ID_INVALID");
       Objects.requireNonNull(type, "type");
       optionIds = Set.copyOf(optionIds == null ? Set.of() : optionIds);
       children = Map.copyOf(children == null ? Map.of() : children);
       fixedItemIds = List.copyOf(fixedItemIds == null ? List.of() : fixedItemIds);
+      hiddenRetention = hiddenRetention == null ? "clear" : hiddenRetention;
+      normalizer = normalizer == null ? "preserve" : normalizer;
+      defaultAnswer = defaultAnswer == null ? null : defaultAnswer.deepCopy();
+      exclusiveOptionIds = Set.copyOf(exclusiveOptionIds == null ? Set.of() : exclusiveOptionIds);
       if (decimalScale != null && (decimalScale < 0 || decimalScale > 34))
         throw problem("DECIMAL_SCALE");
       if (("object".equals(type) || "list".equals(type)) && children.isEmpty())
         throw problem("CHILD_FIELDS_REQUIRED");
       if (!fixedItemIds.isEmpty() && !"list".equals(type)) throw problem("FIXED_ROWS_INVALID");
       if (new HashSet<>(fixedItemIds).size() != fixedItemIds.size()) throw problem("FIXED_ROWS_INVALID");
+    }
+
+    @Override
+    public JsonNode defaultAnswer() {
+      return defaultAnswer == null ? null : defaultAnswer.deepCopy();
     }
   }
 
@@ -101,6 +130,11 @@ public final class TypedAnswerRuntime {
       value = value == null ? null : value.deepCopy();
       if (status != Status.answered && value != null) throw problem("STATUS_VALUE_CONFLICT");
       if (status == Status.answered && value == null) throw problem("ANSWER_VALUE_REQUIRED");
+    }
+
+    @Override
+    public JsonNode value() {
+      return value == null ? null : value.deepCopy();
     }
   }
 
@@ -156,11 +190,18 @@ public final class TypedAnswerRuntime {
         Map<Address, Cell> retainedCells,
         Map<Address, List<String>> itemOrder,
         Set<String> retiredItems) {
-      this.cells = new LinkedHashMap<>(cells);
-      this.retainedCells = new LinkedHashMap<>(retainedCells);
+      this.cells = deepCopyCells(cells);
+      this.retainedCells = deepCopyCells(retainedCells);
       this.itemOrder = new LinkedHashMap<>();
       itemOrder.forEach((key, value) -> this.itemOrder.put(key, List.copyOf(value)));
       this.retiredItems = new LinkedHashSet<>(retiredItems);
+    }
+
+    private static LinkedHashMap<Address, Cell> deepCopyCells(Map<Address, Cell> source) {
+      LinkedHashMap<Address, Cell> copy = new LinkedHashMap<>();
+      source.forEach((address, cell) -> copy.put(address, new Cell(cell.type(), cell.status(),
+          cell.provenance(), cell.value(), cell.changedAt(), cell.needsReentry())));
+      return copy;
     }
 
     public Map<Address, Cell> cells() {
@@ -196,13 +237,35 @@ public final class TypedAnswerRuntime {
   }
 
   private final Map<String, Field> roots;
+  private final Map<String, Field> allFields;
+  private final Map<String, List<String>> listAncestors;
 
   public TypedAnswerRuntime(Collection<Field> roots) {
     var fields = new LinkedHashMap<String, Field>();
+    var descendants = new LinkedHashMap<String, Field>();
+    var ancestors = new LinkedHashMap<String, List<String>>();
     for (Field field : roots) {
       if (fields.putIfAbsent(field.id(), field) != null) throw problem("DUPLICATE_FIELD_ID");
+      collectField(field, List.of(), descendants, ancestors);
     }
     this.roots = Map.copyOf(fields);
+    this.allFields = Map.copyOf(descendants);
+    this.listAncestors = Map.copyOf(ancestors);
+  }
+
+  private static void collectField(
+      Field field,
+      List<String> parentLists,
+      Map<String, Field> descendants,
+      Map<String, List<String>> ancestors) {
+    if (descendants.putIfAbsent(field.id(), field) != null) throw problem("DUPLICATE_FIELD_ID");
+    ancestors.put(field.id(), List.copyOf(parentLists));
+    List<String> childLists = parentLists;
+    if ("list".equals(field.type())) {
+      childLists = new ArrayList<>(parentLists);
+      childLists.add(field.id());
+    }
+    for (Field child : field.children().values()) collectField(child, childLists, descendants, ancestors);
   }
 
   /** Applies the complete batch atomically. Any diagnostic returns the original state. */
@@ -261,7 +324,10 @@ public final class TypedAnswerRuntime {
           Field field = resolve(entry.getKey());
           Cell effective = candidate.cells.get(entry.getKey());
           if (!entry.getValue()) {
-            if (effective != null && effective.status() != Status.notApplicable) {
+            if ("clear".equals(field.hiddenRetention())) {
+              clearSubtree(candidate, field, entry.getKey());
+              effective = null;
+            } else if (effective != null && effective.status() != Status.notApplicable) {
               candidate.retainedCells.put(entry.getKey(), effective);
             }
             candidate.cells.put(entry.getKey(), new Cell(
@@ -276,14 +342,109 @@ public final class TypedAnswerRuntime {
     return candidate;
   }
 
+  private void clearSubtree(State state, Field field, Address address) {
+    Set<String> descendantIds = new HashSet<>();
+    collectDescendantIds(field, descendantIds);
+    state.cells.keySet().removeIf(candidate -> descendantAddress(candidate, address, descendantIds));
+    state.retainedCells.keySet().removeIf(candidate -> descendantAddress(candidate, address, descendantIds));
+    List<Address> removedOrders = state.itemOrder.keySet().stream()
+        .filter(candidate -> descendantAddress(candidate, address, descendantIds)).toList();
+    removedOrders.forEach(candidate -> {
+      state.retiredItems.addAll(state.itemOrder.getOrDefault(candidate, List.of()));
+      state.itemOrder.remove(candidate);
+    });
+  }
+
+  private static void collectDescendantIds(Field field, Set<String> ids) {
+    ids.add(field.id());
+    field.children().values().forEach(child -> collectDescendantIds(child, ids));
+  }
+
+  private static boolean descendantAddress(Address candidate, Address root, Set<String> fieldIds) {
+    if (!fieldIds.contains(candidate.fieldId())) return false;
+    if (candidate.rowPath().size() < root.rowPath().size()) return false;
+    return candidate.rowPath().subList(0, root.rowPath().size()).equals(root.rowPath());
+  }
+
   /** Creates the deterministic initial structural state, including immutable fixed rows. */
   public State initialize() {
+    return initialize(Instant.EPOCH);
+  }
+
+  public State initialize(Instant changedAt) {
     State state = new State();
     roots.values().stream()
         .filter(field -> "list".equals(field.type()) && !field.fixedItemIds().isEmpty())
         .sorted(Comparator.comparing(Field::id))
-        .forEach(field -> state.itemOrder.put(new Address(field.id(), List.of()), field.fixedItemIds()));
+        .forEach(field -> {
+          Address address = new Address(field.id(), List.of());
+          state.itemOrder.put(address, field.fixedItemIds());
+          state.cells.put(address, structuralCell(field, Provenance.system, changedAt));
+        });
+    roots.values().stream().sorted(Comparator.comparing(Field::id))
+        .forEach(field -> applyDefault(state, field, List.of(), changedAt));
     return state;
+  }
+
+  private void applyDefault(State state, Field field, List<RowSegment> path, Instant changedAt) {
+    JsonNode answer = field.defaultAnswer();
+    Address address = new Address(field.id(), path);
+    if ("list".equals(field.type()) && !field.fixedItemIds().isEmpty()
+        && !state.itemOrder.containsKey(address)) {
+      state.itemOrder.put(address, field.fixedItemIds());
+      state.cells.put(address, structuralCell(field, Provenance.system, changedAt));
+    }
+    if (answer != null) applyDefaultAnswer(state, field, address, answer, changedAt);
+    if ("object".equals(field.type())) {
+      for (Field child : field.children().values()) applyDefault(state, child, path, changedAt);
+    } else if ("list".equals(field.type())) {
+      for (String itemId : state.itemIds(address)) {
+        List<RowSegment> childPath = new ArrayList<>(path);
+        childPath.add(new RowSegment(field.id(), itemId));
+        for (Field child : field.children().values()) applyDefault(state, child, childPath, changedAt);
+      }
+    }
+  }
+
+  private void applyDefaultAnswer(State state, Field field, Address address, JsonNode answer, Instant changedAt) {
+    if (!"answered".equals(answer.path("status").asText()) || !answer.has("value"))
+      throw problem("DEFAULT_INVALID");
+    JsonNode value = answer.get("value");
+    if ("object".equals(field.type())) {
+      state.cells.put(address, structuralCell(field, Provenance.defaultValue, changedAt));
+      JsonNode childAnswers = value.path("fields");
+      childAnswers.fields().forEachRemaining(entry -> {
+        Field child = field.children().get(entry.getKey());
+        if (child == null) throw problem("DEFAULT_INVALID");
+        applyDefaultAnswer(state, child, new Address(child.id(), address.rowPath()), entry.getValue(), changedAt);
+      });
+    } else if ("list".equals(field.type())) {
+      List<String> ids = new ArrayList<>();
+      for (JsonNode item : value.path("items")) {
+        String itemId = item.path("itemId").asText();
+        requireId(itemId, "DEFAULT_INVALID");
+        if (!ids.add(itemId)) throw problem("ITEM_ID_REUSED");
+        List<RowSegment> childPath = new ArrayList<>(address.rowPath());
+        childPath.add(new RowSegment(field.id(), itemId));
+        item.path("fields").fields().forEachRemaining(entry -> {
+          Field child = field.children().get(entry.getKey());
+          if (child == null) throw problem("DEFAULT_INVALID");
+          applyDefaultAnswer(state, child, new Address(child.id(), childPath), entry.getValue(), changedAt);
+        });
+      }
+      state.itemOrder.put(address, List.copyOf(ids));
+      state.cells.put(address, structuralCell(field, Provenance.defaultValue, changedAt));
+    } else {
+      JsonNode normalized = normalize(field, value);
+      validateValue(field, normalized);
+      state.cells.put(address,
+          new Cell(field.type(), Status.answered, Provenance.defaultValue, normalized, changedAt, false));
+    }
+  }
+
+  private static Cell structuralCell(Field field, Provenance provenance, Instant changedAt) {
+    return new Cell(field.type(), Status.answered, provenance,
+        JsonNodeFactory.instance.objectNode(), changedAt, false);
   }
 
   /** Returns the recursive server-owned answer projection used by expressions, review, and clients. */
@@ -309,6 +470,125 @@ public final class TypedAnswerRuntime {
     return state;
   }
 
+  /** Serializes trusted server-only state. This envelope is never returned to a respondent. */
+  public ObjectNode storage(State state) {
+    ObjectNode stored = JsonNodeFactory.instance.objectNode();
+    stored.put("version", 1);
+    writeCells(stored.putArray("cells"), state.cells);
+    writeCells(stored.putArray("retainedCells"), state.retainedCells);
+    ArrayNode orders = stored.putArray("itemOrder");
+    state.itemOrder.entrySet().stream()
+        .sorted(Map.Entry.comparingByKey(Comparator.comparing(Address::toString)))
+        .forEach(entry -> {
+          ObjectNode item = orders.addObject();
+          item.set("address", writeAddress(entry.getKey()));
+          ArrayNode ids = item.putArray("itemIds");
+          entry.getValue().forEach(ids::add);
+        });
+    ArrayNode retired = stored.putArray("retiredItemIds");
+    state.retiredItems.stream().sorted().forEach(retired::add);
+    return stored;
+  }
+
+  /** Rehydrates and validates trusted server-only state against the compiled field registry. */
+  public State fromStorage(JsonNode stored) {
+    if (stored == null || !stored.isObject() || stored.path("version").asInt(-1) != 1
+        || !stored.path("cells").isArray() || !stored.path("retainedCells").isArray()
+        || !stored.path("itemOrder").isArray() || !stored.path("retiredItemIds").isArray())
+      throw problem("RUNTIME_STATE_INVALID");
+    State state = new State();
+    Set<String> activeIds = new HashSet<>();
+    for (JsonNode order : stored.path("itemOrder")) {
+      Address address = readAddress(order.path("address"));
+      Field field = resolve(address);
+      if (!"list".equals(field.type()) || !order.path("itemIds").isArray())
+        throw problem("RUNTIME_STATE_INVALID");
+      List<String> ids = new ArrayList<>();
+      for (JsonNode idNode : order.path("itemIds")) {
+        String id = idNode.asText();
+        requireId(id, "RUNTIME_STATE_INVALID");
+        if (!activeIds.add(id)) throw problem("ITEM_ID_REUSED");
+        ids.add(id);
+      }
+      if (ids.size() > MAX_ITEMS_PER_LIST) throw problem("ITEM_LIMIT");
+      if (!field.fixedItemIds().isEmpty() && !ids.equals(field.fixedItemIds()))
+        throw problem("FIXED_ROWS_INVALID");
+      state.itemOrder.put(address, List.copyOf(ids));
+    }
+    readStoredCells(stored.path("cells"), state.cells, state);
+    readStoredCells(stored.path("retainedCells"), state.retainedCells, state);
+    for (JsonNode retired : stored.path("retiredItemIds")) {
+      String id = retired.asText();
+      requireId(id, "RUNTIME_STATE_INVALID");
+      if (activeIds.contains(id) || !state.retiredItems.add(id)) throw problem("ITEM_ID_REUSED");
+    }
+    if (state.cells.size() > MAX_ACTIVE_CELLS) throw problem("ACTIVE_CELL_LIMIT");
+    return state;
+  }
+
+  private void writeCells(ArrayNode target, Map<Address, Cell> cells) {
+    cells.entrySet().stream()
+        .sorted(Map.Entry.comparingByKey(Comparator.comparing(Address::toString)))
+        .forEach(entry -> {
+          ObjectNode item = target.addObject();
+          item.set("address", writeAddress(entry.getKey()));
+          Cell cell = entry.getValue();
+          item.put("type", cell.type());
+          item.put("status", cell.status().name());
+          item.put("provenance", cell.provenance().name());
+          item.put("changedAt", cell.changedAt().toString());
+          item.put("needsReentry", cell.needsReentry());
+          if (cell.value() != null) item.set("value", cell.value());
+        });
+  }
+
+  private ObjectNode writeAddress(Address address) {
+    ObjectNode node = JsonNodeFactory.instance.objectNode();
+    node.put("fieldId", address.fieldId());
+    ArrayNode path = node.putArray("rowPath");
+    address.rowPath().forEach(segment -> {
+      ObjectNode row = path.addObject();
+      row.put("listFieldId", segment.listFieldId());
+      row.put("itemId", segment.itemId());
+    });
+    return node;
+  }
+
+  private Address readAddress(JsonNode node) {
+    if (!node.isObject() || !node.path("fieldId").isTextual() || !node.path("rowPath").isArray())
+      throw problem("RUNTIME_STATE_INVALID");
+    List<RowSegment> path = new ArrayList<>();
+    for (JsonNode row : node.path("rowPath")) {
+      path.add(new RowSegment(row.path("listFieldId").asText(), row.path("itemId").asText()));
+    }
+    return new Address(node.path("fieldId").asText(), path);
+  }
+
+  private void readStoredCells(JsonNode source, Map<Address, Cell> target, State state) {
+    for (JsonNode item : source) {
+      Address address = readAddress(item.path("address"));
+      validateParentPath(state, address);
+      Field field = resolve(address);
+      if (!field.type().equals(item.path("type").asText())) throw problem("TYPE_MISMATCH");
+      Status status;
+      Provenance provenance;
+      Instant changedAt;
+      try {
+        status = Status.valueOf(item.path("status").asText());
+        provenance = Provenance.valueOf(item.path("provenance").asText());
+        changedAt = Instant.parse(item.path("changedAt").asText());
+      } catch (RuntimeException invalid) {
+        throw problem("RUNTIME_STATE_INVALID");
+      }
+      JsonNode value = status == Status.answered ? item.get("value") : null;
+      if (status == Status.answered && !"object".equals(field.type()) && !"list".equals(field.type()))
+        validateValue(field, value);
+      Cell previous = target.put(address, new Cell(field.type(), status, provenance, value, changedAt,
+          item.path("needsReentry").asBoolean(false)));
+      if (previous != null) throw problem("RUNTIME_STATE_INVALID");
+    }
+  }
+
   private void readCell(
       State state, Field field, List<RowSegment> path, JsonNode cell, Set<String> activeIds) {
     if (!cell.isObject() || !field.type().equals(cell.path("type").asText()))
@@ -321,6 +601,14 @@ public final class TypedAnswerRuntime {
     }
     Address address = new Address(field.id(), path);
     if ("list".equals(field.type())) {
+      if (status == Status.notApplicable) {
+        state.cells.put(address, readScalarCell(field, cell, status));
+        return;
+      }
+      if (status == Status.unanswered) {
+        state.cells.put(address, readScalarCell(field, cell, status));
+        return;
+      }
       if (status != Status.answered || !cell.path("value").path("items").isArray())
         throw problem("PROJECTION_INVALID");
       List<String> order = new ArrayList<>();
@@ -337,19 +625,30 @@ public final class TypedAnswerRuntime {
         }
       }
       state.itemOrder.put(address, List.copyOf(order));
+      state.cells.put(address, readScalarCell(field, cell, status));
       return;
     }
     if ("object".equals(field.type())) {
+      if (status == Status.notApplicable) {
+        state.cells.put(address, readScalarCell(field, cell, status));
+        return;
+      }
       if (status != Status.answered || !cell.path("value").path("fields").isObject())
         throw problem("PROJECTION_INVALID");
       for (Field child : field.children().values()) {
         JsonNode childCell = cell.path("value").path("fields").path(child.id());
         if (!childCell.isMissingNode()) readCell(state, child, path, childCell, activeIds);
       }
+      state.cells.put(address, readScalarCell(field, cell, status));
       return;
     }
+    state.cells.put(address, readScalarCell(field, cell, status));
+  }
+
+  private Cell readScalarCell(Field field, JsonNode cell, Status status) {
     JsonNode value = status == Status.answered ? cell.get("value") : null;
-    if (status == Status.answered) validateValue(field, value);
+    if (status == Status.answered && !"object".equals(field.type()) && !"list".equals(field.type()))
+      validateValue(field, value);
     Provenance provenance;
     try {
       String source = cell.path("provenance").path("source").asText("system");
@@ -363,8 +662,7 @@ public final class TypedAnswerRuntime {
     } catch (RuntimeException invalid) {
       throw problem("PROJECTION_INVALID");
     }
-    state.cells.put(address, new Cell(field.type(), status, provenance, value, changedAt,
-        cell.path("needsReentry").asBoolean(false)));
+    return new Cell(field.type(), status, provenance, value, changedAt, false);
   }
 
   private ObjectNode projectCell(State state, Field field, List<RowSegment> path) {
@@ -374,16 +672,19 @@ public final class TypedAnswerRuntime {
     output.put("type", field.type());
     if (cell != null && cell.status() == Status.notApplicable) {
       output.put("status", "notApplicable");
-      output.put("applicable", false);
       ObjectNode provenance = output.putObject("provenance");
       provenance.put("source", "system");
       provenance.put("changedAt", cell.changedAt().toString());
       return output;
     }
     if ("list".equals(field.type())) {
-      output.put("status", "answered");
-      output.put("applicable", true);
-      output.putObject("provenance").put("source", "system");
+      boolean answered = cell != null && cell.status() == Status.answered;
+      output.put("status", answered ? "answered" : "unanswered");
+      ObjectNode provenance = output.putObject("provenance");
+      provenance.put("source", cell == null ? "system"
+          : cell.provenance() == Provenance.defaultValue ? "default" : cell.provenance().name());
+      provenance.put("changedAt", cell == null ? Instant.EPOCH.toString() : cell.changedAt().toString());
+      if (!answered) return output;
       ArrayNode items = output.putObject("value").putArray("items");
       for (String itemId : state.itemIds(address)) {
         ObjectNode item = items.addObject();
@@ -398,8 +699,10 @@ public final class TypedAnswerRuntime {
     }
     if ("object".equals(field.type())) {
       output.put("status", "answered");
-      output.put("applicable", true);
-      output.putObject("provenance").put("source", "system");
+      ObjectNode provenance = output.putObject("provenance");
+      provenance.put("source", cell == null ? "system"
+          : cell.provenance() == Provenance.defaultValue ? "default" : cell.provenance().name());
+      provenance.put("changedAt", cell == null ? Instant.EPOCH.toString() : cell.changedAt().toString());
       ObjectNode fields = output.putObject("value").putObject("fields");
       field.children().values().stream().sorted(Comparator.comparing(Field::id))
           .forEach(child -> fields.set(child.id(), projectCell(state, child, path)));
@@ -407,17 +710,16 @@ public final class TypedAnswerRuntime {
     }
     if (cell == null) {
       output.put("status", "unanswered");
-      output.put("applicable", true);
-      output.putObject("provenance").put("source", "system");
+      ObjectNode provenance = output.putObject("provenance");
+      provenance.put("source", "system");
+      provenance.put("changedAt", Instant.EPOCH.toString());
       return output;
     }
     output.put("status", cell.status().name());
-    output.put("applicable", cell.status() != Status.notApplicable);
     ObjectNode provenance = output.putObject("provenance");
     provenance.put("source", cell.provenance() == Provenance.defaultValue ? "default" : cell.provenance().name());
     provenance.put("changedAt", cell.changedAt().toString());
     if (cell.value() != null) output.set("value", cell.value());
-    if (cell.needsReentry()) output.put("needsReentry", true);
     return output;
   }
 
@@ -429,8 +731,8 @@ public final class TypedAnswerRuntime {
     else if (operation instanceof MarkInvalid invalid)
       invalid(state, field, invalid.address(), changedAt);
     else if (operation instanceof AddItem add) add(state, field, add, changedAt);
-    else if (operation instanceof RemoveItem remove) remove(state, field, remove);
-    else if (operation instanceof MoveItem move) move(state, field, move);
+    else if (operation instanceof RemoveItem remove) remove(state, field, remove, changedAt);
+    else if (operation instanceof MoveItem move) move(state, field, move, changedAt);
     else throw problem("OPERATION_UNSUPPORTED");
   }
 
@@ -458,7 +760,10 @@ public final class TypedAnswerRuntime {
     if (status == Status.respondentNotApplicable && !field.allowNotApplicable())
       throw problem("STATUS_NOT_ALLOWED");
     JsonNode value = operation.value();
-    if (status == Status.answered) validateValue(field, value);
+    if (status == Status.answered) {
+      value = normalize(field, value);
+      validateValue(field, value);
+    }
     else if (value != null) throw problem("STATUS_VALUE_CONFLICT");
     state.cells.put(
         operation.address(),
@@ -491,11 +796,16 @@ public final class TypedAnswerRuntime {
     validateParentPath(state, address);
     List<String> order = new ArrayList<>(state.itemOrder.getOrDefault(address, field.fixedItemIds()));
     if (!field.fixedItemIds().isEmpty()) throw problem("FIXED_ROWS_IMMUTABLE");
+    if (field.maxItems() != null && order.size() >= field.maxItems()) throw problem("MAX_ITEMS");
     if (order.size() >= MAX_ITEMS_PER_LIST) throw problem("ITEM_LIMIT");
     if (allActiveItemIds(state).contains(operation.itemId()) || state.retiredItems.contains(operation.itemId()))
       throw problem("ITEM_ID_REUSED");
     order.add(operation.itemId());
     state.itemOrder.put(address, List.copyOf(order));
+    state.cells.put(address, structuralCell(field, Provenance.respondent, changedAt));
+    List<RowSegment> childPath = new ArrayList<>(address.rowPath());
+    childPath.add(new RowSegment(field.id(), operation.itemId()));
+    for (Field child : field.children().values()) applyDefault(state, child, childPath, changedAt);
     for (Map.Entry<String, SetValue> entry : operation.initialCells().entrySet()) {
       Field child = field.children().get(entry.getKey());
       if (child == null) throw problem("UNKNOWN_CHILD_FIELD");
@@ -505,13 +815,15 @@ public final class TypedAnswerRuntime {
     }
   }
 
-  private void remove(State state, Field field, RemoveItem operation) {
+  private void remove(State state, Field field, RemoveItem operation, Instant changedAt) {
     protect(field);
     if (!"list".equals(field.type())) throw problem("LIST_REQUIRED");
     if (field.fixedItemIds().contains(operation.itemId())) throw problem("FIXED_ROWS_IMMUTABLE");
     List<String> order = new ArrayList<>(state.itemOrder.getOrDefault(operation.address(), List.of()));
+    if (field.minItems() != null && order.size() <= field.minItems()) throw problem("MIN_ITEMS");
     if (!order.remove(operation.itemId())) throw problem("ITEM_NOT_FOUND");
     state.itemOrder.put(operation.address(), List.copyOf(order));
+    state.cells.put(operation.address(), structuralCell(field, Provenance.respondent, changedAt));
     state.retiredItems.add(operation.itemId());
     RowSegment removed = new RowSegment(field.id(), operation.itemId());
     state.cells.keySet().removeIf(address -> descendant(address, operation.address(), removed));
@@ -519,9 +831,10 @@ public final class TypedAnswerRuntime {
     state.itemOrder.keySet().removeIf(address -> descendant(address, operation.address(), removed));
   }
 
-  private void move(State state, Field field, MoveItem operation) {
+  private void move(State state, Field field, MoveItem operation, Instant changedAt) {
     protect(field);
     if (!"list".equals(field.type())) throw problem("LIST_REQUIRED");
+    if (!field.fixedItemIds().isEmpty()) throw problem("FIXED_ROWS_IMMUTABLE");
     List<String> order = new ArrayList<>(state.itemOrder.getOrDefault(operation.address(), field.fixedItemIds()));
     if (!order.remove(operation.itemId())) throw problem("ITEM_NOT_FOUND");
     if (operation.beforeItemId() == null) order.add(operation.itemId());
@@ -531,29 +844,15 @@ public final class TypedAnswerRuntime {
       order.add(target, operation.itemId());
     }
     state.itemOrder.put(operation.address(), List.copyOf(order));
+    state.cells.put(operation.address(), structuralCell(field, Provenance.respondent, changedAt));
   }
 
   private Field resolve(Address address) {
-    Field field = roots.get(address.fieldId());
-    if (address.rowPath().isEmpty()) {
-      if (field == null) throw problem("UNKNOWN_FIELD");
-      return field;
-    }
-    Field list = roots.get(address.rowPath().get(0).listFieldId());
-    if (list == null || !"list".equals(list.type())) throw problem("ROW_PATH_INVALID");
-    for (int i = 0; i < address.rowPath().size(); i++) {
-      RowSegment segment = address.rowPath().get(i);
-      if (!list.id().equals(segment.listFieldId())) throw problem("ROW_PATH_INVALID");
-      if (i == address.rowPath().size() - 1) {
-        Field child = list.children().get(address.fieldId());
-        if (child == null) throw problem("UNKNOWN_FIELD");
-        return child;
-      }
-      String nextListId = address.rowPath().get(i + 1).listFieldId();
-      list = list.children().get(nextListId);
-      if (list == null || !"list".equals(list.type())) throw problem("ROW_PATH_INVALID");
-    }
-    throw problem("ROW_PATH_INVALID");
+    Field field = allFields.get(address.fieldId());
+    if (field == null) throw problem("UNKNOWN_FIELD");
+    List<String> actual = address.rowPath().stream().map(RowSegment::listFieldId).toList();
+    if (!listAncestors.get(address.fieldId()).equals(actual)) throw problem("ROW_PATH_INVALID");
+    return field;
   }
 
   private void validateParentPath(State state, Address address) {
@@ -579,8 +878,12 @@ public final class TypedAnswerRuntime {
         case "dateTime" -> {
           if (!value.isObject() || !value.path("instant").isTextual()
               || !value.path("timeZone").isTextual()) throw problem("INVALID_LITERAL");
-          OffsetDateTime.parse(value.path("instant").textValue());
-          java.time.ZoneId.of(value.path("timeZone").textValue());
+          if (!value.path("instant").textValue().matches(
+              "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,9})?Z$"))
+            throw problem("INVALID_LITERAL");
+          Instant.parse(value.path("instant").textValue());
+          if (!TimeZoneRegistry.contains(value.path("timeZone").textValue()))
+            throw problem("TIME_ZONE_UNSUPPORTED");
         }
         case "multiChoice" -> validateChoices(field, value);
         case "attachments" -> validateAttachments(value);
@@ -594,6 +897,36 @@ public final class TypedAnswerRuntime {
     }
     if ("choice".equals(field.type()) && !field.optionIds().isEmpty()
         && !field.optionIds().contains(value.textValue())) throw problem("OPTION_INVALID");
+    int length = value.isTextual() ? value.textValue().codePointCount(0, value.textValue().length())
+        : value.isArray() ? value.size() : -1;
+    if (field.minLength() != null && length >= 0 && length < field.minLength())
+      throw problem("MIN_LENGTH");
+    if (field.maxLength() != null && length >= 0 && length > field.maxLength())
+      throw problem("MAX_LENGTH");
+    if (("integer".equals(field.type()) || "decimal".equals(field.type()))) {
+      BigDecimal number = new BigDecimal(value.textValue());
+      if (field.minimum() != null && number.compareTo(new BigDecimal(field.minimum().textValue())) < 0)
+        throw problem("MINIMUM");
+      if (field.maximum() != null && number.compareTo(new BigDecimal(field.maximum().textValue())) > 0)
+        throw problem("MAXIMUM");
+      if (field.step() != null) {
+        BigDecimal base = field.minimum() == null ? BigDecimal.ZERO
+            : new BigDecimal(field.minimum().textValue());
+        if (number.subtract(base).remainder(new BigDecimal(field.step().textValue())).compareTo(BigDecimal.ZERO) != 0)
+          throw problem("STEP");
+      }
+    }
+  }
+
+  private static JsonNode normalize(Field field, JsonNode value) {
+    if (value == null || !value.isTextual()) return value;
+    String normalized = switch (field.normalizer()) {
+      case "trim" -> value.textValue().strip();
+      case "lowercase" -> value.textValue().toLowerCase(Locale.ROOT);
+      case "uppercase" -> value.textValue().toUpperCase(Locale.ROOT);
+      default -> value.textValue();
+    };
+    return JsonNodeFactory.instance.textNode(normalized);
   }
 
   private void validateChoices(Field field, JsonNode value) {
@@ -604,6 +937,8 @@ public final class TypedAnswerRuntime {
           || (!field.optionIds().isEmpty() && !field.optionIds().contains(choice.textValue())))
         throw problem("OPTION_INVALID");
     }
+    long exclusive = seen.stream().filter(field.exclusiveOptionIds()::contains).count();
+    if (exclusive > 0 && seen.size() > 1) throw problem("EXCLUSIVE_OPTION");
   }
 
   private void validateAttachments(JsonNode value) {
@@ -637,7 +972,7 @@ public final class TypedAnswerRuntime {
   }
 
   private static void requireId(String value, String code) {
-    if (value == null || value.isBlank() || value.length() > 200) throw problem(code);
+    if (value == null || !value.matches("^[A-Za-z][A-Za-z0-9_-]{0,127}$")) throw problem(code);
   }
 
   private static RuntimeProblem problem(String code) {

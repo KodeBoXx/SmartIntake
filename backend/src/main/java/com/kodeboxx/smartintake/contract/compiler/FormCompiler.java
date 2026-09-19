@@ -45,6 +45,7 @@ public final class FormCompiler {
     collectPages(candidate.path("flow").path("phases"), state);
     checkNodes(candidate.path("flow").path("phases"), "/flow/phases", state);
     checkExpressions(candidate.path("expressions"), state);
+    checkCalculationBindings(state);
     checkRoutes(candidate, state);
     checkLocales(candidate, state);
     checkReferences(candidate, state);
@@ -70,12 +71,14 @@ public final class FormCompiler {
       List<String> options = optionIds(field.path("options"), at + "/options", state);
       int childDepth = "list".equals(field.path("type").asText()) ? repeaterDepth + 1 : repeaterDepth;
       if (childDepth > 3) state.error("NESTED_REPEATER_DEPTH", at, "Repeaters may nest at most three levels.");
-      boolean protectedValue = field.path("calculated").asBoolean(false) || field.path("readOnly").asBoolean(false)
+      boolean protectedValue = hasCalculation(field) || field.path("readOnly").asBoolean(false)
           || "calculated".equals(field.path("mode").asText());
-      state.fields.put(id, new Field(id, key, field.path("type").asText(), childDepth, protectedValue, options, field));
+      state.fields.put(id, new Field(id, key, field.path("type").asText(), childDepth, protectedValue, options, field, at));
       if (field.path("constraints").path("maxItems").asInt(0) > 500)
         state.error("REPEATER_ITEM_LIMIT", at + "/constraints/maxItems", "Repeaters may contain at most 500 items.");
       checkOptionDefault(field, options, at, state);
+      // The closed 4.0.0 package grammar uses itemSchema.fields for both object and list descendants.
+      // Do not accept the old prototype's direct fields shape here.
       if (field.path("itemSchema").has("fields")) collectFields(field.path("itemSchema").path("fields"),
           at + "/itemSchema/fields", childDepth, state, new HashSet<>());
     }
@@ -171,6 +174,51 @@ public final class FormCompiler {
       if (!"available".equals(result.state())) state.error("EXPRESSION_" + result.code(),
           CompilationDiagnostic.child("/expressions", entry.getKey()), "Expression does not compile against the declared fields and scopes.");
     });
+  }
+
+  /**
+   * Calculations are an additive dependency-bound field extension.  The package schema deliberately
+   * keeps extension values scalar, so the scalar is the expression id rather than an alternate
+   * calculation object that would change the immutable 4.0.0 bytes.
+   */
+  private void checkCalculationBindings(State state) {
+    Set<String> dependencies = new HashSet<>();
+    state.candidate.path("dependencies").forEach(dependency -> dependencies.add(dependency.path("id").asText()));
+    for (Field field : state.fields.values()) {
+      JsonNode binding = calculationBinding(field.source);
+      boolean calculated = field.source.path("calculated").asBoolean(false)
+          || "calculated".equals(field.source.path("mode").asText());
+      if (!calculated && binding.isMissingNode()) continue;
+      if (!binding.isObject() || !binding.path("value").isTextual()
+          || binding.path("value").asText().isBlank()) {
+        state.error("CALCULATION_BINDING_REQUIRED", fieldPointer(field.id, state),
+            "Calculated fields require an x-kodeboxx.calculation scalar expression binding.");
+        continue;
+      }
+      String expressionId = binding.path("value").asText();
+      if (!state.expressionNodes.containsKey(expressionId))
+        state.error("CALCULATION_EXPRESSION_MISSING", fieldPointer(field.id, state),
+            "Calculation binding must name a declared expression.");
+      String dependencyId = binding.path("dependencyId").asText();
+      if (dependencyId.isBlank() || !dependencies.contains(dependencyId))
+        state.error("CALCULATION_DEPENDENCY_REQUIRED", fieldPointer(field.id, state),
+            "Calculation binding must remain dependency-bound.");
+    }
+  }
+
+  private static boolean hasCalculation(JsonNode field) {
+    return field.path("calculated").asBoolean(false)
+        || "calculated".equals(field.path("mode").asText())
+        || !calculationBinding(field).isMissingNode();
+  }
+
+  private static JsonNode calculationBinding(JsonNode field) {
+    return field.path("extensions").path("x-kodeboxx.calculation");
+  }
+
+  private static String fieldPointer(String fieldId, State state) {
+    for (Field field : state.fields.values()) if (field.id.equals(fieldId)) return field.sourcePointer;
+    return "/data/fields";
   }
 
   private void checkRoutes(JsonNode candidate, State state) {
@@ -283,7 +331,7 @@ public final class FormCompiler {
   }
 
   private static CompilationDiagnostic problem(String code, String pointer, String message) { return new CompilationDiagnostic(code, pointer, message); }
-  private record Field(String id, String key, String type, int repeaterDepth, boolean protectedValue, List<String> optionIds, JsonNode source) {}
+  private record Field(String id, String key, String type, int repeaterDepth, boolean protectedValue, List<String> optionIds, JsonNode source, String sourcePointer) {}
   private record Page(String id, int order, List<String> targets, boolean review, String pointer) {}
   private static final class State {
     final JsonNode candidate; final List<CompilationDiagnostic> problems; final Set<String> ids = new HashSet<>();

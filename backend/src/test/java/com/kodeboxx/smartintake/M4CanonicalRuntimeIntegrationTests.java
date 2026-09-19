@@ -28,7 +28,7 @@ class M4CanonicalRuntimeIntegrationTests {
   @Test
   void canonicalSessionMutationsPersistReconcileReplayAndSubmit() throws Exception {
     Fixture fixture = fixture();
-    UUID mutationId = UUID.randomUUID();
+    String mutationId = "mutation-typed-01";
     var patch = new IntakeApplicationService.PatchSession(0L, mutationId, null, List.of(
         Map.of("op", "set", "fieldId", "amount", "value", "9223372036854775807"),
         Map.of("op", "addItem", "fieldId", "attendees", "itemId", "attendee-a", "fields",
@@ -72,6 +72,43 @@ class M4CanonicalRuntimeIntegrationTests {
         "select revision from sessions where id=?", Long.class, fixture.session));
   }
 
+  @Test
+  void retiredItemIdentityCannotBeReusedAcrossRequests() throws Exception {
+    Fixture fixture = fixture();
+    intake.patch(fixture.session, fixture.bearer.toString(), new IntakeApplicationService.PatchSession(
+        0L, "mutation-add-01", null,
+        List.of(Map.of("op", "addItem", "fieldId", "attendees", "itemId", "attendee-a")), "page1"));
+    intake.patch(fixture.session, fixture.bearer.toString(), new IntakeApplicationService.PatchSession(
+        1L, "mutation-remove-01", null,
+        List.of(Map.of("op", "removeItem", "fieldId", "attendees", "itemId", "attendee-a")), "page1"));
+    ResponseStatusException rejected = assertThrows(ResponseStatusException.class, () -> intake.patch(
+        fixture.session, fixture.bearer.toString(), new IntakeApplicationService.PatchSession(
+            2L, "mutation-reuse-01", null,
+            List.of(Map.of("op", "addItem", "fieldId", "attendees", "itemId", "attendee-a")), "page1")));
+    assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, rejected.getStatusCode());
+    assertEquals(2L, db.queryForObject("select revision from sessions where id=?", Long.class, fixture.session));
+  }
+
+  @Test
+  void invalidInputMarkerSurvivesReloadAndBlocksSubmission() throws Exception {
+    Fixture fixture = fixture();
+    intake.patch(fixture.session, fixture.bearer.toString(), new IntakeApplicationService.PatchSession(
+        0L, "mutation-value-01", null,
+        List.of(Map.of("op", "set", "fieldId", "amount", "value", "7")), "page1"));
+    Map<String, Object> marked = intake.patch(
+        fixture.session, fixture.bearer.toString(), new IntakeApplicationService.PatchSession(
+            1L, "mutation-invalid-01", null,
+            List.of(Map.of("op", "markInvalid", "fieldId", "amount")), "page1"));
+    assertTrue(json.valueToTree(marked.get("validation")).toString().contains("UNPARSEABLE_INPUT"));
+    ResponseStatusException validation = assertThrows(ResponseStatusException.class,
+        () -> intake.validate(fixture.session, fixture.bearer.toString()));
+    assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, validation.getStatusCode());
+    var submission = intake.submit(
+        fixture.session, fixture.bearer.toString(), new IntakeApplicationService.Submit(2L));
+    assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, submission.getStatusCode());
+    assertEquals("INVALID_INPUT_PENDING", json.valueToTree(submission.getBody()).path("code").asText());
+  }
+
   private Fixture fixture() throws Exception { return fixture(canonical()); }
 
   private Fixture fixture(ObjectNode pkg) throws Exception {
@@ -79,15 +116,15 @@ class M4CanonicalRuntimeIntegrationTests {
     String packageJson = json.writeValueAsString(pkg);
     db.update("insert into forms(id,form_key,title,definition,compatibility_profile_key)"
             + " values(?,?,?,cast(? as jsonb),?)",
-        form, "m4-" + form, "M4", packageJson, CompatibilityProfile.M1_CURRENT_PROTOTYPE.key());
+        form, "m4-" + form, "M4", packageJson, CompatibilityProfile.CANONICAL_4_0_0.key());
     db.update("insert into form_releases(id,form_id,version,package,compatibility_profile_key)"
             + " values(?,?,1,cast(? as jsonb),?)",
-        release, form, packageJson, CompatibilityProfile.M1_CURRENT_PROTOTYPE.key());
+        release, form, packageJson, CompatibilityProfile.CANONICAL_4_0_0.key());
     db.update("insert into sessions(id,form_id,release_id,respondent_token,respondent_secret_sha256,"
             + "compatibility_profile_key,answers,session_date,time_zone,tzdb_version)"
             + " values(?,?,?,?,?,?,cast('{}' as jsonb),current_date,'UTC','IANA-tzdb-2025b-m3-complete-1')",
         session, form, release, UUID.randomUUID(), secrets.digest(bearer),
-        CompatibilityProfile.M1_CURRENT_PROTOTYPE.key());
+        CompatibilityProfile.CANONICAL_4_0_0.key());
     return new Fixture(session, bearer);
   }
 

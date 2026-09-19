@@ -88,12 +88,13 @@ public final class ReviewProjectionService {
     }
     if (!emitted.add(address)) return List.of();
     Cell cell = effective;
-    if (cell == null || cell.status() == Status.notApplicable) return List.of();
+    if (cell != null && cell.status() == Status.notApplicable) return List.of();
     List<ReviewRow> children = new ArrayList<>();
     for (Placement child : placement.children()) children.addAll(rows(state, child, path, emitted));
     return List.of(new ReviewRow(
         placement.instanceId(), placement.fieldId(), placement.label(), path, null,
-        cell.status(), statusLabel(cell.status()), cell.value(), children));
+        cell == null ? Status.unanswered : cell.status(),
+        statusLabel(cell == null ? Status.unanswered : cell.status()), cell == null ? null : cell.value(), children));
   }
 
   private void appendExport(ObjectNode target, ReviewRow row) {
@@ -118,10 +119,10 @@ public final class ReviewProjectionService {
   public static String statusLabel(Status status) {
     return switch (status) {
       case answered -> "Answered";
-      case unanswered -> "Unanswered";
+      case unanswered -> "Not answered";
       case unknown -> "Unknown";
       case declined -> "Prefer not to answer";
-      case respondentNotApplicable -> "Not applicable";
+      case respondentNotApplicable -> "Not applicable (respondent answer)";
       case notApplicable -> "System not applicable";
     };
   }

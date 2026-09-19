@@ -23,7 +23,7 @@
     {"id":"C-asset-policy-73c4cc76ed","evidence":"FormCompilerTests.proves_routes_review_locales_assets_theme_and_matrix_requirements"},
     {"id":"C-limit-before-expansion-73053e137c","evidence":"TypedAnswerRuntimeTests.enforcesCollectionLimitBeforeMutation"},
     {"id":"C-extension-settings-febc9628b7","evidence":"FormCompilerTests.proves_expression_scope_arity_and_dependency_related_compile_guards"},
-    {"id":"C-fixed-matrix-0cd694c0b9","evidence":"TypedAnswerRuntimeTests.fixedRowsCanMoveButCannotBeAddedOrRemoved"},
+    {"id":"C-fixed-matrix-0cd694c0b9","evidence":"TypedAnswerRuntimeTests.fixedRowsCannotBeAddedRemovedOrMoved"},
     {"id":"C-nested-repeater-depth-e02f6f461e","evidence":"TypedAnswerRuntimeTests.appliesThreeNestedLevelsWithStableRowPaths"},
     {"id":"C-protected-calculated-value-68a5f96e87","evidence":"TypedAnswerRuntimeTests.acceptsNoForgedCalculatedOrReadOnlyValues"},
     {"id":"C-unknown-truth-48f50ebd95","evidence":"RuntimeGraphTests.treatsUnknownVisibilityAsNotApplicableWithoutGuessing"},

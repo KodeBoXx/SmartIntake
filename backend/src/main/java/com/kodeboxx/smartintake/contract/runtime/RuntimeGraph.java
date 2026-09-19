@@ -17,12 +17,14 @@ public final class RuntimeGraph {
   public record Projection(
       State state,
       Map<String, FieldProjection> fields,
+      Map<Address, FieldProjection> addresses,
       List<String> reachablePageIds,
       int requiredCount,
       int completedRequiredCount,
       List<Diagnostic> diagnostics) {
     public Projection {
       fields = Map.copyOf(fields);
+      addresses = Map.copyOf(addresses);
       reachablePageIds = List.copyOf(reachablePageIds);
       diagnostics = List.copyOf(diagnostics);
     }
@@ -34,6 +36,7 @@ public final class RuntimeGraph {
   private final ArrayNode definitions;
   private final List<String> evaluationOrder;
   private final List<Diagnostic> compileDiagnostics;
+  private final Map<String, List<Placement>> placements;
 
   public RuntimeGraph(CompiledForm compiled, TypedAnswerRuntime runtime) {
     this.compiled = Objects.requireNonNull(compiled, "compiled");
@@ -42,61 +45,91 @@ public final class RuntimeGraph {
     var order = dependencyOrder(compiled);
     this.evaluationOrder = order.order;
     this.compileDiagnostics = order.diagnostics;
+    this.placements = placements(compiled.canonicalPackage());
   }
 
   public Projection evaluate(State input, String sessionDate, String timeZone, Instant changedAt) {
     if (!compileDiagnostics.isEmpty()) {
-      return new Projection(input, Map.of(), List.of(), 0, 0, compileDiagnostics);
+      return new Projection(input, Map.of(), Map.of(), List.of(), 0, 0, compileDiagnostics);
     }
     State state = input;
     Map<String, FieldProjection> projections = new LinkedHashMap<>();
+    Map<Address, FieldProjection> addressProjections = new LinkedHashMap<>();
     List<Diagnostic> diagnostics = new ArrayList<>();
     var budget = new ExpressionEngine.MutationBudget(100_000);
-    for (String fieldId : evaluationOrder) {
+    List<String> initiallyReachable = reachablePages(state, sessionDate, timeZone, budget, diagnostics);
+    Map<String, Integer> orderIndex = new HashMap<>();
+    for (int index = 0; index < evaluationOrder.size(); index++) orderIndex.put(evaluationOrder.get(index), index);
+    for (Target target : targets(state).stream()
+        .sorted(Comparator.comparingInt(value -> orderIndex.getOrDefault(value.address.fieldId(), Integer.MAX_VALUE)))
+        .toList()) {
+      String fieldId = target.address.fieldId();
       var field = compiled.fields().get(fieldId);
-      if (field == null || field.repeaterDepth() > 0) continue;
-      JsonNode source = field.source();
+      if (field == null) continue;
+      JsonNode source = target.source;
       boolean applicable = evaluateBoolean(
           source.path("visibilityExpressionId").asText(null), state, sessionDate, timeZone, budget,
-          true, fieldId, diagnostics);
-      state = runtime.projectApplicability(state, Map.of(new Address(fieldId, List.of()), applicable), changedAt);
+          true, fieldId, diagnostics, target.address);
+      applicable = applicable && placementApplicable(fieldId, initiallyReachable, state, sessionDate,
+          timeZone, budget, diagnostics, target.address);
+      applicable = applicable && target.ancestorsApplicable && ancestorsApplicable(target.address, state);
+      state = runtime.projectApplicability(state, Map.of(target.address, applicable), changedAt);
       boolean required = applicable && (source.path("required").asBoolean(false)
           || evaluateBoolean(source.path("requiredExpressionId").asText(null), state, sessionDate, timeZone,
-              budget, false, fieldId, diagnostics));
-      if (applicable && field.protectedValue() && source.path("calculated").asBoolean(false)) {
-        String expressionId = expressionReference(source.path("calculation").path("expressionRef"));
+              budget, false, fieldId, diagnostics, target.address));
+      if (applicable && field.protectedValue() && calculationExpressionId(source) != null) {
+        String expressionId = calculationExpressionId(source);
         JsonNode expression = compiled.expressions().get(expressionId);
         if (expression == null) diagnostics.add(new Diagnostic("CALCULATION_EXPRESSION_MISSING", fieldId, expressionId));
         else {
           ExpressionEngine.Result result = expressions.evaluate(expression,
-              context(state, sessionDate, timeZone), budget);
+              context(state, sessionDate, timeZone, target.address), budget);
           if ("available".equals(result.state())) {
             Cell calculated = new Cell(field.type(), Status.answered, Provenance.calculated,
                 result.value(), changedAt, false);
             try {
-              state = runtime.projectServerCells(state, Map.of(new Address(fieldId, List.of()), calculated));
+              state = runtime.projectServerCells(state, Map.of(target.address, calculated));
             } catch (IllegalArgumentException invalid) {
               diagnostics.add(new Diagnostic(invalid.getMessage(), fieldId, expressionId));
             }
           } else if ("unknown".equals(result.state())) {
-            state = runtime.projectServerCells(state, Map.of(new Address(fieldId, List.of()),
+            state = runtime.projectServerCells(state, Map.of(target.address,
                 new Cell(field.type(), Status.unknown, Provenance.calculated, null, changedAt, false)));
           } else diagnostics.add(new Diagnostic(result.code(), fieldId, expressionId));
         }
       }
-      Cell cell = state.cells().get(new Address(fieldId, List.of()));
-      projections.put(fieldId, new FieldProjection(applicable, required,
-          cell == null ? Status.unanswered : cell.status()));
+      Cell cell = state.cells().get(target.address);
+      FieldProjection projection = new FieldProjection(applicable, required,
+          cell == null ? Status.unanswered : cell.status());
+      addressProjections.put(target.address, projection);
+      projections.putIfAbsent(fieldId, projection);
+      validate(source, cell, applicable, state, sessionDate, timeZone, budget, fieldId,
+          target.address, diagnostics);
     }
-    int required = (int) projections.values().stream().filter(FieldProjection::required).count();
-    int complete = (int) projections.values().stream()
-        .filter(FieldProjection::required)
-        .filter(field -> field.status() == Status.answered
-            || field.status() == Status.declined
-            || field.status() == Status.respondentNotApplicable)
-        .count();
-    return new Projection(state, projections, reachablePages(state, sessionDate, timeZone, budget, diagnostics),
-        required, complete, diagnostics);
+    List<String> reachable = reachablePages(state, sessionDate, timeZone, budget, diagnostics);
+    Set<String> reviewPages = new HashSet<>(compiled.reviewPageIds());
+    int answerPages = (int) reachable.stream().filter(page -> !reviewPages.contains(page)).count();
+    return new Projection(state, projections, addressProjections, reachable,
+        answerPages, 0, diagnostics);
+  }
+
+  private boolean placementApplicable(
+      String fieldId,
+      List<String> reachable,
+      State state,
+      String sessionDate,
+      String timeZone,
+      ExpressionEngine.MutationBudget budget,
+      List<Diagnostic> diagnostics,
+      Address address) {
+    List<Placement> instances = placements.getOrDefault(fieldId, List.of());
+    if (instances.isEmpty()) return true;
+    for (Placement placement : instances) {
+      if (reachable.contains(placement.pageId)
+          && evaluateBoolean(placement.visibilityExpressionId, state, sessionDate, timeZone, budget,
+              true, fieldId, diagnostics, address)) return true;
+    }
+    return false;
   }
 
   private boolean evaluateBoolean(
@@ -108,13 +141,28 @@ public final class RuntimeGraph {
       boolean missingDefault,
       String fieldId,
       List<Diagnostic> diagnostics) {
+    return evaluateBoolean(expressionId, state, sessionDate, timeZone, budget, missingDefault,
+        fieldId, diagnostics, null);
+  }
+
+  private boolean evaluateBoolean(
+      String expressionId,
+      State state,
+      String sessionDate,
+      String timeZone,
+      ExpressionEngine.MutationBudget budget,
+      boolean missingDefault,
+      String fieldId,
+      List<Diagnostic> diagnostics,
+      Address address) {
     if (expressionId == null || expressionId.isBlank()) return missingDefault;
     JsonNode expression = compiled.expressions().get(expressionId);
     if (expression == null) {
       diagnostics.add(new Diagnostic("EXPRESSION_MISSING", fieldId, expressionId));
       return false;
     }
-    ExpressionEngine.Result result = expressions.evaluate(expression, context(state, sessionDate, timeZone), budget);
+    ExpressionEngine.Result result = expressions.evaluate(expression,
+        context(state, sessionDate, timeZone, address), budget);
     if ("available".equals(result.state()) && "boolean".equals(result.type())) return result.value().booleanValue();
     if ("unknown".equals(result.state())) return false;
     diagnostics.add(new Diagnostic(result.code() == null ? "BOOLEAN_EXPRESSION_REQUIRED" : result.code(),
@@ -123,7 +171,33 @@ public final class RuntimeGraph {
   }
 
   private ExpressionEngine.EvaluationContext context(State state, String sessionDate, String timeZone) {
-    return ExpressionEngine.projection(definitions, runtime.projection(state), sessionDate, timeZone, 100_000);
+    return context(state, sessionDate, timeZone, null);
+  }
+
+  private ExpressionEngine.EvaluationContext context(
+      State state, String sessionDate, String timeZone, Address address) {
+    ObjectNode internalProjection = runtime.projection(state).deepCopy();
+    addApplicability(internalProjection);
+    if (address != null && !address.rowPath().isEmpty()) {
+      return ExpressionEngine.projectionAt(definitions, internalProjection,
+          address.rowPath().stream().map(RowSegment::listFieldId).toList(),
+          address.rowPath().stream().map(RowSegment::itemId).toList(),
+          sessionDate, timeZone, 100_000);
+    }
+    return ExpressionEngine.projection(definitions, internalProjection, sessionDate, timeZone, 100_000);
+  }
+
+  private static void addApplicability(JsonNode fields) {
+    if (!fields.isObject()) return;
+    fields.fields().forEachRemaining(entry -> {
+      JsonNode cell = entry.getValue();
+      if (!(cell instanceof ObjectNode object)) return;
+      object.put("applicable", !"notApplicable".equals(object.path("status").asText()));
+      JsonNode nestedFields = object.path("value").path("fields");
+      addApplicability(nestedFields);
+      JsonNode items = object.path("value").path("items");
+      if (items.isArray()) items.forEach(item -> addApplicability(item.path("fields")));
+    });
   }
 
   private List<String> reachablePages(
@@ -168,8 +242,7 @@ public final class RuntimeGraph {
     ObjectNode result = JsonNodeFactory.instance.objectNode();
     result.put("id", field.path("id").asText());
     result.put("type", field.path("type").asText());
-    JsonNode children = "object".equals(field.path("type").asText())
-        ? field.path("fields") : field.path("itemSchema").path("fields");
+    JsonNode children = field.path("itemSchema").path("fields");
     if (children.isArray()) {
       ArrayNode itemFields = result.putArray("itemFields");
       for (JsonNode child : children) itemFields.add(definition(child));
@@ -191,8 +264,8 @@ public final class RuntimeGraph {
         String expressionId = source.path(binding).asText(null);
         if (expressionId != null) collectReferences(compiled.expressions().get(expressionId), refs);
       }
-      collectReferences(compiled.expressions().get(expressionReference(
-          source.path("calculation").path("expressionRef"))), refs);
+      String calculation = calculationExpressionId(source);
+      if (calculation != null) collectReferences(compiled.expressions().get(calculation), refs);
       refs.retainAll(compiled.fields().keySet());
       dependencies.put(id, refs);
     });
@@ -232,4 +305,82 @@ public final class RuntimeGraph {
   }
 
   private record Order(List<String> order, List<Diagnostic> diagnostics) {}
+
+  private record Target(Address address, JsonNode source, boolean ancestorsApplicable) {}
+  private record Placement(String pageId, String visibilityExpressionId) {}
+
+  private static Map<String, List<Placement>> placements(JsonNode packageNode) {
+    Map<String, List<Placement>> result = new LinkedHashMap<>();
+    for (JsonNode phase : packageNode.path("flow").path("phases")) {
+      for (JsonNode page : phase.path("pages")) {
+        for (JsonNode section : page.path("sections")) {
+          for (JsonNode node : section.path("nodes"))
+            collectPlacements(node, page.path("id").asText(), result);
+        }
+      }
+    }
+    result.replaceAll((field, values) -> List.copyOf(values));
+    return Map.copyOf(result);
+  }
+
+  private static void collectPlacements(JsonNode node, String pageId, Map<String, List<Placement>> result) {
+    if (node.path("fieldId").isTextual()) {
+      result.computeIfAbsent(node.path("fieldId").asText(), ignored -> new ArrayList<>())
+          .add(new Placement(pageId, node.path("visibilityExpressionId").asText(null)));
+    }
+    for (JsonNode child : node.path("children")) collectPlacements(child, pageId, result);
+  }
+
+  /** Enumerates every active stable address rather than reducing repeaters to their root definition. */
+  private List<Target> targets(State state) {
+    List<Target> result = new ArrayList<>();
+    for (JsonNode root : compiled.canonicalPackage().path("data").path("fields"))
+      collectTargets(root, List.of(), true, state, result);
+    return result;
+  }
+
+  private void collectTargets(JsonNode field, List<RowSegment> path, boolean ancestorsApplicable, State state,
+      List<Target> result) {
+    Address address = new Address(field.path("id").asText(), path);
+    Cell cell = state.cells().get(address);
+    boolean active = ancestorsApplicable && (cell == null || cell.status() != Status.notApplicable);
+    result.add(new Target(address, field, ancestorsApplicable));
+    JsonNode children = field.path("itemSchema").path("fields");
+    if ("list".equals(field.path("type").asText())) {
+      for (String itemId : state.itemIds(address)) {
+        List<RowSegment> itemPath = new ArrayList<>(path);
+        itemPath.add(new RowSegment(field.path("id").asText(), itemId));
+        for (JsonNode child : children) collectTargets(child, itemPath, active, state, result);
+      }
+    } else if ("object".equals(field.path("type").asText())) {
+      for (JsonNode child : children) collectTargets(child, path, active, state, result);
+    }
+  }
+
+  private static boolean ancestorsApplicable(Address address, State state) {
+    for (int index = 0; index < address.rowPath().size(); index++) {
+      RowSegment segment = address.rowPath().get(index);
+      Cell parent = state.cells().get(new Address(segment.listFieldId(), address.rowPath().subList(0, index)));
+      if (parent != null && parent.status() == Status.notApplicable) return false;
+    }
+    return true;
+  }
+
+  private static String calculationExpressionId(JsonNode source) {
+    JsonNode binding = source.path("extensions").path("x-kodeboxx.calculation");
+    if (binding.path("value").isTextual()) return binding.path("value").asText();
+    // Compatibility for in-memory test/projection objects created before the canonical compiler.
+    // FormCompiler never publishes a canonical package with this unbound legacy representation.
+    String legacy = expressionReference(source.path("calculation").path("expressionRef"));
+    return legacy.isBlank() ? null : legacy;
+  }
+
+  private void validate(JsonNode source, Cell cell, boolean applicable, State state, String sessionDate,
+      String timeZone, ExpressionEngine.MutationBudget budget, String fieldId, Address address,
+      List<Diagnostic> diagnostics) {
+    if (!applicable || cell == null || cell.status() != Status.answered) return;
+    String expressionId = source.path("validationExpressionId").asText(null);
+    if (expressionId != null && !evaluateBoolean(expressionId, state, sessionDate, timeZone, budget, false,
+        fieldId, diagnostics, address)) diagnostics.add(new Diagnostic("VALIDATION_FAILED", fieldId, expressionId));
+  }
 }

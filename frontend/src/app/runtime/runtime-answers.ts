@@ -15,6 +15,7 @@ import {
   type ServerAnswerCell,
   type ServerProjection,
 } from './runtime-types';
+import { PINNED_TIMEZONES } from '../expression/pinned-timezone-registry';
 
 const INT64_MIN = -(1n << 63n);
 const INT64_MAX = (1n << 63n) - 1n;
@@ -24,7 +25,6 @@ const DECIMAL = /^(?:0(?:\.[0-9]+)?|[1-9][0-9]*(?:\.[0-9]+)?|-[1-9][0-9]*(?:\.[0
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const TIME = /^(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.\d{1,9})?$/;
 const INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z$/;
-const TIME_ZONE = /^(?:UTC|[A-Za-z]+(?:[_+-][A-Za-z]+)*(?:\/[A-Za-z_+-]+)+)$/;
 
 const ANSWER_STATUSES: readonly AnswerStatus[] = [
   'answered', 'unanswered', 'unknown', 'declined', 'respondentNotApplicable', 'notApplicable',
@@ -294,7 +294,8 @@ function isObjectValue(value: AnswerValue<InputAnswerCell>): value is { readonly
 
 function isDateTime(value: AnswerValue<InputAnswerCell>): value is { readonly instant: string; readonly timeZone: string } {
   return typeof value === 'object' && value !== null && !Array.isArray(value) && 'instant' in value && 'timeZone' in value
-    && typeof value.instant === 'string' && typeof value.timeZone === 'string' && INSTANT.test(value.instant) && TIME_ZONE.test(value.timeZone);
+    && typeof value.instant === 'string' && typeof value.timeZone === 'string'
+    && INSTANT.test(value.instant) && PINNED_TIMEZONES.has(value.timeZone);
 }
 
 function collectItemIds(cells: Readonly<Record<string, InputAnswerCell>>): Set<string> {
