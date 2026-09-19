@@ -130,7 +130,12 @@ class ExpressionCanonicalAnswerTests {
 
     assertThat(new ExpressionEngine().evaluate(reference,
         ExpressionEngine.projection(definitions, malformed, "2026-09-05", "UTC", 100_000)).code())
-        .isEqualTo("EXPR_SHAPE");
+        .isEqualTo("INVALID_LITERAL");
+
+    JsonNode unrelated = JSON.readTree("{\"literal\":{\"type\":\"boolean\",\"value\":true}}");
+    assertThat(new ExpressionEngine().evaluate(unrelated,
+        ExpressionEngine.projection(definitions, malformed, "2026-09-05", "UTC", 100_000)).code())
+        .isEqualTo("INVALID_LITERAL");
   }
 
 }

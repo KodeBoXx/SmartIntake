@@ -123,6 +123,7 @@ public final class ExpressionEngine {
   /** Lets a product mutation share its fixed evaluation budget across every expression it schedules. */
   public Result evaluate(JsonNode expression, EvaluationContext context, MutationBudget budget) {
     try {
+      validateCellEnvelopes(context.rootCells);
       Expr compiled = compileTop(expression, new CompileEnv(context.fields, List.of(), context.strict));
       validateFrozenContext(context);
       Value value = evaluate(compiled, new RuntimeEnv(context.rootCells, List.of(), context), budget);
@@ -545,7 +546,7 @@ public final class ExpressionEngine {
   }
 
   private static void validateAnswerCell(RefExpr expression, Cell cell) {
-    if ("__invalid__".equals(cell.type)) throw fail("EXPR_SHAPE");
+    if ("__invalid__".equals(cell.type)) throw fail("INVALID_LITERAL");
     if (!STATUSES.contains(cell.status)) throw fail("INVALID_STATUS");
     if (!externalType(expression.type).equals(cell.type)) throw fail("EXPR_TYPE");
     if (expression.type.startsWith("array:") && !expression.type.substring(6).equals(cell.itemType)) {
@@ -564,6 +565,29 @@ public final class ExpressionEngine {
       throw fail("INVALID_LITERAL");
     }
     validateLiteral(type, value);
+  }
+
+  private static void validateCellEnvelopes(Map<String, Cell> cells) {
+    for (Cell cell : cells.values()) {
+      if ("__invalid__".equals(cell.type)) throw fail("INVALID_LITERAL");
+      validateNestedCellEnvelopes(cell.value);
+    }
+  }
+
+  private static void validateNestedCellEnvelopes(JsonNode value) {
+    if (value == null || !value.isObject()) return;
+    JsonNode fields = value.path("fields");
+    if (fields.isObject()) {
+      fields.forEach(child -> {
+        if (!child.isObject() || !child.path("type").isTextual() || !child.path("status").isTextual()
+            || !child.path("applicable").isBoolean()) throw fail("INVALID_LITERAL");
+        validateNestedCellEnvelopes(child.get("value"));
+      });
+    }
+    JsonNode items = value.path("items");
+    if (items.isArray()) {
+      items.forEach(item -> validateNestedCellEnvelopes(item));
+    }
   }
 
   private static Value divide(Value left, Value right) {
