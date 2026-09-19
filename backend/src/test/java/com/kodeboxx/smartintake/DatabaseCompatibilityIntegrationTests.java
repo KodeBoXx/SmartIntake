@@ -14,6 +14,8 @@ import com.kodeboxx.smartintake.compatibility.CompatibilityReconciliationService
 import com.kodeboxx.smartintake.compatibility.LegacyDefinitionAdapter;
 import com.kodeboxx.smartintake.compatibility.RespondentSecretVerifier;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.util.HexFormat;
 import java.util.List;
@@ -56,7 +58,10 @@ class DatabaseCompatibilityIntegrationTests {
           new FlywayHistory(
               "8", "SQL", "V8__freeze_expression_session_context.sql", 874801699),
           new FlywayHistory(
-              "9", "SQL", "V9__default_frozen_session_context.sql", 1901026173));
+              "9", "SQL", "V9__default_frozen_session_context.sql", 1901026173),
+          new FlywayHistory(
+              "10", "SQL", "V10__bind_session_mutation_request_digest.sql", 1365084057),
+          new FlywayHistory("11", "SQL", "V11__m4_compatibility_runtime.sql", 1780789261));
 
   @Autowired JdbcTemplate db;
   @Autowired CompatibilityReconciliationService reconciliation;
@@ -91,6 +96,33 @@ class DatabaseCompatibilityIntegrationTests {
                     rs.getString("type"),
                     rs.getString("script"),
                     rs.getInt("checksum"))));
+  }
+
+  @Test
+  void v11_registers_writable_canonical_profile_and_preserves_opaque_mutation_keys() {
+    assertEquals(
+        List.of("canonical-4.0.0", "4.0.0", false, true),
+        db.queryForObject(
+            "select profile_key,contract_version,read_only,new_write_allowed from compatibility_profiles"
+                + " where profile_key='canonical-4.0.0'",
+            (rs, row) ->
+                List.of(
+                    rs.getString("profile_key"),
+                    rs.getString("contract_version"),
+                    rs.getBoolean("read_only"),
+                    rs.getBoolean("new_write_allowed"))));
+    assertEquals(
+        "jsonb",
+        db.queryForObject(
+            "select data_type from information_schema.columns where table_name='sessions' and"
+                + " column_name='runtime_state'",
+            String.class));
+    assertEquals(
+        "character varying",
+        db.queryForObject(
+            "select data_type from information_schema.columns where table_name='session_mutations'"
+                + " and column_name='client_mutation_id'",
+            String.class));
   }
 
   @Test
@@ -459,6 +491,139 @@ class DatabaseCompatibilityIntegrationTests {
   }
 
   @Test
+  void preserves_compiler_valid_canonical_records_and_runtime_state_across_restart()
+      throws Exception {
+    UUID form = UUID.randomUUID();
+    UUID release = UUID.randomUUID();
+    UUID session = UUID.randomUUID();
+    UUID mutationSession = session;
+    UUID submission = UUID.randomUUID();
+    UUID token = UUID.randomUUID();
+    UUID account = UUID.randomUUID();
+    UUID organization = UUID.randomUUID();
+    UUID workspace = UUID.randomUUID();
+    String mutation = "mutation-01J2W5RFR3K24SFWDX2C0N9VW3";
+    JsonNode canonicalNode =
+        JSON.readTree(
+            Files.readString(
+                Path.of(
+                    "../docs/contracts/smart-form-builder-lite/4.0.0/fixtures/package.positive.json")));
+    ((com.fasterxml.jackson.databind.node.ArrayNode)
+            canonicalNode.at("/flow/phases/0/pages/0/sections/0/nodes"))
+        .add(JSON.readTree("{\"id\":\"review1\",\"kind\":\"review\",\"labelKey\":\"title\"}"));
+    String canonical = JSON.writeValueAsString(canonicalNode);
+    String runtimeState = "{\"hidden\":{\"retained\":true},\"retiredItemIds\":[\"item-01\"]}";
+
+    db.update(
+        "insert into accounts(id,email,password_hash) values(?,?,?)",
+        account,
+        account + "@example.test",
+        "hash");
+    db.update("insert into organizations(id,name) values(?,?)", organization, "Canonical restart");
+    db.update(
+        "insert into workspaces(id,organization_id,workspace_key,name) values(?,?,?,?)",
+        workspace,
+        organization,
+        "canonical-" + workspace,
+        "Canonical restart");
+    db.update(
+        "insert into forms(id,workspace_id,form_key,title,definition,compatibility_profile_key)"
+            + " values(?,?,?,?,cast(? as jsonb),?)",
+        form,
+        workspace,
+        "canonical-" + form,
+        "Canonical",
+        canonical,
+        "m1-current-prototype");
+    db.update(
+        "insert into form_releases(id,form_id,version,package,compatibility_profile_key)"
+            + " values(?,?,1,cast(? as jsonb),?)",
+        release,
+        form,
+        canonical,
+        "m1-current-prototype");
+    db.update(
+        "insert into sessions(id,form_id,release_id,respondent_token,answers,runtime_state,"
+            + " compatibility_profile_key) values(?,?,?,?,cast(? as jsonb),cast(? as jsonb),?)",
+        session,
+        form,
+        release,
+        token,
+        "{\"name\":{\"status\":\"answered\",\"value\":\"Ada\"}}",
+        runtimeState,
+        "m1-current-prototype");
+    db.update(
+        "insert into session_mutations(session_id,client_mutation_id,accepted_revision,response)"
+            + " values(?,?,1,cast(? as jsonb))",
+        mutationSession,
+        mutation,
+        "{\"acceptedRevision\":1}");
+    db.update(
+        "insert into submissions(id,form_id,session_id,envelope) values(?,?,?,cast(? as jsonb))",
+        submission,
+        form,
+        session,
+        "{\"kept\":true}");
+
+    try (ConfigurableApplicationContext first = restartableContext()) {
+      JdbcTemplate restarted = first.getBean(JdbcTemplate.class);
+      for (String table : List.of("forms", "form_releases", "sessions")) {
+        UUID id = "forms".equals(table) ? form : "form_releases".equals(table) ? release : session;
+        assertEquals(
+            "canonical-4.0.0",
+            restarted.queryForObject(
+                "select compatibility_profile_key from " + table + " where id=?", String.class, id));
+      }
+      for (String recordType : List.of("FORM", "RELEASE", "SESSION", "SESSION_MUTATION", "SUBMISSION")) {
+        String key = switch (recordType) {
+          case "FORM" -> form.toString();
+          case "RELEASE" -> release.toString();
+          case "SESSION" -> session.toString();
+          case "SESSION_MUTATION" -> session + ":" + mutation;
+          default -> submission.toString();
+        };
+        assertEquals(
+            "LEGACY_READABLE",
+            restarted.queryForObject(
+                "select state from record_migration_state where record_type=? and record_key=?",
+                String.class,
+                recordType,
+                key));
+      }
+    }
+    try (ConfigurableApplicationContext second = restartableContext()) {
+      JdbcTemplate restarted = second.getBean(JdbcTemplate.class);
+      assertStoredJson(
+          canonical,
+          restarted.queryForObject("select definition::text from forms where id=?", String.class, form));
+      assertStoredJson(
+          canonical,
+          restarted.queryForObject(
+              "select package::text from form_releases where id=?", String.class, release));
+      assertStoredJson(
+          runtimeState,
+          restarted.queryForObject(
+              "select runtime_state::text from sessions where id=?", String.class, session));
+      assertEquals(
+          mutation,
+          restarted.queryForObject(
+              "select client_mutation_id from session_mutations where session_id=?", String.class, session));
+      assertStoredJson(
+          "{\"acceptedRevision\":1}",
+          restarted.queryForObject(
+              "select response::text from session_mutations where session_id=?", String.class, session));
+      assertStoredJson(
+          "{\"kept\":true}",
+          restarted.queryForObject(
+              "select envelope::text from submissions where id=?", String.class, submission));
+      assertEquals(
+          "canonical-4.0.0",
+          restarted.queryForObject(
+              "select compatibility_profile_key from sessions where id=?", String.class, session));
+    }
+  }
+
+  @Test
   void quarantines_invalid_current_profiles_and_cascades_to_sessions_and_children() {
     UUID account = UUID.randomUUID();
     UUID organization = UUID.randomUUID();
@@ -796,7 +961,7 @@ class DatabaseCompatibilityIntegrationTests {
         "update session_mutations set accepted_revision=2 where session_id=? and"
             + " client_mutation_id=?",
         session,
-        mutation);
+        mutation.toString());
     reconciliation.reconcile();
     assertNotEquals(
         mutationDigest,

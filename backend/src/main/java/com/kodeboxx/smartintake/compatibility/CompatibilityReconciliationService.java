@@ -2,6 +2,7 @@ package com.kodeboxx.smartintake.compatibility;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kodeboxx.smartintake.contract.compiler.FormCompiler;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -24,16 +25,19 @@ public class CompatibilityReconciliationService implements ApplicationRunner {
   private final JdbcTemplate db;
   private final ObjectMapper json;
   private final LegacyDefinitionAdapter legacyDefinitions;
+  private final FormCompiler compiler;
   private final TransactionTemplate transactions;
 
   public CompatibilityReconciliationService(
       JdbcTemplate db,
       ObjectMapper json,
       LegacyDefinitionAdapter legacyDefinitions,
+      FormCompiler compiler,
       TransactionTemplate transactions) {
     this.db = db;
     this.json = json;
     this.legacyDefinitions = legacyDefinitions;
+    this.compiler = compiler;
     this.transactions = transactions;
   }
 
@@ -175,7 +179,7 @@ public class CompatibilityReconciliationService implements ApplicationRunner {
             + " join forms sf on sf.id=s.form_id left join forms rf on rf.id=r.form_id",
         rs -> {
           UUID session = rs.getObject("session_id", UUID.class);
-          UUID mutation = rs.getObject("client_mutation_id", UUID.class);
+          String mutation = rs.getString("client_mutation_id");
           String key = session + ":" + mutation;
           String reason = quarantinedReason("SESSION", session.toString());
           if (reason == null && rs.getObject("release_id") == null) {
@@ -264,10 +268,14 @@ public class CompatibilityReconciliationService implements ApplicationRunner {
       String source, String profileKey, String relationshipReason) {
     try {
       JsonNode parsed = json.readTree(source);
-      legacyDefinitions.validateCurrentLite(parsed);
       if (relationshipReason != null) {
         return new Reconciliation(QUARANTINED, null, relationshipReason);
       }
+      if (compiler.compile(parsed).valid()) {
+        return new Reconciliation(
+            LEGACY_READABLE, CompatibilityProfile.CANONICAL_4_0_0.key(), null);
+      }
+      legacyDefinitions.validateCurrentLite(parsed);
       String resolvedProfile =
           CompatibilityProfile.M1_CURRENT_PROTOTYPE.key().equals(profileKey)
               ? CompatibilityProfile.M1_CURRENT_PROTOTYPE.key()

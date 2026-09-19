@@ -1,6 +1,7 @@
 package com.kodeboxx.smartintake;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.kodeboxx.smartintake.application.IntakeApplicationService;
@@ -131,6 +132,20 @@ class SessionConcurrencyIntegrationTests {
             "select count(*) from submissions where session_id=?",
             Integer.class,
             fixture.session()));
+  }
+
+  @Test
+  void rejectsMutationIdReuseWithADifferentRequestDigest() {
+    Fixture fixture = fixture();
+    UUID mutation = UUID.randomUUID();
+    intake.patch(fixture.session(), fixture.bearer().toString(),
+        new IntakeApplicationService.PatchSession(0L, mutation, Map.of("first", "value")));
+    ResponseStatusException conflict = assertThrows(ResponseStatusException.class, () ->
+        intake.patch(fixture.session(), fixture.bearer().toString(),
+            new IntakeApplicationService.PatchSession(0L, mutation, Map.of("different", "value"))));
+    assertEquals(HttpStatus.CONFLICT, conflict.getStatusCode());
+    assertEquals(1L, db.queryForObject(
+        "select revision from sessions where id=?", Long.class, fixture.session()));
   }
 
   private IntakeApplicationService.PatchSession patch(UUID mutation) {

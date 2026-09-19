@@ -1,12 +1,14 @@
 # M1 database compatibility boundary
 
-This is an additive M1 compatibility slice, not an M2 contract migration. Flyway
-V1 through V6 remain byte-for-byte immutable. V7 is additive: it registers the
-writable M1 current-prototype profile and enforces one submission per session.
+This is an additive compatibility boundary. Flyway V1 through V10 remain
+byte-for-byte immutable. V11 is additive: it registers the writable canonical
+4.0.0 profile, adds nullable typed runtime state, and widens mutation replay
+keys without rewriting their values. V7 registers the writable M1
+current-prototype profile and enforces one submission per session.
 It is not application-rollback-compatible by itself: an application binary from
 before `d1662ed` must not run against a database whose Flyway history includes
-V5--V7 without the coordinated procedure below.
-The companion integration test pins V1–V4 SHA-256 values; V5–V6 are not altered.
+V5--V11 without the coordinated procedure below.
+The companion integration test pins the exact successful V1--V11 Flyway history.
 
 ## Profiles and write boundary
 
@@ -26,6 +28,16 @@ current app usable without claiming the M2 full 4.0.0 profile. Quarantined or
 unsupported forms/releases cannot publish or start new sessions. Existing
 acknowledged sessions are not retroactively closed.
 
+`canonical-4.0.0` is the explicit writable profile for a complete canonical
+4.0.0 package. Reconciliation assigns it only when `FormCompiler` accepts the
+stored package; a version string or an M1 profile tag cannot promote a package.
+Canonical forms, releases, sessions, mutations, and submissions retain their
+source bytes and remain reconciliation-readable across restarts. V11's nullable
+`sessions.runtime_state` preserves server-only runtime state independently of
+the public answer projection. Its `session_mutations.client_mutation_id` is a
+200-character OpaqueId-compatible replay key rather than a UUID, while the
+existing composite primary key continues to preserve every historical key.
+
 ## Reconciliation and secrets
 
 `CompatibilityReconciliationService` runs after Flyway inside a real
@@ -38,6 +50,8 @@ Relationship mismatches (`session.form_id != release.form_id` and
 `submission.form_id != session.form_id`) are explicit quarantine evidence, not
 links to repair. Unsupported or quarantined form/release/session state cascades
 to dependent records without inferring a tenant or release relationship. A
+compiler-valid canonical package is classified before the legacy adapter; only
+otherwise-valid Lite definitions remain legacy-readable. A
 changed retained token changes migration evidence but never replaces an already
 stored distinct digest.
 
@@ -78,24 +92,24 @@ application until the transaction below has committed and its post-checks pass.
    approved operational process (or wait for their expiry), record the approval,
    and rerun the preflight.
 2. Run the preflight transaction below with a role permitted to lock and alter
-   these tables. It fails closed for an incomplete/failed V5--V7 application or
+   these tables. It fails closed for an incomplete/failed V5--V11 application or
    for any later successful migration. Do not substitute `CASCADE`, disable
    Flyway validation, or delete individual submissions to satisfy a check.
 3. Commit the drop transaction, run the post-check, then deploy the
    pre-`d1662ed` application. Keep submission traffic serialized or disabled
    while it is rolled back: without V7, concurrent writers can create duplicate
    submissions and a later V7 deployment will correctly refuse to proceed.
-4. To return to M1, restore the backup if interpretation history is needed,
-   deploy the M1 application, and let Flyway apply V5--V7 normally. Reconcile
-   duplicate submissions explicitly before retrying V7; never merge or delete
-   them as part of a migration.
+4. To return to the current compatibility boundary, restore the backup if
+   interpretation history is needed, deploy the current application, and let
+   Flyway apply V5--V11 normally. Reconcile duplicate submissions explicitly
+   before retrying V7; never merge or delete them as part of a migration.
 
 ```sql
 begin;
 set local lock_timeout = '5s';
 set local statement_timeout = '30s';
 
-lock table flyway_schema_history, submissions, sessions, form_releases, forms,
+lock table flyway_schema_history, session_mutations, submissions, sessions, form_releases, forms,
            record_migration_state, compatibility_quarantine_evidence,
            compatibility_profiles in access exclusive mode;
 
@@ -117,13 +131,15 @@ begin
           or (version = '6' and type = 'SQL' and script = 'V6__compatibility_reconciliation_indexes.sql' and checksum = -848544773)
           or (version = '7' and type = 'SQL' and script = 'V7__m1_current_profile_and_submission_uniqueness.sql' and checksum = -648692813)
           or (version = '8' and type = 'SQL' and script = 'V8__freeze_expression_session_context.sql' and checksum = 874801699)
-          or (version = '9' and type = 'SQL' and script = 'V9__default_frozen_session_context.sql' and checksum = 1901026173),
+          or (version = '9' and type = 'SQL' and script = 'V9__default_frozen_session_context.sql' and checksum = 1901026173)
+          or (version = '10' and type = 'SQL' and script = 'V10__bind_session_mutation_request_digest.sql' and checksum = 1365084057)
+          or (version = '11' and type = 'SQL' and script = 'V11__m4_compatibility_runtime.sql' and checksum = 1780789261),
           false)
   )
-  or (select count(*) from flyway_schema_history where success) <> 9
+  or (select count(*) from flyway_schema_history where success) <> 11
   or (select count(distinct (version, type, script, checksum))
-      from flyway_schema_history where success) <> 9 then
-    raise exception 'Rollback refused: successful Flyway history is not the exact V1-V9 SQL allowlist';
+      from flyway_schema_history where success) <> 11 then
+    raise exception 'Rollback refused: successful Flyway history is not the exact V1-V11 SQL allowlist';
   end if;
   if exists (
       select 1
@@ -139,12 +155,28 @@ begin
                    and conname = 'submissions_session_id_unique') then
     raise exception 'Rollback refused: V7 submission uniqueness constraint is absent';
   end if;
+  if not exists (select 1 from pg_constraint
+                 where conrelid = 'session_mutations'::regclass
+                   and conname = 'session_mutations_client_mutation_id_opaque_id') then
+    raise exception 'Rollback refused: V11 OpaqueId constraint is absent';
+  end if;
+  if exists (
+      select 1 from session_mutations
+      where client_mutation_id !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+  ) then
+    raise exception 'Rollback refused: V11 contains replay keys that cannot be represented as V4 UUIDs';
+  end if;
 end $$;
 
 alter table submissions drop constraint submissions_session_id_unique;
+alter table session_mutations drop constraint session_mutations_client_mutation_id_opaque_id;
+alter table session_mutations alter column client_mutation_id type uuid using client_mutation_id::uuid;
+alter table session_mutations drop constraint session_mutations_request_digest_format;
+alter table session_mutations drop column request_digest;
 alter table sessions drop column session_date,
                      drop column time_zone,
-                     drop column tzdb_version;
+                     drop column tzdb_version,
+                     drop column runtime_state;
 drop index if exists record_migration_state_state_idx;
 drop index if exists compatibility_quarantine_reason_idx;
 drop index if exists forms_compatibility_profile_idx;
@@ -157,16 +189,28 @@ alter table forms drop column compatibility_profile_key;
 drop table compatibility_quarantine_evidence;
 drop table record_migration_state;
 drop table compatibility_profiles;
-delete from flyway_schema_history where version in ('5', '6', '7', '8', '9');
+delete from flyway_schema_history where version in ('5', '6', '7', '8', '9', '10', '11');
 commit;
 
--- Run after commit. All values must be false/zero before deploying the old binary.
-select exists (select 1 from flyway_schema_history where version in ('5', '6', '7', '8', '9')) as m1_history_remains,
+-- Run after commit. Every *_remains value must be false and mutation_key_uuid_restored true
+-- before deploying the old binary.
+select exists (select 1 from flyway_schema_history where version in ('5', '6', '7', '8', '9', '10', '11')) as compatibility_history_remains,
        exists (select 1 from pg_constraint
                where conrelid = 'submissions'::regclass
-                 and conname = 'submissions_session_id_unique') as uniqueness_remains,
+                   and conname = 'submissions_session_id_unique') as uniqueness_remains,
        exists (select 1 from information_schema.columns
-               where table_name = 'sessions' and column_name = 'respondent_secret_sha256') as digest_column_remains;
+               where table_name = 'sessions' and column_name = 'respondent_secret_sha256') as digest_column_remains,
+       exists (select 1 from information_schema.columns
+               where table_name = 'sessions' and column_name = 'runtime_state') as runtime_state_remains,
+       exists (select 1 from information_schema.columns
+               where table_name = 'session_mutations' and column_name = 'request_digest') as request_digest_remains,
+       exists (select 1 from pg_constraint
+               where conrelid = 'session_mutations'::regclass
+                 and conname in ('session_mutations_request_digest_format',
+                                 'session_mutations_client_mutation_id_opaque_id')) as mutation_constraint_remains,
+       coalesce((select data_type = 'uuid' from information_schema.columns
+                 where table_name = 'session_mutations' and column_name = 'client_mutation_id'), false)
+                 as mutation_key_uuid_restored;
 ```
 
 The machine-readable inventory is
