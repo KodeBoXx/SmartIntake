@@ -108,7 +108,10 @@ public final class ExpressionEngine {
   public static EvaluationContext typedLegacy(Map<String, String> declaredTypes, Context context) {
     EvaluationContext legacy = legacy(context);
     Map<String, Field> fields = new LinkedHashMap<>();
-    declaredTypes.forEach((id, type) -> fields.put(id, new Field(id, type, null, Map.of())));
+    declaredTypes.forEach((id, type) -> {
+      String itemType = type.startsWith("array:") ? type.substring(6) : null;
+      fields.put(id, new Field(id, itemType == null ? type : "array", itemType, Map.of()));
+    });
     return new EvaluationContext(fields, legacy.rootCells, context.sessionDate(), context.sessionTimeZone(),
         context.stepLimit(), true);
   }
@@ -123,7 +126,7 @@ public final class ExpressionEngine {
       Expr compiled = compileTop(expression, new CompileEnv(context.fields, List.of(), context.strict));
       validateFrozenContext(context);
       Value value = evaluate(compiled, new RuntimeEnv(context.rootCells, List.of(), context), budget);
-      return Result.available(value.type, value.node);
+      return Result.available(externalType(value.type), value.node);
     } catch (UnknownValue unknown) {
       return Result.unknown(unknown.reason);
     } catch (ExpressionFailure failure) {
@@ -165,7 +168,7 @@ public final class ExpressionEngine {
   private record OperationExpr(String op, List<Expr> args, String type, Field aggregateList) implements Expr {}
   private record Value(String type, JsonNode node) {}
   private record Field(String id, String type, String itemType, Map<String, Field> itemFields) {}
-  private record Cell(String type, String status, boolean applicable, JsonNode value) {}
+  private record Cell(String type, String itemType, String status, boolean applicable, JsonNode value) {}
   private record CompileEnv(Map<String, Field> root, List<Map<String, Field>> itemScopes, boolean strict) {}
   private record RuntimeEnv(Map<String, Cell> root, List<Map<String, Cell>> itemScopes, EvaluationContext context) {}
 
@@ -503,10 +506,11 @@ public final class ExpressionEngine {
       if (result == null) result = values.get(part);
       else if (result.value != null && result.value.path("fields").isObject()) {
         JsonNode child = result.value.path("fields").get(part);
-        result = child == null ? null : new Cell(expression.type, child.path("status").asText("unanswered"),
-            child.path("applicable").asBoolean(true), child.get("value"));
+        result = child == null ? null : new Cell(child.path("type").asText(), child.path("itemType").asText(null),
+            child.path("status").asText("unanswered"), child.path("applicable").asBoolean(true), child.get("value"));
       } else result = null;
-      if (result == null) return new Cell(expression.type, "unanswered", true, null);
+      if (result == null) return new Cell(externalType(expression.type), expression.field.itemType,
+          "unanswered", true, null);
     }
     return result;
   }
@@ -525,6 +529,10 @@ public final class ExpressionEngine {
 
   private static void validateAnswerCell(RefExpr expression, Cell cell) {
     if (!STATUSES.contains(cell.status)) throw fail("INVALID_STATUS");
+    if (!externalType(expression.type).equals(cell.type)) throw fail("EXPR_TYPE");
+    if (expression.type.startsWith("array:") && !expression.type.substring(6).equals(cell.itemType)) {
+      throw fail("EXPR_TYPE");
+    }
     if (!cell.applicable || !"answered".equals(cell.status) || cell.value == null || cell.value.isMissingNode()) return;
     if (expression.type.startsWith("array:")) {
       if (!cell.value.isArray()) throw fail("INVALID_LITERAL");
@@ -743,8 +751,8 @@ public final class ExpressionEngine {
     input.fields().forEachRemaining(entry -> {
       JsonNode answer = entry.getValue();
       if (answer.isObject() && answer.has("status")) {
-        result.put(entry.getKey(), new Cell(answer.path("type").asText(), answer.path("status").asText("unanswered"),
-            answer.path("applicable").asBoolean(true), answer.get("value")));
+        result.put(entry.getKey(), new Cell(answer.path("type").asText(), answer.path("itemType").asText(null),
+            answer.path("status").asText("unanswered"), answer.path("applicable").asBoolean(true), answer.get("value")));
       }
     });
     return result;
@@ -758,7 +766,8 @@ public final class ExpressionEngine {
         JsonNode literal = expression.path("literal");
         String type = literal.path("type").asText("text");
         fields.put(id, new Field(id, type, literal.path("itemType").asText(null), Map.of()));
-        cells.put(id, new Cell(type, "answered", true, canonical(type, literal.get("value"))));
+        cells.put(id, new Cell(type, literal.path("itemType").asText(null), "answered", true,
+            canonical(type, literal.get("value"))));
       } catch (RuntimeException ignored) { /* unavailable legacy value */ }
     });
     return new EvaluationContext(fields, cells, context.sessionDate(), context.sessionTimeZone(), context.stepLimit(), false);
@@ -775,6 +784,7 @@ public final class ExpressionEngine {
 
   private static ExpressionFailure fail(String code) { return new ExpressionFailure(code); }
   private static UnknownValue unknown(String reason) { return new UnknownValue(reason); }
+  private static String externalType(String type) { return type.startsWith("array:") ? "array" : type; }
 
   private static boolean closedRef(JsonNode ref) {
     var names = ref.fieldNames();

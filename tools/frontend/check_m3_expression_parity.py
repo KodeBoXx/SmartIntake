@@ -41,6 +41,14 @@ def candidate_identity() -> tuple[str, str]:
     )
 
 
+def require_clean_candidate() -> None:
+    status = subprocess.check_output(
+        ["git", "status", "--porcelain=v1", "--untracked-files=all"], cwd=ROOT, text=True
+    ).splitlines()
+    unexpected = [line for line in status if not line[3:].startswith("frontend/test-results/")]
+    require(not unexpected, f"candidate worktree is not clean: {unexpected}")
+
+
 def artifact_digest(artifact: dict) -> str:
     payload = dict(artifact)
     payload.pop("artifactSha256", None)
@@ -90,6 +98,7 @@ def main() -> None:
     source = json.loads(source_bytes)
     expected_sha = hashlib.sha256(source_bytes).hexdigest()
     require(expected_sha == PINNED_SOURCE_SHA256, "authoritative expression corpus checksum drift")
+    require_clean_candidate()
     commit, tree = candidate_identity()
     worktree = worktree_bytes_sha256()
     timezone_version, timezone_digest = timezone_registry()

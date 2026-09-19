@@ -66,4 +66,42 @@ class ExpressionCanonicalAnswerTests {
     assertThat(unknown.code()).isEqualTo("UNKNOWN_FIELD");
   }
 
+  @Test
+  void rejects_answer_cell_type_and_array_item_type_mismatches() throws Exception {
+    ExpressionEngine engine = new ExpressionEngine();
+    JsonNode integerDefinitions = JSON.readTree("[{\"id\":\"count\",\"type\":\"integer\"}]");
+    JsonNode wrongScalar = JSON.readTree("""
+        {"count":{"type":"text","status":"answered","applicable":true,"value":"1"}}
+        """);
+    JsonNode scalarReference = JSON.readTree("{\"ref\":{\"fieldId\":\"count\",\"scope\":\"root\"}}");
+    assertThat(engine.evaluate(scalarReference,
+        ExpressionEngine.projection(integerDefinitions, wrongScalar, "2026-09-05", "UTC", 100_000)).code())
+        .isEqualTo("EXPR_TYPE");
+
+    JsonNode arrayDefinitions = JSON.readTree("[{\"id\":\"counts\",\"type\":\"array\",\"itemType\":\"integer\"}]");
+    JsonNode wrongArray = JSON.readTree("""
+        {"counts":{"type":"array","itemType":"text","status":"answered","applicable":true,"value":["1"]}}
+        """);
+    JsonNode arrayReference = JSON.readTree("{\"ref\":{\"fieldId\":\"counts\",\"scope\":\"root\"}}");
+    assertThat(engine.evaluate(arrayReference,
+        ExpressionEngine.projection(arrayDefinitions, wrongArray, "2026-09-05", "UTC", 100_000)).code())
+        .isEqualTo("EXPR_TYPE");
+  }
+
+  @Test
+  void exposes_scalar_array_results_with_the_contract_array_type() throws Exception {
+    JsonNode definitions = JSON.readTree("[{\"id\":\"counts\",\"type\":\"array\",\"itemType\":\"integer\"}]");
+    JsonNode answers = JSON.readTree("""
+        {"counts":{"type":"array","itemType":"integer","status":"answered","applicable":true,"value":["1","2"]}}
+        """);
+    JsonNode reference = JSON.readTree("{\"ref\":{\"fieldId\":\"counts\",\"scope\":\"root\"}}");
+
+    ExpressionEngine.Result result = new ExpressionEngine().evaluate(reference,
+        ExpressionEngine.projection(definitions, answers, "2026-09-05", "UTC", 100_000));
+
+    assertThat(result.state()).isEqualTo("available");
+    assertThat(result.type()).isEqualTo("array");
+    assertThat(result.value()).hasSize(2);
+  }
+
 }

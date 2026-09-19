@@ -115,13 +115,15 @@ begin
           or (version = '4' and type = 'SQL' and script = 'V4__session_mutation_replay.sql' and checksum = -758059602)
           or (version = '5' and type = 'SQL' and script = 'V5__compatibility_profiles_and_reconciliation_state.sql' and checksum = 125753238)
           or (version = '6' and type = 'SQL' and script = 'V6__compatibility_reconciliation_indexes.sql' and checksum = -848544773)
-          or (version = '7' and type = 'SQL' and script = 'V7__m1_current_profile_and_submission_uniqueness.sql' and checksum = -648692813),
+          or (version = '7' and type = 'SQL' and script = 'V7__m1_current_profile_and_submission_uniqueness.sql' and checksum = -648692813)
+          or (version = '8' and type = 'SQL' and script = 'V8__freeze_expression_session_context.sql' and checksum = 874801699)
+          or (version = '9' and type = 'SQL' and script = 'V9__default_frozen_session_context.sql' and checksum = 1901026173),
           false)
   )
-  or (select count(*) from flyway_schema_history where success) <> 7
+  or (select count(*) from flyway_schema_history where success) <> 9
   or (select count(distinct (version, type, script, checksum))
-      from flyway_schema_history where success) <> 7 then
-    raise exception 'Rollback refused: successful Flyway history is not the exact V1-V7 SQL allowlist';
+      from flyway_schema_history where success) <> 9 then
+    raise exception 'Rollback refused: successful Flyway history is not the exact V1-V9 SQL allowlist';
   end if;
   if exists (
       select 1
@@ -140,6 +142,9 @@ begin
 end $$;
 
 alter table submissions drop constraint submissions_session_id_unique;
+alter table sessions drop column session_date,
+                     drop column time_zone,
+                     drop column tzdb_version;
 drop index if exists record_migration_state_state_idx;
 drop index if exists compatibility_quarantine_reason_idx;
 drop index if exists forms_compatibility_profile_idx;
@@ -152,11 +157,11 @@ alter table forms drop column compatibility_profile_key;
 drop table compatibility_quarantine_evidence;
 drop table record_migration_state;
 drop table compatibility_profiles;
-delete from flyway_schema_history where version in ('5', '6', '7');
+delete from flyway_schema_history where version in ('5', '6', '7', '8', '9');
 commit;
 
 -- Run after commit. All values must be false/zero before deploying the old binary.
-select exists (select 1 from flyway_schema_history where version in ('5', '6', '7')) as m1_history_remains,
+select exists (select 1 from flyway_schema_history where version in ('5', '6', '7', '8', '9')) as m1_history_remains,
        exists (select 1 from pg_constraint
                where conrelid = 'submissions'::regclass
                  and conname = 'submissions_session_id_unique') as uniqueness_remains,

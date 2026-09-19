@@ -27,8 +27,8 @@ class ContractFoundationTests {
   @Test void package_hash_is_key_order_independent_and_detects_tampering() throws Exception {
     ObjectNode one = (ObjectNode) json.readTree("{\"contractVersion\":\"4.0.0\",\"pages\":[],\"title\":\"A\"}");
     ObjectNode two = (ObjectNode) json.readTree("{\"title\":\"A\",\"pages\":[],\"contractVersion\":\"4.0.0\"}");
-    assertThat(PackageStamp.stamp(one, "4.0.0", "tzdb-2026a").canonicalSha256()).isEqualTo(PackageStamp.stamp(two, "4.0.0", "tzdb-2026a").canonicalSha256());
-    ObjectNode stamped = (ObjectNode) PackageStamp.attach(one, "4.0.0", "tzdb-2026a");
+    assertThat(PackageStamp.stamp(one, "4.0.0", TimeZoneRegistry.VERSION).canonicalSha256()).isEqualTo(PackageStamp.stamp(two, "4.0.0", TimeZoneRegistry.VERSION).canonicalSha256());
+    ObjectNode stamped = (ObjectNode) PackageStamp.attach(one, "4.0.0", TimeZoneRegistry.VERSION);
     PackageStamp.verify(stamped);
     stamped.put("title", "changed");
     assertThatThrownBy(() -> PackageStamp.verify(stamped)).hasMessage("PACKAGE_HASH_MISMATCH");

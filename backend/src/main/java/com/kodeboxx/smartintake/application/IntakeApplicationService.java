@@ -9,6 +9,7 @@ import com.kodeboxx.smartintake.contract.CsvSafety;
 import com.kodeboxx.smartintake.contract.FormRuntime;
 import com.kodeboxx.smartintake.contract.PackageStamp;
 import com.kodeboxx.smartintake.contract.TimeZoneRegistry;
+import com.kodeboxx.smartintake.contract.TimeZoneRegistry;
 import com.kodeboxx.smartintake.persistence.AuditEventRepository;
 import com.kodeboxx.smartintake.security.StaffAuthorization;
 import java.time.Duration;
@@ -329,17 +330,23 @@ public class IntakeApplicationService {
     requireNewWriteAllowed("RELEASE", release.id());
     UUID id = UUID.randomUUID(), bearer = UUID.randomUUID(), legacyPlaceholder = UUID.randomUUID();
     String locale = in == null || in.locale() == null ? "en" : in.locale();
+    String timeZone = in == null || in.timeZone() == null ? "UTC" : in.timeZone();
+    if (!TimeZoneRegistry.contains(timeZone)) throw bad("INVALID_TIMEZONE", "Unsupported timezone");
+    java.time.LocalDate sessionDate = java.time.LocalDate.now(java.time.ZoneId.of(timeZone));
     db.update(
         "insert into"
-            + " sessions(id,form_id,release_id,respondent_token,respondent_secret_sha256,compatibility_profile_key,locale,answers)"
-            + " values(?,?,?,?,?,?,?,cast('{}' as jsonb))",
+            + " sessions(id,form_id,release_id,respondent_token,respondent_secret_sha256,compatibility_profile_key,locale,answers,session_date,time_zone,tzdb_version)"
+            + " values(?,?,?,?,?,?,?,cast('{}' as jsonb),?,?,?)",
         id,
         share,
         release.id(),
         legacyPlaceholder,
         respondentSecrets.digest(bearer),
         CompatibilityProfile.M1_CURRENT_PROTOTYPE.key(),
-        locale);
+        locale,
+        sessionDate,
+        timeZone,
+        TimeZoneRegistry.VERSION);
     return ResponseEntity.status(201)
         .body(
             Map.of(
@@ -351,6 +358,9 @@ public class IntakeApplicationService {
                 0,
                 "locale",
                 locale,
+                "runtimeManifest",
+                Map.of("sessionDate", sessionDate.toString(), "timeZone", timeZone,
+                    "timeZoneDatabaseVersion", TimeZoneRegistry.VERSION),
                 "release",
                 parse(release.pkg()),
                 "expiresAt",
@@ -389,7 +399,7 @@ public class IntakeApplicationService {
             "answers",
             answers,
             "validation",
-            validateAnswers(release(s.releaseId()).pkg(), answers));
+            validateAnswers(release(s.releaseId()).pkg(), answers, s));
     db.update(
         "update sessions set answers=cast(? as jsonb),revision=? where id=?",
         stringify(answers),
@@ -409,7 +419,7 @@ public class IntakeApplicationService {
     var s = respondent(id, token);
     return Map.of(
         "errors",
-        validateAnswers(release(s.releaseId()).pkg(), parse(s.answers())),
+        validateAnswers(release(s.releaseId()).pkg(), parse(s.answers()), s),
         "reviewDigest",
         UUID.nameUUIDFromBytes(s.answers().getBytes()).toString());
   }
@@ -424,7 +434,7 @@ public class IntakeApplicationService {
     }
     if (!Objects.equals(in.sessionRevision(), s.revision()))
       throw new ResponseStatusException(HttpStatus.CONFLICT, "REVIEW_STALE");
-    var errors = validateAnswers(release(s.releaseId()).pkg(), parse(s.answers()));
+    var errors = validateAnswers(release(s.releaseId()).pkg(), parse(s.answers()), s);
     if (!errors.isEmpty())
       return ResponseEntity.unprocessableEntity()
           .body(Map.of("code", "VALIDATION_FAILED", "errors", errors));
@@ -539,7 +549,8 @@ public class IntakeApplicationService {
   private record R(UUID id, String pkg) {}
 
   private record S(
-      UUID id, UUID formId, UUID releaseId, long revision, String answers, String status) {}
+      UUID id, UUID formId, UUID releaseId, long revision, String answers, String status,
+      java.time.LocalDate sessionDate, String timeZone, String tzdbVersion) {}
 
   private record RespondentRow(S session, String secretDigest, UUID retainedLegacyToken) {}
 
@@ -561,7 +572,7 @@ public class IntakeApplicationService {
       RespondentRow row =
           db.queryForObject(
               "select"
-                  + " id,form_id,release_id,revision,answers::text,status,respondent_secret_sha256,respondent_token"
+                  + " id,form_id,release_id,revision,answers::text,status,session_date,time_zone,tzdb_version,respondent_secret_sha256,respondent_token"
                   + " from sessions where id=? and expires_at>now()"
                   + (lock ? " for update" : ""),
               (rs, n) -> {
@@ -572,8 +583,11 @@ public class IntakeApplicationService {
                         (UUID) rs.getObject(3),
                         rs.getLong(4),
                         rs.getString(5),
-                        rs.getString(6));
-                return new RespondentRow(session, rs.getString(7), (UUID) rs.getObject(8));
+                        rs.getString(6),
+                        rs.getObject(7, java.time.LocalDate.class),
+                        rs.getString(8),
+                        rs.getString(9));
+                return new RespondentRow(session, rs.getString(10), (UUID) rs.getObject(11));
               },
               id);
       String digest = row.secretDigest();
@@ -653,9 +667,12 @@ public class IntakeApplicationService {
         "revision",
         s.revision(),
         "answers",
-        new FormRuntime(json).calculatedAnswers(definition, parse(s.answers())),
+        new FormRuntime(json, s.sessionDate().toString(), s.timeZone()).calculatedAnswers(definition, parse(s.answers())),
         "status",
         s.status(),
+        "runtimeManifest",
+        Map.of("sessionDate", s.sessionDate().toString(), "timeZone", s.timeZone(),
+            "timeZoneDatabaseVersion", s.tzdbVersion()),
         "definition",
         definition);
   }
@@ -732,8 +749,12 @@ public class IntakeApplicationService {
   }
 
   private List<Map<String, Object>> validateAnswers(
-      String definition, Map<String, Object> answers) {
-    return new FormRuntime(json).validate(parse(definition), answers);
+      String definition, Map<String, Object> answers, S session) {
+    if (!TimeZoneRegistry.VERSION.equals(session.tzdbVersion())) {
+      throw bad("TIMEZONE_DATABASE_UNSUPPORTED", "Session runtime manifest is unsupported");
+    }
+    return new FormRuntime(json, session.sessionDate().toString(), session.timeZone())
+        .validate(parse(definition), answers);
   }
 
   private void audit(String a, UUID id) {

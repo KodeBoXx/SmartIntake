@@ -33,6 +33,10 @@ public record PackageStamp(String contractVersion, String evaluatorContract, Str
     JsonNode raw = stampedPackage.path("packageStamp");
     if (!raw.isObject()) throw new IllegalArgumentException("packageStamp is required");
     PackageStamp expected = stamp(stampedPackage, raw.path("evaluatorContract").asText(null), raw.path("timeZoneDatabaseVersion").asText(null));
+    if (raw.hasNonNull("timeZoneDatabaseVersion")
+        && !TimeZoneRegistry.VERSION.equals(raw.path("timeZoneDatabaseVersion").asText())) {
+      throw new IllegalArgumentException("TIMEZONE_DATABASE_UNSUPPORTED");
+    }
     if (!Objects.equals(raw.path("contractVersion").asText(), expected.contractVersion())
         || !Objects.equals(raw.path("canonicalSha256").asText(), expected.canonicalSha256())) throw new IllegalArgumentException("PACKAGE_HASH_MISMATCH");
   }
