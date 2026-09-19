@@ -1,9 +1,8 @@
 @import "../projects/certinal-ui/src/styles/tokens.css";
 @import "../projects/certinal-ui/src/styles/typography.css";
-@source "./app";
-@source "../projects/certinal-ui/src/lib/**/*.html";
+@import "./generated-certinal-utilities.css";
 
-/* Tailwind v4 omits raw component references from @theme unless the app retains them here. */
+/* Keep token values live in production when Tailwind omits an unreferenced theme entry. */
 :root {
   --color-bg-surface: #FFFFFF;
   --color-border-default: #E2E8F0;
@@ -14,10 +13,18 @@
   --app-surface: var(--color-stone-50);
   --app-ink: var(--color-stone-950);
 }
-* { box-sizing:border-box; } body { margin:0; background:var(--app-surface); color:var(--app-ink); font-family:var(--font-body); } button,input,select,textarea { font:inherit; } button { cursor:pointer; }
-/* Explicit application composition utilities: token-driven fallback while Angular's inline template scanner is unavailable. */
-.min-h-screen{min-height:100vh}.mx-auto{margin-left:auto;margin-right:auto}.max-w-7xl{max-width:80rem}.max-w-2xl{max-width:42rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.py-4{padding-top:1rem;padding-bottom:1rem}.py-7{padding-top:1.75rem;padding-bottom:1.75rem}.p-3{padding:.75rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-6{padding:1.5rem}.p-7{padding:1.75rem}.mt-1{margin-top:.25rem}.mt-2{margin-top:.5rem}.mt-3{margin-top:.75rem}.mt-4{margin-top:1rem}.mt-5{margin-top:1.25rem}.mt-6{margin-top:1.5rem}.mt-8{margin-top:2rem}.mb-5{margin-bottom:1.25rem}.mb-6{margin-bottom:1.5rem}.space-y-4>*+*{margin-top:1rem}.space-y-5>*+*{margin-top:1.25rem}.space-y-6>*+*{margin-top:1.5rem}.flex{display:flex}.grid{display:grid}.block{display:block}.hidden{display:none}.items-center{align-items:center}.items-start{align-items:flex-start}.justify-between{justify-content:space-between}.flex-wrap{flex-wrap:wrap}.gap-2{gap:.5rem}.gap-3{gap:.75rem}.gap-4{gap:1rem}.gap-5{gap:1.25rem}.w-full{width:100%}.text-left{text-align:left}.text-center{text-align:center}.rounded-full{border-radius:9999px}.rounded-xl{border-radius:var(--radius-xl)}.rounded-2xl{border-radius:var(--radius-2xl)}.rounded-3xl{border-radius:2rem}.border{border:1px solid var(--color-border-default)}.border-b{border-bottom:1px solid var(--color-border-default)}.border-dashed{border-style:dashed}.border-stone-100{border-color:var(--color-stone-100)}.border-stone-200{border-color:var(--color-stone-200)}.border-stone-300{border-color:var(--color-stone-300)}.border-emerald-500{border-color:var(--color-emerald-500)}.border-emerald-600{border-color:var(--color-emerald-600)}.bg-white{background:var(--color-bg-surface)}.bg-stone-100{background:var(--color-stone-100)}.bg-emerald-50{background:var(--color-emerald-50)}.bg-emerald-700{background:var(--color-emerald-700)}.bg-emerald-800{background:var(--color-emerald-800)}.bg-lime-50{background:var(--color-lime-50)}.bg-sky-50{background:var(--color-sky-50)}.text-white{color:var(--color-text-inverse)}.text-stone-500,.text-stone-600{color:var(--color-text-muted)}.text-emerald-700,.text-emerald-800{color:var(--color-emerald-800)}.text-lime-900,.text-lime-950{color:var(--color-lime-900)}.text-sky-800{color:var(--color-sky-800)}.text-rose-700{color:var(--color-error-dark)}.shadow-sm{box-shadow:var(--shadow-sm)}.hover\:border-emerald-500:hover{border-color:var(--color-emerald-500)}.lg\:grid-cols-\[15rem_1fr_18rem\]{grid-template-columns:15rem minmax(0,1fr) 18rem}@media(max-width:900px){.lg\:grid-cols-\[15rem_1fr_18rem\]{grid-template-columns:1fr}}
-/* Shared by the root editor and extracted presentational component views. */
-.pill{border:1px solid #a8a29e;border-radius:999px;padding:.55rem .9rem;background:white;font-weight:600}
-.field-card{display:flex;justify-content:space-between;padding:1rem;border:1px solid #e7e5e4;border-radius:1rem}
-.icon{border:1px solid #d6d3d1;border-radius:.4rem;padding:.2rem .45rem}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--app-surface); color: var(--app-ink); font-family: var(--font-body); }
+button, input, select, textarea { font: inherit; }
+button { cursor: pointer; }
+
+/* Shared by the preserved M1 editor and extracted presentational component views. */
+.pill { border: var(--border-1) solid var(--color-stone-400); border-radius: var(--radius-full); padding: var(--spacing-2) var(--spacing-4); background: var(--color-bg-surface); font-weight: 600; }
+.field-card { display: flex; justify-content: space-between; padding: var(--spacing-4); border: var(--border-1) solid var(--color-stone-200); border-radius: var(--radius-xl); }
+.icon { border: var(--border-1) solid var(--color-stone-300); border-radius: var(--radius-sm); padding: var(--spacing-1) var(--spacing-2); }
+
+/* Immutable CuiDrawer supplies the dialog and overlay; the M5 right-detail consumer
+   supplies its directional transition without changing snapshot-owned component CSS. */
+cui-drawer[position="right"] .animate-cui-drawer-in { animation-name: m5-drawer-slide-right; }
+@keyframes m5-drawer-slide-right { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }

@@ -1,7 +1,7 @@
 import { Injectable, computed, signal } from '@angular/core';
 
 export type M5Authority = 'authenticated' | 'anonymous' | 'expired' | 'denied';
-export type M5StubState = 'ready' | 'loading' | 'empty' | 'invalid' | 'denied' | 'expired' | 'email-unavailable' | 'offline' | 'stale' | 'closed' | 'pending' | 'succeeded' | 'failed' | 'tombstone' | 'conflict' | 'error' | 'acknowledgment';
+export type M5StubState = 'ready' | 'sign-in' | 'loading' | 'empty' | 'empty-or-no-access' | 'invalid' | 'denied' | 'no-access' | 'expired' | 'email-unavailable' | 'throttled' | 'offline' | 'stale' | 'closed' | 'start' | 'pending' | 'succeeded' | 'failed' | 'tombstone' | 'conflict' | 'error' | 'no-side-effects' | 'acknowledgment' | 'not-found';
 
 /**
  * M5 shell-only state. This intentionally has no API authority: M6 owns real

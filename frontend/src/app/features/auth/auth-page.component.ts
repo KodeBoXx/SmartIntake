@@ -8,10 +8,11 @@ import { m5RouteState, titleCase } from '../../shared/m5-route-state';
   standalone: true,
   imports: [CuiAlertComponent, CuiButtonComponent, CuiCardComponent, CuiInputComponent],
   template: `
-    <main class="mx-auto max-w-2xl p-6" data-testid="auth-page">
+    <main class="mx-auto max-w-2xl p-6" data-testid="auth-page" [attr.data-state]="state">
       <cui-card padding="lg">
         <p class="type-caption">SMART INTAKE STAFF</p><h1 class="type-h3">{{ title }}</h1>
-        @if (state === 'invalid' || state === 'expired' || state === 'denied' || state === 'email-unavailable') {
+        <p class="type-caption mt-4" data-testid="state-evidence">State: {{ state }}</p>
+        @if (state === 'invalid' || state === 'expired' || state === 'denied' || state === 'email-unavailable' || state === 'throttled') {
           <cui-alert [variant]="state === 'invalid' ? 'error' : 'warning'" [title]="state === 'invalid' ? 'Check your details' : title">{{ message }}</cui-alert>
         }
         @if (state === 'loading') { <p class="type-body">Loading secure sign-in…</p> }

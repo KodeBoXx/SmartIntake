@@ -1,7 +1,5 @@
 import { Routes } from '@angular/router';
 import { m5StaffGuard } from './core/m5-session.guards';
-import { StaffShellComponent } from './shells/staff-shell.component';
-import { PublicShellComponent } from './shells/public-shell.component';
 
 const auth = (path: string, screen: string) => ({ path, data: { screen }, loadComponent: () => import('./features/auth/auth-page.component').then((m) => m.AuthPageComponent) });
 const staff = (path: string, screen: string) => ({ path, data: { screen }, loadComponent: () => import('./features/staff/staff-page.component').then((m) => m.StaffPageComponent) });
@@ -12,8 +10,10 @@ export const appRoutes: Routes = [
   auth('setup', 'setup'),
   auth('activation', 'activation'),
   auth('recovery', 'recovery'),
+  // Frozen M1 lifecycle remains independently reachable, guarded, and shell-less.
+  { path: 'catalog/builder', canActivate: [m5StaffGuard], loadComponent: () => import('./app.component').then((m) => m.AppComponent) },
   {
-    path: '', component: StaffShellComponent, canActivate: [m5StaffGuard], children: [
+    path: '', canActivate: [m5StaffGuard], loadComponent: () => import('./shells/staff-shell.component').then((m) => m.StaffShellComponent), children: [
       { path: '', pathMatch: 'full', redirectTo: 'workspaces/demo/forms' },
       staff('platform/organizations', 'platform-organizations'),
       staff('settings/organization', 'organization-settings'),
@@ -32,12 +32,10 @@ export const appRoutes: Routes = [
       staff('workspaces/:workspaceId/submissions/:submissionId', 'response-detail'),
       staff('workspaces/:workspaceId/exports', 'export-history'),
       staff('workspaces/:workspaceId/integrations', 'integrations'),
-      // Frozen M1 lifecycle remains intact behind this compatibility route.
-      { path: 'catalog/builder', loadComponent: () => import('./app.component').then((m) => m.AppComponent) },
     ],
   },
   {
-    path: '', component: PublicShellComponent, children: [
+    path: '', loadComponent: () => import('./shells/public-shell.component').then((m) => m.PublicShellComponent), children: [
       publicPage('f/:shareId', 'public-entry'),
       publicPage('sessions/:sessionId', 'public-form'),
       publicPage('sessions/:sessionId/review', 'public-review'),

@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "authority": {
     "uiTotal": "docs/acceptance/v1.1/denominators/ui-total.json",
     "uiStaffTotal": "docs/acceptance/v1.1/denominators/ui-staff-total.json",
@@ -9,96 +9,24 @@
     "evaluatorManifestSha256": "01d74f5346d317e697cf9d17a3fbfb571cc21c7e92d7cc34ef6299bb8085b255",
     "corpusDigest": "dcec91d8f8f6d05b4e948a842eb95974dceebdebec3162589bd3b538d529ba1a"
   },
-  "routes": [
-    {
-      "id": "staff-sign-in",
-      "path": "/sign-in?state=invalid",
-      "shell": "auth"
-    },
-    {
-      "id": "staff-setup",
-      "path": "/setup?state=expired",
-      "shell": "auth"
-    },
-    {
-      "id": "catalog",
-      "path": "/workspaces/demo/forms?state=empty",
-      "shell": "staff"
-    },
-    {
-      "id": "builder",
-      "path": "/workspaces/demo/forms/demo/drafts/demo?state=conflict",
-      "shell": "staff"
-    },
-    {
-      "id": "preview",
-      "path": "/preview/demo?state=error",
-      "shell": "staff"
-    },
-    {
-      "id": "review-publish",
-      "path": "/workspaces/demo/forms/demo/review?state=denied",
-      "shell": "staff"
-    },
-    {
-      "id": "responses",
-      "path": "/workspaces/demo/submissions?state=empty",
-      "shell": "staff"
-    },
-    {
-      "id": "response-detail",
-      "path": "/workspaces/demo/submissions/demo?details=demo",
-      "shell": "staff"
-    },
-    {
-      "id": "integrations",
-      "path": "/workspaces/demo/integrations?state=invalid",
-      "shell": "staff"
-    },
-    {
-      "id": "public-entry",
-      "path": "/f/demo?state=closed",
-      "shell": "public"
-    },
-    {
-      "id": "public-form",
-      "path": "/sessions/demo?state=offline",
-      "shell": "public"
-    },
-    {
-      "id": "public-review",
-      "path": "/sessions/demo/review?state=acknowledgment",
-      "shell": "public"
-    },
-    {
-      "id": "receipt",
-      "path": "/sessions/demo/receipt?state=succeeded",
-      "shell": "public"
-    },
-    {
-      "id": "not-found",
-      "path": "/not-a-real-route",
-      "shell": "not-found"
-    }
-  ],
-  "staffScreens": [
-    "sign-in",
-    "setup",
-    "activation",
-    "recovery",
-    "platform-organizations",
-    "organization-settings",
-    "user-list",
-    "add-user",
-    "user-detail",
-    "role-assignment",
-    "invitation-delivery",
-    "catalog",
-    "builder",
-    "review-publish",
-    "responses",
-    "response-detail",
-    "export-history",
-    "provider-policy"
-  ]
+  "staffScreenTemplates": {
+    "sign-in": "/sign-in",
+    "setup": "/setup",
+    "activation": "/activation",
+    "recovery": "/recovery",
+    "platform-organizations": "/platform/organizations",
+    "organization-settings": "/settings/organization",
+    "user-list": "/users",
+    "add-user": "/users/new",
+    "user-detail": "/users/:userId",
+    "role-assignment": "/users/:userId/roles",
+    "invitation-delivery": "/invitations",
+    "catalog": "/workspaces/:workspaceId/forms",
+    "builder": "/workspaces/:workspaceId/forms/:formId/drafts/:draftId",
+    "review-publish": "/workspaces/:workspaceId/forms/:formId/review",
+    "responses": "/workspaces/:workspaceId/submissions",
+    "response-detail": "/workspaces/:workspaceId/submissions/:submissionId",
+    "export-history": "/workspaces/:workspaceId/exports",
+    "provider-policy": "/settings/provider-policy"
+  }
 }
