@@ -72,6 +72,12 @@ test.describe('M5 routed Certinal shell', () => {
       await page.goto(route.path);
       await waitForLazyPage(page, route.shell);
       await expectSemanticState(page, route.shell, route.state);
+      if (route.shell === 'staff' && ['no-access', 'no-side-effects'].includes(route.state)) {
+        await page.goto(`${route.path}&details=demo-form`);
+        await waitForLazyPage(page, route.shell);
+        await expect(page.locator('cui-drawer [role="dialog"]')).toHaveCount(0);
+        await expect(page).not.toHaveURL(/details=/);
+      }
       await page.reload();
       await waitForLazyPage(page, route.shell);
       await expectSemanticState(page, route.shell, route.state);
@@ -115,6 +121,7 @@ test.describe('M5 routed Certinal shell', () => {
     await page.reload();
     await waitForLazyPage(page, 'staff');
     await expect(page.getByRole('navigation', { name: 'Primary navigation' })).toHaveCount(1);
+    await expect(page.locator('cui-sidebar-shell')).toBeHidden();
   });
 
   test('keeps guarded M1 compatibility shell-less with its own viewport landmarks', async ({ page }) => {

@@ -56,7 +56,11 @@ export class StaffPageComponent {
   constructor() {
     this.route.queryParamMap.subscribe((params) => {
       this.detailId.set(params.get('details'));
-      if (params.get('details')) queueMicrotask(() => this.openDrawerAndFocus());
+      if (params.get('details') && !this.actionsAllowed) {
+        this.syncDrawerUrl();
+      } else if (params.get('details')) {
+        queueMicrotask(() => this.openDrawerAndFocus());
+      }
     });
   }
 
@@ -76,6 +80,7 @@ export class StaffPageComponent {
   navigate(url: string): void { void this.router.navigateByUrl(url); }
 
   openDetails(id: string): void {
+    if (!this.actionsAllowed) return;
     this.returnFocus = this.document.activeElement instanceof HTMLElement ? this.document.activeElement : null;
     this.detailId.set(id);
     void this.router.navigate([], { relativeTo: this.route, queryParams: { details: id }, queryParamsHandling: 'merge' });
