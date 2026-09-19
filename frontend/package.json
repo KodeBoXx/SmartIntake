@@ -16,7 +16,7 @@
     "e2e": "rm -f test-results/m5-playwright-results.json && playwright test && python3 ../tools/frontend/check_m5_playwright_results.py --results test-results/m5-playwright-results.json",
     "m3:browser": "rm -f test-results/m3-expression-vectors.json && playwright test e2e/expression-vectors.spec.ts",
     "m3:parity": "python3 ../tools/frontend/check_m3_expression_parity.py",
-    "m3:check": "cd ../backend && mvn -q -Dtest=ExpressionContractVectorTests test && cd ../frontend && npm run m3:browser && npm run m3:parity && python3 ../tools/frontend/test_check_m3_expression_parity.py",
+    "m3:check": "npm run build && cd ../backend && mvn -q -Dtest=ExpressionContractVectorTests test && cd ../frontend && npm run m3:browser && npm run m3:parity && PYTHONOPTIMIZE=1 python3 ../tools/frontend/test_check_m3_expression_parity.py",
     "e2e:axe": "playwright test e2e/m5-shell.spec.ts",
     "m5:corpus:check": "python3 ../tools/frontend/check_m5_route_corpus.py && python3 ../tools/frontend/test_check_m5_route_corpus.py && python3 ../tools/frontend/test_check_m5_playwright_results.py",
     "m5:check": "npm run e2e:install && npm run m5:corpus:check && npm run test && npm run build && npm run e2e"

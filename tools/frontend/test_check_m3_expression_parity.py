@@ -17,13 +17,14 @@ BROWSER = ROOT / "frontend/test-results/m3-expression-vectors.json"
 
 def run(java: Path, browser: Path, succeeds: bool) -> None:
     result = subprocess.run(
-        ["python3", str(CHECKER), "--java", str(java), "--browser", str(browser)],
+        ["python3", "-O", str(CHECKER), "--java", str(java), "--browser", str(browser)],
         cwd=ROOT,
         capture_output=True,
         text=True,
         check=False,
     )
-    assert (result.returncode == 0) is succeeds, result.stdout + result.stderr
+    if (result.returncode == 0) is not succeeds:
+        raise SystemExit(result.stdout + result.stderr)
 
 
 def write(path: Path, value: dict) -> None:
@@ -60,6 +61,12 @@ def main() -> None:
         wrong_checksum_path = temporary / "wrong-checksum.json"
         write(wrong_checksum_path, wrong_checksum)
         run(wrong_checksum_path, BROWSER, False)
+
+        wrong_artifact = json.loads(json.dumps(browser))
+        wrong_artifact["artifactSha256"] = "0" * 64
+        wrong_artifact_path = temporary / "wrong-artifact.json"
+        write(wrong_artifact_path, wrong_artifact)
+        run(JAVA, wrong_artifact_path, False)
 
     print("M3 parity guard mutation checks passed.")
 

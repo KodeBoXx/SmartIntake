@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
+import java.time.Instant;
 import java.util.HexFormat;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -69,6 +70,12 @@ class ExpressionContractVectorTests {
 
     ObjectNode output = JSON.createObjectNode();
     output.put("runner", "smart-intake-java-expression-v1");
+    output.put("candidateCommit", git("rev-parse", "HEAD"));
+    output.put("candidateTree", git("rev-parse", "HEAD^{tree}"));
+    output.put("executedAtUtc", Instant.now().toString());
+    output.put("runtimeVersion", System.getProperty("java.version"));
+    output.put("invocation", "mvn -q -Dtest=ExpressionContractVectorTests test");
+    output.put("timezoneDatabase", TimeZoneRegistry.VERSION);
     output.put("sourceHandoff",
         "docs/source-handoff/smart-form-builder-lite-prd-v1.1/expression-contract.json");
     output.put("sourceSha256", HexFormat.of().formatHex(
@@ -88,6 +95,8 @@ class ExpressionContractVectorTests {
       row.put("phase", vector.path("phase").asText());
       row.set("actual", ACTUAL_RESULTS.get(vector.path("id").asText()));
     });
+    output.put("artifactSha256", HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+        .digest(JSON.writeValueAsBytes(output))));
     Files.createDirectories(RESULT.getParent());
     Files.writeString(RESULT, JSON.writerWithDefaultPrettyPrinter().writeValueAsString(output) + "\n");
   }
@@ -99,5 +108,14 @@ class ExpressionContractVectorTests {
     if (result.reason() != null) actual.put("reason", result.reason());
     if (result.code() != null) actual.put("code", result.code());
     return actual;
+  }
+
+  private static String git(String... args) throws Exception {
+    java.util.List<String> command = new java.util.ArrayList<>();
+    command.add("git");
+    java.util.Collections.addAll(command, args);
+    Process process = new ProcessBuilder(command).directory(Path.of("..").toFile()).start();
+    if (process.waitFor() != 0) throw new IllegalStateException("cannot resolve candidate git identity");
+    return new String(process.getInputStream().readAllBytes()).trim();
   }
 }

@@ -8,7 +8,6 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -30,7 +29,7 @@ public final class ExpressionEngine {
       "divide", "round", "min", "max", "sum", "count", "any", "all", "concat", "length",
       "coalesce", "if", "dateDiffDays", "ageYears", "dateAddDays", "today");
   private static final Set<String> STATUSES = Set.of(
-      "unanswered", "answered", "declined", "respondentNotApplicable", "notApplicable", "invalid");
+      "answered", "unanswered", "unknown", "declined", "respondentNotApplicable", "notApplicable");
   private static final Set<String> SCALAR_TYPES = Set.of(
       "text", "integer", "decimal", "boolean", "date", "time", "dateTime", "choice");
   private static final BigInteger MIN_INT64 = BigInteger.valueOf(Long.MIN_VALUE);
@@ -46,7 +45,7 @@ public final class ExpressionEngine {
       fields = fields == null ? Map.of() : Map.copyOf(fields);
       sessionDate = sessionDate == null ? "2026-09-05" : sessionDate;
       sessionTimeZone = sessionTimeZone == null ? "UTC" : sessionTimeZone;
-      stepLimit = stepLimit <= 0 ? 100_000 : stepLimit;
+      stepLimit = stepLimit <= 0 ? 100_000 : Math.min(stepLimit, 100_000);
     }
 
     public static Context defaults() {
@@ -99,11 +98,20 @@ public final class ExpressionEngine {
     return evaluate(expression, typed);
   }
 
+  public Result evaluate(JsonNode expression, Context context, MutationBudget budget) {
+    return evaluate(expression, legacy(context), budget);
+  }
+
   public Result evaluate(JsonNode expression, EvaluationContext context) {
+    return evaluate(expression, context, new MutationBudget(context.stepLimit));
+  }
+
+  /** Lets a product mutation share its fixed evaluation budget across every expression it schedules. */
+  public Result evaluate(JsonNode expression, EvaluationContext context, MutationBudget budget) {
     try {
       Expr compiled = compileTop(expression, new CompileEnv(context.fields, List.of(), context.strict));
       validateFrozenContext(context);
-      Value value = evaluate(compiled, new RuntimeEnv(context.rootCells, List.of(), context), new Counter(context.stepLimit));
+      Value value = evaluate(compiled, new RuntimeEnv(context.rootCells, List.of(), context), budget);
       return Result.available(value.type, value.node);
     } catch (UnknownValue unknown) {
       return Result.unknown(unknown.reason);
@@ -127,7 +135,7 @@ public final class ExpressionEngine {
       this.rootCells = Map.copyOf(rootCells);
       this.sessionDate = sessionDate == null ? "2026-09-05" : sessionDate;
       this.sessionTimeZone = sessionTimeZone == null ? "UTC" : sessionTimeZone;
-      this.stepLimit = stepLimit <= 0 ? 100_000 : stepLimit;
+      this.stepLimit = stepLimit <= 0 ? 100_000 : Math.min(stepLimit, 100_000);
       this.strict = strict;
     }
   }
@@ -159,21 +167,30 @@ public final class ExpressionEngine {
     private UnknownValue(String reason) { this.reason = reason; }
   }
 
-  private static final class Counter {
+  public static final class MutationBudget {
     private int remaining;
-    private Counter(int remaining) { this.remaining = remaining; }
+    public MutationBudget(int remaining) { this.remaining = Math.min(remaining <= 0 ? 100_000 : remaining, 100_000); }
     private void step() { if (remaining-- <= 0) throw fail("EVALUATION_BUDGET"); }
   }
 
+  private static final class CompileBudget {
+    private int nodes;
+    private void enter(int depth) {
+      if (depth > 20) throw fail("EXPR_DEPTH");
+      if (++nodes > 10_000) throw fail("EXPR_NODE_LIMIT");
+    }
+  }
+
   private Expr compileTop(JsonNode node, CompileEnv env) {
-    Expr expression = compile(node, env);
+    Expr expression = compile(node, env, new CompileBudget(), 1);
     // Arrays are typed operand values in this profile; a bare array cannot be a calculated scalar result.
     // This keeps EXPR-056's declared homogeneous-array rejection distinct from membership/length arrays.
     if (expression instanceof LiteralExpr && expression.type().startsWith("array:")) throw fail("INVALID_LITERAL");
     return expression;
   }
 
-  private Expr compile(JsonNode node, CompileEnv env) {
+  private Expr compile(JsonNode node, CompileEnv env, CompileBudget budget, int depth) {
+    budget.enter(depth);
     if (node == null || !node.isObject()) throw fail("EXPR_SHAPE");
     if (node.has("literal")) return literal(node);
     if (node.has("ref")) return reference(node, env);
@@ -186,17 +203,17 @@ public final class ExpressionEngine {
 
     List<Expr> args = new ArrayList<>();
     if (Set.of("sum", "any", "all").contains(op)) {
-      Expr list = compile(node.path("args").get(0), env);
+      Expr list = compile(node.path("args").get(0), env, budget, depth + 1);
       if (!"list".equals(list.type()) || !(list instanceof RefExpr listRef)) throw fail("EXPR_TYPE");
       Field aggregateList = listRef.field;
       args.add(list);
-      args.add(compile(node.path("args").get(1), nested(env, aggregateList)));
+      args.add(compile(node.path("args").get(1), nested(env, aggregateList), budget, depth + 1));
       String itemType = args.get(1).type();
       if ("sum".equals(op) && !numeric(itemType)) throw fail("EXPR_TYPE");
       if (("any".equals(op) || "all".equals(op)) && !"boolean".equals(itemType)) throw fail("EXPR_TYPE");
       return new OperationExpr(op, List.copyOf(args), "sum".equals(op) ? "decimal" : "boolean", aggregateList);
     }
-    for (JsonNode arg : node.path("args")) args.add(compile(arg, env));
+    for (JsonNode arg : node.path("args")) args.add(compile(arg, env, budget, depth + 1));
     return new OperationExpr(op, List.copyOf(args), operatorType(op, args), null);
   }
 
@@ -230,7 +247,8 @@ public final class ExpressionEngine {
 
   private Expr reference(JsonNode node, CompileEnv env) {
     JsonNode ref = node.path("ref");
-    if (node.size() != 1 || !ref.isObject() || ref.size() < 1 || ref.size() > 3 || !ref.path("fieldId").isTextual()) {
+    if (node.size() != 1 || !ref.isObject() || ref.size() < 1 || ref.size() > 3 || !ref.path("fieldId").isTextual()
+        || ref.fieldNames().hasNext() && !closedRef(ref)) {
       throw fail("EXPR_SHAPE");
     }
     String scope = ref.path("scope").asText("root");
@@ -246,13 +264,16 @@ public final class ExpressionEngine {
       default -> env.itemScopes.size() <= parentDepth ? Map.of()
           : env.itemScopes.get(env.itemScopes.size() - 1 - parentDepth);
     };
-    Field field = available.get(ref.path("fieldId").asText());
+    if (available.isEmpty() && !"root".equals(scope) && env.strict) throw fail("EXPR_SCOPE");
+    String fieldId = ref.path("fieldId").asText();
+    Field field = resolve(available, fieldId);
     if (field == null) {
-      if (env.strict || !env.root.isEmpty()) throw fail("EXPR_SCOPE");
+      if ("root".equals(scope) && containsNested(env.root, fieldId)) throw fail("EXPR_SCOPE");
+      if (env.strict || !env.root.isEmpty()) throw fail("UNKNOWN_FIELD");
       // Legacy FormRuntime has no field registry. Preserve prior dynamic references as unknown text.
       field = new Field(ref.path("fieldId").asText(), "text", Map.of());
     }
-    return new RefExpr(field.id, scope, parentDepth, field.type, field);
+    return new RefExpr(fieldId, scope, parentDepth, field.type, field);
   }
 
   private Expr context(JsonNode node) {
@@ -300,7 +321,7 @@ public final class ExpressionEngine {
     };
   }
 
-  private Value evaluate(Expr expression, RuntimeEnv environment, Counter counter) {
+  private Value evaluate(Expr expression, RuntimeEnv environment, MutationBudget counter) {
     counter.step();
     if (expression instanceof LiteralExpr literal) return literal.value;
     if (expression instanceof ContextExpr context) return contextValue(context, environment.context);
@@ -315,17 +336,14 @@ public final class ExpressionEngine {
     };
   }
 
-  private Value evaluateIf(OperationExpr op, RuntimeEnv env, Counter counter) {
-    try {
-      Value condition = evaluate(op.args.get(0), env, counter);
-      Value selected = evaluate(bool(condition) ? op.args.get(1) : op.args.get(2), env, counter);
-      return promoted(selected, op.type);
-    } catch (UnknownValue ignored) {
-      throw unknown("UNKNOWN_CONDITION");
-    }
+  private Value evaluateIf(OperationExpr op, RuntimeEnv env, MutationBudget counter) {
+    Value condition;
+    try { condition = evaluate(op.args.get(0), env, counter); }
+    catch (UnknownValue ignored) { throw unknown("UNKNOWN_CONDITION"); }
+    return promoted(evaluate(bool(condition) ? op.args.get(1) : op.args.get(2), env, counter), op.type);
   }
 
-  private Value evaluateCoalesce(OperationExpr op, RuntimeEnv env, Counter counter) {
+  private Value evaluateCoalesce(OperationExpr op, RuntimeEnv env, MutationBudget counter) {
     for (Expr arg : op.args) {
       try { return promoted(evaluate(arg, env, counter), op.type); }
       catch (UnknownValue ignored) { /* next alternative */ }
@@ -333,7 +351,7 @@ public final class ExpressionEngine {
     throw unknown("UNAVAILABLE_OPERAND");
   }
 
-  private Value evaluateBooleanFold(OperationExpr op, RuntimeEnv env, Counter counter) {
+  private Value evaluateBooleanFold(OperationExpr op, RuntimeEnv env, MutationBudget counter) {
     boolean and = "and".equals(op.op);
     boolean unknown = false;
     for (Expr arg : op.args) {
@@ -347,7 +365,7 @@ public final class ExpressionEngine {
     return booleanValue(and);
   }
 
-  private Value evaluateAggregate(OperationExpr op, RuntimeEnv env, Counter counter) {
+  private Value evaluateAggregate(OperationExpr op, RuntimeEnv env, MutationBudget counter) {
     Value listValue;
     try { listValue = evaluate(op.args.get(0), env, counter); }
     catch (UnknownValue unknown) { throw unknown("UNAVAILABLE_OPERAND"); }
@@ -383,7 +401,7 @@ public final class ExpressionEngine {
     return new RuntimeEnv(parent.root, List.copyOf(scopes), parent.context);
   }
 
-  private Value evaluateStrict(OperationExpr op, RuntimeEnv env, Counter counter) {
+  private Value evaluateStrict(OperationExpr op, RuntimeEnv env, MutationBudget counter) {
     // Predicate operators inspect authoritative cell metadata; unavailable references are false/status,
     // not Unknown. Their reference AST still incurs exactly one evaluated step.
     if ("exists".equals(op.op) || "isAnswered".equals(op.op)) {
@@ -412,8 +430,6 @@ public final class ExpressionEngine {
         case "in" -> booleanValue(contains(values.get(1), values.get(0)));
         case "contains" -> booleanValue(contains(values.get(0), values.get(1)));
         case "containsAll" -> containsAll(values.get(0), values.get(1));
-        case "exists", "isAnswered" -> booleanValue(answered((RefExpr) op.args.get(0), env));
-        case "statusIs" -> booleanValue(status((RefExpr) op.args.get(0), env).equals(values.get(1).node.textValue()));
         case "add" -> decimalValue(decimal(values.get(0)).add(decimal(values.get(1))));
         case "subtract" -> decimalValue(decimal(values.get(0)).subtract(decimal(values.get(1))));
         case "multiply" -> decimalValue(decimal(values.get(0)).multiply(decimal(values.get(1))));
@@ -448,6 +464,7 @@ public final class ExpressionEngine {
 
   private static Value referenceValue(RefExpr expression, RuntimeEnv environment) {
     Cell cell = cell(expression, environment);
+    if (!STATUSES.contains(cell.status)) throw fail("INVALID_STATUS");
     if (!cell.applicable || !"answered".equals(cell.status) || cell.value == null || cell.value.isMissingNode()) {
       throw unknown("UNAVAILABLE_OPERAND");
     }
@@ -461,16 +478,27 @@ public final class ExpressionEngine {
       default -> environment.itemScopes.size() <= expression.parentDepth ? Map.of()
           : environment.itemScopes.get(environment.itemScopes.size() - 1 - expression.parentDepth);
     };
-    return values.getOrDefault(expression.fieldId, new Cell(expression.type, "unanswered", true, null));
+    Cell result = null;
+    for (String part : expression.fieldId.split("\\.")) {
+      if (result == null) result = values.get(part);
+      else if (result.value != null && result.value.path("fields").isObject()) {
+        JsonNode child = result.value.path("fields").get(part);
+        result = child == null ? null : new Cell(expression.type, child.path("status").asText("unanswered"),
+            child.path("applicable").asBoolean(true), child.get("value"));
+      } else result = null;
+      if (result == null) return new Cell(expression.type, "unanswered", true, null);
+    }
+    return result;
   }
 
   private static boolean answered(RefExpr expression, RuntimeEnv environment) {
     Cell cell = cell(expression, environment);
-    return cell.applicable && "answered".equals(cell.status) && cell.value != null;
+    return STATUSES.contains(cell.status) && cell.applicable && "answered".equals(cell.status) && cell.value != null;
   }
 
   private static String status(RefExpr expression, RuntimeEnv environment) {
     Cell cell = cell(expression, environment);
+    if (!STATUSES.contains(cell.status)) throw fail("INVALID_STATUS");
     return cell.applicable ? cell.status : "notApplicable";
   }
 
@@ -559,16 +587,10 @@ public final class ExpressionEngine {
       String next = expressions.get(index).type();
       if (type.equals(next)) continue;
       if (numeric(type) && numeric(next)) { type = "decimal"; continue; }
-      if (arrayCompatible(type, next)) { type = "array:" + unifiedArrayItem(type.substring(6), next.substring(6)); continue; }
+      if (type.startsWith("array:") && next.startsWith("array:") && type.equals(next)) continue;
       throw fail("EXPR_TYPE");
     }
     return type;
-  }
-
-  private static String unifiedArrayItem(String left, String right) {
-    if (left.equals(right)) return left;
-    if (numeric(left) && numeric(right)) return "decimal";
-    throw fail("EXPR_TYPE");
   }
 
   private static boolean arity(String op, int size) {
@@ -634,8 +656,13 @@ public final class ExpressionEngine {
       if ("dateTime".equals(type)) {
         if (!value.isObject() || value.size() != 2 || !value.path("instant").isTextual() || !value.path("timeZone").isTextual()
             || !value.path("instant").textValue().matches("[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z")) throw fail("INVALID_LITERAL");
-        OffsetDateTime.parse(value.path("instant").textValue());
-        try { ZoneId.of(value.path("timeZone").textValue()); } catch (RuntimeException exception) { throw fail("INVALID_TIMEZONE"); }
+        OffsetDateTime instant = OffsetDateTime.parse(value.path("instant").textValue());
+        if (instant.getYear() < 1 || instant.getYear() > 9999) throw fail("INVALID_LITERAL");
+        if (!TimeZoneRegistry.contains(value.path("timeZone").textValue())) throw fail("INVALID_TIMEZONE");
+      } else if ("date".equals(type)) {
+        LocalDate date = LocalDate.parse(value.textValue());
+        if (date.getYear() < 1 || date.getYear() > 9999) throw fail("INVALID_LITERAL");
+        ContractValue.validate(type, value);
       } else ContractValue.validate(type, value);
     } catch (ExpressionFailure failure) { throw failure; }
       catch (ContractValue.ContractException exception) { throw fail(exception.code()); }
@@ -643,8 +670,14 @@ public final class ExpressionEngine {
   }
 
   private static JsonNode canonical(String type, JsonNode value) {
-    if ("integer".equals(type)) return JsonNodeFactory.instance.textNode(new BigInteger(value.textValue()).toString());
-    if ("decimal".equals(type)) return JsonNodeFactory.instance.textNode(ContractValue.canonicalDecimal(new BigDecimal(value.textValue())));
+    if ("integer".equals(type)) {
+      try { return integerValue(new BigInteger(value.asText())).node; }
+      catch (RuntimeException exception) { throw fail("INVALID_LITERAL"); }
+    }
+    if ("decimal".equals(type)) {
+      try { return JsonNodeFactory.instance.textNode(ContractValue.canonicalDecimal(new BigDecimal(value.asText()))); }
+      catch (RuntimeException exception) { throw fail("INVALID_LITERAL"); }
+    }
     return value.deepCopy();
   }
 
@@ -655,7 +688,9 @@ public final class ExpressionEngine {
       String id = definition.path("id").asText();
       String type = definition.path("type").asText();
       if (id.isBlank() || type.isBlank()) continue;
-      result.put(id, new Field(id, type, fields(definition.path("itemFields"))));
+      Map<String, Field> children = fields(definition.path("fields"));
+      children.putAll(fields(definition.path("itemFields")));
+      result.put(id, new Field(id, type, Map.copyOf(children)));
     }
     return result;
   }
@@ -681,7 +716,7 @@ public final class ExpressionEngine {
         JsonNode literal = expression.path("literal");
         String type = literal.path("type").asText("text");
         fields.put(id, new Field(id, type, Map.of()));
-        cells.put(id, new Cell(type, "answered", true, literal.get("value")));
+        cells.put(id, new Cell(type, "answered", true, canonical(type, literal.get("value"))));
       } catch (RuntimeException ignored) { /* unavailable legacy value */ }
     });
     return new EvaluationContext(fields, cells, context.sessionDate(), context.sessionTimeZone(), context.stepLimit(), false);
@@ -691,11 +726,31 @@ public final class ExpressionEngine {
     try {
       LocalDate date = LocalDate.parse(context.sessionDate);
       if (date.getYear() < 1 || date.getYear() > 9999) throw fail("INVALID_LITERAL");
-      ZoneId.of(context.sessionTimeZone);
+      if (!TimeZoneRegistry.contains(context.sessionTimeZone)) throw fail("INVALID_TIMEZONE");
     } catch (ExpressionFailure failure) { throw failure; }
       catch (RuntimeException exception) { throw fail("INVALID_TIMEZONE"); }
   }
 
   private static ExpressionFailure fail(String code) { return new ExpressionFailure(code); }
   private static UnknownValue unknown(String reason) { return new UnknownValue(reason); }
+
+  private static boolean closedRef(JsonNode ref) {
+    var names = ref.fieldNames();
+    while (names.hasNext()) if (!Set.of("fieldId", "scope", "parentDepth").contains(names.next())) return false;
+    return true;
+  }
+
+  private static Field resolve(Map<String, Field> fields, String path) {
+    Field field = null;
+    for (String part : path.split("\\.")) {
+      field = field == null ? fields.get(part) : field.itemFields.get(part);
+      if (field == null) return null;
+    }
+    return field;
+  }
+
+  private static boolean containsNested(Map<String, Field> fields, String id) {
+    for (Field field : fields.values()) if (field.itemFields.containsKey(id) || containsNested(field.itemFields, id)) return true;
+    return false;
+  }
 }

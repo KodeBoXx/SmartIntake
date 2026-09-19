@@ -45,4 +45,29 @@ describe('ExpressionEngine', () => {
     } as any;
     expect(engine.evaluateVector(vector)).toEqual({ state: 'available', type: 'decimal', value: '2' });
   });
+
+  it('rejects two-argument if expressions before evaluating them', () => {
+    expect(new ExpressionEngine().compile({ op: 'if', args: [
+      { literal: { type: 'boolean', value: true } },
+      { literal: { type: 'text', value: 'missing else' } },
+    ] })).toEqual({ state: 'error', code: 'EXPR_ARITY' });
+  });
+
+  it('validates an answered value against its static field type before predicates', () => {
+    const result = new ExpressionEngine().evaluateVector({
+      expression: { op: 'exists', args: [{ ref: { fieldId: 'age', scope: 'root' } }] },
+      fieldDefinitions: [{ id: 'age', type: 'integer' }],
+      answers: { age: { type: 'integer', status: 'answered', applicable: true, value: '01' } },
+    });
+    expect(result).toEqual({ state: 'error', code: 'INTEGER_ENCODING' });
+  });
+
+  it('retains scalar array item types and permits an array result', () => {
+    const result = new ExpressionEngine().evaluateVector({
+      expression: { ref: { fieldId: 'tags', scope: 'root' } },
+      fieldDefinitions: [{ id: 'tags', type: 'array', itemType: 'integer' }],
+      answers: { tags: { type: 'array', itemType: 'integer', status: 'answered', applicable: true, value: ['1', '2'] } },
+    });
+    expect(result).toEqual({ state: 'available', type: 'array', value: ['1', '2'] });
+  });
 });

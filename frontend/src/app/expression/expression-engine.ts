@@ -6,14 +6,15 @@
 
 export type ScalarType = 'text' | 'integer' | 'decimal' | 'boolean' | 'date' | 'time' | 'dateTime' | 'choice';
 export type ValueType = ScalarType | 'array' | 'list' | 'object';
+import { PINNED_TIMEZONES } from './pinned-timezone-registry';
 export type ExpressionResult =
   | { state: 'available'; type: ValueType; value: unknown }
   | { state: 'unknown'; reason: 'UNAVAILABLE_OPERAND' | 'UNKNOWN_CONDITION' | 'UNAVAILABLE_AGGREGATE_ITEM' }
   | { state: 'error'; code: string };
 
 type TypeSpec = { kind: ValueType; item?: ScalarType; fields?: Map<string, FieldDefinition> };
-type FieldDefinition = { id: string; type: ValueType; itemFields?: FieldDefinition[] };
-type AnswerCell = { type: ValueType; status: string; applicable: boolean; value?: unknown };
+export type FieldDefinition = { id: string; type: ValueType; itemType?: ScalarType; itemFields?: FieldDefinition[] };
+type AnswerCell = { type: ValueType; itemType?: ScalarType; status: string; applicable: boolean; value?: unknown };
 type ItemContext = { fields: Record<string, AnswerCell> };
 type EvaluationContext = { sessionDate: string; sessionTimeZone: string; maximumSteps?: number };
 type InternalValue = { type: ValueType; value: unknown; item?: ScalarType };
@@ -128,7 +129,9 @@ export class ExpressionEngine {
   compile(expression: unknown, definitions: FieldDefinition[] = []): ExpressionResult | { state: 'compiled' } {
     try {
       const output = this.compileNode(expression, environment(definitions), 1);
-      if (output.kind === 'array') throw new Fault('INVALID_LITERAL');
+      // An array is a legal typed expression result, but a bare array literal
+      // is not a top-level program in the frozen compile profile (EXPR-056).
+      if (output.kind === 'array' && isObject(expression) && 'literal' in expression) throw new Fault('INVALID_LITERAL');
       return { state: 'compiled' };
     } catch (error) {
       return { state: 'error', code: codeOf(error) };
@@ -145,6 +148,7 @@ export class ExpressionEngine {
     }
     const context = { ...DEFAULT_CONTEXT, ...(vector.context ?? {}) };
     if (!validDate(context.sessionDate) || !validZone(context.sessionTimeZone)) return { state: 'error', code: 'INVALID_LITERAL' };
+    try { validateAnswerRecord(definitions, vector.answers ?? {}); } catch (error) { return { state: 'error', code: codeOf(error) }; }
     const state = { steps: 0, maximumSteps: context.maximumSteps ?? DEFAULT_CONTEXT.maximumSteps!, answers: vector.answers ?? {}, contexts: [] as ItemContext[], context };
     try {
       return external(this.evaluateNode(vector.expression, state), outputType!);
@@ -347,7 +351,7 @@ type CompileEnvironment = { root: Map<string, FieldDefinition>; items: Map<strin
 type RuntimeState = { steps: number; maximumSteps: number; answers: Record<string, AnswerCell>; contexts: ItemContext[]; context: EvaluationContext };
 const OPERATORS = new Set(['and', 'or', 'not', 'eq', 'ne', 'lt', 'lte', 'gt', 'gte', 'in', 'contains', 'containsAll', 'exists', 'isAnswered', 'statusIs', 'add', 'subtract', 'multiply', 'divide', 'round', 'min', 'max', 'sum', 'count', 'any', 'all', 'concat', 'length', 'coalesce', 'if', 'dateDiffDays', 'ageYears', 'dateAddDays', 'today']);
 
-function arity(operator: string, count: number): boolean { if (['and', 'or', 'min', 'max', 'concat', 'coalesce'].includes(operator)) return count >= 2 && count <= MAX_ARGS; if (operator === 'today') return count === 0; return ['not', 'exists', 'isAnswered', 'count', 'length'].includes(operator) ? count === 1 : count === 2 || (operator === 'if' && count === 3); }
+function arity(operator: string, count: number): boolean { if (operator === 'if') return count === 3; if (['and', 'or', 'min', 'max', 'concat', 'coalesce'].includes(operator)) return count >= 2 && count <= MAX_ARGS; if (operator === 'today') return count === 0; return ['not', 'exists', 'isAnswered', 'count', 'length'].includes(operator) ? count === 1 : count === 2; }
 function operatorType(operator: string, args: TypeSpec[], raw: any[]): TypeSpec {
   const same = () => { if (!compatible(args[0], args[1])) throw new Fault('EXPR_TYPE'); };
   if (['and', 'or', 'not'].includes(operator)) { if (!args.every((arg) => arg.kind === 'boolean')) throw new Fault('EXPR_TYPE'); return { kind: 'boolean' }; }
@@ -369,12 +373,12 @@ function operatorType(operator: string, args: TypeSpec[], raw: any[]): TypeSpec 
   if (operator === 'today') return { kind: 'date' };
   throw new Fault('UNSUPPORTED_OPERATOR');
 }
-function unified(args: TypeSpec[]): TypeSpec { if (!args.every((arg) => compatible(args[0], arg))) throw new Fault('EXPR_TYPE'); return args.some((arg) => arg.kind === 'decimal') && args.every(numeric) ? { kind: 'decimal' } : args[0]; }
+function unified(args: TypeSpec[]): TypeSpec { if (args.some((arg) => arg.kind === 'object' || arg.kind === 'list') || !args.every((arg) => compatible(args[0], arg))) throw new Fault('EXPR_TYPE'); return args.some((arg) => arg.kind === 'decimal') && args.every(numeric) ? { kind: 'decimal' } : args[0]; }
 function compatible(a: TypeSpec, b: TypeSpec): boolean { return a.kind === b.kind || (numeric(a) && numeric(b)) || (a.kind === 'array' && b.kind === 'array' && a.item === b.item); }
 function numeric(type: TypeSpec): boolean { return type.kind === 'integer' || type.kind === 'decimal'; }
 function scalarType(type: TypeSpec): boolean { return scalar(type.kind); }
 function scalar(type: unknown): type is ScalarType { return ['text', 'integer', 'decimal', 'boolean', 'date', 'time', 'dateTime', 'choice'].includes(type as string); }
-function definitionType(definition: FieldDefinition): TypeSpec { return definition.type === 'list' ? { kind: 'list', fields: toMap(definition.itemFields ?? []) } : { kind: definition.type }; }
+function definitionType(definition: FieldDefinition): TypeSpec { if (definition.type === 'list') return { kind: 'list', fields: toMap(definition.itemFields ?? []) }; if (definition.type === 'array') { if (!definition.itemType || !scalar(definition.itemType)) throw new Fault('EXPR_TYPE'); return { kind: 'array', item: definition.itemType }; } return { kind: definition.type }; }
 function toMap(definitions: FieldDefinition[]): Map<string, FieldDefinition> { return new Map(definitions.map((definition) => [definition.id, definition])); }
 function environment(definitions: FieldDefinition[]): CompileEnvironment { const known = new Set<string>(); const walk = (items: FieldDefinition[]) => items.forEach((item) => { known.add(item.id); if (item.itemFields) walk(item.itemFields); }); walk(definitions); return { root: toMap(definitions), items: [], known }; }
 function isObject(value: unknown): value is Record<string, any> { return typeof value === 'object' && value !== null && !Array.isArray(value); }
@@ -386,8 +390,37 @@ function mapAvailable(result: InternalResult, transform: (value: InternalValue) 
 function strict(args: any[], state: RuntimeState, evaluate: (argument: any) => InternalResult): { state: 'available'; value: InternalValue[] } | Exclude<InternalResult, { state: 'available' }> { let unavailable: Exclude<InternalResult, { state: 'available' }> | undefined; const values: InternalValue[] = []; for (const argument of args) { const result = evaluate(argument); if (result.state === 'error') return result; if (result.state === 'unknown') unavailable = result; else values.push(result.value); } return unavailable ?? { state: 'available', value: values }; }
 function literalValue(literal: any): InternalValue { if (literal.type === 'array') return { type: 'array', item: literal.itemType, value: literal.value.map((value: unknown) => rawScalar(literal.itemType, value)) }; return { type: literal.type, value: rawScalar(literal.type, literal.value) }; }
 function rawScalar(type: ValueType, value: any): unknown { if (type === 'integer') return BigInt(value); if (type === 'decimal') return ExactDecimal.parse(value); return value; }
-function answerValue(cell: AnswerCell): InternalValue { if (cell.type === 'array') return { type: 'array', item: inferArrayItem(cell.value), value: (cell.value as unknown[]).map((value) => rawScalar(inferArrayItem(cell.value), value)) }; if (cell.type === 'list') return { type: 'list', value: cell.value }; return { type: cell.type, value: rawScalar(cell.type, cell.value) }; }
-function inferArrayItem(value: unknown): ScalarType { return typeof (value as any)?.[0] === 'boolean' ? 'boolean' : 'text'; }
+function validateAnswerRecord(definitions: FieldDefinition[], answers: Record<string, AnswerCell>): void {
+  for (const definition of definitions) {
+    const cell = answers[definition.id];
+    if (!cell) continue;
+    if (cell.type !== definition.type || typeof cell.applicable !== 'boolean' || !STATUSES.has(cell.status)) throw new Fault('INVALID_LITERAL');
+    if (cell.status !== 'answered' || cell.value === undefined) continue;
+    if (definition.type === 'array') {
+      if (!definition.itemType || cell.itemType !== definition.itemType || !Array.isArray(cell.value)) throw new Fault('INVALID_LITERAL');
+      for (const value of cell.value) validateAnswerScalar(definition.itemType, value);
+      continue;
+    }
+    if (definition.type === 'list') {
+      const items = (cell.value as any)?.items;
+      if (!Array.isArray(items)) throw new Fault('INVALID_LITERAL');
+      for (const item of items) { if (!isObject(item) || !isObject(item.fields)) throw new Fault('INVALID_LITERAL'); validateAnswerRecord(definition.itemFields ?? [], item.fields); }
+      continue;
+    }
+    if (definition.type === 'object') { if (!isObject(cell.value)) throw new Fault('INVALID_LITERAL'); continue; }
+    validateAnswerScalar(definition.type, cell.value);
+  }
+}
+function validateAnswerScalar(type: ScalarType, value: unknown): void {
+  if (type === 'integer') { if (typeof value !== 'string' || !INTEGER.test(value)) throw new Fault('INTEGER_ENCODING'); const parsed = BigInt(value); if (parsed < MIN_INT64 || parsed > MAX_INT64) throw new Fault('INTEGER_RANGE'); return; }
+  if (type === 'decimal') { ExactDecimal.parse(value).assertFinal(); return; }
+  if (type === 'text' || type === 'choice') { if (typeof value !== 'string') throw new Fault('INVALID_LITERAL'); return; }
+  if (type === 'boolean') { if (typeof value !== 'boolean') throw new Fault('INVALID_LITERAL'); return; }
+  if (type === 'date') { if (!validDate(value)) throw new Fault('INVALID_LITERAL'); return; }
+  if (type === 'time') { if (typeof value !== 'string' || !TIME.test(value)) throw new Fault('INVALID_LITERAL'); return; }
+  if (!isObject(value) || Object.keys(value).length !== 2 || typeof value.instant !== 'string' || typeof value.timeZone !== 'string' || !validInstant(value.instant) || !validZone(value.timeZone)) throw new Fault('INVALID_LITERAL');
+}
+function answerValue(cell: AnswerCell): InternalValue { if (cell.type === 'array') return { type: 'array', item: (cell as AnswerCell & { itemType: ScalarType }).itemType, value: (cell.value as unknown[]).map((value) => rawScalar((cell as AnswerCell & { itemType: ScalarType }).itemType, value)) }; if (cell.type === 'list') return { type: 'list', value: cell.value }; return { type: cell.type, value: rawScalar(cell.type, cell.value) }; }
 function integer(value: InternalValue): bigint { if (value.type !== 'integer') throw new Fault('EXPR_TYPE'); return value.value as bigint; }
 function decimal(value: InternalValue): ExactDecimal { if (value.type === 'integer') return ExactDecimal.integer(value.value as bigint); if (value.type === 'decimal') return value.value as ExactDecimal; throw new Fault('EXPR_TYPE'); }
 function bool(value: InternalValue): boolean { if (value.type !== 'boolean') throw new Fault('EXPR_TYPE'); return value.value as boolean; }
@@ -396,7 +429,7 @@ function instantKey(value: string): string { const [whole, fraction = ''] = valu
 function external(result: InternalResult, outputType?: TypeSpec): ExpressionResult { if (result.state !== 'available') return result; let { type, value, item } = result.value; if (outputType?.kind === 'decimal' && type === 'integer') { type = 'decimal'; value = ExactDecimal.integer(value as bigint); } if (type === 'integer') return { state: 'available', type, value: (value as bigint).toString() }; if (type === 'decimal') return { state: 'available', type, value: (value as ExactDecimal).canonical() }; if (type === 'array') return { state: 'available', type, value: (value as unknown[]).map((entry) => item === 'integer' ? (entry as bigint).toString() : item === 'decimal' ? (entry as ExactDecimal).canonical() : entry) }; return { state: 'available', type, value }; }
 function validDate(value: unknown): value is string { if (typeof value !== 'string') return false; const match = DATE.exec(value); if (!match) return false; const [year, month, day] = match.slice(1).map(Number); return year >= 1 && year <= 9999 && month >= 1 && month <= 12 && day >= 1 && day <= daysInMonth(year, month); }
 function validInstant(value: string): boolean { if (!INSTANT.test(value)) return false; return validDate(value.slice(0, 10)) && !Number.isNaN(Date.parse(value)); }
-function validZone(value: string): boolean { if (value === 'UTC') return true; try { Intl.DateTimeFormat('en', { timeZone: value }); return true; } catch { return false; } }
+function validZone(value: string): boolean { return PINNED_TIMEZONES.has(value); }
 function dayOrdinal(value: string): number { const year = Number(value.slice(0, 4)); const month = Number(value.slice(5, 7)); const day = Number(value.slice(8, 10)); return daysBeforeYear(year) + daysBeforeMonth(year, month) + day - 1; }
 function dateAdd(date: string, days: bigint): string { const ordinal = BigInt(dayOrdinal(date)) + days; const maximum = BigInt(dayOrdinal('9999-12-31')); if (ordinal < 0n || ordinal > maximum) throw new Fault('DATE_RANGE'); return dateAtOrdinal(Number(ordinal)); }
 function ageYears(birth: string, asOf: string): number { if (asOf < birth) throw new Fault('DATE_RANGE'); const [by, bm, bd] = birth.split('-').map(Number); const [ay, am, ad] = asOf.split('-').map(Number); let anniversaryMonth = bm; let anniversaryDay = bd; if (bm === 2 && bd === 29 && !leap(ay)) { anniversaryMonth = 3; anniversaryDay = 1; } return ay - by - (am < anniversaryMonth || (am === anniversaryMonth && ad < anniversaryDay) ? 1 : 0); }
