@@ -36,6 +36,8 @@ import org.springframework.web.server.ResponseStatusException;
  */
 @Service
 public class IdentityAdministrationService {
+  private record AuditContext(UUID actor, String scope, UUID target, String reasonClass, String deliveryClass,
+                              String ownerSafetyDecision, String outcome, Long revision) {}
   private static final Duration ACTION_TTL = Duration.ofHours(24);
   private static final Duration SELF_RECOVERY_TTL = Duration.ofMinutes(30);
   private static final Duration INVITATION_TTL = Duration.ofHours(72);
@@ -220,15 +222,17 @@ public class IdentityAdministrationService {
   public ResponseEntity<?> removeUser(String organizationValue, String userValue, HttpServletRequest http) {
     UUID organization = organization(organizationValue);
     UUID target = opaqueId(userValue);
-    requireOrganizationAdministrator(currentAccount(http), organization);
+    UUID actor = currentAccount(http);
+    requireOrganizationAdministrator(actor, organization);
     lockOrganizationOwners(organization);
     long revision = membershipRevisionForUpdate(organization, target);
     ensureOwnerContinuity(organization, target, List.of(), "suspended");
     ensureAffectedWorkspaceAdministratorContinuity(target, organization);
+    audit("identity.membership.removed", new AuditContext(actor, organizationScope(organization), target,
+        "membership-removal", "none", "continuity-confirmed", "success", revision + 1));
     db.update("delete from memberships m using workspaces w where m.account_id=? and m.workspace_id=w.id and w.organization_id=?", target, organization);
     revokeAllSessions(target);
     db.update("delete from organization_memberships where organization_id=? and account_id=?", organization, target);
-    audit("identity.membership.removed", target);
     return ResponseEntity.noContent().eTag(etag(revision + 1)).build();
   }
 
@@ -352,7 +356,8 @@ public class IdentityAdministrationService {
     db.update("delete from memberships where account_id=? and workspace_id=?", target, workspace);
     for (String role : roles) db.update("insert into memberships(account_id,workspace_id,role) values(?,?,?)", target, workspace, workspaceRole(role));
     db.update("update workspace_role_revisions set revision=revision+1 where workspace_id=? and account_id=?", workspace, target);
-    audit("identity.workspace.roles", target);
+    audit("identity.workspace.roles", new AuditContext(actor, workspaceScope(workspace), target,
+        "role-replacement", "none", "continuity-confirmed", "success", revision + 1));
     return ResponseEntity.ok().eTag(etag(revision + 1)).body(Map.of("requestId", opaque("req"), "workspaceRole", workspaceRole(target, roles, revision + 1)));
   }
 
@@ -373,10 +378,13 @@ public class IdentityAdministrationService {
   @Transactional(isolation = Isolation.SERIALIZABLE)
   public ResponseEntity<?> removeWorkspaceRoles(String workspaceValue, String userValue, HttpServletRequest http) {
     UUID workspace = workspace(workspaceValue);
-    requireWorkspaceManager(currentAccount(http), workspace);
+    UUID actor = currentAccount(http);
+    requireWorkspaceManager(actor, workspace);
     UUID target = opaqueId(userValue);
     long revision = workspaceRoleRevisionForUpdate(workspace, target);
     ensureWorkspaceOwnerContinuity(workspace, target, List.of());
+    audit("identity.workspace.roles.removed", new AuditContext(actor, workspaceScope(workspace), target,
+        "role-removal", "none", "continuity-confirmed", "success", revision + 1));
     db.update("delete from memberships where account_id=? and workspace_id=?", target, workspace);
     db.update("update workspace_role_revisions set revision=revision+1 where workspace_id=? and account_id=?", workspace, target);
     return ResponseEntity.noContent().eTag(etag(revision + 1)).build();
@@ -424,7 +432,8 @@ public class IdentityAdministrationService {
     if (isPlatformAccount(target) || organizationMembershipCount(target) != 1 || !activeOrganizationMember(target, organization)) throw forbidden();
     revokeAllSessions(target);
     ActionCapability action = issueAction(target, organization, "organization-recovery", ACTION_TTL);
-    audit("identity.recovery.issued", target);
+    audit("identity.recovery.issued", new AuditContext(actor, organizationScope(organization), target,
+        "administrator-assisted", "copy-link", "not-applicable", "success", accountRevision(target)));
     return ResponseEntity.status(HttpStatus.CREATED).header("X-Recovery-Copy-Link", "/reset/" + action.token())
         .body(Map.of("requestId", opaque("req"), "organizationRecovery", recovery("OrganizationRecovery", "administrator-assisted")));
   }
@@ -447,7 +456,8 @@ public class IdentityAdministrationService {
     revokeAllSessions(target);
     ensureSuspensionSafety(target);
     ActionCapability action = issueAction(target, null, "platform-recovery", ACTION_TTL);
-    audit("identity.platform-recovery.issued", target);
+    audit("identity.platform-recovery.issued", new AuditContext(actor, "platform", target,
+        "manual-security-review", "copy-link", "continuity-confirmed", "success", accountRevision(target)));
     return ResponseEntity.status(HttpStatus.CREATED).header("X-Recovery-Copy-Link", "/reset/" + action.token())
         .body(Map.of("requestId", opaque("req"), "platformRecovery", recovery("PlatformRecovery", "manual-security-review")));
   }
@@ -470,10 +480,13 @@ public class IdentityAdministrationService {
 
   @Transactional
   public ResponseEntity<?> createPlatformOrganization(OrganizationCreate request, HttpServletRequest http) {
-    requirePlatformAdministrator(currentAccount(http));
+    UUID actor = currentAccount(http);
+    requirePlatformAdministrator(actor);
     if (request.name() == null || request.name().isBlank() || request.name().length() > 160) badRequest();
     UUID organization = UUID.randomUUID();
     db.update("insert into organizations(id,name,organization_status) values(?,?,'active')", organization, request.name().trim());
+    audit("identity.organization.created", new AuditContext(actor, "platform", organization,
+        "organization-create", "none", "not-applicable", "success", 0L));
     return ResponseEntity.status(HttpStatus.CREATED).eTag(etag(0)).body(Map.of("requestId", opaque("req"), "organization", organizationResource(organization, request.name().trim(), "active", 0, Instant.now())));
   }
 
@@ -486,13 +499,16 @@ public class IdentityAdministrationService {
 
   @Transactional
   public ResponseEntity<?> updatePlatformOrganization(String organizationValue, OrganizationUpdate request, HttpServletRequest http) {
-    requirePlatformAdministrator(currentAccount(http));
+    UUID actor = currentAccount(http);
+    requirePlatformAdministrator(actor);
     UUID organization = organization(organizationValue);
     long revision = organizationRevisionForUpdate(organization);
     String status = request.organizationStatus();
     if (status == null) status = db.queryForObject("select organization_status from organizations where id=?", String.class, organization);
     if (request.name() == null || request.name().isBlank() || request.name().length() > 160 || !ORGANIZATION_STATUSES.contains(status)) badRequest();
     db.update("update organizations set name=?,organization_status=?,revision=revision+1 where id=?", request.name().trim(), status, organization);
+    audit("identity.organization.updated", new AuditContext(actor, "platform", organization,
+        "organization-update", "none", "not-applicable", "success", revision + 1));
     return ResponseEntity.ok().eTag(etag(revision + 1)).body(Map.of("requestId", opaque("req"), "organization", organizationResource(organization, request.name().trim(), status, revision + 1, Instant.now())));
   }
 
@@ -542,7 +558,8 @@ public class IdentityAdministrationService {
   @Transactional
   public ResponseEntity<?> addPendingOwner(String organizationValue, UserCreate request, HttpServletRequest http) {
     UUID organization = organization(organizationValue);
-    requirePlatformAdministrator(currentAccount(http));
+    UUID actor = currentAccount(http);
+    requirePlatformAdministrator(actor);
     String email = email(request.email());
     UUID account = accountByEmail(email);
     String generatedTemporaryPassword = null;
@@ -557,6 +574,8 @@ public class IdentityAdministrationService {
     db.update("insert into organization_memberships(account_id,organization_id,roles,membership_status) values(?,?,array['owner','administrator'],'suspended') "
         + "on conflict(account_id,organization_id) do update set roles=array['owner','administrator'],membership_status='suspended',updated_at=now()", account, organization);
     ActionCapability activation = issueAction(account, organization, "activation", ACTION_TTL);
+    audit("identity.pending-owner.created", new AuditContext(actor, organizationScope(organization), account,
+        "pending-owner", "copy-link", "continuity-confirmed", "success", 0L));
     ResponseEntity.BodyBuilder response = ResponseEntity.status(HttpStatus.CREATED)
         .header("X-Activation-Copy-Link", "/activate/" + activation.token());
     if (generatedTemporaryPassword != null) response.header("X-Temporary-Password-Copy", generatedTemporaryPassword);
@@ -579,7 +598,8 @@ public class IdentityAdministrationService {
     Instant expires = Instant.now().plus(INVITATION_TTL);
     db.update("insert into identity_invitations(id,organization_id,account_id,email,organization_roles,token_hash,expires_at,created_by) values(?,?,?,?,?,?,?,?)",
         invitation, organization, account, email, roles.toArray(String[]::new), sha256(token), Timestamp.from(expires), actor);
-    audit("identity.invitation.issued", account == null ? actor : account);
+    audit("identity.invitation.issued", new AuditContext(actor, organizationScope(organization), account == null ? actor : account,
+        "invitation", "copy-link", "not-applicable", "success", null));
     return ResponseEntity.status(HttpStatus.CREATED).header("X-Invitation-Copy-Link", "/invite/" + token)
         .body(Map.of("requestId", opaque("req"), "invitation", invitation(invitation, email, expires)));
   }
@@ -760,11 +780,19 @@ public class IdentityAdministrationService {
     String ownerSafety = action.contains("suspended") || action.contains("membership.removed") ? "checked" : "not-applicable";
     String idempotency = request == null ? null : request.getHeader("Idempotency-Key");
     String correlation = request == null ? null : request.getHeader("X-Request-Id");
-    String detail = "{\"category\":\"identity\",\"actor\":" + auditId(actor) + ",\"tenantScope\":" + auditId(tenant)
-        + ",\"target\":" + auditId(resource) + ",\"reasonClass\":\"" + reason + "\",\"deliveryClass\":\"" + delivery
-        + "\",\"ownerSafetyDecision\":\"" + ownerSafety + "\",\"outcome\":\"success\",\"revision\":" + (revision == null ? "null" : revision)
+    audit(action, new AuditContext(actor, tenant == null ? "account" : organizationScope(tenant), resource, reason, delivery,
+        ownerSafety, "success", revision));
+  }
+  private void audit(String action, AuditContext context) {
+    HttpServletRequest request = RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes attributes
+        ? attributes.getRequest() : null;
+    String idempotency = request == null ? null : request.getHeader("Idempotency-Key");
+    String correlation = request == null ? null : request.getHeader("X-Request-Id");
+    String detail = "{\"category\":\"identity\",\"actor\":" + auditId(context.actor()) + ",\"tenantScope\":" + auditText(context.scope())
+        + ",\"target\":" + auditId(context.target()) + ",\"reasonClass\":\"" + context.reasonClass() + "\",\"deliveryClass\":\"" + context.deliveryClass()
+        + "\",\"ownerSafetyDecision\":\"" + context.ownerSafetyDecision() + "\",\"outcome\":\"" + context.outcome() + "\",\"revision\":" + (context.revision() == null ? "null" : context.revision())
         + ",\"requestCorrelation\":" + auditText(correlation) + ",\"idempotencyCorrelation\":" + auditText(idempotency) + "}";
-    db.update("insert into audit_events(id,action,resource_id,detail) values(?,?,?,cast(? as jsonb))", UUID.randomUUID(), action, resource, detail);
+    db.update("insert into audit_events(id,action,resource_id,detail) values(?,?,?,cast(? as jsonb))", UUID.randomUUID(), action, context.target(), detail);
   }
   private static String auditId(UUID value) { return value == null ? "null" : "\"id-" + sha256(value.toString()).substring(0, 16) + "\""; }
   private static String auditText(String value) { return value == null || value.isBlank() ? "null" : "\"h-" + sha256(value).substring(0, 16) + "\""; }
@@ -772,6 +800,7 @@ public class IdentityAdministrationService {
   private UUID accountByEmail(String email) { List<UUID> matches = db.query("select id from accounts where email=?", (rs, row) -> (UUID) rs.getObject(1), email); return matches.isEmpty() ? null : matches.get(0); }
   private int organizationMembershipCount(UUID account) { return db.queryForObject("select count(*) from organization_memberships where account_id=? and membership_status='active'", Integer.class, account); }
   private boolean isPlatformAccount(UUID account) { return db.queryForObject("select count(*) from platform_roles where account_id=?", Integer.class, account) > 0; }
+  private long accountRevision(UUID account) { return db.queryForObject("select revision from accounts where id=?", Long.class, account); }
   private boolean activeOrganizationMember(UUID account, UUID organization) { return db.queryForObject("select count(*) from organization_memberships where account_id=? and organization_id=? and membership_status='active'", Integer.class, account, organization) > 0; }
   private UUID organization(String value) { UUID id = opaqueId(value); try { db.queryForObject("select id from organizations where id=?", UUID.class, id); return id; } catch (Exception ex) { throw notFound(); } }
   private UUID workspace(String value) { try { return db.queryForObject("select id from workspaces where workspace_key=?", UUID.class, value); } catch (Exception ignored) { UUID id = opaqueId(value); try { db.queryForObject("select id from workspaces where id=?", UUID.class, id); return id; } catch (Exception ex) { throw notFound(); } } }

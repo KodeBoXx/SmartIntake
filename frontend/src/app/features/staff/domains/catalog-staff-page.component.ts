@@ -54,7 +54,7 @@ export class CatalogStaffPageComponent {
     }
     return workspaceRoleContext(this.session.organizations(), requestedWorkspaceId, this.session.currentWorkspaceId());
   }
-  canEdit(): boolean { return hasWorkspaceRole(this.workspaceContext()?.roles ?? [], 'author', 'workspace-administrator'); }
+  canEdit(): boolean { return hasWorkspaceRole(this.workspaceContext()?.roles ?? [], 'author'); }
   canPublish(): boolean { return hasWorkspaceRole(this.workspaceContext()?.roles ?? [], 'publisher'); }
   canManage(): boolean { return hasWorkspaceRole(this.workspaceContext()?.roles ?? [], 'workspace-administrator'); }
   screenTitle(): string { return ({ catalog: 'Forms', builder: 'Form builder', preview: 'Form preview', 'review-publish': 'Review and publish' } as Record<string, string>)[this.screen()] ?? 'Forms'; }
@@ -73,7 +73,7 @@ export class CatalogStaffPageComponent {
   restoreSelected(): void { this.mutate((workspace, form) => this.api.restoreCatalogForm(workspace, form.id), 'Form restored.'); }
   classifySelected(): void { this.mutate((workspace, form) => this.api.classifyCatalogForm(workspace, form.id, { folderId: this.detailFolder || null, tagIds: this.detailTag ? [this.detailTag] : [] }), 'Classification saved.'); }
   transferSelected(): void { if (!this.canManage()) return; if (!this.ownerAccountId.trim()) return this.invalid('Choose a workspace member.'); const workspace = this.workspace(); const form = this.selected(); if (!workspace || !form) return; this.api.transferCatalogFormOwnership(workspace, form.id, this.ownerAccountId.trim()).subscribe({ next: () => { this.message.set('Ownership transferred.'); this.load(); }, error: (error) => this.fail(error.status) }); }
-  createForm(): void { const workspace = this.workspace(); if (workspace) void this.router.navigateByUrl(`/workspaces/${workspace}/forms/new`); }
+  createForm(): void { const workspace = this.workspace(); if (workspace && this.canEdit()) void this.router.navigateByUrl(`/workspaces/${workspace}/forms/new`); }
   openLegacyBuilder(): void { this.createForm(); }
   publishFromReview(): void { this.message.set('Publish this form from its workspace-scoped review route.'); }
   saveSettings(): void { const workspace = this.workspace(); if (!workspace) return; try { const policyOverrides = JSON.parse(this.overridePolicyJson); const providerOverrides = JSON.parse(this.overrideProviderJson); this.api.updateCatalogSettings(workspace, { policyOverrides, providerOverrides }).subscribe({ next: (settings) => { this.applySettings(settings); this.message.set('Workspace overrides saved.'); }, error: (error) => this.fail(error.status) }); } catch { this.invalid('Workspace overrides must be valid JSON objects.'); } }

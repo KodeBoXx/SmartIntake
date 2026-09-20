@@ -173,7 +173,8 @@ export class AppComponent {
 
   private routeParam(name: string): string | null { return this.route?.snapshot.paramMap?.get(name) ?? null; }
   private screen(): string | undefined { return this.route?.snapshot.data?.['screen']; }
-  private workspaceId(): string { return this.routeParam('workspaceId') ?? 'local'; }
+  /** The legacy route inherits the workspace selected by the server session. */
+  private workspaceId(): string { return this.routeParam('workspaceId') ?? this.session.currentWorkspaceId() ?? ''; }
   private routeWorkspaceRoles(): readonly string[] {
     return workspaceRoleContext(this.session.organizations(), this.workspaceId(), this.session.currentWorkspaceId())?.roles ?? [];
   }
@@ -189,6 +190,13 @@ export class AppComponent {
         next: (draft) => this.applyDraft(formId, draft),
         error: (error) => this.failRehydration('The requested draft is unavailable in this workspace.', error),
       });
+      return;
+    }
+    if (this.isNewForm() && !this.canAuthor()) {
+      this.rehydrating.set(false);
+      this.rehydrationFailed.set(true);
+      this.draftState.set('denied');
+      this.message.set('Author access is required to create a form in this workspace.');
       return;
     }
     // A workspace-scoped new route deliberately starts blank: it must not

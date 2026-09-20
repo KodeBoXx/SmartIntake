@@ -757,12 +757,12 @@ export interface paths {
         };
         /**
          * GET /v1/workspaces/{w}/forms/{f}/drafts/{d}
-         * @description Published M2 contract. Implementation is intentionally deferred unless marked implemented.
+         * @description Live canonical UUID draft endpoint; responses are unwrapped.
          */
         get: operations["ON-get-v1-workspaces-w-forms-f-drafts-d-4ba2cf8375"];
         /**
          * PUT /v1/workspaces/{w}/forms/{f}/drafts/{d}
-         * @description Published M2 contract. Implementation is intentionally deferred unless marked implemented.
+         * @description Live canonical UUID draft endpoint; responses are unwrapped.
          */
         put: operations["ON-put-v1-workspaces-w-forms-f-drafts-d-d5d5fa6522"];
         post?: never;
@@ -3091,6 +3091,18 @@ export interface components {
             requestId: string;
             /** @constant */
             bootstrap: "pending-activation";
+        };
+        LiveDraftRead: {
+            /** Format: uuid */
+            id: string;
+            revision: number;
+            definition: Record<string, never>;
+            diagnostics: unknown[];
+        };
+        LiveDraftWrite: {
+            revision: number;
+            definition: Record<string, never>;
+            diagnostics: unknown[];
         };
         id: string;
         sha256: string;
@@ -5895,7 +5907,7 @@ export interface operations {
                  * @description Opaque server-issued identifier; it is never an authority grant.
                  * @example d-01J2W5RFR3K24SFWDX2C0N9VW3
                  */
-                d: components["schemas"]["OpaqueId"];
+                d: string;
             };
             cookie?: never;
         };
@@ -5908,7 +5920,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["DraftResponse"];
+                    "application/json": components["schemas"]["LiveDraftRead"];
                 };
             };
             400: components["responses"]["BadRequest"];
@@ -5963,7 +5975,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["DraftResponse"];
+                    "application/json": components["schemas"]["LiveDraftWrite"];
                 };
             };
             400: components["responses"]["BadRequest"];

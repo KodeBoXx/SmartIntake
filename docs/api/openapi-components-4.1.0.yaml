@@ -5864,6 +5864,42 @@ components:
           type: string
         bootstrap:
           const: pending-activation
+    LiveDraftRead:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - revision
+      - definition
+      - diagnostics
+      properties:
+        id:
+          type: string
+          format: uuid
+        revision:
+          type: integer
+          minimum: 1
+        definition:
+          type: object
+        diagnostics:
+          type: array
+          items: {}
+    LiveDraftWrite:
+      type: object
+      additionalProperties: false
+      required:
+      - revision
+      - definition
+      - diagnostics
+      properties:
+        revision:
+          type: integer
+          minimum: 1
+        definition:
+          type: object
+        diagnostics:
+          type: array
+          items: {}
   x-contract-schema-resources:
   - $ref: ../contracts/smart-form-builder-lite/4.0.0/package.schema.json
   - $ref: ../contracts/smart-form-builder-lite/4.0.0/expression.schema.json

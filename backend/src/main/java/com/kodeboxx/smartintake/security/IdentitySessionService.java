@@ -111,9 +111,6 @@ public class IdentitySessionService {
     boolean knownAccount = db.queryForObject("select count(*) from accounts where email=?", Integer.class, normalized) > 0;
     List<ThrottleBucket> subjects = throttleSubjects(normalized, clientSource(request), knownAccount);
     cleanupThrottleBuckets();
-    // Source/global counters are for invalid-proof pressure and telemetry. A known
-    // account with a valid credential is never denied merely due to aggregate load.
-    if (throttled(subjects.get(0))) throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Try again later");
     UUID account = null;
     try {
       if (input == null || input.email() == null || input.password() == null) throw new IllegalArgumentException();
@@ -130,13 +127,19 @@ public class IdentitySessionService {
       }
       account = ((UUID) accountRow.get("id"));
     } catch (Exception ignored) {
-      // Credential verification has already failed, so source pressure may now
-      // reject the invalid proof without affecting a future valid sign-in.
-      if (knownAccount && subjects.stream().skip(1).limit(1).anyMatch(this::throttled))
+      // Aggregate buckets deliberately apply only after a proof has failed.
+      // This prevents a shared source or the global capacity counter from
+      // turning an attack into a denial of service for legitimate credentials.
+      if (subjects.stream().anyMatch(this::throttled))
         throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Try again later");
       subjects.forEach(this::registerFailure);
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
     }
+    // Account protection remains independent: a correct password does not
+    // bypass that account's own ten-failure lock, but source/global saturation
+    // never denies a correct known credential.
+    if (knownAccount && throttled(subjects.get(0)))
+      throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Try again later");
     db.update("delete from sign_in_throttles where subject_hash=?", sha256("account|" + normalized));
     resolver.session(request, request.getHeader("X-Staff-Session")).ifPresent(token -> db.update("update staff_sessions set revoked_at=now(),updated_at=now() where token::text=? and revoked_at is null", token));
     boolean setupOnly = Boolean.TRUE.equals(db.queryForObject("select activation_state='pending' from accounts where id=?", Boolean.class, account));
@@ -282,18 +285,21 @@ public class IdentitySessionService {
   }
 
   private void registerFailure(ThrottleBucket bucket) {
-    List<Map<String, Object>> rows = db.queryForList("select failure_count,window_started_at from sign_in_throttles where subject_hash=? for update", bucket.subject());
-    Instant now = Instant.now();
-    if (rows.isEmpty()) {
-      db.update("insert into sign_in_throttles(subject_hash,failure_count,window_started_at,updated_at) values(?,?,?,?) on conflict (subject_hash) do nothing", bucket.subject(), 1, Timestamp.from(now), Timestamp.from(now));
-      rows = db.queryForList("select failure_count,window_started_at from sign_in_throttles where subject_hash=? for update", bucket.subject());
-      if (((Number) rows.get(0).get("failure_count")).intValue() == 1) return;
-    }
-    Timestamp started = (Timestamp) rows.get(0).get("window_started_at");
-    int failures = started.toInstant().plus(THROTTLE_WINDOW).isBefore(now) ? 1 : ((Number) rows.get(0).get("failure_count")).intValue() + 1;
-    Timestamp reset = failures == 1 ? Timestamp.from(now) : started;
-    Timestamp blocked = failures >= bucket.limit() ? Timestamp.from(now.plus(THROTTLE_WINDOW)) : null;
-    db.update("update sign_in_throttles set failure_count=?,window_started_at=?,blocked_until=?,updated_at=? where subject_hash=?", failures, reset, blocked, Timestamp.from(now), bucket.subject());
+    long seconds = THROTTLE_WINDOW.toSeconds();
+    db.queryForMap("""
+        insert into sign_in_throttles(subject_hash,failure_count,window_started_at,blocked_until,updated_at)
+        values (?, 1, now(), null, now())
+        on conflict (subject_hash) do update set
+          failure_count = case when sign_in_throttles.window_started_at + (? * interval '1 second') <= now()
+              then 1 else sign_in_throttles.failure_count + 1 end,
+          window_started_at = case when sign_in_throttles.window_started_at + (? * interval '1 second') <= now()
+              then now() else sign_in_throttles.window_started_at end,
+          blocked_until = case when (case when sign_in_throttles.window_started_at + (? * interval '1 second') <= now()
+              then 1 else sign_in_throttles.failure_count + 1 end) >= ?
+              then now() + (? * interval '1 second') else null end,
+          updated_at = now()
+        returning failure_count, window_started_at, blocked_until
+        """, bucket.subject(), seconds, seconds, seconds, bucket.limit(), seconds);
   }
 
   private String clientSource(HttpServletRequest request) {

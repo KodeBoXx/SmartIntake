@@ -3398,8 +3398,7 @@ paths:
     get:
       operationId: ON-get-v1-workspaces-w-forms-f-drafts-d-4ba2cf8375
       summary: GET /v1/workspaces/{w}/forms/{f}/drafts/{d}
-      description: Published M2 contract. Implementation is intentionally deferred
-        unless marked implemented.
+      description: Live canonical UUID draft endpoint; responses are unwrapped.
       x-m0-counted: true
       x-m0-category: prd-named
       x-m0-inventory-id: ON-get-v1-workspaces-w-forms-f-drafts-d-4ba2cf8375
@@ -3410,7 +3409,7 @@ paths:
         roles:
         - workspace.form.read
         tenantScope: workspace
-      x-implementation-status: contract-published
+      x-implementation-status: implemented
       responses:
         '200':
           description: Successful response.
@@ -3420,7 +3419,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftResponse'
+                $ref: '#/components/schemas/LiveDraftRead'
               examples:
                 success:
                   value:
@@ -3466,15 +3465,15 @@ paths:
         required: true
         description: Opaque server-issued identifier; it is never an authority grant.
         schema:
-          $ref: '#/components/schemas/OpaqueId'
+          type: string
+          format: uuid
         example: d-01J2W5RFR3K24SFWDX2C0N9VW3
       security:
       - staffCookie: []
     put:
       operationId: ON-put-v1-workspaces-w-forms-f-drafts-d-d5d5fa6522
       summary: PUT /v1/workspaces/{w}/forms/{f}/drafts/{d}
-      description: Published M2 contract. Implementation is intentionally deferred
-        unless marked implemented.
+      description: Live canonical UUID draft endpoint; responses are unwrapped.
       x-m0-counted: true
       x-m0-category: prd-named
       x-m0-inventory-id: ON-put-v1-workspaces-w-forms-f-drafts-d-d5d5fa6522
@@ -3485,7 +3484,7 @@ paths:
         roles:
         - workspace.form.write
         tenantScope: workspace
-      x-implementation-status: contract-published
+      x-implementation-status: implemented
       responses:
         '200':
           description: Successful response.
@@ -3495,7 +3494,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DraftResponse'
+                $ref: '#/components/schemas/LiveDraftWrite'
               examples:
                 success:
                   value:
@@ -3553,6 +3552,9 @@ paths:
         example: d-01J2W5RFR3K24SFWDX2C0N9VW3
       - $ref: '#/components/parameters/IfMatch'
       - $ref: '#/components/parameters/IdempotencyKey'
+        schema:
+          type: string
+          format: uuid
       security:
       - staffCookie: []
         csrfHeader: []
@@ -3695,10 +3697,6 @@ paths:
                   editNote: Clarify consent wording.
               invalid:
                 value: {}
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical
-        request hash, retained for at least seven days; equal requests replay the
-        original result and changed-body reuse is 409. Session mutation replay keys
-        are clientMutationId plus body.
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale
         is 412.
   /v1/workspaces/{w}/forms/{f}/drafts/{d}/review-requests:
@@ -12614,6 +12612,42 @@ components:
           type: string
         bootstrap:
           const: pending-activation
+    LiveDraftRead:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - revision
+      - definition
+      - diagnostics
+      properties:
+        id:
+          type: string
+          format: uuid
+        revision:
+          type: integer
+          minimum: 1
+        definition:
+          type: object
+        diagnostics:
+          type: array
+          items: {}
+    LiveDraftWrite:
+      type: object
+      additionalProperties: false
+      required:
+      - revision
+      - definition
+      - diagnostics
+      properties:
+        revision:
+          type: integer
+          minimum: 1
+        definition:
+          type: object
+        diagnostics:
+          type: array
+          items: {}
   x-contract-schema-resources:
   - $ref: ../contracts/smart-form-builder-lite/4.0.0/package.schema.json
   - $ref: ../contracts/smart-form-builder-lite/4.0.0/expression.schema.json

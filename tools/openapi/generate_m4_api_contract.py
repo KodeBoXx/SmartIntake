@@ -564,6 +564,32 @@ def generated() -> dict[Path, bytes]:
     }
     for operation_config in (patch, submit, attempt):
         operation_config["x-implementation-status"] = "implemented"
+    # The live draft controller uses the canonical form UUID as its draft ID and
+    # returns its maps unwrapped.  Do not inherit the old planned M2 envelope or
+    # generic mutation replay metadata for this optimistic-concurrency endpoint.
+    draft_path = api["paths"]["/v1/workspaces/{w}/forms/{f}/drafts/{d}"]
+    schemas["LiveDraftRead"] = {
+        "type": "object", "additionalProperties": False,
+        "required": ["id", "revision", "definition", "diagnostics"],
+        "properties": {"id": {"type": "string", "format": "uuid"}, "revision": {"type": "integer", "minimum": 1},
+                       "definition": {"type": "object"}, "diagnostics": {"type": "array", "items": {}}},
+    }
+    schemas["LiveDraftWrite"] = {
+        "type": "object", "additionalProperties": False,
+        "required": ["revision", "definition", "diagnostics"],
+        "properties": {"revision": {"type": "integer", "minimum": 1}, "definition": {"type": "object"},
+                       "diagnostics": {"type": "array", "items": {}}},
+    }
+    for method, schema in (("get", "LiveDraftRead"), ("put", "LiveDraftWrite")):
+        operation_config = draft_path[method]
+        operation_config["x-implementation-status"] = "implemented"
+        operation_config["description"] = "Live canonical UUID draft endpoint; responses are unwrapped."
+        operation_config["responses"]["200"]["content"]["application/json"]["schema"] = {"$ref": f"#/components/schemas/{schema}"}
+        operation_config.pop("x-replay", None)
+    draft_path["get"]["parameters"][-1]["schema"] = {"type": "string", "format": "uuid"}
+    draft_path["put"]["parameters"][-1]["schema"] = {"type": "string", "format": "uuid"}
+    draft_path["put"]["parameters"] = [parameter for parameter in draft_path["put"]["parameters"]
+                                            if parameter.get("name") != "Idempotency-Key"]
     start = api["paths"]["/v1/public/forms/{shareId}/sessions"]["post"]
     start["parameters"] = [parameter for parameter in start["parameters"]
                            if parameter.get("name") == "shareId"]

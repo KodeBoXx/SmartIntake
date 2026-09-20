@@ -152,6 +152,43 @@ describe('AppComponent journeys', () => {
     expect(api.publish).toHaveBeenCalledWith('local', 'form-1');
   });
 
+  it('uses the server-selected workspace for the legacy builder route', () => {
+    const api = createApi();
+    const selectedWorkspaceSession = { provide: StaffSessionStore, useValue: {
+      currentWorkspaceId: signal('workspace-server-selected'), currentRoles: signal(['author']),
+      organizations: signal([{ workspaces: [{ workspaceId: 'workspace-server-selected', roles: ['author'] }] }]),
+    } };
+    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }, selectedWorkspaceSession] });
+    const component = TestBed.createComponent(AppComponent).componentInstance;
+
+    expect(api.listForms).toHaveBeenCalledWith('workspace-server-selected');
+    component.save();
+    expect(api.createForm).toHaveBeenCalledWith('workspace-server-selected', expect.any(String), 'Responsive intake');
+  });
+
+  it('denies a workspace new-form route without author access before creating a draft', () => {
+    const api = createApi();
+    const reviewerSession = { provide: StaffSessionStore, useValue: {
+      currentWorkspaceId: signal('workspace-1'), currentRoles: signal(['reviewer']),
+      organizations: signal([{ workspaces: [{ workspaceId: 'workspace-1', roles: ['reviewer'] }] }]),
+    } };
+    TestBed.configureTestingModule({
+      imports: [AppComponent],
+      providers: [
+        { provide: SmartIntakeApiService, useValue: api }, reviewerSession,
+        { provide: ActivatedRoute, useValue: { snapshot: { data: { screen: 'builder' }, paramMap: { get: (name: string) => ({ workspaceId: 'workspace-1' })[name] ?? null } } } },
+      ],
+    });
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.draftState()).toBe('denied');
+    expect(fixture.nativeElement.textContent).toContain('Draft access denied');
+    expect(api.listForms).not.toHaveBeenCalled();
+    fixture.componentInstance.save();
+    expect(api.createForm).not.toHaveBeenCalled();
+  });
+
   it('creates then persists a draft, repeats with its current revision, publishes from the toolbar, and submits a session', () => {
     const api = createApi();
     TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }, staffSessionProvider] });

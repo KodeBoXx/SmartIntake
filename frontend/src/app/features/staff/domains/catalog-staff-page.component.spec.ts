@@ -12,9 +12,9 @@ describe('CatalogStaffPageComponent', () => {
   const query = new BehaviorSubject(new Map<string, string | null>());
   const api = {
     catalogForms: vi.fn(() => of({ items: [form], nextCursor: 'cursor-2' })), catalogFolders: vi.fn(() => of([])), catalogTags: vi.fn(() => of([])), effectiveCatalogSettings: vi.fn(() => of({ workspaceId: 'workspace-1', effective: { retention: '30d' }, overrides: { retention: '7d' } })),
-    createCatalogFolder: vi.fn(() => of({})), createCatalogTag: vi.fn(() => of({})), duplicateCatalogForm: vi.fn(() => of(form)), archiveCatalogForm: vi.fn(() => of(form)), restoreCatalogForm: vi.fn(() => of(form)), classifyCatalogForm: vi.fn(() => of(void 0)), transferCatalogFormOwnership: vi.fn(() => of(form)), updateCatalogSettings: vi.fn(() => of({ workspaceId: 'workspace-1', effective: {}, overrides: {} })),
+    createCatalogFolder: vi.fn(() => of({})), createCatalogTag: vi.fn(() => of({})), duplicateCatalogForm: vi.fn(() => of(form)), archiveCatalogForm: vi.fn(() => of(form)), restoreCatalogForm: vi.fn(() => of(form)), classifyCatalogForm: vi.fn(() => of(void 0)), transferCatalogFormOwnership: vi.fn(() => of(form)), updateCatalogSettings: vi.fn(() => of({ workspaceId: 'workspace-1', effective: {}, overrides: {} })), workspaceMembers: vi.fn(() => of([])),
   };
-  const session = { currentOrganizationId: () => null, currentWorkspaceId: () => 'workspace-1', currentWorkspace: () => ({ workspaceId: 'workspace-1', name: 'Clinical', roles: ['administrator'] }), currentRoles: () => ['administrator'] };
+  const session = { currentOrganizationId: () => null, currentWorkspaceId: () => 'workspace-1', currentWorkspace: () => ({ workspaceId: 'workspace-1', name: 'Clinical', roles: ['workspace-administrator'] }), currentRoles: () => ['workspace-administrator'] };
 
   function setup(): ComponentFixture<CatalogStaffPageComponent> {
     api.catalogForms.mockClear();
@@ -32,6 +32,13 @@ describe('CatalogStaffPageComponent', () => {
     expect(fixture.componentInstance.forms()).toEqual([form]);
     expect(fixture.componentInstance.nextCursor()).toBe('cursor-2');
     expect(fixture.componentInstance.state()).toBe('ready');
+  });
+
+  it('does not treat workspace-administrator as an author', () => {
+    const fixture = setup();
+
+    expect(fixture.componentInstance.canEdit()).toBe(false);
+    expect(fixture.componentInstance.canManage()).toBe(true);
   });
 
   it('opens a deep-linked detail drawer and maps forbidden catalog access to denied', () => {
