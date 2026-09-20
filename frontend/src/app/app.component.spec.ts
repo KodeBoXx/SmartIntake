@@ -1,11 +1,19 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ActivatedRoute } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
 import { describe, expect, it, vi } from 'vitest';
 import { AppComponent } from './app.component';
 import { createDefaultDefinition } from './models/form-definition.models';
 import { SmartIntakeApiService } from './smart-intake-api.service';
+import { StaffSessionStore } from './core/m5-session.store';
 
 describe('AppComponent journeys', () => {
+  const staffSessionProvider = { provide: StaffSessionStore, useValue: {
+    currentWorkspaceId: signal('local'), currentRoles: signal(['author', 'publisher']),
+    organizations: signal([{ workspaces: [{ workspaceId: 'local', roles: ['author', 'publisher'] }] }]),
+  } };
   function createApi() {
     const definition = createDefaultDefinition();
     return {
@@ -35,7 +43,7 @@ describe('AppComponent journeys', () => {
     const restored = { ...createDefaultDefinition(), title: 'Restored intake' };
     api.listForms.mockReturnValue(of([{ id: 'form-1', formKey: 'responsive-intake', title: 'Responsive intake', status: 'DRAFT', revision: 4, updatedAt: '2026-09-18' }]));
     api.currentDraft.mockReturnValue(of({ id: 'draft-1', revision: 4, definition: restored, diagnostics: [] }));
-    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
+    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }, staffSessionProvider] });
     const component = TestBed.createComponent(AppComponent).componentInstance;
 
     expect(api.currentDraft).toHaveBeenCalledWith('local', 'form-1', 'form-1');
@@ -52,7 +60,7 @@ describe('AppComponent journeys', () => {
     const draft = new Subject<{ id: string; revision: number; definition: ReturnType<typeof createDefaultDefinition>; diagnostics: never[] }>();
     api.listForms.mockReturnValue(forms.asObservable());
     api.currentDraft.mockReturnValue(draft.asObservable());
-    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
+    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }, staffSessionProvider] });
     const fixture = TestBed.createComponent(AppComponent);
     const component = fixture.componentInstance;
     fixture.detectChanges();
@@ -81,7 +89,7 @@ describe('AppComponent journeys', () => {
     const api = createApi();
     api.listForms.mockReturnValue(of([{ id: 'form-1', formKey: 'responsive-intake', title: 'Responsive intake', status: 'DRAFT', revision: 4, updatedAt: '2026-09-18' }]));
     api.currentDraft.mockReturnValue(throwError(() => new Error('draft unavailable')));
-    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
+    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }, staffSessionProvider] });
     const fixture = TestBed.createComponent(AppComponent);
     const component = fixture.componentInstance;
     fixture.detectChanges();
@@ -93,9 +101,60 @@ describe('AppComponent journeys', () => {
     expect(api.createForm).not.toHaveBeenCalled();
   });
 
+  it.each([
+    [400, 'invalid', 'Invalid draft request'],
+    [403, 'denied', 'Draft access denied'],
+    [404, 'empty-or-no-access', 'Draft unavailable'],
+    [410, 'expired', 'Session expired'],
+    [503, 'email-unavailable', 'Email unavailable'],
+  ])('renders the %s draft state from its HTTP status', (status, state, title) => {
+    const api = createApi();
+    api.currentDraft.mockReturnValue(throwError(() => new HttpErrorResponse({ status })));
+    TestBed.configureTestingModule({
+      imports: [AppComponent],
+      providers: [
+        { provide: SmartIntakeApiService, useValue: api }, staffSessionProvider,
+        { provide: ActivatedRoute, useValue: { snapshot: { data: { screen: 'review-publish' }, paramMap: { get: (name: string) => ({ workspaceId: 'local', formId: 'form-1', draftId: 'form-1' })[name] ?? null } } } },
+      ],
+    });
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('[data-testid="draft-state"]')?.getAttribute('data-state')).toBe(state);
+    expect(fixture.nativeElement.textContent).toContain(title);
+  });
+
+  it('lets a publisher review and publish a draft without exposing author operations', () => {
+    const api = createApi();
+    const publisherSession = { provide: StaffSessionStore, useValue: {
+      currentWorkspaceId: signal('local'), currentRoles: signal(['publisher']),
+      organizations: signal([{ workspaces: [{ workspaceId: 'local', roles: ['publisher'] }] }]),
+    } };
+    TestBed.configureTestingModule({
+      imports: [AppComponent],
+      providers: [
+        { provide: SmartIntakeApiService, useValue: api }, publisherSession,
+        { provide: ActivatedRoute, useValue: { snapshot: { data: { screen: 'review-publish' }, paramMap: { get: (name: string) => ({ workspaceId: 'local', formId: 'form-1', draftId: 'form-1' })[name] ?? null } } } },
+      ],
+    });
+    const fixture = TestBed.createComponent(AppComponent);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    expect(toolbarButton(fixture, 'Author')).toBeUndefined();
+    expect(toolbarButton(fixture, 'Save draft')).toBeUndefined();
+    expect(toolbarButton(fixture, 'Publish').disabled).toBe(false);
+    const fieldsBefore = component.page().fields.length;
+    component.addField('text');
+    expect(component.page().fields).toHaveLength(fieldsBefore);
+    component.publish();
+    expect(api.updateDraft).not.toHaveBeenCalled();
+    expect(api.publish).toHaveBeenCalledWith('local', 'form-1');
+  });
+
   it('creates then persists a draft, repeats with its current revision, publishes from the toolbar, and submits a session', () => {
     const api = createApi();
-    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
+    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }, staffSessionProvider] });
     const fixture = TestBed.createComponent(AppComponent);
     const component = fixture.componentInstance;
     fixture.detectChanges();
@@ -132,7 +191,7 @@ describe('AppComponent journeys', () => {
     const published = new Subject<{ releaseId: string; version: number; shareId: string; status: string }>();
     api.updateDraft.mockReturnValue(saved.asObservable());
     api.publish.mockReturnValue(published.asObservable());
-    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
+    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }, staffSessionProvider] });
     const fixture = TestBed.createComponent(AppComponent);
     const component = fixture.componentInstance;
     fixture.detectChanges();
@@ -171,7 +230,7 @@ describe('AppComponent journeys', () => {
 
   it('uses its current revision then replaces the editor with the canonical imported draft', async () => {
     const api = createApi();
-    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
+    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }, staffSessionProvider] });
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const component = fixture.componentInstance;
@@ -194,7 +253,7 @@ describe('AppComponent journeys', () => {
 
   it('recovers the saving state when an imported definition cannot be parsed', async () => {
     const api = createApi();
-    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
+    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }, staffSessionProvider] });
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const component = fixture.componentInstance;
@@ -217,7 +276,7 @@ describe('AppComponent journeys', () => {
       { id: 'receipt-1', submittedAt: '2026-09-16' },
       { id: 'receipt-2', formKey: 'other' },
     ]));
-    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
+    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }, staffSessionProvider] });
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
 
@@ -244,7 +303,7 @@ describe('AppComponent journeys', () => {
     const api = createApi();
     api.listResponses.mockReturnValue(of([{ id: 'receipt-1', submittedAt: '2026-09-16' }]));
     api.responseDetail.mockReturnValue(of({ id: 'receipt-1', answers: { name: 'Ada' } }));
-    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
+    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }, staffSessionProvider] });
     const fixture = TestBed.createComponent(AppComponent);
     const component = fixture.componentInstance;
     fixture.detectChanges();
@@ -272,7 +331,7 @@ describe('AppComponent journeys', () => {
     const first = new Subject<{ id: string; answers: { name: string } }>();
     const second = new Subject<{ id: string; answers: { name: string } }>();
     api.responseDetail.mockReturnValueOnce(first.asObservable()).mockReturnValueOnce(second.asObservable());
-    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
+    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }, staffSessionProvider] });
     const component = TestBed.createComponent(AppComponent).componentInstance;
 
     component.openResponse('receipt-a');
@@ -288,7 +347,7 @@ describe('AppComponent journeys', () => {
     const first = new Subject<{ id: string; answers: { name: string } }>();
     const second = new Subject<{ id: string; answers: { name: string } }>();
     api.responseDetail.mockReturnValueOnce(first.asObservable()).mockReturnValueOnce(second.asObservable());
-    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
+    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }, staffSessionProvider] });
     const component = TestBed.createComponent(AppComponent).componentInstance;
 
     component.openResponse('receipt-a');
@@ -304,7 +363,7 @@ describe('AppComponent journeys', () => {
     const api = createApi();
     const pending = new Subject<{ id: string }>();
     api.responseDetail.mockReturnValue(pending.asObservable());
-    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
+    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }, staffSessionProvider] });
     const component = TestBed.createComponent(AppComponent).componentInstance;
 
     component.openResponse('receipt-a');
@@ -318,7 +377,7 @@ describe('AppComponent journeys', () => {
     const api = createApi();
     api.listResponses.mockReturnValue(throwError(() => new Error('list failed')));
     api.responseDetail.mockReturnValue(throwError(() => new Error('detail failed')));
-    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
+    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }, staffSessionProvider] });
     const fixture = TestBed.createComponent(AppComponent);
     const component = fixture.componentInstance;
     component.responseDetail.set({ id: 'stale' });
@@ -341,7 +400,7 @@ describe('AppComponent journeys', () => {
     api.createForm.mockReturnValue(throwError(() => new Error('conflict')));
     api.publish.mockReturnValue(throwError(() => new Error('publish failure')));
     api.startSession.mockReturnValue(throwError(() => new Error('unpublished')));
-    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
+    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }, staffSessionProvider] });
     const component = TestBed.createComponent(AppComponent).componentInstance;
 
     component.save();

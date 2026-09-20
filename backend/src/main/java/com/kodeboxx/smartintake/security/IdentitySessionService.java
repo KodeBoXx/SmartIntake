@@ -13,6 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -44,6 +45,7 @@ public class IdentitySessionService {
   private final CredentialEncoder credentials;
   private final List<String> allowedOrigins;
   private final String bootstrapToken;
+  private final Set<String> trustedProxyAddresses;
   private final SecureRandom random = new SecureRandom();
 
   public record Credentials(String email, String password) {}
@@ -51,12 +53,14 @@ public class IdentitySessionService {
 
   public IdentitySessionService(JdbcTemplate db, IdentitySessionResolver resolver, CredentialEncoder credentials,
       @Value("${smartintake.security.allowed-origins:http://localhost:4200,http://127.0.0.1:4200}") String origins,
-      @Value("${smartintake.bootstrap-token:${SMARTINTAKE_BOOTSTRAP_TOKEN:}}") String bootstrapToken) {
+      @Value("${smartintake.bootstrap-token:${SMARTINTAKE_BOOTSTRAP_TOKEN:}}") String bootstrapToken,
+      @Value("${smartintake.trusted-proxy-addresses:}") String trustedProxyAddresses) {
     this.db = db;
     this.resolver = resolver;
     this.credentials = credentials;
     this.allowedOrigins = java.util.Arrays.stream(origins.split(",")).map(String::trim).filter(value -> !value.isEmpty()).toList();
     this.bootstrapToken = bootstrapToken;
+    this.trustedProxyAddresses = java.util.Arrays.stream(trustedProxyAddresses.split(",")).map(String::trim).filter(value -> !value.isEmpty()).collect(java.util.stream.Collectors.toUnmodifiableSet());
   }
 
   @Transactional
@@ -105,9 +109,11 @@ public class IdentitySessionService {
     consumeLoginCsrf(loginCsrf, cookie(request, LOGIN_CSRF_COOKIE));
     String normalized = normalizedEmail(input == null ? null : input.email());
     boolean knownAccount = db.queryForObject("select count(*) from accounts where email=?", Integer.class, normalized) > 0;
-    List<ThrottleBucket> subjects = throttleSubjects(normalized, request.getRemoteAddr(), knownAccount);
+    List<ThrottleBucket> subjects = throttleSubjects(normalized, clientSource(request), knownAccount);
     cleanupThrottleBuckets();
-    if (subjects.stream().anyMatch(this::throttled)) throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Try again later");
+    // Source/global counters are for invalid-proof pressure and telemetry. A known
+    // account with a valid credential is never denied merely due to aggregate load.
+    if (throttled(subjects.get(0))) throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Try again later");
     UUID account = null;
     try {
       if (input == null || input.email() == null || input.password() == null) throw new IllegalArgumentException();
@@ -124,6 +130,10 @@ public class IdentitySessionService {
       }
       account = ((UUID) accountRow.get("id"));
     } catch (Exception ignored) {
+      // Credential verification has already failed, so source pressure may now
+      // reject the invalid proof without affecting a future valid sign-in.
+      if (knownAccount && subjects.stream().skip(1).limit(1).anyMatch(this::throttled))
+        throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Try again later");
       subjects.forEach(this::registerFailure);
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
     }
@@ -275,14 +285,22 @@ public class IdentitySessionService {
     List<Map<String, Object>> rows = db.queryForList("select failure_count,window_started_at from sign_in_throttles where subject_hash=? for update", bucket.subject());
     Instant now = Instant.now();
     if (rows.isEmpty()) {
-      db.update("insert into sign_in_throttles(subject_hash,failure_count,window_started_at,updated_at) values(?,?,?,?)", bucket.subject(), 1, Timestamp.from(now), Timestamp.from(now));
-      return;
+      db.update("insert into sign_in_throttles(subject_hash,failure_count,window_started_at,updated_at) values(?,?,?,?) on conflict (subject_hash) do nothing", bucket.subject(), 1, Timestamp.from(now), Timestamp.from(now));
+      rows = db.queryForList("select failure_count,window_started_at from sign_in_throttles where subject_hash=? for update", bucket.subject());
+      if (((Number) rows.get(0).get("failure_count")).intValue() == 1) return;
     }
     Timestamp started = (Timestamp) rows.get(0).get("window_started_at");
     int failures = started.toInstant().plus(THROTTLE_WINDOW).isBefore(now) ? 1 : ((Number) rows.get(0).get("failure_count")).intValue() + 1;
     Timestamp reset = failures == 1 ? Timestamp.from(now) : started;
     Timestamp blocked = failures >= bucket.limit() ? Timestamp.from(now.plus(THROTTLE_WINDOW)) : null;
     db.update("update sign_in_throttles set failure_count=?,window_started_at=?,blocked_until=?,updated_at=? where subject_hash=?", failures, reset, blocked, Timestamp.from(now), bucket.subject());
+  }
+
+  private String clientSource(HttpServletRequest request) {
+    String remote = request.getRemoteAddr();
+    if (!trustedProxyAddresses.contains(remote)) return remote;
+    String forwarded = request.getHeader("X-Forwarded-For");
+    return forwarded == null || forwarded.isBlank() ? remote : forwarded.split(",", 2)[0].trim();
   }
 
   private void consumeLoginCsrf(String header, String cookie) {

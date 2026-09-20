@@ -174,19 +174,43 @@ class ApiCharacterizationIntegrationTests {
             .getStatusCode());
     ResponseEntity<String> draft =
         call(
-            "/workspaces/" + workspace + "/forms/" + form + "/drafts/legacy-draft",
+            "/workspaces/" + workspace + "/forms/" + form + "/drafts/" + form,
             HttpMethod.GET,
             staffHeaders,
             null);
     assertEquals(HttpStatus.OK, draft.getStatusCode());
     assertEquals("\"1\"", draft.getHeaders().getETag());
+    assertEquals(
+        HttpStatus.NOT_FOUND,
+        call(
+                "/workspaces/" + workspace + "/forms/" + form + "/drafts/" + UUID.randomUUID(),
+                HttpMethod.GET,
+                staffHeaders,
+                null)
+            .getStatusCode());
+    assertEquals(
+        HttpStatus.NOT_FOUND,
+        call(
+                "/workspaces/" + workspace + "/forms/" + form + "/drafts/opaque-draft",
+                HttpMethod.GET,
+                staffHeaders,
+                null)
+            .getStatusCode());
     Map<String, Object> draftBody = object(draft.getBody());
     @SuppressWarnings("unchecked")
     Map<String, Object> definition = (Map<String, Object>) draftBody.get("definition");
     assertEquals(
+        HttpStatus.NOT_FOUND,
+        call(
+                "/workspaces/" + workspace + "/forms/" + form + "/drafts/opaque-draft",
+                HttpMethod.PUT,
+                staffHeaders,
+                Map.of("definition", definition))
+            .getStatusCode());
+    assertEquals(
         HttpStatus.PRECONDITION_REQUIRED,
         call(
-                "/workspaces/" + workspace + "/forms/" + form + "/drafts/legacy-draft",
+                "/workspaces/" + workspace + "/forms/" + form + "/drafts/" + form,
                 HttpMethod.PUT,
                 staffHeaders,
                 Map.of("definition", definition))
@@ -196,7 +220,7 @@ class ApiCharacterizationIntegrationTests {
     assertEquals(
         HttpStatus.PRECONDITION_FAILED,
         call(
-                "/workspaces/" + workspace + "/forms/" + form + "/drafts/legacy-draft",
+                "/workspaces/" + workspace + "/forms/" + form + "/drafts/" + form,
                 HttpMethod.PUT,
                 stale,
                 Map.of("definition", definition))
@@ -205,7 +229,7 @@ class ApiCharacterizationIntegrationTests {
     revisionOne.setIfMatch("\"1\"");
     ResponseEntity<String> saved =
         call(
-            "/workspaces/" + workspace + "/forms/" + form + "/drafts/legacy-draft",
+            "/workspaces/" + workspace + "/forms/" + form + "/drafts/" + form,
             HttpMethod.PUT,
             revisionOne,
             Map.of("definition", definition));
@@ -428,7 +452,7 @@ class ApiCharacterizationIntegrationTests {
     assertEquals(
         HttpStatus.UNPROCESSABLE_ENTITY,
         call(
-                "/workspaces/" + workspace + "/forms/" + strictForm + "/drafts/legacy-draft",
+                "/workspaces/" + workspace + "/forms/" + strictForm + "/drafts/" + strictForm,
                 HttpMethod.PUT,
                 revisionOne,
                 Map.of("definition", missingFieldLabel))
@@ -502,7 +526,7 @@ class ApiCharacterizationIntegrationTests {
     assertEquals(
         HttpStatus.UNPROCESSABLE_ENTITY,
         call(
-                "/workspaces/" + workspace + "/forms/" + legacyForm + "/drafts/legacy-draft",
+                "/workspaces/" + workspace + "/forms/" + legacyForm + "/drafts/" + legacyForm,
                 HttpMethod.PUT,
                 revisionOne,
                 Map.of("definition", legacyDefinition))
@@ -550,7 +574,7 @@ class ApiCharacterizationIntegrationTests {
     assertEquals(
         HttpStatus.UNPROCESSABLE_ENTITY,
         call(
-                "/workspaces/" + workspace + "/forms/" + quarantinedForm + "/drafts/legacy-draft",
+                "/workspaces/" + workspace + "/forms/" + quarantinedForm + "/drafts/" + quarantinedForm,
                 HttpMethod.PUT,
                 revisionOne,
                 Map.of("definition", legacyDefinition))

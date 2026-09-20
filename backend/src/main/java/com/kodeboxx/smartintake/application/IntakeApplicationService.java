@@ -250,8 +250,9 @@ public class IntakeApplicationService {
         .body(Map.of("id", id, "draftId", id, "revision", 1, "definition", def));
   }
 
-  public ResponseEntity<?> draft(String workspace, UUID form, String token) {
-    authorization.requireOwnedForm(workspace, token, form);
+  public ResponseEntity<?> draft(String workspace, UUID form, String draft, String token) {
+    requireCanonicalDraftId(form, draft);
+    authorization.requireReadableForm(workspace, token, form);
     requireCatalogActive(form);
     var row = formRow(form);
     return ResponseEntity.ok()
@@ -268,7 +269,8 @@ public class IntakeApplicationService {
                 List.of()));
   }
 
-  public ResponseEntity<?> save(String workspace, UUID form, String token, String match, Draft in) {
+  public ResponseEntity<?> save(String workspace, UUID form, String draft, String token, String match, Draft in) {
+    requireCanonicalDraftId(form, draft);
     authorization.requireOwnedForm(workspace, token, form);
     requireCatalogActive(form);
     requireNewWriteAllowed("FORM", form);
@@ -291,6 +293,11 @@ public class IntakeApplicationService {
     return ResponseEntity.ok()
         .eTag(etag(next))
         .body(Map.of("revision", next, "definition", in.definition(), "diagnostics", List.of()));
+  }
+
+  private void requireCanonicalDraftId(UUID form, String draft) {
+    if (!form.toString().equals(draft))
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource not found");
   }
 
   public Map<String, Object> definitionExport(String workspace, UUID form, String token) {

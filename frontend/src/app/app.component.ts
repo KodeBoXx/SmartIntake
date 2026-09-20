@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -20,6 +21,9 @@ import { CurrentDraft, FormSummary, SmartIntakeApiService } from './smart-intake
 import { StaffSessionStore } from './core/m5-session.store';
 import { hasWorkspaceRole, workspaceRoleContext } from './core/workspace-roles';
 
+type DraftViewState = 'loading' | 'ready' | 'empty-or-no-access' | 'invalid' | 'denied' | 'expired' | 'email-unavailable';
+type DraftFailureState = Exclude<DraftViewState, 'loading' | 'ready'>;
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -27,14 +31,13 @@ import { hasWorkspaceRole, workspaceRoleContext } from './core/workspace-roles';
   template: `
 <header class="border-b border-stone-200 bg-white"><div class="mx-auto flex max-w-7xl items-center justify-between px-5 py-4"><div><p class="type-caption-bold text-emerald-700">SMART INTAKE</p><h1 class="type-h3">Form Builder Lite</h1></div><span class="type-caption">Cookie-authenticated staff session</span></div></header>
 <main class="mx-auto max-w-7xl px-5 py-6">
-<nav appToolbar class="mb-5 flex w-full flex-wrap gap-2" [saveDisabled]="editorLocked()" [publishDisabled]="editorLocked()" [importDisabled]="editorLocked()" (author)="mode.set('editor')" (preview)="startPreview()" (save)="save()" (publish)="publish()" (definitionExport)="exportDefinition()" (definitionImport)="importDefinition($event)" (responsesExport)="exportResponses()" (responseAdmin)="loadResponses()"></nav>
+<nav appToolbar class="mb-5 flex w-full flex-wrap gap-2" [authorAllowed]="canAuthor()" [saveDisabled]="editorLocked()" [publishDisabled]="publishLocked()" [importDisabled]="editorLocked()" (author)="mode.set('editor')" (preview)="startPreview()" (save)="save()" (publish)="publish()" (definitionExport)="exportDefinition()" (definitionImport)="importDefinition($event)" (responsesExport)="exportResponses()" (responseAdmin)="loadResponses()"></nav>
 <p *ngIf="message()" class="notice" role="status">{{message()}}</p>
-<p *ngIf="rehydrating()" class="notice" role="status">Loading saved draft…</p>
-<button *ngIf="rehydrationFailed()" class="pill mt-3" (click)="retryDraftRehydration()">Retry saved draft</button>
-<section *ngIf="mode()==='editor'" class="grid gap-5 lg:grid-cols-[15rem_1fr_19rem]"><aside class="card"><p class="type-label">PAGES</p><button *ngFor="let page of definition().pages;let i=index" class="outline" [class.active]="pageIndex()===i" (click)="selectPage(i)">{{i+1}}. {{page.title}}</button><button class="pill" [disabled]="editorLocked()" (click)="addPage()">+ Page</button><hr><p class="type-label">FIELDS</p><button *ngFor="let f of page().fields;let i=index" class="outline" [class.active]="fieldIndex()===i" (click)="fieldIndex.set(i)">{{f.label}}</button><button class="pill" [disabled]="editorLocked()" (click)="addField('text')">+ Field</button></aside>
-<div class="card"><div class="flex items-center justify-between"><div><p class="type-caption text-emerald-700">MULTI-PAGE DRAFT</p><input class="title-input" [disabled]="editorLocked()" [(ngModel)]="definition().title" (ngModelChange)="touch()"></div><button class="pill" [disabled]="editorLocked()" (click)="addPage()">Add page</button></div><label class="label">Page title<input [disabled]="editorLocked()" [(ngModel)]="page().title" (ngModelChange)="touch()"></label><div class="mt-5 space-y-3"><article *ngFor="let f of page().fields;let i=index" class="field-card" [class.selected]="fieldIndex()===i" (click)="fieldIndex.set(i)"><div><b>{{f.label}}</b><p class="type-caption">{{f.type}} · {{f.id}}</p></div><div class="flex gap-2"><button class="icon" [disabled]="editorLocked()" (click)="moveField(i,-1);$event.stopPropagation()">↑</button><button class="icon" [disabled]="editorLocked()" (click)="moveField(i,1);$event.stopPropagation()">↓</button></div></article></div></div>
+<section *ngIf="draftState() !== 'ready'" class="card" data-testid="draft-state" [attr.data-state]="draftState()" role="status"><p *ngIf="draftState() === 'loading'">Loading saved draft…</p><ng-container *ngIf="draftState() !== 'loading'"><h2 class="type-h4">{{draftStateTitle()}}</h2><p>{{draftStateMessage()}}</p><button class="pill mt-3" (click)="retryDraftRehydration()">Retry saved draft</button></ng-container></section>
+<section *ngIf="draftState() === 'ready' && mode()==='editor'" class="grid gap-5 lg:grid-cols-[15rem_1fr_19rem]"><aside class="card"><p class="type-label">PAGES</p><button *ngFor="let page of definition().pages;let i=index" class="outline" [class.active]="pageIndex()===i" (click)="selectPage(i)">{{i+1}}. {{page.title}}</button><button *ngIf="canAuthor()" class="pill" [disabled]="editorLocked()" (click)="addPage()">+ Page</button><hr><p class="type-label">FIELDS</p><button *ngFor="let f of page().fields;let i=index" class="outline" [class.active]="fieldIndex()===i" (click)="fieldIndex.set(i)">{{f.label}}</button><button *ngIf="canAuthor()" class="pill" [disabled]="editorLocked()" (click)="addField('text')">+ Field</button></aside>
+<div class="card"><div class="flex items-center justify-between"><div><p class="type-caption text-emerald-700">MULTI-PAGE DRAFT</p><label *ngIf="isNewForm()" class="label">Form key<input data-testid="form-key" [disabled]="editorLocked()" [(ngModel)]="definition().formKey" (ngModelChange)="touch()" aria-describedby="form-key-help"></label><p *ngIf="isNewForm()" id="form-key-help" class="type-caption">Lowercase letters, numbers, and hyphens; this suggested key is unique.</p><input class="title-input" [disabled]="editorLocked()" [(ngModel)]="definition().title" (ngModelChange)="touch()"></div><button *ngIf="canAuthor()" class="pill" [disabled]="editorLocked()" (click)="addPage()">Add page</button></div><label class="label">Page title<input [disabled]="editorLocked()" [(ngModel)]="page().title" (ngModelChange)="touch()"></label><div class="mt-5 space-y-3"><article *ngFor="let f of page().fields;let i=index" class="field-card" [class.selected]="fieldIndex()===i" (click)="fieldIndex.set(i)"><div><b>{{f.label}}</b><p class="type-caption">{{f.type}} · {{f.id}}</p></div><div *ngIf="canAuthor()" class="flex gap-2"><button class="icon" [disabled]="editorLocked()" (click)="moveField(i,-1);$event.stopPropagation()">↑</button><button class="icon" [disabled]="editorLocked()" (click)="moveField(i,1);$event.stopPropagation()">↓</button></div></article></div></div>
 <aside class="card" *ngIf="field() as f"><p class="type-label">FIELD PROPERTIES</p><label class="label">Label<input [disabled]="editorLocked()" [(ngModel)]="f.label" (ngModelChange)="touch()"></label><label class="label">Type<select [disabled]="editorLocked()" [(ngModel)]="f.type" (ngModelChange)="normalize(f)"><option *ngFor="let type of types" [value]="type">{{type}}</option></select></label><label class="check"><input type="checkbox" [disabled]="editorLocked()" [(ngModel)]="f.required" (ngModelChange)="touch()"> Required</label><ng-container *ngIf="f.type==='text'"><label class="label">Minimum length<input type="number" [disabled]="editorLocked()" [(ngModel)]="f.constraints!.minLength" (ngModelChange)="touch()"></label><label class="label">Maximum length<input type="number" [disabled]="editorLocked()" [(ngModel)]="f.constraints!.maxLength" (ngModelChange)="touch()"></label></ng-container><ng-container *ngIf="f.type==='choice'||f.type==='multiChoice'"><p class="type-label">OPTIONS</p><div *ngFor="let option of f.options;let i=index" class="flex gap-1"><input [disabled]="editorLocked()" [(ngModel)]="option.label" (ngModelChange)="touch()"><button class="icon" [disabled]="editorLocked()" (click)="removeOption(f,i)">×</button></div><button class="pill" [disabled]="editorLocked()" (click)="addOption(f)">+ option</button></ng-container><p class="type-label mt-4">VISIBILITY RULE</p><select [disabled]="editorLocked()" [ngModel]="visibilityFieldId(f)" (ngModelChange)="setVisibilityRuleField(f,$any($event))"><option value="">Always visible</option><option *ngFor="let other of allFields()" [value]="other.id">{{other.label}}</option></select><input *ngIf="f.visibleWhen?.fieldId" [disabled]="editorLocked()" placeholder="equals value" [(ngModel)]="f.visibleWhen!.equals" (ngModelChange)="syncRules(f)"><p class="type-label mt-4">REQUIREDNESS RULE</p><select [disabled]="editorLocked()" [(ngModel)]="f.requiredRuleField" (ngModelChange)="syncRequiredRule(f,$any($event))"><option value="">Use checkbox</option><option *ngFor="let other of allFields()" [value]="other.id">Required when {{other.label}} equals…</option></select><input *ngIf="f.requiredRuleField" [disabled]="editorLocked()" placeholder="equals value" [(ngModel)]="f.requiredRuleValue" (ngModelChange)="syncRequiredRule(f,f.requiredRuleField)"><button class="pill danger mt-5" [disabled]="editorLocked()" (click)="removeField()">Remove field</button></aside></section>
-<section *ngIf="mode()==='preview'" class="mx-auto max-w-2xl card"><p class="type-caption text-emerald-700">PUBLIC RUNTIME · PAGE {{previewPage()+1}}/{{definition().pages.length}}</p><h2 class="type-h3">{{definition().title}}</h2><h3 class="type-h4">{{definition().pages[previewPage()].title}}</h3><div *ngFor="let f of definition().pages[previewPage()].fields" class="mt-5" [hidden]="!visible(f)"><label class="label">{{f.label}} <span *ngIf="isRequired(f)">*</span><input *ngIf="['text','integer','decimal','date'].includes(f.type)" [type]="f.type==='date'?'date':f.type==='text'?'text':'number'" [(ngModel)]="answers[f.id]"><input *ngIf="f.type==='boolean'" type="checkbox" [(ngModel)]="answers[f.id]"><select *ngIf="f.type==='choice'" [(ngModel)]="answers[f.id]"><option value="">Choose one</option><option *ngFor="let o of f.options" [value]="o.id">{{o.label}}</option></select><select *ngIf="f.type==='multiChoice'" multiple [(ngModel)]="answers[f.id]"><option *ngFor="let o of f.options" [value]="o.id">{{o.label}}</option></select><div *ngIf="f.type==='calculated'||f.type==='readOnly'" class="rounded-lg bg-stone-100 p-3">{{displayValue(f)}}</div><div *ngIf="f.type==='repeater'" class="space-y-2"><div *ngFor="let item of repeater(f);let i=index" class="flex gap-2"><input [(ngModel)]="item.value" placeholder="Item value"><button class="icon" (click)="removeItem(f,i)">×</button><button class="icon" (click)="moveItem(f,i,-1)">↑</button><button class="icon" (click)="moveItem(f,i,1)">↓</button></div><button class="pill" (click)="addItem(f)">+ item</button></div></label></div><div class="mt-6 flex justify-between"><button class="pill" [disabled]="previewPage()===0" (click)="previousPage()">Back</button><button class="pill" *ngIf="previewPage()<definition().pages.length-1" (click)="persistPage()">Next page</button><button class="pill primary" *ngIf="previewPage()===definition().pages.length-1" (click)="submit()">Submit</button></div></section>
+<section *ngIf="draftState() === 'ready' && mode()==='preview'" class="mx-auto max-w-2xl card"><p class="type-caption text-emerald-700">PUBLIC RUNTIME · PAGE {{previewPage()+1}}/{{definition().pages.length}}</p><h2 class="type-h3">{{definition().title}}</h2><h3 class="type-h4">{{definition().pages[previewPage()].title}}</h3><div *ngFor="let f of definition().pages[previewPage()].fields" class="mt-5" [hidden]="!visible(f)"><label class="label">{{f.label}} <span *ngIf="isRequired(f)">*</span><input *ngIf="['text','integer','decimal','date'].includes(f.type)" [type]="f.type==='date'?'date':f.type==='text'?'text':'number'" [(ngModel)]="answers[f.id]"><input *ngIf="f.type==='boolean'" type="checkbox" [(ngModel)]="answers[f.id]"><select *ngIf="f.type==='choice'" [(ngModel)]="answers[f.id]"><option value="">Choose one</option><option *ngFor="let o of f.options" [value]="o.id">{{o.label}}</option></select><select *ngIf="f.type==='multiChoice'" multiple [(ngModel)]="answers[f.id]"><option *ngFor="let o of f.options" [value]="o.id">{{o.label}}</option></select><div *ngIf="f.type==='calculated'||f.type==='readOnly'" class="rounded-lg bg-stone-100 p-3">{{displayValue(f)}}</div><div *ngIf="f.type==='repeater'" class="space-y-2"><div *ngFor="let item of repeater(f);let i=index" class="flex gap-2"><input [(ngModel)]="item.value" placeholder="Item value"><button class="icon" (click)="removeItem(f,i)">×</button><button class="icon" (click)="moveItem(f,i,-1)">↑</button><button class="icon" (click)="moveItem(f,i,1)">↓</button></div><button class="pill" (click)="addItem(f)">+ item</button></div></label></div><div class="mt-6 flex justify-between"><button class="pill" [disabled]="previewPage()===0" (click)="previousPage()">Back</button><button class="pill" *ngIf="previewPage()<definition().pages.length-1" (click)="persistPage()">Next page</button><button class="pill primary" *ngIf="previewPage()===definition().pages.length-1" (click)="submit()">Submit</button></div></section>
 <section *ngIf="responses().length" class="mt-6 card" data-testid="response-admin">
   <div class="flex flex-wrap items-center justify-between gap-3">
     <h2 class="type-h3 min-w-0 break-words">Response administration</h2>
@@ -83,12 +86,14 @@ export class AppComponent {
   draftReloadRequired = signal(false);
   rehydrating = signal(true);
   rehydrationFailed = signal(false);
+  draftState = signal<DraftViewState>('loading');
   private responseDetailGeneration = 0;
 
   constructor(private readonly api: SmartIntakeApiService) {
     // This route is protected by staffSessionGuard. Rehydrate only after the
     // server-authoritative guard has accepted the HttpOnly cookie.
     if (this.screen() === 'preview') this.mode.set('preview');
+    if (this.isNewForm()) this.definition.update((definition) => ({ ...definition, formKey: this.suggestedFormKey() }));
     this.rehydrateRouteForm();
   }
 
@@ -96,6 +101,14 @@ export class AppComponent {
   field() { return this.page().fields[this.fieldIndex()]; }
   allFields() { return this.definition().pages.flatMap((page) => page.fields); }
   editorLocked() { return !this.canAuthor() || this.rehydrating() || this.rehydrationFailed() || this.saving() || this.publishing() || this.draftReloadRequired(); }
+  publishLocked() { return !this.canPublish() || this.rehydrating() || this.rehydrationFailed() || this.saving() || this.publishing() || this.draftReloadRequired(); }
+  isNewForm() { return this.screen() === 'builder' && !this.routeParam('formId'); }
+  draftStateTitle() {
+    return ({ 'empty-or-no-access': 'Draft unavailable', invalid: 'Invalid draft request', denied: 'Draft access denied', expired: 'Session expired', 'email-unavailable': 'Email unavailable' } as const)[this.draftState() as DraftFailureState];
+  }
+  draftStateMessage() {
+    return ({ 'empty-or-no-access': 'This draft does not exist in the current workspace or you no longer have access.', invalid: 'The draft request is invalid. Correct the route and try again.', denied: 'Your current workspace role cannot read this draft.', expired: 'Your staff session has expired. Sign in again to continue.', 'email-unavailable': 'Email delivery is unavailable; use the authorized copy-link path.' } as const)[this.draftState() as DraftFailureState];
+  }
   touch() {
     if (this.editorLocked()) return;
     this.definition.update((definition) => ({ ...definition, pages: [...definition.pages] }));
@@ -162,12 +175,10 @@ export class AppComponent {
   private screen(): string | undefined { return this.route?.snapshot.data?.['screen']; }
   private workspaceId(): string { return this.routeParam('workspaceId') ?? 'local'; }
   private routeWorkspaceRoles(): readonly string[] {
-    const requestedWorkspaceId = this.routeParam('workspaceId');
-    if (!requestedWorkspaceId) return this.session.currentRoles();
-    return workspaceRoleContext(this.session.organizations(), requestedWorkspaceId, this.session.currentWorkspaceId())?.roles ?? [];
+    return workspaceRoleContext(this.session.organizations(), this.workspaceId(), this.session.currentWorkspaceId())?.roles ?? [];
   }
-  private canAuthor(): boolean { return !this.routeParam('workspaceId') || hasWorkspaceRole(this.routeWorkspaceRoles(), 'author'); }
-  private canPublish(): boolean { return !this.routeParam('workspaceId') || hasWorkspaceRole(this.routeWorkspaceRoles(), 'publisher'); }
+  canAuthor(): boolean { return hasWorkspaceRole(this.routeWorkspaceRoles(), 'author'); }
+  canPublish(): boolean { return hasWorkspaceRole(this.routeWorkspaceRoles(), 'publisher'); }
 
   private rehydrateRouteForm(): void {
     const formId = this.routeParam('formId');
@@ -176,7 +187,7 @@ export class AppComponent {
     if (formId && (draftId || screen === 'review-publish' || screen === 'preview')) {
       this.api.currentDraft(this.workspaceId(), formId, draftId ?? formId).subscribe({
         next: (draft) => this.applyDraft(formId, draft),
-        error: () => this.failRehydration('The requested draft is unavailable in this workspace.'),
+        error: (error) => this.failRehydration('The requested draft is unavailable in this workspace.', error),
       });
       return;
     }
@@ -187,6 +198,10 @@ export class AppComponent {
   }
 
   private rehydrateDefaultForm(knownForms?: FormSummary[]) {
+    if (!this.canAuthor()) {
+      this.completeRehydration();
+      return;
+    }
     const load = (forms: FormSummary[]) => {
       const form = forms.find((candidate) => candidate.formKey === this.definition().formKey);
       if (!form) {
@@ -195,28 +210,39 @@ export class AppComponent {
       }
       this.api.currentDraft(this.workspaceId(), form.id, form.id).subscribe({
         next: (draft) => this.applyDraft(form.id, draft),
-        error: () => this.failRehydration('Saved draft unavailable. Retry before editing.'),
+        error: (error) => this.failRehydration('Saved draft unavailable. Retry before editing.', error),
       });
     };
     if (knownForms) load(knownForms);
-    else this.api.listForms(this.workspaceId()).subscribe({ next: load, error: () => this.failRehydration('Unable to load saved drafts. Retry before editing.') });
+    else this.api.listForms(this.workspaceId()).subscribe({ next: load, error: (error) => this.failRehydration('Unable to load saved drafts. Retry before editing.', error) });
   }
 
   retryDraftRehydration() {
     this.rehydrating.set(true);
     this.rehydrationFailed.set(false);
+    this.draftState.set('loading');
     this.rehydrateRouteForm();
+  }
+
+  private suggestedFormKey(): string {
+    const suffix = typeof crypto?.randomUUID === 'function'
+      ? crypto.randomUUID().replaceAll('-', '').slice(0, 10)
+      : `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
+    return `intake-${suffix}`;
   }
 
   private completeRehydration() {
     this.rehydrationFailed.set(false);
     this.rehydrating.set(false);
+    this.draftState.set('ready');
   }
 
-  private failRehydration(message: string) {
+  private failRehydration(message: string, error?: unknown) {
     this.rehydrating.set(false);
     this.rehydrationFailed.set(true);
     this.message.set(message);
+    const status = error instanceof HttpErrorResponse ? error.status : 400;
+    this.draftState.set(status === 404 ? 'empty-or-no-access' : status === 403 ? 'denied' : status === 401 || status === 419 || status === 440 || status === 410 ? 'expired' : status === 503 ? 'email-unavailable' : 'invalid');
   }
 
   private applyDraft(formId: string, draft: CurrentDraft) {
@@ -303,6 +329,10 @@ export class AppComponent {
       this.message.set('Wait for the current draft operation to finish.');
       return;
     }
+    if (!this.formId && !/^[a-z][a-z0-9-]{2,99}$/.test(this.definition().formKey)) {
+      this.message.set('Enter a lowercase form key using letters, numbers, and hyphens.');
+      return;
+    }
     this.saving.set(true);
     if (this.formId) {
       this.updateDraft(afterSave);
@@ -343,6 +373,10 @@ export class AppComponent {
       return;
     }
     if (this.dirty()) {
+      if (!this.canAuthor()) {
+        this.message.set('This draft has unsaved changes and requires an author before publishing.');
+        return;
+      }
       this.save(() => this.publish());
       return;
     }

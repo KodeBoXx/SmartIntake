@@ -84,8 +84,8 @@ public class IdentityAdministrationService {
     db.update("update accounts set password_hash=?, activation_state='active', temporary_password_expires_at=null where id=?",
         credentials.encode(request.newPassword()), account);
     revokeSecretActions(account);
-    revokeAllSessions(account);
     audit("identity.password.changed", account);
+    revokeAllSessions(account);
     return ResponseEntity.noContent().build();
   }
 
@@ -753,12 +753,17 @@ public class IdentityAdministrationService {
         .flatMap(token -> db.query("select account_id from staff_sessions where token::text=? and revoked_at is null",
             (rs, row) -> (UUID) rs.getObject(1), token).stream().findFirst()).orElse(null);
     String delivery = action.contains("invitation") || action.contains("recovery") || action.contains("activation") ? "copy-link" : "none";
+    UUID tenant = db.query("select organization_id from organization_memberships where account_id=? order by created_at limit 1",
+        (rs, row) -> (UUID) rs.getObject(1), resource).stream().findFirst().orElse(null);
+    Long revision = db.query("select revision from accounts where id=?", (rs, row) -> rs.getLong(1), resource).stream().findFirst().orElse(null);
+    String reason = action.contains("suspended") ? "security-suspension" : action.contains("recovery") ? "credential-recovery" : "administrative";
+    String ownerSafety = action.contains("suspended") || action.contains("membership.removed") ? "checked" : "not-applicable";
     String idempotency = request == null ? null : request.getHeader("Idempotency-Key");
     String correlation = request == null ? null : request.getHeader("X-Request-Id");
-    String detail = "{\"category\":\"identity\",\"actor\":" + auditId(actor) + ",\"scope\":\"account\",\"target\":"
-        + auditId(resource) + ",\"reason\":null,\"deliveryClass\":\"" + delivery
-        + "\",\"outcome\":\"success\",\"revision\":null,\"requestCorrelation\":" + auditText(correlation)
-        + ",\"idempotencyCorrelation\":" + auditText(idempotency) + "}";
+    String detail = "{\"category\":\"identity\",\"actor\":" + auditId(actor) + ",\"tenantScope\":" + auditId(tenant)
+        + ",\"target\":" + auditId(resource) + ",\"reasonClass\":\"" + reason + "\",\"deliveryClass\":\"" + delivery
+        + "\",\"ownerSafetyDecision\":\"" + ownerSafety + "\",\"outcome\":\"success\",\"revision\":" + (revision == null ? "null" : revision)
+        + ",\"requestCorrelation\":" + auditText(correlation) + ",\"idempotencyCorrelation\":" + auditText(idempotency) + "}";
     db.update("insert into audit_events(id,action,resource_id,detail) values(?,?,?,cast(? as jsonb))", UUID.randomUUID(), action, resource, detail);
   }
   private static String auditId(UUID value) { return value == null ? "null" : "\"id-" + sha256(value.toString()).substring(0, 16) + "\""; }

@@ -8,3 +8,4 @@ spring:
     enabled: true
 smartintake:
   bootstrap-token: test-bootstrap-token
+  trusted-proxy-addresses: 127.0.0.1

@@ -61,13 +61,23 @@ class WorkspaceRoleAuthorizationIntegrationTests {
 
     grant("AUTHOR");
     assertEquals(workspace, authorization.authorizeAuthoring("roles", token));
+    assertEquals(workspace, authorization.authorizeDraftRead("roles", token));
     denied(() -> authorization.authorizePublishing("roles", token));
     denied(() -> authorization.authorizeResponseRead("roles", token));
 
     grant("PUBLISHER");
     assertEquals(workspace, authorization.authorizePublishing("roles", token));
+    assertEquals(workspace, authorization.authorizeDraftRead("roles", token));
     denied(() -> authorization.authorizeAuthoring("roles", token));
     denied(() -> authorization.authorizeResponseRead("roles", token));
+
+    grant("REVIEWER");
+    assertEquals(workspace, authorization.authorizeDraftRead("roles", token));
+    denied(() -> authorization.authorizeAuthoring("roles", token));
+
+    grant("TRANSLATOR");
+    assertEquals(workspace, authorization.authorizeDraftRead("roles", token));
+    denied(() -> authorization.authorizeAuthoring("roles", token));
 
     grant("RESPONSE_VIEWER");
     assertEquals(workspace, authorization.authorizeResponseRead("roles", token));

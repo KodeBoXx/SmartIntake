@@ -37,6 +37,25 @@ describe('SmartIntakeApiService', () => {
     signIn.flush({ staffSession: { id: 'session-1' } });
   });
 
+  it('reads bootstrap delivery material only from its named authorized headers', () => {
+    api.bootstrap({ email: 'owner@example.test', password: 'user-supplied', organizationName: 'Org', workspaceName: 'Workspace', bootstrapToken: 'proof' }).subscribe((delivery) => {
+      expect(delivery).toEqual({ activationCopyLink: '/activate/raw-proof', temporaryPasswordCopy: 'once-only' });
+    });
+    const bootstrap = http.expectOne('/v1/auth/bootstrap');
+    expect(bootstrap.request.headers.get('X-Bootstrap-Token')).toBe('proof');
+    bootstrap.flush({}, { headers: { 'X-Activation-Copy-Link': '/activate/raw-proof', 'X-Temporary-Password-Copy': 'once-only' } });
+  });
+
+  it('reads recovery and activation links only from their exact response headers', () => {
+    api.requestRecovery({ email: 'owner@example.test' }).subscribe((delivery) => expect(delivery.recoveryCopyLink).toBe('/reset/raw-proof'));
+    const recovery = http.expectOne('/v1/auth/recovery');
+    recovery.flush({}, { headers: { 'X-Recovery-Copy-Link': '/reset/raw-proof', 'X-Invitation-Copy-Link': '/wrong-flow' } });
+
+    api.activate({ activationToken: 'token', password: 'user-supplied', displayName: 'Owner' }).subscribe((delivery) => expect(delivery.activationCopyLink).toBe('/activate/raw-proof'));
+    const activation = http.expectOne('/v1/auth/activate');
+    activation.flush({}, { headers: { 'X-Activation-Copy-Link': '/activate/raw-proof' } });
+  });
+
   it('creates, persists, and publishes drafts with current revisions', () => {
     const definition = createDefaultDefinition();
     api.createForm('local', 'responsive-intake', 'Responsive intake').subscribe();
@@ -206,11 +225,14 @@ describe('SmartIntakeApiService', () => {
     expect(users.request.headers.has('X-Staff-Session')).toBe(false);
     users.flush({ items: [] });
 
-    api.addOrganizationUser('org-1', { email: 'new@example.test', roles: ['administrator'] }).subscribe();
+    api.addOrganizationUser('org-1', { email: 'new@example.test', roles: ['administrator'] }).subscribe((user) => {
+      expect(user.activationCopyLink).toBe('/activate/new-user');
+      expect(user.temporaryPasswordCopy).toBe('temporary-only');
+    });
     const add = http.expectOne('/v1/organizations/org-1/users');
     expect(add.request.method).toBe('POST');
     expect(add.request.body).toEqual({ email: 'new@example.test', roles: ['administrator'] });
-    add.flush({ organizationUser: { id: 'user-1', kind: 'OrganizationUser', revision: 1, status: 'active', createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-01T00:00:00Z', email: 'new@example.test', roles: ['administrator'] } });
+    add.flush({ organizationUser: { id: 'user-1', kind: 'OrganizationUser', revision: 1, status: 'active', createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-01T00:00:00Z', email: 'new@example.test', roles: ['administrator'] } }, { headers: { 'X-Activation-Copy-Link': '/activate/new-user', 'X-Temporary-Password-Copy': 'temporary-only' } });
   });
 
   it('serializes catalog filters and catalog mutations with the selected workspace in the path', () => {
@@ -237,16 +259,16 @@ describe('SmartIntakeApiService', () => {
     settings.flush({ workspaceId: 'workspace-1', effective: {}, overrides: {} });
   });
 
-  it('retains supplied retry keys and exposes issuer copy-links from headers', () => {
+  it('retains supplied retry keys and exposes only named issuer copy-link headers', () => {
     api.assignWorkspaceRoles('workspace-1', 'user-1', 9, { roles: ['author'] }, 'same-action-key').subscribe();
     const roles = http.expectOne('/v1/workspaces/workspace-1/users/user-1/roles');
     expect(roles.request.headers.get('If-Match')).toBe('"rev-9"');
     expect(roles.request.headers.get('Idempotency-Key')).toBe('same-action-key');
     roles.flush({ workspaceRole: { id: 'role-1', kind: 'WorkspaceRole', revision: 10, status: 'active', createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-01T00:00:00Z', roles: ['author'] } });
 
-    api.inviteOrganizationUser('org-1', 'user-1', 'Invitation', 'invite-key').subscribe((invitation) => expect(invitation.copyLink).toBe('https://example.test/invite/raw-link'));
+    api.inviteOrganizationUser('org-1', 'user-1', 'Invitation', 'invite-key').subscribe((invitation) => expect(invitation.invitationCopyLink).toBe('https://example.test/invite/raw-link'));
     const invitation = http.expectOne('/v1/organizations/org-1/users/user-1/invitations');
     expect(invitation.request.headers.get('Idempotency-Key')).toBe('invite-key');
-    invitation.flush({ invitation: { id: 'invite-1', kind: 'Invitation', revision: 1, status: 'pending', createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-01T00:00:00Z' } }, { headers: { 'X-Copy-Link': 'https://example.test/invite/raw-link' } });
+    invitation.flush({ invitation: { id: 'invite-1', kind: 'Invitation', revision: 1, status: 'pending', createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-01T00:00:00Z' } }, { headers: { 'X-Invitation-Copy-Link': 'https://example.test/invite/raw-link' } });
   });
 });

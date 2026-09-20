@@ -22,6 +22,9 @@ public class StaffAuthorization {
 
   /** Workspace grants are additive; organization and platform authority never imply one. */
   public UUID authorizeAuthoring(String workspace, String header) { return authorize(workspace, header, "AUTHOR"); }
+  public UUID authorizeDraftRead(String workspace, String header) {
+    return authorize(workspace, header, "AUTHOR", "REVIEWER", "TRANSLATOR", "PUBLISHER");
+  }
   public UUID authorizePublishing(String workspace, String header) { return authorize(workspace, header, "PUBLISHER"); }
   public UUID authorizeResponseRead(String workspace, String header) { return authorize(workspace, header, "RESPONSE_VIEWER", "RESPONSE_EXPORTER"); }
   public UUID authorizeResponseExport(String workspace, String header) { return authorize(workspace, header, "RESPONSE_EXPORTER"); }
@@ -75,6 +78,12 @@ public class StaffAuthorization {
 
   public void requireOwnedForm(String workspace, String token, UUID form) {
     UUID ws = authorizeAuthoring(workspace, token);
+    if (db.queryForObject("select count(*) from forms where id=? and workspace_id=?", Integer.class, form, ws) == 0)
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource not found");
+  }
+
+  public void requireReadableForm(String workspace, String token, UUID form) {
+    UUID ws = authorizeDraftRead(workspace, token);
     if (db.queryForObject("select count(*) from forms where id=? and workspace_id=?", Integer.class, form, ws) == 0)
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource not found");
   }

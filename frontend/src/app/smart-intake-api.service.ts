@@ -30,6 +30,12 @@ export type CatalogSearch = {
   q?: string; status?: string; owner?: string; folder?: string; tag?: readonly string[];
   archived?: boolean; limit?: number; cursor?: string;
 };
+export type AuthorizedDeliveryCopies = {
+  activationCopyLink?: string;
+  invitationCopyLink?: string;
+  recoveryCopyLink?: string;
+  temporaryPasswordCopy?: string;
+};
 export type PublishedSchema = operations['ON-get-v1-schemas-kind-version-4c108bde88']['responses'][200]['content']['application/schema+json'];
 export type TypedSessionProjection = ServerProjection & {
   readonly acceptedRevision: number;
@@ -57,12 +63,13 @@ export class SmartIntakeApiService {
   }
 
   /** One-time setup is intentionally separate from the generated 4.1 sign-in contract. */
-  bootstrap(input: { email: string; password: string; organizationName: string; workspaceName: string; bootstrapToken?: string }): Observable<void> {
+  bootstrap(input: { email: string; password: string; organizationName: string; workspaceName: string; bootstrapToken?: string }): Observable<AuthorizedDeliveryCopies> {
     const { bootstrapToken, ...body } = input;
-    return this.http.post('/v1/auth/bootstrap', body, {
+    return this.http.post<unknown>('/v1/auth/bootstrap', body, {
       withCredentials: true,
       ...(bootstrapToken ? { headers: new HttpHeaders({ 'X-Bootstrap-Token': bootstrapToken }) } : {}),
-    }).pipe(map(() => void 0));
+      observe: 'response',
+    }).pipe(map((response) => authorizedDeliveryCopies(response, 'activationCopyLink', 'temporaryPasswordCopy')));
   }
 
   signOut(): Observable<void> {
@@ -73,17 +80,23 @@ export class SmartIntakeApiService {
   createPlatformOrganization(body: components['schemas']['OrganizationCreateRequest'], retryKey?: string): Observable<components['schemas']['Organization']> { return this.revisioned(this.http.post<components['schemas']['OrganizationResponse']>('/v1/platform/organizations', body, this.mutation('POST', '/v1/platform/organizations', body, retryKey))).pipe(map((response) => response.organization)); }
   updateOrganization(organizationId: string, revision: number, body: components['schemas']['OrganizationUpdateRequest'], retryKey?: string): Observable<components['schemas']['Organization']> { const url = `/v1/platform/organizations/${organizationId}`; return this.revisioned(this.http.patch<components['schemas']['OrganizationResponse']>(url, body, this.mutation('PATCH', url, body, retryKey, revision))).pipe(map((response) => response.organization)); }
   organizationUsers(organizationId: string): Observable<components['schemas']['OrganizationUser'][]> { return this.http.get<components['schemas']['OrganizationUserCollection']>(`/v1/organizations/${organizationId}/users`, this.staff()).pipe(map((response) => response.items)); }
-  addOrganizationUser(organizationId: string, body: components['schemas']['OrganizationUserCreateRequest'], retryKey?: string): Observable<components['schemas']['OrganizationUser']> { const url = `/v1/organizations/${organizationId}/users`; return this.revisioned(this.http.post<components['schemas']['OrganizationUserResponse']>(url, body, this.mutation('POST', url, body, retryKey))).pipe(map((response) => response.organizationUser)); }
+  addOrganizationUser(organizationId: string, body: components['schemas']['OrganizationUserCreateRequest'], retryKey?: string): Observable<components['schemas']['OrganizationUser'] & AuthorizedDeliveryCopies> {
+    const url = `/v1/organizations/${organizationId}/users`;
+    return this.http.post<components['schemas']['OrganizationUserResponse']>(url, body, this.mutation('POST', url, body, retryKey)).pipe(
+      tap((response) => this.rememberEtag(response)),
+      map((response) => ({ ...response.body!.organizationUser, ...authorizedDeliveryCopies(response, 'activationCopyLink', 'temporaryPasswordCopy') })),
+    );
+  }
   updateOrganizationUser(organizationId: string, userId: string, revision: number, body: components['schemas']['OrganizationUserUpdateRequest'], retryKey?: string): Observable<components['schemas']['OrganizationUser']> { const url = `/v1/organizations/${organizationId}/users/${userId}`; return this.revisioned(this.http.patch<components['schemas']['OrganizationUserResponse']>(url, body, this.mutation('PATCH', url, body, retryKey, revision))).pipe(map((response) => response.organizationUser)); }
   assignWorkspaceRoles(workspaceId: string, userId: string, revision: number, body: components['schemas']['WorkspaceRoleAssignmentRequest'], retryKey?: string): Observable<components['schemas']['WorkspaceRole']> { const url = `/v1/workspaces/${workspaceId}/users/${userId}/roles`; return this.revisioned(this.http.put<components['schemas']['WorkspaceRoleResponse']>(url, body, this.mutation('PUT', url, body, retryKey, revision))).pipe(map((response) => response.workspaceRole)); }
-  inviteOrganizationUser(organizationId: string, userId: string, name = 'Invitation', retryKey?: string): Observable<components['schemas']['Invitation'] & { copyLink?: string }> {
+  inviteOrganizationUser(organizationId: string, userId: string, name = 'Invitation', retryKey?: string): Observable<components['schemas']['Invitation'] & AuthorizedDeliveryCopies> {
     const url = `/v1/organizations/${organizationId}/users/${userId}/invitations`;
     const body = { name };
     return this.http.post<components['schemas']['InvitationResponse']>(url, body, this.mutation('POST', url, body, retryKey)).pipe(
       tap((response) => this.rememberEtag(response)),
       map((response) => ({
         ...response.body!.invitation,
-        ...(response.headers.get('X-Copy-Link') ? { copyLink: response.headers.get('X-Copy-Link')! } : {}),
+        ...authorizedDeliveryCopies(response, 'invitationCopyLink'),
       })),
     );
   }
@@ -111,16 +124,16 @@ export class SmartIntakeApiService {
   updateCatalogSettings(workspaceId: string, body: components['schemas']['CatalogSettingsInput']): Observable<CatalogSettings> { return this.http.put<CatalogSettings>(`/v1/workspaces/${workspaceId}/catalog/settings`, body, this.staff()); }
   workspaceMembers(workspaceId: string): Observable<{ accountId: string; email?: string; displayName?: string }[]> { return this.http.get<{ items?: { accountId: string; email?: string; displayName?: string }[] }>(`/v1/workspaces/${workspaceId}/members`, this.staff()).pipe(map((response) => response.items ?? [])); }
 
-  activate(body: components['schemas']['AccountActivationRequest']): Observable<{ copyLink?: string }> {
-    return this.http.post<unknown>('/v1/auth/activate', body, { withCredentials: true, observe: 'response' }).pipe(map((response) => copyLink(response)));
+  activate(body: components['schemas']['AccountActivationRequest']): Observable<AuthorizedDeliveryCopies> {
+    return this.http.post<unknown>('/v1/auth/activate', body, { withCredentials: true, observe: 'response' }).pipe(map((response) => authorizedDeliveryCopies(response, 'activationCopyLink', 'temporaryPasswordCopy')));
   }
 
-  requestRecovery(body: components['schemas']['RecoveryRequest']): Observable<{ copyLink?: string }> {
-    return this.http.post<unknown>('/v1/auth/recovery', body, { withCredentials: true, observe: 'response' }).pipe(map((response) => copyLink(response)));
+  requestRecovery(body: components['schemas']['RecoveryRequest']): Observable<AuthorizedDeliveryCopies> {
+    return this.http.post<unknown>('/v1/auth/recovery', body, { withCredentials: true, observe: 'response' }).pipe(map((response) => authorizedDeliveryCopies(response, 'recoveryCopyLink')));
   }
 
-  resetPassword(body: components['schemas']['PasswordResetRequest']): Observable<{ copyLink?: string }> {
-    return this.http.post<unknown>('/v1/auth/reset', body, { withCredentials: true, observe: 'response' }).pipe(map((response) => copyLink(response)));
+  resetPassword(body: components['schemas']['PasswordResetRequest']): Observable<AuthorizedDeliveryCopies> {
+    return this.http.post<unknown>('/v1/auth/reset', body, { withCredentials: true, observe: 'response' }).pipe(map((response) => authorizedDeliveryCopies(response, 'activationCopyLink', 'temporaryPasswordCopy')));
   }
 
   listForms(workspaceId: string): Observable<FormSummary[]> {
@@ -286,7 +299,15 @@ function mapSession(source: Observable<unknown>): Observable<StaffSession> {
   }));
 }
 
-function copyLink(response: HttpResponse<unknown>): { copyLink?: string } {
-  const value = response.headers.get('X-Copy-Link');
-  return value ? { copyLink: value } : {};
+function authorizedDeliveryCopies(response: HttpResponse<unknown>, ...allowed: (keyof AuthorizedDeliveryCopies)[]): AuthorizedDeliveryCopies {
+  const headers: Record<keyof AuthorizedDeliveryCopies, string> = {
+    activationCopyLink: 'X-Activation-Copy-Link',
+    invitationCopyLink: 'X-Invitation-Copy-Link',
+    recoveryCopyLink: 'X-Recovery-Copy-Link',
+    temporaryPasswordCopy: 'X-Temporary-Password-Copy',
+  };
+  return Object.fromEntries(allowed.flatMap((key) => {
+    const value = response.headers.get(headers[key]);
+    return value ? [[key, value]] : [];
+  })) as AuthorizedDeliveryCopies;
 }

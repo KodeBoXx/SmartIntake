@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CuiAlertComponent, CuiButtonComponent, CuiCardComponent, CuiInputComponent } from '@certinal/ui';
 import { StaffSessionStore } from '../../core/m5-session.store';
-import { SmartIntakeApiService } from '../../smart-intake-api.service';
+import { AuthorizedDeliveryCopies, SmartIntakeApiService } from '../../smart-intake-api.service';
 import { titleCase } from '../../shared/m5-route-state';
 
 type AuthViewState = 'ready' | 'loading' | 'invalid' | 'denied' | 'expired' | 'email-unavailable' | 'throttled' | 'submitted' | 'error';
@@ -16,7 +16,7 @@ type AuthViewState = 'ready' | 'loading' | 'invalid' | 'denied' | 'expired' | 'e
         <p class="type-caption">SMART INTAKE STAFF</p><h1 class="type-h3">{{ title }}</h1>
         @if (message()) { <cui-alert class="mt-4" [variant]="isError() ? 'error' : 'warning'" [title]="alertTitle()">{{ message() }}</cui-alert> }
         @if (state() === 'loading') { <p class="type-body mt-4">Checking your secure session…</p> }
-        @else if (screen === 'recovery' && state() === 'submitted') { <p class="type-body mt-4">If this address is eligible, recovery instructions will be sent. Email delivery may be unavailable in this environment.</p>@if (copyLink()) { <cui-alert class="mt-4" variant="warning" title="Authorized copy-link">Deliver this one-time recovery link only to the authorized recipient: {{ copyLink() }}</cui-alert> } }
+        @else if (state() === 'submitted') { <p class="type-body mt-4">The request completed. Email delivery may be unavailable in this environment.</p>@if (delivery().activationCopyLink) { <cui-alert class="mt-4" variant="warning" title="Authorized activation link">Deliver this one-time activation link only to the authorized recipient: {{ delivery().activationCopyLink }}</cui-alert> } @if (delivery().recoveryCopyLink) { <cui-alert class="mt-4" variant="warning" title="Authorized recovery link">Deliver this one-time recovery link only to the authorized recipient: {{ delivery().recoveryCopyLink }}</cui-alert> } @if (delivery().temporaryPasswordCopy) { <cui-alert class="mt-4" variant="warning" title="Authorized temporary password">Deliver this temporary password only to the authorized recipient: {{ delivery().temporaryPasswordCopy }}</cui-alert> } }
         @else if (state() !== 'denied' && state() !== 'throttled') {
           @if (screen === 'sign-in') {
             <cui-input class="mt-4" label="Email" type="email" autocomplete="username" [(value)]="email" [error]="fieldError('email')" />
@@ -55,7 +55,7 @@ export class AuthPageComponent {
   readonly title = titleCase(this.screen);
   readonly state = signal<AuthViewState>(this.route.snapshot.queryParamMap.get('state') as AuthViewState || 'ready');
   readonly message = signal(this.messageFor(this.state()));
-  readonly copyLink = signal('');
+  readonly delivery = signal<AuthorizedDeliveryCopies>({});
   email = '';
   password = '';
   token = this.route.snapshot.queryParamMap.get('token') ?? '';
@@ -84,7 +84,7 @@ export class AuthPageComponent {
   requestRecovery(): void {
     if (!this.email) { this.show('invalid'); return; }
     this.show('loading');
-    this.api.requestRecovery({ email: this.email }).subscribe({ next: (result) => { this.copyLink.set(result.copyLink ?? ''); this.show('submitted'); }, error: (error) => this.show(this.errorState(error.status)) });
+    this.api.requestRecovery({ email: this.email }).subscribe({ next: (result) => this.showDelivery(result), error: (error) => this.show(this.errorState(error.status)) });
   }
 
   bootstrap(): void {
@@ -93,7 +93,7 @@ export class AuthPageComponent {
     const bootstrapToken = this.bootstrapToken;
     this.bootstrapToken = '';
     this.api.bootstrap({ email: this.email, password: this.password, organizationName: this.organizationName, workspaceName: this.workspaceName, bootstrapToken }).subscribe({
-      next: () => this.session.refresh().subscribe((state) => state === 'authenticated'
+      next: (result) => Object.keys(result).length ? this.showDelivery(result) : this.session.refresh().subscribe((state) => state === 'authenticated'
         ? void this.router.navigateByUrl(this.safeReturnUrl())
         : this.show(state === 'error' || state === 'anonymous' ? 'invalid' : state)),
       error: (error) => this.show(this.errorState(error.status)),
@@ -106,12 +106,13 @@ export class AuthPageComponent {
     const request = this.screen === 'activation'
       ? this.api.activate({ activationToken: this.token, password: this.password, displayName: this.displayName })
       : this.api.resetPassword({ resetToken: this.token, newPassword: this.password });
-    request.subscribe({ next: () => void this.router.navigate(['/sign-in'], { queryParams: { state: 'ready' } }), error: (error) => this.show(this.errorState(error.status)) });
+    request.subscribe({ next: (result) => Object.keys(result).length ? this.showDelivery(result) : void this.router.navigate(['/sign-in'], { queryParams: { state: 'ready' } }), error: (error) => this.show(this.errorState(error.status)) });
   }
 
   retry(): void { this.show('ready'); void this.router.navigate(['/sign-in'], { queryParams: { returnUrl: this.safeReturnUrl() } }); }
 
   private show(state: AuthViewState): void { this.state.set(state); this.message.set(this.messageFor(state)); }
+  private showDelivery(delivery: AuthorizedDeliveryCopies): void { this.delivery.set(delivery); this.show('submitted'); }
   private safeReturnUrl(): string {
     const value = this.route.snapshot.queryParamMap.get('returnUrl') || this.session.returnUrl();
     return value.startsWith('/') && !value.startsWith('//') ? value : '/workspaces/demo/forms';
