@@ -119,13 +119,14 @@ public class IdentityAdministrationService {
 
   @Transactional
   public ResponseEntity<?> activate(Activation request) {
+    if (request == null) badRequest();
+    validatePassword(request.password());
+    if (request.displayName() == null || request.displayName().isBlank() || request.displayName().length() > 120) badRequest();
     ActionGrant grant = consumeAction(request.activationToken(), "activation");
     UUID account = grant.account();
     if (!"pending".equals(db.queryForObject("select activation_state from accounts where id=? for update", String.class, account))) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid or expired credential");
     }
-    validatePassword(request.password());
-    if (request.displayName() == null || request.displayName().isBlank() || request.displayName().length() > 120) badRequest();
     db.update("update accounts set password_hash=?, display_name=?, activation_state='active', temporary_password_expires_at=null where id=?",
         credentials.encode(request.password()), request.displayName().trim(), account);
     // A pending owner is activated only in the tenant to which the proof was bound.
