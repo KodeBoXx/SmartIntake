@@ -67,6 +67,15 @@ class CatalogAdministrationIntegrationTests {
     assertEquals(HttpStatus.NOT_FOUND, call("catalog-b/catalog/forms", HttpMethod.GET, ownerToken, null).getStatusCode());
   }
 
+  @Test void freshWorkspaceWithoutRevisionRowReturnsAnEmptyCatalog() throws Exception {
+    db.update("delete from forms where workspace_id=?", firstWorkspace);
+    db.update("delete from catalog_workspace_revisions where workspace_id=?", firstWorkspace);
+    ResponseEntity<String> response = call("catalog-a/catalog/forms", HttpMethod.GET, ownerToken, null);
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertEquals(List.of(), object(response).get("items"));
+    assertEquals("", object(response).get("nextCursor"));
+  }
+
   @Test void folderTagFiltersAndCatalogMutationsUseCurrentServerRole() throws Exception {
     String folder = id(call("catalog-a/folders", HttpMethod.POST, authorToken, Map.of("name", "Clinical")));
     String tag = id(call("catalog-a/tags", HttpMethod.POST, authorToken, Map.of("name", "priority", "color", "#1144aa")));

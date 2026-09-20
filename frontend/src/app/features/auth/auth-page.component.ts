@@ -123,8 +123,10 @@ export class AuthPageComponent {
   private show(state: AuthViewState): void { this.state.set(state); this.message.set(this.messageFor(state)); }
   private showDelivery(delivery: AuthorizedDeliveryCopies): void { this.delivery.set(delivery); this.show('submitted'); }
   private safeReturnUrl(): string {
-    const value = this.route.snapshot.queryParamMap.get('returnUrl') || this.session.returnUrl();
-    return value.startsWith('/') && !value.startsWith('//') ? value : '/workspaces/demo/forms';
+    const requestedReturnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+    if (requestedReturnUrl?.startsWith('/') && !requestedReturnUrl.startsWith('//')) return requestedReturnUrl;
+    const workspaceId = this.session.currentWorkspaceId();
+    return workspaceId ? `/workspaces/${encodeURIComponent(workspaceId)}/forms` : '/workspaces/demo/forms';
   }
   private errorState(status: number): AuthViewState { return status === 429 ? 'throttled' : status === 403 ? 'denied' : status === 410 ? 'expired' : status === 503 ? 'email-unavailable' : 'invalid'; }
   private messageFor(state: AuthViewState): string {
