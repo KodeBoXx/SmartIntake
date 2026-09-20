@@ -29,11 +29,20 @@ public class StaffCsrfFilter extends OncePerRequestFilter {
     return anonymousBootstrap && sessions.cookieSession(request).isEmpty();
   }
 
+  private static boolean setupOnlyPath(String path) {
+    return path.equals("/v1/auth/password-change") || path.equals("/v1/auth/activate")
+        || path.equals("/v1/auth/sign-out") || path.equals("/v1/auth/logout");
+  }
+
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
       throws ServletException, IOException {
     String token = sessions.cookieSession(request).orElse(null);
     if (token != null) {
+      if (identity.setupOnly(token) && !setupOnlyPath(request.getRequestURI())) {
+        response.sendError(HttpServletResponse.SC_FORBIDDEN, "Setup session restricted");
+        return;
+      }
       try {
         identity.requireOrigin(request);
       } catch (RuntimeException denied) {

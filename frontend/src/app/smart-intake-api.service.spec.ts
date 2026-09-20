@@ -198,4 +198,42 @@ describe('SmartIntakeApiService', () => {
     };
     request.flush(published);
   });
+
+  it('uses cookie-authenticated organization administration endpoints without staff bearer headers', () => {
+    api.organizationUsers('org-1').subscribe();
+    const users = http.expectOne('/v1/organizations/org-1/users');
+    expect(users.request.withCredentials).toBe(true);
+    expect(users.request.headers.has('X-Staff-Session')).toBe(false);
+    users.flush({ items: [] });
+
+    api.addOrganizationUser('org-1', { email: 'new@example.test', roles: ['administrator'] }).subscribe();
+    const add = http.expectOne('/v1/organizations/org-1/users');
+    expect(add.request.method).toBe('POST');
+    expect(add.request.body).toEqual({ email: 'new@example.test', roles: ['administrator'] });
+    add.flush({ organizationUser: { id: 'user-1', kind: 'OrganizationUser', revision: 1, status: 'active', createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-01T00:00:00Z', email: 'new@example.test', roles: ['administrator'] } });
+  });
+
+  it('serializes catalog filters and catalog mutations with the selected workspace in the path', () => {
+    api.catalogForms('workspace-1', { q: 'clinical', status: 'draft', folder: 'folder-1', tag: ['tag-a', 'tag-b'], archived: false, limit: 25, cursor: 'cursor-1' }).subscribe();
+    const search = http.expectOne((request) => request.url === '/v1/workspaces/workspace-1/catalog/forms');
+    expect(search.request.withCredentials).toBe(true);
+    expect(search.request.headers.has('X-Staff-Session')).toBe(false);
+    expect(search.request.params.get('q')).toBe('clinical');
+    expect(search.request.params.getAll('tag')).toEqual(['tag-a', 'tag-b']);
+    expect(search.request.params.get('cursor')).toBe('cursor-1');
+    search.flush({ items: [], nextCursor: '' });
+
+    api.classifyCatalogForm('workspace-1', 'form-1', { folderId: 'folder-1', tagIds: ['tag-a'] }).subscribe();
+    const classify = http.expectOne('/v1/workspaces/workspace-1/catalog/forms/form-1/classification');
+    expect(classify.request.method).toBe('PUT');
+    expect(classify.request.withCredentials).toBe(true);
+    expect(classify.request.body).toEqual({ folderId: 'folder-1', tagIds: ['tag-a'] });
+    classify.flush(null);
+
+    api.updateCatalogSettings('workspace-1', { policy: { retention: '30d' }, providers: { email: false } }).subscribe();
+    const settings = http.expectOne('/v1/workspaces/workspace-1/catalog/settings');
+    expect(settings.request.method).toBe('PUT');
+    expect(settings.request.body).toEqual({ policy: { retention: '30d' }, providers: { email: false } });
+    settings.flush({ workspaceId: 'workspace-1', policy: {}, providers: {} });
+  });
 });

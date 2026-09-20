@@ -25,12 +25,12 @@ public class StaffAuthorization {
       HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
       String token = sessions.session(request, developmentHeader).orElseThrow();
       UUID account = db.queryForObject(
-          "select account_id from staff_sessions where token::text=? and revoked_at is null"
-              + " and last_seen_at > now() - interval '2 hours' and expires_at > now() and absolute_expires_at > now()",
+          "select s.account_id from staff_sessions s join accounts a on a.id=s.account_id where s.token::text=? and s.revoked_at is null"
+              + " and s.setup_only=false and a.account_status='active' and s.last_seen_at > now() - interval '2 hours' and s.expires_at > now() and s.absolute_expires_at > now()",
           UUID.class, token);
       db.update("update staff_sessions set last_seen_at=now(), expires_at=now()+interval '2 hours', updated_at=now() where token::text=?", token);
       UUID workspaceId = db.queryForObject("select id from workspaces where workspace_key=?", UUID.class, workspace);
-      if (db.queryForObject("select count(*) from memberships where account_id=? and workspace_id=?", Integer.class,
+      if (db.queryForObject("select count(*) from memberships m join workspaces w on w.id=m.workspace_id join organizations o on o.id=w.organization_id where m.account_id=? and m.workspace_id=? and o.organization_status='active'", Integer.class,
           account, workspaceId) == 0) throw new IllegalStateException();
       return workspaceId;
     } catch (Exception e) {

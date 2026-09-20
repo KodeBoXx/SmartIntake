@@ -1,5 +1,65 @@
-import { Component } from '@angular/core';
-import { M5_STAFF_DOMAIN, StaffPageComponent } from '../staff-page.component';
+import { Component, computed, inject, signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { CuiAlertComponent, CuiButtonComponent, CuiCardComponent, CuiConfirmDialogComponent, CuiDrawerComponent, CuiEmptyStateComponent, CuiInputComponent, CuiSelectComponent, CuiTagComponent } from '@certinal/ui';
+import { StaffSessionStore } from '../../../core/m5-session.store';
+import { CatalogForm, CatalogSettings, SmartIntakeApiService } from '../../../smart-intake-api.service';
+import { Observable } from 'rxjs';
+import { M5_STAFF_DOMAIN } from '../staff-page.component';
 
-@Component({ selector: 'app-catalog-staff-page', standalone: true, imports: [StaffPageComponent], providers: [{ provide: M5_STAFF_DOMAIN, useValue: 'catalog' }], template: '<app-staff-page />' })
-export class CatalogStaffPageComponent {}
+type CatalogState = 'loading' | 'ready' | 'empty' | 'invalid' | 'denied' | 'expired' | 'no-email' | 'error';
+
+@Component({
+  selector: 'app-catalog-staff-page', standalone: true,
+  imports: [CuiAlertComponent, CuiButtonComponent, CuiCardComponent, CuiConfirmDialogComponent, CuiDrawerComponent, CuiEmptyStateComponent, CuiInputComponent, CuiSelectComponent, CuiTagComponent],
+  providers: [{ provide: M5_STAFF_DOMAIN, useValue: 'catalog' }],
+  template: `
+<section class="mx-auto max-w-6xl space-y-5" data-testid="catalog-page" [attr.data-state]="state()">
+  <div class="flex flex-wrap items-end justify-between gap-3"><div><p class="type-caption">WORKSPACE CATALOG</p><h1 class="type-h3">Forms</h1><p class="type-caption">{{ session.currentWorkspace()?.name || 'No selected workspace' }}</p></div><cui-button [disabled]="!canEdit()">Create form</cui-button></div>
+  @if (message()) { <cui-alert [variant]="state() === 'invalid' || state() === 'denied' ? 'error' : 'warning'" [title]="state()">{{ message() }}</cui-alert> }
+  @if (state() === 'loading') { <cui-card><p class="type-body">Loading the server-authorized catalog…</p></cui-card> }
+  @else if (state() === 'empty') { <cui-empty-state icon="inbox" title="No forms found" description="Try changing the filters or create the first form in this workspace." /> }
+  @else if (state() !== 'denied' && state() !== 'expired') {
+    <cui-card><div class="grid gap-3 md:grid-cols-4"><cui-input label="Search" type="search" [(value)]="query" /><cui-select label="Status" [options]="statusOptions" [(value)]="status" /><cui-select label="Folder" [options]="folderOptions()" [(value)]="folder" /><cui-select label="Tag" [options]="tagOptions()" [(value)]="tag" /></div><div class="mt-3 flex flex-wrap gap-2"><cui-button size="sm" variant="secondary" (buttonClick)="applyFilters()">Apply filters</cui-button><cui-button size="sm" variant="tertiary" (buttonClick)="resetFilters()">Clear filters</cui-button><cui-button size="sm" variant="tertiary" (buttonClick)="loadMetadata()">Manage folders and tags</cui-button></div></cui-card>
+    <cui-card><div class="space-y-3">@for (form of forms(); track form.id) { <div class="flex flex-wrap items-center justify-between gap-3 border-b border-border-default pb-3 last:border-0 last:pb-0"><button class="text-left" (click)="openDetails(form.id)"><p class="type-body">{{ form.title }}</p><p class="type-caption">{{ form.formKey }} · {{ form.owner?.email || 'No owner' }} · {{ form.updatedAt }}</p></button><div class="flex flex-wrap items-center gap-2"><cui-tag tone="emerald">{{ form.status }}</cui-tag>@for (itemTag of form.tags; track itemTag.id) { <cui-tag tone="cyan">{{ itemTag.name }}</cui-tag> }<cui-button size="sm" variant="secondary" (buttonClick)="openDetails(form.id)">View</cui-button></div></div> }</div>@if (nextCursor()) { <cui-button class="mt-4" variant="secondary" (buttonClick)="nextPage()">Next page</cui-button> }</cui-card>
+    <cui-card><p class="type-body">Catalog organization</p><div class="mt-3 grid gap-3 md:grid-cols-2"><cui-input label="New folder" [(value)]="folderName" /><cui-input label="New tag" [(value)]="tagName" /></div><div class="mt-3 flex gap-2"><cui-button size="sm" variant="secondary" [disabled]="!canEdit()" (buttonClick)="createFolder()">Add folder</cui-button><cui-button size="sm" variant="secondary" [disabled]="!canEdit()" (buttonClick)="createTag()">Add tag</cui-button></div></cui-card>
+    <cui-card><p class="type-body">Effective policy and provider settings</p><cui-input class="mt-3" label="Policy JSON" type="textarea" [(value)]="policyJson" /><cui-input class="mt-3" label="Provider JSON" type="textarea" [(value)]="providerJson" /><cui-button class="mt-3" [disabled]="!canManage()" (buttonClick)="saveSettings()">Save settings</cui-button></cui-card>
+  }
+</section>
+<cui-confirm-dialog [(open)]="archiveOpen" title="Archive form?" message="Archived forms are retained and can be restored." tone="danger" icon="trash-2" confirmText="Archive" (confirmed)="archiveSelected()" />
+<cui-drawer [(open)]="detailOpen" (closed)="closeDetails()" position="right" size="lg" [title]="selected()?.title || 'Form details'">
+  @if (selected(); as form) { <div class="space-y-4"><div><p class="type-body">{{ form.title }}</p><p class="type-caption">Owner: {{ form.owner?.email || 'Unassigned' }}</p></div><cui-select label="Folder" [options]="folderOptions()" [(value)]="detailFolder" /><cui-select label="Tag" [options]="tagOptions()" [(value)]="detailTag" /><cui-input label="Transfer owner account ID" [(value)]="ownerAccountId" />@if (canEdit()) { <div class="flex flex-wrap gap-2"><cui-button size="sm" variant="secondary" (buttonClick)="classifySelected()">Save classification</cui-button><cui-button size="sm" variant="secondary" (buttonClick)="duplicateSelected()">Duplicate</cui-button>@if (form.status === 'archived') { <cui-button size="sm" (buttonClick)="restoreSelected()">Restore</cui-button> } @else { <cui-button size="sm" variant="danger" (buttonClick)="archiveOpen = true">Archive</cui-button> }<cui-button size="sm" variant="tertiary" [disabled]="!canManage()" (buttonClick)="transferSelected()">Transfer ownership</cui-button></div> }</div> }
+  <div cuiDrawerFooter class="flex justify-end"><cui-button variant="tertiary" (buttonClick)="closeDetails()">Close</cui-button></div>
+</cui-drawer>`
+})
+export class CatalogStaffPageComponent {
+  readonly api = inject(SmartIntakeApiService); readonly session = inject(StaffSessionStore); readonly route = inject(ActivatedRoute); readonly router = inject(Router);
+  readonly state = signal<CatalogState>('loading'); readonly message = signal(''); readonly forms = signal<CatalogForm[]>([]); readonly folders = signal<{ id: string; name: string }[]>([]); readonly tags = signal<{ id: string; name: string }[]>([]); readonly nextCursor = signal('');
+  readonly detailId = signal<string | null>(null); readonly detailOpen = signal(false); readonly selected = computed(() => this.forms().find((form) => form.id === this.detailId()) ?? null);
+  readonly folderOptions = computed(() => [{ label: 'All folders', value: '' }, ...this.folders().map((folder) => ({ label: folder.name, value: folder.id }))]); readonly tagOptions = computed(() => [{ label: 'All tags', value: '' }, ...this.tags().map((tag) => ({ label: tag.name, value: tag.id }))]);
+  readonly statusOptions = [{ label: 'All statuses', value: '' }, ...['draft', 'published', 'archived'].map((value) => ({ label: value[0].toUpperCase() + value.slice(1), value }))];
+  query = ''; status: string | null = ''; folder: string | null = ''; tag: string | null = ''; folderName = ''; tagName = ''; detailFolder: string | null = ''; detailTag: string | null = ''; ownerAccountId = ''; policyJson = '{}'; providerJson = '{}'; archiveOpen = false;
+
+  constructor() { this.route.queryParamMap.subscribe((params) => { const details = params.get('details'); this.detailId.set(details); this.detailOpen.set(!!details); }); this.loadMetadata(); this.load(); }
+  canEdit(): boolean { return this.session.currentRoles().some((role) => ['administrator', 'author', 'publisher', 'owner'].includes(role)); }
+  canManage(): boolean { return this.session.currentRoles().some((role) => ['administrator', 'owner'].includes(role)); }
+  applyFilters(): void { this.load(); }
+  resetFilters(): void { this.query = ''; this.status = ''; this.folder = ''; this.tag = ''; this.load(); }
+  nextPage(): void { this.load(this.nextCursor(), true); }
+  load(cursor = '', append = false): void { const workspace = this.workspace(); if (!workspace) return; this.state.set('loading'); this.api.catalogForms(workspace, { q: this.query, status: this.status || undefined, folder: this.folder || undefined, tag: this.tag ? [this.tag] : undefined, cursor: cursor || undefined, limit: 25 }).subscribe({ next: (page) => { this.forms.set(append ? [...this.forms(), ...page.items] : page.items); this.nextCursor.set(page.nextCursor || ''); this.state.set(this.forms().length ? 'ready' : 'empty'); }, error: (error) => this.fail(error.status) }); }
+  loadMetadata(): void { const workspace = this.workspace(); if (!workspace) return; this.api.catalogFolders(workspace).subscribe({ next: (folders) => this.folders.set(folders), error: (error) => this.fail(error.status) }); this.api.catalogTags(workspace).subscribe({ next: (tags) => this.tags.set(tags), error: (error) => this.fail(error.status) }); this.api.effectiveCatalogSettings(workspace).subscribe({ next: (settings) => this.applySettings(settings), error: (error) => this.fail(error.status) }); }
+  openDetails(id: string): void { this.detailId.set(id); this.detailOpen.set(true); const form = this.selected(); this.detailFolder = form?.folderId ?? ''; this.detailTag = form?.tags[0]?.id ?? ''; void this.router.navigate([], { relativeTo: this.route, queryParams: { details: id }, queryParamsHandling: 'merge' }); }
+  closeDetails(): void { this.detailOpen.set(false); this.detailId.set(null); void this.router.navigate([], { relativeTo: this.route, queryParams: { details: null }, queryParamsHandling: 'merge' }); }
+  createFolder(): void { const workspace = this.workspace(); if (!workspace || !this.folderName.trim()) return this.invalid('Enter a folder name.'); this.api.createCatalogFolder(workspace, this.folderName.trim()).subscribe({ next: () => { this.folderName = ''; this.loadMetadata(); }, error: (error) => this.fail(error.status) }); }
+  createTag(): void { const workspace = this.workspace(); if (!workspace || !this.tagName.trim()) return this.invalid('Enter a tag name.'); this.api.createCatalogTag(workspace, this.tagName.trim()).subscribe({ next: () => { this.tagName = ''; this.loadMetadata(); }, error: (error) => this.fail(error.status) }); }
+  duplicateSelected(): void { this.mutate((workspace, form) => this.api.duplicateCatalogForm(workspace, form.id), 'Form duplicated.'); }
+  archiveSelected(): void { this.archiveOpen = false; this.mutate((workspace, form) => this.api.archiveCatalogForm(workspace, form.id), 'Form archived.'); }
+  restoreSelected(): void { this.mutate((workspace, form) => this.api.restoreCatalogForm(workspace, form.id), 'Form restored.'); }
+  classifySelected(): void { this.mutate((workspace, form) => this.api.classifyCatalogForm(workspace, form.id, { folderId: this.detailFolder || null, tagIds: this.detailTag ? [this.detailTag] : [] }), 'Classification saved.'); }
+  transferSelected(): void { if (!this.ownerAccountId.trim()) return this.invalid('Enter the destination account ID.'); this.mutate((workspace, form) => this.api.transferCatalogFormOwnership(workspace, form.id, this.ownerAccountId.trim()), 'Ownership transferred.'); }
+  saveSettings(): void { const workspace = this.workspace(); if (!workspace) return; try { const policy = JSON.parse(this.policyJson); const providers = JSON.parse(this.providerJson); this.api.updateCatalogSettings(workspace, { policy, providers }).subscribe({ next: (settings) => { this.applySettings(settings); this.message.set('Effective settings saved.'); }, error: (error) => this.fail(error.status) }); } catch { this.invalid('Settings must be valid JSON objects.'); } }
+  private mutate(request: (workspace: string, form: CatalogForm) => Observable<unknown>, success: string): void { const workspace = this.workspace(); const form = this.selected(); if (!workspace || !form || !this.canEdit()) return; request(workspace, form).subscribe({ next: () => { this.message.set(success); this.load(); }, error: (error) => this.fail(error.status) }); }
+  private applySettings(settings: CatalogSettings): void { this.policyJson = JSON.stringify(settings.policy, null, 2); this.providerJson = JSON.stringify(settings.providers, null, 2); }
+  private workspace(): string | null { const workspace = this.session.currentWorkspaceId(); if (!workspace) { this.state.set('empty'); this.message.set('Select a server-authorized workspace first.'); } return workspace; }
+  private invalid(message: string): void { this.state.set('invalid'); this.message.set(message); }
+  private fail(status: number): void { const state: CatalogState = status === 400 || status === 422 ? 'invalid' : status === 403 ? 'denied' : status === 401 || status === 419 || status === 440 ? 'expired' : status === 503 ? 'no-email' : 'error'; this.state.set(state); this.message.set(state === 'no-email' ? 'Email delivery is unavailable; use the copy-link path.' : 'The server could not complete this catalog request.'); }
+}

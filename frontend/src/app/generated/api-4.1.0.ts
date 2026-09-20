@@ -1216,6 +1216,227 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/workspaces/{workspace}/catalog/forms": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+            };
+            cookie?: never;
+        };
+        /** Search the current workspace form catalog */
+        get: operations["m6CatalogSearch"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{workspace}/catalog/forms/{form}/duplicate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+                form: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Duplicate a workspace form */
+        post: operations["m6CatalogDuplicate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{workspace}/catalog/forms/{form}/archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+                form: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Archive a workspace form */
+        post: operations["m6CatalogArchive"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{workspace}/catalog/forms/{form}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+                form: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Restore a workspace form */
+        post: operations["m6CatalogRestore"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{workspace}/catalog/forms/{form}/ownership": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+                form: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        /** Transfer form ownership to a current workspace member */
+        put: operations["m6CatalogTransferOwnership"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{workspace}/catalog/forms/{form}/classification": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+                form: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        /** Set form folder and tags */
+        put: operations["m6CatalogClassify"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{workspace}/folders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+            };
+            cookie?: never;
+        };
+        /** List workspace catalog folders */
+        get: operations["m6ListFolders"];
+        put?: never;
+        /** Create a workspace catalog folder */
+        post: operations["m6CreateFolder"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{workspace}/folders/{folder}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+                folder: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete a workspace catalog folder */
+        delete: operations["m6DeleteFolder"];
+        options?: never;
+        head?: never;
+        /** Update a workspace catalog folder */
+        patch: operations["m6UpdateFolder"];
+        trace?: never;
+    };
+    "/v1/workspaces/{workspace}/tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+            };
+            cookie?: never;
+        };
+        /** List workspace catalog tags */
+        get: operations["m6ListTags"];
+        put?: never;
+        /** Create a workspace catalog tag */
+        post: operations["m6CreateTag"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{workspace}/tags/{tag}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+                tag: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete a workspace catalog tag */
+        delete: operations["m6DeleteTag"];
+        options?: never;
+        head?: never;
+        /** Update a workspace catalog tag */
+        patch: operations["m6UpdateTag"];
+        trace?: never;
+    };
+    "/v1/workspaces/{workspace}/catalog/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+            };
+            cookie?: never;
+        };
+        /** Read effective policy and provider settings */
+        get: operations["m6EffectiveCatalogSettings"];
+        /** Update workspace policy and provider overrides */
+        put: operations["m6UpdateCatalogSettings"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2690,6 +2911,77 @@ export interface components {
             state: "notStarted" | "pending" | "succeeded" | "failed";
             submissionId?: string | null;
             errorCode?: string | null;
+        };
+        CatalogTag: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            color?: string | null;
+        };
+        CatalogFolder: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        CatalogNameInput: {
+            name: string;
+        };
+        CatalogTagInput: {
+            name: string;
+            color?: string | null;
+        };
+        CatalogOwner: {
+            /** Format: uuid */
+            id: string;
+            /** Format: email */
+            email: string;
+        } | null;
+        CatalogForm: {
+            /** Format: uuid */
+            id: string;
+            formKey: string;
+            title: string;
+            status: string;
+            revision: number;
+            /** Format: date-time */
+            updatedAt: string;
+            folderId: string | null;
+            owner: components["schemas"]["CatalogOwner"];
+            tags: components["schemas"]["CatalogTag"][];
+        };
+        CatalogPage: {
+            items: components["schemas"]["CatalogForm"][];
+            nextCursor: string;
+        };
+        CatalogClassification: {
+            folderId?: string | null;
+            tagIds?: string[];
+        };
+        CatalogTransfer: {
+            /** Format: uuid */
+            accountId: string;
+        };
+        CatalogSettings: {
+            /** Format: uuid */
+            workspaceId: string;
+            policy: {
+                [key: string]: unknown;
+            };
+            providers: {
+                [key: string]: unknown;
+            };
+        };
+        CatalogSettingsInput: {
+            policy?: {
+                [key: string]: unknown;
+            };
+            providers?: {
+                [key: string]: unknown;
+            };
         };
         LiveSessionStartResponse: {
             /** Format: uuid */
@@ -7221,6 +7513,462 @@ export interface operations {
             422: components["responses"]["Unprocessable"];
             429: components["responses"]["RateLimited"];
             500: components["responses"]["InternalError"];
+        };
+    };
+    m6CatalogSearch: {
+        parameters: {
+            query?: {
+                q?: string;
+                status?: string;
+                owner?: string;
+                folder?: string;
+                tag?: string[];
+                archived?: boolean;
+                limit?: number;
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                workspace: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogPage"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    m6CatalogDuplicate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+                form: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogForm"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    m6CatalogArchive: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+                form: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogForm"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    m6CatalogRestore: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+                form: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogForm"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    m6CatalogTransferOwnership: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+                form: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CatalogTransfer"];
+            };
+        };
+        responses: {
+            /** @description Successful response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogForm"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    m6CatalogClassify: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+                form: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CatalogClassification"];
+            };
+        };
+        responses: {
+            /** @description Classification updated. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    m6ListFolders: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogFolder"][];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    m6CreateFolder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CatalogNameInput"];
+            };
+        };
+        responses: {
+            /** @description Successful response. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogFolder"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    m6DeleteFolder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+                folder: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Deleted. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    m6UpdateFolder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+                folder: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CatalogNameInput"];
+            };
+        };
+        responses: {
+            /** @description Successful response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogFolder"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    m6ListTags: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogTag"][];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    m6CreateTag: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CatalogTagInput"];
+            };
+        };
+        responses: {
+            /** @description Successful response. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogTag"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    m6DeleteTag: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+                tag: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Deleted. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    m6UpdateTag: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+                tag: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CatalogTagInput"];
+            };
+        };
+        responses: {
+            /** @description Successful response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogTag"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    m6EffectiveCatalogSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogSettings"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    m6UpdateCatalogSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CatalogSettingsInput"];
+            };
+        };
+        responses: {
+            /** @description Successful response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogSettings"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
         };
     };
 }

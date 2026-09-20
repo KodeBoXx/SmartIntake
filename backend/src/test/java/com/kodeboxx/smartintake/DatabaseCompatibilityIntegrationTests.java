@@ -66,7 +66,9 @@ class DatabaseCompatibilityIntegrationTests {
           new FlywayHistory("11", "SQL", "V11__m4_compatibility_runtime.sql", 1780789261),
           new FlywayHistory("12", "SQL", "V12__submission_attempt_review_evidence.sql", -1868713494),
           new FlywayHistory("13", "SQL", "V13__pinned_runtime_manifests.sql", -1265314321),
-          new FlywayHistory("14", "SQL", "V14__staff_identity_sessions.sql", 724788122));
+          new FlywayHistory("14", "SQL", "V14__staff_identity_sessions.sql", 724788122),
+          new FlywayHistory("15", "SQL", "V15__identity_lifecycle_tenant_administration.sql", 1269175926),
+          new FlywayHistory("16", "SQL", "V16__catalog_administration.sql", 227155273));
 
   @Autowired JdbcTemplate db;
   @Autowired CompatibilityReconciliationService reconciliation;
@@ -1067,6 +1069,17 @@ class DatabaseCompatibilityIntegrationTests {
             "select count(*) from information_schema.columns where table_name='staff_sessions'"
                 + " and column_name='absolute_expires_at'",
             Integer.class));
+  }
+
+  @Test
+  void v15_adds_tenant_identity_lifecycle_state() {
+    for (String table : List.of("platform_roles", "organization_memberships", "identity_invitations", "identity_secret_actions")) {
+      assertEquals(1, db.queryForObject("select count(*) from information_schema.tables where table_schema='public' and table_name=?", Integer.class, table));
+    }
+    for (String column : List.of("account_status", "activation_state", "temporary_password_expires_at")) {
+      assertEquals(1, db.queryForObject("select count(*) from information_schema.columns where table_name='accounts' and column_name=?", Integer.class, column));
+    }
+    assertEquals(1, db.queryForObject("select count(*) from information_schema.columns where table_name='staff_sessions' and column_name='setup_only'", Integer.class));
   }
 
   private static void assertStoredJson(String expected, String persisted) throws Exception {

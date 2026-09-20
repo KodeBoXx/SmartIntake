@@ -61,8 +61,10 @@ public class IdentitySessionService {
     db.update("insert into organizations(id,name) values(?,?)", organization, nonBlank(input.organizationName(), "Local organization"));
     db.update("insert into workspaces(id,organization_id,workspace_key,name) values(?,?,?,?)", workspace, organization, "local", nonBlank(input.workspaceName(), "Local workspace"));
     db.update("insert into memberships(account_id,workspace_id,role) values(?,?,?)", account, workspace, "OWNER");
+    // The protected one-time bootstrap establishes the initial platform authority as well as tenant ownership.
+    db.update("insert into platform_roles(account_id,role) values(?,'administrator') on conflict do nothing", account);
     db.update("update identity_bootstrap_state set completed_at=now() where singleton=true");
-    return issued(account, request, HttpStatus.CREATED);
+    return issued(account, request, HttpStatus.CREATED, false);
   }
 
   public ResponseEntity<?> anonymousSession() {
@@ -84,17 +86,26 @@ public class IdentitySessionService {
     UUID account = null;
     try {
       if (input == null || input.email() == null || input.password() == null) throw new IllegalArgumentException();
-      List<Map<String, Object>> rows = db.queryForList("select id,password_hash from accounts where email=?", normalizedEmail(input.email()));
+      List<Map<String, Object>> rows = db.queryForList(
+          "select id,password_hash,account_status,activation_state,temporary_password_expires_at from accounts where email=?",
+          normalizedEmail(input.email()));
       String hash = rows.isEmpty() ? credentials.encode("invalid-credential-proof") : (String) rows.get(0).get("password_hash");
       if (!credentials.matches(input.password(), hash) || rows.isEmpty()) throw new IllegalArgumentException();
-      account = ((UUID) rows.get(0).get("id"));
+      Map<String, Object> accountRow = rows.get(0);
+      if (!"active".equals(accountRow.get("account_status"))) throw new IllegalArgumentException();
+      if ("pending".equals(accountRow.get("activation_state"))) {
+        Timestamp expires = (Timestamp) accountRow.get("temporary_password_expires_at");
+        if (expires == null || !expires.toInstant().isAfter(Instant.now())) throw new IllegalArgumentException();
+      }
+      account = ((UUID) accountRow.get("id"));
     } catch (Exception ignored) {
       registerFailure(subject);
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
     }
     db.update("delete from sign_in_throttles where subject_hash=?", subject);
     resolver.session(request, request.getHeader("X-Staff-Session")).ifPresent(token -> db.update("update staff_sessions set revoked_at=now(),updated_at=now() where token::text=? and revoked_at is null", token));
-    return issued(account, request, HttpStatus.OK);
+    boolean setupOnly = Boolean.TRUE.equals(db.queryForObject("select activation_state='pending' from accounts where id=?", Boolean.class, account));
+    return issued(account, request, HttpStatus.OK, setupOnly);
   }
 
   public ResponseEntity<?> currentSession(HttpServletRequest request) {
@@ -102,17 +113,20 @@ public class IdentitySessionService {
     if (token == null) return anonymousSession();
     try {
       Map<String, Object> row = db.queryForMap(
-          "select s.account_id,a.email,s.created_at,s.updated_at,s.last_seen_at,s.absolute_expires_at,s.csrf_token_hash"
-              + " from staff_sessions s join accounts a on a.id=s.account_id where s.token::text=? and s.revoked_at is null"
+          "select s.account_id,a.email,s.created_at,s.updated_at,s.last_seen_at,s.absolute_expires_at,s.csrf_token_hash,s.setup_only,s.current_organization_id,s.current_workspace_id"
+              + " from staff_sessions s join accounts a on a.id=s.account_id where s.token::text=? and s.revoked_at is null and a.account_status='active'"
               + " and s.last_seen_at > now() - interval '2 hours' and s.expires_at > now() and s.absolute_expires_at > now()", token);
-      db.update("update staff_sessions set last_seen_at=now(),expires_at=now()+interval '2 hours',updated_at=now() where token::text=?", token);
+      boolean setupOnly = Boolean.TRUE.equals(row.get("setup_only"));
+      db.update("update staff_sessions set last_seen_at=now(),expires_at=now() + (? * interval '1 second'),updated_at=now() where token::text=?",
+          setupOnly ? Duration.ofMinutes(15).toSeconds() : IDLE_TTL.toSeconds(), token);
       UUID account = (UUID) row.get("account_id");
       String email = (String) row.get("email");
       List<Map<String, Object>> memberships = db.queryForList(
           "select o.id organization_id,o.name organization_name,w.id workspace_id,w.name workspace_name,m.role"
               + " from memberships m join workspaces w on w.id=m.workspace_id join organizations o on o.id=w.organization_id"
               + " where m.account_id=? order by o.name,w.name,m.role", account);
-      return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, staffCookie(token).toString()).body(sessionResponse(account, email, memberships));
+      return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, staffCookie(token).toString()).body(
+          sessionResponse(account, email, memberships, (UUID) row.get("current_organization_id"), (UUID) row.get("current_workspace_id")));
     } catch (Exception ignored) {
       return anonymousSession();
     }
@@ -127,6 +141,14 @@ public class IdentitySessionService {
         .header(HttpHeaders.SET_COOKIE, expiredCookie(IdentitySessionResolver.STAFF_COOKIE, true).toString())
         .header(HttpHeaders.SET_COOKIE, expiredCookie(CSRF_COOKIE, false).toString())
         .build();
+  }
+
+  public boolean setupOnly(String token) {
+    try {
+      return Boolean.TRUE.equals(db.queryForObject("select setup_only from staff_sessions where token::text=? and revoked_at is null and expires_at>now() and absolute_expires_at>now()", Boolean.class, token));
+    } catch (Exception ignored) {
+      return false;
+    }
   }
 
   public boolean validCsrf(String token, String presentedCsrf) {
@@ -148,12 +170,17 @@ public class IdentitySessionService {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Origin denied");
   }
 
-  private ResponseEntity<?> issued(UUID account, HttpServletRequest request, HttpStatus status) {
+  private ResponseEntity<?> issued(UUID account, HttpServletRequest request, HttpStatus status, boolean setupOnly) {
     String token = UUID.randomUUID().toString();
     String csrf = secret();
     Instant now = Instant.now();
-    db.update("insert into staff_sessions(token,account_id,expires_at,csrf_token_hash,last_seen_at,absolute_expires_at,updated_at) values(?,?,?,?,?,?,?)",
-        UUID.fromString(token), account, Timestamp.from(now.plus(IDLE_TTL)), sha256(csrf), Timestamp.from(now), Timestamp.from(now.plus(ABSOLUTE_TTL)), Timestamp.from(now));
+    Duration ttl = setupOnly ? Duration.ofMinutes(15) : IDLE_TTL;
+    List<Map<String, Object>> contexts = db.queryForList(
+        "select w.organization_id,w.id from memberships m join workspaces w on w.id=m.workspace_id where m.account_id=? order by w.created_at limit 1", account);
+    UUID organization = contexts.isEmpty() ? null : (UUID) contexts.get(0).get("organization_id");
+    UUID workspace = contexts.isEmpty() ? null : (UUID) contexts.get(0).get("id");
+    db.update("insert into staff_sessions(token,account_id,expires_at,csrf_token_hash,last_seen_at,absolute_expires_at,updated_at,setup_only,current_organization_id,current_workspace_id) values(?,?,?,?,?,?,?,?,?,?)",
+        UUID.fromString(token), account, Timestamp.from(now.plus(ttl)), sha256(csrf), Timestamp.from(now), Timestamp.from(now.plus(ttl)), Timestamp.from(now), setupOnly, organization, workspace);
     Map<String, Object> body = Map.of("requestId", opaque("req"), "staffSession", Map.of(
         "id", opaque("staffsession"), "kind", "StaffSession", "revision", 0, "status", "active",
         "createdAt", now.toString(), "updatedAt", now.toString(), "userId", opaque("account", account),
@@ -165,7 +192,8 @@ public class IdentitySessionService {
         .body(body);
   }
 
-  private Map<String, Object> sessionResponse(UUID account, String email, List<Map<String, Object>> memberships) {
+  private Map<String, Object> sessionResponse(UUID account, String email, List<Map<String, Object>> memberships,
+      UUID currentOrganization, UUID currentWorkspace) {
     Map<UUID, Map<String, Object>> organizations = new LinkedHashMap<>();
     for (Map<String, Object> membership : memberships) {
       UUID organization = (UUID) membership.get("organization_id");
@@ -181,7 +209,10 @@ public class IdentitySessionService {
     authenticated.put("activationState", "active");
     authenticated.put("accountStatus", "active");
     authenticated.put("organizations", List.copyOf(organizations.values()));
-    authenticated.put("currentOrganizationId", organizations.isEmpty() ? null : organizations.values().iterator().next().get("organizationId"));
+    authenticated.put("currentOrganizationId", currentOrganization == null
+        ? (organizations.isEmpty() ? null : organizations.values().iterator().next().get("organizationId"))
+        : opaque("organization", currentOrganization));
+    if (currentWorkspace != null) authenticated.put("currentWorkspaceId", opaque("workspace", currentWorkspace));
     return Map.of("requestId", opaque("req"), "authenticatedSession", authenticated);
   }
 

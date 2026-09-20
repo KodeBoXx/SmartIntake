@@ -1,7 +1,7 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Observable, catchError, map, of, shareReplay, switchMap, tap } from 'rxjs';
-import { SmartIntakeApiService, StaffIdentity, StaffSession } from '../smart-intake-api.service';
+import { SmartIntakeApiService, StaffIdentity, StaffSession, StaffOrganization } from '../smart-intake-api.service';
 import { StaffCsrfContext } from './staff-csrf.interceptor';
 
 export type StaffSessionState = 'loading' | 'authenticated' | 'anonymous' | 'expired' | 'denied' | 'error';
@@ -12,9 +12,15 @@ export class StaffSessionStore {
   /** Staff cookies are HttpOnly. This store intentionally retains no bearer secret. */
   readonly state = signal<StaffSessionState>('loading');
   readonly identity = signal<StaffIdentity | null>(null);
+  readonly organizations = signal<StaffOrganization[]>([]);
+  readonly currentOrganizationId = signal<string | null>(null);
+  readonly currentWorkspaceId = signal<string | null>(null);
   readonly csrfToken = signal<string | null>(null);
   readonly returnUrl = signal('/workspaces/demo/forms');
   readonly isAuthenticated = computed(() => this.state() === 'authenticated');
+  readonly currentOrganization = computed(() => this.organizations().find((organization) => organization.organizationId === this.currentOrganizationId()) ?? null);
+  readonly currentWorkspace = computed(() => this.currentOrganization()?.workspaces.find((workspace) => workspace.workspaceId === this.currentWorkspaceId()) ?? null);
+  readonly currentRoles = computed(() => this.currentWorkspace()?.roles ?? []);
   private bootstrapRequest: Observable<StaffSessionState> | null = null;
 
   constructor(private readonly api: SmartIntakeApiService, private readonly csrf: StaffCsrfContext) {}
@@ -52,6 +58,17 @@ export class StaffSessionStore {
     this.returnUrl.set(url.startsWith('/') && !url.startsWith('//') ? url : '/workspaces/demo/forms');
   }
 
+  selectOrganization(organizationId: string): void {
+    const organization = this.organizations().find((item) => item.organizationId === organizationId);
+    if (!organization) return;
+    this.currentOrganizationId.set(organizationId);
+    this.currentWorkspaceId.set(organization.workspaces[0]?.workspaceId ?? null);
+  }
+
+  selectWorkspace(workspaceId: string): void {
+    if (this.currentOrganization()?.workspaces.some((workspace) => workspace.workspaceId === workspaceId)) this.currentWorkspaceId.set(workspaceId);
+  }
+
   private bootstrap(): Observable<StaffSessionState> {
     if (!this.bootstrapRequest) {
       this.bootstrapRequest = this.api.session().pipe(
@@ -65,6 +82,10 @@ export class StaffSessionStore {
 
   private applySession(session: StaffSession): StaffSessionState {
     this.identity.set(session.identity);
+    this.organizations.set(session.organizations);
+    this.currentOrganizationId.set(session.currentOrganizationId ?? session.organizations[0]?.organizationId ?? null);
+    const organization = session.organizations.find((item) => item.organizationId === this.currentOrganizationId()) ?? session.organizations[0];
+    this.currentWorkspaceId.set(organization?.workspaces[0]?.workspaceId ?? null);
     this.csrfToken.set(session.csrfToken ?? null);
     this.csrf.set(session.csrfToken ?? null);
     this.state.set('authenticated');
@@ -89,6 +110,9 @@ export class StaffSessionStore {
 
   private clear(state: Exclude<StaffSessionState, 'loading' | 'authenticated'>, clearCsrf = true): void {
     this.identity.set(null);
+    this.organizations.set([]);
+    this.currentOrganizationId.set(null);
+    this.currentWorkspaceId.set(null);
     if (clearCsrf) {
       this.csrfToken.set(null);
       this.csrf.set(null);

@@ -6533,6 +6533,661 @@ paths:
       x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
         days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
         plus body.
+  /v1/workspaces/{workspace}/catalog/forms:
+    parameters:
+    - name: workspace
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+    get:
+      operationId: m6CatalogSearch
+      summary: Search the current workspace form catalog
+      x-implementation-status: implemented
+      x-authorization:
+        roles:
+        - OWNER
+        - ADMIN
+        - AUTHOR
+        - VIEWER
+        tenantScope: current-server-workspace-membership
+      security:
+      - staffCookie: []
+        csrfHeader: []
+      responses:
+        '200':
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatalogPage'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      parameters:
+      - name: q
+        in: query
+        schema:
+          type: string
+          maxLength: 200
+      - name: status
+        in: query
+        schema:
+          type: string
+      - name: owner
+        in: query
+        schema:
+          type: string
+          format: uuid
+      - name: folder
+        in: query
+        schema:
+          type: string
+          format: uuid
+      - name: tag
+        in: query
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: archived
+        in: query
+        schema:
+          type: boolean
+          default: false
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 50
+      - name: cursor
+        in: query
+        schema:
+          type: string
+  /v1/workspaces/{workspace}/catalog/forms/{form}/duplicate:
+    parameters:
+    - name: workspace
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+    - name: form
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    post:
+      operationId: m6CatalogDuplicate
+      summary: Duplicate a workspace form
+      x-implementation-status: implemented
+      x-authorization:
+        roles:
+        - OWNER
+        - ADMINISTRATOR
+        - AUTHOR
+        tenantScope: current-server-workspace-membership
+      security:
+      - staffCookie: []
+        csrfHeader: []
+      responses:
+        '201':
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatalogForm'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/workspaces/{workspace}/catalog/forms/{form}/archive:
+    parameters:
+    - name: workspace
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+    - name: form
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    post:
+      operationId: m6CatalogArchive
+      summary: Archive a workspace form
+      x-implementation-status: implemented
+      x-authorization:
+        roles:
+        - OWNER
+        - ADMINISTRATOR
+        - AUTHOR
+        tenantScope: current-server-workspace-membership
+      security:
+      - staffCookie: []
+        csrfHeader: []
+      responses:
+        '200':
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatalogForm'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/workspaces/{workspace}/catalog/forms/{form}/restore:
+    parameters:
+    - name: workspace
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+    - name: form
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    post:
+      operationId: m6CatalogRestore
+      summary: Restore a workspace form
+      x-implementation-status: implemented
+      x-authorization:
+        roles:
+        - OWNER
+        - ADMINISTRATOR
+        - AUTHOR
+        tenantScope: current-server-workspace-membership
+      security:
+      - staffCookie: []
+        csrfHeader: []
+      responses:
+        '200':
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatalogForm'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/workspaces/{workspace}/catalog/forms/{form}/ownership:
+    parameters:
+    - name: workspace
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+    - name: form
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    put:
+      operationId: m6CatalogTransferOwnership
+      summary: Transfer form ownership to a current workspace member
+      x-implementation-status: implemented
+      x-authorization:
+        roles:
+        - OWNER
+        - ADMINISTRATOR
+        tenantScope: current-server-workspace-membership
+      security:
+      - staffCookie: []
+        csrfHeader: []
+      responses:
+        '200':
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatalogForm'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CatalogTransfer'
+  /v1/workspaces/{workspace}/catalog/forms/{form}/classification:
+    parameters:
+    - name: workspace
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+    - name: form
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    put:
+      operationId: m6CatalogClassify
+      summary: Set form folder and tags
+      x-implementation-status: implemented
+      x-authorization:
+        roles:
+        - OWNER
+        - ADMINISTRATOR
+        - AUTHOR
+        tenantScope: current-server-workspace-membership
+      security:
+      - staffCookie: []
+        csrfHeader: []
+      responses:
+        '204':
+          description: Classification updated.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CatalogClassification'
+  /v1/workspaces/{workspace}/folders:
+    parameters:
+    - name: workspace
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+    get:
+      operationId: m6ListFolders
+      summary: List workspace catalog folders
+      x-implementation-status: implemented
+      x-authorization:
+        roles:
+        - OWNER
+        - ADMIN
+        - AUTHOR
+        - VIEWER
+        tenantScope: current-server-workspace-membership
+      security:
+      - staffCookie: []
+        csrfHeader: []
+      responses:
+        '200':
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CatalogFolder'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      operationId: m6CreateFolder
+      summary: Create a workspace catalog folder
+      x-implementation-status: implemented
+      x-authorization:
+        roles:
+        - OWNER
+        - ADMINISTRATOR
+        - AUTHOR
+        tenantScope: current-server-workspace-membership
+      security:
+      - staffCookie: []
+        csrfHeader: []
+      responses:
+        '201':
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatalogFolder'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CatalogNameInput'
+  /v1/workspaces/{workspace}/folders/{folder}:
+    parameters:
+    - name: workspace
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+    - name: folder
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    patch:
+      operationId: m6UpdateFolder
+      summary: Update a workspace catalog folder
+      x-implementation-status: implemented
+      x-authorization:
+        roles:
+        - OWNER
+        - ADMINISTRATOR
+        - AUTHOR
+        tenantScope: current-server-workspace-membership
+      security:
+      - staffCookie: []
+        csrfHeader: []
+      responses:
+        '200':
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatalogFolder'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CatalogNameInput'
+    delete:
+      operationId: m6DeleteFolder
+      summary: Delete a workspace catalog folder
+      x-implementation-status: implemented
+      x-authorization:
+        roles:
+        - OWNER
+        - ADMINISTRATOR
+        - AUTHOR
+        tenantScope: current-server-workspace-membership
+      security:
+      - staffCookie: []
+        csrfHeader: []
+      responses:
+        '204':
+          description: Deleted.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/workspaces/{workspace}/tags:
+    parameters:
+    - name: workspace
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+    get:
+      operationId: m6ListTags
+      summary: List workspace catalog tags
+      x-implementation-status: implemented
+      x-authorization:
+        roles:
+        - OWNER
+        - ADMIN
+        - AUTHOR
+        - VIEWER
+        tenantScope: current-server-workspace-membership
+      security:
+      - staffCookie: []
+        csrfHeader: []
+      responses:
+        '200':
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CatalogTag'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      operationId: m6CreateTag
+      summary: Create a workspace catalog tag
+      x-implementation-status: implemented
+      x-authorization:
+        roles:
+        - OWNER
+        - ADMINISTRATOR
+        - AUTHOR
+        tenantScope: current-server-workspace-membership
+      security:
+      - staffCookie: []
+        csrfHeader: []
+      responses:
+        '201':
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatalogTag'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CatalogTagInput'
+  /v1/workspaces/{workspace}/tags/{tag}:
+    parameters:
+    - name: workspace
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+    - name: tag
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    patch:
+      operationId: m6UpdateTag
+      summary: Update a workspace catalog tag
+      x-implementation-status: implemented
+      x-authorization:
+        roles:
+        - OWNER
+        - ADMINISTRATOR
+        - AUTHOR
+        tenantScope: current-server-workspace-membership
+      security:
+      - staffCookie: []
+        csrfHeader: []
+      responses:
+        '200':
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatalogTag'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CatalogTagInput'
+    delete:
+      operationId: m6DeleteTag
+      summary: Delete a workspace catalog tag
+      x-implementation-status: implemented
+      x-authorization:
+        roles:
+        - OWNER
+        - ADMINISTRATOR
+        - AUTHOR
+        tenantScope: current-server-workspace-membership
+      security:
+      - staffCookie: []
+        csrfHeader: []
+      responses:
+        '204':
+          description: Deleted.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/workspaces/{workspace}/catalog/settings:
+    parameters:
+    - name: workspace
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+    get:
+      operationId: m6EffectiveCatalogSettings
+      summary: Read effective policy and provider settings
+      x-implementation-status: implemented
+      x-authorization:
+        roles:
+        - OWNER
+        - ADMINISTRATOR
+        tenantScope: current-server-workspace-membership
+      security:
+      - staffCookie: []
+        csrfHeader: []
+      responses:
+        '200':
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatalogSettings'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      operationId: m6UpdateCatalogSettings
+      summary: Update workspace policy and provider overrides
+      x-implementation-status: implemented
+      x-authorization:
+        roles:
+        - OWNER
+        - ADMINISTRATOR
+        tenantScope: current-server-workspace-membership
+      security:
+      - staffCookie: []
+        csrfHeader: []
+      responses:
+        '200':
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatalogSettings'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CatalogSettingsInput'
 x-m0-operation-inventory:
   oNamed:
     source: docs/acceptance/v1.1/denominators/o-named.json
@@ -12160,6 +12815,191 @@ components:
           type:
           - string
           - 'null'
+    CatalogTag:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        color:
+          type:
+          - string
+          - 'null'
+          pattern: ^#[0-9A-Fa-f]{6}$
+    CatalogFolder:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - createdAt
+      - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          minLength: 1
+          maxLength: 160
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    CatalogNameInput:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 160
+    CatalogTagInput:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        color:
+          type:
+          - string
+          - 'null'
+          pattern: ^#[0-9A-Fa-f]{6}$
+    CatalogOwner:
+      type:
+      - object
+      - 'null'
+      additionalProperties: false
+      required:
+      - id
+      - email
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+    CatalogForm:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - formKey
+      - title
+      - status
+      - revision
+      - updatedAt
+      - folderId
+      - owner
+      - tags
+      properties:
+        id:
+          type: string
+          format: uuid
+        formKey:
+          type: string
+        title:
+          type: string
+        status:
+          type: string
+        revision:
+          type: integer
+          minimum: 1
+        updatedAt:
+          type: string
+          format: date-time
+        folderId:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+        owner:
+          $ref: '#/components/schemas/CatalogOwner'
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/CatalogTag'
+    CatalogPage:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - nextCursor
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CatalogForm'
+        nextCursor:
+          type: string
+    CatalogClassification:
+      type: object
+      additionalProperties: false
+      properties:
+        folderId:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+        tagIds:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            format: uuid
+    CatalogTransfer:
+      type: object
+      additionalProperties: false
+      required:
+      - accountId
+      properties:
+        accountId:
+          type: string
+          format: uuid
+    CatalogSettings:
+      type: object
+      additionalProperties: false
+      required:
+      - workspaceId
+      - policy
+      - providers
+      properties:
+        workspaceId:
+          type: string
+          format: uuid
+        policy:
+          type: object
+          additionalProperties: true
+        providers:
+          type: object
+          additionalProperties: true
+    CatalogSettingsInput:
+      type: object
+      additionalProperties: false
+      properties:
+        policy:
+          type: object
+          additionalProperties: true
+        providers:
+          type: object
+          additionalProperties: true
     LiveSessionStartResponse:
       type: object
       additionalProperties: false

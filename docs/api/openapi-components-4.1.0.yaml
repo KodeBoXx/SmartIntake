@@ -5296,6 +5296,177 @@ components:
           type:
           - string
           - 'null'
+    CatalogTag:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - name
+      properties:
+        id: &id008
+          type: string
+          format: uuid
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        color:
+          type:
+          - string
+          - 'null'
+          pattern: ^#[0-9A-Fa-f]{6}$
+    CatalogFolder:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - createdAt
+      - updatedAt
+      properties:
+        id: *id008
+        name:
+          type: string
+          minLength: 1
+          maxLength: 160
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    CatalogNameInput:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 160
+    CatalogTagInput:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        color:
+          type:
+          - string
+          - 'null'
+          pattern: ^#[0-9A-Fa-f]{6}$
+    CatalogOwner:
+      type:
+      - object
+      - 'null'
+      additionalProperties: false
+      required:
+      - id
+      - email
+      properties:
+        id: *id008
+        email:
+          type: string
+          format: email
+    CatalogForm:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - formKey
+      - title
+      - status
+      - revision
+      - updatedAt
+      - folderId
+      - owner
+      - tags
+      properties:
+        id: *id008
+        formKey:
+          type: string
+        title:
+          type: string
+        status:
+          type: string
+        revision:
+          type: integer
+          minimum: 1
+        updatedAt:
+          type: string
+          format: date-time
+        folderId:
+          anyOf:
+          - *id008
+          - type: 'null'
+        owner:
+          $ref: '#/components/schemas/CatalogOwner'
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/CatalogTag'
+    CatalogPage:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - nextCursor
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CatalogForm'
+        nextCursor:
+          type: string
+    CatalogClassification:
+      type: object
+      additionalProperties: false
+      properties:
+        folderId:
+          anyOf:
+          - *id008
+          - type: 'null'
+        tagIds:
+          type: array
+          uniqueItems: true
+          items: *id008
+    CatalogTransfer:
+      type: object
+      additionalProperties: false
+      required:
+      - accountId
+      properties:
+        accountId: *id008
+    CatalogSettings:
+      type: object
+      additionalProperties: false
+      required:
+      - workspaceId
+      - policy
+      - providers
+      properties:
+        workspaceId: *id008
+        policy:
+          type: object
+          additionalProperties: true
+        providers:
+          type: object
+          additionalProperties: true
+    CatalogSettingsInput:
+      type: object
+      additionalProperties: false
+      properties:
+        policy:
+          type: object
+          additionalProperties: true
+        providers:
+          type: object
+          additionalProperties: true
     LiveSessionStartResponse:
       type: object
       additionalProperties: false
