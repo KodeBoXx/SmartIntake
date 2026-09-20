@@ -19,13 +19,13 @@ import { StaffSessionStore } from '../core/m5-session.store';
         <nav avatar aria-label="Primary navigation" class="hidden min-[900px]:flex min-[1025px]:hidden items-center gap-1">
           <cui-nav-item label="Forms" icon="file-text" [active]="isFormsActive()" (navClick)="go(formsUrl())" />
           <cui-nav-item label="Responses" icon="inbox" [active]="isResponsesActive()" (navClick)="go(responsesUrl())" />
-          <cui-nav-item label="Settings" icon="settings" [active]="isSettingsActive()" (navClick)="go('/settings/organization')" />
+          @if (canAdmin()) { <cui-nav-item label="Settings" icon="settings" [active]="isSettingsActive()" (navClick)="go('/settings/organization')" /> }
           <cui-button size="sm" variant="tertiary" (buttonClick)="logout()">Sign out</cui-button>
         </nav>
         <ng-template cuiHeaderDrawer><nav aria-label="Primary navigation" class="flex flex-col items-stretch gap-2 p-4">
           <cui-button [attr.aria-current]="isFormsActive() ? 'page' : null" [variant]="isFormsActive() ? 'secondary02' : 'secondary'" (buttonClick)="go(formsUrl(), staffHeader)">Forms</cui-button>
           <cui-button [attr.aria-current]="isResponsesActive() ? 'page' : null" [variant]="isResponsesActive() ? 'secondary02' : 'secondary'" (buttonClick)="go(responsesUrl(), staffHeader)">Responses</cui-button>
-          <cui-button (buttonClick)="go('/settings/organization', staffHeader)">Settings</cui-button><cui-button variant="tertiary" (buttonClick)="logout()">Sign out</cui-button>
+          @if (canAdmin()) { <cui-button (buttonClick)="go('/settings/organization', staffHeader)">Settings</cui-button> }<cui-button variant="tertiary" (buttonClick)="logout()">Sign out</cui-button>
         </nav></ng-template>
       </cui-header><router-outlet /></cui-app-shell>
       <cui-sidebar-shell class="staff-desktop-sidebar" [collapsed]="false"><div class="flex flex-col items-stretch gap-2 p-3">

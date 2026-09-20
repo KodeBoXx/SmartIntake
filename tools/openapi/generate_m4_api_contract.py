@@ -633,6 +633,21 @@ def generated() -> dict[Path, bytes]:
     copy_header("/v1/platform/organizations", "post", "201", "X-Temporary-Password-Copy")
     organization_user_create = api["paths"]["/v1/organizations/{o}/users"]["post"]
     organization_user_create["responses"]["201"]["content"]["application/json"]["schema"] = {"$ref": "#/components/schemas/InvitationResponse"}
+    organization_user_create["responses"]["201"]["headers"].pop("X-Activation-Copy-Link", None)
+    organization_user_create["responses"]["201"]["headers"].pop("X-Temporary-Password-Copy", None)
+    invitation_value = {"requestId": "req-01J2W5RFR3K24SFWDX2C0N9VW3", "invitation": {
+        "id": "invitation-01J2W5RFR3K24SFWDX2C0N9VW3", "kind": "Invitation", "revision": 0,
+        "status": "pending", "createdAt": "2026-09-18T00:00:00Z", "updatedAt": "2026-09-18T00:00:00Z",
+        "email": "recipient@example.test", "expiresAt": "2026-09-21T00:00:00Z"}}
+    organization_user_create["responses"]["201"]["content"]["application/json"]["examples"] = {"success": {"value": invitation_value}}
+    api["paths"]["/v1/platform/organizations"]["post"]["requestBody"]["content"]["application/json"]["examples"]["valid"]["value"] = {
+        "name": "Example organization", "ownerEmail": "owner@example.test"}
+    session_example = api["paths"]["/v1/auth/session"]["get"]["responses"]["200"]["content"]["application/json"]["examples"]["success"]["value"]["authenticatedSession"]
+    session_example["awaitingSetup"] = False
+    session_example["platformRoles"] = []
+    for organization in session_example["organizations"]:
+        organization["organizationRoles"] = ["member"]
+    api["paths"]["/v1/invitations/accept"]["post"]["responses"]["200"].pop("headers", None)
     start = api["paths"]["/v1/public/forms/{shareId}/sessions"]["post"]
     start["parameters"] = [parameter for parameter in start["parameters"]
                            if parameter.get("name") == "shareId"]

@@ -47,7 +47,7 @@ public class IdentityAdministrationService {
       "workspace-administrator", "author", "reviewer", "translator", "publisher",
       "response-viewer", "response-exporter", "auditor");
   private static final Set<String> ACCOUNT_STATUSES = Set.of("active", "suspended");
-  private static final Set<String> ORGANIZATION_STATUSES = Set.of("active", "suspended");
+  private static final Set<String> ORGANIZATION_STATUSES = Set.of("awaiting_owner_activation", "active", "suspended");
 
   private final JdbcTemplate db;
   private final IdentitySessionResolver sessions;
@@ -130,7 +130,10 @@ public class IdentityAdministrationService {
     db.update("update accounts set password_hash=?, display_name=?, activation_state='active', temporary_password_expires_at=null where id=?",
         credentials.encode(request.password()), request.displayName().trim(), account);
     // A pending owner is activated only in the tenant to which the proof was bound.
-    if (grant.organization() != null) db.update("update organization_memberships set membership_status='active',updated_at=now(),revision=revision+1 where account_id=? and organization_id=? and membership_status='suspended'", account, grant.organization());
+    if (grant.organization() != null) {
+      db.update("update organization_memberships set membership_status='active',updated_at=now(),revision=revision+1 where account_id=? and organization_id=? and membership_status='suspended'", account, grant.organization());
+      db.update("update organizations set organization_status='active',revision=revision+1 where id=? and organization_status='awaiting_owner_activation'", grant.organization());
+    }
     revokeSecretActions(account);
     revokeAllSessions(account);
     audit("identity.activation", new AuditContext(account, grant.organization() == null ? "self" : organizationScope(grant.organization()), account, "activation", "none", "not-applicable", "success", accountRevision(account)));
@@ -292,8 +295,9 @@ public class IdentityAdministrationService {
     }
     List<String> roles = allowedOrganizationRoles(sqlArray(invitation.get("organization_roles")), platformInvitation);
     db.update("insert into organization_memberships(account_id,organization_id,roles,membership_status) values(?,?,?,'active') "
-            + "on conflict(account_id,organization_id) do update set roles=excluded.roles,membership_status='active',updated_at=now(),revision=organization_memberships.revision+1",
+            + "on conflict(account_id,organization_id) do update set membership_status='active',updated_at=now(),revision=organization_memberships.revision+1",
         account, invitation.get("organization_id"), roles.toArray(String[]::new));
+    if (roles.contains("owner")) db.update("update organizations set organization_status='active',revision=revision+1 where id=? and organization_status='awaiting_owner_activation'", organization);
     db.update("update identity_invitations set used_at=now(),updated_at=now() where id=?", invitation.get("id"));
     audit("identity.invitation.accepted", new AuditContext(account, organizationScope(organization), account, "invitation-acceptance", "none", "not-applicable", "success", organizationMembershipRevision(account, organization)));
     return ResponseEntity.ok(Map.of("requestId", opaque("req"), "invitation", invitation((UUID) invitation.get("id"), (String) invitation.get("email"),
@@ -456,8 +460,16 @@ public class IdentityAdministrationService {
   }
 
   public ResponseEntity<?> platformOrganizations(HttpServletRequest http) {
-    requirePlatformAdministrator(currentAccount(http));
-    List<Map<String, Object>> items = db.queryForList("select id,name,organization_status,created_at from organizations order by name").stream()
+    UUID actor = currentAccount(http);
+    boolean platform = isPlatformAccount(actor);
+    if (!platform) {
+      Integer allowed = db.queryForObject("select count(*) from organization_memberships where account_id=? and membership_status='active' and roles && array['owner','administrator']", Integer.class, actor);
+      if (allowed == null || allowed == 0) forbidden();
+    }
+    String sql = platform ? "select id,name,organization_status,created_at from organizations order by name"
+        : "select o.id,o.name,o.organization_status,o.created_at from organizations o join organization_memberships om on om.organization_id=o.id where om.account_id=? and om.membership_status='active' and om.roles && array['owner','administrator'] order by o.name";
+    List<Map<String, Object>> rows = platform ? db.queryForList(sql) : db.queryForList(sql, actor);
+    List<Map<String, Object>> items = rows.stream()
         .map(this::organizationResource).toList();
     return ResponseEntity.ok(Map.of("requestId", opaque("req"), "items", items, "page", page()));
   }
@@ -468,7 +480,7 @@ public class IdentityAdministrationService {
     requirePlatformAdministrator(actor);
     if (request.name() == null || request.name().isBlank() || request.name().length() > 160 || request.ownerEmail() == null) badRequest();
     UUID organization = UUID.randomUUID();
-    db.update("insert into organizations(id,name,organization_status) values(?,?,'active')", organization, request.name().trim());
+    db.update("insert into organizations(id,name,organization_status) values(?,?,'awaiting_owner_activation')", organization, request.name().trim());
     String ownerEmail = email(request.ownerEmail());
     UUID owner = accountByEmail(ownerEmail);
     ResponseEntity<?> delivery;
@@ -488,7 +500,7 @@ public class IdentityAdministrationService {
         "organization-create", "copy-link", "first-owner-pending", "success", 0L));
     ResponseEntity.BodyBuilder response = ResponseEntity.status(HttpStatus.CREATED).eTag(etag(0));
     delivery.getHeaders().forEach((name, values) -> values.forEach(value -> response.header(name, value)));
-    return response.body(Map.of("requestId", opaque("req"), "organization", organizationResource(organization, request.name().trim(), "active", 0, Instant.now())));
+    return response.body(Map.of("requestId", opaque("req"), "organization", organizationResource(organization, request.name().trim(), "awaiting_owner_activation", 0, Instant.now())));
   }
 
   @Transactional
@@ -501,8 +513,8 @@ public class IdentityAdministrationService {
   @Transactional
   public ResponseEntity<?> updatePlatformOrganization(String organizationValue, OrganizationUpdate request, HttpServletRequest http) {
     UUID actor = currentAccount(http);
-    requirePlatformAdministrator(actor);
     UUID organization = organization(organizationValue);
+    if (!isPlatformAccount(actor)) requireOrganizationAdministrator(actor, organization);
     long revision = organizationRevisionForUpdate(organization);
     String status = request.organizationStatus();
     if (status == null) status = db.queryForObject("select organization_status from organizations where id=?", String.class, organization);
@@ -518,7 +530,7 @@ public class IdentityAdministrationService {
                                                                 String ifMatch, HttpServletRequest http) {
     UUID organization = organization(organizationValue);
     UUID actor = currentAccount(http);
-    requirePlatformAdministrator(actor);
+    if (!isPlatformAccount(actor)) requireOrganizationAdministrator(actor, organization);
     return mutations.execute(actor, organizationScope(organization), "platform-organization-update", idempotencyKey,
         requestWithMatch(request, ifMatch), () -> {
           requireRevision(ifMatch, organizationRevisionForUpdate(organization));

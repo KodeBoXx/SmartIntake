@@ -289,7 +289,11 @@ paths:
                           name: Research
                           roles:
                           - author
+                        organizationRoles:
+                        - member
                       currentOrganizationId: organization-01J2W5RFR3K24SFWDX2C0N9VW3
+                      awaitingSetup: false
+                      platformRoles: []
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -478,9 +482,6 @@ paths:
       responses:
         '200':
           description: Successful response.
-          headers:
-            ETag:
-              $ref: '#/components/headers/ETag'
           content:
             application/json:
               schema:
@@ -979,10 +980,6 @@ paths:
           headers:
             ETag:
               $ref: '#/components/headers/ETag'
-            X-Temporary-Password-Copy:
-              $ref: '#/components/headers/X-Temporary-Password-Copy'
-            X-Activation-Copy-Link:
-              $ref: '#/components/headers/X-Activation-Copy-Link'
             X-Invitation-Copy-Link:
               $ref: '#/components/headers/X-Invitation-Copy-Link'
           content:
@@ -993,16 +990,15 @@ paths:
                 success:
                   value:
                     requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
-                    organizationUser:
-                      id: organizationuser-01J2W5RFR3K24SFWDX2C0N9VW3
-                      kind: OrganizationUser
-                      revision: 7
-                      status: active
+                    invitation:
+                      id: invitation-01J2W5RFR3K24SFWDX2C0N9VW3
+                      kind: Invitation
+                      revision: 0
+                      status: pending
                       createdAt: '2026-09-18T00:00:00Z'
                       updatedAt: '2026-09-18T00:00:00Z'
-                      email: author@example.test
-                      roles:
-                      - administrator
+                      email: recipient@example.test
+                      expiresAt: '2026-09-21T00:00:00Z'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1707,7 +1703,8 @@ paths:
             examples:
               valid:
                 value:
-                  name: Example resource
+                  name: Example organization
+                  ownerEmail: owner@example.test
               invalid:
                 value: {}
       x-replay: Idempotency-Key is durably scoped to actor, tenant/account scope, operation and canonical request digest for

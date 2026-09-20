@@ -141,6 +141,10 @@ export class SmartIntakeApiService {
     return this.http.post<unknown>('/v1/auth/reset', body, { withCredentials: true, observe: 'response' }).pipe(map((response) => authorizedDeliveryCopies(response, 'activationCopyLink', 'temporaryPasswordCopy')));
   }
 
+  acceptInvitation(body: components['schemas']['InvitationAcceptanceRequest']): Observable<AuthorizedDeliveryCopies> {
+    return this.http.post<void>('/v1/invitations/accept', body, { withCredentials: true }).pipe(map(() => ({})));
+  }
+
   listForms(workspaceId: string): Observable<FormSummary[]> {
     return this.http.get<FormSummary[]>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/forms`, this.staff());
   }

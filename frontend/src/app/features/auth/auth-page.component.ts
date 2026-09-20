@@ -36,7 +36,7 @@ type AuthViewState = 'ready' | 'loading' | 'invalid' | 'denied' | 'expired' | 'e
             <cui-input class="mt-4" label="Activation or reset token" autocomplete="one-time-code" [(value)]="token" [error]="fieldError('token')" />
             <cui-input class="mt-4" label="New password" type="password" autocomplete="new-password" [(value)]="password" [error]="fieldError('password')" />
             @if (screen === 'activation') { <cui-input class="mt-4" label="Display name" autocomplete="name" [(value)]="displayName" /> }
-            <cui-button class="mt-5" [disabled]="state() === 'loading'" (buttonClick)="completeCredentialFlow()">{{ screen === 'activation' ? 'Activate account' : 'Set password' }}</cui-button>
+            <cui-button class="mt-5" [disabled]="state() === 'loading'" (buttonClick)="completeCredentialFlow()">{{ screen === 'activation' ? 'Activate account' : screen === 'invitation' ? 'Accept invitation' : 'Set password' }}</cui-button>
           }
         }
         @if (state() === 'expired') { <cui-button class="mt-5" (buttonClick)="retry()">Sign in again</cui-button> }
@@ -51,19 +51,23 @@ export class AuthPageComponent {
   private readonly router = inject(Router);
   private readonly session = inject(StaffSessionStore);
   private readonly api = inject(SmartIntakeApiService);
-  readonly screen = this.route.snapshot.data['screen'] as 'sign-in' | 'setup' | 'activation' | 'recovery';
+  readonly screen = this.route.snapshot.data['screen'] as 'sign-in' | 'setup' | 'activation' | 'recovery' | 'invitation';
   readonly title = titleCase(this.screen);
   readonly state = signal<AuthViewState>(this.route.snapshot.queryParamMap.get('state') as AuthViewState || 'ready');
   readonly message = signal(this.messageFor(this.state()));
   readonly delivery = signal<AuthorizedDeliveryCopies>({});
   email = '';
   password = '';
-  token = this.route.snapshot.queryParamMap.get('token') ?? '';
+  token = this.route.snapshot.paramMap.get('token') ?? this.route.snapshot.queryParamMap.get('token') ?? '';
   displayName = '';
   organizationName = '';
   workspaceName = '';
   /** Kept only in this component until the setup request is sent. */
   bootstrapToken = '';
+
+  constructor() {
+    if (this.screen === 'invitation' && this.route.snapshot.paramMap.get('token')) void this.router.navigateByUrl('/invitation', { replaceUrl: true });
+  }
 
   isError(): boolean { return ['invalid', 'denied', 'throttled', 'error'].includes(this.state()); }
   alertTitle(): string { return this.state() === 'invalid' ? 'Check your details' : this.title; }
@@ -105,7 +109,9 @@ export class AuthPageComponent {
     this.show('loading');
     const request = this.screen === 'activation'
       ? this.api.activate({ activationToken: this.token, password: this.password, displayName: this.displayName })
-      : this.api.resetPassword({ resetToken: this.token, newPassword: this.password });
+      : this.screen === 'invitation'
+        ? this.api.acceptInvitation({ invitationToken: this.token, password: this.password })
+        : this.api.resetPassword({ resetToken: this.token, newPassword: this.password });
     request.subscribe({ next: (result) => Object.keys(result).length ? this.showDelivery(result) : void this.router.navigate(['/sign-in'], { queryParams: { state: 'ready' } }), error: (error) => this.show(this.errorState(error.status)) });
   }
 

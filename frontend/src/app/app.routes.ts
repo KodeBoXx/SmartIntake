@@ -12,6 +12,8 @@ export const appRoutes: Routes = [
   { ...auth('sign-in', 'sign-in'), canActivate: [anonymousOnlyGuard] },
   { ...auth('setup', 'setup'), canActivate: [anonymousOnlyGuard] },
   { ...auth('activation', 'activation'), canActivate: [anonymousOnlyGuard] },
+  { ...auth('invite/:token', 'invitation'), canActivate: [anonymousOnlyGuard] },
+  { ...auth('invitation', 'invitation'), canActivate: [anonymousOnlyGuard] },
   { ...auth('recovery', 'recovery'), canActivate: [anonymousOnlyGuard] },
   // Frozen M1 lifecycle remains independently reachable, guarded, and shell-less.
   { path: 'catalog/builder', canActivate: [staffSessionGuard], loadComponent: () => import('./app.component').then((m) => m.AppComponent) },
