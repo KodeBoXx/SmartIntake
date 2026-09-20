@@ -96,7 +96,13 @@ public class IntakeApplicationService {
     }
   }
 
-  public record Submit(Long sessionRevision) {}
+  public record Submit(
+      Long sessionRevision,
+      String reviewDigest,
+      List<Map<String, Object>> acknowledgments,
+      String attemptId) {
+    public Submit(Long sessionRevision) { this(sessionRevision, null, List.of(), null); }
+  }
 
   // Staff authentication and service metadata
 
@@ -418,6 +424,8 @@ public class IntakeApplicationService {
 
   @Transactional
   public Map<String, Object> patch(UUID id, String token, PatchSession in) {
+    if (in.operations() != null && in.operations().size() > TypedSessionRuntimeService.MAX_OPERATIONS_PER_BATCH)
+      throw bad("OPERATION_LIMIT", "Mutation batch exceeds the operation limit");
     var s = respondent(id, token, true);
     if (in.clientMutationId() == null
         || !in.clientMutationId().matches("^[A-Za-z0-9][A-Za-z0-9._:-]{7,199}$"))
@@ -445,6 +453,7 @@ public class IntakeApplicationService {
       throw new ResponseStatusException(HttpStatus.CONFLICT, "SESSION_REVISION_CONFLICT");
     R release = release(s.releaseId());
     JsonNode releaseNode = json.valueToTree(parse(release.pkg()));
+    requireCanonicalRuntimeState(s, releaseNode);
     Map<String, Object> answers;
     Map<String, Object> persistedRuntimeState = null;
     List<Map<String, Object>> validation;
@@ -454,7 +463,8 @@ public class IntakeApplicationService {
         throw bad("OPERATIONS_REQUIRED", "Canonical sessions require one non-empty typed operation batch");
       }
       var outcome = typedRuntime.mutate(releaseNode, json.valueToTree(parse(s.answers())),
-          parseNode(s.runtimeState()), in.operations(), s.sessionDate().toString(), s.timeZone(), Instant.now());
+          parseNode(s.runtimeState()), in.operations(), in.currentPageId(),
+          s.sessionDate().toString(), s.timeZone(), Instant.now());
       if (!outcome.accepted()) {
         String code = outcome.validation().isEmpty()
             ? "MUTATION_INVALID" : Objects.toString(outcome.validation().get(0).get("code"));
@@ -500,6 +510,7 @@ public class IntakeApplicationService {
     var s = respondent(id, token);
     R release = release(s.releaseId());
     JsonNode definition = json.valueToTree(parse(release.pkg()));
+    requireCanonicalRuntimeState(s, definition);
     if (typedRuntime.canonical(definition)) {
       var outcome = typedRuntime.mutate(definition, json.valueToTree(parse(s.answers())),
           parseNode(s.runtimeState()), List.of(), s.sessionDate().toString(), s.timeZone(), Instant.now());
@@ -507,8 +518,10 @@ public class IntakeApplicationService {
         throw bad("INVALID_INPUT_PENDING", "Applicable input must be entered again");
       Map<String, Object> response = new LinkedHashMap<>();
       response.put("errors", outcome.validation());
-      if (outcome.validation().isEmpty())
-        response.put("reviewDigest", CanonicalJson.sha256(json.valueToTree(outcome.answers())));
+      if (outcome.validation().isEmpty()) {
+        response.put("review", outcome.reviewProjection());
+        response.put("reviewDigest", outcome.reviewDigest());
+      }
       return response;
     }
     return Map.of(
@@ -530,8 +543,11 @@ public class IntakeApplicationService {
       throw new ResponseStatusException(HttpStatus.CONFLICT, "REVIEW_STALE");
     R release = release(s.releaseId());
     JsonNode definition = json.valueToTree(parse(release.pkg()));
+    requireCanonicalRuntimeState(s, definition);
     Map<String, Object> acceptedAnswers = parse(s.answers());
     Map<String, Object> acceptedRuntimeState = null;
+    Map<String, Object> acceptedReviewProjection = null;
+    String acceptedReviewDigest = null;
     List<Map<String, Object>> errors;
     if (typedRuntime.canonical(definition)) {
       var outcome = typedRuntime.mutate(definition, json.valueToTree(acceptedAnswers),
@@ -539,6 +555,8 @@ public class IntakeApplicationService {
       if (!outcome.accepted()) throw bad("RUNTIME_STATE_INVALID", "Canonical runtime state rejected");
       acceptedAnswers = outcome.answers();
       acceptedRuntimeState = outcome.runtimeState();
+      acceptedReviewProjection = outcome.reviewProjection();
+      acceptedReviewDigest = outcome.reviewDigest();
       errors = outcome.validation();
     } else {
       errors = validateAnswers(release.pkg(), acceptedAnswers, s);
@@ -549,19 +567,23 @@ public class IntakeApplicationService {
       return ResponseEntity.unprocessableEntity()
           .body(Map.of("code", code, "errors", errors));
     }
+    if (typedRuntime.canonical(definition)) {
+      if (in.reviewDigest() == null || !in.reviewDigest().equals(acceptedReviewDigest))
+        throw new ResponseStatusException(HttpStatus.CONFLICT, "REVIEW_STALE");
+      if (in.attemptId() == null || !in.attemptId().matches("^[A-Za-z0-9][A-Za-z0-9._:-]{7,199}$"))
+        throw bad("ATTEMPT_ID_REQUIRED", "A valid submission attemptId is required");
+    }
     UUID sub = UUID.randomUUID();
-    Map<String, Object> envelope =
-        Map.of(
-            "contractVersion",
-            "4.0.0",
-            "submissionId",
-            sub,
-            "formId",
-            s.formId(),
-            "answers",
-            acceptedAnswers,
-            "submittedAt",
-            Instant.now().toString());
+    Map<String, Object> envelope = new LinkedHashMap<>();
+    envelope.put("contractVersion", "4.0.0");
+    envelope.put("submissionId", sub);
+    envelope.put("formId", s.formId());
+    envelope.put("answers", acceptedAnswers);
+    if (acceptedReviewProjection != null) {
+      envelope.put("review", acceptedReviewProjection);
+      envelope.put("reviewDigest", acceptedReviewDigest);
+    }
+    envelope.put("submittedAt", Instant.now().toString());
     db.update(
         "insert into submissions(id,form_id,session_id,envelope) values(?,?,?,cast(? as jsonb))",
         sub,
@@ -782,15 +804,20 @@ public class IntakeApplicationService {
   private Map<String, Object> sessionView(S s) {
     Map<String, Object> definition = parse(release(s.releaseId()).pkg());
     JsonNode definitionNode = json.valueToTree(definition);
+    requireCanonicalRuntimeState(s, definitionNode);
     Object answers;
+    List<Map<String, Object>> invalidInputs = List.of();
     if (typedRuntime.canonical(definitionNode)) {
-      answers = typedRuntime.mutate(definitionNode, json.valueToTree(parse(s.answers())),
-          parseNode(s.runtimeState()), List.of(), s.sessionDate().toString(), s.timeZone(), Instant.now()).answers();
+      var outcome = typedRuntime.mutate(definitionNode, json.valueToTree(parse(s.answers())),
+          parseNode(s.runtimeState()), List.of(), s.sessionDate().toString(), s.timeZone(), Instant.now());
+      answers = outcome.answers();
+      invalidInputs = outcome.validation().stream()
+          .filter(item -> "UNPARSEABLE_INPUT".equals(item.get("code"))).toList();
     } else {
       answers = new FormRuntime(json, s.sessionDate().toString(), s.timeZone())
           .calculatedAnswers(definition, parse(s.answers()));
     }
-    return Map.of(
+    Map<String, Object> response = new LinkedHashMap<>(Map.of(
         "sessionId",
         s.id(),
         "revision",
@@ -803,7 +830,9 @@ public class IntakeApplicationService {
         Map.of("sessionDate", s.sessionDate().toString(), "timeZone", s.timeZone(),
             "timeZoneDatabaseVersion", s.tzdbVersion()),
         "definition",
-        definition);
+        definition));
+    if (!invalidInputs.isEmpty()) response.put("invalidInputs", invalidInputs);
+    return response;
   }
 
   @SuppressWarnings("unchecked")
@@ -899,6 +928,11 @@ public class IntakeApplicationService {
     return typedRuntime.canonical(json.valueToTree(definition))
         ? CompatibilityProfile.CANONICAL_4_0_0.key()
         : CompatibilityProfile.M1_CURRENT_PROTOTYPE.key();
+  }
+
+  private void requireCanonicalRuntimeState(S session, JsonNode definition) {
+    if (typedRuntime.canonical(definition) && session.revision() > 0 && session.runtimeState() == null)
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "CANONICAL_RUNTIME_STATE_REQUIRED");
   }
 
   private List<Map<String, Object>> validateAnswers(

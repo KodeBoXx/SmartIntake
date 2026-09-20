@@ -148,6 +148,24 @@ class TypedAnswerRuntimeTests {
   }
 
   @Test
+  void memoryRetentionRestoresInProcessButIsNotPersisted() throws Exception {
+    Field memory = new Field("private", "text", false, false, false, false, false, null,
+        Set.of(), Map.of(), List.of(), "memory", "preserve", null,
+        null, null, null, null, null, null, null, Set.of());
+    var runtime = new TypedAnswerRuntime(List.of(memory));
+    Address address = new Address("private", List.of());
+    State answered = runtime.apply(runtime.initialize(), List.of(
+        new SetValue(address, Status.answered, JSON.readTree("\"retained\""))), NOW).state();
+    State hidden = runtime.projectApplicability(answered, Map.of(address, false), NOW.plusSeconds(1));
+    assertEquals("retained", runtime.projectApplicability(hidden, Map.of(address, true), NOW.plusSeconds(2))
+        .cells().get(address).value().textValue());
+    State restarted = runtime.fromStorage(runtime.storage(hidden));
+    State reopened = runtime.projectApplicability(restarted, Map.of(address, true), NOW.plusSeconds(3));
+    assertEquals(Status.unanswered, reopened.cells().get(address).status());
+    assertNull(reopened.cells().get(address).value());
+  }
+
+  @Test
   void recursiveProjectionPreservesListOrderTypesAndServerProvenance() throws Exception {
     Field name = scalar("name", "text");
     Field people = new Field("people", "list", false, false, false, false, false, null,
@@ -228,5 +246,38 @@ class TypedAnswerRuntimeTests {
     ((ArrayNode) original.cells().get(address).value()).add("forged");
     assertEquals(1, original.cells().get(address).value().size());
     assertEquals(1, copy.cells().get(address).value().size());
+  }
+
+  @Test
+  void structuralClearRetiresAllNestedItemIdsAndRemovesRows() {
+    Field leaf = scalar("leaf", "text");
+    Field inner = new Field("inner", "list", false, false, false, false, false, null,
+        Set.of(), Map.of("leaf", leaf), List.of());
+    Field outer = new Field("outer", "list", false, false, false, false, false, null,
+        Set.of(), Map.of("inner", inner), List.of());
+    var runtime = new TypedAnswerRuntime(List.of(outer));
+    Address outerAddress = new Address("outer", List.of());
+    State outerAdded = runtime.apply(new State(), List.of(
+        new AddItem(outerAddress, "outer-a", Map.of())), NOW).state();
+    Address innerAddress = new Address("inner", List.of(new RowSegment("outer", "outer-a")));
+    State nested = runtime.apply(outerAdded, List.of(new AddItem(innerAddress, "inner-a", Map.of())), NOW).state();
+    State cleared = runtime.apply(nested, List.of(new Clear(outerAddress)), NOW.plusSeconds(1)).state();
+    assertEquals("unanswered", runtime.projection(cleared).at("/outer/status").asText());
+    assertTrue(cleared.retired(outerAddress, "outer-a"));
+    assertTrue(cleared.retired(innerAddress, "inner-a"));
+    assertFalse(runtime.apply(cleared, List.of(new AddItem(outerAddress, "inner-a", Map.of())),
+        NOW.plusSeconds(2)).accepted());
+  }
+
+  @Test
+  void hiddenObjectBlocksDescendantMutation() throws Exception {
+    Field child = scalar("child", "text");
+    Field object = new Field("object", "object", false, false, false, false, false, null,
+        Set.of(), Map.of("child", child), List.of());
+    var runtime = new TypedAnswerRuntime(List.of(object));
+    State hidden = runtime.projectApplicability(new State(),
+        Map.of(new Address("object", List.of()), false), NOW);
+    assertFalse(runtime.apply(hidden, List.of(new SetValue(new Address("child", List.of()),
+        Status.answered, com.fasterxml.jackson.databind.node.TextNode.valueOf("forged"))), NOW).accepted());
   }
 }

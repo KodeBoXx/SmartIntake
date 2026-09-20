@@ -36,6 +36,9 @@ class RuntimeGraphTests {
     assertEquals(List.of("page-input", "page-review"), hidden.reachablePageIds());
     assertEquals(1, hidden.requiredCount());
     assertEquals(0, hidden.completedRequiredCount());
+    RuntimeGraph.Projection repeated = graph.evaluate(
+        hidden.state(), "2026-09-19", "UTC", NOW.plusSeconds(30));
+    assertEquals(runtime.projection(hidden.state()), runtime.projection(repeated.state()));
 
     State visibleInput = runtime.apply(hidden.state(), List.of(
         new SetValue(new Address("flag", List.of()), Status.answered, JSON.readTree("true"))), NOW.plusSeconds(2)).state();

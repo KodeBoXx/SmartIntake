@@ -130,6 +130,30 @@ class FormCompilerTests {
     assertCode(compiler.compile(calculated), "CALCULATION_BINDING_REQUIRED");
   }
 
+  @Test
+  void compilesItemScopedExpressionAtItsRecursiveConsumer() throws Exception {
+    ObjectNode form = canonical();
+    ((ObjectNode) form.path("expressions")).set("itemVisible", json.readTree("""
+        {"op":"isAnswered","args":[{"ref":{"scope":"item","fieldId":"attendeeName"}}]}"""));
+    ((ObjectNode) form.at("/data/fields/2/itemSchema/fields/0"))
+        .put("validationExpressionId", "itemVisible");
+    CompilationResult result = compiler.compile(form);
+    assertThat(result.valid()).as(result.diagnostics().toString()).isTrue();
+  }
+
+  @Test
+  void compilesParentItemExpressionAtNestedRecursiveConsumer() throws Exception {
+    ObjectNode form = canonical();
+    ((ObjectNode) form.path("expressions")).set("parentVisible", json.readTree("""
+        {"op":"isAnswered","args":[{"ref":{"scope":"parentItem","parentDepth":1,"fieldId":"attendeeName"}}]}"""));
+    ((ArrayNode) form.at("/data/fields/2/itemSchema/fields")).add(json.readTree("""
+        {"id":"parts","key":"parts","type":"list","labelKey":"title","itemSchema":{"fields":[
+          {"id":"serial","key":"serial","type":"text","labelKey":"title","validationExpressionId":"parentVisible"}
+        ]}}"""));
+    CompilationResult result = compiler.compile(form);
+    assertThat(result.valid()).as(result.diagnostics().toString()).isTrue();
+  }
+
   private ObjectNode canonical() throws Exception {
     ObjectNode form = (ObjectNode) json.readTree(Files.readString(Path.of("../docs/contracts/smart-form-builder-lite/4.0.0/fixtures/package.positive.json")));
     ArrayNode nodes = (ArrayNode) form.at("/flow/phases/0/pages/0/sections/0/nodes");

@@ -49,6 +49,11 @@ public final class RuntimeGraph {
   }
 
   public Projection evaluate(State input, String sessionDate, String timeZone, Instant changedAt) {
+    return evaluate(input, sessionDate, timeZone, changedAt, true);
+  }
+
+  private Projection evaluate(
+      State input, String sessionDate, String timeZone, Instant changedAt, boolean allowRouteRerun) {
     if (!compileDiagnostics.isEmpty()) {
       return new Projection(input, Map.of(), Map.of(), List.of(), 0, 0, compileDiagnostics);
     }
@@ -70,11 +75,12 @@ public final class RuntimeGraph {
       boolean applicable = evaluateBoolean(
           source.path("visibilityExpressionId").asText(null), state, sessionDate, timeZone, budget,
           true, fieldId, diagnostics, target.address);
-      applicable = applicable && placementApplicable(fieldId, initiallyReachable, state, sessionDate,
-          timeZone, budget, diagnostics, target.address);
-      applicable = applicable && target.ancestorsApplicable && ancestorsApplicable(target.address, state);
+      applicable = applicable && (field.protectedValue() || placementApplicable(fieldId, initiallyReachable,
+          state, sessionDate, timeZone, budget, diagnostics, target.address));
+      applicable = applicable && target.ancestorsApplicable && runtime.ancestorsApplicable(state, target.address);
       state = runtime.projectApplicability(state, Map.of(target.address, applicable), changedAt);
       boolean required = applicable && (source.path("required").asBoolean(false)
+          || source.path("constraints").path("required").asBoolean(false)
           || evaluateBoolean(source.path("requiredExpressionId").asText(null), state, sessionDate, timeZone,
               budget, false, fieldId, diagnostics, target.address));
       if (applicable && field.protectedValue() && calculationExpressionId(source) != null) {
@@ -87,14 +93,18 @@ public final class RuntimeGraph {
           if ("available".equals(result.state())) {
             Cell calculated = new Cell(field.type(), Status.answered, Provenance.calculated,
                 result.value(), changedAt, false);
+            Cell existing = state.cells().get(target.address);
+            if (sameDerivedCell(existing, calculated)) calculated = existing;
             try {
               state = runtime.projectServerCells(state, Map.of(target.address, calculated));
             } catch (IllegalArgumentException invalid) {
               diagnostics.add(new Diagnostic(invalid.getMessage(), fieldId, expressionId));
             }
           } else if ("unknown".equals(result.state())) {
+            Cell calculated = new Cell(field.type(), Status.unknown, Provenance.calculated, null, changedAt, false);
+            Cell existing = state.cells().get(target.address);
             state = runtime.projectServerCells(state, Map.of(target.address,
-                new Cell(field.type(), Status.unknown, Provenance.calculated, null, changedAt, false)));
+                sameDerivedCell(existing, calculated) ? existing : calculated));
           } else diagnostics.add(new Diagnostic(result.code(), fieldId, expressionId));
         }
       }
@@ -107,10 +117,18 @@ public final class RuntimeGraph {
           target.address, diagnostics);
     }
     List<String> reachable = reachablePages(state, sessionDate, timeZone, budget, diagnostics);
+    if (allowRouteRerun && !reachable.equals(initiallyReachable))
+      return evaluate(state, sessionDate, timeZone, changedAt, false);
     Set<String> reviewPages = new HashSet<>(compiled.reviewPageIds());
     int answerPages = (int) reachable.stream().filter(page -> !reviewPages.contains(page)).count();
     return new Projection(state, projections, addressProjections, reachable,
         answerPages, 0, diagnostics);
+  }
+
+  private static boolean sameDerivedCell(Cell left, Cell right) {
+    return left != null && left.type().equals(right.type()) && left.status() == right.status()
+        && left.provenance() == right.provenance() && Objects.equals(left.value(), right.value())
+        && left.needsReentry() == right.needsReentry();
   }
 
   private boolean placementApplicable(
@@ -125,9 +143,16 @@ public final class RuntimeGraph {
     List<Placement> instances = placements.getOrDefault(fieldId, List.of());
     if (instances.isEmpty()) return true;
     for (Placement placement : instances) {
-      if (reachable.contains(placement.pageId)
-          && evaluateBoolean(placement.visibilityExpressionId, state, sessionDate, timeZone, budget,
-              true, fieldId, diagnostics, address)) return true;
+      if (!reachable.contains(placement.pageId)) continue;
+      boolean visible = true;
+      for (String expressionId : placement.visibilityExpressionIds) {
+        if (!evaluateBoolean(expressionId, state, sessionDate, timeZone, budget,
+            true, fieldId, diagnostics, address)) {
+          visible = false;
+          break;
+        }
+      }
+      if (visible) return true;
     }
     return false;
   }
@@ -260,7 +285,7 @@ public final class RuntimeGraph {
     compiled.fields().forEach((id, field) -> {
       Set<String> refs = new TreeSet<>();
       JsonNode source = field.source();
-      for (String binding : List.of("visibilityExpressionId", "requiredExpressionId", "validationExpressionId")) {
+      for (String binding : List.of("visibilityExpressionId", "requiredExpressionId")) {
         String expressionId = source.path(binding).asText(null);
         if (expressionId != null) collectReferences(compiled.expressions().get(expressionId), refs);
       }
@@ -307,7 +332,9 @@ public final class RuntimeGraph {
   private record Order(List<String> order, List<Diagnostic> diagnostics) {}
 
   private record Target(Address address, JsonNode source, boolean ancestorsApplicable) {}
-  private record Placement(String pageId, String visibilityExpressionId) {}
+  private record Placement(String pageId, List<String> visibilityExpressionIds) {
+    private Placement { visibilityExpressionIds = List.copyOf(visibilityExpressionIds); }
+  }
 
   private static Map<String, List<Placement>> placements(JsonNode packageNode) {
     Map<String, List<Placement>> result = new LinkedHashMap<>();
@@ -315,7 +342,7 @@ public final class RuntimeGraph {
       for (JsonNode page : phase.path("pages")) {
         for (JsonNode section : page.path("sections")) {
           for (JsonNode node : section.path("nodes"))
-            collectPlacements(node, page.path("id").asText(), result);
+            collectPlacements(node, page.path("id").asText(), List.of(), result);
         }
       }
     }
@@ -323,12 +350,17 @@ public final class RuntimeGraph {
     return Map.copyOf(result);
   }
 
-  private static void collectPlacements(JsonNode node, String pageId, Map<String, List<Placement>> result) {
+  private static void collectPlacements(
+      JsonNode node, String pageId, List<String> ancestorVisibility,
+      Map<String, List<Placement>> result) {
+    List<String> visibility = new ArrayList<>(ancestorVisibility);
+    if (node.path("visibilityExpressionId").isTextual())
+      visibility.add(node.path("visibilityExpressionId").asText());
     if (node.path("fieldId").isTextual()) {
       result.computeIfAbsent(node.path("fieldId").asText(), ignored -> new ArrayList<>())
-          .add(new Placement(pageId, node.path("visibilityExpressionId").asText(null)));
+          .add(new Placement(pageId, visibility));
     }
-    for (JsonNode child : node.path("children")) collectPlacements(child, pageId, result);
+    for (JsonNode child : node.path("children")) collectPlacements(child, pageId, visibility, result);
   }
 
   /** Enumerates every active stable address rather than reducing repeaters to their root definition. */

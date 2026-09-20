@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { FormDefinition, ResponseSummary } from './models/form-definition.models';
-import type { operations } from './generated/api';
+import type { operations } from './generated/api-4.1.0';
 import type { RuntimeOperation, ServerProjection } from './runtime/runtime-types';
 
 export { AjvContractValidationAdapter } from './ajv-contract-validation.adapter';
@@ -109,8 +109,18 @@ export class SmartIntakeApiService {
     }, this.respondent(respondentToken));
   }
 
-  submitSession(sessionId: string, respondentToken: string, sessionRevision: number): Observable<{ receiptId: string }> {
-    return this.http.post<{ receiptId: string }>(`/v1/sessions/${sessionId}/submissions`, { sessionRevision }, this.respondent(respondentToken));
+  submitSession(
+    sessionId: string,
+    respondentToken: string,
+    sessionRevision: number,
+    reviewDigest?: string,
+    attemptId?: string,
+    acknowledgments: readonly unknown[] = [],
+  ): Observable<{ receiptId: string }> {
+    return this.http.post<{ receiptId: string }>(`/v1/sessions/${sessionId}/submissions`, {
+      sessionRevision,
+      ...(reviewDigest === undefined ? {} : { reviewDigest, attemptId, acknowledgments }),
+    }, this.respondent(respondentToken));
   }
 
   private staff(staffToken: string) {
@@ -133,11 +143,11 @@ export class SmartIntakeApiService {
     switch (operation.kind) {
       case 'set': return {
         op: 'set', ...target,
-        answer: operation.answer ?? { status: 'answered', value: operation.value },
+        value: operation.answer ?? { status: 'answered', value: operation.value },
       };
       case 'clear': return { op: 'clear', ...target };
       case 'markInvalid': return { op: 'markInvalid', ...target, reason: operation.reason };
-      case 'addItem': return { op: 'addItem', ...target, itemId: operation.itemId, fields: operation.fields ?? {} };
+      case 'addItem': return { op: 'addItem', ...target, itemId: operation.itemId, initialFields: operation.fields ?? {} };
       case 'removeItem': return { op: 'removeItem', ...target, itemId: operation.itemId };
       case 'moveItem': return {
         op: 'moveItem', ...target, itemId: operation.itemId,

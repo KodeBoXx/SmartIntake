@@ -119,6 +119,7 @@ describe('SmartIntakeApiService', () => {
         target: { fieldId: 'reason', rowPath: [{ listFieldId: 'rows', itemId: 'row-a' }] },
         answer: { status: 'declined' },
       },
+      { kind: 'addItem', target: { fieldId: 'rows' }, itemId: 'row-c', fields: {} },
       { kind: 'moveItem', target: { fieldId: 'rows' }, itemId: 'row-b', beforeItemId: 'row-a' },
     ], 'page-review').subscribe();
     const request = http.expectOne('/v1/sessions/session-1');
@@ -129,12 +130,13 @@ describe('SmartIntakeApiService', () => {
       clientMutationId: 'mutation-typed',
       currentPageId: 'page-review',
       operations: [
-        { op: 'set', fieldId: 'amount', answer: { status: 'answered', value: '9223372036854775807' } },
+        { op: 'set', fieldId: 'amount', value: { status: 'answered', value: '9223372036854775807' } },
         {
           op: 'set', fieldId: 'reason',
           rowPath: [{ listFieldId: 'rows', itemId: 'row-a' }],
-          answer: { status: 'declined' },
+          value: { status: 'declined' },
         },
+        { op: 'addItem', fieldId: 'rows', itemId: 'row-c', initialFields: {} },
         { op: 'moveItem', fieldId: 'rows', itemId: 'row-b', beforeItemId: 'row-a' },
       ],
     });

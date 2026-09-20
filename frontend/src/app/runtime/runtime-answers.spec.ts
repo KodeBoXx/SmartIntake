@@ -54,6 +54,19 @@ describe('M4 runtime typed answers', () => {
     expect(state.answers.amount).toEqual({ status: 'answered', value: '12.30' });
   });
 
+  it('checks numeric constraints without losing int64 or decimal precision', () => {
+    const exact: RuntimeDefinition = { fields: [
+      { id: 'integer', type: 'integer', min: '9223372036854775806', max: '9223372036854775807', step: '1' },
+      { id: 'decimal', type: 'decimal', min: '0.1', step: '0.000000000000000001' },
+    ] };
+    let state = createRuntimeAnswerState();
+    const integer = applyRuntimeOperation(exact, state, { kind: 'set', target: { fieldId: 'integer' }, value: '9223372036854775807' });
+    expect(integer.accepted).toBe(true);
+    state = integer.state;
+    expect(applyRuntimeOperation(exact, state, { kind: 'set', target: { fieldId: 'integer' }, value: '9223372036854775805' }).accepted).toBe(false);
+    expect(applyRuntimeOperation(exact, state, { kind: 'set', target: { fieldId: 'decimal' }, value: '0.100000000000000001' }).accepted).toBe(true);
+  });
+
   it('models exactly six statuses while preserving server-owned provenance outside client input', () => {
     const state = createRuntimeAnswerState(server({
       age: { status: 'unknown', type: 'integer', provenance: respondent },
@@ -83,7 +96,7 @@ describe('M4 runtime typed answers', () => {
         kind: 'clear', target: { fieldId: 'readOnlyText' },
       });
       const invalidCalculated = applyRuntimeOperation(definition, state, {
-        kind: 'markInvalid', target: { fieldId: 'score' }, reason: 'forged',
+        kind: 'markInvalid', target: { fieldId: 'score' }, reason: 'UNPARSEABLE_INPUT',
       });
       accepted += Number(score.accepted) + Number(readOnly.accepted) + Number(invalidCalculated.accepted);
       expect(score.rejection).toBe('PROTECTED_FIELD');

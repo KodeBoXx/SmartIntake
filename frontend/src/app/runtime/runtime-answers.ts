@@ -63,13 +63,13 @@ export function applyRuntimeOperation(
   }
 
   if (operation.kind === 'markInvalid') {
-    if (operation.reason.length === 0) return rejected(state, 'INVALID_VALUE');
     const key = targetKey(operation.target);
     return accepted({ ...state, invalid: { ...state.invalid, [key]: operation.reason } });
   }
 
   if (operation.kind === 'set') {
-    const proposed = operation.answer ?? (operation.value === undefined
+    if (field.type === 'object' || field.type === 'list') return rejected(state, 'INVALID_VALUE');
+    let proposed = operation.answer ?? (operation.value === undefined
       ? undefined
       : { status: 'answered' as const, value: operation.value });
     if (proposed === undefined || proposed.status === 'notApplicable') return rejected(state, 'INVALID_STATUS');
@@ -77,6 +77,10 @@ export function applyRuntimeOperation(
       || proposed.status === 'declined' && !field.allowDeclined
       || proposed.status === 'respondentNotApplicable' && !field.allowNotApplicable) {
       return rejected(state, 'INVALID_STATUS');
+    }
+    if (proposed.status === 'answered' && typeof proposed.value === 'string') {
+      const value = normalizeText(field, proposed.value);
+      proposed = { ...proposed, value };
     }
     if (!isInputCellForField(field, proposed, 0)) return rejected(state, 'INVALID_VALUE');
     const answers = replaceCell(state.answers, operation.target.rowPath ?? [], operation.target.fieldId, proposed);
@@ -147,7 +151,9 @@ export function reconcileServerProjection(state: RuntimeAnswerState, projection:
     answers: projectedAnswers,
     server: projection,
     retiredItemIds: [...retired].sort(),
-    invalid: {},
+    invalid: projection.invalidInputs === undefined
+      ? state.invalid
+      : Object.fromEntries(projection.invalidInputs.map((marker) => [targetKey(marker), 'UNPARSEABLE_INPUT'])),
   };
 }
 
@@ -200,16 +206,36 @@ function resolveTarget(
   let fields = definition.fields;
   let cells = answers;
   for (const segment of path) {
-    const listField = fields.find((field) => field.id === segment.listFieldId);
+    const located = findInObjects(fields, cells, segment.listFieldId);
+    if (located.rejection !== undefined) return { rejection: located.rejection };
+    const listField = located.field;
     if (listField?.type !== 'list') return { rejection: 'ROW_PATH_INVALID' };
-    const list = asList(cells[segment.listFieldId]);
+    const list = asList(located.cell);
     const item = list?.items.find((candidate) => candidate.itemId === segment.itemId);
     if (item === undefined) return { rejection: 'ROW_PATH_INVALID' };
     fields = listField.itemFields ?? [];
     cells = item.fields;
   }
-  const field = fields.find((candidate) => candidate.id === target.fieldId);
-  return field === undefined ? { rejection: 'UNKNOWN_FIELD' } : { field, cell: cells[target.fieldId] };
+  const located = findInObjects(fields, cells, target.fieldId);
+  return located.field === undefined ? { rejection: located.rejection ?? 'UNKNOWN_FIELD' } : located;
+}
+
+function findInObjects(
+  fields: readonly RuntimeFieldDefinition[],
+  cells: Readonly<Record<string, InputAnswerCell>>,
+  fieldId: string,
+): { readonly field?: RuntimeFieldDefinition; readonly cell?: InputAnswerCell; readonly rejection?: RuntimeRejection } {
+  const direct = fields.find((candidate) => candidate.id === fieldId);
+  if (direct !== undefined) return { field: direct, cell: cells[fieldId] };
+  for (const object of fields.filter((candidate) => candidate.type === 'object')) {
+    const objectCell = cells[object.id];
+    if (objectCell?.status === 'notApplicable') return { rejection: 'INVALID_STATUS' };
+    const nestedCells = objectCell?.status === 'answered' && isObjectValue(objectCell.value)
+      ? objectCell.value.fields : {};
+    const nested = findInObjects(object.fields ?? [], nestedCells, fieldId);
+    if (nested.field !== undefined || nested.rejection !== undefined) return nested;
+  }
+  return {};
 }
 
 function replaceCell(
@@ -218,41 +244,131 @@ function replaceCell(
   fieldId: string,
   replacement: InputAnswerCell,
 ): Readonly<Record<string, InputAnswerCell>> {
-  if (path.length === 0) return { ...cells, [fieldId]: replacement };
+  if (path.length === 0) return replaceInObjectTree(cells, fieldId, replacement);
   const [segment, ...rest] = path;
-  const listCell = cells[segment.listFieldId]!;
+  const located = locateInputCell(cells, segment.listFieldId);
+  const listCell = located!;
   const list = asList(listCell)!;
-  return {
-    ...cells,
-    [segment.listFieldId]: {
+  return replaceInObjectTree(cells, segment.listFieldId, {
       status: 'answered',
       value: {
         items: list.items.map((item) => item.itemId === segment.itemId
           ? { ...item, fields: replaceCell(item.fields, rest, fieldId, replacement) }
           : item),
       },
-    },
-  };
+    });
+}
+
+function locateInputCell(cells: Readonly<Record<string, InputAnswerCell>>, fieldId: string): InputAnswerCell | undefined {
+  if (cells[fieldId] !== undefined) return cells[fieldId];
+  for (const cell of Object.values(cells)) {
+    if (cell.status === 'answered' && isObjectValue(cell.value)) {
+      const nested = locateInputCell(cell.value.fields, fieldId);
+      if (nested !== undefined) return nested;
+    }
+  }
+  return undefined;
+}
+
+function replaceInObjectTree(
+  cells: Readonly<Record<string, InputAnswerCell>>,
+  fieldId: string,
+  replacement: InputAnswerCell,
+): Readonly<Record<string, InputAnswerCell>> {
+  if (Object.prototype.hasOwnProperty.call(cells, fieldId)) return { ...cells, [fieldId]: replacement };
+  for (const [id, cell] of Object.entries(cells)) {
+    if (cell.status === 'answered' && isObjectValue(cell.value)
+      && locateInputCell(cell.value.fields, fieldId) !== undefined) {
+      return { ...cells, [id]: { ...cell, value: {
+        fields: replaceInObjectTree(cell.value.fields, fieldId, replacement),
+      } } };
+    }
+  }
+  return { ...cells, [fieldId]: replacement };
 }
 
 function isValueForField(field: RuntimeFieldDefinition, value: AnswerValue<InputAnswerCell>, depth: number): boolean {
   if (depth > 3) return false;
   switch (field.type) {
-    case 'integer': return typeof value === 'string' && isCanonicalInt64(value);
-    case 'decimal': return typeof value === 'string' && isStoredDecimal(value, field.scale);
+    case 'integer': return typeof value === 'string' && isCanonicalInt64(value) && numericConstraints(field, value);
+    case 'decimal': return typeof value === 'string' && isStoredDecimal(value, field.scale) && numericConstraints(field, value);
     case 'boolean': return typeof value === 'boolean';
-    case 'date': return typeof value === 'string' && DATE.test(value);
+    case 'date': return typeof value === 'string' && isCalendarDate(value);
     case 'time': return typeof value === 'string' && TIME.test(value);
     case 'dateTime': return isDateTime(value);
     case 'choice': return typeof value === 'string' && (field.options === undefined || field.options.includes(value));
     case 'multiChoice': return Array.isArray(value) && value.every((item) => typeof item === 'string')
-      && new Set(value).size === value.length && (field.options === undefined || value.every((item) => field.options!.includes(item)));
-    case 'attachments': return Array.isArray(value) && value.every((item) => typeof item === 'string') && new Set(value).size === value.length;
+      && new Set(value).size === value.length && collectionConstraints(field, value.length)
+      && (field.options === undefined || value.every((item) => field.options!.includes(item)))
+      && !(value.some((item) => field.exclusiveOptionIds?.includes(item)) && value.length > 1);
+    case 'attachments': return Array.isArray(value) && value.every((item) => typeof item === 'string')
+      && new Set(value).size === value.length && collectionConstraints(field, value.length);
     case 'drawing':
-    case 'text': return typeof value === 'string';
+    case 'text': return typeof value === 'string' && lengthConstraints(field, [...value].length);
     case 'object': return isObjectValue(value) && isFieldsForDefinition(field.fields ?? [], value.fields, depth + 1);
     case 'list': return isListValue(value) && isListForDefinition(field, value, depth + 1);
   }
+}
+
+function normalizeText(field: RuntimeFieldDefinition, value: string): string {
+  switch (field.normalizer) {
+    case 'trim': return value.trim();
+    case 'lowercase': return value.toLocaleLowerCase('und');
+    case 'uppercase': return value.toLocaleUpperCase('und');
+    default: return value;
+  }
+}
+
+function lengthConstraints(field: RuntimeFieldDefinition, length: number): boolean {
+  return (field.minLength === undefined || length >= field.minLength)
+    && (field.maxLength === undefined || length <= field.maxLength);
+}
+
+function collectionConstraints(field: RuntimeFieldDefinition, length: number): boolean {
+  return (field.minItems === undefined || length >= field.minItems)
+    && (field.maxItems === undefined || length <= field.maxItems);
+}
+
+function numericConstraints(field: RuntimeFieldDefinition, value: string): boolean {
+  try {
+    if (field.min !== undefined && compareDecimal(value, field.min) < 0) return false;
+    if (field.max !== undefined && compareDecimal(value, field.max) > 0) return false;
+    return field.step === undefined || decimalStepMatches(value, field.min ?? '0', field.step);
+  } catch {
+    return false;
+  }
+}
+
+function decimalParts(value: string): { coefficient: bigint; scale: number } {
+  const match = /^(-?)(\d+)(?:\.(\d+))?$/.exec(value);
+  if (match === null) throw new Error('INVALID_DECIMAL');
+  const fraction = match[3] ?? '';
+  const magnitude = BigInt(`${match[2]}${fraction}`);
+  return { coefficient: match[1] === '-' ? -magnitude : magnitude, scale: fraction.length };
+}
+
+function scaledCoefficient(value: string, scale: number): bigint {
+  const parts = decimalParts(value);
+  return parts.coefficient * (10n ** BigInt(scale - parts.scale));
+}
+
+function compareDecimal(left: string, right: string): number {
+  const scale = Math.max(decimalParts(left).scale, decimalParts(right).scale);
+  const difference = scaledCoefficient(left, scale) - scaledCoefficient(right, scale);
+  return difference < 0n ? -1 : difference > 0n ? 1 : 0;
+}
+
+function decimalStepMatches(value: string, base: string, step: string): boolean {
+  const scale = Math.max(decimalParts(value).scale, decimalParts(base).scale, decimalParts(step).scale);
+  const divisor = scaledCoefficient(step, scale);
+  return divisor > 0n && (scaledCoefficient(value, scale) - scaledCoefficient(base, scale)) % divisor === 0n;
+}
+
+function isCalendarDate(value: string): boolean {
+  if (!DATE.test(value)) return false;
+  const [year, month, day] = value.split('-').map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
 }
 
 function isFieldsForDefinition(

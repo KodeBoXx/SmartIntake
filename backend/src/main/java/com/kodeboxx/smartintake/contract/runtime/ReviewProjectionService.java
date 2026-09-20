@@ -8,6 +8,7 @@ import com.kodeboxx.smartintake.contract.runtime.TypedAnswerRuntime.Cell;
 import com.kodeboxx.smartintake.contract.runtime.TypedAnswerRuntime.RowSegment;
 import com.kodeboxx.smartintake.contract.runtime.TypedAnswerRuntime.State;
 import com.kodeboxx.smartintake.contract.runtime.TypedAnswerRuntime.Status;
+import com.kodeboxx.smartintake.contract.compiler.CompiledForm;
 import java.util.*;
 
 /** One ordered interpretation for respondent review and structured export. */
@@ -64,6 +65,33 @@ public final class ReviewProjectionService {
       for (ReviewRow row : rows) appendExport(export, row);
     }
     return new Projection(answers, reviewGates, export);
+  }
+
+  public Projection project(CompiledForm compiled, State state) {
+    List<Placement> placements = new ArrayList<>();
+    for (JsonNode phase : compiled.canonicalPackage().path("flow").path("phases"))
+      for (JsonNode page : phase.path("pages"))
+        for (JsonNode section : page.path("sections"))
+          for (JsonNode node : section.path("nodes")) {
+            Placement placement = placement(node, compiled);
+            if (placement != null) placements.add(placement);
+          }
+    return project(state, placements);
+  }
+
+  private Placement placement(JsonNode node, CompiledForm compiled) {
+    if (!node.path("fieldId").isTextual()) return null;
+    String fieldId = node.path("fieldId").asText();
+    List<Placement> children = new ArrayList<>();
+    for (JsonNode child : node.path("children")) {
+      Placement nested = placement(child, compiled);
+      if (nested != null) children.add(nested);
+    }
+    JsonNode field = compiled.fields().containsKey(fieldId)
+        ? compiled.fields().get(fieldId).source() : JsonNodeFactory.instance.objectNode();
+    return new Placement(node.path("id").asText(), fieldId,
+        node.path("labelKey").asText(field.path("labelKey").asText(fieldId)), false,
+        "acknowledgment".equals(node.path("control").asText()), children);
   }
 
   private List<ReviewRow> rows(

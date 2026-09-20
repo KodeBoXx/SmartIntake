@@ -3,7 +3,7 @@
   "version": "1.1.0",
   "private": true,
   "scripts": {
-    "contracts:check": "python3 ../tools/contracts/generate_contract_artifacts.py --check --scope frontend && python3 ../tools/contracts/validate_schemas.py && python3 ../tools/openapi/validate_openapi.py --check-generated",
+    "contracts:check": "python3 ../tools/openapi/generate_m4_api_contract.py --check && python3 ../tools/openapi/validate_m4_api_contract.py && python3 ../tools/contracts/generate_contract_artifacts.py --check --scope frontend && python3 ../tools/contracts/validate_schemas.py && python3 ../tools/openapi/validate_openapi.py --check-generated",
     "styles:build": "node ../tools/frontend/build_tailwind_utilities.mjs",
     "prebuild": "npm run styles:build && npm run contracts:check && npm run certinal:check",
     "pretest": "npm run styles:build && npm run contracts:check && npm run certinal:check",

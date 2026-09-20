@@ -1,8 +1,11 @@
 package com.kodeboxx.smartintake;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.kodeboxx.smartintake.application.IntakeApplicationService;
@@ -14,16 +17,21 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.server.ResponseStatusException;
 
 @SpringBootTest
+@AutoConfigureMockMvc
 class M4CanonicalRuntimeIntegrationTests {
   @Autowired IntakeApplicationService intake;
   @Autowired JdbcTemplate db;
   @Autowired RespondentSecretVerifier secrets;
   @Autowired ObjectMapper json;
+  @Autowired MockMvc http;
 
   @Test
   void canonicalSessionMutationsPersistReconcileReplayAndSubmit() throws Exception {
@@ -31,9 +39,15 @@ class M4CanonicalRuntimeIntegrationTests {
     String mutationId = "mutation-typed-01";
     var patch = new IntakeApplicationService.PatchSession(0L, mutationId, null, List.of(
         Map.of("op", "set", "fieldId", "amount", "value", "9223372036854775807"),
-        Map.of("op", "addItem", "fieldId", "attendees", "itemId", "attendee-a", "fields",
+        Map.of("op", "addItem", "fieldId", "attendees", "itemId", "attendee-a", "initialFields",
             Map.of("attendeeName", Map.of("status", "answered", "value", "Ada")))), "page1");
-    Map<String, Object> accepted = intake.patch(fixture.session, fixture.bearer.toString(), patch);
+    String response = http.perform(patch("/v1/sessions/{id}", fixture.session)
+            .header("X-Respondent-Session", fixture.bearer.toString())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(json.writeValueAsBytes(patch)))
+        .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+    @SuppressWarnings("unchecked")
+    Map<String, Object> accepted = json.readValue(response, Map.class);
     assertEquals(1L, ((Number) accepted.get("acceptedRevision")).longValue());
     assertEquals("integer", json.valueToTree(accepted.get("answers")).at("/amount/type").asText());
     assertEquals("attendee-a", json.valueToTree(accepted.get("answers"))
@@ -52,10 +66,19 @@ class M4CanonicalRuntimeIntegrationTests {
     Map<String, Object> session = intake.session(fixture.session, fixture.bearer.toString());
     assertEquals(1L, ((Number) session.get("revision")).longValue());
     assertEquals("9223372036854775807", json.valueToTree(session.get("answers")).at("/amount/value").asText());
+    Map<String, Object> review = intake.validate(fixture.session, fixture.bearer.toString());
+    Map<String, Object> repeatedReview = intake.validate(fixture.session, fixture.bearer.toString());
+    assertEquals(review.get("reviewDigest"), repeatedReview.get("reviewDigest"));
+    assertEquals(review.get("review"), repeatedReview.get("review"));
     assertTrue(intake.submit(fixture.session, fixture.bearer.toString(),
-        new IntakeApplicationService.Submit(1L)).getStatusCode().is2xxSuccessful());
+        new IntakeApplicationService.Submit(1L, review.get("reviewDigest").toString(),
+            List.of(), "submission-attempt-01")).getStatusCode().is2xxSuccessful());
     assertEquals(1, db.queryForObject(
         "select count(*) from submissions where session_id=?", Integer.class, fixture.session));
+    JsonNode sealed = json.readTree(db.queryForObject(
+        "select envelope::text from submissions where session_id=?", String.class, fixture.session));
+    assertEquals(json.valueToTree(review.get("review")), sealed.path("review"));
+    assertEquals(review.get("reviewDigest"), sealed.path("reviewDigest").asText());
   }
 
   @Test
@@ -70,6 +93,28 @@ class M4CanonicalRuntimeIntegrationTests {
     assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, rejected.getStatusCode());
     assertEquals(0L, db.queryForObject(
         "select revision from sessions where id=?", Long.class, fixture.session));
+  }
+
+  @Test
+  void canonicalOperationBatchAccepts1000AndRejects1001BeforeMutationWork() throws Exception {
+    Fixture acceptedFixture = fixture();
+    List<Map<String, Object>> thousand = new ArrayList<>();
+    for (int index = 0; index < 1000; index++)
+      thousand.add(Map.of("op", "clear", "fieldId", "amount"));
+    Map<String, Object> accepted = intake.patch(acceptedFixture.session, acceptedFixture.bearer.toString(),
+        new IntakeApplicationService.PatchSession(0L, "mutation-limit-1000", null, thousand, "page1"));
+    assertEquals(1L, ((Number) accepted.get("acceptedRevision")).longValue());
+
+    Fixture rejectedFixture = fixture();
+    List<Map<String, Object>> thousandAndOne = new ArrayList<>(thousand);
+    thousandAndOne.add(Map.of("op", "clear", "fieldId", "amount"));
+    ResponseStatusException rejected = assertThrows(ResponseStatusException.class,
+        () -> intake.patch(rejectedFixture.session, rejectedFixture.bearer.toString(),
+            new IntakeApplicationService.PatchSession(0L, "mutation-limit-1001", null,
+                thousandAndOne, "page1")));
+    assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, rejected.getStatusCode());
+    assertEquals(0L, db.queryForObject("select revision from sessions where id=?", Long.class,
+        rejectedFixture.session));
   }
 
   @Test
@@ -98,7 +143,8 @@ class M4CanonicalRuntimeIntegrationTests {
     Map<String, Object> marked = intake.patch(
         fixture.session, fixture.bearer.toString(), new IntakeApplicationService.PatchSession(
             1L, "mutation-invalid-01", null,
-            List.of(Map.of("op", "markInvalid", "fieldId", "amount")), "page1"));
+            List.of(Map.of("op", "markInvalid", "fieldId", "amount",
+                "reason", "UNPARSEABLE_INPUT")), "page1"));
     assertTrue(json.valueToTree(marked.get("validation")).toString().contains("UNPARSEABLE_INPUT"));
     ResponseStatusException validation = assertThrows(ResponseStatusException.class,
         () -> intake.validate(fixture.session, fixture.bearer.toString()));
@@ -107,6 +153,16 @@ class M4CanonicalRuntimeIntegrationTests {
         fixture.session, fixture.bearer.toString(), new IntakeApplicationService.Submit(2L));
     assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, submission.getStatusCode());
     assertEquals("INVALID_INPUT_PENDING", json.valueToTree(submission.getBody()).path("code").asText());
+  }
+
+  @Test
+  void mutatedCanonicalSessionWithoutTrustedRuntimeStateFailsClosed() throws Exception {
+    Fixture fixture = fixture();
+    db.update("update sessions set revision=1,runtime_state=null where id=?", fixture.session);
+    ResponseStatusException rejected = assertThrows(ResponseStatusException.class,
+        () -> intake.session(fixture.session, fixture.bearer.toString()));
+    assertEquals(HttpStatus.CONFLICT, rejected.getStatusCode());
+    assertEquals("CANONICAL_RUNTIME_STATE_REQUIRED", rejected.getReason());
   }
 
   private Fixture fixture() throws Exception { return fixture(canonical()); }

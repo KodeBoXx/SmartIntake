@@ -99,10 +99,12 @@ application until the transaction below has committed and its post-checks pass.
    pre-`d1662ed` application. Keep submission traffic serialized or disabled
    while it is rolled back: without V7, concurrent writers can create duplicate
    submissions and a later V7 deployment will correctly refuse to proceed.
-4. To return to the current compatibility boundary, restore the backup if
-   interpretation history is needed, deploy the current application, and let
-   Flyway apply V5--V11 normally. Reconcile duplicate submissions explicitly
-   before retrying V7; never merge or delete them as part of a migration.
+4. This rollback is permitted only when no canonical M4 record or runtime state
+   exists. To return forward, restore the verified pre-rollback backup before
+   deploying the current application. Reapplying V5--V11 to the destructively
+   rolled-back database is not a lossless recovery procedure. Reconcile
+   duplicate submissions explicitly before retrying V7; never merge or delete
+   them as part of a migration.
 
 ```sql
 begin;
@@ -165,6 +167,12 @@ begin
       where client_mutation_id !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
   ) then
     raise exception 'Rollback refused: V11 contains replay keys that cannot be represented as V4 UUIDs';
+  end if;
+  if exists (select 1 from forms where compatibility_profile_key = 'canonical-4.0.0')
+     or exists (select 1 from form_releases where compatibility_profile_key = 'canonical-4.0.0')
+     or exists (select 1 from sessions where compatibility_profile_key = 'canonical-4.0.0')
+     or exists (select 1 from sessions where runtime_state is not null) then
+    raise exception 'Rollback refused: canonical M4 records or runtime state require verified backup restoration or approved retirement/export';
   end if;
 end $$;
 

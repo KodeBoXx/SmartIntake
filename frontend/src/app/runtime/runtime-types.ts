@@ -99,6 +99,15 @@ export interface RuntimeFieldDefinition {
   readonly options?: readonly string[];
   readonly minItems?: number;
   readonly maxItems?: number;
+  readonly min?: string;
+  readonly max?: string;
+  readonly step?: string;
+  readonly minLength?: number;
+  readonly maxLength?: number;
+  readonly exclusiveOptionIds?: readonly string[];
+  readonly normalizer?: 'preserve' | 'trim' | 'lowercase' | 'uppercase';
+  readonly hiddenRetention?: 'clear' | 'memory' | 'draft';
+  readonly default?: InputAnswerCell;
   /** A fixed matrix/list may only be supplied by the server projection. */
   readonly fixedRows?: boolean;
   readonly fixedItemIds?: readonly string[];
@@ -112,6 +121,7 @@ export interface RuntimeDefinition {
 
 export interface ServerProjection {
   readonly answers: Readonly<Record<string, ServerAnswerCell>>;
+  readonly invalidInputs?: readonly RuntimeTarget[];
 }
 
 export interface RuntimeAnswerState {
@@ -138,7 +148,7 @@ export type RuntimeOperation =
       readonly answer?: InputAnswerCell;
     }
   | { readonly kind: 'clear'; readonly target: RuntimeTarget }
-  | { readonly kind: 'markInvalid'; readonly target: RuntimeTarget; readonly reason: string }
+  | { readonly kind: 'markInvalid'; readonly target: RuntimeTarget; readonly reason: 'UNPARSEABLE_INPUT' }
   | {
       readonly kind: 'addItem';
       readonly target: RuntimeTarget;

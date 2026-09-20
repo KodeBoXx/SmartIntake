@@ -96,7 +96,8 @@ public final class ExpressionEngine {
     for (int index = 0; index < listFieldIds.size(); index++) {
       Field list = currentFields.get(listFieldIds.get(index));
       Cell listCell = currentCells.get(listFieldIds.get(index));
-      if (list == null || listCell == null || !"array".equals(list.type) || listCell.value == null)
+      if (list == null || listCell == null || !("array".equals(list.type) || "list".equals(list.type))
+          || listCell.value == null)
         throw fail("EXPR_SCOPE");
       JsonNode selected = null;
       for (JsonNode item : listCell.value.path("items")) {
@@ -115,6 +116,21 @@ public final class ExpressionEngine {
         stepLimit, true);
   }
 
+  /** Builds a strict compile-only context at a declared repeated-row scope. */
+  public static EvaluationContext definitionContextAt(JsonNode definitions, List<String> listFieldIds) {
+    Map<String, Field> rootFields = fields(definitions);
+    Map<String, Field> current = rootFields;
+    List<Map<String, Field>> itemFields = new ArrayList<>();
+    for (String listFieldId : listFieldIds) {
+      Field list = current.get(listFieldId);
+      if (list == null || !("array".equals(list.type) || "list".equals(list.type))) throw fail("EXPR_SCOPE");
+      current = list.itemFields;
+      itemFields.add(current);
+    }
+    return new EvaluationContext(rootFields, Map.of(), itemFields, List.of(),
+        "2026-09-05", "UTC", 100_000, true);
+  }
+
   /** A typed compile result, useful to callers that compile against a package field registry. */
   public Result compile(JsonNode expression) {
     try {
@@ -127,7 +143,7 @@ public final class ExpressionEngine {
 
   public Result compile(JsonNode expression, EvaluationContext context) {
     try {
-      compileTop(expression, new CompileEnv(context.fields, List.of(), context.strict));
+      compileTop(expression, new CompileEnv(context.fields, context.itemFields, context.strict));
       return Result.available("compiled", null);
     } catch (ExpressionFailure failure) {
       return Result.error(failure.code);

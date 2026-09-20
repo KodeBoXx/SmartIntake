@@ -2,6 +2,7 @@ package com.kodeboxx.smartintake.contract.runtime;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.kodeboxx.smartintake.contract.CanonicalJson;
 import com.kodeboxx.smartintake.contract.compiler.CompiledForm;
 import com.kodeboxx.smartintake.contract.compiler.FormCompiler;
@@ -20,6 +21,8 @@ public final class TypedSessionRuntimeService {
       Map<String, Object> answers,
       Map<String, Object> runtimeState,
       List<Map<String, Object>> validation,
+      Map<String, Object> reviewProjection,
+      String reviewDigest,
       List<String> reachablePageIds,
       int requiredCount,
       int completedRequiredCount,
@@ -28,6 +31,7 @@ public final class TypedSessionRuntimeService {
       answers = Map.copyOf(answers);
       runtimeState = Map.copyOf(runtimeState);
       validation = List.copyOf(validation);
+      reviewProjection = Map.copyOf(reviewProjection);
       reachablePageIds = List.copyOf(reachablePageIds);
     }
   }
@@ -70,10 +74,24 @@ public final class TypedSessionRuntimeService {
       String sessionDate,
       String timeZone,
       Instant changedAt) {
+    return mutate(packageNode, currentAnswers, currentRuntimeState, rawOperations, null,
+        sessionDate, timeZone, changedAt);
+  }
+
+  public Outcome mutate(
+      JsonNode packageNode,
+      JsonNode currentAnswers,
+      JsonNode currentRuntimeState,
+      List<Map<String, Object>> rawOperations,
+      String currentPageId,
+      String sessionDate,
+      String timeZone,
+      Instant changedAt) {
     var compilation = compiler.compile(packageNode);
     if (!compilation.valid()) {
       return new Outcome(Map.of(), Map.of(), compilation.diagnostics().stream().map(diagnostic -> Map.<String, Object>of(
-          "code", diagnostic.code(), "pointer", diagnostic.pointer())).toList(), List.of(), 0, 0, false);
+          "code", diagnostic.code(), "pointer", diagnostic.pointer())).toList(), Map.of(), null,
+          List.of(), 0, 0, false);
     }
     String packageDigest = CanonicalJson.sha256(packageNode);
     var compiled = compiledCache.computeIfAbsent(packageDigest, ignored -> compilation.compiled().orElseThrow());
@@ -99,13 +117,16 @@ public final class TypedSessionRuntimeService {
     }
     Result mutation = runtime.apply(state, operations, changedAt);
     if (!mutation.accepted()) {
-      List<Map<String, Object>> validation = mutation.diagnostics().stream().map(diagnostic -> Map.<String, Object>of(
-          "code", diagnostic.code(),
-          "fieldId", diagnostic.fieldId(),
-          "pointer", diagnostic.pointer(),
-          "rowPath", diagnostic.rowPath())).toList();
+      List<Map<String, Object>> validation = mutation.diagnostics().stream().map(diagnostic -> {
+        Map<String, Object> item = new LinkedHashMap<>();
+        item.put("code", diagnostic.code());
+        if (diagnostic.fieldId() != null) item.put("fieldId", diagnostic.fieldId());
+        item.put("pointer", diagnostic.pointer());
+        item.put("rowPath", diagnostic.rowPath());
+        return Map.copyOf(item);
+      }).toList();
       return new Outcome(asMap(runtime.projection(state)), asMap(runtime.storage(state)), validation,
-          List.of(), 0, 0, false);
+          Map.of(), null, List.of(), 0, 0, false);
     }
     RuntimeGraph.Projection projection = new RuntimeGraph(compiled, runtime)
         .evaluate(mutation.state(), sessionDate, timeZone, changedAt);
@@ -130,12 +151,36 @@ public final class TypedSessionRuntimeService {
             "code", "UNPARSEABLE_INPUT",
             "fieldId", address.fieldId(),
             "rowPath", address.rowPath(),
+            "markedAt", cell.changedAt().toString(),
             "pointer", "/answers/" + address.fieldId()));
       }
     });
-    return new Outcome(asMap(runtime.projection(projection.state())),
-        asMap(runtime.storage(projection.state())), validation,
-        projection.reachablePageIds(), projection.requiredCount(), projection.completedRequiredCount(), true);
+    ObjectNode stored = runtime.storage(projection.state());
+    String effectivePage = currentPageId;
+    if ((effectivePage == null || effectivePage.isBlank()) && currentRuntimeState != null
+        && currentRuntimeState.path("currentPageId").isTextual())
+      effectivePage = currentRuntimeState.path("currentPageId").asText();
+    if (effectivePage != null && projection.reachablePageIds().contains(effectivePage))
+      stored.put("currentPageId", effectivePage);
+    int completedPages = validation.isEmpty()
+        ? completedPages(projection.reachablePageIds(), compiled.reviewPageIds(), effectivePage) : 0;
+    var review = new ReviewProjectionService().project(compiled, projection.state());
+    Map<String, Object> reviewMap = json.convertValue(review, Map.class);
+    String reviewDigest = validation.isEmpty()
+        ? CanonicalJson.sha256(json.valueToTree(reviewMap)) : null;
+    return new Outcome(asMap(runtime.projection(projection.state())), asMap(stored), validation,
+        reviewMap, reviewDigest, projection.reachablePageIds(), projection.requiredCount(), completedPages, true);
+  }
+
+  private static int completedPages(List<String> reachable, List<String> reviews, String currentPageId) {
+    if (currentPageId == null) return 0;
+    int current = reachable.indexOf(currentPageId);
+    if (current < 0) return 0;
+    Set<String> reviewPages = Set.copyOf(reviews);
+    int completed = 0;
+    for (int index = 0; index < current; index++)
+      if (!reviewPages.contains(reachable.get(index))) completed++;
+    return completed;
   }
 
   private Outcome rejected(JsonNode answers, JsonNode runtimeState, String code, String fieldId) {
@@ -144,7 +189,7 @@ public final class TypedSessionRuntimeService {
     if (fieldId != null) validation.put("fieldId", fieldId);
     return new Outcome(answers == null || !answers.isObject() ? Map.of() : asMap(answers),
         runtimeState == null || !runtimeState.isObject() ? Map.of() : asMap(runtimeState),
-        List.of(validation), List.of(), 0, 0, false);
+        List.of(validation), Map.of(), null, List.of(), 0, 0, false);
   }
 
   private Operation operation(Map<String, Object> raw) {
@@ -161,7 +206,11 @@ public final class TypedSessionRuntimeService {
         yield new SetValue(address, Status.answered, answer);
       }
       case "clear" -> new Clear(address);
-      case "markInvalid" -> new MarkInvalid(address);
+      case "markInvalid" -> {
+        if (!"UNPARSEABLE_INPUT".equals(Objects.toString(raw.get("reason"), "")))
+          throw new IllegalArgumentException("INVALID_MARKER_CODE");
+        yield new MarkInvalid(address);
+      }
       case "addItem" -> new AddItem(address, Objects.toString(raw.get("itemId"), ""), initialCells(raw, address));
       case "removeItem" -> new RemoveItem(address, Objects.toString(raw.get("itemId"), ""));
       case "moveItem" -> new MoveItem(address, Objects.toString(raw.get("itemId"), ""),
@@ -185,7 +234,7 @@ public final class TypedSessionRuntimeService {
 
   @SuppressWarnings("unchecked")
   private Map<String, SetValue> initialCells(Map<String, Object> raw, Address listAddress) {
-    Object fieldsValue = raw.get("fields");
+    Object fieldsValue = raw.containsKey("initialFields") ? raw.get("initialFields") : raw.get("fields");
     if (!(fieldsValue instanceof Map<?, ?> fields)) return Map.of();
     Map<String, SetValue> result = new LinkedHashMap<>();
     fields.forEach((key, value) -> {

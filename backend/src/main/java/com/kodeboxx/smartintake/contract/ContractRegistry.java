@@ -34,10 +34,12 @@ import org.springframework.stereotype.Component;
 @Component
 public final class ContractRegistry {
   public static final String VERSION = "4.0.0";
+  public static final String API_VERSION = "4.1.0";
   private static final String ROOT = "contracts/smart-form-builder-lite/4.0.0/";
   private final ObjectMapper json;
   private final Map<String, PublishedSchema> schemas = new LinkedHashMap<>();
   private final PublishedDocument openApi;
+  private final PublishedDocument m4OpenApi;
   private final Map<String, Object> capabilities;
 
   private static final BigInteger INT64_MIN = BigInteger.valueOf(Long.MIN_VALUE);
@@ -47,9 +49,10 @@ public final class ContractRegistry {
   public ContractRegistry(ObjectMapper json) {
     this.json = json;
     try {
-      capabilities = json.readValue(bytes("contracts/smart-form-builder-lite/4.0.0/capabilities.registry.json"), new TypeReference<>() {});
+      Map<String, Object> published = json.readValue(
+          bytes("contracts/smart-form-builder-lite/4.0.0/capabilities.registry.json"), new TypeReference<>() {});
       @SuppressWarnings("unchecked")
-      List<Map<String, Object>> entries = (List<Map<String, Object>>) capabilities.get("schemas");
+      List<Map<String, Object>> entries = (List<Map<String, Object>>) published.get("schemas");
       Map<String, String> schemaSources = new LinkedHashMap<>();
       Map<String, byte[]> schemaBytes = new LinkedHashMap<>();
       for (Map<String, Object> entry : entries) {
@@ -81,6 +84,18 @@ public final class ContractRegistry {
       }
       byte[] apiBytes = bytes("contracts/openapi-4.0.0.yaml");
       openApi = new PublishedDocument(apiBytes, sha256(apiBytes));
+      byte[] m4ApiBytes = bytes("contracts/openapi-4.1.0.yaml");
+      m4OpenApi = new PublishedDocument(m4ApiBytes, sha256(m4ApiBytes));
+      Map<String, Object> advertised = new LinkedHashMap<>(published);
+      advertised.put("apiContractVersion", API_VERSION);
+      advertised.put("schemaContractVersion", VERSION);
+      advertised.put("openapi", Map.of(
+          "version", "3.1.0", "file", "docs/api/openapi-4.1.0.yaml",
+          "sha256", m4OpenApi.sha256(), "resource", "contracts/openapi-4.1.0.yaml"));
+      advertised.put("apiContracts", List.of(
+          Map.of("version", VERSION, "sha256", openApi.sha256(), "resource", "contracts/openapi-4.0.0.yaml"),
+          Map.of("version", API_VERSION, "sha256", m4OpenApi.sha256(), "resource", "contracts/openapi-4.1.0.yaml")));
+      capabilities = Map.copyOf(advertised);
     } catch (IOException exception) {
       throw new IllegalStateException("M2 contract publication bundle is unavailable", exception);
     }
@@ -143,6 +158,12 @@ public final class ContractRegistry {
 
   public PublishedDocument openApi() {
     return openApi;
+  }
+
+  public PublishedDocument openApi(String version) {
+    if (VERSION.equals(version)) return openApi;
+    if (API_VERSION.equals(version)) return m4OpenApi;
+    throw new UnknownContract("openapi", version);
   }
 
   public ValidationResult validate(String kind, String version, JsonNode instance) {

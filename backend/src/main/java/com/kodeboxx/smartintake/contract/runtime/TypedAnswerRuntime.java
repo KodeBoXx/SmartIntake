@@ -239,33 +239,42 @@ public final class TypedAnswerRuntime {
   private final Map<String, Field> roots;
   private final Map<String, Field> allFields;
   private final Map<String, List<String>> listAncestors;
+  private final Map<String, List<String>> structuralAncestors;
 
   public TypedAnswerRuntime(Collection<Field> roots) {
     var fields = new LinkedHashMap<String, Field>();
     var descendants = new LinkedHashMap<String, Field>();
     var ancestors = new LinkedHashMap<String, List<String>>();
+    var structures = new LinkedHashMap<String, List<String>>();
     for (Field field : roots) {
       if (fields.putIfAbsent(field.id(), field) != null) throw problem("DUPLICATE_FIELD_ID");
-      collectField(field, List.of(), descendants, ancestors);
+      collectField(field, List.of(), List.of(), descendants, ancestors, structures);
     }
     this.roots = Map.copyOf(fields);
     this.allFields = Map.copyOf(descendants);
     this.listAncestors = Map.copyOf(ancestors);
+    this.structuralAncestors = Map.copyOf(structures);
   }
 
   private static void collectField(
       Field field,
       List<String> parentLists,
+      List<String> parentStructures,
       Map<String, Field> descendants,
-      Map<String, List<String>> ancestors) {
+      Map<String, List<String>> ancestors,
+      Map<String, List<String>> structures) {
     if (descendants.putIfAbsent(field.id(), field) != null) throw problem("DUPLICATE_FIELD_ID");
     ancestors.put(field.id(), List.copyOf(parentLists));
+    structures.put(field.id(), List.copyOf(parentStructures));
     List<String> childLists = parentLists;
     if ("list".equals(field.type())) {
       childLists = new ArrayList<>(parentLists);
       childLists.add(field.id());
     }
-    for (Field child : field.children().values()) collectField(child, childLists, descendants, ancestors);
+    List<String> childStructures = new ArrayList<>(parentStructures);
+    if ("object".equals(field.type()) || "list".equals(field.type())) childStructures.add(field.id());
+    for (Field child : field.children().values())
+      collectField(child, childLists, childStructures, descendants, ancestors, structures);
   }
 
   /** Applies the complete batch atomically. Any diagnostic returns the original state. */
@@ -324,6 +333,7 @@ public final class TypedAnswerRuntime {
           Field field = resolve(entry.getKey());
           Cell effective = candidate.cells.get(entry.getKey());
           if (!entry.getValue()) {
+            if (effective != null && effective.status() == Status.notApplicable) return;
             if ("clear".equals(field.hiddenRetention())) {
               clearSubtree(candidate, field, entry.getKey());
               effective = null;
@@ -394,14 +404,18 @@ public final class TypedAnswerRuntime {
       state.itemOrder.put(address, field.fixedItemIds());
       state.cells.put(address, structuralCell(field, Provenance.system, changedAt));
     }
-    if (answer != null) applyDefaultAnswer(state, field, address, answer, changedAt);
+    if (answer != null && !state.cells.containsKey(address))
+      applyDefaultAnswer(state, field, address, answer, changedAt);
     if ("object".equals(field.type())) {
       for (Field child : field.children().values()) applyDefault(state, child, path, changedAt);
     } else if ("list".equals(field.type())) {
       for (String itemId : state.itemIds(address)) {
         List<RowSegment> childPath = new ArrayList<>(path);
         childPath.add(new RowSegment(field.id(), itemId));
-        for (Field child : field.children().values()) applyDefault(state, child, childPath, changedAt);
+        for (Field child : field.children().values()) {
+          Address childAddress = new Address(child.id(), childPath);
+          if (!state.cells.containsKey(childAddress)) applyDefault(state, child, childPath, changedAt);
+        }
       }
     }
   }
@@ -433,6 +447,10 @@ public final class TypedAnswerRuntime {
         });
       }
       state.itemOrder.put(address, List.copyOf(ids));
+      if (!field.fixedItemIds().isEmpty() && !ids.equals(field.fixedItemIds()))
+        throw problem("FIXED_ROWS_INVALID");
+      if (field.minItems() != null && ids.size() < field.minItems()) throw problem("MIN_ITEMS");
+      if (field.maxItems() != null && ids.size() > field.maxItems()) throw problem("MAX_ITEMS");
       state.cells.put(address, structuralCell(field, Provenance.defaultValue, changedAt));
     } else {
       JsonNode normalized = normalize(field, value);
@@ -474,10 +492,31 @@ public final class TypedAnswerRuntime {
   public ObjectNode storage(State state) {
     ObjectNode stored = JsonNodeFactory.instance.objectNode();
     stored.put("version", 1);
-    writeCells(stored.putArray("cells"), state.cells);
-    writeCells(stored.putArray("retainedCells"), state.retainedCells);
+    List<Map.Entry<Address, Field>> transientMemory = state.cells.entrySet().stream()
+        .filter(entry -> entry.getValue().status() == Status.notApplicable)
+        .map(entry -> Map.entry(entry.getKey(), resolve(entry.getKey())))
+        .filter(entry -> "memory".equals(entry.getValue().hiddenRetention()))
+        .toList();
+    Map<Address, Cell> persistentCells = new LinkedHashMap<>(state.cells);
+    Map<Address, Cell> persistentRetained = new LinkedHashMap<>(state.retainedCells);
+    Map<Address, List<String>> persistentOrder = new LinkedHashMap<>(state.itemOrder);
+    Set<String> additionallyRetired = new LinkedHashSet<>();
+    for (Map.Entry<Address, Field> memory : transientMemory) {
+      Set<String> ids = new HashSet<>();
+      collectDescendantIds(memory.getValue(), ids);
+      persistentCells.keySet().removeIf(address -> descendantAddress(address, memory.getKey(), ids)
+          && !address.equals(memory.getKey()));
+      persistentRetained.keySet().removeIf(address -> descendantAddress(address, memory.getKey(), ids));
+      persistentOrder.entrySet().removeIf(entry -> {
+        if (!descendantAddress(entry.getKey(), memory.getKey(), ids)) return false;
+        additionallyRetired.addAll(entry.getValue());
+        return true;
+      });
+    }
+    writeCells(stored.putArray("cells"), persistentCells);
+    writeCells(stored.putArray("retainedCells"), persistentRetained);
     ArrayNode orders = stored.putArray("itemOrder");
-    state.itemOrder.entrySet().stream()
+    persistentOrder.entrySet().stream()
         .sorted(Map.Entry.comparingByKey(Comparator.comparing(Address::toString)))
         .forEach(entry -> {
           ObjectNode item = orders.addObject();
@@ -486,7 +525,9 @@ public final class TypedAnswerRuntime {
           entry.getValue().forEach(ids::add);
         });
     ArrayNode retired = stored.putArray("retiredItemIds");
-    state.retiredItems.stream().sorted().forEach(retired::add);
+    Set<String> retiredIds = new TreeSet<>(state.retiredItems);
+    retiredIds.addAll(additionallyRetired);
+    retiredIds.forEach(retired::add);
     return stored;
   }
 
@@ -740,6 +781,13 @@ public final class TypedAnswerRuntime {
     Cell effective = state.cells.get(address);
     if (effective != null && effective.status() == Status.notApplicable)
       throw problem("FIELD_NOT_APPLICABLE");
+    for (String ancestorId : structuralAncestors.getOrDefault(address.fieldId(), List.of())) {
+      int depth = listAncestors.get(ancestorId).size();
+      Address ancestor = new Address(ancestorId, address.rowPath().subList(0, depth));
+      Cell ancestorCell = state.cells.get(ancestor);
+      if (ancestorCell != null && ancestorCell.status() == Status.notApplicable)
+        throw problem("FIELD_NOT_APPLICABLE");
+    }
     for (int index = 0; index < address.rowPath().size(); index++) {
       RowSegment segment = address.rowPath().get(index);
       Address parent = new Address(segment.listFieldId(), address.rowPath().subList(0, index));
@@ -747,6 +795,20 @@ public final class TypedAnswerRuntime {
       if (parentCell != null && parentCell.status() == Status.notApplicable)
         throw problem("FIELD_NOT_APPLICABLE");
     }
+  }
+
+  public boolean ancestorsApplicable(State state, Address address) {
+    for (String ancestorId : structuralAncestors.getOrDefault(address.fieldId(), List.of())) {
+      int depth = listAncestors.get(ancestorId).size();
+      Cell ancestor = state.cells.get(new Address(ancestorId, address.rowPath().subList(0, depth)));
+      if (ancestor != null && ancestor.status() == Status.notApplicable) return false;
+    }
+    for (int index = 0; index < address.rowPath().size(); index++) {
+      RowSegment segment = address.rowPath().get(index);
+      Cell parent = state.cells.get(new Address(segment.listFieldId(), address.rowPath().subList(0, index)));
+      if (parent != null && parent.status() == Status.notApplicable) return false;
+    }
+    return true;
   }
 
   private void set(State state, Field field, SetValue operation, Instant changedAt) {
@@ -773,6 +835,8 @@ public final class TypedAnswerRuntime {
 
   private void clear(State state, Field field, Address address, Instant changedAt) {
     protect(field);
+    if ("object".equals(field.type()) || "list".equals(field.type()))
+      clearSubtree(state, field, address);
     state.cells.put(
         address,
         new Cell(field.type(), Status.unanswered, Provenance.respondent, null, changedAt, false));
@@ -826,6 +890,9 @@ public final class TypedAnswerRuntime {
     state.cells.put(operation.address(), structuralCell(field, Provenance.respondent, changedAt));
     state.retiredItems.add(operation.itemId());
     RowSegment removed = new RowSegment(field.id(), operation.itemId());
+    state.itemOrder.entrySet().stream()
+        .filter(entry -> descendant(entry.getKey(), operation.address(), removed))
+        .forEach(entry -> state.retiredItems.addAll(entry.getValue()));
     state.cells.keySet().removeIf(address -> descendant(address, operation.address(), removed));
     state.retainedCells.keySet().removeIf(address -> descendant(address, operation.address(), removed));
     state.itemOrder.keySet().removeIf(address -> descendant(address, operation.address(), removed));
@@ -903,6 +970,10 @@ public final class TypedAnswerRuntime {
       throw problem("MIN_LENGTH");
     if (field.maxLength() != null && length >= 0 && length > field.maxLength())
       throw problem("MAX_LENGTH");
+    if (field.minItems() != null && value.isArray() && value.size() < field.minItems())
+      throw problem("MIN_ITEMS");
+    if (field.maxItems() != null && value.isArray() && value.size() > field.maxItems())
+      throw problem("MAX_ITEMS");
     if (("integer".equals(field.type()) || "decimal".equals(field.type()))) {
       BigDecimal number = new BigDecimal(value.textValue());
       if (field.minimum() != null && number.compareTo(new BigDecimal(field.minimum().textValue())) < 0)

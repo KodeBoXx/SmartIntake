@@ -64,4 +64,20 @@ class GeneratedContractModelsTests {
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("Contract validation failed");
   }
+
+  @Test
+  void additiveApiModelsExposeAllRecursiveMutationFieldsInAVersionedPackage() throws Exception {
+    Class<?> mutation = com.kodeboxx.smartintake.generated.contract.v410.SessionMutation.class;
+    assertThat(mutation.getMethod("getRowPath")).isNotNull();
+    assertThat(mutation.getMethod("getValue")).isNotNull();
+    assertThat(mutation.getMethod("getReason")).isNotNull();
+    assertThat(mutation.getMethod("getInitialFields")).isNotNull();
+    assertThat(mutation.getMethod("getBeforeItemId")).isNotNull();
+    assertThat(com.kodeboxx.smartintake.generated.contract.v410.SessionMutationOneOf.class).isNotNull();
+    assertThat(com.kodeboxx.smartintake.generated.contract.v410.SessionMutationOneOf1.class).isNotNull();
+    assertThat(com.kodeboxx.smartintake.generated.contract.v410.SessionMutationOneOf2.class).isNotNull();
+    assertThat(com.kodeboxx.smartintake.generated.contract.v410.SessionMutationOneOf3.class).isNotNull();
+    assertThat(com.kodeboxx.smartintake.generated.contract.v410.SessionMutationOneOf4.class).isNotNull();
+    assertThat(com.kodeboxx.smartintake.generated.contract.v410.SessionMutationOneOf5.class).isNotNull();
+  }
 }

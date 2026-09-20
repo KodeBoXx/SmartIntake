@@ -41,6 +41,11 @@ class ContractRegistryTests {
     assertThat(registry.schema("package", "4.0.0").bytes())
         .isEqualTo(Files.readAllBytes(Path.of("../docs/contracts/smart-form-builder-lite/4.0.0/package.schema.json")));
     assertThat(registry.openApi().bytes()).isEqualTo(Files.readAllBytes(Path.of("../docs/api/openapi.yaml")));
+    assertThat(registry.openApi("4.1.0").bytes())
+        .isEqualTo(Files.readAllBytes(Path.of("../docs/api/openapi-4.1.0.yaml")));
+    assertThat(capabilities.get("apiContractVersion")).isEqualTo("4.1.0");
+    assertThat(capabilities.get("schemaContractVersion")).isEqualTo("4.0.0");
+    assertThat((java.util.List<?>) capabilities.get("apiContracts")).hasSize(2);
   }
 
   @Test

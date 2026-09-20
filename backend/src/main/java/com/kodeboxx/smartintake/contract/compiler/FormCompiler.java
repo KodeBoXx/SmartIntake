@@ -1,6 +1,9 @@
 package com.kodeboxx.smartintake.contract.compiler;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.kodeboxx.smartintake.contract.ContractRegistry;
 import com.kodeboxx.smartintake.contract.ExpressionEngine;
 import java.util.ArrayDeque;
@@ -41,10 +44,11 @@ public final class FormCompiler {
       problems.add(problem("SCHEMA_" + diagnostic.code(), diagnostic.pointer(), "Package schema validation failed."));
     }
     State state = new State(candidate, problems);
-    collectFields(candidate.path("data").path("fields"), "/data/fields", 0, state, new HashSet<>());
+    collectFields(candidate.path("data").path("fields"), "/data/fields", 0, List.of(), state, new HashSet<>());
     collectPages(candidate.path("flow").path("phases"), state);
     checkNodes(candidate.path("flow").path("phases"), "/flow/phases", state);
     checkExpressions(candidate.path("expressions"), state);
+    checkExpressionConsumers(candidate, state);
     checkCalculationBindings(state);
     checkRoutes(candidate, state);
     checkLocales(candidate, state);
@@ -61,7 +65,8 @@ public final class FormCompiler {
     return new CompilationResult(new CompiledForm(VERSION, candidate, fields, pages, state.expressionNodes, state.reviewPages), problems);
   }
 
-  private void collectFields(JsonNode nodes, String pointer, int repeaterDepth, State state, Set<String> siblingKeys) {
+  private void collectFields(JsonNode nodes, String pointer, int repeaterDepth, List<String> listAncestors,
+      State state, Set<String> siblingKeys) {
     if (!nodes.isArray()) return;
     for (int index = 0; index < nodes.size(); index++) {
       JsonNode field = nodes.get(index); String at = pointer + "/" + index;
@@ -73,14 +78,22 @@ public final class FormCompiler {
       if (childDepth > 3) state.error("NESTED_REPEATER_DEPTH", at, "Repeaters may nest at most three levels.");
       boolean protectedValue = hasCalculation(field) || field.path("readOnly").asBoolean(false)
           || "calculated".equals(field.path("mode").asText());
-      state.fields.put(id, new Field(id, key, field.path("type").asText(), childDepth, protectedValue, options, field, at));
+      state.fields.put(id, new Field(id, key, field.path("type").asText(), childDepth, protectedValue,
+          options, listAncestors, field, at));
       if (field.path("constraints").path("maxItems").asInt(0) > 500)
         state.error("REPEATER_ITEM_LIMIT", at + "/constraints/maxItems", "Repeaters may contain at most 500 items.");
       checkOptionDefault(field, options, at, state);
       // The closed 4.0.0 package grammar uses itemSchema.fields for both object and list descendants.
       // Do not accept the old prototype's direct fields shape here.
-      if (field.path("itemSchema").has("fields")) collectFields(field.path("itemSchema").path("fields"),
-          at + "/itemSchema/fields", childDepth, state, new HashSet<>());
+      if (field.path("itemSchema").has("fields")) {
+        List<String> childAncestors = listAncestors;
+        if ("list".equals(field.path("type").asText())) {
+          childAncestors = new ArrayList<>(listAncestors);
+          childAncestors.add(id);
+        }
+        collectFields(field.path("itemSchema").path("fields"), at + "/itemSchema/fields", childDepth,
+            childAncestors, state, new HashSet<>());
+      }
     }
   }
 
@@ -166,14 +179,81 @@ public final class FormCompiler {
 
   private void checkExpressions(JsonNode expressionNodes, State state) {
     if (!expressionNodes.isObject()) return;
-    Map<String, String> types = new LinkedHashMap<>(); state.fields.forEach((id, field) -> types.put(id, field.type));
-    ExpressionEngine.EvaluationContext context = ExpressionEngine.typedLegacy(types, ExpressionEngine.Context.defaults());
     expressionNodes.fields().forEachRemaining(entry -> {
       state.expressionNodes.put(entry.getKey(), entry.getValue().deepCopy());
-      ExpressionEngine.Result result = expressions.compile(entry.getValue(), context);
+      ExpressionEngine.Result result = expressions.compile(entry.getValue());
       if (!"available".equals(result.state())) state.error("EXPRESSION_" + result.code(),
           CompilationDiagnostic.child("/expressions", entry.getKey()), "Expression does not compile against the declared fields and scopes.");
     });
+  }
+
+  private void checkExpressionConsumers(JsonNode candidate, State state) {
+    JsonNode definitions = expressionDefinitions(candidate.path("data").path("fields"));
+    for (Field field : state.fields.values()) {
+      for (String binding : List.of("visibilityExpressionId", "requiredExpressionId", "validationExpressionId"))
+        checkExpressionAt(field.source.path(binding).asText(null), field, definitions, state);
+      JsonNode calculation = calculationBinding(field.source);
+      if (calculation.path("value").isTextual())
+        checkExpressionAt(calculation.path("value").asText(), field, definitions, state);
+    }
+    checkNodeExpressionConsumers(candidate.path("flow").path("phases"), definitions, state);
+    state.expressionNodes.forEach((id, expression) -> {
+      if (!state.expressionConsumers.contains(id))
+        checkExpressionAt(id, null, definitions, state);
+    });
+  }
+
+  private void checkNodeExpressionConsumers(JsonNode phases, JsonNode definitions, State state) {
+    for (JsonNode phase : phases) for (JsonNode page : phase.path("pages")) {
+      for (JsonNode route : page.path("routes"))
+        checkExpressionAt(route.path("whenExpressionId").asText(null), null, definitions, state);
+      for (JsonNode section : page.path("sections")) for (JsonNode node : section.path("nodes"))
+        checkNodeExpressionConsumer(node, definitions, state);
+    }
+  }
+
+  private void checkNodeExpressionConsumer(JsonNode node, JsonNode definitions, State state) {
+    Field field = state.fields.get(node.path("fieldId").asText());
+    for (String binding : List.of("visibilityExpressionId", "requiredExpressionId", "validationExpressionId"))
+      checkExpressionAt(node.path(binding).asText(null), field, definitions, state);
+    for (JsonNode child : node.path("children")) checkNodeExpressionConsumer(child, definitions, state);
+  }
+
+  private static ArrayNode expressionDefinitions(JsonNode fields) {
+    ArrayNode result = JsonNodeFactory.instance.arrayNode();
+    for (JsonNode field : fields) result.add(expressionDefinition(field));
+    return result;
+  }
+
+  private static ObjectNode expressionDefinition(JsonNode field) {
+    ObjectNode result = JsonNodeFactory.instance.objectNode();
+    result.put("id", field.path("id").asText());
+    result.put("type", field.path("type").asText());
+    JsonNode children = field.path("itemSchema").path("fields");
+    if (children.isArray()) {
+      ArrayNode itemFields = result.putArray("itemFields");
+      for (JsonNode child : children) itemFields.add(expressionDefinition(child));
+    }
+    return result;
+  }
+
+  private void checkExpressionAt(
+      String expressionId, Field field, JsonNode definitions, State state) {
+    if (expressionId == null || expressionId.isBlank()) return;
+    state.expressionConsumers.add(expressionId);
+    JsonNode expression = state.expressionNodes.get(expressionId);
+    if (expression == null) return;
+    try {
+      List<String> ancestors = field == null ? List.of() : field.listAncestors;
+      ExpressionEngine.Result result = expressions.compile(expression,
+          ExpressionEngine.definitionContextAt(definitions, ancestors));
+      if (!"available".equals(result.state())) state.error("EXPRESSION_" + result.code(),
+          CompilationDiagnostic.child("/expressions", expressionId),
+          "Expression does not compile in its consuming field or placement scope.");
+    } catch (IllegalArgumentException invalid) {
+      state.error("EXPRESSION_EXPR_SCOPE", CompilationDiagnostic.child("/expressions", expressionId),
+          "Expression does not compile in its consuming field or placement scope.");
+    }
   }
 
   /**
@@ -331,12 +411,17 @@ public final class FormCompiler {
   }
 
   private static CompilationDiagnostic problem(String code, String pointer, String message) { return new CompilationDiagnostic(code, pointer, message); }
-  private record Field(String id, String key, String type, int repeaterDepth, boolean protectedValue, List<String> optionIds, JsonNode source, String sourcePointer) {}
+  private record Field(String id, String key, String type, int repeaterDepth, boolean protectedValue,
+                       List<String> optionIds, List<String> listAncestors, JsonNode source,
+                       String sourcePointer) {
+    private Field { listAncestors = List.copyOf(listAncestors); }
+  }
   private record Page(String id, int order, List<String> targets, boolean review, String pointer) {}
   private static final class State {
     final JsonNode candidate; final List<CompilationDiagnostic> problems; final Set<String> ids = new HashSet<>();
     final Map<String, Field> fields = new LinkedHashMap<>(); final List<Page> pages = new ArrayList<>();
     final Map<String, JsonNode> expressionNodes = new LinkedHashMap<>(); final List<String> reviewPages = new ArrayList<>();
+    final Set<String> expressionConsumers = new HashSet<>();
     State(JsonNode candidate, List<CompilationDiagnostic> problems) { this.candidate = candidate; this.problems = problems; }
     void error(String code, String pointer, String message) { problems.add(problem(code, pointer, message)); }
   }

@@ -26,7 +26,11 @@ public class ContractPublicationController {
 
   @GetMapping(value = "/schemas/{kind}/{version}", produces = "application/schema+json")
   public ResponseEntity<byte[]> schema(@PathVariable String kind, @PathVariable String version) {
-    try { return immutable(contracts.schema(kind, version).document(), MediaType.parseMediaType("application/schema+json")); }
+    try {
+      if ("openapi".equals(kind))
+        return immutable(contracts.openApi(version), MediaType.parseMediaType("application/yaml"));
+      return immutable(contracts.schema(kind, version).document(), MediaType.parseMediaType("application/schema+json"));
+    }
     catch (ContractRegistry.UnknownContract ignored) { throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unknown contract schema"); }
   }
 
