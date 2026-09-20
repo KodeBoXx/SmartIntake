@@ -52,11 +52,21 @@ export class CatalogStaffPageComponent {
     effect(() => {
       if (this.session.state() !== 'authenticated') return;
       const workspace = this.workspaceContext()?.workspaceId ?? null;
-      if (!workspace || workspace === this.loadedWorkspace) return;
+      if (!workspace) {
+        this.state.set('denied'); this.message.set('This workspace is not available in your server session.');
+        this.detailOpen.set(false); this.detailId.set(null);
+        if (this.route.snapshot.queryParamMap?.has('details')) void this.router.navigate([], { relativeTo: this.route, queryParams: { details: null }, queryParamsHandling: 'merge', replaceUrl: true });
+        return;
+      }
+      if (workspace === this.loadedWorkspace) return;
       this.loadedWorkspace = workspace;
       this.message.set('');
       this.loadMetadata();
       this.load();
+    });
+    effect(() => {
+      if (!this.detailOpen()) return;
+      setTimeout(() => this.document.querySelector<HTMLElement>('cui-drawer [role="dialog"]')?.focus());
     });
   }
   workspaceContext() {
@@ -80,7 +90,7 @@ export class CatalogStaffPageComponent {
   nextPage(): void { this.load(this.nextCursor(), true); }
   load(cursor = '', append = false): void { const workspace = this.workspace(); if (!workspace) return; this.state.set('loading'); this.api.catalogForms(workspace, { q: this.query, status: this.status || undefined, folder: this.folder || undefined, tag: this.tag ? [this.tag] : undefined, cursor: cursor || undefined, limit: 25 }).subscribe({ next: (page) => { this.forms.set(append ? [...this.forms(), ...page.items] : page.items); this.nextCursor.set(page.nextCursor || ''); this.state.set(this.forms().length ? 'ready' : 'empty'); }, error: (error) => this.fail(error.status) }); }
   loadMetadata(): void { const workspace = this.workspace(); if (!workspace) return; this.api.catalogFolders(workspace).subscribe({ next: (folders) => this.folders.set(folders), error: (error) => this.fail(error.status) }); this.api.catalogTags(workspace).subscribe({ next: (tags) => this.tags.set(tags), error: (error) => this.fail(error.status) }); if (!this.canManage()) return; this.api.effectiveCatalogSettings(workspace).subscribe({ next: (settings) => this.applySettings(settings), error: (error) => this.fail(error.status) }); this.api.workspaceMembers(workspace).subscribe({ next: (members) => this.memberOptions.set(members.map((member) => ({ label: member.displayName || member.email || member.accountId, value: member.accountId }))), error: (error) => this.fail(error.status) }); }
-  openDetails(id: string): void { this.detailReturnFocus = this.document.activeElement as HTMLElement | null; this.detailId.set(id); this.detailOpen.set(true); const form = this.selected(); this.detailFolder = form?.folderId ?? ''; this.detailTag = form?.tags[0]?.id ?? ''; void this.router.navigate([], { relativeTo: this.route, queryParams: { details: id }, queryParamsHandling: 'merge' }); setTimeout(() => this.document.querySelector<HTMLElement>('cui-drawer [role="dialog"]')?.focus()); }
+  openDetails(id: string): void { this.detailReturnFocus = this.document.activeElement as HTMLElement | null; this.detailId.set(id); this.detailOpen.set(true); const form = this.selected(); this.detailFolder = form?.folderId ?? ''; this.detailTag = form?.tags[0]?.id ?? ''; void this.router.navigate([], { relativeTo: this.route, queryParams: { details: id }, queryParamsHandling: 'merge' }); }
   closeDetails(): void { this.detailOpen.set(false); this.detailId.set(null); void this.router.navigate([], { relativeTo: this.route, queryParams: { details: null }, queryParamsHandling: 'merge' }); queueMicrotask(() => this.detailReturnFocus?.focus()); }
   @HostListener('document:keydown', ['$event'])
   trapDetailFocus(event: KeyboardEvent): void {

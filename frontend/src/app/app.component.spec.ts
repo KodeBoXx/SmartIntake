@@ -54,6 +54,18 @@ describe('AppComponent journeys', () => {
     expect(component.dirty()).toBe(false);
   });
 
+  it('resolves the canonical preview route to its authoritative draft', () => {
+    const api = createApi();
+    TestBed.configureTestingModule({ imports: [AppComponent], providers: [
+      { provide: SmartIntakeApiService, useValue: api }, staffSessionProvider,
+      { provide: ActivatedRoute, useValue: { snapshot: { data: { screen: 'preview' }, paramMap: { get: (name: string) => name === 'draftId' ? 'draft-1' : null } } } },
+    ] });
+    const component = TestBed.createComponent(AppComponent).componentInstance;
+    expect(api.currentDraft).toHaveBeenCalledWith('local', 'draft-1', 'draft-1');
+    expect(component.formId).toBe('draft-1');
+    expect(component.mode()).toBe('preview');
+  });
+
   it('locks authoring until form lookup and authoritative draft rehydration complete', () => {
     const api = createApi();
     const forms = new Subject<Array<{ id: string; formKey: string; title: string; status: string; revision: number; updatedAt: string }>>();

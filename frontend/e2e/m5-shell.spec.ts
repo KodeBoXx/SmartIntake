@@ -82,7 +82,7 @@ test.describe('M5 routed Certinal shell', () => {
           platformRoles: ['administrator'],
           organizations: [{
             organizationId: 'demo-organization', name: 'Demo organization', membershipState: 'active', organizationRoles: ['owner', 'administrator'],
-            workspaces: [{ workspaceId: 'demo', name: 'Demo workspace', roles: ['workspace-administrator', 'form-author', 'publisher', 'response-viewer', 'response-exporter'] }],
+            workspaces: [{ workspaceId: 'demo', name: 'Demo workspace', roles: ['workspace-administrator', 'author', 'publisher', 'response-viewer', 'response-exporter'] }],
           }],
           currentOrganizationId: 'demo-organization', currentWorkspaceId: 'demo',
         },
@@ -137,6 +137,22 @@ test.describe('M5 routed Certinal shell', () => {
     await expect(drawer).toHaveCount(0);
     await expect(page).not.toHaveURL(/details=/);
     await expect(view).toBeFocused();
+  });
+
+  test('focuses a directly linked detail drawer', async ({ page }) => {
+    await page.goto('/workspaces/demo/forms?details=demo-form');
+    await waitForLazyPage(page, 'staff');
+    const drawer = page.locator('cui-drawer [role="dialog"]');
+    await expect(drawer).toBeVisible();
+    await expect(drawer).toBeFocused();
+  });
+
+  test('denies unavailable workspaces and clears protected detail links', async ({ page }) => {
+    await page.goto('/workspaces/not-authorized/forms?details=demo-form');
+    await waitForLazyPage(page, 'staff');
+    await expect(page.locator('[data-testid="catalog-page"]')).toHaveAttribute('data-state', 'denied');
+    await expect(page.locator('cui-drawer [role="dialog"]')).toHaveCount(0);
+    await expect(page).not.toHaveURL(/details=/);
   });
 
   test('preserves a single staff banner at the 900px breakpoint', async ({ page }) => {

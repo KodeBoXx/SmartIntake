@@ -187,9 +187,12 @@ export class AppComponent {
     const formId = this.routeParam('formId');
     const draftId = this.routeParam('draftId');
     const screen = this.screen();
-    if (formId && (draftId || screen === 'review-publish' || screen === 'preview')) {
-      this.api.currentDraft(this.workspaceId(), formId, draftId ?? formId).subscribe({
-        next: (draft) => this.applyDraft(formId, draft),
+    // Draft IDs currently equal their owning form IDs. The canonical /preview/{d}
+    // route therefore resolves the same authoritative workspace-scoped draft.
+    const resolvedFormId = formId ?? (screen === 'preview' ? draftId : null);
+    if (resolvedFormId && (draftId || screen === 'review-publish' || screen === 'preview')) {
+      this.api.currentDraft(this.workspaceId(), resolvedFormId, draftId ?? resolvedFormId).subscribe({
+        next: (draft) => this.applyDraft(resolvedFormId, draft),
         error: (error) => this.failRehydration('The requested draft is unavailable in this workspace.', error),
       });
       return;
