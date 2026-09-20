@@ -1152,6 +1152,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/auth/bootstrap": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Initialize the one-time staff bootstrap owner */
+        post: operations["m6Bootstrap"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/workspaces/{workspace}/catalog/forms": {
         parameters: {
             query?: never;
@@ -3063,6 +3080,18 @@ export interface components {
              */
             operators: string[];
         };
+        BootstrapRequest: {
+            /** Format: email */
+            email: string;
+            password: string;
+            organizationName?: string;
+            workspaceName?: string;
+        };
+        BootstrapResponse: {
+            requestId: string;
+            /** @constant */
+            bootstrap: "pending-activation";
+        };
         id: string;
         sha256: string;
         extensionValue: {
@@ -3947,6 +3976,10 @@ export interface components {
         LoginCsrfToken: string;
         /** @description Secure, HttpOnly, SameSite=Strict cookie set by unauthenticated GET /v1/auth/session and consumed with the matching X-Login-CSRF-Token. */
         LoginCsrfCookie: string;
+        /** @description Deployment-provisioned, one-time bootstrap proof. It is consumed atomically and must never be logged. */
+        BootstrapToken: string;
+        /** @description Readable SameSite=Strict CSRF cookie whose value must match X-CSRF-Token for a cookie-authenticated mutation. */
+        CsrfCookie: string;
     };
     requestBodies: never;
     headers: {
@@ -3964,8 +3997,8 @@ export interface components {
          */
         LoginCsrfToken: string;
         /**
-         * @description Sets smartintake_login_csrf as a Secure, HttpOnly, SameSite=Strict, short-lived cookie bound to the returned one-time token.
-         * @example smartintake_login_csrf=bound-01J2W5RFR3K24SFWDX2C0N9VW3; Secure; HttpOnly; SameSite=Strict; Path=/v1/auth
+         * @description Sets SI_LOGIN_CSRF as a Secure, HttpOnly, SameSite=Strict, short-lived cookie bound to the returned one-time token.
+         * @example SI_LOGIN_CSRF=bound-01J2W5RFR3K24SFWDX2C0N9VW3; Secure; HttpOnly; SameSite=Strict; Path=/v1/auth
          */
         LoginCsrfSetCookie: string;
     };
@@ -4134,7 +4167,7 @@ export interface operations {
             path?: never;
             cookie: {
                 /** @description Secure, HttpOnly, SameSite=Strict cookie set by unauthenticated GET /v1/auth/session and consumed with the matching X-Login-CSRF-Token. */
-                smartintake_login_csrf: components["parameters"]["LoginCsrfCookie"];
+                SI_LOGIN_CSRF: components["parameters"]["LoginCsrfCookie"];
             };
         };
         requestBody: {
@@ -7160,6 +7193,36 @@ export interface operations {
             422: components["responses"]["Unprocessable"];
             429: components["responses"]["RateLimited"];
             500: components["responses"]["InternalError"];
+        };
+    };
+    m6Bootstrap: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Deployment-provisioned, one-time bootstrap proof. It is consumed atomically and must never be logged. */
+                "X-Bootstrap-Token": components["parameters"]["BootstrapToken"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BootstrapRequest"];
+            };
+        };
+        responses: {
+            /** @description Pending owner activation created; the proof is returned only in X-Activation-Copy-Link. */
+            201: {
+                headers: {
+                    "X-Activation-Copy-Link"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BootstrapResponse"];
+                };
+            };
+            403: components["responses"]["Forbidden"];
+            409: components["responses"]["Conflict"];
         };
     };
     m6CatalogSearch: {

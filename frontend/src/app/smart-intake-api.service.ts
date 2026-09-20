@@ -76,7 +76,17 @@ export class SmartIntakeApiService {
   addOrganizationUser(organizationId: string, body: components['schemas']['OrganizationUserCreateRequest'], retryKey?: string): Observable<components['schemas']['OrganizationUser']> { const url = `/v1/organizations/${organizationId}/users`; return this.revisioned(this.http.post<components['schemas']['OrganizationUserResponse']>(url, body, this.mutation('POST', url, body, retryKey))).pipe(map((response) => response.organizationUser)); }
   updateOrganizationUser(organizationId: string, userId: string, revision: number, body: components['schemas']['OrganizationUserUpdateRequest'], retryKey?: string): Observable<components['schemas']['OrganizationUser']> { const url = `/v1/organizations/${organizationId}/users/${userId}`; return this.revisioned(this.http.patch<components['schemas']['OrganizationUserResponse']>(url, body, this.mutation('PATCH', url, body, retryKey, revision))).pipe(map((response) => response.organizationUser)); }
   assignWorkspaceRoles(workspaceId: string, userId: string, revision: number, body: components['schemas']['WorkspaceRoleAssignmentRequest'], retryKey?: string): Observable<components['schemas']['WorkspaceRole']> { const url = `/v1/workspaces/${workspaceId}/users/${userId}/roles`; return this.revisioned(this.http.put<components['schemas']['WorkspaceRoleResponse']>(url, body, this.mutation('PUT', url, body, retryKey, revision))).pipe(map((response) => response.workspaceRole)); }
-  inviteOrganizationUser(organizationId: string, userId: string, name = 'Invitation', retryKey?: string): Observable<components['schemas']['Invitation']> { const url = `/v1/organizations/${organizationId}/users/${userId}/invitations`; const body = { name }; return this.revisioned(this.http.post<components['schemas']['InvitationResponse']>(url, body, this.mutation('POST', url, body, retryKey))).pipe(map((response) => response.invitation)); }
+  inviteOrganizationUser(organizationId: string, userId: string, name = 'Invitation', retryKey?: string): Observable<components['schemas']['Invitation'] & { copyLink?: string }> {
+    const url = `/v1/organizations/${organizationId}/users/${userId}/invitations`;
+    const body = { name };
+    return this.http.post<components['schemas']['InvitationResponse']>(url, body, this.mutation('POST', url, body, retryKey)).pipe(
+      tap((response) => this.rememberEtag(response)),
+      map((response) => ({
+        ...response.body!.invitation,
+        ...(response.headers.get('X-Copy-Link') ? { copyLink: response.headers.get('X-Copy-Link')! } : {}),
+      })),
+    );
+  }
   organizationPolicies(organizationId: string): Observable<unknown[]> { return this.http.get<{ items?: unknown[] }>(`/v1/organizations/${organizationId}/policies`, this.staff()).pipe(map((response) => response.items ?? [])); }
 
   catalogForms(workspaceId: string, search: CatalogSearch = {}): Observable<components['schemas']['CatalogPage']> {
@@ -101,45 +111,45 @@ export class SmartIntakeApiService {
   updateCatalogSettings(workspaceId: string, body: components['schemas']['CatalogSettingsInput']): Observable<CatalogSettings> { return this.http.put<CatalogSettings>(`/v1/workspaces/${workspaceId}/catalog/settings`, body, this.staff()); }
   workspaceMembers(workspaceId: string): Observable<{ accountId: string; email?: string; displayName?: string }[]> { return this.http.get<{ items?: { accountId: string; email?: string; displayName?: string }[] }>(`/v1/workspaces/${workspaceId}/members`, this.staff()).pipe(map((response) => response.items ?? [])); }
 
-  activate(body: components['schemas']['AccountActivationRequest']): Observable<unknown> {
-    return this.http.post('/v1/auth/activate', body, { withCredentials: true });
+  activate(body: components['schemas']['AccountActivationRequest']): Observable<{ copyLink?: string }> {
+    return this.http.post<unknown>('/v1/auth/activate', body, { withCredentials: true, observe: 'response' }).pipe(map((response) => copyLink(response)));
   }
 
-  requestRecovery(body: components['schemas']['RecoveryRequest']): Observable<unknown> {
-    return this.http.post('/v1/auth/recovery', body, { withCredentials: true });
+  requestRecovery(body: components['schemas']['RecoveryRequest']): Observable<{ copyLink?: string }> {
+    return this.http.post<unknown>('/v1/auth/recovery', body, { withCredentials: true, observe: 'response' }).pipe(map((response) => copyLink(response)));
   }
 
-  resetPassword(body: components['schemas']['PasswordResetRequest']): Observable<unknown> {
-    return this.http.post('/v1/auth/reset', body, { withCredentials: true });
+  resetPassword(body: components['schemas']['PasswordResetRequest']): Observable<{ copyLink?: string }> {
+    return this.http.post<unknown>('/v1/auth/reset', body, { withCredentials: true, observe: 'response' }).pipe(map((response) => copyLink(response)));
   }
 
-  listForms(workspaceId = 'local'): Observable<FormSummary[]> {
+  listForms(workspaceId: string): Observable<FormSummary[]> {
     return this.http.get<FormSummary[]>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/forms`, this.staff());
   }
 
-  currentDraft(formId: string, draftId: string): Observable<CurrentDraft> {
-    return this.http.get<CurrentDraft>(`/v1/workspaces/local/forms/${formId}/drafts/${draftId}`, this.staff());
+  currentDraft(workspaceId: string, formId: string, draftId: string): Observable<CurrentDraft> {
+    return this.http.get<CurrentDraft>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/forms/${formId}/drafts/${draftId}`, this.staff());
   }
 
-  listResponses(workspaceId = 'local'): Observable<ResponseSummary[]> {
+  listResponses(workspaceId: string): Observable<ResponseSummary[]> {
     return this.http.get<ResponseSummary[]>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/submissions`, this.staff());
   }
 
-  responseDetail(id: string, workspaceId = 'local'): Observable<unknown> {
+  responseDetail(workspaceId: string, id: string): Observable<unknown> {
     return this.http.get<unknown>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/submissions/${id}`, this.staff());
   }
 
-  exportDefinition(formId: string): Observable<unknown> {
-    return this.http.get<unknown>(`/v1/workspaces/local/forms/${formId}/definition-export`, this.staff());
+  exportDefinition(workspaceId: string, formId: string): Observable<unknown> {
+    return this.http.get<unknown>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/forms/${formId}/definition-export`, this.staff());
   }
 
-  importDefinition(formId: string, revision: number, definition: unknown): Observable<{ revision: number }> {
-    return this.http.put<{ revision: number }>(`/v1/workspaces/local/forms/${formId}/definition-import`, definition, {
+  importDefinition(workspaceId: string, formId: string, revision: number, definition: unknown): Observable<{ revision: number }> {
+    return this.http.put<{ revision: number }>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/forms/${formId}/definition-import`, definition, {
       headers: new HttpHeaders({ 'If-Match': this.etag(revision) }), withCredentials: true,
     });
   }
 
-  exportResponses(workspaceId = 'local'): Observable<ResponseSummary[]> {
+  exportResponses(workspaceId: string): Observable<ResponseSummary[]> {
     return this.http.get<ResponseSummary[]>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/exports.json`, this.staff());
   }
 
@@ -148,18 +158,18 @@ export class SmartIntakeApiService {
     return this.http.get<PublishedSchema>(`/v1/schemas/${encodeURIComponent(kind)}/${encodeURIComponent(version)}`);
   }
 
-  createForm(formKey: string, title: string): Observable<CreatedForm> {
-    return this.http.post<CreatedForm>('/v1/workspaces/local/forms', { formKey, title }, this.staff());
+  createForm(workspaceId: string, formKey: string, title: string): Observable<CreatedForm> {
+    return this.http.post<CreatedForm>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/forms`, { formKey, title }, this.staff());
   }
 
-  updateDraft(formId: string, draftId: string, revision: number, definition: FormDefinition): Observable<SavedDraft> {
-    return this.http.put<SavedDraft>(`/v1/workspaces/local/forms/${formId}/drafts/${draftId}`, { definition }, {
+  updateDraft(workspaceId: string, formId: string, draftId: string, revision: number, definition: FormDefinition): Observable<SavedDraft> {
+    return this.http.put<SavedDraft>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/forms/${formId}/drafts/${draftId}`, { definition }, {
       headers: new HttpHeaders({ 'If-Match': this.etag(revision) }), withCredentials: true,
     });
   }
 
-  publish(formId: string): Observable<PublishedForm> {
-    return this.http.post<PublishedForm>(`/v1/workspaces/local/forms/${formId}/releases`, {}, this.staff());
+  publish(workspaceId: string, formId: string): Observable<PublishedForm> {
+    return this.http.post<PublishedForm>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/forms/${formId}/releases`, {}, this.staff());
   }
 
   startSession(formId: string): Observable<{ sessionId: string; respondentSession: string; revision: number }> {
@@ -235,8 +245,9 @@ export class SmartIntakeApiService {
     }
   }
 
-  private etag(revision: number) {
-    return `"${revision}"`;
+  private etag(revision: number | string) {
+    if (typeof revision === 'string') return revision.startsWith('"rev-') ? revision : `"rev-${revision.replace(/^"|"$/g, '')}"`;
+    return `"rev-${revision}"`;
   }
 
   /** Callers retain this opaque token only while retrying one unchanged user action. */
@@ -244,7 +255,7 @@ export class SmartIntakeApiService {
 
   etagFor(resource: string): string | null { return this.revisionEtags.get(resource) ?? null; }
 
-  private mutation(method: string, url: string, body: unknown, retryKey?: string, revision?: number) {
+  private mutation(method: string, url: string, body: unknown, retryKey?: string, revision?: number | string) {
     const action = retryKey ?? this.createMutationAction();
     let headers = new HttpHeaders({ 'Idempotency-Key': action });
     if (revision !== undefined) headers = headers.set('If-Match', this.etag(revision));
@@ -252,10 +263,12 @@ export class SmartIntakeApiService {
   }
 
   private revisioned<T>(source: Observable<HttpResponse<T>>): Observable<T> {
-    return source.pipe(tap((response) => {
-      const etag = response.headers.get('ETag');
-      if (etag) this.revisionEtags.set(response.url ?? '', etag);
-    }), map((response) => response.body as T));
+    return source.pipe(tap((response) => this.rememberEtag(response)), map((response) => response.body as T));
+  }
+
+  private rememberEtag(response: HttpResponse<unknown>): void {
+    const etag = response.headers.get('ETag');
+    if (etag) this.revisionEtags.set(response.url ?? '', etag);
   }
 }
 
@@ -271,4 +284,9 @@ function mapSession(source: Observable<unknown>): Observable<StaffSession> {
     if (!identity?.accountId || !identity.username) throw new Error('The server returned an invalid staff session.');
     return { identity, organizations: authenticated?.organizations ?? [], currentOrganizationId: authenticated?.currentOrganizationId ?? null, currentWorkspaceId: authenticated?.currentWorkspaceId ?? null };
   }));
+}
+
+function copyLink(response: HttpResponse<unknown>): { copyLink?: string } {
+  const value = response.headers.get('X-Copy-Link');
+  return value ? { copyLink: value } : {};
 }

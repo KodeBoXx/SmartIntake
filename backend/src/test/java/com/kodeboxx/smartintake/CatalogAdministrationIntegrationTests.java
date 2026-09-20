@@ -29,18 +29,19 @@ class CatalogAdministrationIntegrationTests {
   @Autowired TestRestTemplate http;
   @Autowired JdbcTemplate db;
   @Autowired ObjectMapper json;
-  UUID organization, firstWorkspace, secondWorkspace, owner, otherOwner, viewer, firstForm, secondForm, thirdForm;
-  String ownerToken, otherToken, viewerToken;
+  UUID organization, firstWorkspace, secondWorkspace, owner, otherOwner, author, viewer, firstForm, secondForm, thirdForm;
+  String ownerToken, otherToken, authorToken, viewerToken;
 
   @BeforeEach void setup() {
     db.execute("truncate table forms, accounts, organizations cascade");
     organization = UUID.randomUUID(); firstWorkspace = UUID.randomUUID(); secondWorkspace = UUID.randomUUID();
-    owner = UUID.randomUUID(); otherOwner = UUID.randomUUID(); viewer = UUID.randomUUID();
-    ownerToken = UUID.randomUUID().toString(); otherToken = UUID.randomUUID().toString(); viewerToken = UUID.randomUUID().toString();
+    owner = UUID.randomUUID(); otherOwner = UUID.randomUUID(); author = UUID.randomUUID(); viewer = UUID.randomUUID();
+    ownerToken = UUID.randomUUID().toString(); otherToken = UUID.randomUUID().toString(); authorToken = UUID.randomUUID().toString(); viewerToken = UUID.randomUUID().toString();
     db.update("insert into organizations(id,name) values(?,?)", organization, "Org");
     db.update("insert into workspaces(id,organization_id,workspace_key,name) values(?,?,?,?),(?,?,?,?)", firstWorkspace, organization, "catalog-a", "A", secondWorkspace, organization, "catalog-b", "B");
     account(owner, "owner@catalog.test", firstWorkspace, "WORKSPACE_ADMINISTRATOR", ownerToken);
     account(otherOwner, "other@catalog.test", secondWorkspace, "WORKSPACE_ADMINISTRATOR", otherToken);
+    account(author, "author@catalog.test", firstWorkspace, "AUTHOR", authorToken);
     account(viewer, "viewer@catalog.test", firstWorkspace, "REVIEWER", viewerToken);
     firstForm = form(firstWorkspace, "alpha-form", "Alpha intake", "2026-01-03T00:00:00Z");
     secondForm = form(firstWorkspace, "beta-form", "Beta intake", "2026-01-02T00:00:00Z");
@@ -67,19 +68,19 @@ class CatalogAdministrationIntegrationTests {
   }
 
   @Test void folderTagFiltersAndCatalogMutationsUseCurrentServerRole() throws Exception {
-    String folder = id(call("catalog-a/folders", HttpMethod.POST, ownerToken, Map.of("name", "Clinical")));
-    String tag = id(call("catalog-a/tags", HttpMethod.POST, ownerToken, Map.of("name", "priority", "color", "#1144aa")));
-    assertEquals(HttpStatus.NO_CONTENT, call("catalog-a/catalog/forms/" + firstForm + "/classification", HttpMethod.PUT, ownerToken, Map.of("folderId", folder, "tagIds", List.of(tag))).getStatusCode());
-    Map<String, Object> filtered = object(call("catalog-a/catalog/forms?folder=" + folder + "&tag=priority", HttpMethod.GET, ownerToken, null));
+    String folder = id(call("catalog-a/folders", HttpMethod.POST, authorToken, Map.of("name", "Clinical")));
+    String tag = id(call("catalog-a/tags", HttpMethod.POST, authorToken, Map.of("name", "priority", "color", "#1144aa")));
+    assertEquals(HttpStatus.NO_CONTENT, call("catalog-a/catalog/forms/" + firstForm + "/classification", HttpMethod.PUT, authorToken, Map.of("folderId", folder, "tagIds", List.of(tag))).getStatusCode());
+    Map<String, Object> filtered = object(call("catalog-a/catalog/forms?folder=" + folder + "&tag=priority", HttpMethod.GET, authorToken, null));
     assertEquals(1, ((List<?>) filtered.get("items")).size());
     assertEquals(firstForm.toString(), ((Map<?, ?>) ((List<?>) filtered.get("items")).get(0)).get("id"));
     assertEquals(HttpStatus.FORBIDDEN, call("catalog-a/catalog/forms/" + firstForm + "/archive", HttpMethod.POST, viewerToken, null).getStatusCode());
-    assertEquals(HttpStatus.OK, call("catalog-a/catalog/forms/" + firstForm + "/archive", HttpMethod.POST, ownerToken, null).getStatusCode());
-    assertEquals(0, ((List<?>) object(call("catalog-a/catalog/forms?tag=priority", HttpMethod.GET, ownerToken, null)).get("items")).size());
-    assertEquals(1, ((List<?>) object(call("catalog-a/catalog/forms?tag=priority&archived=true", HttpMethod.GET, ownerToken, null)).get("items")).size());
-    assertEquals(1, ((List<?>) object(call("catalog-a/catalog/forms?status=ARCHIVED", HttpMethod.GET, ownerToken, null)).get("items")).size());
-    assertEquals(HttpStatus.OK, call("catalog-a/catalog/forms/" + firstForm + "/restore", HttpMethod.POST, ownerToken, null).getStatusCode());
-    ResponseEntity<String> copy = call("catalog-a/catalog/forms/" + firstForm + "/duplicate", HttpMethod.POST, ownerToken, null);
+    assertEquals(HttpStatus.OK, call("catalog-a/catalog/forms/" + firstForm + "/archive", HttpMethod.POST, authorToken, null).getStatusCode());
+    assertEquals(0, ((List<?>) object(call("catalog-a/catalog/forms?tag=priority", HttpMethod.GET, authorToken, null)).get("items")).size());
+    assertEquals(1, ((List<?>) object(call("catalog-a/catalog/forms?tag=priority&archived=true", HttpMethod.GET, authorToken, null)).get("items")).size());
+    assertEquals(1, ((List<?>) object(call("catalog-a/catalog/forms?status=ARCHIVED", HttpMethod.GET, authorToken, null)).get("items")).size());
+    assertEquals(HttpStatus.OK, call("catalog-a/catalog/forms/" + firstForm + "/restore", HttpMethod.POST, authorToken, null).getStatusCode());
+    ResponseEntity<String> copy = call("catalog-a/catalog/forms/" + firstForm + "/duplicate", HttpMethod.POST, authorToken, null);
     assertEquals(HttpStatus.CREATED, copy.getStatusCode());
     assertTrue(String.valueOf(object(copy).get("formKey")).contains("-copy-"));
   }
@@ -88,9 +89,6 @@ class CatalogAdministrationIntegrationTests {
     assertEquals(HttpStatus.OK, call("catalog-a/catalog/forms", HttpMethod.GET, viewerToken, null).getStatusCode());
     assertEquals(HttpStatus.FORBIDDEN, call("catalog-a/folders", HttpMethod.POST, viewerToken, Map.of("name", "Denied")).getStatusCode());
 
-    UUID author = UUID.randomUUID();
-    String authorToken = UUID.randomUUID().toString();
-    account(author, "author@catalog.test", firstWorkspace, "AUTHOR", authorToken);
     assertEquals(HttpStatus.CREATED, call("catalog-a/folders", HttpMethod.POST, authorToken, Map.of("name", "Author folder")).getStatusCode());
     assertEquals(HttpStatus.FORBIDDEN, call("catalog-a/catalog/settings", HttpMethod.GET, authorToken, null).getStatusCode());
 
@@ -105,6 +103,20 @@ class CatalogAdministrationIntegrationTests {
     db.update("insert into organization_memberships(account_id,organization_id,roles) values(?,?,array['administrator'])", organizationAdministrator, organization);
     db.update("insert into staff_sessions(token,account_id,expires_at) values(?,?,now()+interval '1 hour')", UUID.fromString(organizationAdministratorToken), organizationAdministrator);
     assertEquals(HttpStatus.NOT_FOUND, call("catalog-a/catalog/forms", HttpMethod.GET, organizationAdministratorToken, null).getStatusCode());
+  }
+
+  @Test void authoringAndWorkspaceAdministrationRemainMutuallyExclusive() throws Exception {
+    assertEquals(HttpStatus.FORBIDDEN, call("catalog-a/catalog/forms/" + firstForm + "/duplicate", HttpMethod.POST, ownerToken, null).getStatusCode());
+    assertEquals(HttpStatus.FORBIDDEN, call("catalog-a/folders", HttpMethod.POST, ownerToken, Map.of("name", "Administrator folder")).getStatusCode());
+    assertEquals(HttpStatus.FORBIDDEN, call("catalog-a/catalog/forms/" + firstForm + "/classification", HttpMethod.PUT, ownerToken, Map.of("tagIds", List.of())).getStatusCode());
+
+    assertEquals(HttpStatus.CREATED, call("catalog-a/catalog/forms/" + firstForm + "/duplicate", HttpMethod.POST, authorToken, null).getStatusCode());
+    assertEquals(HttpStatus.NO_CONTENT, call("catalog-a/catalog/forms/" + firstForm + "/classification", HttpMethod.PUT, authorToken, Map.of("tagIds", List.of())).getStatusCode());
+    assertEquals(HttpStatus.FORBIDDEN, call("catalog-a/catalog/settings", HttpMethod.GET, authorToken, null).getStatusCode());
+    assertEquals(HttpStatus.FORBIDDEN, call("catalog-a/catalog/forms/" + firstForm + "/ownership", HttpMethod.PUT, authorToken, Map.of("accountId", "account-" + viewer)).getStatusCode());
+
+    assertEquals(HttpStatus.OK, call("catalog-a/catalog/settings", HttpMethod.GET, ownerToken, null).getStatusCode());
+    assertEquals(HttpStatus.OK, call("catalog-a/catalog/forms/" + firstForm + "/ownership", HttpMethod.PUT, ownerToken, Map.of("accountId", "account-" + author)).getStatusCode());
   }
 
   @Test void ownershipAndEffectiveSettingsRemainInsideWorkspace() throws Exception {
@@ -127,6 +139,7 @@ class CatalogAdministrationIntegrationTests {
 
   private void account(UUID id, String email, UUID workspace, String role, String token) {
     db.update("insert into accounts(id,email,password_hash) values(?,?,?)", id, email, "unused");
+    db.update("insert into organization_memberships(account_id,organization_id,roles,membership_status) select ?,organization_id,array['member'],'active' from workspaces where id=?", id, workspace);
     db.update("insert into memberships(account_id,workspace_id,role) values(?,?,?)", id, workspace, role);
     db.update("insert into staff_sessions(token,account_id,expires_at) values(?,?,now()+interval '1 hour')", UUID.fromString(token), id);
   }

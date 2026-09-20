@@ -38,7 +38,7 @@ describe('AppComponent journeys', () => {
     TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
     const component = TestBed.createComponent(AppComponent).componentInstance;
 
-    expect(api.currentDraft).toHaveBeenCalledWith('form-1', 'form-1');
+    expect(api.currentDraft).toHaveBeenCalledWith('local', 'form-1', 'form-1');
     expect(component.formId).toBe('form-1');
     expect(component.draftId).toBe('draft-1');
     expect(component.draftRevision()).toBe(4);
@@ -68,7 +68,7 @@ describe('AppComponent journeys', () => {
     expect(api.createForm).not.toHaveBeenCalled();
 
     forms.next([{ id: 'form-1', formKey: 'responsive-intake', title: 'Responsive intake', status: 'DRAFT', revision: 4, updatedAt: '2026-09-18' }]);
-    expect(api.currentDraft).toHaveBeenCalledWith('form-1', 'form-1');
+    expect(api.currentDraft).toHaveBeenCalledWith('local', 'form-1', 'form-1');
     expect(component.rehydrating()).toBe(true);
 
     draft.next({ id: 'draft-1', revision: 4, definition: createDefaultDefinition(), diagnostics: [] });
@@ -105,15 +105,15 @@ describe('AppComponent journeys', () => {
     expect(toolbar.classList.contains('w-full')).toBe(true);
 
     toolbarButton(fixture, 'Save draft').click();
-    expect(api.createForm).toHaveBeenCalledWith('responsive-intake', 'Responsive intake');
-    expect(api.updateDraft).toHaveBeenCalledWith('form-1', 'draft-1', 1, component.definition());
+    expect(api.createForm).toHaveBeenCalledWith('local', 'responsive-intake', 'Responsive intake');
+    expect(api.updateDraft).toHaveBeenCalledWith('local', 'form-1', 'draft-1', 1, component.definition());
     expect(component.draftRevision()).toBe(2);
     toolbarButton(fixture, 'Save draft').click();
     expect(api.createForm).toHaveBeenCalledOnce();
-    expect(api.updateDraft).toHaveBeenLastCalledWith('form-1', 'draft-1', 2, component.definition());
+    expect(api.updateDraft).toHaveBeenLastCalledWith('local', 'form-1', 'draft-1', 2, component.definition());
 
     toolbarButton(fixture, 'Publish').click();
-    expect(api.publish).toHaveBeenCalledWith('form-1');
+    expect(api.publish).toHaveBeenCalledWith('local', 'form-1');
     expect(component.message()).toBe('Form published. Release release-1');
 
     component.startPreview();
@@ -160,7 +160,7 @@ describe('AppComponent journeys', () => {
     component.publish();
     expect(api.updateDraft).toHaveBeenCalledOnce();
     saved.next({ revision: 2, definition: savedDefinition, diagnostics: [] });
-    expect(api.publish).toHaveBeenCalledWith('form-1');
+    expect(api.publish).toHaveBeenCalledWith('local', 'form-1');
     expect(component.publishing()).toBe(true);
 
     component.publish();
@@ -185,8 +185,8 @@ describe('AppComponent journeys', () => {
 
     importInput.dispatchEvent(new Event('change'));
     await Promise.resolve();
-    expect(api.importDefinition).toHaveBeenCalledWith('form-1', 7, { contractVersion: '4.0.0' });
-    expect(api.currentDraft).toHaveBeenCalledWith('form-1', 'draft-1');
+    expect(api.importDefinition).toHaveBeenCalledWith('local', 'form-1', 7, { contractVersion: '4.0.0' });
+    expect(api.currentDraft).toHaveBeenCalledWith('local', 'form-1', 'draft-1');
     expect(component.draftRevision()).toBe(8);
     expect(component.definition().title).toBe('Canonical imported draft');
     expect(component.saving()).toBe(false);
@@ -255,7 +255,7 @@ describe('AppComponent journeys', () => {
     responseRow.click();
     fixture.detectChanges();
 
-    expect(api.responseDetail).toHaveBeenCalledWith('receipt-1');
+    expect(api.responseDetail).toHaveBeenCalledWith('local', 'receipt-1');
     expect(fixture.nativeElement.textContent).toContain('Authorized response detail');
     expect(fixture.nativeElement.textContent).toContain('Ada');
 

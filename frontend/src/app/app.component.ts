@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AppToolbarComponent } from './app-toolbar.component';
 import {
@@ -16,6 +17,8 @@ import {
 } from './editor-state.helpers';
 import { FIELD_TYPES, Field, FormDefinition, RepeaterItem, ResponseSummary, createDefaultDefinition } from './models/form-definition.models';
 import { CurrentDraft, FormSummary, SmartIntakeApiService } from './smart-intake-api.service';
+import { StaffSessionStore } from './core/m5-session.store';
+import { hasWorkspaceRole, workspaceRoleContext } from './core/workspace-roles';
 
 @Component({
   selector: 'app-root',
@@ -55,6 +58,8 @@ import { CurrentDraft, FormSummary, SmartIntakeApiService } from './smart-intake
   styles: [`.card{border:1px solid var(--color-stone-200,#e7e5e4);border-radius:1.5rem;background:white;padding:1.25rem;box-shadow:0 1px 3px #0001}.primary{background:#047857;color:white;border-color:#047857}.danger{color:#b91c1c}.outline{display:block;width:100%;text-align:left;border:0;background:transparent;padding:.6rem;border-radius:.7rem}.active,.selected{background:#ecfdf5;outline:1px solid #059669}.label{display:block;margin-top:.8rem;font-size:.85rem;font-weight:600}.label input,.label select,aside input,aside select{display:block;width:100%;margin-top:.25rem;border:1px solid #d6d3d1;border-radius:.6rem;padding:.5rem}.check{display:block;margin-top:.8rem}.title-input{font-size:1.5rem;font-weight:700;border:0;width:100%}.notice{margin-top:1rem;padding:1rem;background:#ecfccb;border-radius:1rem}`],
 })
 export class AppComponent {
+  private readonly route = inject(ActivatedRoute, { optional: true });
+  private readonly session = inject(StaffSessionStore);
   types = FIELD_TYPES;
   mode = signal<'editor' | 'preview'>('editor');
   pageIndex = signal(0);
@@ -83,13 +88,14 @@ export class AppComponent {
   constructor(private readonly api: SmartIntakeApiService) {
     // This route is protected by staffSessionGuard. Rehydrate only after the
     // server-authoritative guard has accepted the HttpOnly cookie.
-    this.rehydrateDefaultForm();
+    if (this.screen() === 'preview') this.mode.set('preview');
+    this.rehydrateRouteForm();
   }
 
   page() { return this.definition().pages[this.pageIndex()]; }
   field() { return this.page().fields[this.fieldIndex()]; }
   allFields() { return this.definition().pages.flatMap((page) => page.fields); }
-  editorLocked() { return this.rehydrating() || this.rehydrationFailed() || this.saving() || this.publishing() || this.draftReloadRequired(); }
+  editorLocked() { return !this.canAuthor() || this.rehydrating() || this.rehydrationFailed() || this.saving() || this.publishing() || this.draftReloadRequired(); }
   touch() {
     if (this.editorLocked()) return;
     this.definition.update((definition) => ({ ...definition, pages: [...definition.pages] }));
@@ -152,6 +158,34 @@ export class AppComponent {
   visible(field: Field) { return !field.visibleWhen?.fieldId || this.answers[field.visibleWhen.fieldId] === field.visibleWhen.equals; }
   isRequired(field: Field) { return !!field.required || !!(field.requiredRule && this.answers[field.requiredRuleField ?? ''] === field.requiredRuleValue); }
 
+  private routeParam(name: string): string | null { return this.route?.snapshot.paramMap?.get(name) ?? null; }
+  private screen(): string | undefined { return this.route?.snapshot.data?.['screen']; }
+  private workspaceId(): string { return this.routeParam('workspaceId') ?? 'local'; }
+  private routeWorkspaceRoles(): readonly string[] {
+    const requestedWorkspaceId = this.routeParam('workspaceId');
+    if (!requestedWorkspaceId) return this.session.currentRoles();
+    return workspaceRoleContext(this.session.organizations(), requestedWorkspaceId, this.session.currentWorkspaceId())?.roles ?? [];
+  }
+  private canAuthor(): boolean { return !this.routeParam('workspaceId') || hasWorkspaceRole(this.routeWorkspaceRoles(), 'author'); }
+  private canPublish(): boolean { return !this.routeParam('workspaceId') || hasWorkspaceRole(this.routeWorkspaceRoles(), 'publisher'); }
+
+  private rehydrateRouteForm(): void {
+    const formId = this.routeParam('formId');
+    const draftId = this.routeParam('draftId');
+    const screen = this.screen();
+    if (formId && (draftId || screen === 'review-publish' || screen === 'preview')) {
+      this.api.currentDraft(this.workspaceId(), formId, draftId ?? formId).subscribe({
+        next: (draft) => this.applyDraft(formId, draft),
+        error: () => this.failRehydration('The requested draft is unavailable in this workspace.'),
+      });
+      return;
+    }
+    // A workspace-scoped new route deliberately starts blank: it must not
+    // silently open a draft from another form or workspace.
+    if (screen === 'builder') { this.completeRehydration(); return; }
+    this.rehydrateDefaultForm();
+  }
+
   private rehydrateDefaultForm(knownForms?: FormSummary[]) {
     const load = (forms: FormSummary[]) => {
       const form = forms.find((candidate) => candidate.formKey === this.definition().formKey);
@@ -159,19 +193,19 @@ export class AppComponent {
         this.completeRehydration();
         return;
       }
-      this.api.currentDraft(form.id, form.id).subscribe({
+      this.api.currentDraft(this.workspaceId(), form.id, form.id).subscribe({
         next: (draft) => this.applyDraft(form.id, draft),
         error: () => this.failRehydration('Saved draft unavailable. Retry before editing.'),
       });
     };
     if (knownForms) load(knownForms);
-    else this.api.listForms().subscribe({ next: load, error: () => this.failRehydration('Unable to load saved drafts. Retry before editing.') });
+    else this.api.listForms(this.workspaceId()).subscribe({ next: load, error: () => this.failRehydration('Unable to load saved drafts. Retry before editing.') });
   }
 
   retryDraftRehydration() {
     this.rehydrating.set(true);
     this.rehydrationFailed.set(false);
-    this.rehydrateDefaultForm();
+    this.rehydrateRouteForm();
   }
 
   private completeRehydration() {
@@ -201,7 +235,7 @@ export class AppComponent {
     this.responseDetailGeneration++;
     this.responseDetail.set(null);
     this.responses.set([]);
-    this.api.listResponses().subscribe({
+    this.api.listResponses(this.workspaceId()).subscribe({
       next: (response) => this.responses.set(response),
       error: () => { this.responseDetail.set(null); this.message.set('Response list unavailable.'); },
     });
@@ -213,7 +247,7 @@ export class AppComponent {
   openResponse = (id: string) => {
     const generation = ++this.responseDetailGeneration;
     this.responseDetail.set(null);
-    this.api.responseDetail(id).subscribe({
+    this.api.responseDetail(this.workspaceId(), id).subscribe({
       next: (response) => { if (generation === this.responseDetailGeneration) this.responseDetail.set(response); },
       error: () => {
         if (generation !== this.responseDetailGeneration) return;
@@ -226,7 +260,7 @@ export class AppComponent {
 
   exportDefinition() {
     if (!this.formId) { this.message.set('Save a form before export.'); return; }
-    this.api.exportDefinition(this.formId).subscribe({ next: (response) => this.download(response, 'smart-intake-definition.json'), error: () => this.message.set('Definition export failed.') });
+    this.api.exportDefinition(this.workspaceId(), this.formId).subscribe({ next: (response) => this.download(response, 'smart-intake-definition.json'), error: () => this.message.set('Definition export failed.') });
   }
 
   importDefinition(event: Event) {
@@ -234,7 +268,7 @@ export class AppComponent {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file || !this.formId) { this.message.set('Save a form before import.'); return; }
     this.saving.set(true);
-    file.text().then((text) => this.api.importDefinition(this.formId, this.draftRevision(), JSON.parse(text)).subscribe({
+    file.text().then((text) => this.api.importDefinition(this.workspaceId(), this.formId, this.draftRevision(), JSON.parse(text)).subscribe({
       next: () => this.refetchImportedDraft(),
       error: (error) => { this.saving.set(false); this.message.set(error.error?.diagnostics?.[0]?.message || 'Import rejected.'); },
     })).catch(() => {
@@ -245,7 +279,7 @@ export class AppComponent {
 
   private refetchImportedDraft() {
     this.draftReloadRequired.set(true);
-    this.api.currentDraft(this.formId, this.draftId || this.formId).subscribe({
+    this.api.currentDraft(this.workspaceId(), this.formId, this.draftId || this.formId).subscribe({
       next: (draft) => {
         this.applyDraft(this.formId, draft);
         this.saving.set(false);
@@ -258,10 +292,11 @@ export class AppComponent {
     });
   }
 
-  exportResponses() { this.api.exportResponses().subscribe({ next: (response) => this.download(response, 'smart-intake-responses.json'), error: () => this.message.set('Response export failed.') }); }
+  exportResponses() { this.api.exportResponses(this.workspaceId()).subscribe({ next: (response) => this.download(response, 'smart-intake-responses.json'), error: () => this.message.set('Response export failed.') }); }
   download(value: unknown, name: string) { const anchor = document.createElement('a'); anchor.href = URL.createObjectURL(new Blob([JSON.stringify(value, null, 2)], { type: 'application/json' })); anchor.download = name; anchor.click(); URL.revokeObjectURL(anchor.href); }
 
   save(afterSave?: () => void) {
+    if (!this.canAuthor()) { this.message.set('Author access is required in this workspace.'); return; }
     if (this.rehydrating()) { this.message.set('Loading saved draft. Please wait.'); return; }
     if (this.rehydrationFailed()) { this.message.set('Saved draft must be reloaded before editing.'); return; }
     if (this.saving() || this.publishing() || this.draftReloadRequired()) {
@@ -273,7 +308,7 @@ export class AppComponent {
       this.updateDraft(afterSave);
       return;
     }
-    this.api.createForm(this.definition().formKey, this.definition().title).subscribe({
+    this.api.createForm(this.workspaceId(), this.definition().formKey, this.definition().title).subscribe({
       next: (created) => {
         this.formId = created.id;
         this.draftId = created.draftId || created.id;
@@ -285,7 +320,7 @@ export class AppComponent {
   }
 
   private updateDraft(afterSave?: () => void) {
-    this.api.updateDraft(this.formId, this.draftId || this.formId, this.draftRevision(), this.definition()).subscribe({
+    this.api.updateDraft(this.workspaceId(), this.formId, this.draftId || this.formId, this.draftRevision(), this.definition()).subscribe({
       next: (saved) => {
         this.draftRevision.set(saved.revision);
         this.definition.set(saved.definition);
@@ -299,6 +334,7 @@ export class AppComponent {
   }
 
   publish() {
+    if (!this.canPublish()) { this.message.set('Publisher access is required in this workspace.'); return; }
     if (this.rehydrating()) { this.message.set('Loading saved draft. Please wait.'); return; }
     if (this.rehydrationFailed()) { this.message.set('Saved draft must be reloaded before publishing.'); return; }
     if (!this.formId) { this.message.set('Save a form before publishing.'); return; }
@@ -311,7 +347,7 @@ export class AppComponent {
       return;
     }
     this.publishing.set(true);
-    this.api.publish(this.formId).subscribe({
+    this.api.publish(this.workspaceId(), this.formId).subscribe({
       next: (release) => { this.publishing.set(false); this.message.set(`Form published. Release ${release.releaseId}`); },
       error: () => { this.publishing.set(false); this.message.set('Publish failed.'); },
     });

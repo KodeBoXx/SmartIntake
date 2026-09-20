@@ -16,7 +16,7 @@ type AuthViewState = 'ready' | 'loading' | 'invalid' | 'denied' | 'expired' | 'e
         <p class="type-caption">SMART INTAKE STAFF</p><h1 class="type-h3">{{ title }}</h1>
         @if (message()) { <cui-alert class="mt-4" [variant]="isError() ? 'error' : 'warning'" [title]="alertTitle()">{{ message() }}</cui-alert> }
         @if (state() === 'loading') { <p class="type-body mt-4">Checking your secure session…</p> }
-        @else if (screen === 'recovery' && state() === 'submitted') { <p class="type-body mt-4">If this address is eligible, recovery instructions will be sent. Email delivery may be unavailable in this environment.</p> }
+        @else if (screen === 'recovery' && state() === 'submitted') { <p class="type-body mt-4">If this address is eligible, recovery instructions will be sent. Email delivery may be unavailable in this environment.</p>@if (copyLink()) { <cui-alert class="mt-4" variant="warning" title="Authorized copy-link">Deliver this one-time recovery link only to the authorized recipient: {{ copyLink() }}</cui-alert> } }
         @else if (state() !== 'denied' && state() !== 'throttled') {
           @if (screen === 'sign-in') {
             <cui-input class="mt-4" label="Email" type="email" autocomplete="username" [(value)]="email" [error]="fieldError('email')" />
@@ -55,6 +55,7 @@ export class AuthPageComponent {
   readonly title = titleCase(this.screen);
   readonly state = signal<AuthViewState>(this.route.snapshot.queryParamMap.get('state') as AuthViewState || 'ready');
   readonly message = signal(this.messageFor(this.state()));
+  readonly copyLink = signal('');
   email = '';
   password = '';
   token = this.route.snapshot.queryParamMap.get('token') ?? '';
@@ -83,7 +84,7 @@ export class AuthPageComponent {
   requestRecovery(): void {
     if (!this.email) { this.show('invalid'); return; }
     this.show('loading');
-    this.api.requestRecovery({ email: this.email }).subscribe({ next: () => this.show('submitted'), error: (error) => this.show(this.errorState(error.status)) });
+    this.api.requestRecovery({ email: this.email }).subscribe({ next: (result) => { this.copyLink.set(result.copyLink ?? ''); this.show('submitted'); }, error: (error) => this.show(this.errorState(error.status)) });
   }
 
   bootstrap(): void {

@@ -21,6 +21,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -222,6 +224,7 @@ public class IdentityAdministrationService {
     lockOrganizationOwners(organization);
     long revision = membershipRevisionForUpdate(organization, target);
     ensureOwnerContinuity(organization, target, List.of(), "suspended");
+    ensureAffectedWorkspaceAdministratorContinuity(target, organization);
     db.update("delete from memberships m using workspaces w where m.account_id=? and m.workspace_id=w.id and w.organization_id=?", target, organization);
     revokeAllSessions(target);
     db.update("delete from organization_memberships where organization_id=? and account_id=?", organization, target);
@@ -612,7 +615,10 @@ public class IdentityAdministrationService {
     db.queryForList("select account_id from memberships where workspace_id=? and role in ('WORKSPACE_ADMINISTRATOR','OWNER') for update", workspace);
     Integer targetAdministrator = db.queryForObject("select count(*) from memberships where workspace_id=? and account_id=? and role in ('WORKSPACE_ADMINISTRATOR','OWNER')", Integer.class, workspace, target);
     if (targetAdministrator == null || targetAdministrator == 0 || proposedRoles.contains("workspace-administrator")) return;
-    Integer remaining = db.queryForObject("select count(*) from memberships m join accounts a on a.id=m.account_id where m.workspace_id=? and m.account_id<>? and m.role in ('WORKSPACE_ADMINISTRATOR','OWNER') and a.account_status='active'", Integer.class, workspace, target);
+    Integer remaining = db.queryForObject("select count(*) from memberships m join accounts a on a.id=m.account_id "
+        + "join workspaces w on w.id=m.workspace_id join organization_memberships om on om.account_id=m.account_id and om.organization_id=w.organization_id "
+        + "where m.workspace_id=? and m.account_id<>? and m.role in ('WORKSPACE_ADMINISTRATOR','OWNER') "
+        + "and a.account_status='active' and a.activation_state='active' and om.membership_status='active'", Integer.class, workspace, target);
     if (remaining == null || remaining == 0) throw new ResponseStatusException(HttpStatus.CONFLICT, "Last workspace administrator required");
   }
 
@@ -625,6 +631,17 @@ public class IdentityAdministrationService {
     for (UUID organization : ownerOrganizations) {
       lockOrganizationOwners(organization);
       ensureOwnerContinuity(organization, account, List.of(), "suspended");
+    }
+    for (UUID workspace : db.query("select workspace_id from memberships where account_id=? group by workspace_id",
+        (rs, row) -> (UUID) rs.getObject(1), account)) {
+      ensureWorkspaceOwnerContinuity(workspace, account, List.of());
+    }
+  }
+
+  private void ensureAffectedWorkspaceAdministratorContinuity(UUID account, UUID organization) {
+    for (UUID workspace : db.query("select m.workspace_id from memberships m join workspaces w on w.id=m.workspace_id "
+        + "where m.account_id=? and w.organization_id=? group by m.workspace_id", (rs, row) -> (UUID) rs.getObject(1), account, organization)) {
+      ensureWorkspaceOwnerContinuity(workspace, account, List.of());
     }
   }
 
@@ -730,8 +747,22 @@ public class IdentityAdministrationService {
 
   private void revokeAllSessions(UUID account) { db.update("update staff_sessions set revoked_at=now(),updated_at=now() where account_id=? and revoked_at is null", account); }
   private void audit(String action, UUID resource) {
-    db.update("insert into audit_events(id,action,resource_id,detail) values(?,?,?,cast(? as jsonb))", UUID.randomUUID(), action, resource, "{\"category\":\"identity\"}");
+    HttpServletRequest request = RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes attributes
+        ? attributes.getRequest() : null;
+    UUID actor = request == null ? null : sessions.session(request, request.getHeader("X-Staff-Session"))
+        .flatMap(token -> db.query("select account_id from staff_sessions where token::text=? and revoked_at is null",
+            (rs, row) -> (UUID) rs.getObject(1), token).stream().findFirst()).orElse(null);
+    String delivery = action.contains("invitation") || action.contains("recovery") || action.contains("activation") ? "copy-link" : "none";
+    String idempotency = request == null ? null : request.getHeader("Idempotency-Key");
+    String correlation = request == null ? null : request.getHeader("X-Request-Id");
+    String detail = "{\"category\":\"identity\",\"actor\":" + auditId(actor) + ",\"scope\":\"account\",\"target\":"
+        + auditId(resource) + ",\"reason\":null,\"deliveryClass\":\"" + delivery
+        + "\",\"outcome\":\"success\",\"revision\":null,\"requestCorrelation\":" + auditText(correlation)
+        + ",\"idempotencyCorrelation\":" + auditText(idempotency) + "}";
+    db.update("insert into audit_events(id,action,resource_id,detail) values(?,?,?,cast(? as jsonb))", UUID.randomUUID(), action, resource, detail);
   }
+  private static String auditId(UUID value) { return value == null ? "null" : "\"id-" + sha256(value.toString()).substring(0, 16) + "\""; }
+  private static String auditText(String value) { return value == null || value.isBlank() ? "null" : "\"h-" + sha256(value).substring(0, 16) + "\""; }
   private void revokeSecretActions(UUID account) { db.update("update identity_secret_actions set used_at=now() where account_id=? and used_at is null", account); }
   private UUID accountByEmail(String email) { List<UUID> matches = db.query("select id from accounts where email=?", (rs, row) -> (UUID) rs.getObject(1), email); return matches.isEmpty() ? null : matches.get(0); }
   private int organizationMembershipCount(UUID account) { return db.queryForObject("select count(*) from organization_memberships where account_id=? and membership_status='active'", Integer.class, account); }

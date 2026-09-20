@@ -68,6 +68,20 @@ class IdentitySessionIntegrationTests {
   }
 
   @Test
+  void corsExposesBrowserIdentityAndCapabilityHeaders() {
+    HttpHeaders headers = new HttpHeaders();
+    headers.setOrigin("http://localhost:4200");
+    headers.setAccessControlRequestMethod(HttpMethod.POST);
+    headers.setAccessControlRequestHeaders(List.of("X-CSRF-Token", "Idempotency-Key", "If-Match"));
+    ResponseEntity<String> response = call("/sign-in", HttpMethod.OPTIONS, headers, null);
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    String exposed = response.getHeaders().getFirst("Access-Control-Expose-Headers");
+    assertNotNull(exposed);
+    for (String header : List.of("X-Login-CSRF-Token", "X-CSRF-Token", "ETag", "X-Activation-Copy-Link", "X-Temporary-Password-Copy", "X-Invitation-Copy-Link", "X-Recovery-Copy-Link"))
+      assertTrue(exposed.contains(header), header);
+  }
+
+  @Test
   void signInUsesOneTimeLoginCsrfAndCreatesCookieOnlySession() throws Exception {
     call("/bootstrap", HttpMethod.POST, jsonHeaders(), Map.of("email", "owner@example.test", "password", "123456789012345"));
     ResponseEntity<String> anonymous = http.getForEntity(url("/session"), String.class);
@@ -111,17 +125,17 @@ class IdentitySessionIntegrationTests {
       login.set(HttpHeaders.COOKIE, cookie(anonymous, IdentitySessionService.LOGIN_CSRF_COOKIE));
       login.set("X-Login-CSRF-Token", anonymous.getHeaders().getFirst("X-Login-CSRF-Token"));
       ResponseEntity<String> rejected = call("/sign-in", HttpMethod.POST, login,
-          Map.of("email", "nobody@example.test", "password", "wrong-password-value"));
+          Map.of("email", "owner@example.test", "password", "wrong-password-value"));
       assertEquals(HttpStatus.UNAUTHORIZED, rejected.getStatusCode());
-      assertFalse(rejected.getBody().contains("nobody@example.test"));
+      assertFalse(rejected.getBody().contains("owner@example.test"));
     }
     assertEquals(10, db.queryForObject("select min(failure_count) from sign_in_throttles", Integer.class));
-    assertTrue(db.queryForObject("select bool_and(blocked_until > now() + interval '14 minutes') from sign_in_throttles", Boolean.class));
+    assertTrue(db.queryForObject("select bool_or(blocked_until > now() + interval '14 minutes') from sign_in_throttles", Boolean.class));
     ResponseEntity<String> anonymous = http.getForEntity(url("/session"), String.class);
     HttpHeaders login = jsonHeaders();
     login.set(HttpHeaders.COOKIE, cookie(anonymous, IdentitySessionService.LOGIN_CSRF_COOKIE));
     login.set("X-Login-CSRF-Token", anonymous.getHeaders().getFirst("X-Login-CSRF-Token"));
     assertEquals(HttpStatus.TOO_MANY_REQUESTS, call("/sign-in", HttpMethod.POST, login,
-        Map.of("email", "nobody@example.test", "password", "wrong-password-value")).getStatusCode());
+        Map.of("email", "owner@example.test", "password", "wrong-password-value")).getStatusCode());
   }
 }

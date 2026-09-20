@@ -2,7 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CuiAlertComponent, CuiButtonComponent, CuiCardComponent, CuiConfirmDialogComponent, CuiDrawerComponent, CuiEmptyStateComponent, CuiInputComponent, CuiSelectComponent, CuiTagComponent } from '@certinal/ui';
 import { StaffSessionStore } from '../../../core/m5-session.store';
-import { hasWorkspaceRole } from '../../../core/workspace-roles';
+import { hasWorkspaceRole, workspaceRoleContext } from '../../../core/workspace-roles';
 import { CatalogForm, CatalogSettings, SmartIntakeApiService } from '../../../smart-intake-api.service';
 import { Observable } from 'rxjs';
 import { M5_STAFF_DOMAIN } from '../staff-page.component';
@@ -15,11 +15,11 @@ type CatalogState = 'loading' | 'ready' | 'empty' | 'invalid' | 'denied' | 'expi
   providers: [{ provide: M5_STAFF_DOMAIN, useValue: 'catalog' }],
   template: `
 <section class="mx-auto max-w-6xl space-y-5" data-testid="catalog-page" [attr.data-state]="state()">
-  <div class="flex flex-wrap items-end justify-between gap-3"><div><p class="type-caption">WORKSPACE {{ screen().toUpperCase() }}</p><h1 class="type-h3">{{ screenTitle() }}</h1><p class="type-caption">{{ session.currentWorkspace()?.name || 'No selected workspace' }}</p></div>@if (screen() === 'catalog') { <cui-button [disabled]="!canEdit()" (buttonClick)="createForm()">Create form</cui-button> }</div>
+  <div class="flex flex-wrap items-end justify-between gap-3"><div><p class="type-caption">WORKSPACE {{ screen().toUpperCase() }}</p><h1 class="type-h3">{{ screenTitle() }}</h1><p class="type-caption">{{ workspaceContext()?.name || 'No selected workspace' }}</p></div>@if (screen() === 'catalog') { <cui-button [disabled]="!canEdit()" (buttonClick)="createForm()">Create form</cui-button> }</div>
   @if (message()) { <cui-alert [variant]="state() === 'invalid' || state() === 'denied' ? 'error' : 'warning'" [title]="state()">{{ message() }}</cui-alert> }
   @if (state() === 'loading') { <cui-card><p class="type-body">Loading the server-authorized catalog…</p></cui-card> }
   @else if (state() === 'empty') { <cui-empty-state icon="inbox" title="No forms found" description="Try changing the filters or create the first form in this workspace." /> }
-  @else if (state() !== 'denied' && state() !== 'expired') {
+  @else if (state() === 'ready') {
     @if (screen() !== 'catalog') { <cui-card><p class="type-body">{{ workflowDescription() }}</p>@if (screen() === 'builder') { <cui-button class="mt-3" [disabled]="!canEdit()" (buttonClick)="openLegacyBuilder()">Open authoring builder</cui-button> } @else if (screen() === 'review-publish') { <cui-button class="mt-3" [disabled]="!canPublish()" (buttonClick)="publishFromReview()">Publish reviewed form</cui-button> } @else { <cui-button class="mt-3" variant="secondary" (buttonClick)="openLegacyBuilder()">Open draft</cui-button> }</cui-card> }
     @else {
     <cui-card><div class="grid gap-3 md:grid-cols-4"><cui-input label="Search" type="search" [(value)]="query" /><cui-select label="Status" [options]="statusOptions" [(value)]="status" /><cui-select label="Folder" [options]="folderOptions()" [(value)]="folder" /><cui-select label="Tag" [options]="tagOptions()" [(value)]="tag" /></div><div class="mt-3 flex flex-wrap gap-2"><cui-button size="sm" variant="secondary" (buttonClick)="applyFilters()">Apply filters</cui-button><cui-button size="sm" variant="tertiary" (buttonClick)="resetFilters()">Clear filters</cui-button><cui-button size="sm" variant="tertiary" (buttonClick)="loadMetadata()">Manage folders and tags</cui-button></div></cui-card>
@@ -31,7 +31,7 @@ type CatalogState = 'loading' | 'ready' | 'empty' | 'invalid' | 'denied' | 'expi
 </section>
 <cui-confirm-dialog [(open)]="archiveOpen" title="Archive form?" message="Archived forms are retained and can be restored." tone="danger" icon="trash-2" confirmText="Archive" (confirmed)="archiveSelected()" />
 <cui-drawer [(open)]="detailOpen" (closed)="closeDetails()" position="right" size="lg" [title]="selected()?.title || 'Form details'">
-  @if (selected(); as form) { <div class="space-y-4"><div><p class="type-body">{{ form.title }}</p><p class="type-caption">Owner: {{ form.owner?.email || 'Unassigned' }}</p></div><cui-select label="Folder" [options]="folderOptions()" [(value)]="detailFolder" /><cui-select label="Tag" [options]="tagOptions()" [(value)]="detailTag" /><cui-select label="Transfer ownership to workspace member" [options]="memberOptions()" [(value)]="ownerAccountId" />@if (canEdit()) { <div class="flex flex-wrap gap-2"><cui-button size="sm" variant="secondary" (buttonClick)="classifySelected()">Save classification</cui-button><cui-button size="sm" variant="secondary" (buttonClick)="duplicateSelected()">Duplicate</cui-button>@if (form.status.toLowerCase() === 'archived') { <cui-button size="sm" (buttonClick)="restoreSelected()">Restore</cui-button> } @else { <cui-button size="sm" variant="danger" (buttonClick)="archiveOpen = true">Archive</cui-button> }<cui-button size="sm" variant="tertiary" [disabled]="!canManage()" (buttonClick)="transferSelected()">Transfer ownership</cui-button></div> }</div> }
+  @if (selected(); as form) { <div class="space-y-4"><div><p class="type-body">{{ form.title }}</p><p class="type-caption">Owner: {{ form.owner?.email || 'Unassigned' }}</p></div>@if (canEdit()) { <cui-select label="Folder" [options]="folderOptions()" [(value)]="detailFolder" /><cui-select label="Tag" [options]="tagOptions()" [(value)]="detailTag" /><div class="flex flex-wrap gap-2"><cui-button size="sm" variant="secondary" (buttonClick)="classifySelected()">Save classification</cui-button><cui-button size="sm" variant="secondary" (buttonClick)="duplicateSelected()">Duplicate</cui-button>@if (form.status.toLowerCase() === 'archived') { <cui-button size="sm" (buttonClick)="restoreSelected()">Restore</cui-button> } @else { <cui-button size="sm" variant="danger" (buttonClick)="archiveOpen = true">Archive</cui-button> }</div> } @if (canManage()) { <cui-select label="Transfer ownership to workspace member" [options]="memberOptions()" [(value)]="ownerAccountId" /><cui-button size="sm" variant="tertiary" (buttonClick)="transferSelected()">Transfer ownership</cui-button> }</div> }
   <div cuiDrawerFooter class="flex justify-end"><cui-button variant="tertiary" (buttonClick)="closeDetails()">Close</cui-button></div>
 </cui-drawer>`
 })
@@ -44,9 +44,19 @@ export class CatalogStaffPageComponent {
   query = ''; status: string | null = ''; folder: string | null = ''; tag: string | null = ''; folderName = ''; tagName = ''; detailFolder: string | null = ''; detailTag: string | null = ''; ownerAccountId = ''; policyJson = '{}'; providerJson = '{}'; overridePolicyJson = '{}'; overrideProviderJson = '{}'; archiveOpen = false;
 
   constructor() { this.route.queryParamMap.subscribe((params) => { const details = params.get('details'); this.detailId.set(details); this.detailOpen.set(!!details); }); this.loadMetadata(); this.load(); }
-  canEdit(): boolean { return hasWorkspaceRole(this.session.currentRoles(), 'author'); }
-  canPublish(): boolean { return hasWorkspaceRole(this.session.currentRoles(), 'publisher'); }
-  canManage(): boolean { return hasWorkspaceRole(this.session.currentRoles(), 'workspace-administrator'); }
+  workspaceContext() {
+    const requestedWorkspaceId = this.route.snapshot.paramMap?.get('workspaceId') ?? null;
+    if (typeof (this.session as any).organizations !== 'function') {
+      const workspace = this.session.currentWorkspace();
+      return workspace && (!requestedWorkspaceId || workspace.workspaceId === requestedWorkspaceId)
+        ? { workspaceId: workspace.workspaceId, name: workspace.name, roles: this.session.currentRoles() }
+        : null;
+    }
+    return workspaceRoleContext(this.session.organizations(), requestedWorkspaceId, this.session.currentWorkspaceId());
+  }
+  canEdit(): boolean { return hasWorkspaceRole(this.workspaceContext()?.roles ?? [], 'author', 'workspace-administrator'); }
+  canPublish(): boolean { return hasWorkspaceRole(this.workspaceContext()?.roles ?? [], 'publisher'); }
+  canManage(): boolean { return hasWorkspaceRole(this.workspaceContext()?.roles ?? [], 'workspace-administrator'); }
   screenTitle(): string { return ({ catalog: 'Forms', builder: 'Form builder', preview: 'Form preview', 'review-publish': 'Review and publish' } as Record<string, string>)[this.screen()] ?? 'Forms'; }
   workflowDescription(): string { return ({ builder: 'Author, import, and save the selected draft.', preview: 'Preview the selected draft without changing its publication state.', 'review-publish': 'Review the selected draft before publication.' } as Record<string, string>)[this.screen()] ?? 'This workflow is not available.'; }
   applyFilters(): void { this.load(); }
@@ -64,12 +74,12 @@ export class CatalogStaffPageComponent {
   classifySelected(): void { this.mutate((workspace, form) => this.api.classifyCatalogForm(workspace, form.id, { folderId: this.detailFolder || null, tagIds: this.detailTag ? [this.detailTag] : [] }), 'Classification saved.'); }
   transferSelected(): void { if (!this.canManage()) return; if (!this.ownerAccountId.trim()) return this.invalid('Choose a workspace member.'); const workspace = this.workspace(); const form = this.selected(); if (!workspace || !form) return; this.api.transferCatalogFormOwnership(workspace, form.id, this.ownerAccountId.trim()).subscribe({ next: () => { this.message.set('Ownership transferred.'); this.load(); }, error: (error) => this.fail(error.status) }); }
   createForm(): void { const workspace = this.workspace(); if (workspace) void this.router.navigateByUrl(`/workspaces/${workspace}/forms/new`); }
-  openLegacyBuilder(): void { void this.router.navigateByUrl('/catalog/builder'); }
-  publishFromReview(): void { this.openLegacyBuilder(); this.message.set('Open the canonical authoring builder to publish this draft.'); }
+  openLegacyBuilder(): void { this.createForm(); }
+  publishFromReview(): void { this.message.set('Publish this form from its workspace-scoped review route.'); }
   saveSettings(): void { const workspace = this.workspace(); if (!workspace) return; try { const policyOverrides = JSON.parse(this.overridePolicyJson); const providerOverrides = JSON.parse(this.overrideProviderJson); this.api.updateCatalogSettings(workspace, { policyOverrides, providerOverrides }).subscribe({ next: (settings) => { this.applySettings(settings); this.message.set('Workspace overrides saved.'); }, error: (error) => this.fail(error.status) }); } catch { this.invalid('Workspace overrides must be valid JSON objects.'); } }
   private mutate(request: (workspace: string, form: CatalogForm) => Observable<unknown>, success: string): void { const workspace = this.workspace(); const form = this.selected(); if (!workspace || !form || !this.canEdit()) return; request(workspace, form).subscribe({ next: () => { this.message.set(success); this.load(); }, error: (error) => this.fail(error.status) }); }
   private applySettings(settings: CatalogSettings): void { this.policyJson = JSON.stringify(settings.effective.policy, null, 2); this.providerJson = JSON.stringify(settings.effective.providers, null, 2); this.overridePolicyJson = JSON.stringify(settings.overrides.policy, null, 2); this.overrideProviderJson = JSON.stringify(settings.overrides.providers, null, 2); }
-  private workspace(): string | null { const routeWorkspace = this.route.snapshot.paramMap?.get('workspaceId') ?? null; const permitted = (this.session.organizations?.() ?? []).flatMap((organization) => organization.workspaces).some((workspace) => workspace.workspaceId === routeWorkspace); const workspace = routeWorkspace ?? this.session.currentWorkspaceId(); if (routeWorkspace && !permitted) { this.state.set('denied'); this.message.set('This workspace is not available in your server session.'); return null; } if (!workspace) { this.state.set('empty'); this.message.set('Select a server-authorized workspace first.'); } return workspace; }
+  private workspace(): string | null { const context = this.workspaceContext(); if (!context) { this.state.set(this.route.snapshot.paramMap.get('workspaceId') ? 'denied' : 'empty'); this.message.set(this.route.snapshot.paramMap.get('workspaceId') ? 'This workspace is not available in your server session.' : 'Select a server-authorized workspace first.'); return null; } return context.workspaceId; }
   private invalid(message: string): void { this.state.set('invalid'); this.message.set(message); }
   private fail(status: number): void { const state: CatalogState = status === 400 || status === 422 ? 'invalid' : status === 403 ? 'denied' : status === 401 || status === 419 || status === 440 ? 'expired' : status === 503 ? 'no-email' : 'error'; this.state.set(state); this.message.set(state === 'no-email' ? 'Email delivery is unavailable; use the copy-link path.' : 'The server could not complete this catalog request.'); }
 }

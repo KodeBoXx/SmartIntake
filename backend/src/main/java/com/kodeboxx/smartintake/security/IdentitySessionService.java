@@ -33,7 +33,12 @@ public class IdentitySessionService {
   private static final Duration ABSOLUTE_TTL = Duration.ofHours(12);
   private static final Duration LOGIN_CSRF_TTL = Duration.ofMinutes(5);
   private static final Duration THROTTLE_WINDOW = Duration.ofMinutes(15);
-  private static final int THROTTLE_LIMIT = 10;
+  private static final int ACCOUNT_THROTTLE_LIMIT = 10;
+  // These aggregate controls are deliberately much higher than the account control:
+  // they slow distributed guessing without allowing one account to deny unrelated users.
+  private static final int SOURCE_THROTTLE_LIMIT = 100;
+  private static final int GLOBAL_THROTTLE_LIMIT = 1_000;
+  private static final int MAX_UNKNOWN_THROTTLE_BUCKETS = 10_000;
   private final JdbcTemplate db;
   private final IdentitySessionResolver resolver;
   private final CredentialEncoder credentials;
@@ -99,7 +104,8 @@ public class IdentitySessionService {
     requireOrigin(request);
     consumeLoginCsrf(loginCsrf, cookie(request, LOGIN_CSRF_COOKIE));
     String normalized = normalizedEmail(input == null ? null : input.email());
-    List<String> subjects = throttleSubjects(normalized, request.getRemoteAddr());
+    boolean knownAccount = db.queryForObject("select count(*) from accounts where email=?", Integer.class, normalized) > 0;
+    List<ThrottleBucket> subjects = throttleSubjects(normalized, request.getRemoteAddr(), knownAccount);
     cleanupThrottleBuckets();
     if (subjects.stream().anyMatch(this::throttled)) throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Try again later");
     UUID account = null;
@@ -241,38 +247,42 @@ public class IdentitySessionService {
     return Map.of("requestId", opaque("req"), "authenticatedSession", authenticated);
   }
 
-  private List<String> throttleSubjects(String email, String source) {
-    String safeSource = source == null ? "unknown" : source;
-    // Account, source, and global buckets prevent distributed guessing while never retaining raw identifiers.
-    // Account-specific failures are the only blocking buckets. Source information is not
-    // allowed to turn ten failed attempts against one account into a global login DoS.
-    return List.of(sha256("account|" + email));
+  private List<ThrottleBucket> throttleSubjects(String email, String source, boolean knownAccount) {
+    String safeSource = source == null || source.isBlank() ? "unknown" : source;
+    List<ThrottleBucket> buckets = new java.util.ArrayList<>();
+    // Unknown addresses never create an account-keyed row. This keeps attacker-selected
+    // account strings bounded while source/global controls still protect the endpoint.
+    if (knownAccount) buckets.add(new ThrottleBucket(sha256("account|" + email), ACCOUNT_THROTTLE_LIMIT));
+    buckets.add(new ThrottleBucket(sha256("source|" + safeSource), SOURCE_THROTTLE_LIMIT));
+    buckets.add(new ThrottleBucket(sha256("global|sign-in"), GLOBAL_THROTTLE_LIMIT));
+    return buckets;
   }
 
   private void cleanupThrottleBuckets() {
     db.update("delete from sign_in_throttles where updated_at < now() - interval '1 day'");
-    db.update("delete from sign_in_throttles where subject_hash in (select subject_hash from sign_in_throttles order by updated_at desc offset 10000)");
+    db.update("delete from sign_in_throttles where subject_hash in (select subject_hash from sign_in_throttles where subject_hash not in (select subject_hash from sign_in_throttles where subject_hash=? or subject_hash=? ) order by updated_at desc offset ?)",
+        sha256("global|sign-in"), sha256("global|sign-in"), MAX_UNKNOWN_THROTTLE_BUCKETS);
   }
 
-  private boolean throttled(String subject) {
-    List<Map<String, Object>> rows = db.queryForList("select failure_count,window_started_at,blocked_until from sign_in_throttles where subject_hash=?", subject);
+  private boolean throttled(ThrottleBucket bucket) {
+    List<Map<String, Object>> rows = db.queryForList("select failure_count,window_started_at,blocked_until from sign_in_throttles where subject_hash=?", bucket.subject());
     if (rows.isEmpty()) return false;
     Object blocked = rows.get(0).get("blocked_until");
     return blocked instanceof Timestamp timestamp && timestamp.toInstant().isAfter(Instant.now());
   }
 
-  private void registerFailure(String subject) {
-    List<Map<String, Object>> rows = db.queryForList("select failure_count,window_started_at from sign_in_throttles where subject_hash=? for update", subject);
+  private void registerFailure(ThrottleBucket bucket) {
+    List<Map<String, Object>> rows = db.queryForList("select failure_count,window_started_at from sign_in_throttles where subject_hash=? for update", bucket.subject());
     Instant now = Instant.now();
     if (rows.isEmpty()) {
-      db.update("insert into sign_in_throttles(subject_hash,failure_count,window_started_at,updated_at) values(?,?,?,?)", subject, 1, Timestamp.from(now), Timestamp.from(now));
+      db.update("insert into sign_in_throttles(subject_hash,failure_count,window_started_at,updated_at) values(?,?,?,?)", bucket.subject(), 1, Timestamp.from(now), Timestamp.from(now));
       return;
     }
     Timestamp started = (Timestamp) rows.get(0).get("window_started_at");
     int failures = started.toInstant().plus(THROTTLE_WINDOW).isBefore(now) ? 1 : ((Number) rows.get(0).get("failure_count")).intValue() + 1;
     Timestamp reset = failures == 1 ? Timestamp.from(now) : started;
-    Timestamp blocked = failures >= THROTTLE_LIMIT ? Timestamp.from(now.plus(THROTTLE_WINDOW)) : null;
-    db.update("update sign_in_throttles set failure_count=?,window_started_at=?,blocked_until=?,updated_at=? where subject_hash=?", failures, reset, blocked, Timestamp.from(now), subject);
+    Timestamp blocked = failures >= bucket.limit() ? Timestamp.from(now.plus(THROTTLE_WINDOW)) : null;
+    db.update("update sign_in_throttles set failure_count=?,window_started_at=?,blocked_until=?,updated_at=? where subject_hash=?", failures, reset, blocked, Timestamp.from(now), bucket.subject());
   }
 
   private void consumeLoginCsrf(String header, String cookie) {
@@ -282,9 +292,15 @@ public class IdentitySessionService {
   }
 
   private void audit(String action, UUID resource, Map<String, Object> detail) {
+    // Audit payloads deliberately contain only stable hashed correlations, never
+    // credentials, cookies, CSRF values, or capability proofs.
+    String target = sha256(resource.toString()).substring(0, 16);
     db.update("insert into audit_events(id,action,resource_id,detail) values(?,?,?,cast(? as jsonb))", UUID.randomUUID(), action, resource,
-        "{\"category\":\"identity\"}");
+        "{\"category\":\"identity\",\"actor\":\"bootstrap\",\"scope\":\"bootstrap\",\"target\":\"id-" + target
+            + "\",\"reason\":null,\"deliveryClass\":\"copy-link\",\"outcome\":\"success\",\"revision\":null,\"requestCorrelation\":null,\"idempotencyCorrelation\":null}");
   }
+
+  private record ThrottleBucket(String subject, int limit) {}
 
   private void validateCredentials(String email, String password) {
     if (email == null || !email.contains("@") || email.length() > 254 || password == null

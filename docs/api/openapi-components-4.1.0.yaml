@@ -8,7 +8,7 @@ components:
     staffCookie:
       type: apiKey
       in: cookie
-      name: smartintake_staff
+      name: SI_STAFF_SESSION
       description: Opaque HttpOnly staff session cookie; sign-in validates Origin
         and binds a login-CSRF token before issuing it.
     csrfHeader:
@@ -64,7 +64,7 @@ components:
       description: One-time value returned in the unauthenticated GET /v1/auth/session
         401 response; it must match the server-bound login-CSRF cookie.
     LoginCsrfCookie:
-      name: smartintake_login_csrf
+      name: SI_LOGIN_CSRF
       in: cookie
       required: true
       schema:
@@ -72,6 +72,24 @@ components:
         minLength: 24
       description: Secure, HttpOnly, SameSite=Strict cookie set by unauthenticated
         GET /v1/auth/session and consumed with the matching X-Login-CSRF-Token.
+    BootstrapToken:
+      name: X-Bootstrap-Token
+      in: header
+      required: true
+      schema:
+        type: string
+        minLength: 1
+      description: Deployment-provisioned, one-time bootstrap proof. It is consumed
+        atomically and must never be logged.
+    CsrfCookie:
+      name: SI_CSRF
+      in: cookie
+      required: true
+      schema:
+        type: string
+        minLength: 24
+      description: Readable SameSite=Strict CSRF cookie whose value must match X-CSRF-Token
+        for a cookie-authenticated mutation.
   headers:
     ETag:
       schema:
@@ -100,10 +118,10 @@ components:
     LoginCsrfSetCookie:
       schema:
         type: string
-      example: smartintake_login_csrf=bound-01J2W5RFR3K24SFWDX2C0N9VW3; Secure; HttpOnly;
-        SameSite=Strict; Path=/v1/auth
-      description: Sets smartintake_login_csrf as a Secure, HttpOnly, SameSite=Strict,
-        short-lived cookie bound to the returned one-time token.
+      example: SI_LOGIN_CSRF=bound-01J2W5RFR3K24SFWDX2C0N9VW3; Secure; HttpOnly; SameSite=Strict;
+        Path=/v1/auth
+      description: Sets SI_LOGIN_CSRF as a Secure, HttpOnly, SameSite=Strict, short-lived
+        cookie bound to the returned one-time token.
   examples:
     Problem:
       value:
@@ -5812,6 +5830,40 @@ components:
           deprecated: true
           description: M1 compatibility alias derived from operatorSignatures; use
             operatorSignatures for arity metadata.
+    BootstrapRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - email
+      - password
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        password:
+          type: string
+          minLength: 15
+          maxLength: 512
+        organizationName:
+          type: string
+          minLength: 1
+          maxLength: 160
+        workspaceName:
+          type: string
+          minLength: 1
+          maxLength: 160
+    BootstrapResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - requestId
+      - bootstrap
+      properties:
+        requestId:
+          type: string
+        bootstrap:
+          const: pending-activation
   x-contract-schema-resources:
   - $ref: ../contracts/smart-form-builder-lite/4.0.0/package.schema.json
   - $ref: ../contracts/smart-form-builder-lite/4.0.0/expression.schema.json

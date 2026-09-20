@@ -197,7 +197,7 @@ def generated() -> dict[Path, bytes]:
         "workspace-administrator", "author", "reviewer", "translator", "publisher",
         "response-viewer", "response-exporter", "auditor",
     ]
-    catalog_write_roles = ["workspace-administrator", "author"]
+    catalog_authoring_roles = ["author"]
     workspace_administrator_roles = ["workspace-administrator"]
     for schema_name in ("PermittedWorkspaceChoice", "WorkspaceRole"):
         schemas[schema_name]["properties"]["roles"]["items"] = {"enum": workspace_roles}
@@ -377,6 +377,58 @@ def generated() -> dict[Path, bytes]:
             "currentWorkspaceId": {"type": "string", "pattern": "^workspace-"},
         },
     }
+    schemas["BootstrapRequest"] = {
+        "type": "object", "additionalProperties": False,
+        "required": ["email", "password"],
+        "properties": {
+            "email": {"type": "string", "format": "email", "maxLength": 254},
+            "password": {"type": "string", "minLength": 15, "maxLength": 512},
+            "organizationName": {"type": "string", "minLength": 1, "maxLength": 160},
+            "workspaceName": {"type": "string", "minLength": 1, "maxLength": 160},
+        },
+    }
+    schemas["BootstrapResponse"] = {
+        "type": "object", "additionalProperties": False, "required": ["requestId", "bootstrap"],
+        "properties": {"requestId": {"type": "string"}, "bootstrap": {"const": "pending-activation"}},
+    }
+    parameters = components["components"]["parameters"]
+    parameters["BootstrapToken"] = {
+        "name": "X-Bootstrap-Token", "in": "header", "required": True,
+        "schema": {"type": "string", "minLength": 1},
+        "description": "Deployment-provisioned, one-time bootstrap proof. It is consumed atomically and must never be logged.",
+    }
+    components["components"]["securitySchemes"]["staffCookie"]["name"] = "SI_STAFF_SESSION"
+    parameters["LoginCsrfCookie"]["name"] = "SI_LOGIN_CSRF"
+    parameters["CsrfCookie"] = {
+        "name": "SI_CSRF", "in": "cookie", "required": True,
+        "schema": {"type": "string", "minLength": 24},
+        "description": "Readable SameSite=Strict CSRF cookie whose value must match X-CSRF-Token for a cookie-authenticated mutation.",
+    }
+    def rename_cookie_values(value: Any) -> None:
+        if isinstance(value, dict):
+            for key, child in value.items():
+                if isinstance(child, str):
+                    value[key] = child.replace("smartintake_staff", "SI_STAFF_SESSION").replace("smartintake_login_csrf", "SI_LOGIN_CSRF").replace("smartintake_csrf", "SI_CSRF")
+                else:
+                    rename_cookie_values(child)
+        elif isinstance(value, list):
+            for child in value:
+                rename_cookie_values(child)
+    rename_cookie_values(components)
+    api["paths"]["/v1/auth/bootstrap"] = {
+        "post": {
+            "operationId": "m6Bootstrap", "summary": "Initialize the one-time staff bootstrap owner",
+            "x-implementation-status": "implemented",
+            "parameters": [{"$ref": "#/components/parameters/BootstrapToken"}],
+            "requestBody": {"required": True, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/BootstrapRequest"}}}},
+            "responses": {
+                "201": {"description": "Pending owner activation created; the proof is returned only in X-Activation-Copy-Link.",
+                        "headers": {"X-Activation-Copy-Link": {"schema": {"type": "string"}}},
+                        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/BootstrapResponse"}}}},
+                "403": {"$ref": "#/components/responses/Forbidden"}, "409": {"$ref": "#/components/responses/Conflict"},
+            },
+        },
+    }
     implemented_identity_paths = [
         "/v1/auth/activate", "/v1/auth/password-change", "/v1/auth/recovery", "/v1/auth/reset",
         "/v1/auth/session", "/v1/auth/sign-in", "/v1/auth/sign-out", "/v1/invitations/accept",
@@ -424,12 +476,13 @@ def generated() -> dict[Path, bytes]:
                       "401": {"$ref": "#/components/responses/Unauthenticated"},
                       "403": {"$ref": "#/components/responses/Forbidden"},
                       "404": {"$ref": "#/components/responses/NotFound"}}
-    def catalog_operation(operation_id: str, summary: str, roles: list[str], response: dict[str, Any], body: str | None = None) -> dict[str, Any]:
+    def catalog_operation(operation_id: str, summary: str, roles: list[str], response: dict[str, Any], body: str | None = None,
+                          state_changing: bool = False) -> dict[str, Any]:
         operation = {
             "operationId": operation_id, "summary": summary,
             "x-implementation-status": "implemented",
             "x-authorization": {"roles": roles, "tenantScope": "current-server-workspace-membership"},
-            "security": [{"staffCookie": [], "csrfHeader": []}],
+            "security": [{"staffCookie": [], **({"csrfHeader": []} if state_changing else {})}],
             "responses": {"200": response, **catalog_errors},
         }
         if body:
@@ -451,21 +504,21 @@ def generated() -> dict[Path, bytes]:
                                {"name": "limit", "in": "query", "schema": {"type": "integer", "minimum": 1, "maximum": 100, "default": 50}},
                                {"name": "cursor", "in": "query", "schema": {"type": "string"}}]},
     }
-    api["paths"]["/v1/workspaces/{workspace}/catalog/forms/{form}/duplicate"] = {"parameters": [workspace_parameter, id_parameter("form")], "post": {**catalog_operation("m6CatalogDuplicate", "Duplicate a workspace form", catalog_write_roles, json_response("CatalogForm")), "responses": {"201": json_response("CatalogForm"), **catalog_errors}}}
-    for action, operation_id, roles in (("archive", "m6CatalogArchive", catalog_write_roles), ("restore", "m6CatalogRestore", catalog_write_roles)):
-        api["paths"][f"/v1/workspaces/{{workspace}}/catalog/forms/{{form}}/{action}"] = {"parameters": [workspace_parameter, id_parameter("form")], "post": catalog_operation(operation_id, action.capitalize() + " a workspace form", roles, json_response("CatalogForm"))}
-    api["paths"]["/v1/workspaces/{workspace}/catalog/forms/{form}/ownership"] = {"parameters": [workspace_parameter, id_parameter("form")], "put": catalog_operation("m6CatalogTransferOwnership", "Transfer form ownership to a current workspace member", workspace_administrator_roles, json_response("CatalogForm"), "CatalogTransfer")}
-    api["paths"]["/v1/workspaces/{workspace}/catalog/forms/{form}/classification"] = {"parameters": [workspace_parameter, id_parameter("form")], "put": {**catalog_operation("m6CatalogClassify", "Set form folder and tags", catalog_write_roles, {"description": "Classification updated."}, "CatalogClassification"), "responses": {"204": {"description": "Classification updated."}, **catalog_errors}}}
+    api["paths"]["/v1/workspaces/{workspace}/catalog/forms/{form}/duplicate"] = {"parameters": [workspace_parameter, id_parameter("form")], "post": {**catalog_operation("m6CatalogDuplicate", "Duplicate a workspace form", catalog_authoring_roles, json_response("CatalogForm"), state_changing=True), "responses": {"201": json_response("CatalogForm"), **catalog_errors}}}
+    for action, operation_id in (("archive", "m6CatalogArchive"), ("restore", "m6CatalogRestore")):
+        api["paths"][f"/v1/workspaces/{{workspace}}/catalog/forms/{{form}}/{action}"] = {"parameters": [workspace_parameter, id_parameter("form")], "post": catalog_operation(operation_id, action.capitalize() + " a workspace form", catalog_authoring_roles, json_response("CatalogForm"), state_changing=True)}
+    api["paths"]["/v1/workspaces/{workspace}/catalog/forms/{form}/ownership"] = {"parameters": [workspace_parameter, id_parameter("form")], "put": catalog_operation("m6CatalogTransferOwnership", "Transfer form ownership to a current workspace member", workspace_administrator_roles, json_response("CatalogForm"), "CatalogTransfer", state_changing=True)}
+    api["paths"]["/v1/workspaces/{workspace}/catalog/forms/{form}/classification"] = {"parameters": [workspace_parameter, id_parameter("form")], "put": {**catalog_operation("m6CatalogClassify", "Set form folder and tags", catalog_authoring_roles, {"description": "Classification updated."}, "CatalogClassification", state_changing=True), "responses": {"204": {"description": "Classification updated."}, **catalog_errors}}}
     for resource, singular, input_schema, output_schema in (("folders", "folder", "CatalogNameInput", "CatalogFolder"), ("tags", "tag", "CatalogTagInput", "CatalogTag")):
         api["paths"][f"/v1/workspaces/{{workspace}}/{resource}"] = {"parameters": [workspace_parameter],
             "get": catalog_operation(f"m6List{resource.title()}", f"List workspace catalog {resource}", workspace_roles, {"description": "Successful response.", "content": {"application/json": {"schema": {"type": "array", "items": {"$ref": f"#/components/schemas/{output_schema}"}}}}}),
-            "post": {**catalog_operation(f"m6Create{singular.title()}", f"Create a workspace catalog {singular}", catalog_write_roles, json_response(output_schema), input_schema), "responses": {"201": json_response(output_schema), **catalog_errors}}}
+            "post": {**catalog_operation(f"m6Create{singular.title()}", f"Create a workspace catalog {singular}", catalog_authoring_roles, json_response(output_schema), input_schema, state_changing=True), "responses": {"201": json_response(output_schema), **catalog_errors}}}
         api["paths"][f"/v1/workspaces/{{workspace}}/{resource}/{{{singular}}}"] = {"parameters": [workspace_parameter, id_parameter(singular)],
-            "patch": catalog_operation(f"m6Update{singular.title()}", f"Update a workspace catalog {singular}", catalog_write_roles, json_response(output_schema), input_schema),
-            "delete": {**catalog_operation(f"m6Delete{singular.title()}", f"Delete a workspace catalog {singular}", catalog_write_roles, {"description": "Deleted."}), "responses": {"204": {"description": "Deleted."}, **catalog_errors}}}
+            "patch": catalog_operation(f"m6Update{singular.title()}", f"Update a workspace catalog {singular}", catalog_authoring_roles, json_response(output_schema), input_schema, state_changing=True),
+            "delete": {**catalog_operation(f"m6Delete{singular.title()}", f"Delete a workspace catalog {singular}", catalog_authoring_roles, {"description": "Deleted."}, state_changing=True), "responses": {"204": {"description": "Deleted."}, **catalog_errors}}}
     api["paths"]["/v1/workspaces/{workspace}/catalog/settings"] = {"parameters": [workspace_parameter],
         "get": catalog_operation("m6EffectiveCatalogSettings", "Read effective policy and provider settings", workspace_administrator_roles, json_response("CatalogSettings")),
-        "put": catalog_operation("m6UpdateCatalogSettings", "Update workspace policy and provider overrides", workspace_administrator_roles, json_response("CatalogSettings"), "CatalogSettingsInput")}
+        "put": catalog_operation("m6UpdateCatalogSettings", "Update workspace policy and provider overrides", workspace_administrator_roles, json_response("CatalogSettings"), "CatalogSettingsInput", state_changing=True)}
     api["paths"]["/v1/workspaces/{workspace}/members"] = {
         "parameters": [workspace_parameter],
         "get": catalog_operation("m6ListWorkspaceMembers", "List transferable current workspace members",
@@ -539,6 +592,18 @@ def generated() -> dict[Path, bytes]:
         "description": "The immutable legacy 4.0.0 capability representation. The additive representation is published at /v1/schemas/capabilities/4.1.0.",
         "content": {"application/json": {"schema": {"$ref": "#/components/schemas/LegacyCapabilityRegistry"}}},
     }
+
+    # Cookie-authenticated reads do not require a CSRF proof. Every non-GET
+    # cookie-authenticated operation does, including the additive catalog and
+    # workspace-member routes above. Keep this method-derived so later 4.1
+    # additions cannot accidentally publish the wrong browser security contract.
+    for path_item in api["paths"].values():
+        for method, operation_config in path_item.items():
+            if not isinstance(operation_config, dict) or method not in {"get", "post", "put", "patch", "delete"}:
+                continue
+            security = operation_config.get("security", [])
+            if any("staffCookie" in requirement for requirement in security):
+                operation_config["security"] = [{"staffCookie": [], **({} if method == "get" else {"csrfHeader": []})}]
 
     # `api` receives a deep copy before the M6 schema patches above. Refresh it
     # immediately before serialization so the monolithic published/backend copies

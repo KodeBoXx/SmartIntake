@@ -235,6 +235,7 @@ drop trigger catalog_tags_revision on catalog_tags;
 drop trigger catalog_metadata_revision on form_catalog_metadata;
 drop trigger catalog_form_tags_revision on form_catalog_tags;
 drop function catalog_touch_workspace_revision();
+drop index if exists forms_workspace_catalog_updated_idx;
 drop table catalog_workspace_revisions, form_catalog_tags, form_catalog_metadata,
            catalog_workspace_settings, catalog_organization_settings, catalog_folders, catalog_tags;
 drop index if exists administration_mutation_replays_expiry_idx;
@@ -320,6 +321,9 @@ select exists (select 1 from flyway_schema_history where version in ('5', '6', '
                  'organization_memberships_active_owner_idx', 'staff_sessions_current_context_idx',
                  'administration_mutation_replays_expiry_idx'))
                  as v15_index_remains,
+       exists (select 1 from pg_indexes
+               where schemaname='public' and indexname = 'forms_workspace_catalog_updated_idx')
+                 as v16_forms_workspace_catalog_updated_index_remains,
        coalesce((select data_type = 'uuid' from information_schema.columns
                  where table_name = 'session_mutations' and column_name = 'client_mutation_id'), false)
                  as mutation_key_uuid_restored;

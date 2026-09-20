@@ -31,8 +31,8 @@ describe('M5 route architecture', () => {
     const componentNames = new Set<string>();
     const expectedComponent = (screen: string, route: Route): string => {
       if (['platform-organizations', 'user-list', 'add-user', 'user-detail', 'role-assignment', 'invitation-delivery'].includes(screen)) return 'AdminStaffPageComponent';
-      if (['catalog', 'preview', 'review-publish'].includes(screen)) return 'CatalogStaffPageComponent';
-      if (screen === 'builder') return route.path?.includes('/drafts/') ? 'AppComponent' : 'CatalogStaffPageComponent';
+      if (screen === 'catalog') return 'CatalogStaffPageComponent';
+      if (['builder', 'preview', 'review-publish'].includes(screen)) return 'AppComponent';
       if (['responses', 'response-detail', 'export-history'].includes(screen)) return 'ResponseStaffPageComponent';
       return 'SettingsStaffPageComponent';
     };

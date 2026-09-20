@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CuiAlertComponent, CuiButtonComponent, CuiCardComponent, CuiEmptyStateComponent } from '@certinal/ui';
 import { StaffSessionStore } from '../../../core/m5-session.store';
-import { hasWorkspaceRole } from '../../../core/workspace-roles';
+import { hasWorkspaceRole, workspaceRoleContext } from '../../../core/workspace-roles';
 import { SmartIntakeApiService } from '../../../smart-intake-api.service';
 import { M5_STAFF_DOMAIN } from '../staff-page.component';
 
@@ -16,8 +16,18 @@ export class ResponseStaffPageComponent {
   readonly state = signal<State>('loading'); readonly message = signal(''); readonly responses = signal<{ id: string; submittedAt?: string }[]>([]);
   get title(): string { return this.screen === 'response-detail' ? 'Response detail' : this.screen === 'export-history' ? 'Export history' : 'Responses'; }
   constructor() { this.load(this.screen === 'export-history'); }
-  canView(): boolean { return hasWorkspaceRole(this.session.currentRoles(), 'response-viewer', 'response-exporter'); }
-  canExport(): boolean { return hasWorkspaceRole(this.session.currentRoles(), 'response-exporter'); }
+  private workspaceContext() {
+    const requestedWorkspaceId = this.route.snapshot.paramMap?.get('workspaceId') ?? null;
+    if (typeof (this.session as any).organizations !== 'function') {
+      const workspace = this.session.currentWorkspace();
+      return workspace && (!requestedWorkspaceId || workspace.workspaceId === requestedWorkspaceId)
+        ? { workspaceId: workspace.workspaceId, name: workspace.name, roles: this.session.currentRoles() }
+        : null;
+    }
+    return workspaceRoleContext(this.session.organizations(), requestedWorkspaceId, this.session.currentWorkspaceId());
+  }
+  canView(): boolean { return hasWorkspaceRole(this.workspaceContext()?.roles ?? [], 'response-viewer', 'response-exporter'); }
+  canExport(): boolean { return hasWorkspaceRole(this.workspaceContext()?.roles ?? [], 'response-exporter'); }
   loadExports(): void { this.load(true); }
   private load(exports = false): void {
     const workspace = this.workspace();
@@ -26,7 +36,7 @@ export class ResponseStaffPageComponent {
     if (this.screen === 'response-detail') {
       const submissionId = this.route.snapshot.paramMap.get('submissionId');
       if (!submissionId) { this.state.set('invalid'); return; }
-      this.api.responseDetail(submissionId, workspace).subscribe({
+      this.api.responseDetail(workspace, submissionId).subscribe({
         next: (response) => { this.responses.set([{ id: submissionId, submittedAt: (response as { submittedAt?: string }).submittedAt }]); this.state.set('ready'); },
         error: (error) => this.fail(error.status),
       });
@@ -37,10 +47,11 @@ export class ResponseStaffPageComponent {
   }
   private workspace(): string | null {
     const requested = this.route.snapshot.paramMap.get('workspaceId');
-    if (requested && !this.session.organizations().flatMap((organization) => organization.workspaces).some((workspace) => workspace.workspaceId === requested)) {
+    const context = this.workspaceContext();
+    if (requested && !context) {
       this.state.set('denied'); this.message.set('This workspace is not available in your server session.'); return null;
     }
-    const workspace = requested ?? this.session.currentWorkspaceId();
+    const workspace = context?.workspaceId ?? null;
     if (!workspace) this.state.set('empty');
     return workspace;
   }
