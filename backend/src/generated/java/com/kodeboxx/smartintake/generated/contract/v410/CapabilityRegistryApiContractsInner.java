@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.HashMap;
+import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -33,7 +35,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 })
 @JsonTypeName("CapabilityRegistry_apiContracts_inner")
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class CapabilityRegistryApiContractsInner {
+public class CapabilityRegistryApiContractsInner extends HashMap<String, Object> {
   /**
    * Gets or Sets version
    */
@@ -82,6 +84,7 @@ public class CapabilityRegistryApiContractsInner {
   private String resource;
 
   public CapabilityRegistryApiContractsInner() {
+
   }
 
   public CapabilityRegistryApiContractsInner version(@jakarta.annotation.Nonnull VersionEnum version) {
@@ -170,18 +173,20 @@ public class CapabilityRegistryApiContractsInner {
     CapabilityRegistryApiContractsInner capabilityRegistryApiContractsInner = (CapabilityRegistryApiContractsInner) o;
     return Objects.equals(this.version, capabilityRegistryApiContractsInner.version) &&
         Objects.equals(this.sha256, capabilityRegistryApiContractsInner.sha256) &&
-        Objects.equals(this.resource, capabilityRegistryApiContractsInner.resource);
+        Objects.equals(this.resource, capabilityRegistryApiContractsInner.resource) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(version, sha256, resource);
+    return Objects.hash(version, sha256, resource, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class CapabilityRegistryApiContractsInner {\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    version: ").append(toIndentedString(version)).append("\n");
     sb.append("    sha256: ").append(toIndentedString(sha256)).append("\n");
     sb.append("    resource: ").append(toIndentedString(resource)).append("\n");

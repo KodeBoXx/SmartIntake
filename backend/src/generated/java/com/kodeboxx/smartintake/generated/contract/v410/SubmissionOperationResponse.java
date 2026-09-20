@@ -21,6 +21,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.kodeboxx.smartintake.generated.contract.v410.SubmissionOperation;
+import java.util.HashMap;
+import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -32,7 +34,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   SubmissionOperationResponse.JSON_PROPERTY_SUBMISSION_OPERATION
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class SubmissionOperationResponse {
+public class SubmissionOperationResponse extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_REQUEST_ID = "requestId";
   @jakarta.annotation.Nonnull
   private String requestId;
@@ -42,6 +44,7 @@ public class SubmissionOperationResponse {
   private SubmissionOperation submissionOperation;
 
   public SubmissionOperationResponse() {
+
   }
 
   public SubmissionOperationResponse requestId(@jakarta.annotation.Nonnull String requestId) {
@@ -104,18 +107,20 @@ public class SubmissionOperationResponse {
     }
     SubmissionOperationResponse submissionOperationResponse = (SubmissionOperationResponse) o;
     return Objects.equals(this.requestId, submissionOperationResponse.requestId) &&
-        Objects.equals(this.submissionOperation, submissionOperationResponse.submissionOperation);
+        Objects.equals(this.submissionOperation, submissionOperationResponse.submissionOperation) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(requestId, submissionOperation);
+    return Objects.hash(requestId, submissionOperation, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class SubmissionOperationResponse {\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    requestId: ").append(toIndentedString(requestId)).append("\n");
     sb.append("    submissionOperation: ").append(toIndentedString(submissionOperation)).append("\n");
     sb.append("}");

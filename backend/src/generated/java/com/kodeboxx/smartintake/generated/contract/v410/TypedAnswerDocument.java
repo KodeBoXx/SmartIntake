@@ -21,6 +21,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.kodeboxx.smartintake.generated.contract.v410.TypedAnswerDocumentProvenance;
+import java.util.HashMap;
+import java.util.Map;
 import org.openapitools.jackson.nullable.JsonNullable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.openapitools.jackson.nullable.JsonNullable;
@@ -38,7 +40,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   TypedAnswerDocument.JSON_PROPERTY_PROVENANCE
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class TypedAnswerDocument {
+public class TypedAnswerDocument extends HashMap<String, Object> {
   /**
    * Gets or Sets status
    */
@@ -156,6 +158,7 @@ public class TypedAnswerDocument {
   private TypedAnswerDocumentProvenance provenance;
 
   public TypedAnswerDocument() {
+
   }
 
   public TypedAnswerDocument status(@jakarta.annotation.Nonnull StatusEnum status) {
@@ -278,7 +281,8 @@ public class TypedAnswerDocument {
     return Objects.equals(this.status, typedAnswerDocument.status) &&
         Objects.equals(this.type, typedAnswerDocument.type) &&
         equalsNullable(this.value, typedAnswerDocument.value) &&
-        Objects.equals(this.provenance, typedAnswerDocument.provenance);
+        Objects.equals(this.provenance, typedAnswerDocument.provenance) &&
+        super.equals(o);
   }
 
   private static <T> boolean equalsNullable(JsonNullable<T> a, JsonNullable<T> b) {
@@ -287,7 +291,7 @@ public class TypedAnswerDocument {
 
   @Override
   public int hashCode() {
-    return Objects.hash(status, type, hashCodeNullable(value), provenance);
+    return Objects.hash(status, type, hashCodeNullable(value), provenance, super.hashCode());
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -301,6 +305,7 @@ public class TypedAnswerDocument {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class TypedAnswerDocument {\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    status: ").append(toIndentedString(status)).append("\n");
     sb.append("    type: ").append(toIndentedString(type)).append("\n");
     sb.append("    value: ").append(toIndentedString(value)).append("\n");

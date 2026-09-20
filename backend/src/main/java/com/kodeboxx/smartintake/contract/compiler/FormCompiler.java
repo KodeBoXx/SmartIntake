@@ -45,6 +45,8 @@ public final class FormCompiler {
     }
     State state = new State(candidate, problems);
     collectFields(candidate.path("data").path("fields"), "/data/fields", 0, List.of(), state, new HashSet<>());
+    if (state.fields.size() > 1_000)
+      state.error("FIELD_LIMIT", "/data/fields", "A package can contain at most 1000 recursive field definitions.");
     collectPages(candidate.path("flow").path("phases"), state);
     checkNodes(candidate.path("flow").path("phases"), "/flow/phases", state);
     checkExpressions(candidate.path("expressions"), state);

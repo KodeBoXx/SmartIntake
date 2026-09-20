@@ -21,6 +21,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.time.OffsetDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -36,7 +38,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   EventDocumentResource.JSON_PROPERTY_ACCESS_REVOKED_AT
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class EventDocumentResource {
+public class EventDocumentResource extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_FORM_ID = "formId";
   @jakarta.annotation.Nonnull
   private String formId;
@@ -62,6 +64,7 @@ public class EventDocumentResource {
   private OffsetDateTime accessRevokedAt;
 
   public EventDocumentResource() {
+
   }
 
   public EventDocumentResource formId(@jakarta.annotation.Nonnull String formId) {
@@ -228,18 +231,20 @@ public class EventDocumentResource {
         Objects.equals(this.submissionId, eventDocumentResource.submissionId) &&
         Objects.equals(this.attachmentId, eventDocumentResource.attachmentId) &&
         Objects.equals(this.deletionId, eventDocumentResource.deletionId) &&
-        Objects.equals(this.accessRevokedAt, eventDocumentResource.accessRevokedAt);
+        Objects.equals(this.accessRevokedAt, eventDocumentResource.accessRevokedAt) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(formId, releaseId, submissionId, attachmentId, deletionId, accessRevokedAt);
+    return Objects.hash(formId, releaseId, submissionId, attachmentId, deletionId, accessRevokedAt, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class EventDocumentResource {\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    formId: ").append(toIndentedString(formId)).append("\n");
     sb.append("    releaseId: ").append(toIndentedString(releaseId)).append("\n");
     sb.append("    submissionId: ").append(toIndentedString(submissionId)).append("\n");

@@ -22,7 +22,9 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -36,7 +38,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 })
 @JsonTypeName("CapabilityRegistry_operations")
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class CapabilityRegistryOperations {
+public class CapabilityRegistryOperations extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_COUNT = "count";
   @jakarta.annotation.Nullable
   private Object count = null;
@@ -50,6 +52,7 @@ public class CapabilityRegistryOperations {
   private String statusPolicy;
 
   public CapabilityRegistryOperations() {
+
   }
 
   public CapabilityRegistryOperations count(@jakarta.annotation.Nullable Object count) {
@@ -146,18 +149,20 @@ public class CapabilityRegistryOperations {
     CapabilityRegistryOperations capabilityRegistryOperations = (CapabilityRegistryOperations) o;
     return Objects.equals(this.count, capabilityRegistryOperations.count) &&
         Objects.equals(this.items, capabilityRegistryOperations.items) &&
-        Objects.equals(this.statusPolicy, capabilityRegistryOperations.statusPolicy);
+        Objects.equals(this.statusPolicy, capabilityRegistryOperations.statusPolicy) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(count, items, statusPolicy);
+    return Objects.hash(count, items, statusPolicy, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class CapabilityRegistryOperations {\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    count: ").append(toIndentedString(count)).append("\n");
     sb.append("    items: ").append(toIndentedString(items)).append("\n");
     sb.append("    statusPolicy: ").append(toIndentedString(statusPolicy)).append("\n");

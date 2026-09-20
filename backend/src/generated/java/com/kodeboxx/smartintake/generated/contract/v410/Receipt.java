@@ -21,6 +21,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.time.OffsetDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -38,7 +40,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   Receipt.JSON_PROPERTY_SUBMITTED_AT
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class Receipt {
+public class Receipt extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_ID = "id";
   @jakarta.annotation.Nonnull
   private String id;
@@ -72,6 +74,7 @@ public class Receipt {
   private OffsetDateTime submittedAt;
 
   public Receipt() {
+
   }
 
   public Receipt id(@jakarta.annotation.Nonnull String id) {
@@ -291,18 +294,20 @@ public class Receipt {
         Objects.equals(this.createdAt, receipt.createdAt) &&
         Objects.equals(this.updatedAt, receipt.updatedAt) &&
         Objects.equals(this.receiptCode, receipt.receiptCode) &&
-        Objects.equals(this.submittedAt, receipt.submittedAt);
+        Objects.equals(this.submittedAt, receipt.submittedAt) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, kind, revision, status, createdAt, updatedAt, receiptCode, submittedAt);
+    return Objects.hash(id, kind, revision, status, createdAt, updatedAt, receiptCode, submittedAt, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class Receipt {\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    kind: ").append(toIndentedString(kind)).append("\n");
     sb.append("    revision: ").append(toIndentedString(revision)).append("\n");

@@ -20,6 +20,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.kodeboxx.smartintake.generated.contract.v410.RuntimeRowSegment;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -28,6 +32,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
  */
 @JsonPropertyOrder({
   Acknowledgment.JSON_PROPERTY_FIELD_ID,
+  Acknowledgment.JSON_PROPERTY_ROW_PATH,
+  Acknowledgment.JSON_PROPERTY_EXPECTED_CONTENT_HASH,
   Acknowledgment.JSON_PROPERTY_ACCEPTED
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
@@ -35,6 +41,14 @@ public class Acknowledgment {
   public static final String JSON_PROPERTY_FIELD_ID = "fieldId";
   @jakarta.annotation.Nonnull
   private String fieldId;
+
+  public static final String JSON_PROPERTY_ROW_PATH = "rowPath";
+  @jakarta.annotation.Nonnull
+  private List<RuntimeRowSegment> rowPath = new ArrayList<>();
+
+  public static final String JSON_PROPERTY_EXPECTED_CONTENT_HASH = "expectedContentHash";
+  @jakarta.annotation.Nonnull
+  private String expectedContentHash;
 
   public static final String JSON_PROPERTY_ACCEPTED = "accepted";
   @jakarta.annotation.Nullable
@@ -66,6 +80,64 @@ public class Acknowledgment {
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public void setFieldId(@jakarta.annotation.Nonnull String fieldId) {
     this.fieldId = fieldId;
+  }
+
+  public Acknowledgment rowPath(@jakarta.annotation.Nonnull List<RuntimeRowSegment> rowPath) {
+    
+    this.rowPath = rowPath;
+    return this;
+  }
+
+  public Acknowledgment addRowPathItem(RuntimeRowSegment rowPathItem) {
+    if (this.rowPath == null) {
+      this.rowPath = new ArrayList<>();
+    }
+    this.rowPath.add(rowPathItem);
+    return this;
+  }
+
+  /**
+   * Get rowPath
+   * @return rowPath
+   */
+  @jakarta.annotation.Nonnull
+  @JsonProperty(JSON_PROPERTY_ROW_PATH)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+
+  public List<RuntimeRowSegment> getRowPath() {
+    return rowPath;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_ROW_PATH)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setRowPath(@jakarta.annotation.Nonnull List<RuntimeRowSegment> rowPath) {
+    this.rowPath = rowPath;
+  }
+
+  public Acknowledgment expectedContentHash(@jakarta.annotation.Nonnull String expectedContentHash) {
+    
+    this.expectedContentHash = expectedContentHash;
+    return this;
+  }
+
+  /**
+   * Get expectedContentHash
+   * @return expectedContentHash
+   */
+  @jakarta.annotation.Nonnull
+  @JsonProperty(JSON_PROPERTY_EXPECTED_CONTENT_HASH)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+
+  public String getExpectedContentHash() {
+    return expectedContentHash;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_EXPECTED_CONTENT_HASH)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setExpectedContentHash(@jakarta.annotation.Nonnull String expectedContentHash) {
+    this.expectedContentHash = expectedContentHash;
   }
 
   public Acknowledgment accepted(@jakarta.annotation.Nullable Object accepted) {
@@ -103,12 +175,14 @@ public class Acknowledgment {
     }
     Acknowledgment acknowledgment = (Acknowledgment) o;
     return Objects.equals(this.fieldId, acknowledgment.fieldId) &&
+        Objects.equals(this.rowPath, acknowledgment.rowPath) &&
+        Objects.equals(this.expectedContentHash, acknowledgment.expectedContentHash) &&
         Objects.equals(this.accepted, acknowledgment.accepted);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(fieldId, accepted);
+    return Objects.hash(fieldId, rowPath, expectedContentHash, accepted);
   }
 
   @Override
@@ -116,6 +190,8 @@ public class Acknowledgment {
     StringBuilder sb = new StringBuilder();
     sb.append("class Acknowledgment {\n");
     sb.append("    fieldId: ").append(toIndentedString(fieldId)).append("\n");
+    sb.append("    rowPath: ").append(toIndentedString(rowPath)).append("\n");
+    sb.append("    expectedContentHash: ").append(toIndentedString(expectedContentHash)).append("\n");
     sb.append("    accepted: ").append(toIndentedString(accepted)).append("\n");
     sb.append("}");
     return sb.toString();

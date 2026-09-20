@@ -3,6 +3,7 @@ package com.kodeboxx.smartintake.contract.runtime;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.kodeboxx.smartintake.contract.CanonicalJson;
 import com.kodeboxx.smartintake.contract.compiler.CompiledForm;
 import com.kodeboxx.smartintake.contract.compiler.FormCompiler;
@@ -38,6 +39,7 @@ public final class TypedSessionRuntimeService {
 
   private final ObjectMapper json;
   private final FormCompiler compiler;
+  private final ReviewProjectionService reviews = new ReviewProjectionService();
   private final Map<String, CompiledForm> compiledCache = Collections.synchronizedMap(
       new LinkedHashMap<>(128, 0.75f, true) {
         @Override
@@ -162,25 +164,80 @@ public final class TypedSessionRuntimeService {
       effectivePage = currentRuntimeState.path("currentPageId").asText();
     if (effectivePage != null && projection.reachablePageIds().contains(effectivePage))
       stored.put("currentPageId", effectivePage);
-    int completedPages = validation.isEmpty()
-        ? completedPages(projection.reachablePageIds(), compiled.reviewPageIds(), effectivePage) : 0;
-    var review = new ReviewProjectionService().project(compiled, projection.state());
+    Set<String> completedPageIds = completedPages(compiled, projection, validation,
+        currentRuntimeState, effectivePage);
+    ArrayNode completedStored = stored.putArray("completedPageIds");
+    completedPageIds.forEach(completedStored::add);
+    int completedPages = completedPageIds.size();
+    var review = reviews.project(compiled, projection.state());
     Map<String, Object> reviewMap = json.convertValue(review, Map.class);
+    enrichAcknowledgmentRows(reviewMap, compiled.canonicalPackage());
     String reviewDigest = validation.isEmpty()
         ? CanonicalJson.sha256(json.valueToTree(reviewMap)) : null;
     return new Outcome(asMap(runtime.projection(projection.state())), asMap(stored), validation,
         reviewMap, reviewDigest, projection.reachablePageIds(), projection.requiredCount(), completedPages, true);
   }
 
-  private static int completedPages(List<String> reachable, List<String> reviews, String currentPageId) {
-    if (currentPageId == null) return 0;
-    int current = reachable.indexOf(currentPageId);
-    if (current < 0) return 0;
-    Set<String> reviewPages = Set.copyOf(reviews);
-    int completed = 0;
-    for (int index = 0; index < current; index++)
-      if (!reviewPages.contains(reachable.get(index))) completed++;
-    return completed;
+  private static Set<String> completedPages(
+      CompiledForm compiled, RuntimeGraph.Projection projection, List<Map<String, Object>> validation,
+      JsonNode currentRuntimeState, String currentPageId) {
+    LinkedHashSet<String> candidates = new LinkedHashSet<>();
+    if (currentRuntimeState != null)
+      currentRuntimeState.path("completedPageIds").forEach(node -> candidates.add(node.asText()));
+    int current = currentPageId == null ? -1 : projection.reachablePageIds().indexOf(currentPageId);
+    if (current >= 0) candidates.addAll(projection.reachablePageIds().subList(0, current));
+    candidates.retainAll(projection.reachablePageIds());
+    candidates.removeAll(compiled.reviewPageIds());
+    Map<String, Set<String>> pageFields = pageFields(compiled.canonicalPackage());
+    Set<String> globalErrors = validation.stream()
+        .filter(item -> Objects.toString(item.get("fieldId"), "").isBlank())
+        .map(item -> Objects.toString(item.get("code"), "")).collect(java.util.stream.Collectors.toSet());
+    if (!globalErrors.isEmpty()) return Set.of();
+    candidates.removeIf(pageId -> {
+      Set<String> fields = pageFields.getOrDefault(pageId, Set.of());
+      boolean invalid = validation.stream().anyMatch(item -> fields.contains(Objects.toString(item.get("fieldId"), "")));
+      boolean incomplete = projection.addresses().entrySet().stream().anyMatch(entry ->
+          fields.contains(entry.getKey().fieldId()) && entry.getValue().applicable()
+              && entry.getValue().required() && entry.getValue().status() != Status.answered
+              && entry.getValue().status() != Status.declined
+              && entry.getValue().status() != Status.respondentNotApplicable);
+      return invalid || incomplete;
+    });
+    return Collections.unmodifiableSet(new LinkedHashSet<>(candidates));
+  }
+
+  private static Map<String, Set<String>> pageFields(JsonNode packageNode) {
+    Map<String, Set<String>> result = new LinkedHashMap<>();
+    for (JsonNode phase : packageNode.path("flow").path("phases"))
+      for (JsonNode page : phase.path("pages")) {
+        LinkedHashSet<String> fields = new LinkedHashSet<>();
+        for (JsonNode section : page.path("sections"))
+          for (JsonNode node : section.path("nodes")) collectPageFields(node, fields);
+        result.put(page.path("id").asText(), Set.copyOf(fields));
+      }
+    return result;
+  }
+
+  private static void collectPageFields(JsonNode node, Set<String> fields) {
+    if (node.path("fieldId").isTextual()) fields.add(node.path("fieldId").asText());
+    for (JsonNode child : node.path("children")) collectPageFields(child, fields);
+  }
+
+  @SuppressWarnings("unchecked")
+  private void enrichAcknowledgmentRows(Map<String, Object> review, JsonNode packageNode) {
+    String locale = packageNode.path("defaultLocale").asText("en");
+    JsonNode messages = packageNode.path("translations").path(locale).path("messages");
+    Object gates = review.get("reviewGates");
+    if (!(gates instanceof List<?> rows)) return;
+    for (Object raw : rows) {
+      if (!(raw instanceof Map<?, ?> source)) continue;
+      Map<String, Object> row = (Map<String, Object>) source;
+      String contentKey = Objects.toString(row.get("label"), Objects.toString(row.get("fieldId"), ""));
+      String content = messages.path(contentKey).asText(contentKey);
+      row.put("locale", locale);
+      row.put("contentKey", contentKey);
+      row.put("contentHash", CanonicalJson.sha256(json.valueToTree(content)));
+    }
   }
 
   private Outcome rejected(JsonNode answers, JsonNode runtimeState, String code, String fieldId) {

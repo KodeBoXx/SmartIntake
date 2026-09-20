@@ -75,14 +75,21 @@ public final class RuntimeGraph {
       boolean applicable = evaluateBoolean(
           source.path("visibilityExpressionId").asText(null), state, sessionDate, timeZone, budget,
           true, fieldId, diagnostics, target.address);
-      applicable = applicable && (field.protectedValue() || placementApplicable(fieldId, initiallyReachable,
-          state, sessionDate, timeZone, budget, diagnostics, target.address));
+      List<Placement> activePlacements = activePlacements(fieldId, initiallyReachable,
+          state, sessionDate, timeZone, budget, diagnostics, target.address);
+      applicable = applicable && (field.protectedValue() || !activePlacements.isEmpty()
+          || !placements.containsKey(fieldId));
       applicable = applicable && target.ancestorsApplicable && runtime.ancestorsApplicable(state, target.address);
       state = runtime.projectApplicability(state, Map.of(target.address, applicable), changedAt);
+      boolean placementRequired = false;
+      for (Placement placement : activePlacements)
+        placementRequired |= evaluateBoolean(placement.requiredExpressionId,
+            state, sessionDate, timeZone, budget, false, fieldId, diagnostics, target.address);
       boolean required = applicable && (source.path("required").asBoolean(false)
           || source.path("constraints").path("required").asBoolean(false)
           || evaluateBoolean(source.path("requiredExpressionId").asText(null), state, sessionDate, timeZone,
-              budget, false, fieldId, diagnostics, target.address));
+              budget, false, fieldId, diagnostics, target.address)
+          || placementRequired);
       if (applicable && field.protectedValue() && calculationExpressionId(source) != null) {
         String expressionId = calculationExpressionId(source);
         JsonNode expression = compiled.expressions().get(expressionId);
@@ -115,6 +122,11 @@ public final class RuntimeGraph {
       projections.putIfAbsent(fieldId, projection);
       validate(source, cell, applicable, state, sessionDate, timeZone, budget, fieldId,
           target.address, diagnostics);
+      if (applicable && cell != null && cell.status() == Status.answered)
+        for (Placement placement : activePlacements)
+          if (placement.validationExpressionId != null && !evaluateBoolean(placement.validationExpressionId,
+              state, sessionDate, timeZone, budget, false, fieldId, diagnostics, target.address))
+            diagnostics.add(new Diagnostic("VALIDATION_FAILED", fieldId, placement.validationExpressionId));
     }
     List<String> reachable = reachablePages(state, sessionDate, timeZone, budget, diagnostics);
     if (allowRouteRerun && !reachable.equals(initiallyReachable))
@@ -131,7 +143,7 @@ public final class RuntimeGraph {
         && left.needsReentry() == right.needsReentry();
   }
 
-  private boolean placementApplicable(
+  private List<Placement> activePlacements(
       String fieldId,
       List<String> reachable,
       State state,
@@ -141,7 +153,8 @@ public final class RuntimeGraph {
       List<Diagnostic> diagnostics,
       Address address) {
     List<Placement> instances = placements.getOrDefault(fieldId, List.of());
-    if (instances.isEmpty()) return true;
+    if (instances.isEmpty()) return List.of();
+    List<Placement> active = new ArrayList<>();
     for (Placement placement : instances) {
       if (!reachable.contains(placement.pageId)) continue;
       boolean visible = true;
@@ -152,9 +165,9 @@ public final class RuntimeGraph {
           break;
         }
       }
-      if (visible) return true;
+      if (visible) active.add(placement);
     }
-    return false;
+    return active;
   }
 
   private boolean evaluateBoolean(
@@ -332,7 +345,9 @@ public final class RuntimeGraph {
   private record Order(List<String> order, List<Diagnostic> diagnostics) {}
 
   private record Target(Address address, JsonNode source, boolean ancestorsApplicable) {}
-  private record Placement(String pageId, List<String> visibilityExpressionIds) {
+  private record Placement(
+      String pageId, List<String> visibilityExpressionIds,
+      String requiredExpressionId, String validationExpressionId) {
     private Placement { visibilityExpressionIds = List.copyOf(visibilityExpressionIds); }
   }
 
@@ -358,7 +373,9 @@ public final class RuntimeGraph {
       visibility.add(node.path("visibilityExpressionId").asText());
     if (node.path("fieldId").isTextual()) {
       result.computeIfAbsent(node.path("fieldId").asText(), ignored -> new ArrayList<>())
-          .add(new Placement(pageId, visibility));
+          .add(new Placement(pageId, visibility,
+              node.path("requiredExpressionId").asText(null),
+              node.path("validationExpressionId").asText(null)));
     }
     for (JsonNode child : node.path("children")) collectPlacements(child, pageId, visibility, result);
   }

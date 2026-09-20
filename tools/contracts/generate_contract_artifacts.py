@@ -403,13 +403,15 @@ def expected_files(scope: str = "all") -> dict[Path, bytes]:
             files[FRONTEND_ASSETS / item["file"]] = (CONTRACT / item["file"]).read_bytes()
         # The locally pinned openapi-typescript executable creates the API declaration file in a temp directory.
         with tempfile.TemporaryDirectory(prefix="smartintake-openapi-types-") as temp:
-            candidate = Path(temp) / "api.ts"
             executable = ROOT / "frontend/node_modules/.bin/openapi-typescript"
-            subprocess.run([str(executable), str(OPENAPI), "-o", str(candidate)], check=True, cwd=ROOT, capture_output=True, text=True)
-            files[API_TS] = candidate.read_bytes()
-            candidate = Path(temp) / "api-4.1.0.ts"
-            subprocess.run([str(executable), str(M4_OPENAPI), "-o", str(candidate)], check=True, cwd=ROOT, capture_output=True, text=True)
-            files[M4_API_TS] = candidate.read_bytes()
+            for source, output, name in (
+                (OPENAPI, API_TS, "api.ts"),
+                (M4_OPENAPI, M4_API_TS, "api-4.1.0.ts"),
+            ):
+                candidate = Path(temp) / name
+                subprocess.run([str(executable), str(source), "-o", str(candidate)], check=True,
+                               cwd=ROOT, capture_output=True, text=True)
+                files[output] = candidate.read_bytes()
     return files
 
 def apply(files: dict[Path, bytes], check: bool, scope: str) -> list[str]:

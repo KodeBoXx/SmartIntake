@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 class ContractRegistryTests {
@@ -43,9 +44,11 @@ class ContractRegistryTests {
     assertThat(registry.openApi().bytes()).isEqualTo(Files.readAllBytes(Path.of("../docs/api/openapi.yaml")));
     assertThat(registry.openApi("4.1.0").bytes())
         .isEqualTo(Files.readAllBytes(Path.of("../docs/api/openapi-4.1.0.yaml")));
-    assertThat(capabilities.get("apiContractVersion")).isEqualTo("4.1.0");
-    assertThat(capabilities.get("schemaContractVersion")).isEqualTo("4.0.0");
-    assertThat((java.util.List<?>) capabilities.get("apiContracts")).hasSize(2);
+    Map<?, ?> m4Capabilities = new ObjectMapper().readValue(
+        registry.capabilities("4.1.0").bytes(), Map.class);
+    assertThat(m4Capabilities.get("apiContractVersion")).isEqualTo("4.1.0");
+    assertThat(m4Capabilities.get("schemaContractVersion")).isEqualTo("4.0.0");
+    assertThat((java.util.List<?>) m4Capabilities.get("apiContracts")).hasSize(2);
   }
 
   @Test

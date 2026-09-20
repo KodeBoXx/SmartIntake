@@ -29,7 +29,7 @@ require(schemas["RuntimeRowPath"]["maxItems"] == 3, "rowPath depth must be bound
 require(schemas["SessionMutationRequest"]["properties"]["operations"]["maxItems"] == 1000,
         "operation batch must be bounded to 1000")
 by_op = {variant["properties"]["op"]["const"]: variant for variant in variants}
-require(by_op["set"]["properties"]["value"]["$ref"].endswith("input-answer.schema.json"),
+require(by_op["set"]["properties"]["value"]["$ref"] == "#/components/schemas/InputAnswerValue",
         "set must use the typed input-answer envelope")
 require("initialFields" in by_op["addItem"]["properties"], "addItem must expose initialFields")
 require("beforeItemId" in by_op["moveItem"]["properties"], "moveItem must use identity placement")

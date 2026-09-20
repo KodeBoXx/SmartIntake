@@ -1259,6 +1259,8 @@ export interface components {
         };
         Acknowledgment: {
             fieldId: string;
+            rowPath: components["schemas"]["RuntimeRowPath"];
+            expectedContentHash: components["schemas"]["ReviewDigest"];
             /** @constant */
             accepted: true;
         };
@@ -1267,7 +1269,7 @@ export interface components {
             op: "set";
             fieldId: string;
             rowPath?: components["schemas"]["RuntimeRowPath"];
-            value: components["schemas"]["input-answer.schema"];
+            value: components["schemas"]["InputAnswerValue"];
         } | {
             /** @constant */
             op: "clear";
@@ -1288,7 +1290,7 @@ export interface components {
             itemId: components["schemas"]["OpaqueId"];
             /** @default {} */
             initialFields: {
-                [key: string]: components["schemas"]["input-answer.schema"];
+                [key: string]: components["schemas"]["InputAnswerValue"];
             };
         } | {
             /** @constant */
@@ -1979,7 +1981,7 @@ export interface components {
         };
         SubmissionCreateRequest: {
             sessionRevision: number;
-            reviewDigest: components["schemas"]["Sha256"];
+            reviewDigest: components["schemas"]["ReviewDigest"];
             acknowledgments: components["schemas"]["Acknowledgment"][];
             attemptId: components["schemas"]["OpaqueId"];
         };
@@ -2600,6 +2602,157 @@ export interface components {
             itemId: components["schemas"]["OpaqueId"];
         };
         RuntimeRowPath: components["schemas"]["RuntimeRowSegment"][];
+        /**
+         * Smart Form Builder Lite InputAnswer 4.0.0
+         * @description Recursive metadata-free input wrapper. Field type is resolved by the pinned definition.
+         */
+        InputAnswerValue: components["schemas"]["InputAnswer_answered"] | components["schemas"]["InputAnswer_nonAnswered"];
+        InputAnswer_id: string;
+        InputAnswer_key: string;
+        InputAnswer_sha256: string;
+        /** Format: canonical-int64 */
+        InputAnswer_int64: string;
+        /** Format: canonical-decimal */
+        InputAnswer_decimal: string;
+        /** Format: date */
+        InputAnswer_date: string;
+        /** Format: time */
+        InputAnswer_time: string;
+        /** Format: date-time */
+        InputAnswer_instant: string;
+        /** @description Closed, dependency-bound extension descriptor; unregistered bindings are compiler errors. */
+        InputAnswer_extensionNamespaces: {
+            [key: string]: components["schemas"]["InputAnswer_extensionValue"];
+        };
+        InputAnswer_rowPath: {
+            listFieldId: components["schemas"]["InputAnswer_id"];
+            itemId: components["schemas"]["InputAnswer_id"];
+        }[];
+        InputAnswer_dateTime: {
+            instant: components["schemas"]["InputAnswer_instant"];
+            timeZone: string;
+        };
+        InputAnswer_answer: components["schemas"]["InputAnswerValue"];
+        InputAnswer_objectValue: {
+            fields: {
+                [key: string]: components["schemas"]["InputAnswer_answer"];
+            };
+        };
+        InputAnswer_item: {
+            itemId: components["schemas"]["InputAnswer_id"];
+            fields: {
+                [key: string]: components["schemas"]["InputAnswer_answer"];
+            };
+        };
+        InputAnswer_listValue: {
+            items: components["schemas"]["InputAnswer_item"][];
+        };
+        InputAnswer_value: string | boolean | string[] | components["schemas"]["InputAnswer_objectValue"] | components["schemas"]["InputAnswer_listValue"] | components["schemas"]["InputAnswer_dateTime"];
+        InputAnswer_answered: {
+            /** @constant */
+            status: "answered";
+            value: components["schemas"]["InputAnswer_value"];
+        };
+        InputAnswer_nonAnswered: {
+            /** @enum {unknown} */
+            status: "unanswered" | "unknown" | "declined" | "respondentNotApplicable";
+        };
+        InputAnswer_extensionValue: {
+            dependencyId: components["schemas"]["InputAnswer_id"];
+            version: string;
+            digest: components["schemas"]["InputAnswer_sha256"];
+            value: string | number | boolean | null;
+        };
+        ReviewDigest: string;
+        SessionMutationResponse: {
+            acceptedRevision: number;
+            answers: {
+                [key: string]: unknown;
+            };
+            validation: {
+                [key: string]: unknown;
+            }[];
+            reachablePageIds: string[];
+            requiredCount: number;
+            completedRequiredCount: number;
+            invalidInputs: {
+                [key: string]: unknown;
+            }[];
+        };
+        SubmissionReceipt: {
+            receiptId: string;
+            submissionId: string;
+            message: string;
+        };
+        SubmissionAttemptStatus: {
+            attemptId: components["schemas"]["OpaqueId"];
+            /** @enum {unknown} */
+            state: "pending" | "succeeded" | "failed";
+            submissionId?: string | null;
+            errorCode?: string | null;
+        };
+        LegacyCapabilityRegistry: {
+            registryVersion: string;
+            /** @constant */
+            contractVersion: "4.0.0";
+            versions: {
+                [key: string]: string;
+            };
+            schemas: {
+                kind: string;
+                /** @constant */
+                version: "4.0.0";
+                id: string;
+                sha256: components["schemas"]["Sha256"];
+                file: string;
+                resource: string;
+            }[];
+            fieldCatalog: {
+                row: number;
+                controls: string[];
+                canonicalTypes: string[];
+            }[];
+            controlValueCompatibility: {
+                [key: string]: string[];
+            };
+            operatorSignatures: Record<string, never>[];
+            limits: Record<string, never>[];
+            operations: {
+                /** @constant */
+                count: 82;
+                items: Record<string, never>[];
+                statusPolicy: string;
+            };
+            assetSupplement: {
+                /** @constant */
+                counted: false;
+                /** @constant */
+                id: "M2-get-v1-workspaces-w-assets-assetid-authorized-asset";
+                /** @constant */
+                implementationStatus: "planned";
+                reason: string;
+            };
+            openapi: {
+                file: string;
+                resource: string;
+                sha256: components["schemas"]["Sha256"];
+                /** @constant */
+                version: "3.1.0";
+            };
+            generation: {
+                [key: string]: string | Record<string, never> | unknown[];
+            };
+            /**
+             * @deprecated
+             * @description M1 compatibility alias derived from fieldCatalog; use fieldCatalog for catalog metadata.
+             */
+            fieldTypes: string[];
+            /**
+             * @deprecated
+             * @description M1 compatibility alias derived from operatorSignatures; use operatorSignatures for arity metadata.
+             */
+            operators: string[];
+        };
         id: string;
         sha256: string;
         extensionValue: {
@@ -3742,13 +3895,13 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Successful response. */
+            /** @description The immutable legacy 4.0.0 capability representation. The additive representation is published at /v1/schemas/capabilities/4.1.0. */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CapabilityRegistry"];
+                    "application/json": components["schemas"]["LegacyCapabilityRegistry"];
                 };
             };
             400: components["responses"]["BadRequest"];
@@ -4667,15 +4820,7 @@ export interface operations {
     "ON-patch-v1-sessions-s-d902ee3064": {
         parameters: {
             query?: never;
-            header: {
-                /** @example "rev-7" */
-                "If-Match": components["parameters"]["IfMatch"];
-                /**
-                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
-                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
-            };
+            header?: never;
             path: {
                 /**
                  * @description Opaque server-issued identifier; it is never an authority grant.
@@ -4691,14 +4836,13 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Successful response. */
+            /** @description The accepted canonical typed-session projection. */
             200: {
                 headers: {
-                    ETag: components["headers"]["ETag"];
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["RespondentSessionResponse"];
+                    "application/json": components["schemas"]["SessionMutationResponse"];
                 };
             };
             400: components["responses"]["BadRequest"];
@@ -4871,14 +5015,13 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Successful response. */
+            /** @description The durable state of the latest submission attempt. */
             200: {
                 headers: {
-                    ETag: components["headers"]["ETag"];
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["SubmissionOperationResponse"];
+                    "application/json": components["schemas"]["SubmissionAttemptStatus"];
                 };
             };
             400: components["responses"]["BadRequest"];
@@ -4893,13 +5036,7 @@ export interface operations {
     "ON-post-v1-sessions-s-submissions-ba988d3740": {
         parameters: {
             query?: never;
-            header: {
-                /**
-                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
-                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
-            };
+            header?: never;
             path: {
                 /**
                  * @description Opaque server-issued identifier; it is never an authority grant.
@@ -4915,14 +5052,13 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Successful response. */
+            /** @description The immutable accepted submission receipt. */
             201: {
                 headers: {
-                    ETag: components["headers"]["ETag"];
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ReceiptResponse"];
+                    "application/json": components["schemas"]["SubmissionReceipt"];
                 };
             };
             400: components["responses"]["BadRequest"];

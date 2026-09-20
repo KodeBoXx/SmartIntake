@@ -21,6 +21,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.time.OffsetDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -37,7 +39,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   SubmissionEnvelopeDocumentAttachment.JSON_PROPERTY_CREATED_AT
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class SubmissionEnvelopeDocumentAttachment {
+public class SubmissionEnvelopeDocumentAttachment extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_ATTACHMENT_ID = "attachmentId";
   @jakarta.annotation.Nonnull
   private String attachmentId;
@@ -67,6 +69,7 @@ public class SubmissionEnvelopeDocumentAttachment {
   private OffsetDateTime createdAt;
 
   public SubmissionEnvelopeDocumentAttachment() {
+
   }
 
   public SubmissionEnvelopeDocumentAttachment attachmentId(@jakarta.annotation.Nonnull String attachmentId) {
@@ -261,18 +264,20 @@ public class SubmissionEnvelopeDocumentAttachment {
         Objects.equals(this.sizeBytes, submissionEnvelopeDocumentAttachment.sizeBytes) &&
         Objects.equals(this.sha256, submissionEnvelopeDocumentAttachment.sha256) &&
         Objects.equals(this.status, submissionEnvelopeDocumentAttachment.status) &&
-        Objects.equals(this.createdAt, submissionEnvelopeDocumentAttachment.createdAt);
+        Objects.equals(this.createdAt, submissionEnvelopeDocumentAttachment.createdAt) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(attachmentId, fileName, mediaType, sizeBytes, sha256, status, createdAt);
+    return Objects.hash(attachmentId, fileName, mediaType, sizeBytes, sha256, status, createdAt, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class SubmissionEnvelopeDocumentAttachment {\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    attachmentId: ").append(toIndentedString(attachmentId)).append("\n");
     sb.append("    fileName: ").append(toIndentedString(fileName)).append("\n");
     sb.append("    mediaType: ").append(toIndentedString(mediaType)).append("\n");

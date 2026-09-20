@@ -22,7 +22,9 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -36,7 +38,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 })
 @JsonTypeName("CapabilityRegistry_fieldCatalog_inner")
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class CapabilityRegistryFieldCatalogInner {
+public class CapabilityRegistryFieldCatalogInner extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_ROW = "row";
   @jakarta.annotation.Nonnull
   private Integer row;
@@ -50,6 +52,7 @@ public class CapabilityRegistryFieldCatalogInner {
   private List<String> canonicalTypes = new ArrayList<>();
 
   public CapabilityRegistryFieldCatalogInner() {
+
   }
 
   public CapabilityRegistryFieldCatalogInner row(@jakarta.annotation.Nonnull Integer row) {
@@ -155,18 +158,20 @@ public class CapabilityRegistryFieldCatalogInner {
     CapabilityRegistryFieldCatalogInner capabilityRegistryFieldCatalogInner = (CapabilityRegistryFieldCatalogInner) o;
     return Objects.equals(this.row, capabilityRegistryFieldCatalogInner.row) &&
         Objects.equals(this.controls, capabilityRegistryFieldCatalogInner.controls) &&
-        Objects.equals(this.canonicalTypes, capabilityRegistryFieldCatalogInner.canonicalTypes);
+        Objects.equals(this.canonicalTypes, capabilityRegistryFieldCatalogInner.canonicalTypes) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(row, controls, canonicalTypes);
+    return Objects.hash(row, controls, canonicalTypes, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class CapabilityRegistryFieldCatalogInner {\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    row: ").append(toIndentedString(row)).append("\n");
     sb.append("    controls: ").append(toIndentedString(controls)).append("\n");
     sb.append("    canonicalTypes: ").append(toIndentedString(canonicalTypes)).append("\n");

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import copy
+import json
 from pathlib import Path
 from typing import Any
 
@@ -84,7 +85,31 @@ def generated() -> dict[Path, bytes]:
         "maxItems": 3,
         "items": {"$ref": "#/components/schemas/RuntimeRowSegment"},
     }
-    typed_answer = {"$ref": "../contracts/smart-form-builder-lite/4.0.0/input-answer.schema.json"}
+    input_document = json.loads((ROOT / "docs/contracts/smart-form-builder-lite/4.0.0/input-answer.schema.json")
+                                .read_text(encoding="utf-8"))
+    input_definitions = input_document.pop("$defs")
+    input_document.pop("$schema", None)
+    input_document.pop("$id", None)
+
+    def rewrite_input_refs(value: Any) -> None:
+        if isinstance(value, dict):
+            for key, child in value.items():
+                if key == "$ref" and child == "#":
+                    value[key] = "#/components/schemas/InputAnswerValue"
+                elif key == "$ref" and isinstance(child, str) and child.startswith("#/$defs/"):
+                    value[key] = "#/components/schemas/InputAnswer_" + child.removeprefix("#/$defs/")
+                else:
+                    rewrite_input_refs(child)
+        elif isinstance(value, list):
+            for child in value:
+                rewrite_input_refs(child)
+
+    rewrite_input_refs(input_document)
+    schemas["InputAnswerValue"] = input_document
+    for name, definition in input_definitions.items():
+        rewrite_input_refs(definition)
+        schemas["InputAnswer_" + name] = definition
+    typed_answer = {"$ref": "#/components/schemas/InputAnswerValue"}
     opaque = {"$ref": "#/components/schemas/OpaqueId"}
     schemas["SessionMutation"] = {
         "oneOf": [
@@ -116,6 +141,54 @@ def generated() -> dict[Path, bytes]:
         "discriminator": {"propertyName": "op"},
     }
     schemas["SessionMutationRequest"]["properties"]["operations"]["maxItems"] = 1000
+    schemas["ReviewDigest"] = {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+    schemas["Acknowledgment"] = {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["fieldId", "rowPath", "expectedContentHash", "accepted"],
+        "properties": {
+            "fieldId": {"type": "string", "minLength": 1},
+            "rowPath": {"$ref": "#/components/schemas/RuntimeRowPath"},
+            "expectedContentHash": {"$ref": "#/components/schemas/ReviewDigest"},
+            "accepted": {"const": True},
+        },
+    }
+    schemas["SubmissionCreateRequest"]["properties"]["reviewDigest"] = {
+        "$ref": "#/components/schemas/ReviewDigest"
+    }
+    schemas["SessionMutationResponse"] = {
+        "type": "object", "additionalProperties": False,
+        "required": ["acceptedRevision", "answers", "validation", "reachablePageIds",
+                     "requiredCount", "completedRequiredCount", "invalidInputs"],
+        "properties": {
+            "acceptedRevision": {"type": "integer", "minimum": 1},
+            "answers": {"type": "object", "additionalProperties": True},
+            "validation": {"type": "array", "items": {"type": "object", "additionalProperties": True}},
+            "reachablePageIds": {"type": "array", "items": {"type": "string"}},
+            "requiredCount": {"type": "integer", "minimum": 0},
+            "completedRequiredCount": {"type": "integer", "minimum": 0},
+            "invalidInputs": {"type": "array", "items": {"type": "object", "additionalProperties": True}},
+        },
+    }
+    schemas["SubmissionReceipt"] = {
+        "type": "object", "additionalProperties": False,
+        "required": ["receiptId", "submissionId", "message"],
+        "properties": {
+            "receiptId": {"type": "string"}, "submissionId": {"type": "string"},
+            "message": {"type": "string"},
+        },
+    }
+    schemas["SubmissionAttemptStatus"] = {
+        "type": "object", "additionalProperties": False,
+        "required": ["attemptId", "state"],
+        "properties": {
+            "attemptId": {"$ref": "#/components/schemas/OpaqueId"},
+            "state": {"enum": ["pending", "succeeded", "failed"]},
+            "submissionId": {"type": ["string", "null"]},
+            "errorCode": {"type": ["string", "null"]},
+        },
+    }
+    schemas["LegacyCapabilityRegistry"] = copy.deepcopy(schemas["CapabilityRegistry"])
     capability = schemas["CapabilityRegistry"]
     capability["required"].extend(["apiContractVersion", "schemaContractVersion", "apiContracts"])
     capability["properties"].update({
@@ -138,6 +211,36 @@ def generated() -> dict[Path, bytes]:
     })
     api["components"] = copy.deepcopy(components["components"])
     rewrite(api)
+    patch = api["paths"]["/v1/sessions/{s}"]["patch"]
+    patch["parameters"] = [parameter for parameter in patch["parameters"] if parameter.get("name") == "s"]
+    patch["responses"]["200"] = {
+        "description": "The accepted canonical typed-session projection.",
+        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/SessionMutationResponse"}}},
+    }
+    patch["requestBody"]["content"]["application/json"]["examples"]["valid"]["value"]["operations"][0]["value"] = {
+        "status": "answered", "value": "9007199254740993"
+    }
+    submit = api["paths"]["/v1/sessions/{s}/submissions"]["post"]
+    submit["parameters"] = [parameter for parameter in submit["parameters"] if parameter.get("name") == "s"]
+    submit["responses"]["201"] = {
+        "description": "The immutable accepted submission receipt.",
+        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/SubmissionReceipt"}}},
+    }
+    submit_example = submit["requestBody"]["content"]["application/json"]["examples"]["valid"]["value"]
+    submit_example["reviewDigest"] = "sha256:" + "0" * 64
+    submit_example["acknowledgments"] = [{
+        "fieldId": "consent", "rowPath": [], "expectedContentHash": "sha256:" + "1" * 64,
+        "accepted": True,
+    }]
+    attempt = api["paths"]["/v1/sessions/{s}/submission-operation"]["get"]
+    attempt["responses"]["200"] = {
+        "description": "The durable state of the latest submission attempt.",
+        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/SubmissionAttemptStatus"}}},
+    }
+    api["paths"]["/v1/capabilities"]["get"]["responses"]["200"] = {
+        "description": "The immutable legacy 4.0.0 capability representation. The additive representation is published at /v1/schemas/capabilities/4.1.0.",
+        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/LegacyCapabilityRegistry"}}},
+    }
 
     def encode(value: Any) -> bytes:
         return (HEADER + yaml.safe_dump(value, sort_keys=False, allow_unicode=True)).encode()

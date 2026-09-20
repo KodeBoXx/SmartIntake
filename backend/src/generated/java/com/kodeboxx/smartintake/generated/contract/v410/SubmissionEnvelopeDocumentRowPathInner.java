@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.HashMap;
+import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -32,7 +34,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 })
 @JsonTypeName("SubmissionEnvelopeDocumentRowPath_inner")
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class SubmissionEnvelopeDocumentRowPathInner {
+public class SubmissionEnvelopeDocumentRowPathInner extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_LIST_FIELD_ID = "listFieldId";
   @jakarta.annotation.Nonnull
   private String listFieldId;
@@ -42,6 +44,7 @@ public class SubmissionEnvelopeDocumentRowPathInner {
   private String itemId;
 
   public SubmissionEnvelopeDocumentRowPathInner() {
+
   }
 
   public SubmissionEnvelopeDocumentRowPathInner listFieldId(@jakarta.annotation.Nonnull String listFieldId) {
@@ -104,18 +107,20 @@ public class SubmissionEnvelopeDocumentRowPathInner {
     }
     SubmissionEnvelopeDocumentRowPathInner submissionEnvelopeDocumentRowPathInner = (SubmissionEnvelopeDocumentRowPathInner) o;
     return Objects.equals(this.listFieldId, submissionEnvelopeDocumentRowPathInner.listFieldId) &&
-        Objects.equals(this.itemId, submissionEnvelopeDocumentRowPathInner.itemId);
+        Objects.equals(this.itemId, submissionEnvelopeDocumentRowPathInner.itemId) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(listFieldId, itemId);
+    return Objects.hash(listFieldId, itemId, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class SubmissionEnvelopeDocumentRowPathInner {\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    listFieldId: ").append(toIndentedString(listFieldId)).append("\n");
     sb.append("    itemId: ").append(toIndentedString(itemId)).append("\n");
     sb.append("}");

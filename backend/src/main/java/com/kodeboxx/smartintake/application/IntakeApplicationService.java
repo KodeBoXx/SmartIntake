@@ -8,6 +8,7 @@ import com.kodeboxx.smartintake.compatibility.LegacyDefinitionAdapter;
 import com.kodeboxx.smartintake.compatibility.RespondentSecretVerifier;
 import com.kodeboxx.smartintake.contract.CsvSafety;
 import com.kodeboxx.smartintake.contract.CanonicalJson;
+import com.kodeboxx.smartintake.contract.ContractRegistry;
 import com.kodeboxx.smartintake.contract.FormRuntime;
 import com.kodeboxx.smartintake.contract.PackageStamp;
 import com.kodeboxx.smartintake.contract.TimeZoneRegistry;
@@ -17,6 +18,7 @@ import com.kodeboxx.smartintake.persistence.AuditEventRepository;
 import com.kodeboxx.smartintake.security.StaffAuthorization;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -44,6 +46,8 @@ public class IntakeApplicationService {
   private final LegacyDefinitionAdapter definitions;
   private final FormCompiler compiler;
   private final TypedSessionRuntimeService typedRuntime;
+  private final SubmissionAttemptLedger submissionAttempts;
+  private final ContractRegistry contracts;
 
   public IntakeApplicationService(
       JdbcTemplate db,
@@ -54,7 +58,9 @@ public class IntakeApplicationService {
       CompatibilityProfileRegistry profiles,
       LegacyDefinitionAdapter definitions,
       FormCompiler compiler,
-      TypedSessionRuntimeService typedRuntime) {
+      TypedSessionRuntimeService typedRuntime,
+      SubmissionAttemptLedger submissionAttempts,
+      ContractRegistry contracts) {
     this.db = db;
     this.json = json;
     this.authorization = authorization;
@@ -64,6 +70,8 @@ public class IntakeApplicationService {
     this.definitions = definitions;
     this.compiler = compiler;
     this.typedRuntime = typedRuntime;
+    this.submissionAttempts = submissionAttempts;
+    this.contracts = contracts;
   }
 
   public record Bootstrap(
@@ -458,6 +466,7 @@ public class IntakeApplicationService {
     Map<String, Object> persistedRuntimeState = null;
     List<Map<String, Object>> validation;
     Map<String, Object> runtimeProjection = new LinkedHashMap<>();
+    long next = s.revision() + 1;
     if (typedRuntime.canonical(releaseNode)) {
       if (in.operations() == null || in.operations().isEmpty() || in.answers() != null) {
         throw bad("OPERATIONS_REQUIRED", "Canonical sessions require one non-empty typed operation batch");
@@ -471,17 +480,19 @@ public class IntakeApplicationService {
         throw bad(code, "Typed mutation batch rejected");
       }
       answers = outcome.answers();
-      persistedRuntimeState = outcome.runtimeState();
-      validation = outcome.validation();
+      persistedRuntimeState = new LinkedHashMap<>(outcome.runtimeState());
+      validation = bindInvalidMarkerRevisions(
+          persistedRuntimeState, parseNode(s.runtimeState()), outcome.validation(), next);
       runtimeProjection.put("reachablePageIds", outcome.reachablePageIds());
       runtimeProjection.put("requiredCount", outcome.requiredCount());
       runtimeProjection.put("completedRequiredCount", outcome.completedRequiredCount());
+      runtimeProjection.put("invalidInputs", validation.stream()
+          .filter(item -> "UNPARSEABLE_INPUT".equals(item.get("code"))).toList());
     } else {
       if (in.answers() == null) throw bad("ANSWERS_REQUIRED", "Legacy answer map required");
       answers = new FormRuntime(json).respondentAnswers(parse(release.pkg()), in.answers());
       validation = validateAnswers(release.pkg(), answers, s);
     }
-    long next = s.revision() + 1;
     Map<String, Object> out = new LinkedHashMap<>();
     out.put("acceptedRevision", next);
     out.put("answers", answers);
@@ -534,22 +545,32 @@ public class IntakeApplicationService {
   @Transactional
   public ResponseEntity<?> submit(UUID id, String token, Submit in) {
     var s = respondent(id, token, true);
+    R release = release(s.releaseId());
+    JsonNode definition = json.valueToTree(parse(release.pkg()));
+    boolean canonical = typedRuntime.canonical(definition);
     if (!s.status().equals("DRAFT")) {
       UUID existing =
           db.queryForObject("select id from submissions where session_id=?", UUID.class, id);
+      if (canonical) {
+        if (in.attemptId() == null) throw new ResponseStatusException(HttpStatus.CONFLICT, "SESSION_SUBMITTED");
+        try {
+          Map<String, Object> attempt = submissionAttempts.status(id, in.attemptId());
+          if (!"succeeded".equals(attempt.get("state"))) submissionAttempts.succeeded(id, in.attemptId(), existing);
+        } catch (EmptyResultDataAccessException missing) {
+          throw new ResponseStatusException(HttpStatus.CONFLICT, "SESSION_SUBMITTED");
+        }
+      }
       return receipt(existing);
     }
     if (!Objects.equals(in.sessionRevision(), s.revision()))
       throw new ResponseStatusException(HttpStatus.CONFLICT, "REVIEW_STALE");
-    R release = release(s.releaseId());
-    JsonNode definition = json.valueToTree(parse(release.pkg()));
     requireCanonicalRuntimeState(s, definition);
     Map<String, Object> acceptedAnswers = parse(s.answers());
     Map<String, Object> acceptedRuntimeState = null;
     Map<String, Object> acceptedReviewProjection = null;
     String acceptedReviewDigest = null;
     List<Map<String, Object>> errors;
-    if (typedRuntime.canonical(definition)) {
+    if (canonical) {
       var outcome = typedRuntime.mutate(definition, json.valueToTree(acceptedAnswers),
           parseNode(s.runtimeState()), List.of(), s.sessionDate().toString(), s.timeZone(), Instant.now());
       if (!outcome.accepted()) throw bad("RUNTIME_STATE_INVALID", "Canonical runtime state rejected");
@@ -567,29 +588,42 @@ public class IntakeApplicationService {
       return ResponseEntity.unprocessableEntity()
           .body(Map.of("code", code, "errors", errors));
     }
-    if (typedRuntime.canonical(definition)) {
+    List<Map<String, Object>> acceptedAcknowledgments = List.of();
+    if (canonical) {
       if (in.reviewDigest() == null || !in.reviewDigest().equals(acceptedReviewDigest))
         throw new ResponseStatusException(HttpStatus.CONFLICT, "REVIEW_STALE");
       if (in.attemptId() == null || !in.attemptId().matches("^[A-Za-z0-9][A-Za-z0-9._:-]{7,199}$"))
         throw bad("ATTEMPT_ID_REQUIRED", "A valid submission attemptId is required");
+      submissionAttempts.begin(id, in.attemptId(), CanonicalJson.sha256(json.valueToTree(in)));
+      try {
+        acceptedAcknowledgments = authoritativeAcknowledgments(
+            acceptedReviewProjection, in.acknowledgments(), Instant.now());
+      } catch (RuntimeException failure) {
+        submissionAttempts.failed(id, in.attemptId(), failure instanceof ResponseStatusException status
+            && status.getReason() != null ? status.getReason() : "SUBMISSION_FAILED");
+        throw failure;
+      }
     }
     UUID sub = UUID.randomUUID();
-    Map<String, Object> envelope = new LinkedHashMap<>();
-    envelope.put("contractVersion", "4.0.0");
-    envelope.put("submissionId", sub);
-    envelope.put("formId", s.formId());
-    envelope.put("answers", acceptedAnswers);
-    if (acceptedReviewProjection != null) {
-      envelope.put("review", acceptedReviewProjection);
-      envelope.put("reviewDigest", acceptedReviewDigest);
-    }
-    envelope.put("submittedAt", Instant.now().toString());
+    Instant submittedAt = Instant.now();
+    Map<String, Object> envelope = canonical
+        ? canonicalEnvelope(sub, s, definition, acceptedAnswers, acceptedRuntimeState,
+            acceptedAcknowledgments, acceptedReviewDigest, submittedAt)
+        : Map.of("contractVersion", "4.0.0", "submissionId", sub, "formId", s.formId(),
+            "answers", acceptedAnswers, "submittedAt", submittedAt.toString());
+    if (canonical) contracts.requireValid("submission-envelope", "4.0.0", json.valueToTree(envelope));
     db.update(
-        "insert into submissions(id,form_id,session_id,envelope) values(?,?,?,cast(? as jsonb))",
+        """
+        insert into submissions(id,form_id,session_id,envelope,review_projection,review_digest,attempt_id)
+        values(?,?,?,cast(? as jsonb),cast(? as jsonb),?,?)
+        """,
         sub,
         s.formId(),
         id,
-        stringify(envelope));
+        stringify(envelope),
+        acceptedReviewProjection == null ? null : stringify(acceptedReviewProjection),
+        acceptedReviewDigest,
+        canonical ? in.attemptId() : null);
     if (acceptedRuntimeState == null) {
       db.update("update sessions set status='SUBMITTED',answers=cast(? as jsonb) where id=?",
           stringify(acceptedAnswers), id);
@@ -598,8 +632,116 @@ public class IntakeApplicationService {
           "update sessions set status='SUBMITTED',answers=cast(? as jsonb),runtime_state=cast(? as jsonb) where id=?",
           stringify(acceptedAnswers), stringify(acceptedRuntimeState), id);
     }
+    if (canonical)
+      db.update("""
+          update submission_attempts set state='SUCCEEDED',submission_id=?,updated_at=now()
+          where session_id=? and attempt_id=?
+          """, sub, id, in.attemptId());
     audit("SUBMISSION_ACCEPTED", sub);
     return receipt(sub);
+  }
+
+  public void submissionFailed(UUID sessionId, String attemptId, String errorCode) {
+    if (attemptId != null && attemptId.matches("^[A-Za-z0-9][A-Za-z0-9._:-]{7,199}$"))
+      submissionAttempts.failed(sessionId, attemptId, errorCode);
+  }
+
+  public Map<String, Object> submissionOperation(UUID id, String token) {
+    respondent(id, token);
+    try {
+      Map<String, Object> status = new LinkedHashMap<>(submissionAttempts.latest(id));
+      status.remove("requestDigest");
+      return status;
+    } catch (EmptyResultDataAccessException none) {
+      return Map.of("attemptId", "attempt-none", "state", "failed", "errorCode", "NOT_SUBMITTED");
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private List<Map<String, Object>> authoritativeAcknowledgments(
+      Map<String, Object> review, List<Map<String, Object>> supplied, Instant acceptedAt) {
+    List<Map<String, Object>> gates = review == null || !(review.get("reviewGates") instanceof List<?> values)
+        ? List.of() : (List<Map<String, Object>>) (List<?>) values;
+    List<Map<String, Object>> requests = supplied == null ? List.of() : supplied;
+    List<Map<String, Object>> result = new ArrayList<>();
+    for (Map<String, Object> gate : gates) {
+      if (!Boolean.TRUE.equals(gate.get("value")))
+        throw bad("ACKNOWLEDGMENT_REQUIRED", "The current acknowledgment answer must be true");
+      String fieldId = Objects.toString(gate.get("fieldId"), "");
+      Object rowPath = Optional.ofNullable(gate.get("rowPath")).orElse(List.of());
+      String contentHash = Objects.toString(gate.get("contentHash"), "");
+      Map<String, Object> request = requests.stream()
+          .filter(candidate -> fieldId.equals(candidate.get("fieldId"))
+              && Objects.equals(rowPath, Optional.ofNullable(candidate.get("rowPath")).orElse(List.of())))
+          .findFirst().orElseThrow(() -> bad("ACKNOWLEDGMENT_REQUIRED", "A current acknowledgment is required"));
+      if (!Boolean.TRUE.equals(request.get("accepted"))
+          || !contentHash.equals(request.get("expectedContentHash")))
+        throw new ResponseStatusException(HttpStatus.CONFLICT, "ACKNOWLEDGMENT_STALE");
+      Map<String, Object> accepted = new LinkedHashMap<>();
+      accepted.put("kind", "field");
+      accepted.put("fieldId", fieldId);
+      accepted.put("instanceId", Objects.toString(gate.get("instanceId"), fieldId));
+      accepted.put("rowPath", rowPath);
+      accepted.put("locale", gate.get("locale"));
+      accepted.put("contentKey", gate.get("contentKey"));
+      accepted.put("contentHash", contentHash);
+      accepted.put("acceptedAt", acceptedAt.toString());
+      result.add(Map.copyOf(accepted));
+    }
+    if (requests.size() != result.size()) throw bad("ACKNOWLEDGMENT_UNKNOWN", "Unknown acknowledgment supplied");
+    return List.copyOf(result);
+  }
+
+  private Map<String, Object> canonicalEnvelope(
+      UUID submissionId, S session, JsonNode definition, Map<String, Object> answers,
+      Map<String, Object> runtimeState, List<Map<String, Object>> acknowledgments,
+      String reviewDigest, Instant submittedAt) {
+    Map<String, Object> lineage = db.queryForObject("""
+        select w.id,o.id from forms f join workspaces w on w.id=f.workspace_id
+        join organizations o on o.id=w.organization_id where f.id=?
+        """, (rs, row) -> Map.of("workspace", (UUID) rs.getObject(1), "tenant", (UUID) rs.getObject(2)),
+        session.formId());
+    String packageHash = CanonicalJson.sha256(definition);
+    String manifestHash = CanonicalJson.sha256(json.valueToTree(runtimeState == null ? Map.of() : runtimeState));
+    Map<String, Object> release = Map.of(
+        "releaseId", canonicalId("release", session.releaseId()),
+        "definitionVersion", definition.path("definitionVersion").asText("4.0.0"),
+        "packageSchemaVersion", "4.0.0",
+        "runtimeManifestVersion", "4.0.0",
+        "runtimeManifestHash", manifestHash,
+        "packageHash", packageHash,
+        "engineContract", "4.0.0",
+        "contractVersion", "4.0.0");
+    Map<String, Object> reviewEvidence = Map.of(
+        "dependencyId", "reviewEvidence",
+        "version", ContractRegistry.API_VERSION,
+        "digest", reviewDigest,
+        "value", reviewDigest);
+    Map<String, Object> envelope = new LinkedHashMap<>();
+    envelope.put("schemaVersion", "4.0.0");
+    envelope.put("submissionId", canonicalId("submission", submissionId));
+    envelope.put("tenantId", canonicalId("tenant", (UUID) lineage.get("tenant")));
+    envelope.put("workspaceId", canonicalId("workspace", (UUID) lineage.get("workspace")));
+    envelope.put("formId", canonicalId("form", session.formId()));
+    envelope.put("sessionId", canonicalId("session", session.id()));
+    envelope.put("sessionRevision", session.revision());
+    envelope.put("startedAt", session.createdAt().toString());
+    envelope.put("receivedAt", submittedAt.toString());
+    envelope.put("submittedAt", submittedAt.toString());
+    envelope.put("status", "accepted");
+    envelope.put("locale", session.locale());
+    envelope.put("evaluationContext", Map.of(
+        "sessionDate", session.sessionDate().toString(), "timeZone", session.timeZone()));
+    envelope.put("release", release);
+    envelope.put("answers", answers);
+    envelope.put("attachments", List.of());
+    envelope.put("acknowledgments", acknowledgments);
+    envelope.put("extensions", Map.of("x-kodeboxx.review", reviewEvidence));
+    return Map.copyOf(envelope);
+  }
+
+  private static String canonicalId(String kind, UUID id) {
+    return kind + "_" + id.toString().replace("-", "");
   }
 
   // Staff submission administration and exports
@@ -690,7 +832,8 @@ public class IntakeApplicationService {
 
   private record S(
       UUID id, UUID formId, UUID releaseId, long revision, String answers, String status,
-      java.time.LocalDate sessionDate, String timeZone, String tzdbVersion, String runtimeState) {}
+      java.time.LocalDate sessionDate, String timeZone, String tzdbVersion, String runtimeState,
+      String locale, Instant createdAt) {}
 
   private record RespondentRow(S session, String secretDigest, UUID retainedLegacyToken) {}
   private record Replay(String response, String requestDigest) {}
@@ -713,7 +856,7 @@ public class IntakeApplicationService {
       RespondentRow row =
           db.queryForObject(
               "select"
-                  + " id,form_id,release_id,revision,answers::text,status,session_date,time_zone,tzdb_version,runtime_state::text,respondent_secret_sha256,respondent_token"
+                  + " id,form_id,release_id,revision,answers::text,status,session_date,time_zone,tzdb_version,runtime_state::text,locale,created_at,respondent_secret_sha256,respondent_token"
                   + " from sessions where id=? and expires_at>now()"
                   + (lock ? " for update" : ""),
               (rs, n) -> {
@@ -728,8 +871,10 @@ public class IntakeApplicationService {
                         rs.getObject(7, java.time.LocalDate.class),
                         rs.getString(8),
                         rs.getString(9),
-                        rs.getString(10));
-                return new RespondentRow(session, rs.getString(11), (UUID) rs.getObject(12));
+                        rs.getString(10),
+                        rs.getString(11),
+                        rs.getTimestamp(12).toInstant());
+                return new RespondentRow(session, rs.getString(13), (UUID) rs.getObject(14));
               },
               id);
       String digest = row.secretDigest();
@@ -811,7 +956,8 @@ public class IntakeApplicationService {
       var outcome = typedRuntime.mutate(definitionNode, json.valueToTree(parse(s.answers())),
           parseNode(s.runtimeState()), List.of(), s.sessionDate().toString(), s.timeZone(), Instant.now());
       answers = outcome.answers();
-      invalidInputs = outcome.validation().stream()
+      invalidInputs = bindInvalidMarkerRevisions(
+          null, parseNode(s.runtimeState()), outcome.validation(), s.revision()).stream()
           .filter(item -> "UNPARSEABLE_INPUT".equals(item.get("code"))).toList();
     } else {
       answers = new FormRuntime(json, s.sessionDate().toString(), s.timeZone())
@@ -831,7 +977,7 @@ public class IntakeApplicationService {
             "timeZoneDatabaseVersion", s.tzdbVersion()),
         "definition",
         definition));
-    if (!invalidInputs.isEmpty()) response.put("invalidInputs", invalidInputs);
+    response.put("invalidInputs", invalidInputs);
     return response;
   }
 
@@ -859,6 +1005,32 @@ public class IntakeApplicationService {
     } catch (Exception e) {
       throw new IllegalArgumentException(e);
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  private List<Map<String, Object>> bindInvalidMarkerRevisions(
+      Map<String, Object> runtimeState, JsonNode previousRuntimeState,
+      List<Map<String, Object>> validation, long acceptedRevision) {
+    Map<String, Object> previous = previousRuntimeState != null
+        && previousRuntimeState.path("invalidInputRevisions").isObject()
+            ? json.convertValue(previousRuntimeState.path("invalidInputRevisions"), Map.class) : Map.of();
+    Map<String, Object> revisions = new LinkedHashMap<>();
+    List<Map<String, Object>> result = new ArrayList<>();
+    for (Map<String, Object> item : validation) {
+      if (!"UNPARSEABLE_INPUT".equals(item.get("code"))) {
+        result.add(item);
+        continue;
+      }
+      String key = CanonicalJson.sha256(json.valueToTree(Map.of(
+          "fieldId", item.get("fieldId"), "rowPath", item.getOrDefault("rowPath", List.of()))));
+      long revision = previous.get(key) instanceof Number number ? number.longValue() : acceptedRevision;
+      revisions.put(key, revision);
+      Map<String, Object> authoritative = new LinkedHashMap<>(item);
+      authoritative.put("markedAtRevision", revision);
+      result.add(Map.copyOf(authoritative));
+    }
+    if (runtimeState != null) runtimeState.put("invalidInputRevisions", revisions);
+    return List.copyOf(result);
   }
 
   private Map<String, Object> sampleDefinition(String key, String title) {

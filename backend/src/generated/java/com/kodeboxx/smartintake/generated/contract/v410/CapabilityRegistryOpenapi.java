@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.HashMap;
+import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -34,7 +36,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 })
 @JsonTypeName("CapabilityRegistry_openapi")
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class CapabilityRegistryOpenapi {
+public class CapabilityRegistryOpenapi extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_FILE = "file";
   @jakarta.annotation.Nonnull
   private String _file;
@@ -52,6 +54,7 @@ public class CapabilityRegistryOpenapi {
   private Object version = null;
 
   public CapabilityRegistryOpenapi() {
+
   }
 
   public CapabilityRegistryOpenapi _file(@jakarta.annotation.Nonnull String _file) {
@@ -166,18 +169,20 @@ public class CapabilityRegistryOpenapi {
     return Objects.equals(this._file, capabilityRegistryOpenapi._file) &&
         Objects.equals(this.resource, capabilityRegistryOpenapi.resource) &&
         Objects.equals(this.sha256, capabilityRegistryOpenapi.sha256) &&
-        Objects.equals(this.version, capabilityRegistryOpenapi.version);
+        Objects.equals(this.version, capabilityRegistryOpenapi.version) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(_file, resource, sha256, version);
+    return Objects.hash(_file, resource, sha256, version, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class CapabilityRegistryOpenapi {\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    _file: ").append(toIndentedString(_file)).append("\n");
     sb.append("    resource: ").append(toIndentedString(resource)).append("\n");
     sb.append("    sha256: ").append(toIndentedString(sha256)).append("\n");

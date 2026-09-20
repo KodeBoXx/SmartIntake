@@ -20,7 +20,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.kodeboxx.smartintake.generated.contract.v410.PackageDocumentExtensionValueValue;
+import java.util.HashMap;
+import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -34,7 +35,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   EventDocumentExtensionValue.JSON_PROPERTY_VALUE
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class EventDocumentExtensionValue {
+public class EventDocumentExtensionValue extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_DEPENDENCY_ID = "dependencyId";
   @jakarta.annotation.Nonnull
   private String dependencyId;
@@ -48,10 +49,11 @@ public class EventDocumentExtensionValue {
   private String digest;
 
   public static final String JSON_PROPERTY_VALUE = "value";
-  @jakarta.annotation.Nullable
-  private PackageDocumentExtensionValueValue value;
+  @jakarta.annotation.Nonnull
+  private String value;
 
   public EventDocumentExtensionValue() {
+
   }
 
   public EventDocumentExtensionValue dependencyId(@jakarta.annotation.Nonnull String dependencyId) {
@@ -129,7 +131,7 @@ public class EventDocumentExtensionValue {
     this.digest = digest;
   }
 
-  public EventDocumentExtensionValue value(@jakarta.annotation.Nullable PackageDocumentExtensionValueValue value) {
+  public EventDocumentExtensionValue value(@jakarta.annotation.Nonnull String value) {
     
     this.value = value;
     return this;
@@ -139,18 +141,18 @@ public class EventDocumentExtensionValue {
    * Get value
    * @return value
    */
-  @jakarta.annotation.Nullable
+  @jakarta.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_VALUE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public PackageDocumentExtensionValueValue getValue() {
+  public String getValue() {
     return value;
   }
 
 
   @JsonProperty(JSON_PROPERTY_VALUE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setValue(@jakarta.annotation.Nullable PackageDocumentExtensionValueValue value) {
+  public void setValue(@jakarta.annotation.Nonnull String value) {
     this.value = value;
   }
 
@@ -166,18 +168,20 @@ public class EventDocumentExtensionValue {
     return Objects.equals(this.dependencyId, eventDocumentExtensionValue.dependencyId) &&
         Objects.equals(this.version, eventDocumentExtensionValue.version) &&
         Objects.equals(this.digest, eventDocumentExtensionValue.digest) &&
-        Objects.equals(this.value, eventDocumentExtensionValue.value);
+        Objects.equals(this.value, eventDocumentExtensionValue.value) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(dependencyId, version, digest, value);
+    return Objects.hash(dependencyId, version, digest, value, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class EventDocumentExtensionValue {\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    dependencyId: ").append(toIndentedString(dependencyId)).append("\n");
     sb.append("    version: ").append(toIndentedString(version)).append("\n");
     sb.append("    digest: ").append(toIndentedString(digest)).append("\n");

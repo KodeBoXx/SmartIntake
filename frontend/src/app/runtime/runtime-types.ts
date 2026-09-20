@@ -71,7 +71,7 @@ export type AnswerValue<Cell> =
 
 export type InputAnswerCell =
   | { readonly status: 'answered'; readonly value: AnswerValue<InputAnswerCell> }
-  | { readonly status: Exclude<AnswerStatus, 'answered'> };
+  | { readonly status: Exclude<AnswerStatus, 'answered' | 'notApplicable'> };
 
 export type ServerAnswerCell =
   | {

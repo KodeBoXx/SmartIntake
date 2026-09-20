@@ -21,6 +21,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.time.OffsetDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -32,7 +34,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   TypedAnswerDocumentProvenance.JSON_PROPERTY_CHANGED_AT
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class TypedAnswerDocumentProvenance {
+public class TypedAnswerDocumentProvenance extends HashMap<String, Object> {
   /**
    * Gets or Sets source
    */
@@ -81,6 +83,7 @@ public class TypedAnswerDocumentProvenance {
   private OffsetDateTime changedAt;
 
   public TypedAnswerDocumentProvenance() {
+
   }
 
   public TypedAnswerDocumentProvenance source(@jakarta.annotation.Nonnull SourceEnum source) {
@@ -143,18 +146,20 @@ public class TypedAnswerDocumentProvenance {
     }
     TypedAnswerDocumentProvenance typedAnswerDocumentProvenance = (TypedAnswerDocumentProvenance) o;
     return Objects.equals(this.source, typedAnswerDocumentProvenance.source) &&
-        Objects.equals(this.changedAt, typedAnswerDocumentProvenance.changedAt);
+        Objects.equals(this.changedAt, typedAnswerDocumentProvenance.changedAt) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(source, changedAt);
+    return Objects.hash(source, changedAt, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class TypedAnswerDocumentProvenance {\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    source: ").append(toIndentedString(source)).append("\n");
     sb.append("    changedAt: ").append(toIndentedString(changedAt)).append("\n");
     sb.append("}");

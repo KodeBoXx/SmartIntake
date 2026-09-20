@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { FormDefinition, ResponseSummary } from './models/form-definition.models';
-import type { operations } from './generated/api-4.1.0';
+import type { components, operations } from './generated/api-4.1.0';
 import type { RuntimeOperation, ServerProjection } from './runtime/runtime-types';
 
 export { AjvContractValidationAdapter } from './ajv-contract-validation.adapter';
@@ -10,6 +10,9 @@ export type { ContractDiagnostic, ContractValidationResult } from './ajv-contrac
 export type { CanonicalDecimal, CanonicalInt64 } from './generated/contracts';
 
 type StaffSession = { staffSession: string; workspaceKey?: string };
+type GeneratedSessionMutation = components['schemas']['SessionMutation'];
+type GeneratedAcknowledgment = components['schemas']['Acknowledgment'];
+type GeneratedInputAnswer = components['schemas']['InputAnswerValue'];
 export type CreatedForm = { id: string; draftId: string; revision: number; definition: FormDefinition };
 export type SavedDraft = { revision: number; definition: FormDefinition; diagnostics: unknown[] };
 export type PublishedForm = { releaseId: string; version: number; shareId: string; status: string };
@@ -115,7 +118,7 @@ export class SmartIntakeApiService {
     sessionRevision: number,
     reviewDigest?: string,
     attemptId?: string,
-    acknowledgments: readonly unknown[] = [],
+    acknowledgments: readonly GeneratedAcknowledgment[] = [],
   ): Observable<{ receiptId: string }> {
     return this.http.post<{ receiptId: string }>(`/v1/sessions/${sessionId}/submissions`, {
       sessionRevision,
@@ -135,19 +138,25 @@ export class SmartIntakeApiService {
     return { email: 'owner@local.test', password: 'LocalDevelopmentPassword!' };
   }
 
-  private wireOperation(operation: RuntimeOperation): Record<string, unknown> {
+  private wireOperation(operation: RuntimeOperation): GeneratedSessionMutation {
     const target = {
       fieldId: operation.target.fieldId,
-      ...(operation.target.rowPath === undefined ? {} : { rowPath: operation.target.rowPath }),
+      ...(operation.target.rowPath === undefined ? {} : {
+        rowPath: operation.target.rowPath.map((segment) => ({ ...segment })),
+      }),
     };
     switch (operation.kind) {
       case 'set': return {
         op: 'set', ...target,
-        value: operation.answer ?? { status: 'answered', value: operation.value },
+        value: wireInputAnswer(operation.answer ?? { status: 'answered', value: operation.value }),
       };
       case 'clear': return { op: 'clear', ...target };
       case 'markInvalid': return { op: 'markInvalid', ...target, reason: operation.reason };
-      case 'addItem': return { op: 'addItem', ...target, itemId: operation.itemId, initialFields: operation.fields ?? {} };
+      case 'addItem': return {
+        op: 'addItem', ...target, itemId: operation.itemId,
+        initialFields: Object.fromEntries(Object.entries(operation.fields ?? {})
+          .map(([fieldId, answer]) => [fieldId, wireInputAnswer(answer)])),
+      };
       case 'removeItem': return { op: 'removeItem', ...target, itemId: operation.itemId };
       case 'moveItem': return {
         op: 'moveItem', ...target, itemId: operation.itemId,
@@ -159,4 +168,8 @@ export class SmartIntakeApiService {
   private etag(revision: number) {
     return `"${revision}"`;
   }
+}
+
+function wireInputAnswer(answer: unknown): GeneratedInputAnswer {
+  return JSON.parse(JSON.stringify(answer)) as GeneratedInputAnswer;
 }

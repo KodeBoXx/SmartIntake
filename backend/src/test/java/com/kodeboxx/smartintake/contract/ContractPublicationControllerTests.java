@@ -39,4 +39,13 @@ class ContractPublicationControllerTests {
     assertThat(m4.getHeaders().getFirst("X-Contract-SHA256"))
         .isEqualTo(registry.openApi("4.1.0").sha256());
   }
+
+  @Test
+  void keepsLegacyCapabilitiesClosedAndPublishesTheAdditiveRepresentationSeparately() throws Exception {
+    assertThat(controller.capabilities()).doesNotContainKeys(
+        "apiContractVersion", "schemaContractVersion", "apiContracts");
+    var m4 = controller.schema("capabilities", "4.1.0");
+    assertThat(new com.fasterxml.jackson.databind.ObjectMapper().readTree(m4.getBody())
+        .path("apiContractVersion").asText()).isEqualTo("4.1.0");
+  }
 }

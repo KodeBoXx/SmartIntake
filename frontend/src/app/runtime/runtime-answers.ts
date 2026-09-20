@@ -52,8 +52,9 @@ export function applyRuntimeOperation(
   const resolved = resolveTarget(definition, state.answers, operation.target);
   if (resolved.rejection !== undefined) return rejected(state, resolved.rejection);
   const field = resolved.field!;
-  if (resolved.cell?.status === 'notApplicable') return rejected(state, 'INVALID_STATUS');
-
+  if (serverTargetStatus(state.server, operation.target) === 'notApplicable') {
+    return rejected(state, 'INVALID_STATUS');
+  }
   if (field.readOnly || field.calculated) {
     return rejected(state, 'PROTECTED_FIELD');
   }
@@ -64,7 +65,9 @@ export function applyRuntimeOperation(
 
   if (operation.kind === 'markInvalid') {
     const key = targetKey(operation.target);
-    return accepted({ ...state, invalid: { ...state.invalid, [key]: operation.reason } });
+    const answers = replaceCell(state.answers, operation.target.rowPath ?? [], operation.target.fieldId,
+      { status: 'unanswered' });
+    return accepted({ ...state, answers, invalid: { ...state.invalid, [key]: operation.reason } });
   }
 
   if (operation.kind === 'set') {
@@ -72,7 +75,7 @@ export function applyRuntimeOperation(
     let proposed = operation.answer ?? (operation.value === undefined
       ? undefined
       : { status: 'answered' as const, value: operation.value });
-    if (proposed === undefined || proposed.status === 'notApplicable') return rejected(state, 'INVALID_STATUS');
+    if (proposed === undefined) return rejected(state, 'INVALID_STATUS');
     if (proposed.status === 'unknown' && !field.allowUnknown
       || proposed.status === 'declined' && !field.allowDeclined
       || proposed.status === 'respondentNotApplicable' && !field.allowNotApplicable) {
@@ -89,7 +92,10 @@ export function applyRuntimeOperation(
 
   if (operation.kind === 'clear') {
     const answers = replaceCell(state.answers, operation.target.rowPath ?? [], operation.target.fieldId, { status: 'unanswered' });
-    return finalize(state, answers, removeInvalid(state.invalid, targetKey(operation.target)));
+    const descendants = descendantFieldIds(field);
+    const rowPrefix = rowPathKey(operation.target.rowPath ?? []);
+    return finalize(state, answers, filterInvalid(state.invalid,
+      (key) => !(key.startsWith(`${rowPrefix}/`) && descendants.has(key.slice(key.lastIndexOf('/') + 1)))));
   }
 
   if (field.type !== 'list') return rejected(state, 'INVALID_VALUE');
@@ -107,7 +113,8 @@ export function applyRuntimeOperation(
     const answers = replaceCell(state.answers, operation.target.rowPath ?? [], operation.target.fieldId, {
       status: 'answered', value: { items: [...items.items, { itemId: operation.itemId, fields: itemFields }] },
     });
-    return finalize(state, answers, removeInvalid(state.invalid, targetKey(operation.target)));
+    const removedPrefix = itemMarkerPrefix(operation.target, operation.itemId);
+    return finalize(state, answers, filterInvalid(state.invalid, (key) => !key.startsWith(removedPrefix)));
   }
 
   if (current === undefined) return rejected(state, 'INVALID_VALUE');
@@ -119,7 +126,9 @@ export function applyRuntimeOperation(
     const answers = replaceCell(state.answers, operation.target.rowPath ?? [], operation.target.fieldId, {
       status: 'answered', value: { items: current.items.filter((item) => item.itemId !== operation.itemId) },
     });
-    return finalize(state, answers, removeInvalid(state.invalid, targetKey(operation.target)));
+    const removedPrefix = itemMarkerPrefix(operation.target, operation.itemId);
+    return finalize(state, answers,
+      filterInvalid(state.invalid, (key) => key !== targetKey(operation.target) && !key.startsWith(removedPrefix)));
   }
 
   const moved = [...current.items];
@@ -151,9 +160,8 @@ export function reconcileServerProjection(state: RuntimeAnswerState, projection:
     answers: projectedAnswers,
     server: projection,
     retiredItemIds: [...retired].sort(),
-    invalid: projection.invalidInputs === undefined
-      ? state.invalid
-      : Object.fromEntries(projection.invalidInputs.map((marker) => [targetKey(marker), 'UNPARSEABLE_INPUT'])),
+    invalid: Object.fromEntries((projection.invalidInputs ?? [])
+      .map((marker) => [targetKey(marker), 'UNPARSEABLE_INPUT'])),
   };
 }
 
@@ -229,7 +237,6 @@ function findInObjects(
   if (direct !== undefined) return { field: direct, cell: cells[fieldId] };
   for (const object of fields.filter((candidate) => candidate.type === 'object')) {
     const objectCell = cells[object.id];
-    if (objectCell?.status === 'notApplicable') return { rejection: 'INVALID_STATUS' };
     const nestedCells = objectCell?.status === 'answered' && isObjectValue(objectCell.value)
       ? objectCell.value.fields : {};
     const nested = findInObjects(object.fields ?? [], nestedCells, fieldId);
@@ -437,7 +444,25 @@ function serverAnswersToInput(cells: Readonly<Record<string, ServerAnswerCell>>)
   return Object.fromEntries(Object.entries(cells).map(([id, cell]) => [id, serverCellToInput(cell)]));
 }
 
+function serverTargetStatus(
+  projection: ServerProjection | null,
+  target: RuntimeTarget,
+): ServerAnswerCell['status'] | undefined {
+  if (projection === null) return undefined;
+  let fields = projection.answers;
+  for (const segment of target.rowPath ?? []) {
+    const listCell = fields[segment.listFieldId];
+    if (listCell?.status !== 'answered' || typeof listCell.value !== 'object'
+      || listCell.value === null || !('items' in listCell.value)) return undefined;
+    const item = listCell.value.items.find((candidate) => candidate.itemId === segment.itemId);
+    if (item === undefined) return undefined;
+    fields = item.fields;
+  }
+  return fields[target.fieldId]?.status;
+}
+
 function serverCellToInput(cell: ServerAnswerCell): InputAnswerCell {
+  if (cell.status === 'notApplicable') return { status: 'unanswered' };
   if (cell.status !== 'answered') return { status: cell.status };
   return { status: 'answered', value: serverValueToInput(cell.value) };
 }
@@ -457,7 +482,33 @@ function serverValueToInput(value: AnswerValue<ServerAnswerCell>): AnswerValue<I
 }
 
 function targetKey(target: RuntimeTarget): string {
-  return `${(target.rowPath ?? []).map((segment) => `${segment.listFieldId}:${segment.itemId}`).join('/')}/${target.fieldId}`;
+  return `${rowPathKey(target.rowPath ?? [])}/${target.fieldId}`;
+}
+
+function itemMarkerPrefix(target: RuntimeTarget, itemId: string): string {
+  const parent = rowPathKey(target.rowPath ?? []);
+  return `${parent === '' ? '' : `${parent}/`}${target.fieldId}:${itemId}/`;
+}
+
+function rowPathKey(path: RowPath): string {
+  return path.map((segment) => `${segment.listFieldId}:${segment.itemId}`).join('/');
+}
+
+function descendantFieldIds(field: RuntimeFieldDefinition): Set<string> {
+  const result = new Set<string>([field.id]);
+  const collect = (candidate: RuntimeFieldDefinition): void => {
+    result.add(candidate.id);
+    for (const child of candidate.itemFields ?? []) collect(child);
+  };
+  for (const child of field.itemFields ?? []) collect(child);
+  return result;
+}
+
+function filterInvalid(
+  invalid: Readonly<Record<string, string>>,
+  keep: (key: string) => boolean,
+): Readonly<Record<string, string>> {
+  return Object.fromEntries(Object.entries(invalid).filter(([key]) => keep(key)));
 }
 
 function removeInvalid(invalid: Readonly<Record<string, string>>, key: string): Readonly<Record<string, string>> {

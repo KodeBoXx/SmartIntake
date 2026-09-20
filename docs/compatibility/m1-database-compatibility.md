@@ -1,14 +1,14 @@
 # M1 database compatibility boundary
 
 This is an additive compatibility boundary. Flyway V1 through V10 remain
-byte-for-byte immutable. V11 is additive: it registers the writable canonical
+byte-for-byte immutable. V11 and V12 are additive: V11 registers the writable canonical
 4.0.0 profile, adds nullable typed runtime state, and widens mutation replay
 keys without rewriting their values. V7 registers the writable M1
 current-prototype profile and enforces one submission per session.
 It is not application-rollback-compatible by itself: an application binary from
 before `d1662ed` must not run against a database whose Flyway history includes
-V5--V11 without the coordinated procedure below.
-The companion integration test pins the exact successful V1--V11 Flyway history.
+V5--V12 without the coordinated procedure below.
+The companion integration test pins the exact successful V1--V12 Flyway history.
 
 ## Profiles and write boundary
 
@@ -92,7 +92,7 @@ application until the transaction below has committed and its post-checks pass.
    approved operational process (or wait for their expiry), record the approval,
    and rerun the preflight.
 2. Run the preflight transaction below with a role permitted to lock and alter
-   these tables. It fails closed for an incomplete/failed V5--V11 application or
+   these tables. It fails closed for an incomplete/failed V5--V12 application or
    for any later successful migration. Do not substitute `CASCADE`, disable
    Flyway validation, or delete individual submissions to satisfy a check.
 3. Commit the drop transaction, run the post-check, then deploy the
@@ -101,7 +101,7 @@ application until the transaction below has committed and its post-checks pass.
    submissions and a later V7 deployment will correctly refuse to proceed.
 4. This rollback is permitted only when no canonical M4 record or runtime state
    exists. To return forward, restore the verified pre-rollback backup before
-   deploying the current application. Reapplying V5--V11 to the destructively
+   deploying the current application. Reapplying V5--V12 to the destructively
    rolled-back database is not a lossless recovery procedure. Reconcile
    duplicate submissions explicitly before retrying V7; never merge or delete
    them as part of a migration.
@@ -135,13 +135,14 @@ begin
           or (version = '8' and type = 'SQL' and script = 'V8__freeze_expression_session_context.sql' and checksum = 874801699)
           or (version = '9' and type = 'SQL' and script = 'V9__default_frozen_session_context.sql' and checksum = 1901026173)
           or (version = '10' and type = 'SQL' and script = 'V10__bind_session_mutation_request_digest.sql' and checksum = 1365084057)
-          or (version = '11' and type = 'SQL' and script = 'V11__m4_compatibility_runtime.sql' and checksum = 1780789261),
+          or (version = '11' and type = 'SQL' and script = 'V11__m4_compatibility_runtime.sql' and checksum = 1780789261)
+          or (version = '12' and type = 'SQL' and script = 'V12__submission_attempt_review_evidence.sql' and checksum = -1868713494),
           false)
   )
   or (select count(*) from flyway_schema_history where success) <> 11
   or (select count(distinct (version, type, script, checksum))
       from flyway_schema_history where success) <> 11 then
-    raise exception 'Rollback refused: successful Flyway history is not the exact V1-V11 SQL allowlist';
+    raise exception 'Rollback refused: successful Flyway history is not the exact V1-V12 SQL allowlist';
   end if;
   if exists (
       select 1
@@ -169,7 +170,9 @@ begin
     raise exception 'Rollback refused: V11 contains replay keys that cannot be represented as V4 UUIDs';
   end if;
   if exists (select 1 from forms where compatibility_profile_key = 'canonical-4.0.0')
+     or exists (select 1 from forms where definition->>'schemaVersion' = '4.0.0')
      or exists (select 1 from form_releases where compatibility_profile_key = 'canonical-4.0.0')
+     or exists (select 1 from form_releases where package->>'schemaVersion' = '4.0.0')
      or exists (select 1 from sessions where compatibility_profile_key = 'canonical-4.0.0')
      or exists (select 1 from sessions where runtime_state is not null) then
     raise exception 'Rollback refused: canonical M4 records or runtime state require verified backup restoration or approved retirement/export';
@@ -177,6 +180,10 @@ begin
 end $$;
 
 alter table submissions drop constraint submissions_session_id_unique;
+drop table submission_attempts;
+alter table submissions drop column review_projection,
+                        drop column review_digest,
+                        drop column attempt_id;
 alter table session_mutations drop constraint session_mutations_client_mutation_id_opaque_id;
 alter table session_mutations alter column client_mutation_id type uuid using client_mutation_id::uuid;
 alter table session_mutations drop constraint session_mutations_request_digest_format;
@@ -197,12 +204,12 @@ alter table forms drop column compatibility_profile_key;
 drop table compatibility_quarantine_evidence;
 drop table record_migration_state;
 drop table compatibility_profiles;
-delete from flyway_schema_history where version in ('5', '6', '7', '8', '9', '10', '11');
+delete from flyway_schema_history where version in ('5', '6', '7', '8', '9', '10', '11', '12');
 commit;
 
 -- Run after commit. Every *_remains value must be false and mutation_key_uuid_restored true
 -- before deploying the old binary.
-select exists (select 1 from flyway_schema_history where version in ('5', '6', '7', '8', '9', '10', '11')) as compatibility_history_remains,
+select exists (select 1 from flyway_schema_history where version in ('5', '6', '7', '8', '9', '10', '11', '12')) as compatibility_history_remains,
        exists (select 1 from pg_constraint
                where conrelid = 'submissions'::regclass
                    and conname = 'submissions_session_id_unique') as uniqueness_remains,

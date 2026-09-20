@@ -46,7 +46,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   EventDocument.JSON_PROPERTY_EXTENSIONS
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class EventDocument {
+public class EventDocument extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_SCHEMA_VERSION = "schemaVersion";
   @jakarta.annotation.Nullable
   private Object schemaVersion = null;
@@ -168,6 +168,7 @@ public class EventDocument {
   private Map<String, EventDocumentExtensionValue> extensions = new HashMap<>();
 
   public EventDocument() {
+
   }
 
   public EventDocument schemaVersion(@jakarta.annotation.Nullable Object schemaVersion) {
@@ -471,18 +472,20 @@ public class EventDocument {
         Objects.equals(this.dataMode, eventDocument.dataMode) &&
         Objects.equals(this.resource, eventDocument.resource) &&
         Objects.equals(this.envelope, eventDocument.envelope) &&
-        Objects.equals(this.extensions, eventDocument.extensions);
+        Objects.equals(this.extensions, eventDocument.extensions) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(schemaVersion, eventId, type, occurredAt, tenantId, workspaceId, formSequence, dataMode, resource, envelope, extensions);
+    return Objects.hash(schemaVersion, eventId, type, occurredAt, tenantId, workspaceId, formSequence, dataMode, resource, envelope, extensions, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class EventDocument {\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    schemaVersion: ").append(toIndentedString(schemaVersion)).append("\n");
     sb.append("    eventId: ").append(toIndentedString(eventId)).append("\n");
     sb.append("    type: ").append(toIndentedString(type)).append("\n");

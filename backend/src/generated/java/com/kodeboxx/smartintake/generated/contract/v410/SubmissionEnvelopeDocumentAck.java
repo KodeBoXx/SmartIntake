@@ -24,7 +24,9 @@ import com.kodeboxx.smartintake.generated.contract.v410.SubmissionEnvelopeDocume
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -43,7 +45,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   SubmissionEnvelopeDocumentAck.JSON_PROPERTY_ACCEPTED_AT
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class SubmissionEnvelopeDocumentAck {
+public class SubmissionEnvelopeDocumentAck extends HashMap<String, Object> {
   /**
    * Gets or Sets kind
    */
@@ -116,6 +118,7 @@ public class SubmissionEnvelopeDocumentAck {
   private OffsetDateTime acceptedAt;
 
   public SubmissionEnvelopeDocumentAck() {
+
   }
 
   public SubmissionEnvelopeDocumentAck kind(@jakarta.annotation.Nonnull KindEnum kind) {
@@ -368,18 +371,20 @@ public class SubmissionEnvelopeDocumentAck {
         Objects.equals(this.locale, submissionEnvelopeDocumentAck.locale) &&
         Objects.equals(this.contentKey, submissionEnvelopeDocumentAck.contentKey) &&
         Objects.equals(this.contentHash, submissionEnvelopeDocumentAck.contentHash) &&
-        Objects.equals(this.acceptedAt, submissionEnvelopeDocumentAck.acceptedAt);
+        Objects.equals(this.acceptedAt, submissionEnvelopeDocumentAck.acceptedAt) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(kind, fieldId, instanceId, rowPath, validatorId, locale, contentKey, contentHash, acceptedAt);
+    return Objects.hash(kind, fieldId, instanceId, rowPath, validatorId, locale, contentKey, contentHash, acceptedAt, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class SubmissionEnvelopeDocumentAck {\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    kind: ").append(toIndentedString(kind)).append("\n");
     sb.append("    fieldId: ").append(toIndentedString(fieldId)).append("\n");
     sb.append("    instanceId: ").append(toIndentedString(instanceId)).append("\n");

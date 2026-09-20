@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.HashMap;
+import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -36,7 +38,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 })
 @JsonTypeName("CapabilityRegistry_schemas_inner")
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class CapabilityRegistrySchemasInner {
+public class CapabilityRegistrySchemasInner extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_KIND = "kind";
   @jakarta.annotation.Nonnull
   private String kind;
@@ -62,6 +64,7 @@ public class CapabilityRegistrySchemasInner {
   private String resource;
 
   public CapabilityRegistrySchemasInner() {
+
   }
 
   public CapabilityRegistrySchemasInner kind(@jakarta.annotation.Nonnull String kind) {
@@ -228,18 +231,20 @@ public class CapabilityRegistrySchemasInner {
         Objects.equals(this.id, capabilityRegistrySchemasInner.id) &&
         Objects.equals(this.sha256, capabilityRegistrySchemasInner.sha256) &&
         Objects.equals(this._file, capabilityRegistrySchemasInner._file) &&
-        Objects.equals(this.resource, capabilityRegistrySchemasInner.resource);
+        Objects.equals(this.resource, capabilityRegistrySchemasInner.resource) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(kind, version, id, sha256, _file, resource);
+    return Objects.hash(kind, version, id, sha256, _file, resource, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class CapabilityRegistrySchemasInner {\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    kind: ").append(toIndentedString(kind)).append("\n");
     sb.append("    version: ").append(toIndentedString(version)).append("\n");
     sb.append("    id: ").append(toIndentedString(id)).append("\n");

@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.HashMap;
+import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -37,7 +39,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   SubmissionEnvelopeDocumentRelease.JSON_PROPERTY_CONTRACT_VERSION
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class SubmissionEnvelopeDocumentRelease {
+public class SubmissionEnvelopeDocumentRelease extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_RELEASE_ID = "releaseId";
   @jakarta.annotation.Nonnull
   private String releaseId;
@@ -71,6 +73,7 @@ public class SubmissionEnvelopeDocumentRelease {
   private Object contractVersion = null;
 
   public SubmissionEnvelopeDocumentRelease() {
+
   }
 
   public SubmissionEnvelopeDocumentRelease releaseId(@jakarta.annotation.Nonnull String releaseId) {
@@ -289,18 +292,20 @@ public class SubmissionEnvelopeDocumentRelease {
         Objects.equals(this.runtimeManifestHash, submissionEnvelopeDocumentRelease.runtimeManifestHash) &&
         Objects.equals(this.packageHash, submissionEnvelopeDocumentRelease.packageHash) &&
         Objects.equals(this.engineContract, submissionEnvelopeDocumentRelease.engineContract) &&
-        Objects.equals(this.contractVersion, submissionEnvelopeDocumentRelease.contractVersion);
+        Objects.equals(this.contractVersion, submissionEnvelopeDocumentRelease.contractVersion) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(releaseId, definitionVersion, packageSchemaVersion, runtimeManifestVersion, runtimeManifestHash, packageHash, engineContract, contractVersion);
+    return Objects.hash(releaseId, definitionVersion, packageSchemaVersion, runtimeManifestVersion, runtimeManifestHash, packageHash, engineContract, contractVersion, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class SubmissionEnvelopeDocumentRelease {\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    releaseId: ").append(toIndentedString(releaseId)).append("\n");
     sb.append("    definitionVersion: ").append(toIndentedString(definitionVersion)).append("\n");
     sb.append("    packageSchemaVersion: ").append(toIndentedString(packageSchemaVersion)).append("\n");

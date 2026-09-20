@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.kodeboxx.smartintake.generated.contract.v410.InputAnswerDocument;
+import com.kodeboxx.smartintake.generated.contract.v410.InputAnswerValue;
 import com.kodeboxx.smartintake.generated.contract.v410.RuntimeRowSegment;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,7 +54,7 @@ public class SessionMutationOneOf {
 
   public static final String JSON_PROPERTY_VALUE = "value";
   @jakarta.annotation.Nonnull
-  private InputAnswerDocument value;
+  private InputAnswerValue value;
 
   public SessionMutationOneOf() {
   }
@@ -142,7 +142,7 @@ public class SessionMutationOneOf {
     this.rowPath = rowPath;
   }
 
-  public SessionMutationOneOf value(@jakarta.annotation.Nonnull InputAnswerDocument value) {
+  public SessionMutationOneOf value(@jakarta.annotation.Nonnull InputAnswerValue value) {
     
     this.value = value;
     return this;
@@ -156,14 +156,14 @@ public class SessionMutationOneOf {
   @JsonProperty(JSON_PROPERTY_VALUE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public InputAnswerDocument getValue() {
+  public InputAnswerValue getValue() {
     return value;
   }
 
 
   @JsonProperty(JSON_PROPERTY_VALUE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setValue(@jakarta.annotation.Nonnull InputAnswerDocument value) {
+  public void setValue(@jakarta.annotation.Nonnull InputAnswerValue value) {
     this.value = value;
   }
 

@@ -21,6 +21,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -33,7 +35,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 })
 @JsonTypeName("SubmissionEnvelopeDocument_evaluationContext")
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class SubmissionEnvelopeDocumentEvaluationContext {
+public class SubmissionEnvelopeDocumentEvaluationContext extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_SESSION_DATE = "sessionDate";
   @jakarta.annotation.Nonnull
   private LocalDate sessionDate;
@@ -43,6 +45,7 @@ public class SubmissionEnvelopeDocumentEvaluationContext {
   private String timeZone;
 
   public SubmissionEnvelopeDocumentEvaluationContext() {
+
   }
 
   public SubmissionEnvelopeDocumentEvaluationContext sessionDate(@jakarta.annotation.Nonnull LocalDate sessionDate) {
@@ -105,18 +108,20 @@ public class SubmissionEnvelopeDocumentEvaluationContext {
     }
     SubmissionEnvelopeDocumentEvaluationContext submissionEnvelopeDocumentEvaluationContext = (SubmissionEnvelopeDocumentEvaluationContext) o;
     return Objects.equals(this.sessionDate, submissionEnvelopeDocumentEvaluationContext.sessionDate) &&
-        Objects.equals(this.timeZone, submissionEnvelopeDocumentEvaluationContext.timeZone);
+        Objects.equals(this.timeZone, submissionEnvelopeDocumentEvaluationContext.timeZone) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(sessionDate, timeZone);
+    return Objects.hash(sessionDate, timeZone, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class SubmissionEnvelopeDocumentEvaluationContext {\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    sessionDate: ").append(toIndentedString(sessionDate)).append("\n");
     sb.append("    timeZone: ").append(toIndentedString(timeZone)).append("\n");
     sb.append("}");

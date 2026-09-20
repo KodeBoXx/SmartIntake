@@ -287,6 +287,7 @@ public final class TypedAnswerRuntime {
     for (Operation operation : operations == null ? List.<Operation>of() : operations) {
       try {
         applyOne(candidate, operation, changedAt);
+        if (candidate.cells.size() > MAX_ACTIVE_CELLS) throw problem("ACTIVE_CELL_LIMIT");
       } catch (RuntimeProblem problem) {
         diagnostics.add(
             new Diagnostic(
@@ -298,11 +299,6 @@ public final class TypedAnswerRuntime {
       index++;
     }
     if (!diagnostics.isEmpty()) return new Result(current, diagnostics, 0);
-    if (candidate.cells.size() > MAX_ACTIVE_CELLS)
-      return new Result(
-          current,
-          List.of(new Diagnostic("ACTIVE_CELL_LIMIT", null, List.of(), "/operations")),
-          0);
     return new Result(candidate, List.of(), index);
   }
 
@@ -846,11 +842,11 @@ public final class TypedAnswerRuntime {
   private void invalid(State state, Field field, Address address, Instant changedAt) {
     protect(field);
     Cell previous = state.cells.get(address);
-    Status status = previous == null ? Status.unanswered : previous.status();
+    if (previous != null && previous.status() == Status.answered)
+      state.retainedCells.put(address, previous);
     state.cells.put(
         address,
-        new Cell(field.type(), status, Provenance.respondent,
-            status == Status.answered ? previous.value() : null, changedAt, true));
+        new Cell(field.type(), Status.unanswered, Provenance.respondent, null, changedAt, true));
   }
 
   private void add(State state, Field field, AddItem operation, Instant changedAt) {

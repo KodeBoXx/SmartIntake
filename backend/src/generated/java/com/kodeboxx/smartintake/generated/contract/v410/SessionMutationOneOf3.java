@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.kodeboxx.smartintake.generated.contract.v410.InputAnswerDocument;
+import com.kodeboxx.smartintake.generated.contract.v410.InputAnswerValue;
 import com.kodeboxx.smartintake.generated.contract.v410.RuntimeRowSegment;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -61,7 +61,7 @@ public class SessionMutationOneOf3 {
 
   public static final String JSON_PROPERTY_INITIAL_FIELDS = "initialFields";
   @jakarta.annotation.Nullable
-  private Map<String, InputAnswerDocument> initialFields = new HashMap<>();
+  private Map<String, InputAnswerValue> initialFields = new HashMap<>();
 
   public SessionMutationOneOf3() {
   }
@@ -174,13 +174,13 @@ public class SessionMutationOneOf3 {
     this.itemId = itemId;
   }
 
-  public SessionMutationOneOf3 initialFields(@jakarta.annotation.Nullable Map<String, InputAnswerDocument> initialFields) {
+  public SessionMutationOneOf3 initialFields(@jakarta.annotation.Nullable Map<String, InputAnswerValue> initialFields) {
     
     this.initialFields = initialFields;
     return this;
   }
 
-  public SessionMutationOneOf3 putInitialFieldsItem(String key, InputAnswerDocument initialFieldsItem) {
+  public SessionMutationOneOf3 putInitialFieldsItem(String key, InputAnswerValue initialFieldsItem) {
     if (this.initialFields == null) {
       this.initialFields = new HashMap<>();
     }
@@ -196,14 +196,14 @@ public class SessionMutationOneOf3 {
   @JsonProperty(JSON_PROPERTY_INITIAL_FIELDS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
-  public Map<String, InputAnswerDocument> getInitialFields() {
+  public Map<String, InputAnswerValue> getInitialFields() {
     return initialFields;
   }
 
 
   @JsonProperty(JSON_PROPERTY_INITIAL_FIELDS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setInitialFields(@jakarta.annotation.Nullable Map<String, InputAnswerDocument> initialFields) {
+  public void setInitialFields(@jakarta.annotation.Nullable Map<String, InputAnswerValue> initialFields) {
     this.initialFields = initialFields;
   }
 

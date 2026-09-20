@@ -249,6 +249,23 @@ class TypedAnswerRuntimeTests {
   }
 
   @Test
+  void invalidMarkerHidesPreviousTypedValueUntilRespondentReentry() throws Exception {
+    var runtime = new TypedAnswerRuntime(List.of(scalar("name", "text")));
+    Address address = new Address("name", List.of());
+    State answered = runtime.apply(runtime.initialize(), List.of(
+        new SetValue(address, Status.answered, JSON.readTree("\"old value\""))), NOW).state();
+    State invalid = runtime.apply(answered, List.of(new MarkInvalid(address)), NOW.plusSeconds(1)).state();
+    assertEquals("unanswered", runtime.projection(invalid).at("/name/status").asText());
+    assertFalse(runtime.projection(invalid).at("/name").has("value"));
+    assertTrue(invalid.cells().get(address).needsReentry());
+    assertEquals("old value", invalid.retainedCells().get(address).value().textValue());
+    State corrected = runtime.apply(invalid, List.of(
+        new SetValue(address, Status.answered, JSON.readTree("\"new value\""))), NOW.plusSeconds(2)).state();
+    assertFalse(corrected.cells().get(address).needsReentry());
+    assertFalse(corrected.retainedCells().containsKey(address));
+  }
+
+  @Test
   void structuralClearRetiresAllNestedItemIdsAndRemovesRows() {
     Field leaf = scalar("leaf", "text");
     Field inner = new Field("inner", "list", false, false, false, false, false, null,

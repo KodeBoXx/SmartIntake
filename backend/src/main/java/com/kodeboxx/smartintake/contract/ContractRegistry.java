@@ -40,6 +40,7 @@ public final class ContractRegistry {
   private final Map<String, PublishedSchema> schemas = new LinkedHashMap<>();
   private final PublishedDocument openApi;
   private final PublishedDocument m4OpenApi;
+  private final PublishedDocument m4Capabilities;
   private final Map<String, Object> capabilities;
 
   private static final BigInteger INT64_MIN = BigInteger.valueOf(Long.MIN_VALUE);
@@ -95,7 +96,9 @@ public final class ContractRegistry {
       advertised.put("apiContracts", List.of(
           Map.of("version", VERSION, "sha256", openApi.sha256(), "resource", "contracts/openapi-4.0.0.yaml"),
           Map.of("version", API_VERSION, "sha256", m4OpenApi.sha256(), "resource", "contracts/openapi-4.1.0.yaml")));
-      capabilities = Map.copyOf(advertised);
+      capabilities = Map.copyOf(published);
+      byte[] advertisedBytes = json.writeValueAsBytes(advertised);
+      m4Capabilities = new PublishedDocument(advertisedBytes, sha256(advertisedBytes));
     } catch (IOException exception) {
       throw new IllegalStateException("M2 contract publication bundle is unavailable", exception);
     }
@@ -164,6 +167,11 @@ public final class ContractRegistry {
     if (VERSION.equals(version)) return openApi;
     if (API_VERSION.equals(version)) return m4OpenApi;
     throw new UnknownContract("openapi", version);
+  }
+
+  public PublishedDocument capabilities(String version) {
+    if (API_VERSION.equals(version)) return m4Capabilities;
+    throw new UnknownContract("capabilities", version);
   }
 
   public ValidationResult validate(String kind, String version, JsonNode instance) {

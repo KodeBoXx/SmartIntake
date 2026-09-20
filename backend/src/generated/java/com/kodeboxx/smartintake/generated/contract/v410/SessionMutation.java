@@ -23,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.kodeboxx.smartintake.generated.contract.v410.InputAnswerDocument;
+import com.kodeboxx.smartintake.generated.contract.v410.InputAnswerValue;
 import com.kodeboxx.smartintake.generated.contract.v410.RuntimeRowSegment;
 import com.kodeboxx.smartintake.generated.contract.v410.SessionMutationOneOf;
 import com.kodeboxx.smartintake.generated.contract.v410.SessionMutationOneOf1;
@@ -82,7 +82,7 @@ public class SessionMutation {
 
   public static final String JSON_PROPERTY_VALUE = "value";
   @jakarta.annotation.Nonnull
-  private InputAnswerDocument value;
+  private InputAnswerValue value;
 
   public static final String JSON_PROPERTY_REASON = "reason";
   @jakarta.annotation.Nullable
@@ -94,7 +94,7 @@ public class SessionMutation {
 
   public static final String JSON_PROPERTY_INITIAL_FIELDS = "initialFields";
   @jakarta.annotation.Nullable
-  private Map<String, InputAnswerDocument> initialFields = new HashMap<>();
+  private Map<String, InputAnswerValue> initialFields = new HashMap<>();
 
   public static final String JSON_PROPERTY_BEFORE_ITEM_ID = "beforeItemId";
   @jakarta.annotation.Nullable
@@ -186,7 +186,7 @@ public class SessionMutation {
     this.rowPath = rowPath;
   }
 
-  public SessionMutation value(@jakarta.annotation.Nonnull InputAnswerDocument value) {
+  public SessionMutation value(@jakarta.annotation.Nonnull InputAnswerValue value) {
     
     this.value = value;
     return this;
@@ -200,14 +200,14 @@ public class SessionMutation {
   @JsonProperty(JSON_PROPERTY_VALUE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public InputAnswerDocument getValue() {
+  public InputAnswerValue getValue() {
     return value;
   }
 
 
   @JsonProperty(JSON_PROPERTY_VALUE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setValue(@jakarta.annotation.Nonnull InputAnswerDocument value) {
+  public void setValue(@jakarta.annotation.Nonnull InputAnswerValue value) {
     this.value = value;
   }
 
@@ -261,13 +261,13 @@ public class SessionMutation {
     this.itemId = itemId;
   }
 
-  public SessionMutation initialFields(@jakarta.annotation.Nullable Map<String, InputAnswerDocument> initialFields) {
+  public SessionMutation initialFields(@jakarta.annotation.Nullable Map<String, InputAnswerValue> initialFields) {
     
     this.initialFields = initialFields;
     return this;
   }
 
-  public SessionMutation putInitialFieldsItem(String key, InputAnswerDocument initialFieldsItem) {
+  public SessionMutation putInitialFieldsItem(String key, InputAnswerValue initialFieldsItem) {
     if (this.initialFields == null) {
       this.initialFields = new HashMap<>();
     }
@@ -283,14 +283,14 @@ public class SessionMutation {
   @JsonProperty(JSON_PROPERTY_INITIAL_FIELDS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
-  public Map<String, InputAnswerDocument> getInitialFields() {
+  public Map<String, InputAnswerValue> getInitialFields() {
     return initialFields;
   }
 
 
   @JsonProperty(JSON_PROPERTY_INITIAL_FIELDS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setInitialFields(@jakarta.annotation.Nullable Map<String, InputAnswerDocument> initialFields) {
+  public void setInitialFields(@jakarta.annotation.Nullable Map<String, InputAnswerValue> initialFields) {
     this.initialFields = initialFields;
   }
 

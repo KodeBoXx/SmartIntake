@@ -29,6 +29,8 @@ public class ContractPublicationController {
     try {
       if ("openapi".equals(kind))
         return immutable(contracts.openApi(version), MediaType.parseMediaType("application/yaml"));
+      if ("capabilities".equals(kind))
+        return immutable(contracts.capabilities(version), MediaType.APPLICATION_JSON);
       return immutable(contracts.schema(kind, version).document(), MediaType.parseMediaType("application/schema+json"));
     }
     catch (ContractRegistry.UnknownContract ignored) { throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unknown contract schema"); }

@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.HashMap;
+import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -34,7 +36,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 })
 @JsonTypeName("CapabilityRegistry_assetSupplement")
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class CapabilityRegistryAssetSupplement {
+public class CapabilityRegistryAssetSupplement extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_COUNTED = "counted";
   @jakarta.annotation.Nullable
   private Object counted = null;
@@ -52,6 +54,7 @@ public class CapabilityRegistryAssetSupplement {
   private String reason;
 
   public CapabilityRegistryAssetSupplement() {
+
   }
 
   public CapabilityRegistryAssetSupplement counted(@jakarta.annotation.Nullable Object counted) {
@@ -166,18 +169,20 @@ public class CapabilityRegistryAssetSupplement {
     return Objects.equals(this.counted, capabilityRegistryAssetSupplement.counted) &&
         Objects.equals(this.id, capabilityRegistryAssetSupplement.id) &&
         Objects.equals(this.implementationStatus, capabilityRegistryAssetSupplement.implementationStatus) &&
-        Objects.equals(this.reason, capabilityRegistryAssetSupplement.reason);
+        Objects.equals(this.reason, capabilityRegistryAssetSupplement.reason) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(counted, id, implementationStatus, reason);
+    return Objects.hash(counted, id, implementationStatus, reason, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class CapabilityRegistryAssetSupplement {\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    counted: ").append(toIndentedString(counted)).append("\n");
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    implementationStatus: ").append(toIndentedString(implementationStatus)).append("\n");

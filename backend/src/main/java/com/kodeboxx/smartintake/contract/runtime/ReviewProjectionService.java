@@ -72,10 +72,7 @@ public final class ReviewProjectionService {
     for (JsonNode phase : compiled.canonicalPackage().path("flow").path("phases"))
       for (JsonNode page : phase.path("pages"))
         for (JsonNode section : page.path("sections"))
-          for (JsonNode node : section.path("nodes")) {
-            Placement placement = placement(node, compiled);
-            if (placement != null) placements.add(placement);
-          }
+          for (JsonNode node : section.path("nodes")) collectPlacements(node, compiled, placements);
     return project(state, placements);
   }
 
@@ -92,6 +89,12 @@ public final class ReviewProjectionService {
     return new Placement(node.path("id").asText(), fieldId,
         node.path("labelKey").asText(field.path("labelKey").asText(fieldId)), false,
         "acknowledgment".equals(node.path("control").asText()), children);
+  }
+
+  private void collectPlacements(JsonNode node, CompiledForm compiled, List<Placement> result) {
+    Placement placement = placement(node, compiled);
+    if (placement != null) result.add(placement);
+    else for (JsonNode child : node.path("children")) collectPlacements(child, compiled, result);
   }
 
   private List<ReviewRow> rows(

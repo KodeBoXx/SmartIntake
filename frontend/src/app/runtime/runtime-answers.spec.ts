@@ -67,6 +67,29 @@ describe('M4 runtime typed answers', () => {
     expect(applyRuntimeOperation(exact, state, { kind: 'set', target: { fieldId: 'decimal' }, value: '0.100000000000000001' }).accepted).toBe(true);
   });
 
+  it('hides invalid typed values and clears descendant markers on structural removal', () => {
+    let state = createRuntimeAnswerState(emptyLists);
+    state = applyRuntimeOperation(definition, state, {
+      kind: 'addItem', target: { fieldId: 'orders' }, itemId: 'invalidRow',
+      fields: { label: { status: 'answered', value: 'old' }, quantity: { status: 'answered', value: '1' } },
+    }).state;
+    state = applyRuntimeOperation(definition, state, {
+      kind: 'markInvalid',
+      target: { fieldId: 'label', rowPath: [{ listFieldId: 'orders', itemId: 'invalidRow' }] },
+      reason: 'UNPARSEABLE_INPUT',
+    }).state;
+    expect((state.answers.orders as unknown as { value: { items: { fields: Record<string, { status: string; value?: unknown }> }[] } })
+      .value.items[0].fields.label).toEqual({ status: 'unanswered' });
+    state = applyRuntimeOperation(definition, state, {
+      kind: 'removeItem', target: { fieldId: 'orders' }, itemId: 'invalidRow',
+    }).state;
+    expect(Object.keys(state.invalid)).toEqual([]);
+    const reconciled = reconcileServerProjection({ ...state, invalid: { '/name': 'UNPARSEABLE_INPUT' } }, {
+      answers: {}, invalidInputs: [],
+    });
+    expect(reconciled.invalid).toEqual({});
+  });
+
   it('models exactly six statuses while preserving server-owned provenance outside client input', () => {
     const state = createRuntimeAnswerState(server({
       age: { status: 'unknown', type: 'integer', provenance: respondent },
@@ -80,9 +103,9 @@ describe('M4 runtime typed answers', () => {
     expect(applyRuntimeOperation(definition, state, {
       kind: 'set', target: { fieldId: 'age' }, answer: { status: 'respondentNotApplicable' },
     }).state.answers.age).toEqual({ status: 'respondentNotApplicable' });
-    expect(applyRuntimeOperation(definition, state, {
-      kind: 'set', target: { fieldId: 'age' }, answer: { status: 'notApplicable' },
-    })).toMatchObject({ accepted: false, rejection: 'INVALID_STATUS' });
+    // @ts-expect-error notApplicable is a server-only projection status.
+    const forbiddenInput: import('./runtime-types').InputAnswerCell = { status: 'notApplicable' };
+    expect(forbiddenInput.status).toBe('notApplicable');
   });
 
   it('rejects forged calculated and read-only values every time', () => {
