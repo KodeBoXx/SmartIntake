@@ -170,6 +170,18 @@ public final class RuntimeGraph {
     return active;
   }
 
+  public Set<String> activePlacementIds(State state, String sessionDate, String timeZone) {
+    List<Diagnostic> diagnostics = new ArrayList<>();
+    ExpressionEngine.MutationBudget budget = new ExpressionEngine.MutationBudget(100_000);
+    List<String> reachable = reachablePages(state, sessionDate, timeZone, budget, diagnostics);
+    LinkedHashSet<String> result = new LinkedHashSet<>();
+    for (Target target : targets(state))
+      for (Placement placement : activePlacements(target.address.fieldId(), reachable, state,
+          sessionDate, timeZone, budget, diagnostics, target.address))
+        result.add(placement.instanceId);
+    return Collections.unmodifiableSet(result);
+  }
+
   private boolean evaluateBoolean(
       String expressionId,
       State state,
@@ -307,6 +319,18 @@ public final class RuntimeGraph {
       refs.retainAll(compiled.fields().keySet());
       dependencies.put(id, refs);
     });
+    placements(compiled.canonicalPackage()).forEach((fieldId, instances) -> {
+      Set<String> refs = dependencies.computeIfAbsent(fieldId, ignored -> new TreeSet<>());
+      for (Placement placement : instances) {
+        for (String expressionId : placement.visibilityExpressionIds)
+          collectReferences(compiled.expressions().get(expressionId), refs);
+        if (placement.requiredExpressionId != null)
+          collectReferences(compiled.expressions().get(placement.requiredExpressionId), refs);
+        if (placement.validationExpressionId != null)
+          collectReferences(compiled.expressions().get(placement.validationExpressionId), refs);
+      }
+      refs.retainAll(compiled.fields().keySet());
+    });
     List<String> order = new ArrayList<>();
     List<Diagnostic> diagnostics = new ArrayList<>();
     Set<String> visiting = new HashSet<>(), visited = new HashSet<>();
@@ -346,7 +370,7 @@ public final class RuntimeGraph {
 
   private record Target(Address address, JsonNode source, boolean ancestorsApplicable) {}
   private record Placement(
-      String pageId, List<String> visibilityExpressionIds,
+      String instanceId, String pageId, List<String> visibilityExpressionIds,
       String requiredExpressionId, String validationExpressionId) {
     private Placement { visibilityExpressionIds = List.copyOf(visibilityExpressionIds); }
   }
@@ -373,7 +397,7 @@ public final class RuntimeGraph {
       visibility.add(node.path("visibilityExpressionId").asText());
     if (node.path("fieldId").isTextual()) {
       result.computeIfAbsent(node.path("fieldId").asText(), ignored -> new ArrayList<>())
-          .add(new Placement(pageId, visibility,
+          .add(new Placement(node.path("id").asText(), pageId, visibility,
               node.path("requiredExpressionId").asText(null),
               node.path("validationExpressionId").asText(null)));
     }

@@ -451,14 +451,29 @@ function serverTargetStatus(
   if (projection === null) return undefined;
   let fields = projection.answers;
   for (const segment of target.rowPath ?? []) {
-    const listCell = fields[segment.listFieldId];
+    const listCell = findServerCell(fields, segment.listFieldId);
     if (listCell?.status !== 'answered' || typeof listCell.value !== 'object'
       || listCell.value === null || !('items' in listCell.value)) return undefined;
     const item = listCell.value.items.find((candidate) => candidate.itemId === segment.itemId);
     if (item === undefined) return undefined;
     fields = item.fields;
   }
-  return fields[target.fieldId]?.status;
+  return findServerCell(fields, target.fieldId)?.status;
+}
+
+function findServerCell(
+  fields: Readonly<Record<string, ServerAnswerCell>>,
+  fieldId: string,
+): ServerAnswerCell | undefined {
+  if (fields[fieldId] !== undefined) return fields[fieldId];
+  for (const cell of Object.values(fields)) {
+    if (cell.status === 'answered' && typeof cell.value === 'object' && cell.value !== null
+      && 'fields' in cell.value) {
+      const nested = findServerCell(cell.value.fields, fieldId);
+      if (nested !== undefined) return nested;
+    }
+  }
+  return undefined;
 }
 
 function serverCellToInput(cell: ServerAnswerCell): InputAnswerCell {
@@ -498,8 +513,10 @@ function descendantFieldIds(field: RuntimeFieldDefinition): Set<string> {
   const result = new Set<string>([field.id]);
   const collect = (candidate: RuntimeFieldDefinition): void => {
     result.add(candidate.id);
+    for (const child of candidate.fields ?? []) collect(child);
     for (const child of candidate.itemFields ?? []) collect(child);
   };
+  for (const child of field.fields ?? []) collect(child);
   for (const child of field.itemFields ?? []) collect(child);
   return result;
 }

@@ -288,6 +288,8 @@ public final class TypedAnswerRuntime {
       try {
         applyOne(candidate, operation, changedAt);
         if (candidate.cells.size() > MAX_ACTIVE_CELLS) throw problem("ACTIVE_CELL_LIMIT");
+        if (candidate.retainedCells.size() > MAX_ACTIVE_CELLS) throw problem("RETAINED_CELL_LIMIT");
+        if (candidate.retiredItems.size() > MAX_ACTIVE_CELLS) throw problem("RETIRED_ITEM_LIMIT");
       } catch (RuntimeProblem problem) {
         diagnostics.add(
             new Diagnostic(
@@ -313,7 +315,7 @@ public final class TypedAnswerRuntime {
           if (!field.type().equals(cell.type())) throw problem("TYPE_MISMATCH");
           if (cell.provenance() == Provenance.respondent) throw problem("SERVER_PROVENANCE_REQUIRED");
           if (cell.status() == Status.answered) validateValue(field, cell.value());
-          candidate.cells.put(entry.getKey(), cell);
+          putActiveCell(candidate, entry.getKey(), cell);
         });
     if (candidate.cells.size() > MAX_ACTIVE_CELLS) throw problem("ACTIVE_CELL_LIMIT");
     return candidate;
@@ -336,12 +338,12 @@ public final class TypedAnswerRuntime {
             } else if (effective != null && effective.status() != Status.notApplicable) {
               candidate.retainedCells.put(entry.getKey(), effective);
             }
-            candidate.cells.put(entry.getKey(), new Cell(
+            putActiveCell(candidate, entry.getKey(), new Cell(
                 field.type(), Status.notApplicable, Provenance.system, null, changedAt, false));
           } else if (effective != null && effective.status() == Status.notApplicable) {
             Cell retained = candidate.retainedCells.remove(entry.getKey());
-            if (retained != null) candidate.cells.put(entry.getKey(), retained);
-            else candidate.cells.put(entry.getKey(), new Cell(
+            if (retained != null) putActiveCell(candidate, entry.getKey(), retained);
+            else putActiveCell(candidate, entry.getKey(), new Cell(
                 field.type(), Status.unanswered, Provenance.system, null, changedAt, false));
           }
         });
@@ -385,7 +387,7 @@ public final class TypedAnswerRuntime {
         .forEach(field -> {
           Address address = new Address(field.id(), List.of());
           state.itemOrder.put(address, field.fixedItemIds());
-          state.cells.put(address, structuralCell(field, Provenance.system, changedAt));
+          putActiveCell(state, address, structuralCell(field, Provenance.system, changedAt));
         });
     roots.values().stream().sorted(Comparator.comparing(Field::id))
         .forEach(field -> applyDefault(state, field, List.of(), changedAt));
@@ -398,7 +400,7 @@ public final class TypedAnswerRuntime {
     if ("list".equals(field.type()) && !field.fixedItemIds().isEmpty()
         && !state.itemOrder.containsKey(address)) {
       state.itemOrder.put(address, field.fixedItemIds());
-      state.cells.put(address, structuralCell(field, Provenance.system, changedAt));
+      putActiveCell(state, address, structuralCell(field, Provenance.system, changedAt));
     }
     if (answer != null && !state.cells.containsKey(address))
       applyDefaultAnswer(state, field, address, answer, changedAt);
@@ -421,7 +423,7 @@ public final class TypedAnswerRuntime {
       throw problem("DEFAULT_INVALID");
     JsonNode value = answer.get("value");
     if ("object".equals(field.type())) {
-      state.cells.put(address, structuralCell(field, Provenance.defaultValue, changedAt));
+      putActiveCell(state, address, structuralCell(field, Provenance.defaultValue, changedAt));
       JsonNode childAnswers = value.path("fields");
       childAnswers.fields().forEachRemaining(entry -> {
         Field child = field.children().get(entry.getKey());
@@ -447,11 +449,11 @@ public final class TypedAnswerRuntime {
         throw problem("FIXED_ROWS_INVALID");
       if (field.minItems() != null && ids.size() < field.minItems()) throw problem("MIN_ITEMS");
       if (field.maxItems() != null && ids.size() > field.maxItems()) throw problem("MAX_ITEMS");
-      state.cells.put(address, structuralCell(field, Provenance.defaultValue, changedAt));
+      putActiveCell(state, address, structuralCell(field, Provenance.defaultValue, changedAt));
     } else {
       JsonNode normalized = normalize(field, value);
       validateValue(field, normalized);
-      state.cells.put(address,
+      putActiveCell(state, address,
           new Cell(field.type(), Status.answered, Provenance.defaultValue, normalized, changedAt, false));
     }
   }
@@ -459,6 +461,12 @@ public final class TypedAnswerRuntime {
   private static Cell structuralCell(Field field, Provenance provenance, Instant changedAt) {
     return new Cell(field.type(), Status.answered, provenance,
         JsonNodeFactory.instance.objectNode(), changedAt, false);
+  }
+
+  private static void putActiveCell(State state, Address address, Cell cell) {
+    if (!state.cells.containsKey(address) && state.cells.size() >= MAX_ACTIVE_CELLS)
+      throw problem("ACTIVE_CELL_LIMIT");
+    state.cells.put(address, cell);
   }
 
   /** Returns the recursive server-owned answer projection used by expressions, review, and clients. */
@@ -560,6 +568,8 @@ public final class TypedAnswerRuntime {
       if (activeIds.contains(id) || !state.retiredItems.add(id)) throw problem("ITEM_ID_REUSED");
     }
     if (state.cells.size() > MAX_ACTIVE_CELLS) throw problem("ACTIVE_CELL_LIMIT");
+    if (state.retainedCells.size() > MAX_ACTIVE_CELLS) throw problem("RETAINED_CELL_LIMIT");
+    if (state.retiredItems.size() > MAX_ACTIVE_CELLS) throw problem("RETIRED_ITEM_LIMIT");
     return state;
   }
 

@@ -68,33 +68,46 @@ public final class ReviewProjectionService {
   }
 
   public Projection project(CompiledForm compiled, State state) {
+    return project(compiled, state, "1970-01-01", "UTC");
+  }
+
+  public Projection project(CompiledForm compiled, State state, String sessionDate, String timeZone) {
+    Set<String> activePlacementIds = new RuntimeGraph(compiled, new CompiledRuntimeFactory().create(compiled))
+        .activePlacementIds(state, sessionDate, timeZone);
     List<Placement> placements = new ArrayList<>();
     for (JsonNode phase : compiled.canonicalPackage().path("flow").path("phases"))
       for (JsonNode page : phase.path("pages"))
         for (JsonNode section : page.path("sections"))
-          for (JsonNode node : section.path("nodes")) collectPlacements(node, compiled, placements);
+          for (JsonNode node : section.path("nodes"))
+            collectPlacements(node, compiled, activePlacementIds, placements);
     return project(state, placements);
   }
 
-  private Placement placement(JsonNode node, CompiledForm compiled) {
+  private Placement placement(JsonNode node, CompiledForm compiled, Set<String> activePlacementIds) {
     if (!node.path("fieldId").isTextual()) return null;
+    if (!activePlacementIds.contains(node.path("id").asText())) return null;
     String fieldId = node.path("fieldId").asText();
     List<Placement> children = new ArrayList<>();
     for (JsonNode child : node.path("children")) {
-      Placement nested = placement(child, compiled);
+      Placement nested = placement(child, compiled, activePlacementIds);
       if (nested != null) children.add(nested);
     }
     JsonNode field = compiled.fields().containsKey(fieldId)
         ? compiled.fields().get(fieldId).source() : JsonNodeFactory.instance.objectNode();
-    return new Placement(node.path("id").asText(), fieldId,
-        node.path("labelKey").asText(field.path("labelKey").asText(fieldId)), false,
-        "acknowledgment".equals(node.path("control").asText()), children);
+    boolean reviewGate = "acknowledgment".equals(node.path("control").asText());
+    String contentKey = reviewGate
+        ? node.path("acknowledgmentContentKey").asText(
+            node.path("labelKey").asText(field.path("labelKey").asText(fieldId)))
+        : node.path("labelKey").asText(field.path("labelKey").asText(fieldId));
+    return new Placement(node.path("id").asText(), fieldId, contentKey, false, reviewGate, children);
   }
 
-  private void collectPlacements(JsonNode node, CompiledForm compiled, List<Placement> result) {
-    Placement placement = placement(node, compiled);
+  private void collectPlacements(
+      JsonNode node, CompiledForm compiled, Set<String> activePlacementIds, List<Placement> result) {
+    Placement placement = placement(node, compiled, activePlacementIds);
     if (placement != null) result.add(placement);
-    else for (JsonNode child : node.path("children")) collectPlacements(child, compiled, result);
+    else for (JsonNode child : node.path("children"))
+      collectPlacements(child, compiled, activePlacementIds, result);
   }
 
   private List<ReviewRow> rows(

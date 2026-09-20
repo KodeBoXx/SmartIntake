@@ -385,7 +385,7 @@ public class IntakeApplicationService {
     Map<String, Object> initialRuntimeState = null;
     if (typedRuntime.canonical(releaseNode)) {
       var initial = typedRuntime.mutate(releaseNode, json.createObjectNode(), null, List.of(),
-          sessionDate.toString(), timeZone, sessionInstant);
+          null, sessionDate.toString(), timeZone, locale, sessionInstant);
       if (!initial.accepted()) throw bad("RUNTIME_INITIALIZATION_FAILED", "Canonical runtime rejected");
       initialAnswers = initial.answers();
       initialRuntimeState = initial.runtimeState();
@@ -473,7 +473,7 @@ public class IntakeApplicationService {
       }
       var outcome = typedRuntime.mutate(releaseNode, json.valueToTree(parse(s.answers())),
           parseNode(s.runtimeState()), in.operations(), in.currentPageId(),
-          s.sessionDate().toString(), s.timeZone(), Instant.now());
+          s.sessionDate().toString(), s.timeZone(), s.locale(), Instant.now());
       if (!outcome.accepted()) {
         String code = outcome.validation().isEmpty()
             ? "MUTATION_INVALID" : Objects.toString(outcome.validation().get(0).get("code"));
@@ -524,7 +524,7 @@ public class IntakeApplicationService {
     requireCanonicalRuntimeState(s, definition);
     if (typedRuntime.canonical(definition)) {
       var outcome = typedRuntime.mutate(definition, json.valueToTree(parse(s.answers())),
-          parseNode(s.runtimeState()), List.of(), s.sessionDate().toString(), s.timeZone(), Instant.now());
+          parseNode(s.runtimeState()), List.of(), null, s.sessionDate().toString(), s.timeZone(), s.locale(), Instant.now());
       if (outcome.validation().stream().anyMatch(error -> "UNPARSEABLE_INPUT".equals(error.get("code"))))
         throw bad("INVALID_INPUT_PENDING", "Applicable input must be entered again");
       Map<String, Object> response = new LinkedHashMap<>();
@@ -549,13 +549,19 @@ public class IntakeApplicationService {
     JsonNode definition = json.valueToTree(parse(release.pkg()));
     boolean canonical = typedRuntime.canonical(definition);
     if (!s.status().equals("DRAFT")) {
-      UUID existing =
-          db.queryForObject("select id from submissions where session_id=?", UUID.class, id);
+      Map<String, Object> sealed = db.queryForMap(
+          "select id,attempt_id from submissions where session_id=?", id);
+      UUID existing = (UUID) sealed.get("id");
       if (canonical) {
         if (in.attemptId() == null) throw new ResponseStatusException(HttpStatus.CONFLICT, "SESSION_SUBMITTED");
         try {
           Map<String, Object> attempt = submissionAttempts.status(id, in.attemptId());
-          if (!"succeeded".equals(attempt.get("state"))) submissionAttempts.succeeded(id, in.attemptId(), existing);
+          String requestDigest = CanonicalJson.sha256(json.valueToTree(in));
+          if (!requestDigest.equals(attempt.get("requestDigest"))
+              || !"succeeded".equals(attempt.get("state"))
+              || !existing.equals(attempt.get("submissionId"))
+              || !Objects.equals(in.attemptId(), sealed.get("attempt_id")))
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "SUBMISSION_ATTEMPT_REUSED");
         } catch (EmptyResultDataAccessException missing) {
           throw new ResponseStatusException(HttpStatus.CONFLICT, "SESSION_SUBMITTED");
         }
@@ -572,7 +578,7 @@ public class IntakeApplicationService {
     List<Map<String, Object>> errors;
     if (canonical) {
       var outcome = typedRuntime.mutate(definition, json.valueToTree(acceptedAnswers),
-          parseNode(s.runtimeState()), List.of(), s.sessionDate().toString(), s.timeZone(), Instant.now());
+          parseNode(s.runtimeState()), List.of(), null, s.sessionDate().toString(), s.timeZone(), s.locale(), Instant.now());
       if (!outcome.accepted()) throw bad("RUNTIME_STATE_INVALID", "Canonical runtime state rejected");
       acceptedAnswers = outcome.answers();
       acceptedRuntimeState = outcome.runtimeState();
@@ -614,8 +620,8 @@ public class IntakeApplicationService {
     if (canonical) contracts.requireValid("submission-envelope", "4.0.0", json.valueToTree(envelope));
     db.update(
         """
-        insert into submissions(id,form_id,session_id,envelope,review_projection,review_digest,attempt_id)
-        values(?,?,?,cast(? as jsonb),cast(? as jsonb),?,?)
+        insert into submissions(id,form_id,session_id,envelope,review_projection,review_digest,attempt_id,runtime_manifest)
+        values(?,?,?,cast(? as jsonb),cast(? as jsonb),?,?,cast(? as jsonb))
         """,
         sub,
         s.formId(),
@@ -623,7 +629,8 @@ public class IntakeApplicationService {
         stringify(envelope),
         acceptedReviewProjection == null ? null : stringify(acceptedReviewProjection),
         acceptedReviewDigest,
-        canonical ? in.attemptId() : null);
+        canonical ? in.attemptId() : null,
+        canonical ? stringify(runtimeManifest(definition)) : null);
     if (acceptedRuntimeState == null) {
       db.update("update sessions set status='SUBMITTED',answers=cast(? as jsonb) where id=?",
           stringify(acceptedAnswers), id);
@@ -657,12 +664,24 @@ public class IntakeApplicationService {
     }
   }
 
+  public Map<String, Object> submissionOperation(UUID id, String token, String attemptId) {
+    respondent(id, token);
+    try {
+      Map<String, Object> status = new LinkedHashMap<>(submissionAttempts.status(id, attemptId));
+      status.remove("requestDigest");
+      return status;
+    } catch (EmptyResultDataAccessException none) {
+      return Map.of("attemptId", attemptId, "state", "notStarted");
+    }
+  }
+
   @SuppressWarnings("unchecked")
   private List<Map<String, Object>> authoritativeAcknowledgments(
       Map<String, Object> review, List<Map<String, Object>> supplied, Instant acceptedAt) {
     List<Map<String, Object>> gates = review == null || !(review.get("reviewGates") instanceof List<?> values)
         ? List.of() : (List<Map<String, Object>>) (List<?>) values;
     List<Map<String, Object>> requests = supplied == null ? List.of() : supplied;
+    if (requests.size() > 1000) throw bad("ACKNOWLEDGMENT_LIMIT", "Too many acknowledgments supplied");
     List<Map<String, Object>> result = new ArrayList<>();
     for (Map<String, Object> gate : gates) {
       if (!Boolean.TRUE.equals(gate.get("value")))
@@ -702,7 +721,8 @@ public class IntakeApplicationService {
         """, (rs, row) -> Map.of("workspace", (UUID) rs.getObject(1), "tenant", (UUID) rs.getObject(2)),
         session.formId());
     String packageHash = CanonicalJson.sha256(definition);
-    String manifestHash = CanonicalJson.sha256(json.valueToTree(runtimeState == null ? Map.of() : runtimeState));
+    Map<String, Object> manifest = runtimeManifest(definition);
+    String manifestHash = Objects.toString(manifest.get("runtimeManifestHash"));
     Map<String, Object> release = Map.of(
         "releaseId", canonicalId("release", session.releaseId()),
         "definitionVersion", definition.path("definitionVersion").asText("4.0.0"),
@@ -738,6 +758,26 @@ public class IntakeApplicationService {
     envelope.put("acknowledgments", acknowledgments);
     envelope.put("extensions", Map.of("x-kodeboxx.review", reviewEvidence));
     return Map.copyOf(envelope);
+  }
+
+  private Map<String, Object> runtimeManifest(JsonNode definition) {
+    Map<String, Object> manifest = new LinkedHashMap<>();
+    manifest.put("schemaVersion", "4.0.0");
+    manifest.put("contractVersion", "4.0.0");
+    manifest.put("engineContract", "4.0.0");
+    manifest.put("runtimeManifestVersion", "1");
+    manifest.put("runtimeManifestHash", "sha256:" + "0".repeat(64));
+    manifest.put("packageHash", CanonicalJson.sha256(definition));
+    manifest.put("policyVersion", "canonical-runtime-1");
+    manifest.put("timeZoneDatabaseVersion", TimeZoneRegistry.VERSION);
+    manifest.put("resolvedComponents", List.of());
+    manifest.put("resolvedAssets", List.of());
+    manifest.put("extensions", Map.of());
+    Map<String, Object> hashInput = new LinkedHashMap<>(manifest);
+    hashInput.remove("runtimeManifestHash");
+    manifest.put("runtimeManifestHash", CanonicalJson.sha256(json.valueToTree(hashInput)));
+    contracts.requireValid("runtime-manifest", "4.0.0", json.valueToTree(manifest));
+    return Map.copyOf(manifest);
   }
 
   private static String canonicalId(String kind, UUID id) {
@@ -954,7 +994,7 @@ public class IntakeApplicationService {
     List<Map<String, Object>> invalidInputs = List.of();
     if (typedRuntime.canonical(definitionNode)) {
       var outcome = typedRuntime.mutate(definitionNode, json.valueToTree(parse(s.answers())),
-          parseNode(s.runtimeState()), List.of(), s.sessionDate().toString(), s.timeZone(), Instant.now());
+          parseNode(s.runtimeState()), List.of(), null, s.sessionDate().toString(), s.timeZone(), s.locale(), Instant.now());
       answers = outcome.answers();
       invalidInputs = bindInvalidMarkerRevisions(
           null, parseNode(s.runtimeState()), outcome.validation(), s.revision()).stream()

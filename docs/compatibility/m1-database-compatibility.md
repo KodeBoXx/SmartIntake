@@ -136,7 +136,7 @@ begin
           or (version = '9' and type = 'SQL' and script = 'V9__default_frozen_session_context.sql' and checksum = 1901026173)
           or (version = '10' and type = 'SQL' and script = 'V10__bind_session_mutation_request_digest.sql' and checksum = 1365084057)
           or (version = '11' and type = 'SQL' and script = 'V11__m4_compatibility_runtime.sql' and checksum = 1780789261)
-          or (version = '12' and type = 'SQL' and script = 'V12__submission_attempt_review_evidence.sql' and checksum = -1868713494),
+          or (version = '12' and type = 'SQL' and script = 'V12__submission_attempt_review_evidence.sql' and checksum = -1913950361),
           false)
   )
   or (select count(*) from flyway_schema_history where success) <> 11
@@ -183,7 +183,8 @@ alter table submissions drop constraint submissions_session_id_unique;
 drop table submission_attempts;
 alter table submissions drop column review_projection,
                         drop column review_digest,
-                        drop column attempt_id;
+                        drop column attempt_id,
+                        drop column runtime_manifest;
 alter table session_mutations drop constraint session_mutations_client_mutation_id_opaque_id;
 alter table session_mutations alter column client_mutation_id type uuid using client_mutation_id::uuid;
 alter table session_mutations drop constraint session_mutations_request_digest_format;

@@ -22,8 +22,10 @@ public final class RequestBodyLimitFilter extends OncePerRequestFilter {
   protected void doFilterInternal(
       HttpServletRequest request, HttpServletResponse response, FilterChain chain)
       throws ServletException, IOException {
-    boolean mutation = "PATCH".equals(request.getMethod())
-        && request.getRequestURI().matches(".*/v1/sessions/[0-9a-fA-F-]+$");
+    boolean mutation = ("PATCH".equals(request.getMethod())
+        && request.getRequestURI().matches(".*/v1/sessions/[0-9a-fA-F-]+$"))
+        || ("POST".equals(request.getMethod())
+        && request.getRequestURI().matches(".*/v1/sessions/[0-9a-fA-F-]+/(validate|submissions)$"));
     if (!mutation) {
       chain.doFilter(request, response);
       return;

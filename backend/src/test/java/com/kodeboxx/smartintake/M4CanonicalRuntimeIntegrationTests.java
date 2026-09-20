@@ -224,6 +224,12 @@ class M4CanonicalRuntimeIntegrationTests {
     JsonNode sealed = json.readTree(db.queryForObject(
         "select envelope::text from submissions where session_id=?", String.class, fixture.session));
     assertEquals(gate.path("contentHash").asText(), sealed.at("/acknowledgments/0/contentHash").asText());
+    assertEquals("4.0.0", db.queryForObject(
+        "select runtime_manifest->>'schemaVersion' from submissions where session_id=?",
+        String.class, fixture.session));
+    assertThrows(ResponseStatusException.class, () -> intake.submit(
+        fixture.session, fixture.bearer.toString(), new IntakeApplicationService.Submit(
+            1L, validation.get("reviewDigest").toString(), List.of(), "attempt-consent-missing")));
   }
 
   @Test
@@ -272,16 +278,20 @@ class M4CanonicalRuntimeIntegrationTests {
            {"id":"review","kind":"review","labelKey":"title"}]}]}""");
     pages.add(secondPage).add(reviewPage);
     Fixture fixture = fixture(pkg);
+    intake.patch(fixture.session, fixture.bearer.toString(), new IntakeApplicationService.PatchSession(
+        0L, "mutation-page-answer", null,
+        List.of(Map.of("op", "set", "fieldId", "name",
+            "value", Map.of("status", "answered", "value", "Ada"))), "page1"));
     Map<String, Object> progressed = intake.patch(
         fixture.session, fixture.bearer.toString(), new IntakeApplicationService.PatchSession(
-            0L, "mutation-page-progress", null,
-            List.of(Map.of("op", "set", "fieldId", "name",
-                "value", Map.of("status", "answered", "value", "Ada"))), "page2"));
+            1L, "mutation-page-progress", null,
+            List.of(Map.of("op", "set", "fieldId", "amount",
+                "value", Map.of("status", "answered", "value", "1"))), "page2"));
     assertEquals(2, progressed.get("requiredCount"));
     assertEquals(1, progressed.get("completedRequiredCount"));
     Map<String, Object> revoked = intake.patch(
         fixture.session, fixture.bearer.toString(), new IntakeApplicationService.PatchSession(
-            1L, "mutation-page-revoke", null,
+            2L, "mutation-page-revoke", null,
             List.of(Map.of("op", "clear", "fieldId", "name")), "page2"));
     assertEquals(0, revoked.get("completedRequiredCount"));
   }

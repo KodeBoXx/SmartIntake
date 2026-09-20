@@ -2141,7 +2141,7 @@ paths:
         roles:
         - respondent.session.self
         tenantScope: respondent-session
-      x-implementation-status: contract-published
+      x-implementation-status: implemented
       responses:
         '200':
           description: The accepted canonical typed-session projection.
@@ -2468,10 +2468,10 @@ paths:
         roles:
         - respondent.session.self
         tenantScope: respondent-session
-      x-implementation-status: contract-published
+      x-implementation-status: implemented
       responses:
         '200':
-          description: The durable state of the latest submission attempt.
+          description: The durable state of the specified submission attempt.
           content:
             application/json:
               schema:
@@ -2498,6 +2498,11 @@ paths:
         schema:
           $ref: '#/components/schemas/OpaqueId'
         example: s-01J2W5RFR3K24SFWDX2C0N9VW3
+      - name: attemptId
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/OpaqueId'
       security: *id002
   /v1/sessions/{s}/submissions:
     post:
@@ -2515,7 +2520,7 @@ paths:
         roles:
         - respondent.session.self
         tenantScope: respondent-session
-      x-implementation-status: contract-published
+      x-implementation-status: implemented
       responses:
         '201':
           description: The immutable accepted submission receipt.
@@ -2589,30 +2594,15 @@ paths:
         roles:
         - respondent.session.self
         tenantScope: respondent-session
-      x-implementation-status: contract-published
+      x-implementation-status: implemented
       responses:
         '200':
-          description: Successful response.
-          headers:
-            ETag:
-              $ref: '#/components/headers/ETag'
+          description: The authoritative validation and review projection.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ValidationReportResponse'
-              examples:
-                success:
-                  value:
-                    requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
-                    validationReport:
-                      id: validationreport-01J2W5RFR3K24SFWDX2C0N9VW3
-                      kind: ValidationReport
-                      revision: 7
-                      status: active
-                      createdAt: '2026-09-18T00:00:00Z'
-                      updatedAt: '2026-09-18T00:00:00Z'
-                      valid: true
-                      diagnostics: []
+                type: object
+                additionalProperties: true
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -2639,20 +2629,7 @@ paths:
         schema:
           $ref: '#/components/schemas/OpaqueId'
         example: s-01J2W5RFR3K24SFWDX2C0N9VW3
-      - $ref: '#/components/parameters/IdempotencyKey'
       security: *id002
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ValidationRunRequest'
-            examples:
-              valid:
-                value:
-                  validationProfile: draft
-              invalid:
-                value: {}
       x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical
         request hash, retained for at least seven days; equal requests replay the
         original result and changed-body reuse is 409. Session mutation replay keys
@@ -9830,6 +9807,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Acknowledgment'
+          maxItems: 1000
         attemptId:
           $ref: '#/components/schemas/OpaqueId'
     SubmissionOperationUpdateRequest:
@@ -12047,6 +12025,7 @@ components:
           $ref: '#/components/schemas/OpaqueId'
         state:
           enum:
+          - notStarted
           - pending
           - succeeded
           - failed

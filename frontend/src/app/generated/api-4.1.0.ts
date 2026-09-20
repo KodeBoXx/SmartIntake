@@ -2687,7 +2687,7 @@ export interface components {
         SubmissionAttemptStatus: {
             attemptId: components["schemas"]["OpaqueId"];
             /** @enum {unknown} */
-            state: "pending" | "succeeded" | "failed";
+            state: "notStarted" | "pending" | "succeeded" | "failed";
             submissionId?: string | null;
             errorCode?: string | null;
         };
@@ -5002,7 +5002,9 @@ export interface operations {
     };
     "ON-get-v1-sessions-s-submission-operation-978f11ba2b": {
         parameters: {
-            query?: never;
+            query: {
+                attemptId: components["schemas"]["OpaqueId"];
+            };
             header?: never;
             path: {
                 /**
@@ -5015,7 +5017,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The durable state of the latest submission attempt. */
+            /** @description The durable state of the specified submission attempt. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -5075,13 +5077,7 @@ export interface operations {
     "ON-post-v1-sessions-s-validate-dde1446480": {
         parameters: {
             query?: never;
-            header: {
-                /**
-                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
-                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
-            };
+            header?: never;
             path: {
                 /**
                  * @description Opaque server-issued identifier; it is never an authority grant.
@@ -5091,20 +5087,17 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ValidationRunRequest"];
-            };
-        };
+        requestBody?: never;
         responses: {
-            /** @description Successful response. */
+            /** @description The authoritative validation and review projection. */
             200: {
                 headers: {
-                    ETag: components["headers"]["ETag"];
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ValidationReportResponse"];
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
             400: components["responses"]["BadRequest"];

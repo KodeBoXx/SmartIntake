@@ -65,7 +65,22 @@ public final class TypedSessionRuntimeService {
       String sessionDate,
       String timeZone,
       Instant changedAt) {
-    return mutate(packageNode, currentAnswers, null, rawOperations, sessionDate, timeZone, changedAt);
+    return mutate(packageNode, currentAnswers, null, rawOperations, null,
+        sessionDate, timeZone, packageNode.path("defaultLocale").asText("en"), changedAt);
+  }
+
+  public Outcome mutate(
+      JsonNode packageNode,
+      JsonNode currentAnswers,
+      JsonNode currentRuntimeState,
+      List<Map<String, Object>> rawOperations,
+      String currentPageId,
+      String sessionDate,
+      String timeZone,
+      String locale,
+      Instant changedAt) {
+    return mutateLocalized(packageNode, currentAnswers, currentRuntimeState, rawOperations, currentPageId,
+        sessionDate, timeZone, locale, changedAt);
   }
 
   public Outcome mutate(
@@ -77,7 +92,7 @@ public final class TypedSessionRuntimeService {
       String timeZone,
       Instant changedAt) {
     return mutate(packageNode, currentAnswers, currentRuntimeState, rawOperations, null,
-        sessionDate, timeZone, changedAt);
+        sessionDate, timeZone, packageNode.path("defaultLocale").asText("en"), changedAt);
   }
 
   public Outcome mutate(
@@ -88,6 +103,20 @@ public final class TypedSessionRuntimeService {
       String currentPageId,
       String sessionDate,
       String timeZone,
+      Instant changedAt) {
+    return mutate(packageNode, currentAnswers, currentRuntimeState, rawOperations, currentPageId,
+        sessionDate, timeZone, packageNode.path("defaultLocale").asText("en"), changedAt);
+  }
+
+  private Outcome mutateLocalized(
+      JsonNode packageNode,
+      JsonNode currentAnswers,
+      JsonNode currentRuntimeState,
+      List<Map<String, Object>> rawOperations,
+      String currentPageId,
+      String sessionDate,
+      String timeZone,
+      String locale,
       Instant changedAt) {
     var compilation = compiler.compile(packageNode);
     if (!compilation.valid()) {
@@ -158,20 +187,18 @@ public final class TypedSessionRuntimeService {
       }
     });
     ObjectNode stored = runtime.storage(projection.state());
-    String effectivePage = currentPageId;
-    if ((effectivePage == null || effectivePage.isBlank()) && currentRuntimeState != null
-        && currentRuntimeState.path("currentPageId").isTextual())
-      effectivePage = currentRuntimeState.path("currentPageId").asText();
-    if (effectivePage != null && projection.reachablePageIds().contains(effectivePage))
-      stored.put("currentPageId", effectivePage);
+    String previousPage = currentRuntimeState != null && currentRuntimeState.path("currentPageId").isTextual()
+        ? currentRuntimeState.path("currentPageId").asText() : projection.reachablePageIds().stream().findFirst().orElse(null);
+    String effectivePage = authoritativePage(projection.reachablePageIds(), previousPage, currentPageId);
+    if (effectivePage != null) stored.put("currentPageId", effectivePage);
     Set<String> completedPageIds = completedPages(compiled, projection, validation,
         currentRuntimeState, effectivePage);
     ArrayNode completedStored = stored.putArray("completedPageIds");
     completedPageIds.forEach(completedStored::add);
     int completedPages = completedPageIds.size();
-    var review = reviews.project(compiled, projection.state());
+    var review = reviews.project(compiled, projection.state(), sessionDate, timeZone);
     Map<String, Object> reviewMap = json.convertValue(review, Map.class);
-    enrichAcknowledgmentRows(reviewMap, compiled.canonicalPackage());
+    enrichAcknowledgmentRows(reviewMap, compiled.canonicalPackage(), locale);
     String reviewDigest = validation.isEmpty()
         ? CanonicalJson.sha256(json.valueToTree(reviewMap)) : null;
     return new Outcome(asMap(runtime.projection(projection.state())), asMap(stored), validation,
@@ -184,8 +211,11 @@ public final class TypedSessionRuntimeService {
     LinkedHashSet<String> candidates = new LinkedHashSet<>();
     if (currentRuntimeState != null)
       currentRuntimeState.path("completedPageIds").forEach(node -> candidates.add(node.asText()));
-    int current = currentPageId == null ? -1 : projection.reachablePageIds().indexOf(currentPageId);
-    if (current >= 0) candidates.addAll(projection.reachablePageIds().subList(0, current));
+    String previousPage = currentRuntimeState != null && currentRuntimeState.path("currentPageId").isTextual()
+        ? currentRuntimeState.path("currentPageId").asText() : projection.reachablePageIds().stream().findFirst().orElse(null);
+    int previous = previousPage == null ? -1 : projection.reachablePageIds().indexOf(previousPage);
+    int current = currentPageId == null ? previous : projection.reachablePageIds().indexOf(currentPageId);
+    if (previous >= 0 && current == previous + 1) candidates.add(previousPage);
     candidates.retainAll(projection.reachablePageIds());
     candidates.removeAll(compiled.reviewPageIds());
     Map<String, Set<String>> pageFields = pageFields(compiled.canonicalPackage());
@@ -206,6 +236,15 @@ public final class TypedSessionRuntimeService {
     return Collections.unmodifiableSet(new LinkedHashSet<>(candidates));
   }
 
+  private static String authoritativePage(List<String> reachable, String previousPage, String requestedPage) {
+    if (reachable.isEmpty()) return null;
+    int previous = reachable.indexOf(previousPage);
+    if (previous < 0) return reachable.get(0);
+    if (requestedPage == null || requestedPage.isBlank() || requestedPage.equals(previousPage)) return previousPage;
+    int requested = reachable.indexOf(requestedPage);
+    return requested == previous + 1 ? requestedPage : previousPage;
+  }
+
   private static Map<String, Set<String>> pageFields(JsonNode packageNode) {
     Map<String, Set<String>> result = new LinkedHashMap<>();
     for (JsonNode phase : packageNode.path("flow").path("phases"))
@@ -224,8 +263,8 @@ public final class TypedSessionRuntimeService {
   }
 
   @SuppressWarnings("unchecked")
-  private void enrichAcknowledgmentRows(Map<String, Object> review, JsonNode packageNode) {
-    String locale = packageNode.path("defaultLocale").asText("en");
+  private void enrichAcknowledgmentRows(Map<String, Object> review, JsonNode packageNode, String locale) {
+    if (locale == null || locale.isBlank()) locale = packageNode.path("defaultLocale").asText("en");
     JsonNode messages = packageNode.path("translations").path(locale).path("messages");
     Object gates = review.get("reviewGates");
     if (!(gates instanceof List<?> rows)) return;
@@ -236,7 +275,8 @@ public final class TypedSessionRuntimeService {
       String content = messages.path(contentKey).asText(contentKey);
       row.put("locale", locale);
       row.put("contentKey", contentKey);
-      row.put("contentHash", CanonicalJson.sha256(json.valueToTree(content)));
+      row.put("contentHash", CanonicalJson.sha256(json.valueToTree(Map.of(
+          "locale", locale, "contentKey", contentKey, "text", content))));
     }
   }
 

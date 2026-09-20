@@ -3066,6 +3066,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Acknowledgment'
+          maxItems: 1000
         attemptId:
           $ref: '#/components/schemas/OpaqueId'
     SubmissionOperationUpdateRequest:
@@ -5283,6 +5284,7 @@ components:
           $ref: '#/components/schemas/OpaqueId'
         state:
           enum:
+          - notStarted
           - pending
           - succeeded
           - failed

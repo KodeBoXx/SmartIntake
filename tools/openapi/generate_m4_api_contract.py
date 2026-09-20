@@ -156,6 +156,7 @@ def generated() -> dict[Path, bytes]:
     schemas["SubmissionCreateRequest"]["properties"]["reviewDigest"] = {
         "$ref": "#/components/schemas/ReviewDigest"
     }
+    schemas["SubmissionCreateRequest"]["properties"]["acknowledgments"]["maxItems"] = 1000
     schemas["SessionMutationResponse"] = {
         "type": "object", "additionalProperties": False,
         "required": ["acceptedRevision", "answers", "validation", "reachablePageIds",
@@ -183,7 +184,7 @@ def generated() -> dict[Path, bytes]:
         "required": ["attemptId", "state"],
         "properties": {
             "attemptId": {"$ref": "#/components/schemas/OpaqueId"},
-            "state": {"enum": ["pending", "succeeded", "failed"]},
+            "state": {"enum": ["notStarted", "pending", "succeeded", "failed"]},
             "submissionId": {"type": ["string", "null"]},
             "errorCode": {"type": ["string", "null"]},
         },
@@ -233,10 +234,24 @@ def generated() -> dict[Path, bytes]:
         "accepted": True,
     }]
     attempt = api["paths"]["/v1/sessions/{s}/submission-operation"]["get"]
+    attempt["parameters"] = [parameter for parameter in attempt["parameters"] if parameter.get("name") == "s"] + [{
+        "name": "attemptId", "in": "query", "required": True,
+        "schema": {"$ref": "#/components/schemas/OpaqueId"},
+    }]
     attempt["responses"]["200"] = {
-        "description": "The durable state of the latest submission attempt.",
+        "description": "The durable state of the specified submission attempt.",
         "content": {"application/json": {"schema": {"$ref": "#/components/schemas/SubmissionAttemptStatus"}}},
     }
+    validate = api["paths"]["/v1/sessions/{s}/validate"]["post"]
+    validate["parameters"] = [parameter for parameter in validate["parameters"] if parameter.get("name") == "s"]
+    validate.pop("requestBody", None)
+    validate["x-implementation-status"] = "implemented"
+    validate["responses"]["200"] = {
+        "description": "The authoritative validation and review projection.",
+        "content": {"application/json": {"schema": {"type": "object", "additionalProperties": True}}},
+    }
+    for operation_config in (patch, submit, attempt):
+        operation_config["x-implementation-status"] = "implemented"
     api["paths"]["/v1/capabilities"]["get"]["responses"]["200"] = {
         "description": "The immutable legacy 4.0.0 capability representation. The additive representation is published at /v1/schemas/capabilities/4.1.0.",
         "content": {"application/json": {"schema": {"$ref": "#/components/schemas/LegacyCapabilityRegistry"}}},

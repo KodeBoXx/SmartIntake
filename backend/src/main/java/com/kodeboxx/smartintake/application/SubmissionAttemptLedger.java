@@ -51,10 +51,6 @@ public class SubmissionAttemptLedger {
         from submissions s where a.session_id=? and a.session_id=s.session_id
           and a.attempt_id=s.attempt_id and a.state='PENDING'
         """, sessionId);
-    db.update("""
-        update submission_attempts set state='FAILED',error_code='RECOVERY_INCOMPLETE',updated_at=now()
-        where session_id=? and state='PENDING' and updated_at < now() - interval '5 minutes'
-        """, sessionId);
     return db.queryForObject("""
         select attempt_id,state,submission_id,error_code,request_digest
         from submission_attempts where session_id=? order by updated_at desc limit 1

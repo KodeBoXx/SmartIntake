@@ -84,6 +84,8 @@ public final class FormCompiler {
           options, listAncestors, field, at));
       if (field.path("constraints").path("maxItems").asInt(0) > 500)
         state.error("REPEATER_ITEM_LIMIT", at + "/constraints/maxItems", "Repeaters may contain at most 500 items.");
+      if (field.path("fixedItemIds").size() > 500)
+        state.error("REPEATER_ITEM_LIMIT", at + "/fixedItemIds", "Repeaters may contain at most 500 fixed items.");
       checkOptionDefault(field, options, at, state);
       // The closed 4.0.0 package grammar uses itemSchema.fields for both object and list descendants.
       // Do not accept the old prototype's direct fields shape here.

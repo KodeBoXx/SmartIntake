@@ -46,6 +46,8 @@ public class SubmissionAttemptStatus {
    * Gets or Sets state
    */
   public enum StateEnum {
+    NOT_STARTED(String.valueOf("notStarted")),
+    
     PENDING(String.valueOf("pending")),
     
     SUCCEEDED(String.valueOf("succeeded")),
