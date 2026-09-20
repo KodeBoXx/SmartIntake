@@ -1,6 +1,6 @@
 package com.kodeboxx.smartintake.compatibility;
 
-/** A named M1 compatibility boundary; neither profile is an M2 normative profile. */
+/** Named compatibility boundaries for legacy and canonical persisted packages. */
 public record CompatibilityProfile(
     String key,
     String displayName,
@@ -12,4 +12,6 @@ public record CompatibilityProfile(
   public static final CompatibilityProfile M1_CURRENT_PROTOTYPE =
       new CompatibilityProfile(
           "m1-current-prototype", "M1 current prototype", "4.0.0", false, true);
+  public static final CompatibilityProfile CANONICAL_4_0_0 =
+      new CompatibilityProfile("canonical-4.0.0", "Canonical 4.0.0", "4.0.0", false, true);
 }

@@ -28,4 +28,24 @@ class ContractPublicationControllerTests {
   void serves_registry_derived_capabilities() {
     assertThat(controller.capabilities()).isSameAs(registry.capabilities());
   }
+
+  @Test
+  void publishesBothImmutableApiVersionsThroughTheVersionedContractRoute() throws Exception {
+    assertThat(controller.schema("openapi", "4.0.0").getBody())
+        .isEqualTo(Files.readAllBytes(Path.of("../docs/api/openapi.yaml")));
+    var m4 = controller.schema("openapi", "4.1.0");
+    assertThat(m4.getBody()).isEqualTo(Files.readAllBytes(Path.of("../docs/api/openapi-4.1.0.yaml")));
+    assertThat(m4.getHeaders().getContentType().toString()).isEqualTo("application/yaml");
+    assertThat(m4.getHeaders().getFirst("X-Contract-SHA256"))
+        .isEqualTo(registry.openApi("4.1.0").sha256());
+  }
+
+  @Test
+  void keepsLegacyCapabilitiesClosedAndPublishesTheAdditiveRepresentationSeparately() throws Exception {
+    assertThat(controller.capabilities()).doesNotContainKeys(
+        "apiContractVersion", "schemaContractVersion", "apiContracts");
+    var m4 = controller.schema("capabilities", "4.1.0");
+    assertThat(new com.fasterxml.jackson.databind.ObjectMapper().readTree(m4.getBody())
+        .path("apiContractVersion").asText()).isEqualTo("4.1.0");
+  }
 }

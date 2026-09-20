@@ -40,7 +40,7 @@ public final class ContractValue {
       case "text", "choice" -> { if (!value.isTextual()) throw error("INVALID_LITERAL"); }
       case "boolean" -> { if (!value.isBoolean()) throw error("INVALID_LITERAL"); }
       case "date" -> { try { if (!value.isTextual()) throw error("INVALID_LITERAL"); LocalDate.parse(value.textValue()); } catch (RuntimeException e) { throw error("INVALID_LITERAL"); } }
-      case "time" -> { try { if (!value.isTextual() || !value.textValue().matches("[0-2][0-9]:[0-5][0-9]:[0-5][0-9]")) throw error("INVALID_LITERAL"); LocalTime.parse(value.textValue()); } catch (RuntimeException e) { throw error("INVALID_LITERAL"); } }
+      case "time" -> { try { if (!value.isTextual() || !value.textValue().matches("(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,9})?")) throw error("INVALID_LITERAL"); LocalTime.parse(value.textValue()); } catch (RuntimeException e) { throw error("INVALID_LITERAL"); } }
       default -> throw error("EXPR_TYPE");
     }
   }

@@ -2,19 +2,30 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { FormDefinition, ResponseSummary } from './models/form-definition.models';
-import type { operations } from './generated/api';
+import type { components, operations } from './generated/api-4.1.0';
+import type { RuntimeOperation, ServerProjection } from './runtime/runtime-types';
 
 export { AjvContractValidationAdapter } from './ajv-contract-validation.adapter';
 export type { ContractDiagnostic, ContractValidationResult } from './ajv-contract-validation.adapter';
 export type { CanonicalDecimal, CanonicalInt64 } from './generated/contracts';
 
 type StaffSession = { staffSession: string; workspaceKey?: string };
+type GeneratedSessionMutation = components['schemas']['SessionMutation'];
+type GeneratedAcknowledgment = components['schemas']['Acknowledgment'];
+type GeneratedInputAnswer = components['schemas']['InputAnswerValue'];
 export type CreatedForm = { id: string; draftId: string; revision: number; definition: FormDefinition };
 export type SavedDraft = { revision: number; definition: FormDefinition; diagnostics: unknown[] };
 export type PublishedForm = { releaseId: string; version: number; shareId: string; status: string };
 export type FormSummary = { id: string; formKey: string; title: string; status: string; revision: number; updatedAt: string };
 export type CurrentDraft = { id: string; revision: number; definition: FormDefinition; diagnostics: unknown[] };
 export type PublishedSchema = operations['ON-get-v1-schemas-kind-version-4c108bde88']['responses'][200]['content']['application/schema+json'];
+export type TypedSessionProjection = ServerProjection & {
+  readonly acceptedRevision: number;
+  readonly validation: readonly unknown[];
+  readonly reachablePageIds: readonly string[];
+  readonly requiredCount: number;
+  readonly completedRequiredCount: number;
+};
 
 @Injectable({ providedIn: 'root' })
 export class SmartIntakeApiService {
@@ -85,8 +96,34 @@ export class SmartIntakeApiService {
     return this.http.patch<{ acceptedRevision: number }>(`/v1/sessions/${sessionId}`, body, this.respondent(respondentToken));
   }
 
-  submitSession(sessionId: string, respondentToken: string, sessionRevision: number): Observable<{ receiptId: string }> {
-    return this.http.post<{ receiptId: string }>(`/v1/sessions/${sessionId}/submissions`, { sessionRevision }, this.respondent(respondentToken));
+  patchTypedSession(
+    sessionId: string,
+    respondentToken: string,
+    baseRevision: number,
+    clientMutationId: string,
+    operations: readonly RuntimeOperation[],
+    currentPageId?: string,
+  ): Observable<TypedSessionProjection> {
+    return this.http.patch<TypedSessionProjection>(`/v1/sessions/${sessionId}`, {
+      baseRevision,
+      clientMutationId,
+      operations: operations.map((operation) => this.wireOperation(operation)),
+      ...(currentPageId === undefined ? {} : { currentPageId }),
+    }, this.respondent(respondentToken));
+  }
+
+  submitSession(
+    sessionId: string,
+    respondentToken: string,
+    sessionRevision: number,
+    reviewDigest?: string,
+    attemptId?: string,
+    acknowledgments: readonly GeneratedAcknowledgment[] = [],
+  ): Observable<{ receiptId: string }> {
+    return this.http.post<{ receiptId: string }>(`/v1/sessions/${sessionId}/submissions`, {
+      sessionRevision,
+      ...(reviewDigest === undefined ? {} : { reviewDigest, attemptId, acknowledgments }),
+    }, this.respondent(respondentToken));
   }
 
   private staff(staffToken: string) {
@@ -101,7 +138,38 @@ export class SmartIntakeApiService {
     return { email: 'owner@local.test', password: 'LocalDevelopmentPassword!' };
   }
 
+  private wireOperation(operation: RuntimeOperation): GeneratedSessionMutation {
+    const target = {
+      fieldId: operation.target.fieldId,
+      ...(operation.target.rowPath === undefined ? {} : {
+        rowPath: operation.target.rowPath.map((segment) => ({ ...segment })),
+      }),
+    };
+    switch (operation.kind) {
+      case 'set': return {
+        op: 'set', ...target,
+        value: wireInputAnswer(operation.answer ?? { status: 'answered', value: operation.value }),
+      };
+      case 'clear': return { op: 'clear', ...target };
+      case 'markInvalid': return { op: 'markInvalid', ...target, reason: operation.reason };
+      case 'addItem': return {
+        op: 'addItem', ...target, itemId: operation.itemId,
+        initialFields: Object.fromEntries(Object.entries(operation.fields ?? {})
+          .map(([fieldId, answer]) => [fieldId, wireInputAnswer(answer)])),
+      };
+      case 'removeItem': return { op: 'removeItem', ...target, itemId: operation.itemId };
+      case 'moveItem': return {
+        op: 'moveItem', ...target, itemId: operation.itemId,
+        ...(operation.beforeItemId === undefined ? {} : { beforeItemId: operation.beforeItemId }),
+      };
+    }
+  }
+
   private etag(revision: number) {
     return `"${revision}"`;
   }
+}
+
+function wireInputAnswer(answer: unknown): GeneratedInputAnswer {
+  return JSON.parse(JSON.stringify(answer)) as GeneratedInputAnswer;
 }

@@ -25,17 +25,22 @@ REQUIRED_PYTHON = (3, 12)
 CONTRACT = ROOT / "docs/contracts/smart-form-builder-lite/4.0.0"
 INDEX = CONTRACT / "index.json"
 OPENAPI = ROOT / "docs/api/openapi.yaml"
+M4_OPENAPI = ROOT / "docs/api/openapi-4.1.0.yaml"
+M4_COMPONENTS = ROOT / "docs/api/openapi-components-4.1.0.yaml"
 OPERATIONS = ROOT / "docs/acceptance/v1.1/denominators/o-total.json"
 REGISTRY = CONTRACT / "capabilities.registry.json"
 JAVA_MODELS = ROOT / "backend/src/generated/java/com/kodeboxx/smartintake/generated/contract"
-JAVA_OPENAPI = ROOT / "tools/contracts/openapi-java-models.yaml"
+M4_JAVA_MODELS = JAVA_MODELS / "v410"
+JAVA_OPENAPI = ROOT / "tools/contracts/openapi-java-models-4.1.0.yaml"
 TS = ROOT / "frontend/src/app/generated/contracts.ts"
 API_TS = ROOT / "frontend/src/app/generated/api.ts"
+M4_API_TS = ROOT / "frontend/src/app/generated/api-4.1.0.ts"
 FIXTURES_TS = ROOT / "frontend/src/app/generated/contract-fixtures.ts"
 SCHEMAS_TS = ROOT / "frontend/src/app/generated/contract-schemas.ts"
 TYPECHECK_TS = ROOT / "frontend/src/app/generated/contracts.typecheck.ts"
 RESOURCES = ROOT / "backend/src/main/resources/contracts/smart-form-builder-lite/4.0.0"
 OPENAPI_RESOURCE = ROOT / "backend/src/main/resources/contracts/openapi-4.0.0.yaml"
+M4_OPENAPI_RESOURCE = ROOT / "backend/src/main/resources/contracts/openapi-4.1.0.yaml"
 FRONTEND_ASSETS = ROOT / "frontend/src/assets/contracts/smart-form-builder-lite/4.0.0"
 
 GENERATION = {
@@ -135,8 +140,8 @@ def java_openapi_bundle() -> bytes:
     values offline, so this deterministic build-only bundle makes all refs local
     without changing the published contract.
     """
-    api = yaml.safe_load(OPENAPI.read_text(encoding="utf-8"))
-    components = yaml.safe_load((CONTRACT / "openapi-components.yaml").read_text(encoding="utf-8"))["components"]
+    api = yaml.safe_load(M4_OPENAPI.read_text(encoding="utf-8"))
+    components = yaml.safe_load(M4_COMPONENTS.read_text(encoding="utf-8"))["components"]
     schema_sources = {model: java_model_projection(load(CONTRACT / f"{kind}.schema.json")) for kind, model in JAVA_MODEL_NAMES.items()}
     definition_names = {
         (model, definition): java_component_name(model, definition)
@@ -154,8 +159,10 @@ def java_openapi_bundle() -> bytes:
         if not isinstance(ref, str):
             return transformed
         ref = ref.replace("../contracts/smart-form-builder-lite/4.0.0/openapi-components.yaml#/components/", "#/components/")
+        ref = ref.replace("./openapi-components-4.1.0.yaml#/components/", "#/components/")
         for kind, model in JAVA_MODEL_NAMES.items():
-            for prefix in (f"./{kind}.schema.json", f"{kind}.schema.json"):
+            for prefix in (f"./{kind}.schema.json", f"{kind}.schema.json",
+                           f"../contracts/smart-form-builder-lite/4.0.0/{kind}.schema.json"):
                 if ref == prefix:
                     ref = f"#/components/schemas/{model}"
                 elif ref.startswith(prefix + "#"):
@@ -194,8 +201,8 @@ def generated_java_models(bundle: bytes) -> dict[Path, bytes]:
             f"-Dopenapi.contract.input={input_spec}",
             f"-Dopenapi.contract.output={output}",
         ], check=True, cwd=ROOT / "backend", capture_output=True, text=True)
-        generated_root = output / "com/kodeboxx/smartintake/generated/contract"
-        return {JAVA_MODELS / path.relative_to(generated_root): path.read_bytes() for path in sorted(generated_root.rglob("*.java"))}
+        generated_root = output / "com/kodeboxx/smartintake/generated/contract/v410"
+        return {M4_JAVA_MODELS / path.relative_to(generated_root): path.read_bytes() for path in sorted(generated_root.rglob("*.java"))}
 
 def generated_ts(kinds: list[str]) -> str:
     """Generate TypeScript from every Draft 2020-12 source with pinned json-schema-to-typescript.
@@ -384,7 +391,8 @@ def expected_files(scope: str = "all") -> dict[Path, bytes]:
     kinds = [item["kind"] for item in index["schemas"]]
     files: dict[Path, bytes] = {}
     if scope in {"all", "backend"}:
-        files.update({REGISTRY: canonical(registry()), OPENAPI_RESOURCE: OPENAPI.read_bytes(), JAVA_OPENAPI: java_openapi_bundle()})
+        files.update({REGISTRY: canonical(registry()), OPENAPI_RESOURCE: OPENAPI.read_bytes(),
+                      M4_OPENAPI_RESOURCE: M4_OPENAPI.read_bytes(), JAVA_OPENAPI: java_openapi_bundle()})
         files.update(generated_java_models(files[JAVA_OPENAPI]))
         files[RESOURCES / "capabilities.registry.json"] = files[REGISTRY]
         for item in index["schemas"]:
@@ -395,10 +403,15 @@ def expected_files(scope: str = "all") -> dict[Path, bytes]:
             files[FRONTEND_ASSETS / item["file"]] = (CONTRACT / item["file"]).read_bytes()
         # The locally pinned openapi-typescript executable creates the API declaration file in a temp directory.
         with tempfile.TemporaryDirectory(prefix="smartintake-openapi-types-") as temp:
-            candidate = Path(temp) / "api.ts"
             executable = ROOT / "frontend/node_modules/.bin/openapi-typescript"
-            subprocess.run([str(executable), str(OPENAPI), "-o", str(candidate)], check=True, cwd=ROOT, capture_output=True, text=True)
-            files[API_TS] = candidate.read_bytes()
+            for source, output, name in (
+                (OPENAPI, API_TS, "api.ts"),
+                (M4_OPENAPI, M4_API_TS, "api-4.1.0.ts"),
+            ):
+                candidate = Path(temp) / name
+                subprocess.run([str(executable), str(source), "-o", str(candidate)], check=True,
+                               cwd=ROOT, capture_output=True, text=True)
+                files[output] = candidate.read_bytes()
     return files
 
 def apply(files: dict[Path, bytes], check: bool, scope: str) -> list[str]:
@@ -414,9 +427,9 @@ def apply(files: dict[Path, bytes], check: bool, scope: str) -> list[str]:
                 if not check:
                     dest.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copyfile(candidate, dest)
-    generated = {path for path in files if path.is_relative_to(JAVA_MODELS)}
-    if scope in {"all", "backend"} and JAVA_MODELS.exists():
-        stale_models = sorted(path for path in JAVA_MODELS.rglob("*.java") if path not in generated)
+    generated = {path for path in files if path.is_relative_to(M4_JAVA_MODELS)}
+    if scope in {"all", "backend"} and M4_JAVA_MODELS.exists():
+        stale_models = sorted(path for path in M4_JAVA_MODELS.rglob("*.java") if path not in generated)
         for stale in stale_models:
             errors.append(str(stale.relative_to(ROOT)))
             if not check:
