@@ -146,7 +146,7 @@ begin
           or (version = '14' and type = 'SQL' and script = 'V14__staff_identity_sessions.sql' and checksum = 724788122)
           or (version = '15' and type = 'SQL' and script = 'V15__identity_lifecycle_tenant_administration.sql' and checksum = -2047153491)
           or (version = '16' and type = 'SQL' and script = 'V16__catalog_administration.sql' and checksum = -2129090709)
-          or (version = '17' and type = 'SQL' and script = 'V17__pending_organization_owner_activation.sql' and checksum = -1184501692),
+          or (version = '17' and type = 'SQL' and script = 'V17__pending_organization_owner_activation.sql' and checksum = 945038156),
           false)
   )
   or (select count(*) from flyway_schema_history where success) <> 17

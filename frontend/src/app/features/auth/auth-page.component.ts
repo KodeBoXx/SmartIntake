@@ -66,7 +66,9 @@ export class AuthPageComponent {
   bootstrapToken = '';
 
   constructor() {
-    if (this.screen === 'invitation' && this.route.snapshot.paramMap.get('token')) void this.router.navigateByUrl('/invitation', { replaceUrl: true });
+    if ((this.screen === 'invitation' || this.screen === 'activation') && this.route.snapshot.paramMap.get('token')) {
+      globalThis.history.replaceState(globalThis.history.state, '', this.screen === 'invitation' ? '/invitation' : '/activation');
+    }
   }
 
   isError(): boolean { return ['invalid', 'denied', 'throttled', 'error'].includes(this.state()); }

@@ -78,7 +78,7 @@ public class IdentitySessionService {
     UUID organization = UUID.randomUUID();
     UUID workspace = UUID.randomUUID();
     db.update("insert into accounts(id,email,password_hash,activation_state,temporary_password_expires_at) values(?,?,?,'pending',now()+interval '24 hours')", account, normalizedEmail(input.email()), credentials.encode(input.password()));
-    db.update("insert into organizations(id,name) values(?,?)", organization, nonBlank(input.organizationName(), "Local organization"));
+    db.update("insert into organizations(id,name,organization_status) values(?,?,'awaiting_owner_activation')", organization, nonBlank(input.organizationName(), "Local organization"));
     db.update("insert into workspaces(id,organization_id,workspace_key,name) values(?,?,?,?)", workspace, organization, "local", nonBlank(input.workspaceName(), "Local workspace"));
     db.update("insert into memberships(account_id,workspace_id,role) values(?,?,?)", account, workspace, "WORKSPACE_ADMINISTRATOR");
     // The protected one-time bootstrap establishes the initial platform authority as well as tenant ownership.
@@ -89,7 +89,7 @@ public class IdentitySessionService {
         UUID.randomUUID(), account, organization, sha256(activation));
     db.update("update identity_bootstrap_state set completed_at=now() where singleton=true");
     audit("identity.bootstrap", account, Map.of("organization", organization.toString()));
-    return ResponseEntity.status(HttpStatus.CREATED).header("X-Activation-Copy-Link", "/activate/" + activation)
+    return ResponseEntity.status(HttpStatus.CREATED).header("X-Activation-Copy-Link", "/activation/" + activation)
         .body(Map.of("requestId", opaque("req"), "bootstrap", "pending-activation"));
   }
 

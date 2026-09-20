@@ -642,6 +642,15 @@ def generated() -> dict[Path, bytes]:
     organization_user_create["responses"]["201"]["content"]["application/json"]["examples"] = {"success": {"value": invitation_value}}
     api["paths"]["/v1/platform/organizations"]["post"]["requestBody"]["content"]["application/json"]["examples"]["valid"]["value"] = {
         "name": "Example organization", "ownerEmail": "owner@example.test"}
+    platform_organizations = api["paths"]["/v1/platform/organizations"]
+    platform_organizations["get"]["responses"]["200"].pop("headers", None)
+    organization_response_example = platform_organizations["post"]["responses"]["201"]["content"]["application/json"]["examples"]["success"]["value"]["organization"]
+    organization_response_example["status"] = "awaiting_owner_activation"
+    organization_response_example["revision"] = 0
+    pending_owner = api["paths"]["/v1/platform/organizations/{o}/users"]["post"]
+    pending_owner["responses"]["201"]["content"]["application/json"]["schema"] = {"$ref": "#/components/schemas/InvitationResponse"}
+    pending_owner["responses"]["201"]["content"]["application/json"]["examples"] = {"success": {"value": invitation_value}}
+    pending_owner["responses"]["201"]["headers"] = {"X-Invitation-Copy-Link": {"$ref": "#/components/headers/X-Invitation-Copy-Link"}}
     session_example = api["paths"]["/v1/auth/session"]["get"]["responses"]["200"]["content"]["application/json"]["examples"]["success"]["value"]["authenticatedSession"]
     session_example["awaitingSetup"] = False
     session_example["platformRoles"] = []

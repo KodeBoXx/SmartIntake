@@ -12,6 +12,7 @@ export const appRoutes: Routes = [
   { ...auth('sign-in', 'sign-in'), canActivate: [anonymousOnlyGuard] },
   { ...auth('setup', 'setup'), canActivate: [anonymousOnlyGuard] },
   { ...auth('activation', 'activation'), canActivate: [anonymousOnlyGuard] },
+  { ...auth('activation/:token', 'activation'), canActivate: [anonymousOnlyGuard] },
   { ...auth('invite/:token', 'invitation'), canActivate: [anonymousOnlyGuard] },
   { ...auth('invitation', 'invitation'), canActivate: [anonymousOnlyGuard] },
   { ...auth('recovery', 'recovery'), canActivate: [anonymousOnlyGuard] },

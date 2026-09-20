@@ -4919,7 +4919,6 @@ export interface operations {
             /** @description Successful response. */
             200: {
                 headers: {
-                    ETag: components["headers"]["ETag"];
                     [name: string]: unknown;
                 };
                 content: {
@@ -5053,13 +5052,11 @@ export interface operations {
             /** @description Successful response. */
             201: {
                 headers: {
-                    ETag: components["headers"]["ETag"];
-                    "X-Temporary-Password-Copy": components["headers"]["X-Temporary-Password-Copy"];
-                    "X-Activation-Copy-Link": components["headers"]["X-Activation-Copy-Link"];
+                    "X-Invitation-Copy-Link": components["headers"]["X-Invitation-Copy-Link"];
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["OrganizationUserResponse"];
+                    "application/json": components["schemas"]["InvitationResponse"];
                 };
             };
             400: components["responses"]["BadRequest"];
