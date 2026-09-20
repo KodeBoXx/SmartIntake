@@ -109,7 +109,10 @@ public class CatalogApplicationService {
     String session = sessions.session(request, headerToken).orElseThrow(this::unauthenticated);
     UUID account;
     try {
-      account = db.queryForObject("select s.account_id from staff_sessions s join accounts a on a.id=s.account_id where s.token::text=? and s.revoked_at is null and s.setup_only=false and a.account_status='active' and s.last_seen_at > now()-interval '2 hours' and s.expires_at>now() and s.absolute_expires_at>now()", UUID.class, session);
+      account = db.queryForObject("select s.account_id from staff_sessions s join accounts a on a.id=s.account_id"
+          + " join workspaces w on w.id=? join organization_memberships om on om.account_id=s.account_id and om.organization_id=w.organization_id"
+          + " where s.token::text=? and s.revoked_at is null and s.setup_only=false and a.account_status='active' and om.membership_status='active'"
+          + " and s.last_seen_at > now()-interval '2 hours' and s.expires_at>now() and s.absolute_expires_at>now()", UUID.class, workspace, session);
     } catch (Exception ignored) { throw unauthenticated(); }
     List<String> roles = db.queryForList("select role from memberships where workspace_id=? and account_id=?", String.class, workspace, account);
     if (roles.isEmpty()) throw missing(); // Do not disclose a cross-workspace resource.

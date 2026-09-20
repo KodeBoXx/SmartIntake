@@ -56,18 +56,18 @@ class IdentityAdministrationIntegrationTests {
   }
 
   @Test
-  void activationCapabilityIsDeliveredOnceToAuthorizedIssuerAndCanBeConsumed() {
+  void invitationCapabilityIsDeliveredOnceAndRequiresRecipientAcceptance() {
     ResponseEntity<?> created = administration.createUser(opaque("organization", organization),
         new IdentityAdministrationService.UserCreate("new@example.test", List.of("member"), "temporary-password"), request());
     assertEquals(HttpStatus.CREATED, created.getStatusCode());
-    String link = created.getHeaders().getFirst("X-Activation-Copy-Link");
-    assertTrue(link.startsWith("/activate/"));
-    assertFalse(created.getBody().toString().contains(link.substring("/activate/".length())));
+    String link = created.getHeaders().getFirst("X-Invitation-Copy-Link");
+    assertTrue(link.startsWith("/invite/"));
+    assertFalse(created.getBody().toString().contains(link.substring("/invite/".length())));
 
-    String proof = link.substring("/activate/".length());
-    assertEquals(HttpStatus.NO_CONTENT, administration.activate(new IdentityAdministrationService.Activation(proof, "replacement-password", "New user")).getStatusCode());
+    String proof = link.substring("/invite/".length());
+    assertEquals(HttpStatus.OK, administration.accept(new IdentityAdministrationService.InviteAccept(proof, "replacement-password")).getStatusCode());
     assertEquals("active", db.queryForObject("select activation_state from accounts where email='new@example.test'", String.class));
-    assertThrows(ResponseStatusException.class, () -> administration.activate(new IdentityAdministrationService.Activation(proof, "another-password", "New user")));
+    assertThrows(ResponseStatusException.class, () -> administration.accept(new IdentityAdministrationService.InviteAccept(proof, "another-password")));
   }
 
   @Test
@@ -185,9 +185,10 @@ class IdentityAdministrationIntegrationTests {
     assertEquals(HttpStatus.CREATED, first.getStatusCode());
     assertEquals(json.valueToTree(first.getBody()), json.valueToTree(replay.getBody()));
     assertEquals(first.getHeaders().getETag(), replay.getHeaders().getETag());
-    assertTrue(first.getHeaders().containsKey("X-Activation-Copy-Link"));
-    assertFalse(replay.getHeaders().containsKey("X-Activation-Copy-Link"));
-    assertEquals(1, db.queryForObject("select count(*) from accounts where email='replay@example.test'", Integer.class));
+    assertTrue(first.getHeaders().containsKey("X-Invitation-Copy-Link"));
+    assertFalse(replay.getHeaders().containsKey("X-Invitation-Copy-Link"));
+    assertEquals(1, db.queryForObject("select count(*) from identity_invitations where email='replay@example.test'", Integer.class));
+    assertEquals(0, db.queryForObject("select count(*) from accounts where email='replay@example.test'", Integer.class));
     ResponseStatusException mismatch = assertThrows(ResponseStatusException.class, () -> administration.createUserMutation(
         opaque("organization", organization), new IdentityAdministrationService.UserCreate("other@example.test", List.of("member"), "temporary-password"), "create-replay", request()));
     assertEquals(HttpStatus.CONFLICT, mismatch.getStatusCode());
@@ -201,7 +202,8 @@ class IdentityAdministrationIntegrationTests {
     ResponseEntity<?> one = first.get(10, TimeUnit.SECONDS);
     ResponseEntity<?> two = second.get(10, TimeUnit.SECONDS);
     assertEquals(json.valueToTree(one.getBody()), json.valueToTree(two.getBody()));
-    assertEquals(1, db.queryForObject("select count(*) from accounts where email='concurrent@example.test'", Integer.class));
+    assertEquals(1, db.queryForObject("select count(*) from identity_invitations where email='concurrent@example.test'", Integer.class));
+    assertEquals(0, db.queryForObject("select count(*) from accounts where email='concurrent@example.test'", Integer.class));
   }
 
   @Test

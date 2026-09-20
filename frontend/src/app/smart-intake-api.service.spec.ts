@@ -225,14 +225,13 @@ describe('SmartIntakeApiService', () => {
     expect(users.request.headers.has('X-Staff-Session')).toBe(false);
     users.flush({ items: [] });
 
-    api.addOrganizationUser('org-1', { email: 'new@example.test', roles: ['administrator'] }).subscribe((user) => {
-      expect(user.activationCopyLink).toBe('/activate/new-user');
-      expect(user.temporaryPasswordCopy).toBe('temporary-only');
+    api.addOrganizationUser('org-1', { email: 'new@example.test', roles: ['administrator'] }).subscribe((delivery) => {
+      expect(delivery.invitationCopyLink).toBe('/invite/new-user');
     });
     const add = http.expectOne('/v1/organizations/org-1/users');
     expect(add.request.method).toBe('POST');
     expect(add.request.body).toEqual({ email: 'new@example.test', roles: ['administrator'] });
-    add.flush({ organizationUser: { id: 'user-1', kind: 'OrganizationUser', revision: 1, status: 'active', createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-01T00:00:00Z', email: 'new@example.test', roles: ['administrator'] } }, { headers: { 'X-Activation-Copy-Link': '/activate/new-user', 'X-Temporary-Password-Copy': 'temporary-only' } });
+    add.flush({ invitation: { id: 'invitation-1', kind: 'Invitation', revision: 0, status: 'pending', createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-01T00:00:00Z', email: 'new@example.test' } }, { headers: { 'X-Invitation-Copy-Link': '/invite/new-user' } });
   });
 
   it('serializes catalog filters and catalog mutations with the selected workspace in the path', () => {

@@ -15,8 +15,8 @@ type GeneratedAcknowledgment = components['schemas']['Acknowledgment'];
 type GeneratedInputAnswer = components['schemas']['InputAnswerValue'];
 export type StaffIdentity = components['schemas']['SafeAccountIdentity'];
 export type StaffWorkspace = components['schemas']['PermittedWorkspaceChoice'];
-export type StaffOrganization = components['schemas']['PermittedOrganizationChoice'];
-export type StaffSession = { identity: StaffIdentity; organizations: StaffOrganization[]; currentOrganizationId: string | null; currentWorkspaceId?: string | null; csrfToken?: string };
+export type StaffOrganization = components['schemas']['PermittedOrganizationChoice'] & { organizationRoles: ('owner' | 'administrator' | 'member')[] };
+export type StaffSession = { identity: StaffIdentity; platformRoles: ('administrator')[]; organizations: StaffOrganization[]; currentOrganizationId: string | null; currentWorkspaceId?: string | null; csrfToken?: string };
 export type CreatedForm = { id: string; draftId: string; revision: number; definition: FormDefinition };
 export type SavedDraft = { revision: number; definition: FormDefinition; diagnostics: unknown[] };
 export type PublishedForm = { releaseId: string; version: number; shareId: string; status: string };
@@ -77,14 +77,19 @@ export class SmartIntakeApiService {
   }
 
   platformOrganizations(): Observable<components['schemas']['Organization'][]> { return this.http.get<components['schemas']['OrganizationCollection']>('/v1/platform/organizations', this.staff()).pipe(map((response) => response.items)); }
-  createPlatformOrganization(body: components['schemas']['OrganizationCreateRequest'], retryKey?: string): Observable<components['schemas']['Organization']> { return this.revisioned(this.http.post<components['schemas']['OrganizationResponse']>('/v1/platform/organizations', body, this.mutation('POST', '/v1/platform/organizations', body, retryKey))).pipe(map((response) => response.organization)); }
+  createPlatformOrganization(body: components['schemas']['OrganizationCreateRequest'], retryKey?: string): Observable<components['schemas']['Organization'] & AuthorizedDeliveryCopies> {
+    return this.http.post<components['schemas']['OrganizationResponse']>('/v1/platform/organizations', body, this.mutation('POST', '/v1/platform/organizations', body, retryKey)).pipe(
+      tap((response) => this.rememberEtag(response)),
+      map((response) => ({ ...response.body!.organization, ...authorizedDeliveryCopies(response, 'activationCopyLink', 'invitationCopyLink', 'temporaryPasswordCopy') })),
+    );
+  }
   updateOrganization(organizationId: string, revision: number, body: components['schemas']['OrganizationUpdateRequest'], retryKey?: string): Observable<components['schemas']['Organization']> { const url = `/v1/platform/organizations/${organizationId}`; return this.revisioned(this.http.patch<components['schemas']['OrganizationResponse']>(url, body, this.mutation('PATCH', url, body, retryKey, revision))).pipe(map((response) => response.organization)); }
   organizationUsers(organizationId: string): Observable<components['schemas']['OrganizationUser'][]> { return this.http.get<components['schemas']['OrganizationUserCollection']>(`/v1/organizations/${organizationId}/users`, this.staff()).pipe(map((response) => response.items)); }
-  addOrganizationUser(organizationId: string, body: components['schemas']['OrganizationUserCreateRequest'], retryKey?: string): Observable<components['schemas']['OrganizationUser'] & AuthorizedDeliveryCopies> {
+  addOrganizationUser(organizationId: string, body: components['schemas']['OrganizationUserCreateRequest'], retryKey?: string): Observable<AuthorizedDeliveryCopies> {
     const url = `/v1/organizations/${organizationId}/users`;
-    return this.http.post<components['schemas']['OrganizationUserResponse']>(url, body, this.mutation('POST', url, body, retryKey)).pipe(
+    return this.http.post<components['schemas']['InvitationResponse']>(url, body, this.mutation('POST', url, body, retryKey)).pipe(
       tap((response) => this.rememberEtag(response)),
-      map((response) => ({ ...response.body!.organizationUser, ...authorizedDeliveryCopies(response, 'activationCopyLink', 'temporaryPasswordCopy') })),
+      map((response) => authorizedDeliveryCopies(response, 'invitationCopyLink')),
     );
   }
   updateOrganizationUser(organizationId: string, userId: string, revision: number, body: components['schemas']['OrganizationUserUpdateRequest'], retryKey?: string): Observable<components['schemas']['OrganizationUser']> { const url = `/v1/organizations/${organizationId}/users/${userId}`; return this.revisioned(this.http.patch<components['schemas']['OrganizationUserResponse']>(url, body, this.mutation('PATCH', url, body, retryKey, revision))).pipe(map((response) => response.organizationUser)); }
@@ -291,11 +296,11 @@ function wireInputAnswer(answer: unknown): GeneratedInputAnswer {
 
 function mapSession(source: Observable<unknown>): Observable<StaffSession> {
   return source.pipe(map((body) => {
-    const value = body as { authenticatedSession?: { safeIdentity?: StaffIdentity; organizations?: StaffOrganization[]; currentOrganizationId?: string | null; currentWorkspaceId?: string | null }; safeIdentity?: StaffIdentity };
+    const value = body as { authenticatedSession?: { safeIdentity?: StaffIdentity; platformRoles?: ('administrator')[]; organizations?: StaffOrganization[]; currentOrganizationId?: string | null; currentWorkspaceId?: string | null }; safeIdentity?: StaffIdentity };
     const authenticated = value.authenticatedSession;
     const identity = authenticated?.safeIdentity ?? value.safeIdentity;
     if (!identity?.accountId || !identity.username) throw new Error('The server returned an invalid staff session.');
-    return { identity, organizations: authenticated?.organizations ?? [], currentOrganizationId: authenticated?.currentOrganizationId ?? null, currentWorkspaceId: authenticated?.currentWorkspaceId ?? null };
+    return { identity, platformRoles: authenticated?.platformRoles ?? [], organizations: authenticated?.organizations ?? [], currentOrganizationId: authenticated?.currentOrganizationId ?? null, currentWorkspaceId: authenticated?.currentWorkspaceId ?? null };
   }));
 }
 

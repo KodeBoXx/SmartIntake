@@ -983,10 +983,12 @@ paths:
               $ref: '#/components/headers/X-Temporary-Password-Copy'
             X-Activation-Copy-Link:
               $ref: '#/components/headers/X-Activation-Copy-Link'
+            X-Invitation-Copy-Link:
+              $ref: '#/components/headers/X-Invitation-Copy-Link'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OrganizationUserResponse'
+                $ref: '#/components/schemas/InvitationResponse'
               examples:
                 success:
                   value:
@@ -1653,6 +1655,12 @@ paths:
           headers:
             ETag:
               $ref: '#/components/headers/ETag'
+            X-Activation-Copy-Link:
+              $ref: '#/components/headers/X-Activation-Copy-Link'
+            X-Invitation-Copy-Link:
+              $ref: '#/components/headers/X-Invitation-Copy-Link'
+            X-Temporary-Password-Copy:
+              $ref: '#/components/headers/X-Temporary-Password-Copy'
           content:
             application/json:
               schema:
@@ -8529,6 +8537,7 @@ components:
       - activationState
       - accountStatus
       - awaitingSetup
+      - platformRoles
       - organizations
       properties:
         safeIdentity:
@@ -8556,6 +8565,12 @@ components:
           - suspended
         awaitingSetup:
           type: boolean
+        platformRoles:
+          type: array
+          items:
+            enum:
+            - administrator
+          uniqueItems: true
         organizations:
           type: array
           items:
@@ -8565,6 +8580,7 @@ components:
             - organizationId
             - name
             - membershipState
+            - organizationRoles
             - workspaces
             properties:
               organizationId:
@@ -8575,6 +8591,14 @@ components:
               membershipState:
                 enum:
                 - active
+              organizationRoles:
+                type: array
+                items:
+                  enum:
+                  - owner
+                  - administrator
+                  - member
+                uniqueItems: true
               workspaces:
                 type: array
                 items:
@@ -10215,11 +10239,16 @@ components:
       additionalProperties: false
       required:
       - name
+      - ownerEmail
       properties:
         name:
           type: string
           minLength: 1
           maxLength: 160
+        ownerEmail:
+          type: string
+          format: email
+          maxLength: 254
     OrganizationUserCreateRequest:
       type: object
       additionalProperties: false

@@ -20,10 +20,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.kodeboxx.smartintake.generated.contract.v410.AuthenticatedSessionOrganizationsInnerWorkspacesInner;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -34,6 +37,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   AuthenticatedSessionOrganizationsInner.JSON_PROPERTY_ORGANIZATION_ID,
   AuthenticatedSessionOrganizationsInner.JSON_PROPERTY_NAME,
   AuthenticatedSessionOrganizationsInner.JSON_PROPERTY_MEMBERSHIP_STATE,
+  AuthenticatedSessionOrganizationsInner.JSON_PROPERTY_ORGANIZATION_ROLES,
   AuthenticatedSessionOrganizationsInner.JSON_PROPERTY_WORKSPACES
 })
 @JsonTypeName("AuthenticatedSession_organizations_inner")
@@ -83,6 +87,47 @@ public class AuthenticatedSessionOrganizationsInner {
   public static final String JSON_PROPERTY_MEMBERSHIP_STATE = "membershipState";
   @jakarta.annotation.Nonnull
   private MembershipStateEnum membershipState;
+
+  /**
+   * Gets or Sets organizationRoles
+   */
+  public enum OrganizationRolesEnum {
+    OWNER(String.valueOf("owner")),
+    
+    ADMINISTRATOR(String.valueOf("administrator")),
+    
+    MEMBER(String.valueOf("member"));
+
+    private String value;
+
+    OrganizationRolesEnum(String value) {
+      this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    @JsonCreator
+    public static OrganizationRolesEnum fromValue(String value) {
+      for (OrganizationRolesEnum b : OrganizationRolesEnum.values()) {
+        if (b.value.equals(value)) {
+          return b;
+        }
+      }
+      throw new IllegalArgumentException("Unexpected value '" + value + "'");
+    }
+  }
+
+  public static final String JSON_PROPERTY_ORGANIZATION_ROLES = "organizationRoles";
+  @jakarta.annotation.Nonnull
+  private Set<OrganizationRolesEnum> organizationRoles = new LinkedHashSet<>();
 
   public static final String JSON_PROPERTY_WORKSPACES = "workspaces";
   @jakarta.annotation.Nonnull
@@ -166,6 +211,40 @@ public class AuthenticatedSessionOrganizationsInner {
     this.membershipState = membershipState;
   }
 
+  public AuthenticatedSessionOrganizationsInner organizationRoles(@jakarta.annotation.Nonnull Set<OrganizationRolesEnum> organizationRoles) {
+    
+    this.organizationRoles = organizationRoles;
+    return this;
+  }
+
+  public AuthenticatedSessionOrganizationsInner addOrganizationRolesItem(OrganizationRolesEnum organizationRolesItem) {
+    if (this.organizationRoles == null) {
+      this.organizationRoles = new LinkedHashSet<>();
+    }
+    this.organizationRoles.add(organizationRolesItem);
+    return this;
+  }
+
+  /**
+   * Get organizationRoles
+   * @return organizationRoles
+   */
+  @jakarta.annotation.Nonnull
+  @JsonProperty(JSON_PROPERTY_ORGANIZATION_ROLES)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+
+  public Set<OrganizationRolesEnum> getOrganizationRoles() {
+    return organizationRoles;
+  }
+
+
+  @JsonDeserialize(as = LinkedHashSet.class)
+  @JsonProperty(JSON_PROPERTY_ORGANIZATION_ROLES)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setOrganizationRoles(@jakarta.annotation.Nonnull Set<OrganizationRolesEnum> organizationRoles) {
+    this.organizationRoles = organizationRoles;
+  }
+
   public AuthenticatedSessionOrganizationsInner workspaces(@jakarta.annotation.Nonnull List<AuthenticatedSessionOrganizationsInnerWorkspacesInner> workspaces) {
     
     this.workspaces = workspaces;
@@ -211,12 +290,13 @@ public class AuthenticatedSessionOrganizationsInner {
     return Objects.equals(this.organizationId, authenticatedSessionOrganizationsInner.organizationId) &&
         Objects.equals(this.name, authenticatedSessionOrganizationsInner.name) &&
         Objects.equals(this.membershipState, authenticatedSessionOrganizationsInner.membershipState) &&
+        Objects.equals(this.organizationRoles, authenticatedSessionOrganizationsInner.organizationRoles) &&
         Objects.equals(this.workspaces, authenticatedSessionOrganizationsInner.workspaces);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(organizationId, name, membershipState, workspaces);
+    return Objects.hash(organizationId, name, membershipState, organizationRoles, workspaces);
   }
 
   @Override
@@ -226,6 +306,7 @@ public class AuthenticatedSessionOrganizationsInner {
     sb.append("    organizationId: ").append(toIndentedString(organizationId)).append("\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("    membershipState: ").append(toIndentedString(membershipState)).append("\n");
+    sb.append("    organizationRoles: ").append(toIndentedString(organizationRoles)).append("\n");
     sb.append("    workspaces: ").append(toIndentedString(workspaces)).append("\n");
     sb.append("}");
     return sb.toString();

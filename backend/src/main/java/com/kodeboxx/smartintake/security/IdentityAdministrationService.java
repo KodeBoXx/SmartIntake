@@ -63,7 +63,7 @@ public class IdentityAdministrationService {
   public record UserCreate(String email, List<String> roles, String temporaryPassword) {}
   public record UserUpdate(String email, List<String> roles) {}
   public record Roles(List<String> roles) {}
-  public record OrganizationCreate(String name) {}
+  public record OrganizationCreate(String name, String ownerEmail) {}
   public record OrganizationUpdate(String name, String organizationStatus) {}
   public record PlatformAccountUpdate(String accountStatus) {}
   public record RecoveryRequest(String reason, String safeDelivery, Boolean revokeExistingSessions,
@@ -153,33 +153,7 @@ public class IdentityAdministrationService {
     requireOrganizationAdministrator(actor, organization);
     List<String> roles = allowedOrganizationRoles(request.roles(), false);
     String email = email(request.email());
-    UUID account = accountByEmail(email);
-    ActionCapability activation = null;
-
-    String generatedTemporaryPassword = null;
-    if (account == null) {
-      account = UUID.randomUUID();
-      String temporaryPassword = request.temporaryPassword();
-      if (temporaryPassword != null) validatePassword(temporaryPassword);
-      String initialPassword = temporaryPassword == null ? randomSecret() : temporaryPassword;
-      generatedTemporaryPassword = temporaryPassword == null ? initialPassword : null;
-      db.update("insert into accounts(id,email,password_hash,activation_state,temporary_password_expires_at) values(?,?,?,'pending',now()+interval '24 hours')",
-          account, email, credentials.encode(initialPassword));
-      activation = issueAction(account, organization, "activation", ACTION_TTL);
-    }
-
-    db.update("insert into organization_memberships(account_id,organization_id,roles,membership_status) values(?,?,?,'active') "
-            + "on conflict(account_id,organization_id) do update set roles=excluded.roles,membership_status='active',updated_at=now(),revision=organization_memberships.revision+1",
-        account, organization, roles.toArray(String[]::new));
-
-    long membershipRevision = organizationMembershipRevision(account, organization);
-    Map<String, Object> body = Map.of("requestId", opaque("req"), "organizationUser", organizationUser(account, email, roles, "active", membershipRevision, Instant.now(), Instant.now()));
-    ResponseEntity.BodyBuilder response = ResponseEntity.status(HttpStatus.CREATED);
-    // An activation proof is an administrator-delivered no-email copy link, never a response property.
-    if (activation != null) response.header("X-Activation-Copy-Link", "/activate/" + activation.token());
-    if (generatedTemporaryPassword != null) response.header("X-Temporary-Password-Copy", generatedTemporaryPassword);
-    audit("identity.membership.created", new AuditContext(actor, organizationScope(organization), account, "membership-create", activation == null ? "none" : "copy-link", "not-applicable", "success", organizationMembershipRevision(account, organization)));
-    return response.eTag(etag(membershipRevision)).body(body);
+    return createInvitation(organization, accountByEmail(email), email, actor, roles);
   }
 
   @Transactional
@@ -298,7 +272,8 @@ public class IdentityAdministrationService {
     UUID organization = (UUID) invitation.get("organization_id");
     UUID issuer = (UUID) invitation.get("created_by");
     // Issuer authority, tenant state, recipient state, and invitation grant are all checked under this lock.
-    requireOrganizationAdministrator(issuer, organization);
+    boolean platformInvitation = isPlatformAccount(issuer);
+    if (!platformInvitation) requireOrganizationAdministrator(issuer, organization);
     Integer issuerActive = db.queryForObject("select count(*) from accounts where id=? and account_status='active' and activation_state='active'", Integer.class, issuer);
     if (issuerActive == null || issuerActive != 1) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid or expired credential");
     UUID account = (UUID) invitation.get("account_id");
@@ -314,7 +289,7 @@ public class IdentityAdministrationService {
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
       }
     }
-    List<String> roles = allowedOrganizationRoles(sqlArray(invitation.get("organization_roles")), false);
+    List<String> roles = allowedOrganizationRoles(sqlArray(invitation.get("organization_roles")), platformInvitation);
     db.update("insert into organization_memberships(account_id,organization_id,roles,membership_status) values(?,?,?,'active') "
             + "on conflict(account_id,organization_id) do update set roles=excluded.roles,membership_status='active',updated_at=now(),revision=organization_memberships.revision+1",
         account, invitation.get("organization_id"), roles.toArray(String[]::new));
@@ -490,12 +465,29 @@ public class IdentityAdministrationService {
   public ResponseEntity<?> createPlatformOrganization(OrganizationCreate request, HttpServletRequest http) {
     UUID actor = currentAccount(http);
     requirePlatformAdministrator(actor);
-    if (request.name() == null || request.name().isBlank() || request.name().length() > 160) badRequest();
+    if (request.name() == null || request.name().isBlank() || request.name().length() > 160 || request.ownerEmail() == null) badRequest();
     UUID organization = UUID.randomUUID();
     db.update("insert into organizations(id,name,organization_status) values(?,?,'active')", organization, request.name().trim());
+    String ownerEmail = email(request.ownerEmail());
+    UUID owner = accountByEmail(ownerEmail);
+    ResponseEntity<?> delivery;
+    if (owner == null) {
+      owner = UUID.randomUUID();
+      String temporaryPassword = randomSecret();
+      db.update("insert into accounts(id,email,password_hash,activation_state,temporary_password_expires_at) values(?,?,?,'pending',now()+interval '24 hours')",
+          owner, ownerEmail, credentials.encode(temporaryPassword));
+      db.update("insert into organization_memberships(account_id,organization_id,roles,membership_status) values(?,?,array['owner','administrator'],'suspended')", owner, organization);
+      ActionCapability activation = issueAction(owner, organization, "activation", ACTION_TTL);
+      delivery = ResponseEntity.status(HttpStatus.CREATED).header("X-Activation-Copy-Link", "/activate/" + activation.token())
+          .header("X-Temporary-Password-Copy", temporaryPassword).build();
+    } else {
+      delivery = createInvitation(organization, owner, ownerEmail, actor, List.of("owner", "administrator"));
+    }
     audit("identity.organization.created", new AuditContext(actor, "platform", organization,
-        "organization-create", "none", "not-applicable", "success", 0L));
-    return ResponseEntity.status(HttpStatus.CREATED).eTag(etag(0)).body(Map.of("requestId", opaque("req"), "organization", organizationResource(organization, request.name().trim(), "active", 0, Instant.now())));
+        "organization-create", "copy-link", "first-owner-pending", "success", 0L));
+    ResponseEntity.BodyBuilder response = ResponseEntity.status(HttpStatus.CREATED).eTag(etag(0));
+    delivery.getHeaders().forEach((name, values) -> values.forEach(value -> response.header(name, value)));
+    return response.body(Map.of("requestId", opaque("req"), "organization", organizationResource(organization, request.name().trim(), "active", 0, Instant.now())));
   }
 
   @Transactional
@@ -574,7 +566,9 @@ public class IdentityAdministrationService {
     String email = email(request.email());
     UUID account = accountByEmail(email);
     String generatedTemporaryPassword = null;
-    if (account == null) {
+    if (account != null) {
+      return createInvitation(organization, account, email, actor, List.of("owner", "administrator"));
+    } else {
       account = UUID.randomUUID();
       String password = request.temporaryPassword() == null ? randomSecret() : request.temporaryPassword();
       generatedTemporaryPassword = request.temporaryPassword() == null ? password : null;
@@ -582,8 +576,7 @@ public class IdentityAdministrationService {
       db.update("insert into accounts(id,email,password_hash,activation_state,temporary_password_expires_at) values(?,?,?,'pending',now()+interval '24 hours')",
           account, email, credentials.encode(password));
     }
-    db.update("insert into organization_memberships(account_id,organization_id,roles,membership_status) values(?,?,array['owner','administrator'],'suspended') "
-        + "on conflict(account_id,organization_id) do update set roles=array['owner','administrator'],membership_status='suspended',updated_at=now(),revision=organization_memberships.revision+1", account, organization);
+    db.update("insert into organization_memberships(account_id,organization_id,roles,membership_status) values(?,?,array['owner','administrator'],'suspended')", account, organization);
     ActionCapability activation = issueAction(account, organization, "activation", ACTION_TTL);
     long membershipRevision = organizationMembershipRevision(account, organization);
     audit("identity.pending-owner.created", new AuditContext(actor, organizationScope(organization), account,

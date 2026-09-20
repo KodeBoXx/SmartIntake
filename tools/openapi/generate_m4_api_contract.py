@@ -361,17 +361,19 @@ def generated() -> dict[Path, bytes]:
     }
     schemas["AuthenticatedSession"] = {
         "type": "object", "additionalProperties": False,
-        "required": ["safeIdentity", "activationState", "accountStatus", "awaitingSetup", "organizations"],
+        "required": ["safeIdentity", "activationState", "accountStatus", "awaitingSetup", "platformRoles", "organizations"],
         "properties": {
             "safeIdentity": {"type": "object", "additionalProperties": False, "required": ["accountId", "username", "displayName"],
                              "properties": {"accountId": {"type": "string", "pattern": "^account-"}, "username": {"type": "string"}, "displayName": {"type": "string"}}},
             "activationState": {"enum": ["active", "pending"]},
             "accountStatus": {"enum": ["active", "suspended"]},
             "awaitingSetup": {"type": "boolean"},
+            "platformRoles": {"type": "array", "items": {"enum": ["administrator"]}, "uniqueItems": True},
             "organizations": {"type": "array", "items": {"type": "object", "additionalProperties": False,
-                "required": ["organizationId", "name", "membershipState", "workspaces"], "properties": {
+                "required": ["organizationId", "name", "membershipState", "organizationRoles", "workspaces"], "properties": {
                     "organizationId": {"type": "string", "pattern": "^organization-"}, "name": {"type": "string"},
-                    "membershipState": {"enum": ["active"]}, "workspaces": {"type": "array", "items": {"type": "object", "additionalProperties": False,
+                    "membershipState": {"enum": ["active"]}, "organizationRoles": {"type": "array", "items": {"enum": ["owner", "administrator", "member"]}, "uniqueItems": True},
+                    "workspaces": {"type": "array", "items": {"type": "object", "additionalProperties": False,
                         "required": ["workspaceId", "name", "roles"], "properties": {"workspaceId": {"type": "string", "pattern": "^workspace-"}, "name": {"type": "string"}, "roles": {"type": "array", "items": {"enum": workspace_roles}}}}}}}},
             "currentOrganizationId": {"type": ["string", "null"], "pattern": "^organization-"},
             "currentWorkspaceId": {"type": "string", "pattern": "^workspace-"},
@@ -387,6 +389,8 @@ def generated() -> dict[Path, bytes]:
             "workspaceName": {"type": "string", "minLength": 1, "maxLength": 160},
         },
     }
+    schemas["OrganizationCreateRequest"]["required"] = ["name", "ownerEmail"]
+    schemas["OrganizationCreateRequest"]["properties"]["ownerEmail"] = {"type": "string", "format": "email", "maxLength": 254}
     schemas["BootstrapResponse"] = {
         "type": "object", "additionalProperties": False, "required": ["requestId", "bootstrap"],
         "properties": {"requestId": {"type": "string"}, "bootstrap": {"const": "pending-activation"}},
@@ -617,12 +621,18 @@ def generated() -> dict[Path, bytes]:
                 .setdefault("headers", {})[name] = {"$ref": f"#/components/headers/{name}"}
     copy_header("/v1/organizations/{o}/users", "post", "201", "X-Temporary-Password-Copy")
     copy_header("/v1/organizations/{o}/users", "post", "201", "X-Activation-Copy-Link")
+    copy_header("/v1/organizations/{o}/users", "post", "201", "X-Invitation-Copy-Link")
     copy_header("/v1/platform/organizations/{o}/users", "post", "201", "X-Temporary-Password-Copy")
     copy_header("/v1/platform/organizations/{o}/users", "post", "201", "X-Activation-Copy-Link")
     copy_header("/v1/organizations/{o}/users/{u}/invitations", "post", "201", "X-Invitation-Copy-Link")
     copy_header("/v1/organizations/{o}/users/{u}/recovery", "post", "201", "X-Recovery-Copy-Link")
     copy_header("/v1/platform/accounts/{a}/recovery", "post", "201", "X-Recovery-Copy-Link")
     copy_header("/v1/auth/bootstrap", "post", "201", "X-Activation-Copy-Link")
+    copy_header("/v1/platform/organizations", "post", "201", "X-Activation-Copy-Link")
+    copy_header("/v1/platform/organizations", "post", "201", "X-Invitation-Copy-Link")
+    copy_header("/v1/platform/organizations", "post", "201", "X-Temporary-Password-Copy")
+    organization_user_create = api["paths"]["/v1/organizations/{o}/users"]["post"]
+    organization_user_create["responses"]["201"]["content"]["application/json"]["schema"] = {"$ref": "#/components/schemas/InvitationResponse"}
     start = api["paths"]["/v1/public/forms/{shareId}/sessions"]["post"]
     start["parameters"] = [parameter for parameter in start["parameters"]
                            if parameter.get("name") == "shareId"]

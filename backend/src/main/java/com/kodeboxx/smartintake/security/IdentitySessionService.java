@@ -161,9 +161,14 @@ public class IdentitySessionService {
       List<Map<String, Object>> memberships = setupOnly ? List.of() : db.queryForList(
           "select o.id organization_id,o.name organization_name,w.id workspace_id,w.name workspace_name,m.role"
               + " from memberships m join workspaces w on w.id=m.workspace_id join organizations o on o.id=w.organization_id"
-              + " where m.account_id=? order by o.name,w.name,m.role", account);
+              + " join organization_memberships om on om.account_id=m.account_id and om.organization_id=o.id"
+              + " where m.account_id=? and om.membership_status='active' and o.organization_status='active' order by o.name,w.name,m.role", account);
+      List<Map<String, Object>> organizationGrants = setupOnly ? List.of() : db.queryForList(
+          "select o.id organization_id,o.name organization_name,om.roles from organization_memberships om join organizations o on o.id=om.organization_id"
+              + " where om.account_id=? and om.membership_status='active' and o.organization_status='active' order by o.name", account);
+      List<String> platformRoles = setupOnly ? List.of() : db.queryForList("select role from platform_roles where account_id=? order by role", String.class, account);
       return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, staffCookie(token, setupOnly).toString()).body(
-          sessionResponse(account, email, memberships, setupOnly, (String) row.get("activation_state"),
+          sessionResponse(account, email, memberships, organizationGrants, platformRoles, setupOnly, (String) row.get("activation_state"),
               (String) row.get("account_status"), setupOnly ? null : (UUID) row.get("current_organization_id"),
               setupOnly ? null : (UUID) row.get("current_workspace_id")));
     } catch (Exception ignored) {
@@ -233,13 +238,21 @@ public class IdentitySessionService {
   }
 
   private Map<String, Object> sessionResponse(UUID account, String email, List<Map<String, Object>> memberships,
-      boolean setupOnly, String activationState, String accountStatus, UUID currentOrganization, UUID currentWorkspace) {
+      List<Map<String, Object>> organizationGrants, List<String> platformRoles, boolean setupOnly,
+      String activationState, String accountStatus, UUID currentOrganization, UUID currentWorkspace) {
     Map<UUID, Map<String, Object>> organizations = new LinkedHashMap<>();
+    for (Map<String, Object> grant : organizationGrants) {
+      UUID organization = (UUID) grant.get("organization_id");
+      organizations.put(organization, new LinkedHashMap<>(Map.of(
+          "organizationId", opaque("organization", organization), "name", grant.get("organization_name"),
+          "membershipState", "active", "organizationRoles", sqlArray(grant.get("roles")),
+          "workspaces", new java.util.ArrayList<Map<String, Object>>())));
+    }
     for (Map<String, Object> membership : memberships) {
       UUID organization = (UUID) membership.get("organization_id");
       @SuppressWarnings("unchecked") List<Map<String, Object>> workspaces = (List<Map<String, Object>>) organizations
           .computeIfAbsent(organization, ignored -> new LinkedHashMap<>(Map.of("organizationId", opaque("organization", organization),
-              "name", membership.get("organization_name"), "membershipState", "active", "workspaces", new java.util.ArrayList<Map<String, Object>>())))
+              "name", membership.get("organization_name"), "membershipState", "active", "organizationRoles", List.of(), "workspaces", new java.util.ArrayList<Map<String, Object>>())))
           .get("workspaces");
       workspaces.add(Map.of("workspaceId", opaque("workspace", (UUID) membership.get("workspace_id")),
           "name", membership.get("workspace_name"), "roles", List.of(role((String) membership.get("role")))));
@@ -249,6 +262,7 @@ public class IdentitySessionService {
     authenticated.put("activationState", activationState);
     authenticated.put("accountStatus", accountStatus);
     authenticated.put("awaitingSetup", setupOnly);
+    authenticated.put("platformRoles", setupOnly ? List.of() : platformRoles);
     authenticated.put("organizations", setupOnly ? List.of() : List.copyOf(organizations.values()));
     if (!setupOnly) {
       authenticated.put("currentOrganizationId", currentOrganization == null
@@ -332,6 +346,10 @@ public class IdentitySessionService {
   }
 
   private static String normalizedEmail(String email) { return email == null ? "" : email.toLowerCase(Locale.ROOT); }
+  private static List<String> sqlArray(Object value) {
+    try { return value instanceof java.sql.Array array ? List.of((String[]) array.getArray()) : List.of(); }
+    catch (java.sql.SQLException ignored) { return List.of(); }
+  }
   private static String nonBlank(String value, String fallback) { return value == null || value.isBlank() ? fallback : value; }
   private static String role(String storedRole) {
     return switch (storedRole) {

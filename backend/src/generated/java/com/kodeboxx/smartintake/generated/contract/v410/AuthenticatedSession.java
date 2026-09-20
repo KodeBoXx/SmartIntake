@@ -20,13 +20,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.kodeboxx.smartintake.generated.contract.v410.AuthenticatedSessionOrganizationsInner;
 import com.kodeboxx.smartintake.generated.contract.v410.AuthenticatedSessionSafeIdentity;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -38,6 +41,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   AuthenticatedSession.JSON_PROPERTY_ACTIVATION_STATE,
   AuthenticatedSession.JSON_PROPERTY_ACCOUNT_STATUS,
   AuthenticatedSession.JSON_PROPERTY_AWAITING_SETUP,
+  AuthenticatedSession.JSON_PROPERTY_PLATFORM_ROLES,
   AuthenticatedSession.JSON_PROPERTY_ORGANIZATIONS,
   AuthenticatedSession.JSON_PROPERTY_CURRENT_ORGANIZATION_ID,
   AuthenticatedSession.JSON_PROPERTY_CURRENT_WORKSPACE_ID
@@ -129,6 +133,43 @@ public class AuthenticatedSession extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_AWAITING_SETUP = "awaitingSetup";
   @jakarta.annotation.Nonnull
   private Boolean awaitingSetup;
+
+  /**
+   * Gets or Sets platformRoles
+   */
+  public enum PlatformRolesEnum {
+    ADMINISTRATOR(String.valueOf("administrator"));
+
+    private String value;
+
+    PlatformRolesEnum(String value) {
+      this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    @JsonCreator
+    public static PlatformRolesEnum fromValue(String value) {
+      for (PlatformRolesEnum b : PlatformRolesEnum.values()) {
+        if (b.value.equals(value)) {
+          return b;
+        }
+      }
+      throw new IllegalArgumentException("Unexpected value '" + value + "'");
+    }
+  }
+
+  public static final String JSON_PROPERTY_PLATFORM_ROLES = "platformRoles";
+  @jakarta.annotation.Nonnull
+  private Set<PlatformRolesEnum> platformRoles = new LinkedHashSet<>();
 
   public static final String JSON_PROPERTY_ORGANIZATIONS = "organizations";
   @jakarta.annotation.Nonnull
@@ -246,6 +287,40 @@ public class AuthenticatedSession extends HashMap<String, Object> {
     this.awaitingSetup = awaitingSetup;
   }
 
+  public AuthenticatedSession platformRoles(@jakarta.annotation.Nonnull Set<PlatformRolesEnum> platformRoles) {
+    
+    this.platformRoles = platformRoles;
+    return this;
+  }
+
+  public AuthenticatedSession addPlatformRolesItem(PlatformRolesEnum platformRolesItem) {
+    if (this.platformRoles == null) {
+      this.platformRoles = new LinkedHashSet<>();
+    }
+    this.platformRoles.add(platformRolesItem);
+    return this;
+  }
+
+  /**
+   * Get platformRoles
+   * @return platformRoles
+   */
+  @jakarta.annotation.Nonnull
+  @JsonProperty(JSON_PROPERTY_PLATFORM_ROLES)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+
+  public Set<PlatformRolesEnum> getPlatformRoles() {
+    return platformRoles;
+  }
+
+
+  @JsonDeserialize(as = LinkedHashSet.class)
+  @JsonProperty(JSON_PROPERTY_PLATFORM_ROLES)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setPlatformRoles(@jakarta.annotation.Nonnull Set<PlatformRolesEnum> platformRoles) {
+    this.platformRoles = platformRoles;
+  }
+
   public AuthenticatedSession organizations(@jakarta.annotation.Nonnull List<AuthenticatedSessionOrganizationsInner> organizations) {
     
     this.organizations = organizations;
@@ -342,6 +417,7 @@ public class AuthenticatedSession extends HashMap<String, Object> {
         Objects.equals(this.activationState, authenticatedSession.activationState) &&
         Objects.equals(this.accountStatus, authenticatedSession.accountStatus) &&
         Objects.equals(this.awaitingSetup, authenticatedSession.awaitingSetup) &&
+        Objects.equals(this.platformRoles, authenticatedSession.platformRoles) &&
         Objects.equals(this.organizations, authenticatedSession.organizations) &&
         Objects.equals(this.currentOrganizationId, authenticatedSession.currentOrganizationId) &&
         Objects.equals(this.currentWorkspaceId, authenticatedSession.currentWorkspaceId) &&
@@ -350,7 +426,7 @@ public class AuthenticatedSession extends HashMap<String, Object> {
 
   @Override
   public int hashCode() {
-    return Objects.hash(safeIdentity, activationState, accountStatus, awaitingSetup, organizations, currentOrganizationId, currentWorkspaceId, super.hashCode());
+    return Objects.hash(safeIdentity, activationState, accountStatus, awaitingSetup, platformRoles, organizations, currentOrganizationId, currentWorkspaceId, super.hashCode());
   }
 
   @Override
@@ -362,6 +438,7 @@ public class AuthenticatedSession extends HashMap<String, Object> {
     sb.append("    activationState: ").append(toIndentedString(activationState)).append("\n");
     sb.append("    accountStatus: ").append(toIndentedString(accountStatus)).append("\n");
     sb.append("    awaitingSetup: ").append(toIndentedString(awaitingSetup)).append("\n");
+    sb.append("    platformRoles: ").append(toIndentedString(platformRoles)).append("\n");
     sb.append("    organizations: ").append(toIndentedString(organizations)).append("\n");
     sb.append("    currentOrganizationId: ").append(toIndentedString(currentOrganizationId)).append("\n");
     sb.append("    currentWorkspaceId: ").append(toIndentedString(currentWorkspaceId)).append("\n");

@@ -1616,11 +1616,13 @@ export interface components {
             /** @enum {unknown} */
             accountStatus: "active" | "suspended";
             awaitingSetup: boolean;
+            platformRoles: "administrator"[];
             organizations: {
                 organizationId: string;
                 name: string;
                 /** @enum {unknown} */
                 membershipState: "active";
+                organizationRoles: ("owner" | "administrator" | "member")[];
                 workspaces: {
                     workspaceId: string;
                     name: string;
@@ -2258,6 +2260,8 @@ export interface components {
         };
         OrganizationCreateRequest: {
             name: string;
+            /** Format: email */
+            ownerEmail: string;
         };
         OrganizationUserCreateRequest: {
             /** Format: email */
@@ -4586,10 +4590,11 @@ export interface operations {
                     ETag: components["headers"]["ETag"];
                     "X-Temporary-Password-Copy": components["headers"]["X-Temporary-Password-Copy"];
                     "X-Activation-Copy-Link": components["headers"]["X-Activation-Copy-Link"];
+                    "X-Invitation-Copy-Link": components["headers"]["X-Invitation-Copy-Link"];
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["OrganizationUserResponse"];
+                    "application/json": components["schemas"]["InvitationResponse"];
                 };
             };
             400: components["responses"]["BadRequest"];
@@ -4955,6 +4960,9 @@ export interface operations {
             201: {
                 headers: {
                     ETag: components["headers"]["ETag"];
+                    "X-Activation-Copy-Link": components["headers"]["X-Activation-Copy-Link"];
+                    "X-Invitation-Copy-Link": components["headers"]["X-Invitation-Copy-Link"];
+                    "X-Temporary-Password-Copy": components["headers"]["X-Temporary-Password-Copy"];
                     [name: string]: unknown;
                 };
                 content: {

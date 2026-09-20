@@ -13,6 +13,7 @@ export class StaffSessionStore {
   readonly state = signal<StaffSessionState>('loading');
   readonly identity = signal<StaffIdentity | null>(null);
   readonly organizations = signal<StaffOrganization[]>([]);
+  readonly platformRoles = signal<('administrator')[]>([]);
   readonly currentOrganizationId = signal<string | null>(null);
   readonly currentWorkspaceId = signal<string | null>(null);
   readonly csrfToken = signal<string | null>(null);
@@ -21,6 +22,8 @@ export class StaffSessionStore {
   readonly currentOrganization = computed(() => this.organizations().find((organization) => organization.organizationId === this.currentOrganizationId()) ?? null);
   readonly currentWorkspace = computed(() => this.currentOrganization()?.workspaces.find((workspace) => workspace.workspaceId === this.currentWorkspaceId()) ?? null);
   readonly currentRoles = computed(() => this.currentWorkspace()?.roles ?? []);
+  readonly currentOrganizationRoles = computed(() => this.currentOrganization()?.organizationRoles ?? []);
+  readonly isPlatformAdministrator = computed(() => this.platformRoles().includes('administrator'));
   private bootstrapRequest: Observable<StaffSessionState> | null = null;
 
   constructor(private readonly api: SmartIntakeApiService, private readonly csrf: StaffCsrfContext) {}
@@ -82,6 +85,7 @@ export class StaffSessionStore {
 
   private applySession(session: StaffSession): StaffSessionState {
     this.identity.set(session.identity);
+    this.platformRoles.set(session.platformRoles);
     this.organizations.set(session.organizations);
     this.currentOrganizationId.set(session.currentOrganizationId ?? session.organizations[0]?.organizationId ?? null);
     const organization = session.organizations.find((item) => item.organizationId === this.currentOrganizationId()) ?? session.organizations[0];
@@ -115,6 +119,7 @@ export class StaffSessionStore {
 
   private clear(state: Exclude<StaffSessionState, 'loading' | 'authenticated'>, clearCsrf = true): void {
     this.identity.set(null);
+    this.platformRoles.set([]);
     this.organizations.set([]);
     this.currentOrganizationId.set(null);
     this.currentWorkspaceId.set(null);
