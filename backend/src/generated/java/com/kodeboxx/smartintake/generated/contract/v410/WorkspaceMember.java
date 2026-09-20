@@ -32,6 +32,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 @JsonPropertyOrder({
   WorkspaceMember.JSON_PROPERTY_ACCOUNT_ID,
   WorkspaceMember.JSON_PROPERTY_MEMBERSHIP_STATUS,
+  WorkspaceMember.JSON_PROPERTY_REVISION,
   WorkspaceMember.JSON_PROPERTY_ROLES
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
@@ -43,6 +44,10 @@ public class WorkspaceMember {
   public static final String JSON_PROPERTY_MEMBERSHIP_STATUS = "membershipStatus";
   @jakarta.annotation.Nullable
   private Object membershipStatus = null;
+
+  public static final String JSON_PROPERTY_REVISION = "revision";
+  @jakarta.annotation.Nonnull
+  private Integer revision;
 
   /**
    * Gets or Sets roles
@@ -148,6 +153,32 @@ public class WorkspaceMember {
     this.membershipStatus = membershipStatus;
   }
 
+  public WorkspaceMember revision(@jakarta.annotation.Nonnull Integer revision) {
+    
+    this.revision = revision;
+    return this;
+  }
+
+  /**
+   * Get revision
+   * minimum: 0
+   * @return revision
+   */
+  @jakarta.annotation.Nonnull
+  @JsonProperty(JSON_PROPERTY_REVISION)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+
+  public Integer getRevision() {
+    return revision;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_REVISION)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setRevision(@jakarta.annotation.Nonnull Integer revision) {
+    this.revision = revision;
+  }
+
   public WorkspaceMember roles(@jakarta.annotation.Nonnull Set<RolesEnum> roles) {
     
     this.roles = roles;
@@ -193,12 +224,13 @@ public class WorkspaceMember {
     WorkspaceMember workspaceMember = (WorkspaceMember) o;
     return Objects.equals(this.accountId, workspaceMember.accountId) &&
         Objects.equals(this.membershipStatus, workspaceMember.membershipStatus) &&
+        Objects.equals(this.revision, workspaceMember.revision) &&
         Objects.equals(this.roles, workspaceMember.roles);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(accountId, membershipStatus, roles);
+    return Objects.hash(accountId, membershipStatus, revision, roles);
   }
 
   @Override
@@ -207,6 +239,7 @@ public class WorkspaceMember {
     sb.append("class WorkspaceMember {\n");
     sb.append("    accountId: ").append(toIndentedString(accountId)).append("\n");
     sb.append("    membershipStatus: ").append(toIndentedString(membershipStatus)).append("\n");
+    sb.append("    revision: ").append(toIndentedString(revision)).append("\n");
     sb.append("    roles: ").append(toIndentedString(roles)).append("\n");
     sb.append("}");
     return sb.toString();

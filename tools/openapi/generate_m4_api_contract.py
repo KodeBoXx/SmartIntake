@@ -206,10 +206,11 @@ def generated() -> dict[Path, bytes]:
     }
     schemas["WorkspaceMember"] = {
         "type": "object", "additionalProperties": False,
-        "required": ["accountId", "membershipStatus", "roles"],
+        "required": ["accountId", "membershipStatus", "revision", "roles"],
         "properties": {
             "accountId": {"type": "string", "pattern": "^account-[0-9a-fA-F-]{36}$"},
             "membershipStatus": {"const": "active"},
+            "revision": {"type": "integer", "minimum": 0},
             "roles": {"type": "array", "minItems": 1, "uniqueItems": True,
                       "items": {"enum": workspace_roles}},
         },
@@ -643,6 +644,7 @@ def generated() -> dict[Path, bytes]:
     api["paths"]["/v1/platform/organizations"]["post"]["requestBody"]["content"]["application/json"]["examples"]["valid"]["value"] = {
         "name": "Example organization", "ownerEmail": "owner@example.test"}
     platform_organizations = api["paths"]["/v1/platform/organizations"]
+    platform_organizations["get"]["x-implementation-status"] = "implemented"
     platform_organizations["get"]["responses"]["200"].pop("headers", None)
     organization_response_example = platform_organizations["post"]["responses"]["201"]["content"]["application/json"]["examples"]["success"]["value"]["organization"]
     organization_response_example["status"] = "awaiting_owner_activation"

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -50,7 +51,10 @@ public class IdentityAdministrationController {
   ResponseEntity<?> organizationRecovery(@PathVariable String organization, @PathVariable String user, @RequestBody IdentityAdministrationService.RecoveryRequest request, @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey, HttpServletRequest http) { return administration.organizationRecoveryMutation(organization, user, request, idempotencyKey, http); }
 
   @GetMapping("/platform/organizations")
-  ResponseEntity<?> platformOrganizations(HttpServletRequest http) { return administration.platformOrganizations(http); }
+  ResponseEntity<?> platformOrganizations(@RequestParam(required = false) String cursor,
+      @RequestParam(defaultValue = "50") int limit, HttpServletRequest http) {
+    return administration.platformOrganizations(cursor, limit, http);
+  }
   @PostMapping("/platform/organizations")
   ResponseEntity<?> createPlatformOrganization(@RequestBody IdentityAdministrationService.OrganizationCreate request, @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey, HttpServletRequest http) { return administration.createPlatformOrganizationMutation(request, idempotencyKey, http); }
   @PatchMapping("/platform/organizations/{organization}")

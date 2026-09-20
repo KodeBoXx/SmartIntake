@@ -93,7 +93,7 @@ application until the transaction below has committed and its post-checks pass.
    approved operational process (or wait for their expiry), record the approval,
    and rerun the preflight.
 2. Run the preflight transaction below with a role permitted to lock and alter
-   these tables. It fails closed for an incomplete/failed V5--V17 application or
+   these tables. It fails closed for an incomplete/failed V5--V18 application or
    for any later successful migration. Do not substitute `CASCADE`, disable
    Flyway validation, or delete individual submissions to satisfy a check.
 3. Commit the drop transaction, run the post-check, then deploy the
@@ -102,7 +102,7 @@ application until the transaction below has committed and its post-checks pass.
    submissions and a later V7 deployment will correctly refuse to proceed.
 4. This rollback is permitted only when no canonical M4 record or runtime state
    exists. To return forward, restore the verified pre-rollback backup before
-   deploying the current application. Reapplying V5--V17 to the destructively
+   deploying the current application. Reapplying V5--V18 to the destructively
    rolled-back database is not a lossless recovery procedure. Reconcile
    duplicate submissions explicitly before retrying V7; never merge or delete
    them as part of a migration.
@@ -146,13 +146,14 @@ begin
           or (version = '14' and type = 'SQL' and script = 'V14__staff_identity_sessions.sql' and checksum = 724788122)
           or (version = '15' and type = 'SQL' and script = 'V15__identity_lifecycle_tenant_administration.sql' and checksum = -2047153491)
           or (version = '16' and type = 'SQL' and script = 'V16__catalog_administration.sql' and checksum = -2129090709)
-          or (version = '17' and type = 'SQL' and script = 'V17__pending_organization_owner_activation.sql' and checksum = 945038156),
+          or (version = '17' and type = 'SQL' and script = 'V17__pending_organization_owner_activation.sql' and checksum = -1184501692)
+          or (version = '18' and type = 'SQL' and script = 'V18__widen_organization_lifecycle_state.sql' and checksum = 1138518176),
           false)
   )
-  or (select count(*) from flyway_schema_history where success) <> 17
+  or (select count(*) from flyway_schema_history where success) <> 18
   or (select count(distinct (version, type, script, checksum))
-      from flyway_schema_history where success) <> 17 then
-    raise exception 'Rollback refused: successful Flyway history is not the exact V1-V17 SQL allowlist';
+      from flyway_schema_history where success) <> 18 then
+    raise exception 'Rollback refused: successful Flyway history is not the exact V1-V18 SQL allowlist';
   end if;
   if exists (
       select 1
@@ -229,7 +230,7 @@ if exists (select 1 from form_catalog_metadata)
 end if;
 end $$;
 
--- V17/V16/V15 are reversible only after the preflight has retired their state.
+-- V18/V17/V16/V15 are reversible only after the preflight has retired their state.
 drop trigger catalog_forms_revision on forms;
 drop trigger catalog_folders_revision on catalog_folders;
 drop trigger catalog_tags_revision on catalog_tags;
@@ -286,12 +287,12 @@ alter table forms drop column compatibility_profile_key;
 drop table compatibility_quarantine_evidence;
 drop table record_migration_state;
 drop table compatibility_profiles;
-delete from flyway_schema_history where version in ('5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17');
+delete from flyway_schema_history where version in ('5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18');
 commit;
 
 -- Run after commit. Every *_remains value must be false and mutation_key_uuid_restored true
 -- before deploying the old binary.
-select exists (select 1 from flyway_schema_history where version in ('5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17')) as compatibility_history_remains,
+select exists (select 1 from flyway_schema_history where version in ('5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18')) as compatibility_history_remains,
        exists (select 1 from pg_constraint
                where conrelid = 'submissions'::regclass
                    and conname = 'submissions_session_id_unique') as uniqueness_remains,

@@ -2908,6 +2908,7 @@ export interface components {
             accountId: string;
             /** @constant */
             membershipStatus: "active";
+            revision: number;
             roles: ("workspace-administrator" | "author" | "reviewer" | "translator" | "publisher" | "response-viewer" | "response-exporter" | "auditor")[];
         };
         WorkspaceMemberCollection: {

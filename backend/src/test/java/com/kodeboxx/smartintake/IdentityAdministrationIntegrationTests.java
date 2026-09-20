@@ -142,9 +142,11 @@ class IdentityAdministrationIntegrationTests {
     List<Map<String, Object>> members = (List<Map<String, Object>>) ((Map<String, Object>) response.getBody()).get("items");
     Map<String, Object> member = members.stream().filter(item -> opaque("account", target).equals(item.get("accountId"))).findFirst().orElseThrow();
     assertEquals("active", member.get("membershipStatus"));
+    assertEquals(0L, ((Number) member.get("revision")).longValue());
     assertEquals(List.of("author", "response-exporter"), member.get("roles"));
 
     db.update("update memberships set role='AUTHOR' where account_id=? and workspace_id=?", actor, workspace);
+    db.update("update organization_memberships set roles=array['member'] where account_id=? and organization_id=?", actor, organization);
     ResponseStatusException denied = assertThrows(ResponseStatusException.class,
         () -> administration.workspaceMembers(opaque("workspace", workspace), request()));
     assertEquals(HttpStatus.FORBIDDEN, denied.getStatusCode());

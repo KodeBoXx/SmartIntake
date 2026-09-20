@@ -294,10 +294,15 @@ public class IdentityAdministrationService {
       }
     }
     List<String> roles = allowedOrganizationRoles(sqlArray(invitation.get("organization_roles")), platformInvitation);
-    db.update("insert into organization_memberships(account_id,organization_id,roles,membership_status) values(?,?,?,'active') "
-            + "on conflict(account_id,organization_id) do update set membership_status='active',updated_at=now(),revision=organization_memberships.revision+1",
-        account, invitation.get("organization_id"), roles.toArray(String[]::new));
-    if (roles.contains("owner")) db.update("update organizations set organization_status='active',revision=revision+1 where id=? and organization_status='awaiting_owner_activation'", organization);
+    String conflict = roles.contains("owner")
+        ? "roles=(select array_agg(distinct role) from unnest(organization_memberships.roles || excluded.roles) role),membership_status='active',updated_at=now(),revision=organization_memberships.revision+1"
+        : "membership_status='active',updated_at=now(),revision=organization_memberships.revision+1";
+    db.update("insert into organization_memberships(account_id,organization_id,roles,membership_status) values(?,?,?,'active') on conflict(account_id,organization_id) do update set " + conflict,
+        account, organization, roles.toArray(String[]::new));
+    if (roles.contains("owner")) {
+      Integer activeOwner = db.queryForObject("select count(*) from organization_memberships where account_id=? and organization_id=? and membership_status='active' and 'owner'=any(roles)", Integer.class, account, organization);
+      if (activeOwner != null && activeOwner == 1) db.update("update organizations set organization_status='active',revision=revision+1 where id=? and organization_status='awaiting_owner_activation'", organization);
+    }
     db.update("update identity_invitations set used_at=now(),updated_at=now() where id=?", invitation.get("id"));
     audit("identity.invitation.accepted", new AuditContext(account, organizationScope(organization), account, "invitation-acceptance", "none", "not-applicable", "success", organizationMembershipRevision(account, organization)));
     return ResponseEntity.ok(Map.of("requestId", opaque("req"), "invitation", invitation((UUID) invitation.get("id"), (String) invitation.get("email"),
@@ -396,7 +401,13 @@ public class IdentityAdministrationService {
   /** Lists only active, explicitly granted workspace members that may receive catalog ownership. */
   public ResponseEntity<?> workspaceMembers(String workspaceValue, HttpServletRequest http) {
     UUID workspace = workspace(workspaceValue);
-    requireWorkspaceManager(currentAccount(http), workspace);
+    UUID actor = currentAccount(http);
+    try {
+      requireWorkspaceManager(actor, workspace);
+    } catch (ResponseStatusException denied) {
+      UUID organization = db.queryForObject("select organization_id from workspaces where id=?", UUID.class, workspace);
+      requireOrganizationAdministrator(actor, organization);
+    }
     List<Map<String, Object>> items = db.queryForList(
         "select m.account_id,array_agg(m.role order by m.role) as roles,coalesce(wrr.revision,0) revision from memberships m "
             + "join accounts a on a.id=m.account_id "
@@ -461,11 +472,19 @@ public class IdentityAdministrationService {
         () -> platformRecovery(accountValue, request, http));
   }
 
-  public ResponseEntity<?> platformOrganizations(HttpServletRequest http) {
+  public ResponseEntity<?> platformOrganizations(HttpServletRequest http) { return platformOrganizations(null, 50, http); }
+
+  public ResponseEntity<?> platformOrganizations(String cursor, int requestedLimit, HttpServletRequest http) {
     requirePlatformAdministrator(currentAccount(http));
-    List<Map<String, Object>> items = db.queryForList("select id,name,organization_status,revision,created_at from organizations order by name").stream()
-        .map(this::organizationResource).toList();
-    return ResponseEntity.ok(Map.of("requestId", opaque("req"), "items", items, "page", page()));
+    int limit = Math.max(1, Math.min(requestedLimit, 100));
+    UUID after = cursor == null || cursor.isBlank() ? null : opaqueId(cursor);
+    List<Map<String, Object>> rows = db.queryForList("select id,name,organization_status,revision,created_at from organizations where (?::uuid is null or id > ?::uuid) order by id limit ?", after, after, limit + 1);
+    boolean more = rows.size() > limit;
+    List<Map<String, Object>> pageItems = more ? rows.subList(0, limit) : rows;
+    List<Map<String, Object>> items = pageItems.stream().map(this::organizationResource).toList();
+    String nextCursor = more ? opaque("organization", (UUID) pageItems.get(pageItems.size() - 1).get("id")) : null;
+    Map<String, Object> page = new LinkedHashMap<>(); page.put("limit", limit); page.put("nextCursor", nextCursor);
+    return ResponseEntity.ok(Map.of("requestId", opaque("req"), "items", items, "page", page));
   }
 
   @Transactional
