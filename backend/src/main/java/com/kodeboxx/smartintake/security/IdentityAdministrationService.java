@@ -86,7 +86,7 @@ public class IdentityAdministrationService {
     db.update("update accounts set password_hash=?, activation_state='active', temporary_password_expires_at=null where id=?",
         credentials.encode(request.newPassword()), account);
     revokeSecretActions(account);
-    audit("identity.password.changed", account);
+    audit("identity.password.changed", new AuditContext(account, "self", account, "password-change", "none", "not-applicable", "success", accountRevision(account)));
     revokeAllSessions(account);
     return ResponseEntity.noContent().build();
   }
@@ -97,7 +97,8 @@ public class IdentityAdministrationService {
     List<UUID> accounts = db.query("select id from accounts where email=?", (rs, row) -> (UUID) rs.getObject(1), email(request.email()));
     if (!accounts.isEmpty()) {
       issueAction(accounts.get(0), null, "self-recovery", SELF_RECOVERY_TTL);
-      audit("identity.recovery.requested", accounts.get(0));
+      UUID account = accounts.get(0);
+      audit("identity.recovery.requested", new AuditContext(account, "self", account, "self-recovery", "none", "not-applicable", "accepted", accountRevision(account)));
     }
     return ResponseEntity.accepted().body(Map.of("requestId", opaque("req"), "accountAction", accountAction("recovery-requested")));
   }
@@ -112,7 +113,7 @@ public class IdentityAdministrationService {
         credentials.encode(request.newPassword()), account);
     revokeSecretActions(account);
     revokeAllSessions(account);
-    audit("identity.password.recovered", account);
+    audit("identity.password.recovered", new AuditContext(account, grant.organization() == null ? "self" : organizationScope(grant.organization()), account, "recovery-completion", "none", "not-applicable", "success", accountRevision(account)));
     return ResponseEntity.noContent().build();
   }
 
@@ -131,13 +132,14 @@ public class IdentityAdministrationService {
     if (grant.organization() != null) db.update("update organization_memberships set membership_status='active',updated_at=now(),revision=revision+1 where account_id=? and organization_id=? and membership_status='suspended'", account, grant.organization());
     revokeSecretActions(account);
     revokeAllSessions(account);
-    audit("identity.activation", account);
+    audit("identity.activation", new AuditContext(account, grant.organization() == null ? "self" : organizationScope(grant.organization()), account, "activation", "none", "not-applicable", "success", accountRevision(account)));
     return ResponseEntity.noContent().build();
   }
 
   public ResponseEntity<?> users(String organizationValue, HttpServletRequest http) {
     UUID organization = organization(organizationValue);
-    requireOrganizationAdministrator(currentAccount(http), organization);
+    UUID actor = currentAccount(http);
+    requireOrganizationAdministrator(actor, organization);
     List<Map<String, Object>> items = db.queryForList(
         "select a.id,a.email,om.roles,om.membership_status,om.revision,om.created_at,om.updated_at "
             + "from organization_memberships om join accounts a on a.id=om.account_id where om.organization_id=? order by a.email", organization);
@@ -175,7 +177,7 @@ public class IdentityAdministrationService {
     // An activation proof is an administrator-delivered no-email copy link, never a response property.
     if (activation != null) response.header("X-Activation-Copy-Link", "/activate/" + activation.token());
     if (generatedTemporaryPassword != null) response.header("X-Temporary-Password-Copy", generatedTemporaryPassword);
-    audit("identity.membership.created", account);
+    audit("identity.membership.created", new AuditContext(actor, organizationScope(organization), account, "membership-create", activation == null ? "none" : "copy-link", "not-applicable", "success", organizationMembershipRevision(account, organization)));
     return response.body(body);
   }
 
@@ -191,7 +193,8 @@ public class IdentityAdministrationService {
   public ResponseEntity<?> updateUser(String organizationValue, String userValue, UserUpdate request, HttpServletRequest http) {
     UUID organization = organization(organizationValue);
     UUID target = opaqueId(userValue);
-    requireOrganizationAdministrator(currentAccount(http), organization);
+    UUID actor = currentAccount(http);
+    requireOrganizationAdministrator(actor, organization);
     lockOrganizationOwners(organization);
     Map<String, Object> existing = membershipForUpdate(organization, target);
     List<String> roles = allowedOrganizationRoles(request.roles(), false);
@@ -200,6 +203,8 @@ public class IdentityAdministrationService {
     db.update("update accounts set email=? where id=?", newEmail, target);
     db.update("update organization_memberships set roles=?, revision=revision+1, updated_at=now() where organization_id=? and account_id=?",
         roles.toArray(String[]::new), organization, target);
+    audit("identity.membership.updated", new AuditContext(actor, organizationScope(organization), target,
+        "membership-update", "none", "continuity-confirmed", "success", ((Number) existing.get("revision")).longValue() + 1));
     return ResponseEntity.ok(Map.of("requestId", opaque("req"), "organizationUser", organizationUser(target, newEmail, roles,
         (String) existing.get("membership_status"), ((Number) existing.get("revision")).longValue() + 1, Instant.now(), Instant.now())));
   }
@@ -313,7 +318,7 @@ public class IdentityAdministrationService {
             + "on conflict(account_id,organization_id) do update set roles=excluded.roles,membership_status='active',updated_at=now(),revision=organization_memberships.revision+1",
         account, invitation.get("organization_id"), roles.toArray(String[]::new));
     db.update("update identity_invitations set used_at=now(),updated_at=now() where id=?", invitation.get("id"));
-    audit("identity.invitation.accepted", account);
+    audit("identity.invitation.accepted", new AuditContext(account, organizationScope(organization), account, "invitation-acceptance", "none", "not-applicable", "success", organizationMembershipRevision(account, organization)));
     return ResponseEntity.ok(Map.of("requestId", opaque("req"), "invitation", invitation((UUID) invitation.get("id"), (String) invitation.get("email"),
         ((Timestamp) invitation.get("expires_at")).toInstant())));
   }
@@ -321,8 +326,10 @@ public class IdentityAdministrationService {
   @Transactional
   public ResponseEntity<?> revokeInvite(String organizationValue, String invitationValue, HttpServletRequest http) {
     UUID organization = organization(organizationValue);
-    requireOrganizationAdministrator(currentAccount(http), organization);
+    UUID actor = currentAccount(http);
+    requireOrganizationAdministrator(actor, organization);
     UUID invitation = opaqueId(invitationValue);
+    audit("identity.invitation.revoked", new AuditContext(actor, organizationScope(organization), invitation, "invitation-revocation", "none", "not-applicable", "success", null));
     long revision = invitationRevisionForUpdate(organization, invitation);
     db.update("update identity_invitations set revoked_at=now(),updated_at=now(),revision=revision+1 where id=? and organization_id=? and used_at is null", invitation, organization);
     return ResponseEntity.noContent().eTag(etag(revision + 1)).build();
@@ -527,7 +534,8 @@ public class IdentityAdministrationService {
 
   @Transactional(isolation = Isolation.SERIALIZABLE)
   public ResponseEntity<?> updatePlatformAccount(String accountValue, PlatformAccountUpdate request, HttpServletRequest http) {
-    requirePlatformAdministrator(currentAccount(http));
+    UUID actor = currentAccount(http);
+    requirePlatformAdministrator(actor);
     if (!ACCOUNT_STATUSES.contains(request.accountStatus())) badRequest();
     UUID account = opaqueId(accountValue);
     long revision = accountRevisionForUpdate(account);
@@ -536,7 +544,7 @@ public class IdentityAdministrationService {
     if ("suspended".equals(request.accountStatus())) {
       revokeSecretActions(account);
       revokeAllSessions(account);
-      audit("identity.account.suspended", account);
+      audit("identity.account.suspended", new AuditContext(actor, "platform", account, "security-suspension", "none", "continuity-confirmed", "success", revision + 1));
     }
     return ResponseEntity.ok().eTag(etag(revision + 1)).body(Map.of("requestId", opaque("req"), "platformAccount", platformAccount(account, request.accountStatus(), revision + 1)));
   }
@@ -766,23 +774,6 @@ public class IdentityAdministrationService {
   }
 
   private void revokeAllSessions(UUID account) { db.update("update staff_sessions set revoked_at=now(),updated_at=now() where account_id=? and revoked_at is null", account); }
-  private void audit(String action, UUID resource) {
-    HttpServletRequest request = RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes attributes
-        ? attributes.getRequest() : null;
-    UUID actor = request == null ? null : sessions.session(request, request.getHeader("X-Staff-Session"))
-        .flatMap(token -> db.query("select account_id from staff_sessions where token::text=? and revoked_at is null",
-            (rs, row) -> (UUID) rs.getObject(1), token).stream().findFirst()).orElse(null);
-    String delivery = action.contains("invitation") || action.contains("recovery") || action.contains("activation") ? "copy-link" : "none";
-    UUID tenant = db.query("select organization_id from organization_memberships where account_id=? order by created_at limit 1",
-        (rs, row) -> (UUID) rs.getObject(1), resource).stream().findFirst().orElse(null);
-    Long revision = db.query("select revision from accounts where id=?", (rs, row) -> rs.getLong(1), resource).stream().findFirst().orElse(null);
-    String reason = action.contains("suspended") ? "security-suspension" : action.contains("recovery") ? "credential-recovery" : "administrative";
-    String ownerSafety = action.contains("suspended") || action.contains("membership.removed") ? "checked" : "not-applicable";
-    String idempotency = request == null ? null : request.getHeader("Idempotency-Key");
-    String correlation = request == null ? null : request.getHeader("X-Request-Id");
-    audit(action, new AuditContext(actor, tenant == null ? "account" : organizationScope(tenant), resource, reason, delivery,
-        ownerSafety, "success", revision));
-  }
   private void audit(String action, AuditContext context) {
     HttpServletRequest request = RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes attributes
         ? attributes.getRequest() : null;
@@ -801,6 +792,7 @@ public class IdentityAdministrationService {
   private int organizationMembershipCount(UUID account) { return db.queryForObject("select count(*) from organization_memberships where account_id=? and membership_status='active'", Integer.class, account); }
   private boolean isPlatformAccount(UUID account) { return db.queryForObject("select count(*) from platform_roles where account_id=?", Integer.class, account) > 0; }
   private long accountRevision(UUID account) { return db.queryForObject("select revision from accounts where id=?", Long.class, account); }
+  private long organizationMembershipRevision(UUID account, UUID organization) { return db.queryForObject("select revision from organization_memberships where account_id=? and organization_id=?", Long.class, account, organization); }
   private boolean activeOrganizationMember(UUID account, UUID organization) { return db.queryForObject("select count(*) from organization_memberships where account_id=? and organization_id=? and membership_status='active'", Integer.class, account, organization) > 0; }
   private UUID organization(String value) { UUID id = opaqueId(value); try { db.queryForObject("select id from organizations where id=?", UUID.class, id); return id; } catch (Exception ex) { throw notFound(); } }
   private UUID workspace(String value) { try { return db.queryForObject("select id from workspaces where workspace_key=?", UUID.class, value); } catch (Exception ignored) { UUID id = opaqueId(value); try { db.queryForObject("select id from workspaces where id=?", UUID.class, id); return id; } catch (Exception ex) { throw notFound(); } } }

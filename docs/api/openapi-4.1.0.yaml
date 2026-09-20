@@ -3412,7 +3412,7 @@ paths:
       x-implementation-status: implemented
       responses:
         '200':
-          description: Successful response.
+          description: Unwrapped live draft response.
           headers:
             ETag:
               $ref: '#/components/headers/ETag'
@@ -3420,19 +3420,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LiveDraftRead'
-              examples:
-                success:
-                  value:
-                    requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
-                    draft:
-                      id: draft-01J2W5RFR3K24SFWDX2C0N9VW3
-                      kind: Draft
-                      revision: 7
-                      status: active
-                      createdAt: '2026-09-18T00:00:00Z'
-                      updatedAt: '2026-09-18T00:00:00Z'
-                      formId: form-01J2W5RFR3K24SFWDX2C0N9VW3
-                      packageHash: '0000000000000000000000000000000000000000000000000000000000000000'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -3446,28 +3433,25 @@ paths:
         '500':
           $ref: '#/components/responses/InternalError'
       parameters:
-      - name: w
+      - &id002
+        name: w
         in: path
         required: true
-        description: Opaque server-issued identifier; it is never an authority grant.
         schema:
           $ref: '#/components/schemas/OpaqueId'
-        example: w-01J2W5RFR3K24SFWDX2C0N9VW3
-      - name: f
+      - &id003
+        name: f
         in: path
         required: true
-        description: Opaque server-issued identifier; it is never an authority grant.
         schema:
           $ref: '#/components/schemas/OpaqueId'
-        example: f-01J2W5RFR3K24SFWDX2C0N9VW3
-      - name: d
+      - &id004
+        name: d
         in: path
         required: true
-        description: Opaque server-issued identifier; it is never an authority grant.
         schema:
           type: string
           format: uuid
-        example: d-01J2W5RFR3K24SFWDX2C0N9VW3
       security:
       - staffCookie: []
     put:
@@ -3487,7 +3471,7 @@ paths:
       x-implementation-status: implemented
       responses:
         '200':
-          description: Successful response.
+          description: Unwrapped live draft response.
           headers:
             ETag:
               $ref: '#/components/headers/ETag'
@@ -3495,19 +3479,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LiveDraftWrite'
-              examples:
-                success:
-                  value:
-                    requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
-                    draft:
-                      id: draft-01J2W5RFR3K24SFWDX2C0N9VW3
-                      kind: Draft
-                      revision: 7
-                      status: active
-                      createdAt: '2026-09-18T00:00:00Z'
-                      updatedAt: '2026-09-18T00:00:00Z'
-                      formId: form-01J2W5RFR3K24SFWDX2C0N9VW3
-                      packageHash: '0000000000000000000000000000000000000000000000000000000000000000'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -3529,32 +3500,10 @@ paths:
         '428':
           $ref: '#/components/responses/PreconditionRequired'
       parameters:
-      - name: w
-        in: path
-        required: true
-        description: Opaque server-issued identifier; it is never an authority grant.
-        schema:
-          $ref: '#/components/schemas/OpaqueId'
-        example: w-01J2W5RFR3K24SFWDX2C0N9VW3
-      - name: f
-        in: path
-        required: true
-        description: Opaque server-issued identifier; it is never an authority grant.
-        schema:
-          $ref: '#/components/schemas/OpaqueId'
-        example: f-01J2W5RFR3K24SFWDX2C0N9VW3
-      - name: d
-        in: path
-        required: true
-        description: Opaque server-issued identifier; it is never an authority grant.
-        schema:
-          $ref: '#/components/schemas/OpaqueId'
-        example: d-01J2W5RFR3K24SFWDX2C0N9VW3
+      - *id002
+      - *id003
+      - *id004
       - $ref: '#/components/parameters/IfMatch'
-      - $ref: '#/components/parameters/IdempotencyKey'
-        schema:
-          type: string
-          format: uuid
       security:
       - staffCookie: []
         csrfHeader: []
@@ -3563,140 +3512,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DraftSaveRequest'
-            examples:
-              valid:
-                value:
-                  package:
-                    schemaVersion: 4.0.0
-                    contractVersion: 4.0.0
-                    engineContract: 4.0.0
-                    kind: smart-form-package
-                    formKey: intake
-                    definitionVersion: 1.0.0
-                    titleKey: title
-                    defaultLocale: en
-                    supportedLocales:
-                    - en
-                    translations:
-                      en:
-                        direction: ltr
-                        messages:
-                          title: Intake
-                          amount: Amount
-                          name: Name
-                          attendees: Attendees
-                          attendee_name: Attendee name
-                        pronunciations: []
-                        reviewState: approved
-                    data:
-                      fields:
-                      - id: name
-                        key: name
-                        type: text
-                        labelKey: name
-                      - id: amount
-                        key: amount
-                        type: integer
-                        labelKey: amount
-                        constraints:
-                          min: '0'
-                          max: '9223372036854775807'
-                      - id: attendees
-                        key: attendees
-                        type: list
-                        labelKey: attendees
-                        itemSchema:
-                          fields:
-                          - id: attendeeName
-                            key: attendee_name
-                            type: text
-                            labelKey: attendee_name
-                    flow:
-                      startPageId: page1
-                      phases:
-                      - id: phase1
-                        pages:
-                        - id: page1
-                          key: page
-                          labelKey: title
-                          sections:
-                          - id: section1
-                            key: main
-                            labelKey: title
-                            nodes:
-                            - id: node1
-                              kind: question
-                              fieldId: name
-                              fieldType: text
-                              control: text
-                              labelKey: name
-                            - id: node2
-                              kind: question
-                              fieldId: amount
-                              fieldType: integer
-                              control: integer
-                              labelKey: amount
-                            - id: node3
-                              kind: question
-                              fieldId: attendees
-                              fieldType: list
-                              control: repeatingCards
-                              labelKey: attendees
-                              presentation:
-                                settings:
-                                  allowAdd: true
-                                  allowRemove: false
-                                  allowReorder: true
-                              children:
-                              - id: node4
-                                kind: question
-                                fieldId: attendeeName
-                                fieldType: text
-                                control: text
-                                labelKey: attendee_name
-                    expressions:
-                      sum:
-                        op: add
-                        args:
-                        - literal:
-                            type: integer
-                            value: '1'
-                        - literal:
-                            type: decimal
-                            value: '2.5'
-                    dependencies:
-                    - kind: extension
-                      id: exampleExtension
-                      version: 1.0.0
-                      digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-                    policies:
-                      attachmentsRequiredReady: true
-                    assets: []
-                    extensions:
-                      x-example.org:
-                        dependencyId: exampleExtension
-                        version: 1.0.0
-                        digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-                        value: representative
-                    guidance: {}
-                    theme:
-                      themeKey: accessible_default
-                      version: 1.0.0
-                      tokens:
-                        accent: '#175CD3'
-                        background: '#FFFFFF'
-                        text: '#182230'
-                        fontFamily: system
-                        density: comfortable
-                        radius: 8
-                        responsive:
-                          compactMaxWidth: 639
-                          mediumMaxWidth: 1023
-                          wideColumns: 2
-                  editNote: Clarify consent wording.
-              invalid:
-                value: {}
+              type: object
+              additionalProperties: false
+              required:
+              - definition
+              properties:
+                definition:
+                  type: object
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale
         is 412.
   /v1/workspaces/{w}/forms/{f}/drafts/{d}/review-requests:
@@ -6150,7 +5972,7 @@ paths:
           $ref: '#/components/responses/Conflict'
   /v1/workspaces/{workspace}/catalog/forms:
     parameters:
-    - &id003
+    - &id006
       name: workspace
       in: path
       required: true
@@ -6162,7 +5984,7 @@ paths:
       summary: Search the current workspace form catalog
       x-implementation-status: implemented
       x-authorization:
-        roles: &id009
+        roles: &id012
         - workspace-administrator
         - author
         - reviewer
@@ -6181,13 +6003,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CatalogPage'
-        '400': &id004
+        '400': &id007
           $ref: '#/components/responses/BadRequest'
-        '401': &id005
+        '401': &id008
           $ref: '#/components/responses/Unauthenticated'
-        '403': &id006
+        '403': &id009
           $ref: '#/components/responses/Forbidden'
-        '404': &id007
+        '404': &id010
           $ref: '#/components/responses/NotFound'
       parameters:
       - name: q
@@ -6201,12 +6023,12 @@ paths:
           type: string
       - name: owner
         in: query
-        schema: &id002
+        schema: &id005
           type: string
           format: uuid
       - name: folder
         in: query
-        schema: *id002
+        schema: *id005
       - name: tag
         in: query
         explode: true
@@ -6232,17 +6054,17 @@ paths:
           type: string
   /v1/workspaces/{workspace}/catalog/forms/{form}/duplicate:
     parameters:
-    - *id003
+    - *id006
     - name: form
       in: path
       required: true
-      schema: *id002
+      schema: *id005
     post:
       operationId: m6CatalogDuplicate
       summary: Duplicate a workspace form
       x-implementation-status: implemented
       x-authorization:
-        roles: &id008
+        roles: &id011
         - author
         tenantScope: current-server-workspace-membership
       security:
@@ -6255,23 +6077,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CatalogForm'
-        '400': *id004
-        '401': *id005
-        '403': *id006
-        '404': *id007
+        '400': *id007
+        '401': *id008
+        '403': *id009
+        '404': *id010
   /v1/workspaces/{workspace}/catalog/forms/{form}/archive:
     parameters:
-    - *id003
+    - *id006
     - name: form
       in: path
       required: true
-      schema: *id002
+      schema: *id005
     post:
       operationId: m6CatalogArchive
       summary: Archive a workspace form
       x-implementation-status: implemented
       x-authorization:
-        roles: *id008
+        roles: *id011
         tenantScope: current-server-workspace-membership
       security:
       - staffCookie: []
@@ -6283,23 +6105,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CatalogForm'
-        '400': *id004
-        '401': *id005
-        '403': *id006
-        '404': *id007
+        '400': *id007
+        '401': *id008
+        '403': *id009
+        '404': *id010
   /v1/workspaces/{workspace}/catalog/forms/{form}/restore:
     parameters:
-    - *id003
+    - *id006
     - name: form
       in: path
       required: true
-      schema: *id002
+      schema: *id005
     post:
       operationId: m6CatalogRestore
       summary: Restore a workspace form
       x-implementation-status: implemented
       x-authorization:
-        roles: *id008
+        roles: *id011
         tenantScope: current-server-workspace-membership
       security:
       - staffCookie: []
@@ -6311,23 +6133,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CatalogForm'
-        '400': *id004
-        '401': *id005
-        '403': *id006
-        '404': *id007
+        '400': *id007
+        '401': *id008
+        '403': *id009
+        '404': *id010
   /v1/workspaces/{workspace}/catalog/forms/{form}/ownership:
     parameters:
-    - *id003
+    - *id006
     - name: form
       in: path
       required: true
-      schema: *id002
+      schema: *id005
     put:
       operationId: m6CatalogTransferOwnership
       summary: Transfer form ownership to a current workspace member
       x-implementation-status: implemented
       x-authorization:
-        roles: &id010
+        roles: &id013
         - workspace-administrator
         tenantScope: current-server-workspace-membership
       security:
@@ -6340,10 +6162,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CatalogForm'
-        '400': *id004
-        '401': *id005
-        '403': *id006
-        '404': *id007
+        '400': *id007
+        '401': *id008
+        '403': *id009
+        '404': *id010
       requestBody:
         required: true
         content:
@@ -6352,17 +6174,17 @@ paths:
               $ref: '#/components/schemas/CatalogTransfer'
   /v1/workspaces/{workspace}/catalog/forms/{form}/classification:
     parameters:
-    - *id003
+    - *id006
     - name: form
       in: path
       required: true
-      schema: *id002
+      schema: *id005
     put:
       operationId: m6CatalogClassify
       summary: Set form folder and tags
       x-implementation-status: implemented
       x-authorization:
-        roles: *id008
+        roles: *id011
         tenantScope: current-server-workspace-membership
       security:
       - staffCookie: []
@@ -6370,10 +6192,10 @@ paths:
       responses:
         '204':
           description: Classification updated.
-        '400': *id004
-        '401': *id005
-        '403': *id006
-        '404': *id007
+        '400': *id007
+        '401': *id008
+        '403': *id009
+        '404': *id010
       requestBody:
         required: true
         content:
@@ -6382,13 +6204,13 @@ paths:
               $ref: '#/components/schemas/CatalogClassification'
   /v1/workspaces/{workspace}/folders:
     parameters:
-    - *id003
+    - *id006
     get:
       operationId: m6ListFolders
       summary: List workspace catalog folders
       x-implementation-status: implemented
       x-authorization:
-        roles: *id009
+        roles: *id012
         tenantScope: current-server-workspace-membership
       security:
       - staffCookie: []
@@ -6401,16 +6223,16 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/CatalogFolder'
-        '400': *id004
-        '401': *id005
-        '403': *id006
-        '404': *id007
+        '400': *id007
+        '401': *id008
+        '403': *id009
+        '404': *id010
     post:
       operationId: m6CreateFolder
       summary: Create a workspace catalog folder
       x-implementation-status: implemented
       x-authorization:
-        roles: *id008
+        roles: *id011
         tenantScope: current-server-workspace-membership
       security:
       - staffCookie: []
@@ -6422,10 +6244,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CatalogFolder'
-        '400': *id004
-        '401': *id005
-        '403': *id006
-        '404': *id007
+        '400': *id007
+        '401': *id008
+        '403': *id009
+        '404': *id010
       requestBody:
         required: true
         content:
@@ -6434,17 +6256,17 @@ paths:
               $ref: '#/components/schemas/CatalogNameInput'
   /v1/workspaces/{workspace}/folders/{folder}:
     parameters:
-    - *id003
+    - *id006
     - name: folder
       in: path
       required: true
-      schema: *id002
+      schema: *id005
     patch:
       operationId: m6UpdateFolder
       summary: Update a workspace catalog folder
       x-implementation-status: implemented
       x-authorization:
-        roles: *id008
+        roles: *id011
         tenantScope: current-server-workspace-membership
       security:
       - staffCookie: []
@@ -6456,10 +6278,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CatalogFolder'
-        '400': *id004
-        '401': *id005
-        '403': *id006
-        '404': *id007
+        '400': *id007
+        '401': *id008
+        '403': *id009
+        '404': *id010
       requestBody:
         required: true
         content:
@@ -6471,7 +6293,7 @@ paths:
       summary: Delete a workspace catalog folder
       x-implementation-status: implemented
       x-authorization:
-        roles: *id008
+        roles: *id011
         tenantScope: current-server-workspace-membership
       security:
       - staffCookie: []
@@ -6479,19 +6301,19 @@ paths:
       responses:
         '204':
           description: Deleted.
-        '400': *id004
-        '401': *id005
-        '403': *id006
-        '404': *id007
+        '400': *id007
+        '401': *id008
+        '403': *id009
+        '404': *id010
   /v1/workspaces/{workspace}/tags:
     parameters:
-    - *id003
+    - *id006
     get:
       operationId: m6ListTags
       summary: List workspace catalog tags
       x-implementation-status: implemented
       x-authorization:
-        roles: *id009
+        roles: *id012
         tenantScope: current-server-workspace-membership
       security:
       - staffCookie: []
@@ -6504,16 +6326,16 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/CatalogTag'
-        '400': *id004
-        '401': *id005
-        '403': *id006
-        '404': *id007
+        '400': *id007
+        '401': *id008
+        '403': *id009
+        '404': *id010
     post:
       operationId: m6CreateTag
       summary: Create a workspace catalog tag
       x-implementation-status: implemented
       x-authorization:
-        roles: *id008
+        roles: *id011
         tenantScope: current-server-workspace-membership
       security:
       - staffCookie: []
@@ -6525,10 +6347,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CatalogTag'
-        '400': *id004
-        '401': *id005
-        '403': *id006
-        '404': *id007
+        '400': *id007
+        '401': *id008
+        '403': *id009
+        '404': *id010
       requestBody:
         required: true
         content:
@@ -6537,17 +6359,17 @@ paths:
               $ref: '#/components/schemas/CatalogTagInput'
   /v1/workspaces/{workspace}/tags/{tag}:
     parameters:
-    - *id003
+    - *id006
     - name: tag
       in: path
       required: true
-      schema: *id002
+      schema: *id005
     patch:
       operationId: m6UpdateTag
       summary: Update a workspace catalog tag
       x-implementation-status: implemented
       x-authorization:
-        roles: *id008
+        roles: *id011
         tenantScope: current-server-workspace-membership
       security:
       - staffCookie: []
@@ -6559,10 +6381,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CatalogTag'
-        '400': *id004
-        '401': *id005
-        '403': *id006
-        '404': *id007
+        '400': *id007
+        '401': *id008
+        '403': *id009
+        '404': *id010
       requestBody:
         required: true
         content:
@@ -6574,7 +6396,7 @@ paths:
       summary: Delete a workspace catalog tag
       x-implementation-status: implemented
       x-authorization:
-        roles: *id008
+        roles: *id011
         tenantScope: current-server-workspace-membership
       security:
       - staffCookie: []
@@ -6582,19 +6404,19 @@ paths:
       responses:
         '204':
           description: Deleted.
-        '400': *id004
-        '401': *id005
-        '403': *id006
-        '404': *id007
+        '400': *id007
+        '401': *id008
+        '403': *id009
+        '404': *id010
   /v1/workspaces/{workspace}/catalog/settings:
     parameters:
-    - *id003
+    - *id006
     get:
       operationId: m6EffectiveCatalogSettings
       summary: Read effective policy and provider settings
       x-implementation-status: implemented
       x-authorization:
-        roles: *id010
+        roles: *id013
         tenantScope: current-server-workspace-membership
       security:
       - staffCookie: []
@@ -6605,16 +6427,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CatalogSettings'
-        '400': *id004
-        '401': *id005
-        '403': *id006
-        '404': *id007
+        '400': *id007
+        '401': *id008
+        '403': *id009
+        '404': *id010
     put:
       operationId: m6UpdateCatalogSettings
       summary: Update workspace policy and provider overrides
       x-implementation-status: implemented
       x-authorization:
-        roles: *id010
+        roles: *id013
         tenantScope: current-server-workspace-membership
       security:
       - staffCookie: []
@@ -6626,10 +6448,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CatalogSettings'
-        '400': *id004
-        '401': *id005
-        '403': *id006
-        '404': *id007
+        '400': *id007
+        '401': *id008
+        '403': *id009
+        '404': *id010
       requestBody:
         required: true
         content:
@@ -6638,13 +6460,13 @@ paths:
               $ref: '#/components/schemas/CatalogSettingsInput'
   /v1/workspaces/{workspace}/members:
     parameters:
-    - *id003
+    - *id006
     get:
       operationId: m6ListWorkspaceMembers
       summary: List transferable current workspace members
       x-implementation-status: implemented
       x-authorization:
-        roles: *id010
+        roles: *id013
         tenantScope: current-server-workspace-membership
       security:
       - staffCookie: []
@@ -6655,10 +6477,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/WorkspaceMemberCollection'
-        '400': *id004
-        '401': *id005
-        '403': *id006
-        '404': *id007
+        '400': *id007
+        '401': *id008
+        '403': *id009
+        '404': *id010
 x-m0-operation-inventory:
   oNamed:
     source: docs/acceptance/v1.1/denominators/o-named.json
@@ -6870,6 +6692,21 @@ components:
         Path=/v1/auth
       description: Sets SI_LOGIN_CSRF as a Secure, HttpOnly, SameSite=Strict, short-lived
         cookie bound to the returned one-time token.
+    X-Temporary-Password-Copy:
+      description: Authorized one-time temporary password delivery. Never log or persist
+        this value.
+      schema:
+        type: string
+    X-Invitation-Copy-Link:
+      description: Authorized one-time invitation delivery link. Never log or persist
+        this value.
+      schema:
+        type: string
+    X-Recovery-Copy-Link:
+      description: Authorized one-time recovery delivery link. Never log or persist
+        this value.
+      schema:
+        type: string
   examples:
     Problem:
       value:
@@ -8278,7 +8115,7 @@ components:
             minLength: 1
           rowPath:
             $ref: '#/components/schemas/RuntimeRowPath'
-          value: &id011
+          value: &id014
             $ref: '#/components/schemas/InputAnswerValue'
       - type: object
         additionalProperties: false
@@ -8323,11 +8160,11 @@ components:
             minLength: 1
           rowPath:
             $ref: '#/components/schemas/RuntimeRowPath'
-          itemId: &id012
+          itemId: &id015
             $ref: '#/components/schemas/OpaqueId'
           initialFields:
             type: object
-            additionalProperties: *id011
+            additionalProperties: *id014
             default: {}
       - type: object
         additionalProperties: false
@@ -8343,7 +8180,7 @@ components:
             minLength: 1
           rowPath:
             $ref: '#/components/schemas/RuntimeRowPath'
-          itemId: *id012
+          itemId: *id015
       - type: object
         additionalProperties: false
         required:
@@ -8358,10 +8195,10 @@ components:
             minLength: 1
           rowPath:
             $ref: '#/components/schemas/RuntimeRowPath'
-          itemId: *id012
+          itemId: *id015
           beforeItemId:
             anyOf:
-            - *id012
+            - *id015
             - type: 'null'
       discriminator:
         propertyName: op
@@ -8637,7 +8474,7 @@ components:
           type: array
           minItems: 1
           items:
-            enum: &id018
+            enum: &id021
             - workspace-administrator
             - author
             - reviewer
@@ -8769,19 +8606,19 @@ components:
       - formKey
       - title
       properties:
-        id: &id013
+        id: &id016
           $ref: '#/components/schemas/OpaqueId'
         kind:
           const: Form
-        revision: &id014
+        revision: &id017
           type: integer
           minimum: 0
-        status: &id015
+        status: &id018
           type: string
-        createdAt: &id016
+        createdAt: &id019
           type: string
           format: date-time
-        updatedAt: &id017
+        updatedAt: &id020
           type: string
           format: date-time
         formKey:
@@ -8802,13 +8639,13 @@ components:
       - formId
       - packageHash
       properties:
-        id: *id013
+        id: *id016
         kind:
           const: Draft
-        revision: *id014
-        status: *id015
-        createdAt: *id016
-        updatedAt: *id017
+        revision: *id017
+        status: *id018
+        createdAt: *id019
+        updatedAt: *id020
         formId:
           $ref: '#/components/schemas/OpaqueId'
         packageHash:
@@ -8828,13 +8665,13 @@ components:
       - packageHash
       - definitionVersion
       properties:
-        id: *id013
+        id: *id016
         kind:
           const: Release
-        revision: *id014
-        status: *id015
-        createdAt: *id016
-        updatedAt: *id017
+        revision: *id017
+        status: *id018
+        createdAt: *id019
+        updatedAt: *id020
         formId:
           $ref: '#/components/schemas/OpaqueId'
         packageHash:
@@ -8856,13 +8693,13 @@ components:
       - expiresAt
       - sessionRevision
       properties:
-        id: *id013
+        id: *id016
         kind:
           const: RespondentSession
-        revision: *id014
-        status: *id015
-        createdAt: *id016
-        updatedAt: *id017
+        revision: *id017
+        status: *id018
+        createdAt: *id019
+        updatedAt: *id020
         releaseId:
           $ref: '#/components/schemas/OpaqueId'
         expiresAt:
@@ -8886,13 +8723,13 @@ components:
       - sessionId
       - submittedAt
       properties:
-        id: *id013
+        id: *id016
         kind:
           const: Submission
-        revision: *id014
-        status: *id015
-        createdAt: *id016
-        updatedAt: *id017
+        revision: *id017
+        status: *id018
+        createdAt: *id019
+        updatedAt: *id020
         formId:
           $ref: '#/components/schemas/OpaqueId'
         sessionId:
@@ -8914,13 +8751,13 @@ components:
       - receiptCode
       - submittedAt
       properties:
-        id: *id013
+        id: *id016
         kind:
           const: Receipt
-        revision: *id014
-        status: *id015
-        createdAt: *id016
-        updatedAt: *id017
+        revision: *id017
+        status: *id018
+        createdAt: *id019
+        updatedAt: *id020
         receiptCode:
           $ref: '#/components/schemas/OpaqueId'
         submittedAt:
@@ -8942,13 +8779,13 @@ components:
       - sizeBytes
       - sha256
       properties:
-        id: *id013
+        id: *id016
         kind:
           const: Attachment
-        revision: *id014
-        status: *id015
-        createdAt: *id016
-        updatedAt: *id017
+        revision: *id017
+        status: *id018
+        createdAt: *id019
+        updatedAt: *id020
         fileName:
           type: string
         mediaType:
@@ -8971,13 +8808,13 @@ components:
       - format
       - state
       properties:
-        id: *id013
+        id: *id016
         kind:
           const: ExportJob
-        revision: *id014
-        status: *id015
-        createdAt: *id016
-        updatedAt: *id017
+        revision: *id017
+        status: *id018
+        createdAt: *id019
+        updatedAt: *id020
         format:
           enum:
           - json
@@ -9002,13 +8839,13 @@ components:
       - url
       - events
       properties:
-        id: *id013
+        id: *id016
         kind:
           const: Webhook
-        revision: *id014
-        status: *id015
-        createdAt: *id016
-        updatedAt: *id017
+        revision: *id017
+        status: *id018
+        createdAt: *id019
+        updatedAt: *id020
         url:
           type: string
           format: uri
@@ -9030,13 +8867,13 @@ components:
       - webhookId
       - attempt
       properties:
-        id: *id013
+        id: *id016
         kind:
           const: WebhookDelivery
-        revision: *id014
-        status: *id015
-        createdAt: *id016
-        updatedAt: *id017
+        revision: *id017
+        status: *id018
+        createdAt: *id019
+        updatedAt: *id020
         webhookId:
           $ref: '#/components/schemas/OpaqueId'
         attempt:
@@ -9055,13 +8892,13 @@ components:
       - updatedAt
       - name
       properties:
-        id: *id013
+        id: *id016
         kind:
           const: Folder
-        revision: *id014
-        status: *id015
-        createdAt: *id016
-        updatedAt: *id017
+        revision: *id017
+        status: *id018
+        createdAt: *id019
+        updatedAt: *id020
         name:
           type: string
       description: Concrete Folder resource representation.
@@ -9078,13 +8915,13 @@ components:
       - label
       - color
       properties:
-        id: *id013
+        id: *id016
         kind:
           const: Tag
-        revision: *id014
-        status: *id015
-        createdAt: *id016
-        updatedAt: *id017
+        revision: *id017
+        status: *id018
+        createdAt: *id019
+        updatedAt: *id020
         label:
           type: string
         color:
@@ -9102,13 +8939,13 @@ components:
       - updatedAt
       - blockType
       properties:
-        id: *id013
+        id: *id016
         kind:
           const: Block
-        revision: *id014
-        status: *id015
-        createdAt: *id016
-        updatedAt: *id017
+        revision: *id017
+        status: *id018
+        createdAt: *id019
+        updatedAt: *id020
         blockType:
           type: string
       description: Concrete Block resource representation.
@@ -9124,13 +8961,13 @@ components:
       - updatedAt
       - name
       properties:
-        id: *id013
+        id: *id016
         kind:
           const: Theme
-        revision: *id014
-        status: *id015
-        createdAt: *id016
-        updatedAt: *id017
+        revision: *id017
+        status: *id018
+        createdAt: *id019
+        updatedAt: *id020
         name:
           type: string
       description: Concrete Theme resource representation.
@@ -9146,13 +8983,13 @@ components:
       - updatedAt
       - locale
       properties:
-        id: *id013
+        id: *id016
         kind:
           const: LocaleBundle
-        revision: *id014
-        status: *id015
-        createdAt: *id016
-        updatedAt: *id017
+        revision: *id017
+        status: *id018
+        createdAt: *id019
+        updatedAt: *id020
         locale:
           type: string
       description: Concrete LocaleBundle resource representation.
@@ -9169,13 +9006,13 @@ components:
       - channelType
       - name
       properties:
-        id: *id013
+        id: *id016
         kind:
           const: ShareChannel
-        revision: *id014
-        status: *id015
-        createdAt: *id016
-        updatedAt: *id017
+        revision: *id017
+        status: *id018
+        createdAt: *id019
+        updatedAt: *id020
         channelType:
           type: string
         name:
@@ -9194,13 +9031,13 @@ components:
       - policyType
       - effect
       properties:
-        id: *id013
+        id: *id016
         kind:
           const: Policy
-        revision: *id014
-        status: *id015
-        createdAt: *id016
-        updatedAt: *id017
+        revision: *id017
+        status: *id018
+        createdAt: *id019
+        updatedAt: *id020
         policyType:
           type: string
         effect:
@@ -9218,13 +9055,13 @@ components:
       - updatedAt
       - name
       properties:
-        id: *id013
+        id: *id016
         kind:
           const: Organization
-        revision: *id014
-        status: *id015
-        createdAt: *id016
-        updatedAt: *id017
+        revision: *id017
+        status: *id018
+        createdAt: *id019
+        updatedAt: *id020
         name:
           type: string
       description: Concrete Organization resource representation.
@@ -9241,13 +9078,13 @@ components:
       - email
       - roles
       properties:
-        id: *id013
+        id: *id016
         kind:
           const: OrganizationUser
-        revision: *id014
-        status: *id015
-        createdAt: *id016
-        updatedAt: *id017
+        revision: *id017
+        status: *id018
+        createdAt: *id019
+        updatedAt: *id020
         email:
           type: string
           format: email
@@ -9268,13 +9105,13 @@ components:
       - updatedAt
       - accountStatus
       properties:
-        id: *id013
+        id: *id016
         kind:
           const: PlatformAccount
-        revision: *id014
-        status: *id015
-        createdAt: *id016
-        updatedAt: *id017
+        revision: *id017
+        status: *id018
+        createdAt: *id019
+        updatedAt: *id020
         accountStatus:
           type: string
       description: Concrete PlatformAccount resource representation.
@@ -9290,17 +9127,17 @@ components:
       - updatedAt
       - roles
       properties:
-        id: *id013
+        id: *id016
         kind:
           const: WorkspaceRole
-        revision: *id014
-        status: *id015
-        createdAt: *id016
-        updatedAt: *id017
+        revision: *id017
+        status: *id018
+        createdAt: *id019
+        updatedAt: *id020
         roles:
           type: array
           items:
-            enum: *id018
+            enum: *id021
       description: Concrete WorkspaceRole resource representation.
     Invitation:
       type: object
@@ -9315,13 +9152,13 @@ components:
       - email
       - expiresAt
       properties:
-        id: *id013
+        id: *id016
         kind:
           const: Invitation
-        revision: *id014
-        status: *id015
-        createdAt: *id016
-        updatedAt: *id017
+        revision: *id017
+        status: *id018
+        createdAt: *id019
+        updatedAt: *id020
         email:
           type: string
           format: email
@@ -9342,13 +9179,13 @@ components:
       - candidateDigest
       - expiresAt
       properties:
-        id: *id013
+        id: *id016
         kind:
           const: ImportCandidate
-        revision: *id014
-        status: *id015
-        createdAt: *id016
-        updatedAt: *id017
+        revision: *id017
+        status: *id018
+        createdAt: *id019
+        updatedAt: *id020
         candidateDigest:
           $ref: '#/components/schemas/Sha256'
         expiresAt:
@@ -9368,13 +9205,13 @@ components:
       - valid
       - diagnostics
       properties:
-        id: *id013
+        id: *id016
         kind:
           const: ValidationReport
-        revision: *id014
-        status: *id015
-        createdAt: *id016
-        updatedAt: *id017
+        revision: *id017
+        status: *id018
+        createdAt: *id019
+        updatedAt: *id020
         valid:
           type: boolean
         diagnostics:
@@ -9394,13 +9231,13 @@ components:
       - updatedAt
       - reviewerIds
       properties:
-        id: *id013
+        id: *id016
         kind:
           const: ReviewRequest
-        revision: *id014
-        status: *id015
-        createdAt: *id016
-        updatedAt: *id017
+        revision: *id017
+        status: *id018
+        createdAt: *id019
+        updatedAt: *id020
         reviewerIds:
           type: array
           items:
@@ -9418,13 +9255,13 @@ components:
       - updatedAt
       - releaseId
       properties:
-        id: *id013
+        id: *id016
         kind:
           const: Activation
-        revision: *id014
-        status: *id015
-        createdAt: *id016
-        updatedAt: *id017
+        revision: *id017
+        status: *id018
+        createdAt: *id019
+        updatedAt: *id020
         releaseId:
           $ref: '#/components/schemas/OpaqueId'
       description: Concrete Activation resource representation.
@@ -9440,13 +9277,13 @@ components:
       - updatedAt
       - package
       properties:
-        id: *id013
+        id: *id016
         kind:
           const: PackageExport
-        revision: *id014
-        status: *id015
-        createdAt: *id016
-        updatedAt: *id017
+        revision: *id017
+        status: *id018
+        createdAt: *id019
+        updatedAt: *id020
         package:
           $ref: ../contracts/smart-form-builder-lite/4.0.0/package.schema.json
       description: Concrete PackageExport resource representation.
@@ -9463,13 +9300,13 @@ components:
       - submissionId
       - state
       properties:
-        id: *id013
+        id: *id016
         kind:
           const: SubmissionOperation
-        revision: *id014
-        status: *id015
-        createdAt: *id016
-        updatedAt: *id017
+        revision: *id017
+        status: *id018
+        createdAt: *id019
+        updatedAt: *id020
         submissionId:
           $ref: '#/components/schemas/OpaqueId'
         state:
@@ -9490,13 +9327,13 @@ components:
       - submissionId
       - score
       properties:
-        id: *id013
+        id: *id016
         kind:
           const: Interpretation
-        revision: *id014
-        status: *id015
-        createdAt: *id016
-        updatedAt: *id017
+        revision: *id017
+        status: *id018
+        createdAt: *id019
+        updatedAt: *id020
         submissionId:
           $ref: '#/components/schemas/OpaqueId'
         score:
@@ -9514,13 +9351,13 @@ components:
       - updatedAt
       - action
       properties:
-        id: *id013
+        id: *id016
         kind:
           const: AccountAction
-        revision: *id014
-        status: *id015
-        createdAt: *id016
-        updatedAt: *id017
+        revision: *id017
+        status: *id018
+        createdAt: *id019
+        updatedAt: *id020
         action:
           type: string
       description: Concrete AccountAction resource representation.
@@ -9538,13 +9375,13 @@ components:
       - expiresAt
       - csrfToken
       properties:
-        id: *id013
+        id: *id016
         kind:
           const: StaffSession
-        revision: *id014
-        status: *id015
-        createdAt: *id016
-        updatedAt: *id017
+        revision: *id017
+        status: *id018
+        createdAt: *id019
+        updatedAt: *id020
         userId:
           $ref: '#/components/schemas/OpaqueId'
         expiresAt:
@@ -9569,13 +9406,13 @@ components:
       - ownerSafety
       - idempotencyReplay
       properties:
-        id: *id013
+        id: *id016
         kind:
           const: OrganizationRecovery
-        revision: *id014
-        status: *id015
-        createdAt: *id016
-        updatedAt: *id017
+        revision: *id017
+        status: *id018
+        createdAt: *id019
+        updatedAt: *id020
         safeDelivery:
           enum:
           - verified-email
@@ -9602,13 +9439,13 @@ components:
       - ownerSafety
       - idempotencyReplay
       properties:
-        id: *id013
+        id: *id016
         kind:
           const: PlatformRecovery
-        revision: *id014
-        status: *id015
-        createdAt: *id016
-        updatedAt: *id017
+        revision: *id017
+        status: *id018
+        createdAt: *id019
+        updatedAt: *id020
         safeDelivery:
           enum:
           - verified-email
@@ -10154,7 +9991,7 @@ components:
           type: array
           minItems: 1
           items:
-            enum: *id018
+            enum: *id021
     InvitationCreateRequest:
       type: object
       additionalProperties: false
@@ -12134,7 +11971,7 @@ components:
           minItems: 1
           uniqueItems: true
           items:
-            enum: *id018
+            enum: *id021
     WorkspaceMemberCollection:
       type: object
       additionalProperties: false
@@ -12158,7 +11995,7 @@ components:
       - createdAt
       - updatedAt
       properties:
-        id: &id019
+        id: &id022
           type: string
           format: uuid
         name:
@@ -12185,7 +12022,7 @@ components:
       - createdAt
       - updatedAt
       properties:
-        id: *id019
+        id: *id022
         name:
           type: string
           minLength: 1
@@ -12250,7 +12087,7 @@ components:
       - owner
       - tags
       properties:
-        id: *id019
+        id: *id022
         formKey:
           type: string
         title:
@@ -12265,7 +12102,7 @@ components:
           format: date-time
         folderId:
           anyOf:
-          - *id019
+          - *id022
           - type: 'null'
         owner:
           $ref: '#/components/schemas/CatalogOwner'
@@ -12296,12 +12133,12 @@ components:
       properties:
         folderId:
           anyOf:
-          - *id019
+          - *id022
           - type: 'null'
         tagIds:
           type: array
           uniqueItems: true
-          items: *id019
+          items: *id022
     CatalogTransfer:
       type: object
       additionalProperties: false

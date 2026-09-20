@@ -4013,6 +4013,12 @@ export interface components {
          * @example SI_LOGIN_CSRF=bound-01J2W5RFR3K24SFWDX2C0N9VW3; Secure; HttpOnly; SameSite=Strict; Path=/v1/auth
          */
         LoginCsrfSetCookie: string;
+        /** @description Authorized one-time temporary password delivery. Never log or persist this value. */
+        "X-Temporary-Password-Copy": string;
+        /** @description Authorized one-time invitation delivery link. Never log or persist this value. */
+        "X-Invitation-Copy-Link": string;
+        /** @description Authorized one-time recovery delivery link. Never log or persist this value. */
+        "X-Recovery-Copy-Link": string;
     };
     pathItems: never;
 }
@@ -5893,27 +5899,15 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /**
-                 * @description Opaque server-issued identifier; it is never an authority grant.
-                 * @example w-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
                 w: components["schemas"]["OpaqueId"];
-                /**
-                 * @description Opaque server-issued identifier; it is never an authority grant.
-                 * @example f-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
                 f: components["schemas"]["OpaqueId"];
-                /**
-                 * @description Opaque server-issued identifier; it is never an authority grant.
-                 * @example d-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
                 d: string;
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description Successful response. */
+            /** @description Unwrapped live draft response. */
             200: {
                 headers: {
                     ETag: components["headers"]["ETag"];
@@ -5937,38 +5931,23 @@ export interface operations {
             header: {
                 /** @example "rev-7" */
                 "If-Match": components["parameters"]["IfMatch"];
-                /**
-                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
-                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
-                /**
-                 * @description Opaque server-issued identifier; it is never an authority grant.
-                 * @example w-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
                 w: components["schemas"]["OpaqueId"];
-                /**
-                 * @description Opaque server-issued identifier; it is never an authority grant.
-                 * @example f-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
                 f: components["schemas"]["OpaqueId"];
-                /**
-                 * @description Opaque server-issued identifier; it is never an authority grant.
-                 * @example d-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                d: components["schemas"]["OpaqueId"];
+                d: string;
             };
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["DraftSaveRequest"];
+                "application/json": {
+                    definition: Record<string, never>;
+                };
             };
         };
         responses: {
-            /** @description Successful response. */
+            /** @description Unwrapped live draft response. */
             200: {
                 headers: {
                     ETag: components["headers"]["ETag"];

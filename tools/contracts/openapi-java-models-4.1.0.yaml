@@ -3303,7 +3303,7 @@ paths:
       x-implementation-status: implemented
       responses:
         '200':
-          description: Successful response.
+          description: Unwrapped live draft response.
           headers:
             ETag:
               $ref: '#/components/headers/ETag'
@@ -3311,19 +3311,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LiveDraftRead'
-              examples:
-                success:
-                  value:
-                    requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
-                    draft:
-                      id: draft-01J2W5RFR3K24SFWDX2C0N9VW3
-                      kind: Draft
-                      revision: 7
-                      status: active
-                      createdAt: '2026-09-18T00:00:00Z'
-                      updatedAt: '2026-09-18T00:00:00Z'
-                      formId: form-01J2W5RFR3K24SFWDX2C0N9VW3
-                      packageHash: '0000000000000000000000000000000000000000000000000000000000000000'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -3340,25 +3327,19 @@ paths:
       - name: w
         in: path
         required: true
-        description: Opaque server-issued identifier; it is never an authority grant.
         schema:
           $ref: '#/components/schemas/OpaqueId'
-        example: w-01J2W5RFR3K24SFWDX2C0N9VW3
       - name: f
         in: path
         required: true
-        description: Opaque server-issued identifier; it is never an authority grant.
         schema:
           $ref: '#/components/schemas/OpaqueId'
-        example: f-01J2W5RFR3K24SFWDX2C0N9VW3
       - name: d
         in: path
         required: true
-        description: Opaque server-issued identifier; it is never an authority grant.
         schema:
           type: string
           format: uuid
-        example: d-01J2W5RFR3K24SFWDX2C0N9VW3
       security:
       - staffCookie: []
     put:
@@ -3378,7 +3359,7 @@ paths:
       x-implementation-status: implemented
       responses:
         '200':
-          description: Successful response.
+          description: Unwrapped live draft response.
           headers:
             ETag:
               $ref: '#/components/headers/ETag'
@@ -3386,19 +3367,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LiveDraftWrite'
-              examples:
-                success:
-                  value:
-                    requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
-                    draft:
-                      id: draft-01J2W5RFR3K24SFWDX2C0N9VW3
-                      kind: Draft
-                      revision: 7
-                      status: active
-                      createdAt: '2026-09-18T00:00:00Z'
-                      updatedAt: '2026-09-18T00:00:00Z'
-                      formId: form-01J2W5RFR3K24SFWDX2C0N9VW3
-                      packageHash: '0000000000000000000000000000000000000000000000000000000000000000'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -3423,29 +3391,20 @@ paths:
       - name: w
         in: path
         required: true
-        description: Opaque server-issued identifier; it is never an authority grant.
         schema:
           $ref: '#/components/schemas/OpaqueId'
-        example: w-01J2W5RFR3K24SFWDX2C0N9VW3
       - name: f
         in: path
         required: true
-        description: Opaque server-issued identifier; it is never an authority grant.
         schema:
           $ref: '#/components/schemas/OpaqueId'
-        example: f-01J2W5RFR3K24SFWDX2C0N9VW3
       - name: d
         in: path
         required: true
-        description: Opaque server-issued identifier; it is never an authority grant.
-        schema:
-          $ref: '#/components/schemas/OpaqueId'
-        example: d-01J2W5RFR3K24SFWDX2C0N9VW3
-      - $ref: '#/components/parameters/IfMatch'
-      - $ref: '#/components/parameters/IdempotencyKey'
         schema:
           type: string
           format: uuid
+      - $ref: '#/components/parameters/IfMatch'
       security:
       - staffCookie: []
         csrfHeader: []
@@ -3454,140 +3413,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DraftSaveRequest'
-            examples:
-              valid:
-                value:
-                  package:
-                    schemaVersion: 4.0.0
-                    contractVersion: 4.0.0
-                    engineContract: 4.0.0
-                    kind: smart-form-package
-                    formKey: intake
-                    definitionVersion: 1.0.0
-                    titleKey: title
-                    defaultLocale: en
-                    supportedLocales:
-                    - en
-                    translations:
-                      en:
-                        direction: ltr
-                        messages:
-                          title: Intake
-                          amount: Amount
-                          name: Name
-                          attendees: Attendees
-                          attendee_name: Attendee name
-                        pronunciations: []
-                        reviewState: approved
-                    data:
-                      fields:
-                      - id: name
-                        key: name
-                        type: text
-                        labelKey: name
-                      - id: amount
-                        key: amount
-                        type: integer
-                        labelKey: amount
-                        constraints:
-                          min: '0'
-                          max: '9223372036854775807'
-                      - id: attendees
-                        key: attendees
-                        type: list
-                        labelKey: attendees
-                        itemSchema:
-                          fields:
-                          - id: attendeeName
-                            key: attendee_name
-                            type: text
-                            labelKey: attendee_name
-                    flow:
-                      startPageId: page1
-                      phases:
-                      - id: phase1
-                        pages:
-                        - id: page1
-                          key: page
-                          labelKey: title
-                          sections:
-                          - id: section1
-                            key: main
-                            labelKey: title
-                            nodes:
-                            - id: node1
-                              kind: question
-                              fieldId: name
-                              fieldType: text
-                              control: text
-                              labelKey: name
-                            - id: node2
-                              kind: question
-                              fieldId: amount
-                              fieldType: integer
-                              control: integer
-                              labelKey: amount
-                            - id: node3
-                              kind: question
-                              fieldId: attendees
-                              fieldType: list
-                              control: repeatingCards
-                              labelKey: attendees
-                              presentation:
-                                settings:
-                                  allowAdd: true
-                                  allowRemove: false
-                                  allowReorder: true
-                              children:
-                              - id: node4
-                                kind: question
-                                fieldId: attendeeName
-                                fieldType: text
-                                control: text
-                                labelKey: attendee_name
-                    expressions:
-                      sum:
-                        op: add
-                        args:
-                        - literal:
-                            type: integer
-                            value: '1'
-                        - literal:
-                            type: decimal
-                            value: '2.5'
-                    dependencies:
-                    - kind: extension
-                      id: exampleExtension
-                      version: 1.0.0
-                      digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-                    policies:
-                      attachmentsRequiredReady: true
-                    assets: []
-                    extensions:
-                      x-example.org:
-                        dependencyId: exampleExtension
-                        version: 1.0.0
-                        digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-                        value: representative
-                    guidance: {}
-                    theme:
-                      themeKey: accessible_default
-                      version: 1.0.0
-                      tokens:
-                        accent: '#175CD3'
-                        background: '#FFFFFF'
-                        text: '#182230'
-                        fontFamily: system
-                        density: comfortable
-                        radius: 8
-                        responsive:
-                          compactMaxWidth: 639
-                          mediumMaxWidth: 1023
-                          wideColumns: 2
-                  editNote: Clarify consent wording.
-              invalid:
-                value: {}
+              type: object
+              additionalProperties: false
+              required:
+              - definition
+              properties:
+                definition:
+                  type: object
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale is 412.
   /v1/workspaces/{w}/forms/{f}/drafts/{d}/review-requests:
     post:
@@ -6856,6 +6688,18 @@ components:
       example: SI_LOGIN_CSRF=bound-01J2W5RFR3K24SFWDX2C0N9VW3; Secure; HttpOnly; SameSite=Strict; Path=/v1/auth
       description: Sets SI_LOGIN_CSRF as a Secure, HttpOnly, SameSite=Strict, short-lived cookie bound to the returned one-time
         token.
+    X-Temporary-Password-Copy:
+      description: Authorized one-time temporary password delivery. Never log or persist this value.
+      schema:
+        type: string
+    X-Invitation-Copy-Link:
+      description: Authorized one-time invitation delivery link. Never log or persist this value.
+      schema:
+        type: string
+    X-Recovery-Copy-Link:
+      description: Authorized one-time recovery delivery link. Never log or persist this value.
+      schema:
+        type: string
   examples:
     Problem:
       value:

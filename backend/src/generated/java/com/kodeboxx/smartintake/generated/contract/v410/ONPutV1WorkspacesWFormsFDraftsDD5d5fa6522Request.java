@@ -20,81 +20,51 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.kodeboxx.smartintake.generated.contract.v410.PackageDocument;
 import java.util.HashMap;
 import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
- * DraftSaveRequest
+ * ONPutV1WorkspacesWFormsFDraftsDD5d5fa6522Request
  */
 @JsonPropertyOrder({
-  DraftSaveRequest.JSON_PROPERTY_PACKAGE,
-  DraftSaveRequest.JSON_PROPERTY_EDIT_NOTE
+  ONPutV1WorkspacesWFormsFDraftsDD5d5fa6522Request.JSON_PROPERTY_DEFINITION
 })
+@JsonTypeName("ON_put_v1_workspaces_w_forms_f_drafts_d_d5d5fa6522_request")
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class DraftSaveRequest extends HashMap<String, Object> {
-  public static final String JSON_PROPERTY_PACKAGE = "package";
+public class ONPutV1WorkspacesWFormsFDraftsDD5d5fa6522Request extends HashMap<String, Object> {
+  public static final String JSON_PROPERTY_DEFINITION = "definition";
   @jakarta.annotation.Nonnull
-  private PackageDocument _package;
+  private Object definition;
 
-  public static final String JSON_PROPERTY_EDIT_NOTE = "editNote";
-  @jakarta.annotation.Nullable
-  private String editNote;
-
-  public DraftSaveRequest() {
+  public ONPutV1WorkspacesWFormsFDraftsDD5d5fa6522Request() {
 
   }
 
-  public DraftSaveRequest _package(@jakarta.annotation.Nonnull PackageDocument _package) {
+  public ONPutV1WorkspacesWFormsFDraftsDD5d5fa6522Request definition(@jakarta.annotation.Nonnull Object definition) {
     
-    this._package = _package;
+    this.definition = definition;
     return this;
   }
 
   /**
-   * Get _package
-   * @return _package
+   * Get definition
+   * @return definition
    */
   @jakarta.annotation.Nonnull
-  @JsonProperty(JSON_PROPERTY_PACKAGE)
+  @JsonProperty(JSON_PROPERTY_DEFINITION)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public PackageDocument getPackage() {
-    return _package;
+  public Object getDefinition() {
+    return definition;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_PACKAGE)
+  @JsonProperty(JSON_PROPERTY_DEFINITION)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setPackage(@jakarta.annotation.Nonnull PackageDocument _package) {
-    this._package = _package;
-  }
-
-  public DraftSaveRequest editNote(@jakarta.annotation.Nullable String editNote) {
-    
-    this.editNote = editNote;
-    return this;
-  }
-
-  /**
-   * Get editNote
-   * @return editNote
-   */
-  @jakarta.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_EDIT_NOTE)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-
-  public String getEditNote() {
-    return editNote;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_EDIT_NOTE)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setEditNote(@jakarta.annotation.Nullable String editNote) {
-    this.editNote = editNote;
+  public void setDefinition(@jakarta.annotation.Nonnull Object definition) {
+    this.definition = definition;
   }
 
   @Override
@@ -105,24 +75,22 @@ public class DraftSaveRequest extends HashMap<String, Object> {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    DraftSaveRequest draftSaveRequest = (DraftSaveRequest) o;
-    return Objects.equals(this._package, draftSaveRequest._package) &&
-        Objects.equals(this.editNote, draftSaveRequest.editNote) &&
+    ONPutV1WorkspacesWFormsFDraftsDD5d5fa6522Request onPutV1WorkspacesWFormsFDraftsDD5d5fa6522Request = (ONPutV1WorkspacesWFormsFDraftsDD5d5fa6522Request) o;
+    return Objects.equals(this.definition, onPutV1WorkspacesWFormsFDraftsDD5d5fa6522Request.definition) &&
         super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(_package, editNote, super.hashCode());
+    return Objects.hash(definition, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class DraftSaveRequest {\n");
+    sb.append("class ONPutV1WorkspacesWFormsFDraftsDD5d5fa6522Request {\n");
     sb.append("    ").append(toIndentedString(super.toString())).append("\n");
-    sb.append("    _package: ").append(toIndentedString(_package)).append("\n");
-    sb.append("    editNote: ").append(toIndentedString(editNote)).append("\n");
+    sb.append("    definition: ").append(toIndentedString(definition)).append("\n");
     sb.append("}");
     return sb.toString();
   }

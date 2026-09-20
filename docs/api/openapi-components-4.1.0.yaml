@@ -122,6 +122,21 @@ components:
         Path=/v1/auth
       description: Sets SI_LOGIN_CSRF as a Secure, HttpOnly, SameSite=Strict, short-lived
         cookie bound to the returned one-time token.
+    X-Temporary-Password-Copy:
+      description: Authorized one-time temporary password delivery. Never log or persist
+        this value.
+      schema:
+        type: string
+    X-Invitation-Copy-Link:
+      description: Authorized one-time invitation delivery link. Never log or persist
+        this value.
+      schema:
+        type: string
+    X-Recovery-Copy-Link:
+      description: Authorized one-time recovery delivery link. Never log or persist
+        this value.
+      schema:
+        type: string
   examples:
     Problem:
       value:

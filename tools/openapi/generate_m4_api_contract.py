@@ -584,12 +584,37 @@ def generated() -> dict[Path, bytes]:
         operation_config = draft_path[method]
         operation_config["x-implementation-status"] = "implemented"
         operation_config["description"] = "Live canonical UUID draft endpoint; responses are unwrapped."
-        operation_config["responses"]["200"]["content"]["application/json"]["schema"] = {"$ref": f"#/components/schemas/{schema}"}
+        operation_config["responses"]["200"] = {"description": "Unwrapped live draft response.",
+            "headers": {"ETag": {"$ref": "#/components/headers/ETag"}},
+            "content": {"application/json": {"schema": {"$ref": f"#/components/schemas/{schema}"}}}}
         operation_config.pop("x-replay", None)
-    draft_path["get"]["parameters"][-1]["schema"] = {"type": "string", "format": "uuid"}
-    draft_path["put"]["parameters"][-1]["schema"] = {"type": "string", "format": "uuid"}
-    draft_path["put"]["parameters"] = [parameter for parameter in draft_path["put"]["parameters"]
-                                            if parameter.get("name") != "Idempotency-Key"]
+    draft_parameters = [
+        {"name": "w", "in": "path", "required": True, "schema": {"$ref": "#/components/schemas/OpaqueId"}},
+        {"name": "f", "in": "path", "required": True, "schema": {"$ref": "#/components/schemas/OpaqueId"}},
+        {"name": "d", "in": "path", "required": True, "schema": {"type": "string", "format": "uuid"}},
+    ]
+    draft_path["get"]["parameters"] = draft_parameters
+    draft_path["put"]["parameters"] = draft_parameters + [{"$ref": "#/components/parameters/IfMatch"}]
+    draft_path["put"]["requestBody"] = {"required": True, "content": {"application/json": {"schema": {
+        "type": "object", "additionalProperties": False, "required": ["definition"],
+        "properties": {"definition": {"type": "object"}}}}}}
+    headers = components["components"].setdefault("headers", {})
+    for name, description in {
+        "X-Temporary-Password-Copy": "Authorized one-time temporary password delivery. Never log or persist this value.",
+        "X-Invitation-Copy-Link": "Authorized one-time invitation delivery link. Never log or persist this value.",
+        "X-Recovery-Copy-Link": "Authorized one-time recovery delivery link. Never log or persist this value.",
+    }.items():
+        headers[name] = {"description": description, "schema": {"type": "string"}}
+    def copy_header(path: str, method: str, status: str, name: str) -> None:
+        operation = api["paths"].get(path, {}).get(method)
+        if operation is not None:
+            operation.setdefault("responses", {}).setdefault(status, {"description": "Successful response."}) \
+                .setdefault("headers", {})[name] = {"$ref": f"#/components/headers/{name}"}
+    copy_header("/v1/organizations/{organization}/users", "post", "201", "X-Temporary-Password-Copy")
+    copy_header("/v1/platform/organizations/{organization}/users", "post", "201", "X-Temporary-Password-Copy")
+    copy_header("/v1/organizations/{organization}/users/{user}/invitations", "post", "201", "X-Invitation-Copy-Link")
+    copy_header("/v1/organizations/{organization}/users/{user}/recovery", "post", "201", "X-Recovery-Copy-Link")
+    copy_header("/v1/platform/accounts/{account}/recovery", "post", "201", "X-Recovery-Copy-Link")
     start = api["paths"]["/v1/public/forms/{shareId}/sessions"]["post"]
     start["parameters"] = [parameter for parameter in start["parameters"]
                            if parameter.get("name") == "shareId"]
