@@ -52,7 +52,7 @@ export function applyRuntimeOperation(
   const resolved = resolveTarget(definition, state.answers, operation.target);
   if (resolved.rejection !== undefined) return rejected(state, resolved.rejection);
   const field = resolved.field!;
-  if (serverTargetStatus(state.server, operation.target) === 'notApplicable') {
+  if (serverTargetStatus(definition, state.server, operation.target) === 'notApplicable') {
     return rejected(state, 'INVALID_STATUS');
   }
   if (field.readOnly || field.calculated) {
@@ -445,6 +445,7 @@ function serverAnswersToInput(cells: Readonly<Record<string, ServerAnswerCell>>)
 }
 
 function serverTargetStatus(
+  definition: RuntimeDefinition,
   projection: ServerProjection | null,
   target: RuntimeTarget,
 ): ServerAnswerCell['status'] | undefined {
@@ -458,7 +459,24 @@ function serverTargetStatus(
     if (item === undefined) return undefined;
     fields = item.fields;
   }
+  for (const ancestorId of fieldAncestorIds(definition.fields, target.fieldId) ?? []) {
+    if (findServerCell(fields, ancestorId)?.status === 'notApplicable') return 'notApplicable';
+  }
   return findServerCell(fields, target.fieldId)?.status;
+}
+
+function fieldAncestorIds(
+  fields: readonly RuntimeFieldDefinition[],
+  targetId: string,
+  ancestors: readonly string[] = [],
+): readonly string[] | undefined {
+  for (const field of fields) {
+    if (field.id === targetId) return ancestors;
+    const children = [...(field.fields ?? []), ...(field.itemFields ?? [])];
+    const found = fieldAncestorIds(children, targetId, [...ancestors, field.id]);
+    if (found !== undefined) return found;
+  }
+  return undefined;
 }
 
 function findServerCell(

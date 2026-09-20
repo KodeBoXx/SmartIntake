@@ -1,14 +1,14 @@
 # M1 database compatibility boundary
 
 This is an additive compatibility boundary. Flyway V1 through V10 remain
-byte-for-byte immutable. V11 and V12 are additive: V11 registers the writable canonical
+byte-for-byte immutable. V11 through V13 are additive: V11 registers the writable canonical
 4.0.0 profile, adds nullable typed runtime state, and widens mutation replay
 keys without rewriting their values. V7 registers the writable M1
 current-prototype profile and enforces one submission per session.
 It is not application-rollback-compatible by itself: an application binary from
 before `d1662ed` must not run against a database whose Flyway history includes
-V5--V12 without the coordinated procedure below.
-The companion integration test pins the exact successful V1--V12 Flyway history.
+V5--V13 without the coordinated procedure below.
+The companion integration test pins the exact successful V1--V13 Flyway history.
 
 ## Profiles and write boundary
 
@@ -92,7 +92,7 @@ application until the transaction below has committed and its post-checks pass.
    approved operational process (or wait for their expiry), record the approval,
    and rerun the preflight.
 2. Run the preflight transaction below with a role permitted to lock and alter
-   these tables. It fails closed for an incomplete/failed V5--V12 application or
+   these tables. It fails closed for an incomplete/failed V5--V13 application or
    for any later successful migration. Do not substitute `CASCADE`, disable
    Flyway validation, or delete individual submissions to satisfy a check.
 3. Commit the drop transaction, run the post-check, then deploy the
@@ -101,7 +101,7 @@ application until the transaction below has committed and its post-checks pass.
    submissions and a later V7 deployment will correctly refuse to proceed.
 4. This rollback is permitted only when no canonical M4 record or runtime state
    exists. To return forward, restore the verified pre-rollback backup before
-   deploying the current application. Reapplying V5--V12 to the destructively
+   deploying the current application. Reapplying V5--V13 to the destructively
    rolled-back database is not a lossless recovery procedure. Reconcile
    duplicate submissions explicitly before retrying V7; never merge or delete
    them as part of a migration.
@@ -136,13 +136,14 @@ begin
           or (version = '9' and type = 'SQL' and script = 'V9__default_frozen_session_context.sql' and checksum = 1901026173)
           or (version = '10' and type = 'SQL' and script = 'V10__bind_session_mutation_request_digest.sql' and checksum = 1365084057)
           or (version = '11' and type = 'SQL' and script = 'V11__m4_compatibility_runtime.sql' and checksum = 1780789261)
-          or (version = '12' and type = 'SQL' and script = 'V12__submission_attempt_review_evidence.sql' and checksum = -1913950361),
+          or (version = '12' and type = 'SQL' and script = 'V12__submission_attempt_review_evidence.sql' and checksum = -1868713494)
+          or (version = '13' and type = 'SQL' and script = 'V13__pinned_runtime_manifests.sql' and checksum = -1265314321),
           false)
   )
   or (select count(*) from flyway_schema_history where success) <> 11
   or (select count(distinct (version, type, script, checksum))
       from flyway_schema_history where success) <> 11 then
-    raise exception 'Rollback refused: successful Flyway history is not the exact V1-V12 SQL allowlist';
+    raise exception 'Rollback refused: successful Flyway history is not the exact V1-V13 SQL allowlist';
   end if;
   if exists (
       select 1
@@ -185,6 +186,7 @@ alter table submissions drop column review_projection,
                         drop column review_digest,
                         drop column attempt_id,
                         drop column runtime_manifest;
+alter table form_releases drop column runtime_manifest;
 alter table session_mutations drop constraint session_mutations_client_mutation_id_opaque_id;
 alter table session_mutations alter column client_mutation_id type uuid using client_mutation_id::uuid;
 alter table session_mutations drop constraint session_mutations_request_digest_format;
@@ -205,7 +207,7 @@ alter table forms drop column compatibility_profile_key;
 drop table compatibility_quarantine_evidence;
 drop table record_migration_state;
 drop table compatibility_profiles;
-delete from flyway_schema_history where version in ('5', '6', '7', '8', '9', '10', '11', '12');
+delete from flyway_schema_history where version in ('5', '6', '7', '8', '9', '10', '11', '12', '13');
 commit;
 
 -- Run after commit. Every *_remains value must be false and mutation_key_uuid_restored true

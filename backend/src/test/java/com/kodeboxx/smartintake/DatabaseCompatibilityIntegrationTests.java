@@ -62,7 +62,8 @@ class DatabaseCompatibilityIntegrationTests {
           new FlywayHistory(
               "10", "SQL", "V10__bind_session_mutation_request_digest.sql", 1365084057),
           new FlywayHistory("11", "SQL", "V11__m4_compatibility_runtime.sql", 1780789261),
-          new FlywayHistory("12", "SQL", "V12__submission_attempt_review_evidence.sql", -1913950361));
+          new FlywayHistory("12", "SQL", "V12__submission_attempt_review_evidence.sql", -1868713494),
+          new FlywayHistory("13", "SQL", "V13__pinned_runtime_manifests.sql", -1265314321));
 
   @Autowired JdbcTemplate db;
   @Autowired CompatibilityReconciliationService reconciliation;

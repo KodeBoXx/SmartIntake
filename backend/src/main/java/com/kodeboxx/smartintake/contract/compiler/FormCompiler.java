@@ -84,8 +84,8 @@ public final class FormCompiler {
           options, listAncestors, field, at));
       if (field.path("constraints").path("maxItems").asInt(0) > 500)
         state.error("REPEATER_ITEM_LIMIT", at + "/constraints/maxItems", "Repeaters may contain at most 500 items.");
-      if (field.path("fixedItemIds").size() > 500)
-        state.error("REPEATER_ITEM_LIMIT", at + "/fixedItemIds", "Repeaters may contain at most 500 fixed items.");
+      if (field.path("constraints").path("fixedItemIds").size() > 500)
+        state.error("REPEATER_ITEM_LIMIT", at + "/constraints/fixedItemIds", "Repeaters may contain at most 500 fixed items.");
       checkOptionDefault(field, options, at, state);
       // The closed 4.0.0 package grammar uses itemSchema.fields for both object and list descendants.
       // Do not accept the old prototype's direct fields shape here.
@@ -173,6 +173,10 @@ public final class FormCompiler {
         if (!field.type.equals(suppliedType)) state.error("FIELD_TYPE_MISMATCH", at + "/fieldType", "Question type must match its field.");
         if (!controls.getOrDefault(node.path("control").asText(), Set.of()).contains(field.type))
           state.error("CONTROL_TYPE_INCOMPATIBLE", at + "/control", "Control is incompatible with the canonical field type.");
+        if ("acknowledgment".equals(node.path("control").asText())
+            && !node.path("acknowledgmentContentKey").isTextual())
+          state.error("ACKNOWLEDGMENT_CONTENT_REQUIRED", at + "/acknowledgmentContentKey",
+              "Acknowledgment controls require their full content key.");
         if (("choice".equals(field.type) || "multiChoice".equals(field.type)) && field.optionIds.isEmpty())
           state.error("OPTION_DOMAIN_REQUIRED", at + "/fieldId", "Choice fields require a non-empty option domain.");
       }

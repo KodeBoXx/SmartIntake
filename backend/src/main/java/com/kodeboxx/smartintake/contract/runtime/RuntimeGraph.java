@@ -170,7 +170,7 @@ public final class RuntimeGraph {
     return active;
   }
 
-  public Set<String> activePlacementIds(State state, String sessionDate, String timeZone) {
+  public Set<String> activePlacementKeys(State state, String sessionDate, String timeZone) {
     List<Diagnostic> diagnostics = new ArrayList<>();
     ExpressionEngine.MutationBudget budget = new ExpressionEngine.MutationBudget(100_000);
     List<String> reachable = reachablePages(state, sessionDate, timeZone, budget, diagnostics);
@@ -178,7 +178,7 @@ public final class RuntimeGraph {
     for (Target target : targets(state))
       for (Placement placement : activePlacements(target.address.fieldId(), reachable, state,
           sessionDate, timeZone, budget, diagnostics, target.address))
-        result.add(placement.instanceId);
+        result.add(placement.instanceId + "|" + target.address);
     return Collections.unmodifiableSet(result);
   }
 

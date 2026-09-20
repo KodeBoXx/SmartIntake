@@ -203,7 +203,7 @@ class M4CanonicalRuntimeIntegrationTests {
     ((ObjectNode) pkg.at("/translations/en/messages")).put("consent", "I agree");
     ((ArrayNode) pkg.at("/flow/phases/0/pages/0/sections/0/nodes")).add(json.readTree("""
         {"id":"consentPlacement","kind":"question","fieldId":"consent","fieldType":"boolean",
-         "control":"acknowledgment","labelKey":"consent"}"""));
+         "control":"acknowledgment","labelKey":"consent","acknowledgmentContentKey":"consent"}"""));
     Fixture fixture = fixture(pkg);
     intake.patch(fixture.session, fixture.bearer.toString(), new IntakeApplicationService.PatchSession(
         0L, "mutation-consent-true", null,
@@ -289,10 +289,16 @@ class M4CanonicalRuntimeIntegrationTests {
                 "value", Map.of("status", "answered", "value", "1"))), "page2"));
     assertEquals(2, progressed.get("requiredCount"));
     assertEquals(1, progressed.get("completedRequiredCount"));
+    intake.patch(fixture.session, fixture.bearer.toString(), new IntakeApplicationService.PatchSession(
+        2L, "mutation-page-back", null,
+        List.of(Map.of("op", "set", "fieldId", "amount",
+            "value", Map.of("status", "answered", "value", "1"))), "page1"));
+    assertEquals("page1", db.queryForObject(
+        "select runtime_state->>'currentPageId' from sessions where id=?", String.class, fixture.session));
     Map<String, Object> revoked = intake.patch(
         fixture.session, fixture.bearer.toString(), new IntakeApplicationService.PatchSession(
-            2L, "mutation-page-revoke", null,
-            List.of(Map.of("op", "clear", "fieldId", "name")), "page2"));
+            3L, "mutation-page-revoke", null,
+            List.of(Map.of("op", "clear", "fieldId", "name")), "page1"));
     assertEquals(0, revoked.get("completedRequiredCount"));
   }
 

@@ -242,7 +242,7 @@ public final class TypedSessionRuntimeService {
     if (previous < 0) return reachable.get(0);
     if (requestedPage == null || requestedPage.isBlank() || requestedPage.equals(previousPage)) return previousPage;
     int requested = reachable.indexOf(requestedPage);
-    return requested == previous + 1 ? requestedPage : previousPage;
+    return requested == previous + 1 || requested == previous - 1 ? requestedPage : previousPage;
   }
 
   private static Map<String, Set<String>> pageFields(JsonNode packageNode) {

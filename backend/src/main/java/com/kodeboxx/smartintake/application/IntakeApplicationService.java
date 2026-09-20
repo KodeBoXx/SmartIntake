@@ -346,14 +346,17 @@ public class IntakeApplicationService {
             Integer.class,
             form);
     UUID release = UUID.randomUUID();
+    JsonNode definition = json.valueToTree(parse(row.definition()));
+    String pinnedManifest = typedRuntime.canonical(definition) ? stringify(runtimeManifest(definition)) : null;
     db.update(
-        "insert into form_releases(id,form_id,version,package,compatibility_profile_key)"
-            + " values(?,?,?,cast(? as jsonb),?)",
+        "insert into form_releases(id,form_id,version,package,compatibility_profile_key,runtime_manifest)"
+            + " values(?,?,?,cast(? as jsonb),?,cast(? as jsonb))",
         release,
         form,
         version,
         row.definition(),
-        profileForDefinition(parse(row.definition())));
+        profileForDefinition(parse(row.definition())),
+        pinnedManifest);
     db.update("update forms set status='PUBLISHED',updated_at=now() where id=?", form);
     audit("FORM_PUBLISHED", form);
     return ResponseEntity.status(201)
@@ -375,12 +378,22 @@ public class IntakeApplicationService {
     R release = latestRelease(share);
     requireNewWriteAllowed("RELEASE", release.id());
     UUID id = UUID.randomUUID(), bearer = UUID.randomUUID(), legacyPlaceholder = UUID.randomUUID();
-    String locale = in == null || in.locale() == null ? "en" : in.locale();
+    JsonNode releaseNode = json.valueToTree(parse(release.pkg()));
+    if (typedRuntime.canonical(releaseNode))
+      db.update("update form_releases set runtime_manifest=cast(? as jsonb) where id=? and runtime_manifest is null",
+          stringify(runtimeManifest(releaseNode)), release.id());
+    String locale = in == null || in.locale() == null
+        ? releaseNode.path("defaultLocale").asText("en") : in.locale();
+    if (typedRuntime.canonical(releaseNode)) {
+      boolean supportedLocale = false;
+      for (JsonNode supported : releaseNode.path("supportedLocales"))
+        if (locale.equals(supported.asText())) supportedLocale = true;
+      if (!supportedLocale) throw bad("UNSUPPORTED_LOCALE", "Locale is not supported by this release");
+    }
     String timeZone = in == null || in.timeZone() == null ? "UTC" : in.timeZone();
     if (!TimeZoneRegistry.contains(timeZone)) throw bad("INVALID_TIMEZONE", "Unsupported timezone");
     Instant sessionInstant = Instant.now();
     java.time.LocalDate sessionDate = sessionInstant.atZone(java.time.ZoneId.of(timeZone)).toLocalDate();
-    JsonNode releaseNode = json.valueToTree(parse(release.pkg()));
     Map<String, Object> initialAnswers = Map.of();
     Map<String, Object> initialRuntimeState = null;
     if (typedRuntime.canonical(releaseNode)) {
@@ -666,6 +679,8 @@ public class IntakeApplicationService {
 
   public Map<String, Object> submissionOperation(UUID id, String token, String attemptId) {
     respondent(id, token);
+    if (attemptId == null || !attemptId.matches("^[A-Za-z0-9][A-Za-z0-9._:-]{7,199}$"))
+      throw bad("ATTEMPT_ID_REQUIRED", "A valid submission attemptId is required");
     try {
       Map<String, Object> status = new LinkedHashMap<>(submissionAttempts.status(id, attemptId));
       status.remove("requestDigest");
@@ -721,13 +736,17 @@ public class IntakeApplicationService {
         """, (rs, row) -> Map.of("workspace", (UUID) rs.getObject(1), "tenant", (UUID) rs.getObject(2)),
         session.formId());
     String packageHash = CanonicalJson.sha256(definition);
-    Map<String, Object> manifest = runtimeManifest(definition);
+    String manifestJson = db.queryForObject(
+        "select runtime_manifest::text from form_releases where id=?", String.class, session.releaseId());
+    if (manifestJson == null) throw bad("RUNTIME_MANIFEST_MISSING", "Release runtime manifest is not pinned");
+    Map<String, Object> manifest = parse(manifestJson);
+    contracts.requireValid("runtime-manifest", "4.0.0", json.valueToTree(manifest));
     String manifestHash = Objects.toString(manifest.get("runtimeManifestHash"));
     Map<String, Object> release = Map.of(
         "releaseId", canonicalId("release", session.releaseId()),
         "definitionVersion", definition.path("definitionVersion").asText("4.0.0"),
         "packageSchemaVersion", "4.0.0",
-        "runtimeManifestVersion", "4.0.0",
+        "runtimeManifestVersion", Objects.toString(manifest.get("runtimeManifestVersion")),
         "runtimeManifestHash", manifestHash,
         "packageHash", packageHash,
         "engineContract", "4.0.0",
@@ -770,8 +789,14 @@ public class IntakeApplicationService {
     manifest.put("packageHash", CanonicalJson.sha256(definition));
     manifest.put("policyVersion", "canonical-runtime-1");
     manifest.put("timeZoneDatabaseVersion", TimeZoneRegistry.VERSION);
-    manifest.put("resolvedComponents", List.of());
-    manifest.put("resolvedAssets", List.of());
+    List<Map<String, Object>> resolvedComponents = new ArrayList<>();
+    for (JsonNode dependency : definition.path("dependencies"))
+      resolvedComponents.add(Map.of(
+          "kind", "extension", "id", dependency.path("id").asText(),
+          "version", dependency.path("version").asText(),
+          "digest", dependency.path("digest").asText()));
+    manifest.put("resolvedComponents", resolvedComponents);
+    manifest.put("resolvedAssets", json.convertValue(definition.path("assets"), List.class));
     manifest.put("extensions", Map.of());
     Map<String, Object> hashInput = new LinkedHashMap<>(manifest);
     hashInput.remove("runtimeManifestHash");
@@ -1143,8 +1168,12 @@ public class IntakeApplicationService {
   }
 
   private void requireCanonicalRuntimeState(S session, JsonNode definition) {
-    if (typedRuntime.canonical(definition) && session.revision() > 0 && session.runtimeState() == null)
-      throw new ResponseStatusException(HttpStatus.CONFLICT, "CANONICAL_RUNTIME_STATE_REQUIRED");
+    if (typedRuntime.canonical(definition)) {
+      db.update("update form_releases set runtime_manifest=cast(? as jsonb) where id=? and runtime_manifest is null",
+          stringify(runtimeManifest(definition)), session.releaseId());
+      if (session.revision() > 0 && session.runtimeState() == null)
+        throw new ResponseStatusException(HttpStatus.CONFLICT, "CANONICAL_RUNTIME_STATE_REQUIRED");
+    }
   }
 
   private List<Map<String, Object>> validateAnswers(

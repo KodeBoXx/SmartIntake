@@ -290,6 +290,7 @@ public final class TypedAnswerRuntime {
         if (candidate.cells.size() > MAX_ACTIVE_CELLS) throw problem("ACTIVE_CELL_LIMIT");
         if (candidate.retainedCells.size() > MAX_ACTIVE_CELLS) throw problem("RETAINED_CELL_LIMIT");
         if (candidate.retiredItems.size() > MAX_ACTIVE_CELLS) throw problem("RETIRED_ITEM_LIMIT");
+        if (allActiveItemIds(candidate).size() > MAX_ACTIVE_CELLS) throw problem("ACTIVE_ITEM_LIMIT");
       } catch (RuntimeProblem problem) {
         diagnostics.add(
             new Diagnostic(
@@ -570,6 +571,8 @@ public final class TypedAnswerRuntime {
     if (state.cells.size() > MAX_ACTIVE_CELLS) throw problem("ACTIVE_CELL_LIMIT");
     if (state.retainedCells.size() > MAX_ACTIVE_CELLS) throw problem("RETAINED_CELL_LIMIT");
     if (state.retiredItems.size() > MAX_ACTIVE_CELLS) throw problem("RETIRED_ITEM_LIMIT");
+    if (activeIds.size() > MAX_ACTIVE_CELLS || state.itemOrder.size() > MAX_ACTIVE_CELLS)
+      throw problem("ACTIVE_ITEM_LIMIT");
     return state;
   }
 

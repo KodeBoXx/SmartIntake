@@ -1,7 +1,6 @@
 alter table submissions add column if not exists review_projection jsonb;
 alter table submissions add column if not exists review_digest varchar(71);
 alter table submissions add column if not exists attempt_id varchar(200);
-alter table submissions add column if not exists runtime_manifest jsonb;
 
 create table if not exists submission_attempts (
   session_id uuid not null,

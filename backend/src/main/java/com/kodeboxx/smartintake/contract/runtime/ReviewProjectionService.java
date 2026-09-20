@@ -54,12 +54,16 @@ public final class ReviewProjectionService {
   }
 
   public Projection project(State state, List<Placement> placements) {
+    return project(state, placements, null);
+  }
+
+  private Projection project(State state, List<Placement> placements, Set<String> activePlacementKeys) {
     Set<Address> emitted = new LinkedHashSet<>();
     List<ReviewRow> answers = new ArrayList<>();
     List<ReviewRow> reviewGates = new ArrayList<>();
     ObjectNode export = JsonNodeFactory.instance.objectNode();
     for (Placement placement : placements) {
-      List<ReviewRow> rows = rows(state, placement, List.of(), emitted);
+      List<ReviewRow> rows = rows(state, placement, List.of(), emitted, activePlacementKeys);
       if (placement.reviewGate()) reviewGates.addAll(rows);
       else answers.addAll(rows);
       for (ReviewRow row : rows) appendExport(export, row);
@@ -72,24 +76,23 @@ public final class ReviewProjectionService {
   }
 
   public Projection project(CompiledForm compiled, State state, String sessionDate, String timeZone) {
-    Set<String> activePlacementIds = new RuntimeGraph(compiled, new CompiledRuntimeFactory().create(compiled))
-        .activePlacementIds(state, sessionDate, timeZone);
+    Set<String> activePlacementKeys = new RuntimeGraph(compiled, new CompiledRuntimeFactory().create(compiled))
+        .activePlacementKeys(state, sessionDate, timeZone);
     List<Placement> placements = new ArrayList<>();
     for (JsonNode phase : compiled.canonicalPackage().path("flow").path("phases"))
       for (JsonNode page : phase.path("pages"))
         for (JsonNode section : page.path("sections"))
           for (JsonNode node : section.path("nodes"))
-            collectPlacements(node, compiled, activePlacementIds, placements);
-    return project(state, placements);
+            collectPlacements(node, compiled, placements);
+    return project(state, placements, activePlacementKeys);
   }
 
-  private Placement placement(JsonNode node, CompiledForm compiled, Set<String> activePlacementIds) {
+  private Placement placement(JsonNode node, CompiledForm compiled) {
     if (!node.path("fieldId").isTextual()) return null;
-    if (!activePlacementIds.contains(node.path("id").asText())) return null;
     String fieldId = node.path("fieldId").asText();
     List<Placement> children = new ArrayList<>();
     for (JsonNode child : node.path("children")) {
-      Placement nested = placement(child, compiled, activePlacementIds);
+      Placement nested = placement(child, compiled);
       if (nested != null) children.add(nested);
     }
     JsonNode field = compiled.fields().containsKey(fieldId)
@@ -103,17 +106,20 @@ public final class ReviewProjectionService {
   }
 
   private void collectPlacements(
-      JsonNode node, CompiledForm compiled, Set<String> activePlacementIds, List<Placement> result) {
-    Placement placement = placement(node, compiled, activePlacementIds);
+      JsonNode node, CompiledForm compiled, List<Placement> result) {
+    Placement placement = placement(node, compiled);
     if (placement != null) result.add(placement);
     else for (JsonNode child : node.path("children"))
-      collectPlacements(child, compiled, activePlacementIds, result);
+      collectPlacements(child, compiled, result);
   }
 
   private List<ReviewRow> rows(
-      State state, Placement placement, List<RowSegment> path, Set<Address> emitted) {
+      State state, Placement placement, List<RowSegment> path, Set<Address> emitted,
+      Set<String> activePlacementKeys) {
     if (placement.systemHidden()) return List.of();
     Address address = new Address(placement.fieldId(), path);
+    if (activePlacementKeys != null
+        && !activePlacementKeys.contains(placement.instanceId() + "|" + address)) return List.of();
     Cell effective = state.cells().get(address);
     if (effective != null && effective.status() == Status.notApplicable) return List.of();
     List<String> items = state.itemIds(address);
@@ -123,7 +129,8 @@ public final class ReviewProjectionService {
         List<RowSegment> itemPath = new ArrayList<>(path);
         itemPath.add(new RowSegment(placement.fieldId(), itemId));
         List<ReviewRow> children = new ArrayList<>();
-        for (Placement child : placement.children()) children.addAll(rows(state, child, itemPath, emitted));
+        for (Placement child : placement.children())
+          children.addAll(rows(state, child, itemPath, emitted, activePlacementKeys));
         result.add(new ReviewRow(
             placement.instanceId(), placement.fieldId(), placement.label(), path, itemId,
             Status.answered, "Answered", null, children));
@@ -134,7 +141,8 @@ public final class ReviewProjectionService {
     Cell cell = effective;
     if (cell != null && cell.status() == Status.notApplicable) return List.of();
     List<ReviewRow> children = new ArrayList<>();
-    for (Placement child : placement.children()) children.addAll(rows(state, child, path, emitted));
+    for (Placement child : placement.children())
+      children.addAll(rows(state, child, path, emitted, activePlacementKeys));
     return List.of(new ReviewRow(
         placement.instanceId(), placement.fieldId(), placement.label(), path, null,
         cell == null ? Status.unanswered : cell.status(),
