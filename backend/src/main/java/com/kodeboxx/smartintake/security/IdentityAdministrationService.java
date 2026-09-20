@@ -583,14 +583,15 @@ public class IdentityAdministrationService {
           account, email, credentials.encode(password));
     }
     db.update("insert into organization_memberships(account_id,organization_id,roles,membership_status) values(?,?,array['owner','administrator'],'suspended') "
-        + "on conflict(account_id,organization_id) do update set roles=array['owner','administrator'],membership_status='suspended',updated_at=now()", account, organization);
+        + "on conflict(account_id,organization_id) do update set roles=array['owner','administrator'],membership_status='suspended',updated_at=now(),revision=organization_memberships.revision+1", account, organization);
     ActionCapability activation = issueAction(account, organization, "activation", ACTION_TTL);
+    long membershipRevision = organizationMembershipRevision(account, organization);
     audit("identity.pending-owner.created", new AuditContext(actor, organizationScope(organization), account,
-        "pending-owner", "copy-link", "continuity-confirmed", "success", 0L));
+        "pending-owner", "copy-link", "continuity-confirmed", "success", membershipRevision));
     ResponseEntity.BodyBuilder response = ResponseEntity.status(HttpStatus.CREATED)
-        .header("X-Activation-Copy-Link", "/activate/" + activation.token());
+        .header("X-Activation-Copy-Link", "/activate/" + activation.token()).eTag(etag(membershipRevision));
     if (generatedTemporaryPassword != null) response.header("X-Temporary-Password-Copy", generatedTemporaryPassword);
-    return response.body(Map.of("requestId", opaque("req"), "organizationUser", organizationUser(account, email, List.of("owner", "administrator"), "suspended", 0, Instant.now(), Instant.now())));
+    return response.body(Map.of("requestId", opaque("req"), "organizationUser", organizationUser(account, email, List.of("owner", "administrator"), "suspended", membershipRevision, Instant.now(), Instant.now())));
   }
 
   @Transactional
