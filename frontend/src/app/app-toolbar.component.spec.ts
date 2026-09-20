@@ -22,6 +22,8 @@ describe('AppToolbarComponent', () => {
     component.definitionImport.subscribe(definitionImport);
     component.responsesExport.subscribe(responsesExport);
     component.responseAdmin.subscribe(responseAdmin);
+    fixture.componentRef.setInput('responseViewerAllowed', true);
+    fixture.componentRef.setInput('responseExporterAllowed', true);
     fixture.detectChanges();
 
     const control = (text: string) => [...fixture.nativeElement.querySelectorAll('button')]
@@ -73,5 +75,17 @@ describe('AppToolbarComponent', () => {
     expect(save.disabled).toBe(true);
     expect(publish.disabled).toBe(true);
     expect(importInput.disabled).toBe(true);
+  });
+
+  it('hides response controls unless each exact response role is allowed', () => {
+    const fixture: ComponentFixture<AppToolbarComponent> = TestBed.createComponent(AppToolbarComponent);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).not.toContain('Response admin');
+    expect(fixture.nativeElement.textContent).not.toContain('Export responses');
+
+    fixture.componentRef.setInput('responseViewerAllowed', true);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Response admin');
+    expect(fixture.nativeElement.textContent).not.toContain('Export responses');
   });
 });

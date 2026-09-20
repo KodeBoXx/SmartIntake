@@ -108,8 +108,7 @@ public class IdentitySessionService {
     requireOrigin(request);
     consumeLoginCsrf(loginCsrf, cookie(request, LOGIN_CSRF_COOKIE));
     String normalized = normalizedEmail(input == null ? null : input.email());
-    boolean knownAccount = db.queryForObject("select count(*) from accounts where email=?", Integer.class, normalized) > 0;
-    List<ThrottleBucket> subjects = throttleSubjects(normalized, clientSource(request), knownAccount);
+    List<ThrottleBucket> subjects = throttleSubjects(normalized, clientSource(request));
     cleanupThrottleBuckets();
     UUID account = null;
     try {
@@ -138,7 +137,7 @@ public class IdentitySessionService {
     // Account protection remains independent: a correct password does not
     // bypass that account's own ten-failure lock, but source/global saturation
     // never denies a correct known credential.
-    if (knownAccount && throttled(subjects.get(0)))
+    if (throttled(subjects.get(0)))
       throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Try again later");
     db.update("delete from sign_in_throttles where subject_hash=?", sha256("account|" + normalized));
     resolver.session(request, request.getHeader("X-Staff-Session")).ifPresent(token -> db.update("update staff_sessions set revoked_at=now(),updated_at=now() where token::text=? and revoked_at is null", token));
@@ -260,12 +259,12 @@ public class IdentitySessionService {
     return Map.of("requestId", opaque("req"), "authenticatedSession", authenticated);
   }
 
-  private List<ThrottleBucket> throttleSubjects(String email, String source, boolean knownAccount) {
+  private List<ThrottleBucket> throttleSubjects(String email, String source) {
     String safeSource = source == null || source.isBlank() ? "unknown" : source;
     List<ThrottleBucket> buckets = new java.util.ArrayList<>();
-    // Unknown addresses never create an account-keyed row. This keeps attacker-selected
-    // account strings bounded while source/global controls still protect the endpoint.
-    if (knownAccount) buckets.add(new ThrottleBucket(sha256("account|" + email), ACCOUNT_THROTTLE_LIMIT));
+    // Every identifier gets the same bounded bucket so status behavior cannot reveal
+    // whether the normalized address belongs to a registered account.
+    buckets.add(new ThrottleBucket(sha256("account|" + email), ACCOUNT_THROTTLE_LIMIT));
     buckets.add(new ThrottleBucket(sha256("source|" + safeSource), SOURCE_THROTTLE_LIMIT));
     buckets.add(new ThrottleBucket(sha256("global|sign-in"), GLOBAL_THROTTLE_LIMIT));
     return buckets;
@@ -320,8 +319,8 @@ public class IdentitySessionService {
     // credentials, cookies, CSRF values, or capability proofs.
     String target = sha256(resource.toString()).substring(0, 16);
     db.update("insert into audit_events(id,action,resource_id,detail) values(?,?,?,cast(? as jsonb))", UUID.randomUUID(), action, resource,
-        "{\"category\":\"identity\",\"actor\":\"bootstrap\",\"scope\":\"bootstrap\",\"target\":\"id-" + target
-            + "\",\"reason\":null,\"deliveryClass\":\"copy-link\",\"outcome\":\"success\",\"revision\":null,\"requestCorrelation\":null,\"idempotencyCorrelation\":null}");
+        "{\"category\":\"identity\",\"actor\":\"deployment-bootstrap\",\"tenantScope\":\"bootstrap\",\"target\":\"id-" + target
+            + "\",\"reasonClass\":\"initial-provisioning\",\"deliveryClass\":\"copy-link\",\"ownerSafetyDecision\":\"initial-owner\",\"outcome\":\"success\",\"revision\":0,\"requestCorrelation\":null,\"idempotencyCorrelation\":null}");
   }
 
   private record ThrottleBucket(String subject, int limit) {}

@@ -137,6 +137,11 @@ components:
         this value.
       schema:
         type: string
+    X-Activation-Copy-Link:
+      description: Authorized one-time activation delivery link. Never log or persist
+        this value.
+      schema:
+        type: string
   examples:
     Problem:
       value:

@@ -31,7 +31,7 @@ type DraftFailureState = Exclude<DraftViewState, 'loading' | 'ready'>;
   template: `
 <header class="border-b border-stone-200 bg-white"><div class="mx-auto flex max-w-7xl items-center justify-between px-5 py-4"><div><p class="type-caption-bold text-emerald-700">SMART INTAKE</p><h1 class="type-h3">Form Builder Lite</h1></div><span class="type-caption">Cookie-authenticated staff session</span></div></header>
 <main class="mx-auto max-w-7xl px-5 py-6">
-<nav appToolbar class="mb-5 flex w-full flex-wrap gap-2" [authorAllowed]="canAuthor()" [saveDisabled]="editorLocked()" [publishDisabled]="publishLocked()" [importDisabled]="editorLocked()" (author)="mode.set('editor')" (preview)="startPreview()" (save)="save()" (publish)="publish()" (definitionExport)="exportDefinition()" (definitionImport)="importDefinition($event)" (responsesExport)="exportResponses()" (responseAdmin)="loadResponses()"></nav>
+<nav appToolbar class="mb-5 flex w-full flex-wrap gap-2" [authorAllowed]="canAuthor()" [responseViewerAllowed]="canViewResponses()" [responseExporterAllowed]="canExportResponses()" [saveDisabled]="editorLocked()" [publishDisabled]="publishLocked()" [importDisabled]="editorLocked()" (author)="mode.set('editor')" (preview)="startPreview()" (save)="save()" (publish)="publish()" (definitionExport)="exportDefinition()" (definitionImport)="importDefinition($event)" (responsesExport)="exportResponses()" (responseAdmin)="loadResponses()"></nav>
 <p *ngIf="message()" class="notice" role="status">{{message()}}</p>
 <section *ngIf="draftState() !== 'ready'" class="card" data-testid="draft-state" [attr.data-state]="draftState()" role="status"><p *ngIf="draftState() === 'loading'">Loading saved draft…</p><ng-container *ngIf="draftState() !== 'loading'"><h2 class="type-h4">{{draftStateTitle()}}</h2><p>{{draftStateMessage()}}</p><button class="pill mt-3" (click)="retryDraftRehydration()">Retry saved draft</button></ng-container></section>
 <section *ngIf="draftState() === 'ready' && mode()==='editor'" class="grid gap-5 lg:grid-cols-[15rem_1fr_19rem]"><aside class="card"><p class="type-label">PAGES</p><button *ngFor="let page of definition().pages;let i=index" class="outline" [class.active]="pageIndex()===i" (click)="selectPage(i)">{{i+1}}. {{page.title}}</button><button *ngIf="canAuthor()" class="pill" [disabled]="editorLocked()" (click)="addPage()">+ Page</button><hr><p class="type-label">FIELDS</p><button *ngFor="let f of page().fields;let i=index" class="outline" [class.active]="fieldIndex()===i" (click)="fieldIndex.set(i)">{{f.label}}</button><button *ngIf="canAuthor()" class="pill" [disabled]="editorLocked()" (click)="addField('text')">+ Field</button></aside>
@@ -180,6 +180,8 @@ export class AppComponent {
   }
   canAuthor(): boolean { return hasWorkspaceRole(this.routeWorkspaceRoles(), 'author'); }
   canPublish(): boolean { return hasWorkspaceRole(this.routeWorkspaceRoles(), 'publisher'); }
+  canViewResponses(): boolean { return hasWorkspaceRole(this.routeWorkspaceRoles(), 'response-viewer') || this.canExportResponses(); }
+  canExportResponses(): boolean { return hasWorkspaceRole(this.routeWorkspaceRoles(), 'response-exporter'); }
 
   private rehydrateRouteForm(): void {
     const formId = this.routeParam('formId');

@@ -172,13 +172,14 @@ public class IdentityAdministrationService {
             + "on conflict(account_id,organization_id) do update set roles=excluded.roles,membership_status='active',updated_at=now(),revision=organization_memberships.revision+1",
         account, organization, roles.toArray(String[]::new));
 
-    Map<String, Object> body = Map.of("requestId", opaque("req"), "organizationUser", organizationUser(account, email, roles, "active", 0, Instant.now(), Instant.now()));
+    long membershipRevision = organizationMembershipRevision(account, organization);
+    Map<String, Object> body = Map.of("requestId", opaque("req"), "organizationUser", organizationUser(account, email, roles, "active", membershipRevision, Instant.now(), Instant.now()));
     ResponseEntity.BodyBuilder response = ResponseEntity.status(HttpStatus.CREATED);
     // An activation proof is an administrator-delivered no-email copy link, never a response property.
     if (activation != null) response.header("X-Activation-Copy-Link", "/activate/" + activation.token());
     if (generatedTemporaryPassword != null) response.header("X-Temporary-Password-Copy", generatedTemporaryPassword);
     audit("identity.membership.created", new AuditContext(actor, organizationScope(organization), account, "membership-create", activation == null ? "none" : "copy-link", "not-applicable", "success", organizationMembershipRevision(account, organization)));
-    return response.body(body);
+    return response.eTag(etag(membershipRevision)).body(body);
   }
 
   @Transactional
@@ -329,9 +330,9 @@ public class IdentityAdministrationService {
     UUID actor = currentAccount(http);
     requireOrganizationAdministrator(actor, organization);
     UUID invitation = opaqueId(invitationValue);
-    audit("identity.invitation.revoked", new AuditContext(actor, organizationScope(organization), invitation, "invitation-revocation", "none", "not-applicable", "success", null));
     long revision = invitationRevisionForUpdate(organization, invitation);
     db.update("update identity_invitations set revoked_at=now(),updated_at=now(),revision=revision+1 where id=? and organization_id=? and used_at is null", invitation, organization);
+    audit("identity.invitation.revoked", new AuditContext(actor, organizationScope(organization), invitation, "invitation-revocation", "none", "not-applicable", "success", revision + 1));
     return ResponseEntity.noContent().eTag(etag(revision + 1)).build();
   }
 
@@ -545,6 +546,8 @@ public class IdentityAdministrationService {
       revokeSecretActions(account);
       revokeAllSessions(account);
       audit("identity.account.suspended", new AuditContext(actor, "platform", account, "security-suspension", "none", "continuity-confirmed", "success", revision + 1));
+    } else {
+      audit("identity.account.activated", new AuditContext(actor, "platform", account, "account-reactivation", "none", "not-applicable", "success", revision + 1));
     }
     return ResponseEntity.ok().eTag(etag(revision + 1)).body(Map.of("requestId", opaque("req"), "platformAccount", platformAccount(account, request.accountStatus(), revision + 1)));
   }
@@ -606,8 +609,8 @@ public class IdentityAdministrationService {
     Instant expires = Instant.now().plus(INVITATION_TTL);
     db.update("insert into identity_invitations(id,organization_id,account_id,email,organization_roles,token_hash,expires_at,created_by) values(?,?,?,?,?,?,?,?)",
         invitation, organization, account, email, roles.toArray(String[]::new), sha256(token), Timestamp.from(expires), actor);
-    audit("identity.invitation.issued", new AuditContext(actor, organizationScope(organization), account == null ? actor : account,
-        "invitation", "copy-link", "not-applicable", "success", null));
+    audit("identity.invitation.issued", new AuditContext(actor, organizationScope(organization), invitation,
+        "invitation", "copy-link", "not-applicable", "success", 0L));
     return ResponseEntity.status(HttpStatus.CREATED).header("X-Invitation-Copy-Link", "/invite/" + token)
         .body(Map.of("requestId", opaque("req"), "invitation", invitation(invitation, email, expires)));
   }

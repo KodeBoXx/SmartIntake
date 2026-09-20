@@ -4019,6 +4019,8 @@ export interface components {
         "X-Invitation-Copy-Link": string;
         /** @description Authorized one-time recovery delivery link. Never log or persist this value. */
         "X-Recovery-Copy-Link": string;
+        /** @description Authorized one-time activation delivery link. Never log or persist this value. */
+        "X-Activation-Copy-Link": string;
     };
     pathItems: never;
 }
@@ -4582,6 +4584,8 @@ export interface operations {
             201: {
                 headers: {
                     ETag: components["headers"]["ETag"];
+                    "X-Temporary-Password-Copy": components["headers"]["X-Temporary-Password-Copy"];
+                    "X-Activation-Copy-Link": components["headers"]["X-Activation-Copy-Link"];
                     [name: string]: unknown;
                 };
                 content: {
@@ -4734,6 +4738,7 @@ export interface operations {
             201: {
                 headers: {
                     ETag: components["headers"]["ETag"];
+                    "X-Invitation-Copy-Link": components["headers"]["X-Invitation-Copy-Link"];
                     [name: string]: unknown;
                 };
                 content: {
@@ -4784,6 +4789,7 @@ export interface operations {
             201: {
                 headers: {
                     ETag: components["headers"]["ETag"];
+                    "X-Recovery-Copy-Link": components["headers"]["X-Recovery-Copy-Link"];
                     [name: string]: unknown;
                 };
                 content: {
@@ -4878,6 +4884,7 @@ export interface operations {
             201: {
                 headers: {
                     ETag: components["headers"]["ETag"];
+                    "X-Recovery-Copy-Link": components["headers"]["X-Recovery-Copy-Link"];
                     [name: string]: unknown;
                 };
                 content: {
@@ -5042,6 +5049,8 @@ export interface operations {
             201: {
                 headers: {
                     ETag: components["headers"]["ETag"];
+                    "X-Temporary-Password-Copy": components["headers"]["X-Temporary-Password-Copy"];
+                    "X-Activation-Copy-Link": components["headers"]["X-Activation-Copy-Link"];
                     [name: string]: unknown;
                 };
                 content: {
@@ -5941,6 +5950,11 @@ export interface operations {
         };
         requestBody: {
             content: {
+                /** @example {
+                 *       "definition": {
+                 *         "formKey": "intake"
+                 *       }
+                 *     } */
                 "application/json": {
                     definition: Record<string, never>;
                 };
@@ -7205,7 +7219,7 @@ export interface operations {
             /** @description Pending owner activation created; the proof is returned only in X-Activation-Copy-Link. */
             201: {
                 headers: {
-                    "X-Activation-Copy-Link"?: string;
+                    "X-Activation-Copy-Link": components["headers"]["X-Activation-Copy-Link"];
                     [name: string]: unknown;
                 };
                 content: {

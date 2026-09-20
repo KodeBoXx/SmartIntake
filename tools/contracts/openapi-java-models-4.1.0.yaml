@@ -979,6 +979,10 @@ paths:
           headers:
             ETag:
               $ref: '#/components/headers/ETag'
+            X-Temporary-Password-Copy:
+              $ref: '#/components/headers/X-Temporary-Password-Copy'
+            X-Activation-Copy-Link:
+              $ref: '#/components/headers/X-Activation-Copy-Link'
           content:
             application/json:
               schema:
@@ -1225,6 +1229,8 @@ paths:
           headers:
             ETag:
               $ref: '#/components/headers/ETag'
+            X-Invitation-Copy-Link:
+              $ref: '#/components/headers/X-Invitation-Copy-Link'
           content:
             application/json:
               schema:
@@ -1314,6 +1320,8 @@ paths:
           headers:
             ETag:
               $ref: '#/components/headers/ETag'
+            X-Recovery-Copy-Link:
+              $ref: '#/components/headers/X-Recovery-Copy-Link'
           content:
             application/json:
               schema:
@@ -1496,6 +1504,8 @@ paths:
           headers:
             ETag:
               $ref: '#/components/headers/ETag'
+            X-Recovery-Copy-Link:
+              $ref: '#/components/headers/X-Recovery-Copy-Link'
           content:
             application/json:
               schema:
@@ -1804,6 +1814,10 @@ paths:
           headers:
             ETag:
               $ref: '#/components/headers/ETag'
+            X-Temporary-Password-Copy:
+              $ref: '#/components/headers/X-Temporary-Password-Copy'
+            X-Activation-Copy-Link:
+              $ref: '#/components/headers/X-Activation-Copy-Link'
           content:
             application/json:
               schema:
@@ -3311,6 +3325,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LiveDraftRead'
+              example:
+                id: 11111111-1111-1111-1111-111111111111
+                revision: 3
+                definition:
+                  formKey: intake
+                diagnostics: []
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -3367,6 +3387,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LiveDraftWrite'
+              example:
+                revision: 4
+                definition:
+                  formKey: intake
+                diagnostics: []
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -3420,6 +3445,9 @@ paths:
               properties:
                 definition:
                   type: object
+            example:
+              definition:
+                formKey: intake
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale is 412.
   /v1/workspaces/{w}/forms/{f}/drafts/{d}/review-requests:
     post:
@@ -5800,8 +5828,7 @@ paths:
           description: Pending owner activation created; the proof is returned only in X-Activation-Copy-Link.
           headers:
             X-Activation-Copy-Link:
-              schema:
-                type: string
+              $ref: '#/components/headers/X-Activation-Copy-Link'
           content:
             application/json:
               schema:
@@ -6698,6 +6725,10 @@ components:
         type: string
     X-Recovery-Copy-Link:
       description: Authorized one-time recovery delivery link. Never log or persist this value.
+      schema:
+        type: string
+    X-Activation-Copy-Link:
+      description: Authorized one-time activation delivery link. Never log or persist this value.
       schema:
         type: string
   examples:

@@ -580,13 +580,17 @@ def generated() -> dict[Path, bytes]:
         "properties": {"revision": {"type": "integer", "minimum": 1}, "definition": {"type": "object"},
                        "diagnostics": {"type": "array", "items": {}}},
     }
+    draft_read_example = {"id": "11111111-1111-1111-1111-111111111111", "revision": 3,
+                          "definition": {"formKey": "intake"}, "diagnostics": []}
+    draft_write_example = {"revision": 4, "definition": {"formKey": "intake"}, "diagnostics": []}
     for method, schema in (("get", "LiveDraftRead"), ("put", "LiveDraftWrite")):
         operation_config = draft_path[method]
         operation_config["x-implementation-status"] = "implemented"
         operation_config["description"] = "Live canonical UUID draft endpoint; responses are unwrapped."
         operation_config["responses"]["200"] = {"description": "Unwrapped live draft response.",
             "headers": {"ETag": {"$ref": "#/components/headers/ETag"}},
-            "content": {"application/json": {"schema": {"$ref": f"#/components/schemas/{schema}"}}}}
+            "content": {"application/json": {"schema": {"$ref": f"#/components/schemas/{schema}"},
+                                                "example": draft_read_example if method == "get" else draft_write_example}}}
         operation_config.pop("x-replay", None)
     draft_parameters = [
         {"name": "w", "in": "path", "required": True, "schema": {"$ref": "#/components/schemas/OpaqueId"}},
@@ -597,12 +601,13 @@ def generated() -> dict[Path, bytes]:
     draft_path["put"]["parameters"] = draft_parameters + [{"$ref": "#/components/parameters/IfMatch"}]
     draft_path["put"]["requestBody"] = {"required": True, "content": {"application/json": {"schema": {
         "type": "object", "additionalProperties": False, "required": ["definition"],
-        "properties": {"definition": {"type": "object"}}}}}}
+        "properties": {"definition": {"type": "object"}}}, "example": {"definition": {"formKey": "intake"}}}}}
     headers = components["components"].setdefault("headers", {})
     for name, description in {
         "X-Temporary-Password-Copy": "Authorized one-time temporary password delivery. Never log or persist this value.",
         "X-Invitation-Copy-Link": "Authorized one-time invitation delivery link. Never log or persist this value.",
         "X-Recovery-Copy-Link": "Authorized one-time recovery delivery link. Never log or persist this value.",
+        "X-Activation-Copy-Link": "Authorized one-time activation delivery link. Never log or persist this value.",
     }.items():
         headers[name] = {"description": description, "schema": {"type": "string"}}
     def copy_header(path: str, method: str, status: str, name: str) -> None:
@@ -610,11 +615,14 @@ def generated() -> dict[Path, bytes]:
         if operation is not None:
             operation.setdefault("responses", {}).setdefault(status, {"description": "Successful response."}) \
                 .setdefault("headers", {})[name] = {"$ref": f"#/components/headers/{name}"}
-    copy_header("/v1/organizations/{organization}/users", "post", "201", "X-Temporary-Password-Copy")
-    copy_header("/v1/platform/organizations/{organization}/users", "post", "201", "X-Temporary-Password-Copy")
-    copy_header("/v1/organizations/{organization}/users/{user}/invitations", "post", "201", "X-Invitation-Copy-Link")
-    copy_header("/v1/organizations/{organization}/users/{user}/recovery", "post", "201", "X-Recovery-Copy-Link")
-    copy_header("/v1/platform/accounts/{account}/recovery", "post", "201", "X-Recovery-Copy-Link")
+    copy_header("/v1/organizations/{o}/users", "post", "201", "X-Temporary-Password-Copy")
+    copy_header("/v1/organizations/{o}/users", "post", "201", "X-Activation-Copy-Link")
+    copy_header("/v1/platform/organizations/{o}/users", "post", "201", "X-Temporary-Password-Copy")
+    copy_header("/v1/platform/organizations/{o}/users", "post", "201", "X-Activation-Copy-Link")
+    copy_header("/v1/organizations/{o}/users/{u}/invitations", "post", "201", "X-Invitation-Copy-Link")
+    copy_header("/v1/organizations/{o}/users/{u}/recovery", "post", "201", "X-Recovery-Copy-Link")
+    copy_header("/v1/platform/accounts/{a}/recovery", "post", "201", "X-Recovery-Copy-Link")
+    copy_header("/v1/auth/bootstrap", "post", "201", "X-Activation-Copy-Link")
     start = api["paths"]["/v1/public/forms/{shareId}/sessions"]["post"]
     start["parameters"] = [parameter for parameter in start["parameters"]
                            if parameter.get("name") == "shareId"]

@@ -11,8 +11,8 @@ import { StaffSessionStore } from './core/m5-session.store';
 
 describe('AppComponent journeys', () => {
   const staffSessionProvider = { provide: StaffSessionStore, useValue: {
-    currentWorkspaceId: signal('local'), currentRoles: signal(['author', 'publisher']),
-    organizations: signal([{ workspaces: [{ workspaceId: 'local', roles: ['author', 'publisher'] }] }]),
+    currentWorkspaceId: signal('local'), currentRoles: signal(['author', 'publisher', 'response-viewer', 'response-exporter']),
+    organizations: signal([{ workspaces: [{ workspaceId: 'local', roles: ['author', 'publisher', 'response-viewer', 'response-exporter'] }] }]),
   } };
   function createApi() {
     const definition = createDefaultDefinition();
