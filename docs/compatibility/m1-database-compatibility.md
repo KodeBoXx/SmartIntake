@@ -116,8 +116,9 @@ lock table flyway_schema_history, session_mutations, submissions, sessions, form
            record_migration_state, compatibility_quarantine_evidence,
            compatibility_profiles, catalog_workspace_revisions, form_catalog_metadata,
            form_catalog_tags, catalog_folders, catalog_tags, catalog_workspace_settings,
-           catalog_organization_settings, organization_memberships, identity_invitations,
-           identity_secret_actions, platform_roles in access exclusive mode;
+           catalog_organization_settings, accounts, organizations, workspaces, memberships,
+           staff_sessions, organization_memberships, identity_invitations, identity_secret_actions,
+           platform_roles, administration_mutation_replays, workspace_role_revisions in access exclusive mode;
 
 do $$
 begin
@@ -143,7 +144,7 @@ begin
           or (version = '12' and type = 'SQL' and script = 'V12__submission_attempt_review_evidence.sql' and checksum = -1868713494)
           or (version = '13' and type = 'SQL' and script = 'V13__pinned_runtime_manifests.sql' and checksum = -1265314321)
           or (version = '14' and type = 'SQL' and script = 'V14__staff_identity_sessions.sql' and checksum = 724788122)
-          or (version = '15' and type = 'SQL' and script = 'V15__identity_lifecycle_tenant_administration.sql' and checksum = 921498486)
+          or (version = '15' and type = 'SQL' and script = 'V15__identity_lifecycle_tenant_administration.sql' and checksum = -2047153491)
           or (version = '16' and type = 'SQL' and script = 'V16__catalog_administration.sql' and checksum = -2129090709),
           false)
   )
@@ -180,6 +181,34 @@ begin
   if exists (select 1 from staff_sessions where revoked_at is null and absolute_expires_at > transaction_timestamp()) then
     raise exception 'Rollback refused: revoke or expire all active V14 staff sessions before downgrading opaque tokens';
   end if;
+  if to_regclass('public.platform_roles') is null
+     or to_regclass('public.organization_memberships') is null
+     or to_regclass('public.identity_invitations') is null
+     or to_regclass('public.identity_secret_actions') is null
+     or to_regclass('public.administration_mutation_replays') is null
+     or to_regclass('public.workspace_role_revisions') is null
+     or to_regclass('public.identity_invitations_active_idx') is null
+     or to_regclass('public.organization_memberships_active_owner_idx') is null
+     or to_regclass('public.staff_sessions_current_context_idx') is null
+     or to_regclass('public.administration_mutation_replays_expiry_idx') is null
+     or (select count(*) from information_schema.columns where table_schema='public' and table_name='accounts'
+         and column_name in ('account_status', 'activation_state', 'display_name', 'temporary_password_expires_at', 'revision')) <> 5
+     or (select count(*) from information_schema.columns where table_schema='public' and table_name='organizations'
+         and column_name in ('organization_status', 'revision')) <> 2
+     or (select count(*) from information_schema.columns where table_schema='public' and table_name='staff_sessions'
+         and column_name in ('setup_only', 'current_organization_id', 'current_workspace_id')) <> 3
+     or not exists (select 1 from information_schema.columns where table_schema='public' and table_name='organization_memberships' and column_name='revision')
+     or not exists (select 1 from information_schema.columns where table_schema='public' and table_name='memberships' and column_name='revision') then
+    raise exception 'Rollback refused: V15 identity administration/revision objects are incomplete';
+  end if;
+  if exists (select 1 from platform_roles)
+     or exists (select 1 from organization_memberships)
+     or exists (select 1 from identity_invitations)
+     or exists (select 1 from identity_secret_actions)
+     or exists (select 1 from administration_mutation_replays)
+     or exists (select 1 from workspace_role_revisions) then
+    raise exception 'Rollback refused: V15 identity administration state requires backup restoration or approved retirement';
+  end if;
   if exists (select 1 from forms where compatibility_profile_key = 'canonical-4.0.0')
      or exists (select 1 from forms where definition->>'schemaVersion' = '4.0.0')
      or exists (select 1 from form_releases where compatibility_profile_key = 'canonical-4.0.0')
@@ -208,11 +237,14 @@ drop trigger catalog_form_tags_revision on form_catalog_tags;
 drop function catalog_touch_workspace_revision();
 drop table catalog_workspace_revisions, form_catalog_tags, form_catalog_metadata,
            catalog_workspace_settings, catalog_organization_settings, catalog_folders, catalog_tags;
-drop table identity_secret_actions, identity_invitations, organization_memberships, platform_roles;
+drop index if exists administration_mutation_replays_expiry_idx;
+drop table administration_mutation_replays, workspace_role_revisions, identity_secret_actions,
+           identity_invitations, organization_memberships, platform_roles;
 drop index if exists staff_sessions_current_context_idx;
 alter table staff_sessions drop column setup_only, drop column current_organization_id, drop column current_workspace_id;
-alter table organizations drop column organization_status;
-alter table accounts drop column account_status, drop column activation_state, drop column display_name, drop column temporary_password_expires_at;
+alter table memberships drop column revision;
+alter table organizations drop column organization_status, drop column revision;
+alter table accounts drop column account_status, drop column activation_state, drop column display_name, drop column temporary_password_expires_at, drop column revision;
 
 -- V14 is reversible only after the preflight has retired every active opaque staff session.
 delete from staff_sessions;
@@ -271,6 +303,23 @@ select exists (select 1 from flyway_schema_history where version in ('5', '6', '
                where conrelid = 'session_mutations'::regclass
                  and conname in ('session_mutations_request_digest_format',
                                  'session_mutations_client_mutation_id_opaque_id')) as mutation_constraint_remains,
+       exists (select 1 from information_schema.tables
+               where table_schema='public' and table_name in ('platform_roles', 'organization_memberships',
+                 'identity_invitations', 'identity_secret_actions', 'administration_mutation_replays',
+                 'workspace_role_revisions')) as v15_table_remains,
+       exists (select 1 from information_schema.columns
+               where table_schema='public' and ((table_name='accounts' and column_name in ('account_status',
+                    'activation_state', 'display_name', 'temporary_password_expires_at', 'revision'))
+                  or (table_name='organizations' and column_name in ('organization_status', 'revision'))
+                  or (table_name='staff_sessions' and column_name in ('setup_only', 'current_organization_id', 'current_workspace_id'))
+                  or (table_name='organization_memberships' and column_name='revision')
+                  or (table_name='memberships' and column_name='revision')))
+                 as v15_column_remains,
+       exists (select 1 from pg_indexes
+               where schemaname='public' and indexname in ('identity_invitations_active_idx',
+                 'organization_memberships_active_owner_idx', 'staff_sessions_current_context_idx',
+                 'administration_mutation_replays_expiry_idx'))
+                 as v15_index_remains,
        coalesce((select data_type = 'uuid' from information_schema.columns
                  where table_name = 'session_mutations' and column_name = 'client_mutation_id'), false)
                  as mutation_key_uuid_restored;

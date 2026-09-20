@@ -1373,6 +1373,25 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/workspaces/{workspace}/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+            };
+            cookie?: never;
+        };
+        /** List transferable current workspace members */
+        get: operations["m6ListWorkspaceMembers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1569,15 +1588,30 @@ export interface components {
             membershipState: "active";
             workspaces: components["schemas"]["PermittedWorkspaceChoice"][];
         };
-        /** @description Authenticated safe identity, activation state and server-authorized organization/workspace choices. */
         AuthenticatedSession: {
-            safeIdentity: components["schemas"]["SafeAccountIdentity"];
+            safeIdentity: {
+                accountId: string;
+                username: string;
+                displayName: string;
+            };
             /** @enum {unknown} */
-            activationState: "awaiting-setup" | "active";
-            /** @constant */
-            accountStatus: "active";
-            organizations: components["schemas"]["PermittedOrganizationChoice"][];
-            currentOrganizationId: components["schemas"]["OpaqueId"] | null;
+            activationState: "active" | "pending";
+            /** @enum {unknown} */
+            accountStatus: "active" | "suspended";
+            awaitingSetup: boolean;
+            organizations: {
+                organizationId: string;
+                name: string;
+                /** @enum {unknown} */
+                membershipState: "active";
+                workspaces: {
+                    workspaceId: string;
+                    name: string;
+                    roles: ("workspace-administrator" | "author" | "reviewer" | "translator" | "publisher" | "response-viewer" | "response-exporter" | "auditor")[];
+                }[];
+            }[];
+            currentOrganizationId?: string | null;
+            currentWorkspaceId?: string;
         };
         /** @description Concrete Form resource representation. */
         Form: {
@@ -2107,8 +2141,9 @@ export interface components {
             name: string;
         };
         ActivationRequest: {
-            releaseId: components["schemas"]["OpaqueId"];
-            shareChannelIds: components["schemas"]["OpaqueId"][];
+            activationToken: string;
+            password: string;
+            displayName: string;
         };
         PackageExportUpdateRequest: {
             name: string;
@@ -2847,6 +2882,16 @@ export interface components {
             state: "notStarted" | "pending" | "succeeded" | "failed";
             submissionId?: string | null;
             errorCode?: string | null;
+        };
+        WorkspaceMember: {
+            accountId: string;
+            /** @constant */
+            membershipStatus: "active";
+            roles: ("workspace-administrator" | "author" | "reviewer" | "translator" | "publisher" | "response-viewer" | "response-exporter" | "auditor")[];
+        };
+        WorkspaceMemberCollection: {
+            requestId: components["schemas"]["OpaqueId"];
+            items: components["schemas"]["WorkspaceMember"][];
         };
         CatalogTag: {
             /** Format: uuid */
@@ -7565,6 +7610,32 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CatalogSettings"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    m6ListWorkspaceMembers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkspaceMemberCollection"];
                 };
             };
             400: components["responses"]["BadRequest"];

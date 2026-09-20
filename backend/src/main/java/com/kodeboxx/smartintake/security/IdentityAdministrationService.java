@@ -83,6 +83,7 @@ public class IdentityAdministrationService {
         credentials.encode(request.newPassword()), account);
     revokeSecretActions(account);
     revokeAllSessions(account);
+    audit("identity.password.changed", account);
     return ResponseEntity.noContent().build();
   }
 
@@ -90,7 +91,10 @@ public class IdentityAdministrationService {
   @Transactional
   public ResponseEntity<?> recovery(Recovery request) {
     List<UUID> accounts = db.query("select id from accounts where email=?", (rs, row) -> (UUID) rs.getObject(1), email(request.email()));
-    if (!accounts.isEmpty()) issueAction(accounts.get(0), null, "self-recovery", SELF_RECOVERY_TTL);
+    if (!accounts.isEmpty()) {
+      issueAction(accounts.get(0), null, "self-recovery", SELF_RECOVERY_TTL);
+      audit("identity.recovery.requested", accounts.get(0));
+    }
     return ResponseEntity.accepted().body(Map.of("requestId", opaque("req"), "accountAction", accountAction("recovery-requested")));
   }
 
@@ -104,6 +108,7 @@ public class IdentityAdministrationService {
         credentials.encode(request.newPassword()), account);
     revokeSecretActions(account);
     revokeAllSessions(account);
+    audit("identity.password.recovered", account);
     return ResponseEntity.noContent().build();
   }
 
@@ -111,6 +116,9 @@ public class IdentityAdministrationService {
   public ResponseEntity<?> activate(Activation request) {
     ActionGrant grant = consumeAction(request.activationToken(), "activation");
     UUID account = grant.account();
+    if (!"pending".equals(db.queryForObject("select activation_state from accounts where id=? for update", String.class, account))) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid or expired credential");
+    }
     validatePassword(request.password());
     if (request.displayName() == null || request.displayName().isBlank() || request.displayName().length() > 120) badRequest();
     db.update("update accounts set password_hash=?, display_name=?, activation_state='active', temporary_password_expires_at=null where id=?",
@@ -119,6 +127,7 @@ public class IdentityAdministrationService {
     if (grant.organization() != null) db.update("update organization_memberships set membership_status='active',updated_at=now(),revision=revision+1 where account_id=? and organization_id=? and membership_status='suspended'", account, grant.organization());
     revokeSecretActions(account);
     revokeAllSessions(account);
+    audit("identity.activation", account);
     return ResponseEntity.noContent().build();
   }
 
@@ -162,6 +171,7 @@ public class IdentityAdministrationService {
     // An activation proof is an administrator-delivered no-email copy link, never a response property.
     if (activation != null) response.header("X-Activation-Copy-Link", "/activate/" + activation.token());
     if (generatedTemporaryPassword != null) response.header("X-Temporary-Password-Copy", generatedTemporaryPassword);
+    audit("identity.membership.created", account);
     return response.body(body);
   }
 
@@ -212,7 +222,10 @@ public class IdentityAdministrationService {
     lockOrganizationOwners(organization);
     long revision = membershipRevisionForUpdate(organization, target);
     ensureOwnerContinuity(organization, target, List.of(), "suspended");
+    db.update("delete from memberships m using workspaces w where m.account_id=? and m.workspace_id=w.id and w.organization_id=?", target, organization);
+    revokeAllSessions(target);
     db.update("delete from organization_memberships where organization_id=? and account_id=?", organization, target);
+    audit("identity.membership.removed", target);
     return ResponseEntity.noContent().eTag(etag(revision + 1)).build();
   }
 
@@ -273,6 +286,8 @@ public class IdentityAdministrationService {
     UUID issuer = (UUID) invitation.get("created_by");
     // Issuer authority, tenant state, recipient state, and invitation grant are all checked under this lock.
     requireOrganizationAdministrator(issuer, organization);
+    Integer issuerActive = db.queryForObject("select count(*) from accounts where id=? and account_status='active' and activation_state='active'", Integer.class, issuer);
+    if (issuerActive == null || issuerActive != 1) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid or expired credential");
     UUID account = (UUID) invitation.get("account_id");
     if (account == null) {
       validatePassword(request.password());
@@ -286,11 +301,12 @@ public class IdentityAdministrationService {
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
       }
     }
-    List<String> roles = sqlArray(invitation.get("organization_roles"));
+    List<String> roles = allowedOrganizationRoles(sqlArray(invitation.get("organization_roles")), false);
     db.update("insert into organization_memberships(account_id,organization_id,roles,membership_status) values(?,?,?,'active') "
             + "on conflict(account_id,organization_id) do update set roles=excluded.roles,membership_status='active',updated_at=now(),revision=organization_memberships.revision+1",
         account, invitation.get("organization_id"), roles.toArray(String[]::new));
     db.update("update identity_invitations set used_at=now(),updated_at=now() where id=?", invitation.get("id"));
+    audit("identity.invitation.accepted", account);
     return ResponseEntity.ok(Map.of("requestId", opaque("req"), "invitation", invitation((UUID) invitation.get("id"), (String) invitation.get("email"),
         ((Timestamp) invitation.get("expires_at")).toInstant())));
   }
@@ -333,6 +349,7 @@ public class IdentityAdministrationService {
     db.update("delete from memberships where account_id=? and workspace_id=?", target, workspace);
     for (String role : roles) db.update("insert into memberships(account_id,workspace_id,role) values(?,?,?)", target, workspace, workspaceRole(role));
     db.update("update workspace_role_revisions set revision=revision+1 where workspace_id=? and account_id=?", workspace, target);
+    audit("identity.workspace.roles", target);
     return ResponseEntity.ok().eTag(etag(revision + 1)).body(Map.of("requestId", opaque("req"), "workspaceRole", workspaceRole(target, roles, revision + 1)));
   }
 
@@ -376,6 +393,23 @@ public class IdentityAdministrationService {
         });
   }
 
+  /** Lists only active, explicitly granted workspace members that may receive catalog ownership. */
+  public ResponseEntity<?> workspaceMembers(String workspaceValue, HttpServletRequest http) {
+    UUID workspace = workspace(workspaceValue);
+    requireWorkspaceManager(currentAccount(http), workspace);
+    List<Map<String, Object>> items = db.queryForList(
+        "select m.account_id,array_agg(m.role order by m.role) as roles from memberships m "
+            + "join accounts a on a.id=m.account_id "
+            + "join workspaces w on w.id=m.workspace_id "
+            + "join organizations o on o.id=w.organization_id "
+            + "join organization_memberships om on om.account_id=m.account_id and om.organization_id=w.organization_id "
+            + "where m.workspace_id=? and a.account_status='active' and o.organization_status='active' "
+            + "and om.membership_status='active' and m.role in ('WORKSPACE_ADMINISTRATOR','OWNER','AUTHOR','REVIEWER','TRANSLATOR','PUBLISHER','RESPONSE_VIEWER','RESPONSE_EXPORTER','AUDITOR') "
+            + "group by m.account_id order by m.account_id",
+        workspace);
+    return ResponseEntity.ok(Map.of("requestId", opaque("req"), "items", items.stream().map(IdentityAdministrationService::workspaceMember).toList()));
+  }
+
   @Transactional
   public ResponseEntity<?> organizationRecovery(String organizationValue, String userValue, RecoveryRequest request, HttpServletRequest http) {
     UUID organization = organization(organizationValue);
@@ -387,6 +421,7 @@ public class IdentityAdministrationService {
     if (isPlatformAccount(target) || organizationMembershipCount(target) != 1 || !activeOrganizationMember(target, organization)) throw forbidden();
     revokeAllSessions(target);
     ActionCapability action = issueAction(target, organization, "organization-recovery", ACTION_TTL);
+    audit("identity.recovery.issued", target);
     return ResponseEntity.status(HttpStatus.CREATED).header("X-Recovery-Copy-Link", "/reset/" + action.token())
         .body(Map.of("requestId", opaque("req"), "organizationRecovery", recovery("OrganizationRecovery", "administrator-assisted")));
   }
@@ -407,9 +442,10 @@ public class IdentityAdministrationService {
     requirePlatformAdministrator(actor);
     requireRecoveryRequest(request, "manual-security-review");
     revokeAllSessions(target);
-    // Platform recovery is deliberately manual; no self-service raw capability is disclosed.
-    issueAction(target, null, "platform-recovery", ACTION_TTL);
-    return ResponseEntity.status(HttpStatus.CREATED)
+    ensureSuspensionSafety(target);
+    ActionCapability action = issueAction(target, null, "platform-recovery", ACTION_TTL);
+    audit("identity.platform-recovery.issued", target);
+    return ResponseEntity.status(HttpStatus.CREATED).header("X-Recovery-Copy-Link", "/reset/" + action.token())
         .body(Map.of("requestId", opaque("req"), "platformRecovery", recovery("PlatformRecovery", "manual-security-review")));
   }
 
@@ -481,6 +517,7 @@ public class IdentityAdministrationService {
     if ("suspended".equals(request.accountStatus())) {
       revokeSecretActions(account);
       revokeAllSessions(account);
+      audit("identity.account.suspended", account);
     }
     return ResponseEntity.ok().eTag(etag(revision + 1)).body(Map.of("requestId", opaque("req"), "platformAccount", platformAccount(account, request.accountStatus(), revision + 1)));
   }
@@ -539,6 +576,7 @@ public class IdentityAdministrationService {
     Instant expires = Instant.now().plus(INVITATION_TTL);
     db.update("insert into identity_invitations(id,organization_id,account_id,email,organization_roles,token_hash,expires_at,created_by) values(?,?,?,?,?,?,?,?)",
         invitation, organization, account, email, roles.toArray(String[]::new), sha256(token), Timestamp.from(expires), actor);
+    audit("identity.invitation.issued", account == null ? actor : account);
     return ResponseEntity.status(HttpStatus.CREATED).header("X-Invitation-Copy-Link", "/invite/" + token)
         .body(Map.of("requestId", opaque("req"), "invitation", invitation(invitation, email, expires)));
   }
@@ -547,7 +585,7 @@ public class IdentityAdministrationService {
     String token = sessions.session(request, request.getHeader("X-Staff-Session")).orElseThrow(IdentityAdministrationService::unauthorized);
     try {
       return db.queryForObject("select s.account_id from staff_sessions s join accounts a on a.id=s.account_id where s.token::text=? and s.revoked_at is null "
-          + "and a.account_status='active' and s.last_seen_at>now()-interval '2 hours' and s.expires_at>now() and s.absolute_expires_at>now()", UUID.class, token);
+          + "and s.setup_only=false and a.account_status='active' and s.last_seen_at>now()-interval '2 hours' and s.expires_at>now() and s.absolute_expires_at>now()", UUID.class, token);
     } catch (Exception ex) { throw unauthorized(); }
   }
 
@@ -560,13 +598,13 @@ public class IdentityAdministrationService {
 
   private void requireWorkspaceManager(UUID account, UUID workspace) {
     Integer allowed = db.queryForObject("select count(*) from memberships m join workspaces w on w.id=m.workspace_id join organizations o on o.id=w.organization_id "
-        + "join accounts a on a.id=m.account_id where m.account_id=? and m.workspace_id=? and a.account_status='active' and o.organization_status='active' "
+        + "join organization_memberships om on om.account_id=m.account_id and om.organization_id=w.organization_id join accounts a on a.id=m.account_id where m.account_id=? and m.workspace_id=? and a.account_status='active' and om.membership_status='active' and o.organization_status='active' "
         + "and m.role in ('WORKSPACE_ADMINISTRATOR','OWNER')", Integer.class, account, workspace);
     if (allowed == null || allowed == 0) throw forbidden();
   }
 
   private void requirePlatformAdministrator(UUID account) {
-    Integer allowed = db.queryForObject("select count(*) from platform_roles where account_id=? and role='administrator'", Integer.class, account);
+    Integer allowed = db.queryForObject("select count(*) from platform_roles p join accounts a on a.id=p.account_id where p.account_id=? and p.role='administrator' and a.account_status='active' and a.activation_state='active'", Integer.class, account);
     if (allowed == null || allowed == 0) throw forbidden();
   }
 
@@ -580,7 +618,7 @@ public class IdentityAdministrationService {
 
   private void ensureSuspensionSafety(UUID account) {
     db.queryForList("select account_id from platform_roles where role='administrator' for update");
-    Integer administrators = db.queryForObject("select count(*) from platform_roles where role='administrator'", Integer.class);
+    Integer administrators = db.queryForObject("select count(*) from platform_roles p join accounts a on a.id=p.account_id where p.role='administrator' and a.account_status='active' and a.activation_state='active'", Integer.class);
     if (administrators != null && administrators == 1 && isPlatformAccount(account))
       throw new ResponseStatusException(HttpStatus.CONFLICT, "Last platform administrator required");
     List<UUID> ownerOrganizations = db.query("select organization_id from organization_memberships where account_id=? and membership_status='active' and roles @> array['owner']::text[]", (rs, row) -> (UUID) rs.getObject(1), account);
@@ -675,7 +713,7 @@ public class IdentityAdministrationService {
 
   private ActionGrant consumeRecoveryAction(String token) {
     try {
-      return db.queryForObject("update identity_secret_actions set used_at=now() where token_hash=? and action in ('self-recovery','organization-recovery') and used_at is null and expires_at>now() returning account_id,organization_id",
+      return db.queryForObject("update identity_secret_actions set used_at=now() where token_hash=? and action in ('self-recovery','organization-recovery','platform-recovery') and used_at is null and expires_at>now() returning account_id,organization_id",
           (rs, row) -> new ActionGrant((UUID) rs.getObject("account_id"), (UUID) rs.getObject("organization_id")), sha256(token));
     } catch (Exception ex) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid or expired credential");
@@ -691,6 +729,9 @@ public class IdentityAdministrationService {
   }
 
   private void revokeAllSessions(UUID account) { db.update("update staff_sessions set revoked_at=now(),updated_at=now() where account_id=? and revoked_at is null", account); }
+  private void audit(String action, UUID resource) {
+    db.update("insert into audit_events(id,action,resource_id,detail) values(?,?,?,cast(? as jsonb))", UUID.randomUUID(), action, resource, "{\"category\":\"identity\"}");
+  }
   private void revokeSecretActions(UUID account) { db.update("update identity_secret_actions set used_at=now() where account_id=? and used_at is null", account); }
   private UUID accountByEmail(String email) { List<UUID> matches = db.query("select id from accounts where email=?", (rs, row) -> (UUID) rs.getObject(1), email); return matches.isEmpty() ? null : matches.get(0); }
   private int organizationMembershipCount(UUID account) { return db.queryForObject("select count(*) from organization_memberships where account_id=? and membership_status='active'", Integer.class, account); }
@@ -723,6 +764,19 @@ public class IdentityAdministrationService {
       default -> throw new IllegalArgumentException();
     };
   }
+  private static String publicWorkspaceRole(String role) {
+    return switch (role) {
+      case "WORKSPACE_ADMINISTRATOR", "OWNER" -> "workspace-administrator";
+      case "AUTHOR" -> "author";
+      case "REVIEWER" -> "reviewer";
+      case "TRANSLATOR" -> "translator";
+      case "PUBLISHER" -> "publisher";
+      case "RESPONSE_VIEWER" -> "response-viewer";
+      case "RESPONSE_EXPORTER" -> "response-exporter";
+      case "AUDITOR" -> "auditor";
+      default -> throw new IllegalArgumentException("Unsupported workspace role");
+    };
+  }
   private static String email(String value) { if (value == null || value.isBlank() || value.length() > 254 || !value.contains("@")) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid email"); return value.trim().toLowerCase(Locale.ROOT); }
   private static List<String> sqlArray(Object value) { try { return value instanceof Array array ? Arrays.asList((String[]) array.getArray()) : List.of(); } catch (Exception ex) { throw new IllegalStateException(ex); } }
   private String randomSecret() { byte[] bytes = new byte[32]; random.nextBytes(bytes); return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes); }
@@ -738,6 +792,10 @@ public class IdentityAdministrationService {
 
   private Map<String, Object> organizationUser(Map<String, Object> row) { return organizationUser((UUID) row.get("id"), (String) row.get("email"), sqlArray(row.get("roles")), (String) row.get("membership_status"), ((Number) row.get("revision")).longValue(), ((Timestamp) row.get("created_at")).toInstant(), ((Timestamp) row.get("updated_at")).toInstant()); }
   private static Map<String, Object> organizationUser(UUID account, String email, List<String> roles, String status, long revision, Instant created, Instant updated) { return resource("OrganizationUser", "organizationuser", account, status, revision, created, updated, Map.of("email", email, "roles", roles)); }
+  private static Map<String, Object> workspaceMember(Map<String, Object> row) {
+    return Map.of("accountId", opaque("account", (UUID) row.get("account_id")), "membershipStatus", "active",
+        "roles", sqlArray(row.get("roles")).stream().map(IdentityAdministrationService::publicWorkspaceRole).distinct().sorted().toList());
+  }
   private static Map<String, Object> invitation(UUID id, String email, Instant expires) { return resource("Invitation", "invitation", id, "active", 0, Instant.now(), Instant.now(), Map.of("email", email, "expiresAt", expires.toString())); }
   private static Map<String, Object> accountAction(String action) { return resource("AccountAction", "accountaction", UUID.randomUUID(), "active", 0, Instant.now(), Instant.now(), Map.of("action", action)); }
   private static Map<String, Object> workspaceRole(UUID account, List<String> roles, long revision) { return resource("WorkspaceRole", "workspacerole", account, "active", revision, Instant.now(), Instant.now(), Map.of("roles", roles)); }

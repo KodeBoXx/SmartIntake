@@ -6603,6 +6603,40 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CatalogSettingsInput'
+  /v1/workspaces/{workspace}/members:
+    parameters:
+    - name: workspace
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^workspace-[0-9a-fA-F-]{36}$
+    get:
+      operationId: m6ListWorkspaceMembers
+      summary: List transferable current workspace members
+      x-implementation-status: implemented
+      x-authorization:
+        roles:
+        - workspace-administrator
+        tenantScope: current-server-workspace-membership
+      security:
+      - staffCookie: []
+        csrfHeader: []
+      responses:
+        '200':
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceMemberCollection'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
 x-m0-operation-inventory:
   oNamed:
     source: docs/acceptance/v1.1/denominators/o-named.json
@@ -10169,7 +10203,7 @@ components:
           format: email
         password:
           type: string
-          minLength: 12
+          minLength: 15
           maxLength: 512
     AccountActionCreateRequest:
       type: object
@@ -10204,7 +10238,8 @@ components:
           minLength: 24
         password:
           type: string
-          minLength: 12
+          minLength: 15
+          maxLength: 512
         displayName:
           type: string
           minLength: 1
@@ -10258,7 +10293,8 @@ components:
           minLength: 24
         password:
           type: string
-          minLength: 12
+          minLength: 15
+          maxLength: 512
     OrganizationUpdateRequest:
       type: object
       additionalProperties: false
@@ -12299,6 +12335,46 @@ components:
           type:
           - string
           - 'null'
+    WorkspaceMember:
+      type: object
+      additionalProperties: false
+      required:
+      - accountId
+      - membershipStatus
+      - roles
+      properties:
+        accountId:
+          type: string
+          pattern: ^account-[0-9a-fA-F-]{36}$
+        membershipStatus:
+          const: active
+        roles:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            enum:
+            - workspace-administrator
+            - author
+            - reviewer
+            - translator
+            - publisher
+            - response-viewer
+            - response-exporter
+            - auditor
+    WorkspaceMemberCollection:
+      type: object
+      additionalProperties: false
+      required:
+      - requestId
+      - items
+      properties:
+        requestId:
+          $ref: '#/components/schemas/OpaqueId'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkspaceMember'
     CatalogTag:
       type: object
       additionalProperties: false

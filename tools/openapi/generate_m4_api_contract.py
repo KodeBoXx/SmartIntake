@@ -204,6 +204,24 @@ def generated() -> dict[Path, bytes]:
     schemas["WorkspaceRoleAssignmentRequest"]["properties"]["roles"]["items"] = {
         "enum": workspace_roles
     }
+    schemas["WorkspaceMember"] = {
+        "type": "object", "additionalProperties": False,
+        "required": ["accountId", "membershipStatus", "roles"],
+        "properties": {
+            "accountId": {"type": "string", "pattern": "^account-[0-9a-fA-F-]{36}$"},
+            "membershipStatus": {"const": "active"},
+            "roles": {"type": "array", "minItems": 1, "uniqueItems": True,
+                      "items": {"enum": workspace_roles}},
+        },
+    }
+    schemas["WorkspaceMemberCollection"] = {
+        "type": "object", "additionalProperties": False,
+        "required": ["requestId", "items"],
+        "properties": {
+            "requestId": {"$ref": "#/components/schemas/OpaqueId"},
+            "items": {"type": "array", "items": {"$ref": "#/components/schemas/WorkspaceMember"}},
+        },
+    }
     uuid = {"type": "string", "format": "uuid"}
     schemas["CatalogTag"] = {
         "type": "object", "additionalProperties": False,
@@ -322,7 +340,7 @@ def generated() -> dict[Path, bytes]:
     def walk_password_rules(value: Any) -> None:
         if isinstance(value, dict):
             for key, child in value.items():
-                if key == "newPassword" and isinstance(child, dict):
+                if key in {"password", "newPassword"} and isinstance(child, dict):
                     child["minLength"] = 15
                     child["maxLength"] = 512
                 else:
@@ -448,6 +466,11 @@ def generated() -> dict[Path, bytes]:
     api["paths"]["/v1/workspaces/{workspace}/catalog/settings"] = {"parameters": [workspace_parameter],
         "get": catalog_operation("m6EffectiveCatalogSettings", "Read effective policy and provider settings", workspace_administrator_roles, json_response("CatalogSettings")),
         "put": catalog_operation("m6UpdateCatalogSettings", "Update workspace policy and provider overrides", workspace_administrator_roles, json_response("CatalogSettings"), "CatalogSettingsInput")}
+    api["paths"]["/v1/workspaces/{workspace}/members"] = {
+        "parameters": [workspace_parameter],
+        "get": catalog_operation("m6ListWorkspaceMembers", "List transferable current workspace members",
+                                 workspace_administrator_roles, json_response("WorkspaceMemberCollection")),
+    }
     patch = api["paths"]["/v1/sessions/{s}"]["patch"]
     patch["parameters"] = [parameter for parameter in patch["parameters"] if parameter.get("name") == "s"]
     patch["responses"]["200"] = {
@@ -516,6 +539,11 @@ def generated() -> dict[Path, bytes]:
         "description": "The immutable legacy 4.0.0 capability representation. The additive representation is published at /v1/schemas/capabilities/4.1.0.",
         "content": {"application/json": {"schema": {"$ref": "#/components/schemas/LegacyCapabilityRegistry"}}},
     }
+
+    # `api` receives a deep copy before the M6 schema patches above. Refresh it
+    # immediately before serialization so the monolithic published/backend copies
+    # remain byte-for-byte aligned with the generated components document.
+    api["components"] = copy.deepcopy(components["components"])
 
     def encode(value: Any) -> bytes:
         return (HEADER + yaml.safe_dump(value, sort_keys=False, allow_unicode=True)).encode()

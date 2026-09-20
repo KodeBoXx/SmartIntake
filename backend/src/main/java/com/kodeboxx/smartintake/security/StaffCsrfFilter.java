@@ -23,7 +23,7 @@ public class StaffCsrfFilter extends OncePerRequestFilter {
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) {
     String path = request.getRequestURI();
-    if (!path.startsWith("/v1/") || "GET".equals(request.getMethod()) || "HEAD".equals(request.getMethod())
+    if (!path.startsWith("/v1/") || "HEAD".equals(request.getMethod())
         || "OPTIONS".equals(request.getMethod())) return true;
     boolean anonymousBootstrap = path.equals("/v1/auth/bootstrap") || path.equals("/v1/auth/sign-in");
     return anonymousBootstrap && sessions.cookieSession(request).isEmpty();
@@ -39,8 +39,12 @@ public class StaffCsrfFilter extends OncePerRequestFilter {
       throws ServletException, IOException {
     String token = sessions.cookieSession(request).orElse(null);
     if (token != null) {
-      if (identity.setupOnly(token) && !setupOnlyPath(request.getRequestURI())) {
+      if (identity.setupOnly(token) && !(setupOnlyPath(request.getRequestURI()) || request.getRequestURI().equals("/v1/auth/session"))) {
         response.sendError(HttpServletResponse.SC_FORBIDDEN, "Setup session restricted");
+        return;
+      }
+      if ("GET".equals(request.getMethod()) || "OPTIONS".equals(request.getMethod())) {
+        chain.doFilter(request, response);
         return;
       }
       try {

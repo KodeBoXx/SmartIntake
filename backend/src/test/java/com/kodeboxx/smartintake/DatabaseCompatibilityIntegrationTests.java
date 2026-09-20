@@ -67,7 +67,7 @@ class DatabaseCompatibilityIntegrationTests {
           new FlywayHistory("12", "SQL", "V12__submission_attempt_review_evidence.sql", -1868713494),
           new FlywayHistory("13", "SQL", "V13__pinned_runtime_manifests.sql", -1265314321),
           new FlywayHistory("14", "SQL", "V14__staff_identity_sessions.sql", 724788122),
-          new FlywayHistory("15", "SQL", "V15__identity_lifecycle_tenant_administration.sql", 921498486),
+          new FlywayHistory("15", "SQL", "V15__identity_lifecycle_tenant_administration.sql", -2047153491),
           new FlywayHistory("16", "SQL", "V16__catalog_administration.sql", -2129090709));
 
   @Autowired JdbcTemplate db;
@@ -658,6 +658,7 @@ class DatabaseCompatibilityIntegrationTests {
         workspaceKey,
         "Invalid workspace");
     db.update("insert into memberships(account_id,workspace_id,role) values(?,?,?)", account, workspace, "PUBLISHER");
+    db.update("insert into organization_memberships(account_id,organization_id,roles,membership_status) values(?,?,array['member'],'active')", account, organization);
     db.update(
         "insert into staff_sessions(token,account_id,expires_at) values(?,?,now()+interval '1"
             + " hour')",
@@ -783,6 +784,7 @@ class DatabaseCompatibilityIntegrationTests {
         "B");
     for (UUID memberWorkspace : List.of(workspaceA, workspaceB))
       db.update("insert into memberships(account_id,workspace_id,role) values(?,?,?)", account, memberWorkspace, "RESPONSE_EXPORTER");
+    db.update("insert into organization_memberships(account_id,organization_id,roles,membership_status) values(?,?,array['member'],'active')", account, organization);
     db.update(
         "insert into staff_sessions(token,account_id,expires_at) values(?,?,now()+interval '1"
             + " hour')",
@@ -1061,11 +1063,15 @@ class DatabaseCompatibilityIntegrationTests {
 
   @Test
   void v15_adds_tenant_identity_lifecycle_state() {
-    for (String table : List.of("platform_roles", "organization_memberships", "identity_invitations", "identity_secret_actions")) {
+    for (String table : List.of("platform_roles", "organization_memberships", "identity_invitations", "identity_secret_actions",
+        "administration_mutation_replays", "workspace_role_revisions")) {
       assertEquals(1, db.queryForObject("select count(*) from information_schema.tables where table_schema='public' and table_name=?", Integer.class, table));
     }
-    for (String column : List.of("account_status", "activation_state", "temporary_password_expires_at")) {
+    for (String column : List.of("account_status", "activation_state", "temporary_password_expires_at", "revision")) {
       assertEquals(1, db.queryForObject("select count(*) from information_schema.columns where table_name='accounts' and column_name=?", Integer.class, column));
+    }
+    for (String table : List.of("organizations", "organization_memberships", "memberships")) {
+      assertEquals(1, db.queryForObject("select count(*) from information_schema.columns where table_name=? and column_name='revision'", Integer.class, table));
     }
     assertEquals(1, db.queryForObject("select count(*) from information_schema.columns where table_name='staff_sessions' and column_name='setup_only'", Integer.class));
   }

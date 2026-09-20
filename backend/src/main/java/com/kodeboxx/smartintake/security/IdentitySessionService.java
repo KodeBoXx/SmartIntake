@@ -38,22 +38,29 @@ public class IdentitySessionService {
   private final IdentitySessionResolver resolver;
   private final CredentialEncoder credentials;
   private final List<String> allowedOrigins;
+  private final String bootstrapToken;
   private final SecureRandom random = new SecureRandom();
 
   public record Credentials(String email, String password) {}
   public record BootstrapRequest(String email, String password, String organizationName, String workspaceName) {}
 
   public IdentitySessionService(JdbcTemplate db, IdentitySessionResolver resolver, CredentialEncoder credentials,
-      @Value("${smartintake.security.allowed-origins:http://localhost:4200,http://127.0.0.1:4200}") String origins) {
+      @Value("${smartintake.security.allowed-origins:http://localhost:4200,http://127.0.0.1:4200}") String origins,
+      @Value("${smartintake.bootstrap-token:${SMARTINTAKE_BOOTSTRAP_TOKEN:}}") String bootstrapToken) {
     this.db = db;
     this.resolver = resolver;
     this.credentials = credentials;
     this.allowedOrigins = java.util.Arrays.stream(origins.split(",")).map(String::trim).filter(value -> !value.isEmpty()).toList();
+    this.bootstrapToken = bootstrapToken;
   }
 
   @Transactional
-  public ResponseEntity<?> bootstrap(BootstrapRequest input, HttpServletRequest request) {
+  public ResponseEntity<?> bootstrap(BootstrapRequest input, String presentedBootstrapToken, HttpServletRequest request) {
     requireOrigin(request);
+    if (bootstrapToken == null || bootstrapToken.isBlank() || presentedBootstrapToken == null
+        || !MessageDigest.isEqual(bootstrapToken.getBytes(StandardCharsets.UTF_8), presentedBootstrapToken.getBytes(StandardCharsets.UTF_8))) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Bootstrap unavailable");
+    }
     validateCredentials(input.email(), input.password());
     Boolean completed = db.queryForObject("select completed_at is not null from identity_bootstrap_state where singleton=true for update", Boolean.class);
     if (Boolean.TRUE.equals(completed) || db.queryForObject("select count(*) from accounts", Integer.class) != 0)
@@ -61,14 +68,20 @@ public class IdentitySessionService {
     UUID account = UUID.randomUUID();
     UUID organization = UUID.randomUUID();
     UUID workspace = UUID.randomUUID();
-    db.update("insert into accounts(id,email,password_hash) values(?,?,?)", account, normalizedEmail(input.email()), credentials.encode(input.password()));
+    db.update("insert into accounts(id,email,password_hash,activation_state,temporary_password_expires_at) values(?,?,?,'pending',now()+interval '24 hours')", account, normalizedEmail(input.email()), credentials.encode(input.password()));
     db.update("insert into organizations(id,name) values(?,?)", organization, nonBlank(input.organizationName(), "Local organization"));
     db.update("insert into workspaces(id,organization_id,workspace_key,name) values(?,?,?,?)", workspace, organization, "local", nonBlank(input.workspaceName(), "Local workspace"));
     db.update("insert into memberships(account_id,workspace_id,role) values(?,?,?)", account, workspace, "WORKSPACE_ADMINISTRATOR");
     // The protected one-time bootstrap establishes the initial platform authority as well as tenant ownership.
     db.update("insert into platform_roles(account_id,role) values(?,'administrator') on conflict do nothing", account);
+    db.update("insert into organization_memberships(account_id,organization_id,roles,membership_status) values(?,?,array['owner','administrator'],'suspended')", account, organization);
+    String activation = secret();
+    db.update("insert into identity_secret_actions(id,account_id,organization_id,action,token_hash,expires_at) values(?,?,?,'activation',?,now()+interval '24 hours')",
+        UUID.randomUUID(), account, organization, sha256(activation));
     db.update("update identity_bootstrap_state set completed_at=now() where singleton=true");
-    return issued(account, request, HttpStatus.CREATED, false);
+    audit("identity.bootstrap", account, Map.of("organization", organization.toString()));
+    return ResponseEntity.status(HttpStatus.CREATED).header("X-Activation-Copy-Link", "/activate/" + activation)
+        .body(Map.of("requestId", opaque("req"), "bootstrap", "pending-activation"));
   }
 
   public ResponseEntity<?> anonymousSession() {
@@ -108,7 +121,7 @@ public class IdentitySessionService {
       subjects.forEach(this::registerFailure);
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
     }
-    subjects.forEach(subject -> db.update("delete from sign_in_throttles where subject_hash=?", subject));
+    db.update("delete from sign_in_throttles where subject_hash=?", sha256("account|" + normalized));
     resolver.session(request, request.getHeader("X-Staff-Session")).ifPresent(token -> db.update("update staff_sessions set revoked_at=now(),updated_at=now() where token::text=? and revoked_at is null", token));
     boolean setupOnly = Boolean.TRUE.equals(db.queryForObject("select activation_state='pending' from accounts where id=?", Boolean.class, account));
     return issued(account, request, HttpStatus.OK, setupOnly);
@@ -231,7 +244,9 @@ public class IdentitySessionService {
   private List<String> throttleSubjects(String email, String source) {
     String safeSource = source == null ? "unknown" : source;
     // Account, source, and global buckets prevent distributed guessing while never retaining raw identifiers.
-    return List.of(sha256("account|" + email), sha256("source|" + safeSource), sha256("global"));
+    // Account-specific failures are the only blocking buckets. Source information is not
+    // allowed to turn ten failed attempts against one account into a global login DoS.
+    return List.of(sha256("account|" + email));
   }
 
   private void cleanupThrottleBuckets() {
@@ -264,6 +279,11 @@ public class IdentitySessionService {
     if (header == null || cookie == null || !constantTimeEquals(header, cookie)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Sign-in denied");
     int changed = db.update("update login_csrf_challenges set consumed_at=now() where token_hash=? and consumed_at is null and expires_at>now()", sha256(header));
     if (changed != 1) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Sign-in denied");
+  }
+
+  private void audit(String action, UUID resource, Map<String, Object> detail) {
+    db.update("insert into audit_events(id,action,resource_id,detail) values(?,?,?,cast(? as jsonb))", UUID.randomUUID(), action, resource,
+        "{\"category\":\"identity\"}");
   }
 
   private void validateCredentials(String email, String password) {

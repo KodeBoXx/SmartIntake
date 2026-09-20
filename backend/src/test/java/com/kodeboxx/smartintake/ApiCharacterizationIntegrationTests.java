@@ -83,6 +83,7 @@ class ApiCharacterizationIntegrationTests {
         "M1 characterization");
     for (String role : List.of("AUTHOR", "PUBLISHER", "RESPONSE_EXPORTER"))
       db.update("insert into memberships(account_id,workspace_id,role) values(?,?,?)", account, workspaceId, role);
+    db.update("insert into organization_memberships(account_id,organization_id,roles,membership_status) values(?,?,array['member'],'active')", account, organization);
     db.update(
         "insert into staff_sessions(token,account_id,expires_at) values(?,?,now()+interval '1"
             + " hour')",
@@ -135,11 +136,13 @@ class ApiCharacterizationIntegrationTests {
     assertTrue(object(signIn.getBody()).containsKey("staffSession"));
     assertEquals(HttpStatus.NO_CONTENT, call("/auth/logout", HttpMethod.POST, headers(staff), null).getStatusCode());
     assertEquals(HttpStatus.UNAUTHORIZED, call("/workspaces/" + workspace + "/forms", HttpMethod.GET, headers(staff), null).getStatusCode());
+    HttpHeaders bootstrapHeaders = headers(null);
+    bootstrapHeaders.set("X-Bootstrap-Token", "test-bootstrap-token");
     ResponseEntity<String> bootstrap =
         call(
             "/auth/bootstrap",
             HttpMethod.POST,
-            headers(null),
+            bootstrapHeaders,
             Map.of("email", "later@example.test", "password", "correct-horse-battery"));
     assertEquals(HttpStatus.CONFLICT, bootstrap.getStatusCode());
     ResponseEntity<String> secondAnonymous = http.getForEntity(u("/auth/session"), String.class);

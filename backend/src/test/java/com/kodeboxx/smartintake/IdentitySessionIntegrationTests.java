@@ -35,7 +35,7 @@ class IdentitySessionIntegrationTests {
   private ResponseEntity<String> call(String path, HttpMethod method, HttpHeaders headers, Object body) {
     return http.exchange(url(path), method, new HttpEntity<>(body, headers), String.class);
   }
-  private HttpHeaders jsonHeaders() { HttpHeaders headers = new HttpHeaders(); headers.setContentType(MediaType.APPLICATION_JSON); return headers; }
+  private HttpHeaders jsonHeaders() { HttpHeaders headers = new HttpHeaders(); headers.setContentType(MediaType.APPLICATION_JSON); headers.set("X-Bootstrap-Token", "test-bootstrap-token"); return headers; }
   private String cookie(ResponseEntity<String> response, String name) {
     return response.getHeaders().get(HttpHeaders.SET_COOKIE).stream().filter(value -> value.startsWith(name + "=")).findFirst().orElseThrow().split(";", 2)[0];
   }
@@ -60,7 +60,8 @@ class IdentitySessionIntegrationTests {
     assertEquals(HttpStatus.CREATED, created.getStatusCode());
     Map<String, Object> body = object(created.getBody());
     assertTrue(body.containsKey("requestId"));
-    assertTrue(body.containsKey("staffSession"));
+    assertEquals("pending-activation", body.get("bootstrap"));
+    assertTrue(created.getHeaders().containsKey("X-Activation-Copy-Link"));
     assertFalse(created.getBody().contains("SI_STAFF_SESSION"));
     assertEquals(HttpStatus.CONFLICT, call("/bootstrap", HttpMethod.POST, jsonHeaders(),
         Map.of("email", "second@example.test", "password", "123456789012345")).getStatusCode());

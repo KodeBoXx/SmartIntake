@@ -15,13 +15,17 @@ create table if not exists organization_memberships (
   account_id uuid not null references accounts(id), organization_id uuid not null references organizations(id),
   roles text[] not null default array[]::text[], membership_status varchar(16) not null default 'active' check (membership_status in ('active','suspended')),
   revision bigint not null default 0, created_at timestamptz not null default now(), updated_at timestamptz not null default now(), primary key(account_id,organization_id));
+with historic_owner_counts as (
+  select w.organization_id,count(distinct m.account_id) filter (where m.role = 'OWNER') owner_count
+  from memberships m join workspaces w on w.id=m.workspace_id group by w.organization_id
+)
 insert into organization_memberships(account_id,organization_id,roles)
 select m.account_id,w.organization_id,
-  case when bool_or(m.role = 'OWNER') then array['owner','administrator']::text[]
+  case when hc.owner_count = 1 and bool_or(m.role = 'OWNER') then array['owner','administrator']::text[]
        when bool_or(m.role in ('ADMIN','ADMINISTRATOR')) then array['administrator']::text[]
        else array['member']::text[] end
-from memberships m join workspaces w on w.id=m.workspace_id
-group by m.account_id,w.organization_id
+from memberships m join workspaces w on w.id=m.workspace_id join historic_owner_counts hc on hc.organization_id=w.organization_id
+group by m.account_id,w.organization_id,hc.owner_count
 on conflict (account_id,organization_id) do nothing;
 
 create table if not exists identity_invitations (

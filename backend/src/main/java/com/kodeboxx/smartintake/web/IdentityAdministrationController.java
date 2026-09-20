@@ -62,6 +62,8 @@ public class IdentityAdministrationController {
   @PostMapping("/platform/accounts/{account}/recovery")
   ResponseEntity<?> platformRecovery(@PathVariable String account, @RequestBody IdentityAdministrationService.RecoveryRequest request, @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey, HttpServletRequest http) { return administration.platformRecoveryMutation(account, request, idempotencyKey, http); }
 
+  @GetMapping("/workspaces/{workspace}/members")
+  ResponseEntity<?> workspaceMembers(@PathVariable String workspace, HttpServletRequest http) { return administration.workspaceMembers(workspace, http); }
   @PutMapping("/workspaces/{workspace}/users/{user}/roles")
   ResponseEntity<?> workspaceRoles(@PathVariable String workspace, @PathVariable String user, @RequestBody IdentityAdministrationService.Roles request, @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey, @RequestHeader(value = "If-Match", required = false) String ifMatch, HttpServletRequest http) { return administration.workspaceRolesMutation(workspace, user, request, idempotencyKey, ifMatch, http); }
   @DeleteMapping("/workspaces/{workspace}/users/{user}/roles")

@@ -24,7 +24,7 @@ public class BrowserSecurityConfiguration implements WebMvcConfigurer {
   @Override
   public void addCorsMappings(CorsRegistry registry) {
     registry.addMapping("/v1/**").allowedOrigins(allowedOrigins).allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE")
-        .allowedHeaders("Content-Type", "X-CSRF-Token", "X-Login-CSRF-Token").allowCredentials(true);
+        .allowedHeaders("Content-Type", "X-CSRF-Token", "X-Login-CSRF-Token", "X-Bootstrap-Token", "Idempotency-Key", "If-Match").allowCredentials(true);
   }
 
   @Configuration

@@ -1,6 +1,6 @@
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { Observable, map, tap } from 'rxjs';
 import { FormDefinition, ResponseSummary } from './models/form-definition.models';
 import type { components, operations } from './generated/api-4.1.0';
 import type { RuntimeOperation, ServerProjection } from './runtime/runtime-types';
@@ -16,7 +16,7 @@ type GeneratedInputAnswer = components['schemas']['InputAnswerValue'];
 export type StaffIdentity = components['schemas']['SafeAccountIdentity'];
 export type StaffWorkspace = components['schemas']['PermittedWorkspaceChoice'];
 export type StaffOrganization = components['schemas']['PermittedOrganizationChoice'];
-export type StaffSession = { identity: StaffIdentity; organizations: StaffOrganization[]; currentOrganizationId: string | null; csrfToken?: string };
+export type StaffSession = { identity: StaffIdentity; organizations: StaffOrganization[]; currentOrganizationId: string | null; currentWorkspaceId?: string | null; csrfToken?: string };
 export type CreatedForm = { id: string; draftId: string; revision: number; definition: FormDefinition };
 export type SavedDraft = { revision: number; definition: FormDefinition; diagnostics: unknown[] };
 export type PublishedForm = { releaseId: string; version: number; shareId: string; status: string };
@@ -41,6 +41,7 @@ export type TypedSessionProjection = ServerProjection & {
 
 @Injectable({ providedIn: 'root' })
 export class SmartIntakeApiService {
+  private readonly revisionEtags = new Map<string, string>();
   constructor(private readonly http: HttpClient) {}
 
   /** Cookie-authenticated safe identity; a 401 issues the one-time login CSRF header. */
@@ -56,8 +57,12 @@ export class SmartIntakeApiService {
   }
 
   /** One-time setup is intentionally separate from the generated 4.1 sign-in contract. */
-  bootstrap(input: { email: string; password: string; organizationName: string; workspaceName: string }): Observable<void> {
-    return this.http.post('/v1/auth/bootstrap', input, { withCredentials: true }).pipe(map(() => void 0));
+  bootstrap(input: { email: string; password: string; organizationName: string; workspaceName: string; bootstrapToken?: string }): Observable<void> {
+    const { bootstrapToken, ...body } = input;
+    return this.http.post('/v1/auth/bootstrap', body, {
+      withCredentials: true,
+      ...(bootstrapToken ? { headers: new HttpHeaders({ 'X-Bootstrap-Token': bootstrapToken }) } : {}),
+    }).pipe(map(() => void 0));
   }
 
   signOut(): Observable<void> {
@@ -65,13 +70,13 @@ export class SmartIntakeApiService {
   }
 
   platformOrganizations(): Observable<components['schemas']['Organization'][]> { return this.http.get<components['schemas']['OrganizationCollection']>('/v1/platform/organizations', this.staff()).pipe(map((response) => response.items)); }
-  createPlatformOrganization(body: components['schemas']['OrganizationCreateRequest']): Observable<components['schemas']['Organization']> { return this.http.post<components['schemas']['OrganizationResponse']>('/v1/platform/organizations', body, this.staff()).pipe(map((response) => response.organization)); }
-  updateOrganization(organizationId: string, revision: number, body: components['schemas']['OrganizationUpdateRequest']): Observable<components['schemas']['Organization']> { return this.http.patch<components['schemas']['OrganizationResponse']>(`/v1/platform/organizations/${organizationId}`, body, { headers: new HttpHeaders({ 'If-Match': this.etag(revision) }), withCredentials: true }).pipe(map((response) => response.organization)); }
+  createPlatformOrganization(body: components['schemas']['OrganizationCreateRequest'], retryKey?: string): Observable<components['schemas']['Organization']> { return this.revisioned(this.http.post<components['schemas']['OrganizationResponse']>('/v1/platform/organizations', body, this.mutation('POST', '/v1/platform/organizations', body, retryKey))).pipe(map((response) => response.organization)); }
+  updateOrganization(organizationId: string, revision: number, body: components['schemas']['OrganizationUpdateRequest'], retryKey?: string): Observable<components['schemas']['Organization']> { const url = `/v1/platform/organizations/${organizationId}`; return this.revisioned(this.http.patch<components['schemas']['OrganizationResponse']>(url, body, this.mutation('PATCH', url, body, retryKey, revision))).pipe(map((response) => response.organization)); }
   organizationUsers(organizationId: string): Observable<components['schemas']['OrganizationUser'][]> { return this.http.get<components['schemas']['OrganizationUserCollection']>(`/v1/organizations/${organizationId}/users`, this.staff()).pipe(map((response) => response.items)); }
-  addOrganizationUser(organizationId: string, body: components['schemas']['OrganizationUserCreateRequest']): Observable<components['schemas']['OrganizationUser']> { return this.http.post<components['schemas']['OrganizationUserResponse']>(`/v1/organizations/${organizationId}/users`, body, this.staff()).pipe(map((response) => response.organizationUser)); }
-  updateOrganizationUser(organizationId: string, userId: string, revision: number, body: components['schemas']['OrganizationUserUpdateRequest']): Observable<components['schemas']['OrganizationUser']> { return this.http.patch<components['schemas']['OrganizationUserResponse']>(`/v1/organizations/${organizationId}/users/${userId}`, body, { headers: new HttpHeaders({ 'If-Match': this.etag(revision) }), withCredentials: true }).pipe(map((response) => response.organizationUser)); }
-  assignWorkspaceRoles(workspaceId: string, userId: string, revision: number, body: components['schemas']['WorkspaceRoleAssignmentRequest']): Observable<components['schemas']['WorkspaceRole']> { return this.http.put<components['schemas']['WorkspaceRoleResponse']>(`/v1/workspaces/${workspaceId}/users/${userId}/roles`, body, { headers: new HttpHeaders({ 'If-Match': this.etag(revision), 'Idempotency-Key': crypto.randomUUID() }), withCredentials: true }).pipe(map((response) => response.workspaceRole)); }
-  inviteOrganizationUser(organizationId: string, userId: string, name = 'Invitation'): Observable<components['schemas']['Invitation']> { return this.http.post<components['schemas']['InvitationResponse']>(`/v1/organizations/${organizationId}/users/${userId}/invitations`, { name }, this.staff()).pipe(map((response) => response.invitation)); }
+  addOrganizationUser(organizationId: string, body: components['schemas']['OrganizationUserCreateRequest'], retryKey?: string): Observable<components['schemas']['OrganizationUser']> { const url = `/v1/organizations/${organizationId}/users`; return this.revisioned(this.http.post<components['schemas']['OrganizationUserResponse']>(url, body, this.mutation('POST', url, body, retryKey))).pipe(map((response) => response.organizationUser)); }
+  updateOrganizationUser(organizationId: string, userId: string, revision: number, body: components['schemas']['OrganizationUserUpdateRequest'], retryKey?: string): Observable<components['schemas']['OrganizationUser']> { const url = `/v1/organizations/${organizationId}/users/${userId}`; return this.revisioned(this.http.patch<components['schemas']['OrganizationUserResponse']>(url, body, this.mutation('PATCH', url, body, retryKey, revision))).pipe(map((response) => response.organizationUser)); }
+  assignWorkspaceRoles(workspaceId: string, userId: string, revision: number, body: components['schemas']['WorkspaceRoleAssignmentRequest'], retryKey?: string): Observable<components['schemas']['WorkspaceRole']> { const url = `/v1/workspaces/${workspaceId}/users/${userId}/roles`; return this.revisioned(this.http.put<components['schemas']['WorkspaceRoleResponse']>(url, body, this.mutation('PUT', url, body, retryKey, revision))).pipe(map((response) => response.workspaceRole)); }
+  inviteOrganizationUser(organizationId: string, userId: string, name = 'Invitation', retryKey?: string): Observable<components['schemas']['Invitation']> { const url = `/v1/organizations/${organizationId}/users/${userId}/invitations`; const body = { name }; return this.revisioned(this.http.post<components['schemas']['InvitationResponse']>(url, body, this.mutation('POST', url, body, retryKey))).pipe(map((response) => response.invitation)); }
   organizationPolicies(organizationId: string): Observable<unknown[]> { return this.http.get<{ items?: unknown[] }>(`/v1/organizations/${organizationId}/policies`, this.staff()).pipe(map((response) => response.items ?? [])); }
 
   catalogForms(workspaceId: string, search: CatalogSearch = {}): Observable<components['schemas']['CatalogPage']> {
@@ -94,6 +99,7 @@ export class SmartIntakeApiService {
   createCatalogTag(workspaceId: string, name: string, color?: string): Observable<CatalogTag> { return this.http.post<CatalogTag>(`/v1/workspaces/${workspaceId}/tags`, { name, ...(color ? { color } : {}) }, this.staff()); }
   effectiveCatalogSettings(workspaceId: string): Observable<CatalogSettings> { return this.http.get<CatalogSettings>(`/v1/workspaces/${workspaceId}/catalog/settings`, this.staff()); }
   updateCatalogSettings(workspaceId: string, body: components['schemas']['CatalogSettingsInput']): Observable<CatalogSettings> { return this.http.put<CatalogSettings>(`/v1/workspaces/${workspaceId}/catalog/settings`, body, this.staff()); }
+  workspaceMembers(workspaceId: string): Observable<{ accountId: string; email?: string; displayName?: string }[]> { return this.http.get<{ items?: { accountId: string; email?: string; displayName?: string }[] }>(`/v1/workspaces/${workspaceId}/members`, this.staff()).pipe(map((response) => response.items ?? [])); }
 
   activate(body: components['schemas']['AccountActivationRequest']): Observable<unknown> {
     return this.http.post('/v1/auth/activate', body, { withCredentials: true });
@@ -232,6 +238,25 @@ export class SmartIntakeApiService {
   private etag(revision: number) {
     return `"${revision}"`;
   }
+
+  /** Callers retain this opaque token only while retrying one unchanged user action. */
+  createMutationAction(): string { return crypto.randomUUID(); }
+
+  etagFor(resource: string): string | null { return this.revisionEtags.get(resource) ?? null; }
+
+  private mutation(method: string, url: string, body: unknown, retryKey?: string, revision?: number) {
+    const action = retryKey ?? this.createMutationAction();
+    let headers = new HttpHeaders({ 'Idempotency-Key': action });
+    if (revision !== undefined) headers = headers.set('If-Match', this.etag(revision));
+    return { headers, withCredentials: true, observe: 'response' as const };
+  }
+
+  private revisioned<T>(source: Observable<HttpResponse<T>>): Observable<T> {
+    return source.pipe(tap((response) => {
+      const etag = response.headers.get('ETag');
+      if (etag) this.revisionEtags.set(response.url ?? '', etag);
+    }), map((response) => response.body as T));
+  }
 }
 
 function wireInputAnswer(answer: unknown): GeneratedInputAnswer {
@@ -240,10 +265,10 @@ function wireInputAnswer(answer: unknown): GeneratedInputAnswer {
 
 function mapSession(source: Observable<unknown>): Observable<StaffSession> {
   return source.pipe(map((body) => {
-    const value = body as { authenticatedSession?: { safeIdentity?: StaffIdentity; organizations?: StaffOrganization[]; currentOrganizationId?: string | null }; safeIdentity?: StaffIdentity };
+    const value = body as { authenticatedSession?: { safeIdentity?: StaffIdentity; organizations?: StaffOrganization[]; currentOrganizationId?: string | null; currentWorkspaceId?: string | null }; safeIdentity?: StaffIdentity };
     const authenticated = value.authenticatedSession;
     const identity = authenticated?.safeIdentity ?? value.safeIdentity;
     if (!identity?.accountId || !identity.username) throw new Error('The server returned an invalid staff session.');
-    return { identity, organizations: authenticated?.organizations ?? [], currentOrganizationId: authenticated?.currentOrganizationId ?? null };
+    return { identity, organizations: authenticated?.organizations ?? [], currentOrganizationId: authenticated?.currentOrganizationId ?? null, currentWorkspaceId: authenticated?.currentWorkspaceId ?? null };
   }));
 }

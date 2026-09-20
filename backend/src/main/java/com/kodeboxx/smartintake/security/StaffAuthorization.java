@@ -53,7 +53,9 @@ public class StaffAuthorization {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Valid staff workspace session required");
     }
     String permitted = String.join("','", roles);
-    Integer memberships = db.queryForObject("select count(*) from memberships m join workspaces w on w.id=m.workspace_id join organizations o on o.id=w.organization_id where m.account_id=? and m.workspace_id=? and o.organization_status='active' and m.role in ('" + permitted + "')", Integer.class,
+    Integer memberships = db.queryForObject("select count(*) from memberships m join workspaces w on w.id=m.workspace_id join organizations o on o.id=w.organization_id "
+            + "join organization_memberships om on om.account_id=m.account_id and om.organization_id=w.organization_id "
+            + "where m.account_id=? and m.workspace_id=? and o.organization_status='active' and om.membership_status='active' and m.role in ('" + permitted + "')", Integer.class,
         account, workspaceId);
     if (memberships == null || memberships == 0)
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Current workspace role required");

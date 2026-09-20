@@ -6534,6 +6534,30 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CatalogSettingsInput'
+  /v1/workspaces/{workspace}/members:
+    parameters:
+    - *id004
+    get:
+      operationId: m6ListWorkspaceMembers
+      summary: List transferable current workspace members
+      x-implementation-status: implemented
+      x-authorization:
+        roles: *id011
+        tenantScope: current-server-workspace-membership
+      security:
+      - staffCookie: []
+        csrfHeader: []
+      responses:
+        '200':
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceMemberCollection'
+        '400': *id005
+        '401': *id006
+        '403': *id007
+        '404': *id008
 x-m0-operation-inventory:
   oNamed:
     source: docs/acceptance/v1.1/denominators/o-named.json
@@ -8531,39 +8555,88 @@ components:
       - safeIdentity
       - activationState
       - accountStatus
+      - awaitingSetup
       - organizations
-      - currentOrganizationId
       properties:
         safeIdentity:
-          $ref: '#/components/schemas/SafeAccountIdentity'
+          type: object
+          additionalProperties: false
+          required:
+          - accountId
+          - username
+          - displayName
+          properties:
+            accountId:
+              type: string
+              pattern: ^account-
+            username:
+              type: string
+            displayName:
+              type: string
         activationState:
           enum:
-          - awaiting-setup
           - active
+          - pending
         accountStatus:
-          const: active
+          enum:
+          - active
+          - suspended
+        awaitingSetup:
+          type: boolean
         organizations:
           type: array
           items:
-            $ref: '#/components/schemas/PermittedOrganizationChoice'
+            type: object
+            additionalProperties: false
+            required:
+            - organizationId
+            - name
+            - membershipState
+            - workspaces
+            properties:
+              organizationId:
+                type: string
+                pattern: ^organization-
+              name:
+                type: string
+              membershipState:
+                enum:
+                - active
+              workspaces:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: false
+                  required:
+                  - workspaceId
+                  - name
+                  - roles
+                  properties:
+                    workspaceId:
+                      type: string
+                      pattern: ^workspace-
+                    name:
+                      type: string
+                    roles:
+                      type: array
+                      items:
+                        enum:
+                        - workspace-administrator
+                        - author
+                        - reviewer
+                        - translator
+                        - publisher
+                        - response-viewer
+                        - response-exporter
+                        - auditor
         currentOrganizationId:
-          anyOf:
-          - $ref: '#/components/schemas/OpaqueId'
-          - type: 'null'
-      description: Authenticated safe identity, activation state and server-authorized
-        organization/workspace choices.
-      if:
-        properties:
-          activationState:
-            const: awaiting-setup
-        required:
-        - activationState
-      then:
-        properties:
-          organizations:
-            maxItems: 0
-          currentOrganizationId:
-            type: 'null'
+          type:
+          - string
+          - 'null'
+          pattern: ^organization-
+        currentWorkspaceId:
+          type: string
+          pattern: ^workspace-
     Form:
       type: object
       additionalProperties: false
@@ -9574,16 +9647,21 @@ components:
       type: object
       additionalProperties: false
       required:
-      - releaseId
-      - shareChannelIds
+      - activationToken
+      - password
+      - displayName
       properties:
-        releaseId:
-          $ref: '#/components/schemas/OpaqueId'
-        shareChannelIds:
-          type: array
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/OpaqueId'
+        activationToken:
+          type: string
+          minLength: 24
+        password:
+          type: string
+          minLength: 15
+          maxLength: 512
+        displayName:
+          type: string
+          minLength: 1
+          maxLength: 120
     PackageExportUpdateRequest:
       type: object
       additionalProperties: false
@@ -9793,7 +9871,7 @@ components:
           format: email
         password:
           type: string
-          minLength: 12
+          minLength: 15
           maxLength: 512
     AccountActionCreateRequest:
       type: object
@@ -9828,7 +9906,8 @@ components:
           minLength: 24
         password:
           type: string
-          minLength: 12
+          minLength: 15
+          maxLength: 512
         displayName:
           type: string
           minLength: 1
@@ -9845,7 +9924,8 @@ components:
           minLength: 1
         newPassword:
           type: string
-          minLength: 12
+          minLength: 15
+          maxLength: 512
     RecoveryRequest:
       type: object
       additionalProperties: false
@@ -9867,7 +9947,8 @@ components:
           minLength: 24
         newPassword:
           type: string
-          minLength: 12
+          minLength: 15
+          maxLength: 512
     InvitationAcceptanceRequest:
       type: object
       additionalProperties: false
@@ -9880,7 +9961,8 @@ components:
           minLength: 24
         password:
           type: string
-          minLength: 12
+          minLength: 15
+          maxLength: 512
     OrganizationUpdateRequest:
       type: object
       additionalProperties: false
@@ -11915,6 +11997,38 @@ components:
           type:
           - string
           - 'null'
+    WorkspaceMember:
+      type: object
+      additionalProperties: false
+      required:
+      - accountId
+      - membershipStatus
+      - roles
+      properties:
+        accountId:
+          type: string
+          pattern: ^account-[0-9a-fA-F-]{36}$
+        membershipStatus:
+          const: active
+        roles:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            enum: *id019
+    WorkspaceMemberCollection:
+      type: object
+      additionalProperties: false
+      required:
+      - requestId
+      - items
+      properties:
+        requestId:
+          $ref: '#/components/schemas/OpaqueId'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkspaceMember'
     CatalogTag:
       type: object
       additionalProperties: false

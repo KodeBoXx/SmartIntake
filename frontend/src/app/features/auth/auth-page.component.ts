@@ -30,6 +30,7 @@ type AuthViewState = 'ready' | 'loading' | 'invalid' | 'denied' | 'expired' | 'e
             <cui-input class="mt-4" label="Password" type="password" autocomplete="new-password" [(value)]="password" [error]="fieldError('password')" />
             <cui-input class="mt-4" label="Organization name" [(value)]="organizationName" />
             <cui-input class="mt-4" label="Workspace name" [(value)]="workspaceName" />
+            <cui-input class="mt-4" label="Bootstrap capability" type="password" autocomplete="one-time-code" [(value)]="bootstrapToken" />
             <cui-button class="mt-5" [disabled]="state() === 'loading'" (buttonClick)="bootstrap()">Set up Smart Intake</cui-button>
           } @else {
             <cui-input class="mt-4" label="Activation or reset token" autocomplete="one-time-code" [(value)]="token" [error]="fieldError('token')" />
@@ -60,6 +61,8 @@ export class AuthPageComponent {
   displayName = '';
   organizationName = '';
   workspaceName = '';
+  /** Kept only in this component until the setup request is sent. */
+  bootstrapToken = '';
 
   isError(): boolean { return ['invalid', 'denied', 'throttled', 'error'].includes(this.state()); }
   alertTitle(): string { return this.state() === 'invalid' ? 'Check your details' : this.title; }
@@ -86,7 +89,9 @@ export class AuthPageComponent {
   bootstrap(): void {
     if (!this.email || !this.password) { this.show('invalid'); return; }
     this.show('loading');
-    this.api.bootstrap({ email: this.email, password: this.password, organizationName: this.organizationName, workspaceName: this.workspaceName }).subscribe({
+    const bootstrapToken = this.bootstrapToken;
+    this.bootstrapToken = '';
+    this.api.bootstrap({ email: this.email, password: this.password, organizationName: this.organizationName, workspaceName: this.workspaceName, bootstrapToken }).subscribe({
       next: () => this.session.refresh().subscribe((state) => state === 'authenticated'
         ? void this.router.navigateByUrl(this.safeReturnUrl())
         : this.show(state === 'error' || state === 'anonymous' ? 'invalid' : state)),

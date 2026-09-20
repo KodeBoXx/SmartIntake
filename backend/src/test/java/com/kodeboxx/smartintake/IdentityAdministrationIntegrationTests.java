@@ -130,6 +130,27 @@ class IdentityAdministrationIntegrationTests {
   }
 
   @Test
+  void workspaceAdministratorsListTransferableMembersUsingOpaqueAccountIdsAndPublicRoles() {
+    UUID target = account("transferable@example.test");
+    db.update("insert into organization_memberships(account_id,organization_id,roles) values(?,?,array['member'])", target, organization);
+    db.update("insert into memberships(account_id,workspace_id,role) values(?,?,?)", target, workspace, "AUTHOR");
+    db.update("insert into memberships(account_id,workspace_id,role) values(?,?,?)", target, workspace, "RESPONSE_EXPORTER");
+
+    ResponseEntity<?> response = administration.workspaceMembers(opaque("workspace", workspace), request());
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    @SuppressWarnings("unchecked")
+    List<Map<String, Object>> members = (List<Map<String, Object>>) ((Map<String, Object>) response.getBody()).get("items");
+    Map<String, Object> member = members.stream().filter(item -> opaque("account", target).equals(item.get("accountId"))).findFirst().orElseThrow();
+    assertEquals("active", member.get("membershipStatus"));
+    assertEquals(List.of("author", "response-exporter"), member.get("roles"));
+
+    db.update("update memberships set role='AUTHOR' where account_id=? and workspace_id=?", actor, workspace);
+    ResponseStatusException denied = assertThrows(ResponseStatusException.class,
+        () -> administration.workspaceMembers(opaque("workspace", workspace), request()));
+    assertEquals(HttpStatus.FORBIDDEN, denied.getStatusCode());
+  }
+
+  @Test
   void recoveryUsesThirtyMinuteProofsAndCredentialChangeInvalidatesEveryOutstandingProof() {
     administration.recovery(new IdentityAdministrationService.Recovery("admin@example.test"));
     assertTrue(db.queryForObject("select bool_and(expires_at > now() + interval '29 minutes' and expires_at < now() + interval '31 minutes') from identity_secret_actions where account_id=? and action='self-recovery'", Boolean.class, actor));

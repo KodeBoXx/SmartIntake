@@ -38,6 +38,7 @@ class WorkspaceRoleAuthorizationIntegrationTests {
     db.update("insert into accounts(id,email,password_hash,account_status,activation_state) values(?,?,?,'active','active')", account, "roles@example.test", "hash");
     db.update("insert into organizations(id,name,organization_status) values(?,?, 'active')", organization, "Roles");
     db.update("insert into workspaces(id,organization_id,workspace_key,name) values(?,?,?,?)", workspace, organization, "roles", "Roles");
+    db.update("insert into organization_memberships(account_id,organization_id,roles,membership_status) values(?,?,array['member'],'active')", account, organization);
     db.update("insert into staff_sessions(token,account_id,expires_at,absolute_expires_at,last_seen_at) values(?,?,now()+interval '2 hours',now()+interval '12 hours',now())", UUID.fromString(token), account);
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.addHeader("X-Staff-Session", token);
@@ -84,7 +85,7 @@ class WorkspaceRoleAuthorizationIntegrationTests {
   @Test
   void organizationAdministratorWithoutWorkspaceGrantHasNoWorkspaceAccess() {
     UUID organization = db.queryForObject("select organization_id from workspaces where id=?", UUID.class, workspace);
-    db.update("insert into organization_memberships(account_id,organization_id,roles) values(?,?,array['owner','administrator'])", account, organization);
+    db.update("update organization_memberships set roles=array['owner','administrator'] where account_id=? and organization_id=?", account, organization);
     denied(() -> authorization.authorizeWorkspaceAdministration("roles", token));
     denied(() -> authorization.authorizeAuthoring("roles", token));
     denied(() -> authorization.authorizeResponseRead("roles", token));

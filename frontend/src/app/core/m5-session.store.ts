@@ -85,7 +85,12 @@ export class StaffSessionStore {
     this.organizations.set(session.organizations);
     this.currentOrganizationId.set(session.currentOrganizationId ?? session.organizations[0]?.organizationId ?? null);
     const organization = session.organizations.find((item) => item.organizationId === this.currentOrganizationId()) ?? session.organizations[0];
-    this.currentWorkspaceId.set(organization?.workspaces[0]?.workspaceId ?? null);
+    const serverWorkspace = session.currentWorkspaceId;
+    this.currentWorkspaceId.set(
+      serverWorkspace && organization?.workspaces.some((workspace) => workspace.workspaceId === serverWorkspace)
+        ? serverWorkspace
+        : organization?.workspaces[0]?.workspaceId ?? null,
+    );
     this.csrfToken.set(session.csrfToken ?? null);
     this.csrf.set(session.csrfToken ?? null);
     this.state.set('authenticated');

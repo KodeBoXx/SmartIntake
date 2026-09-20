@@ -20,8 +20,9 @@ public class AuthenticationController {
   }
 
   @PostMapping("/bootstrap")
-  public ResponseEntity<?> bootstrap(@RequestBody IdentitySessionService.BootstrapRequest input, HttpServletRequest request) {
-    return identity.bootstrap(input, request);
+  public ResponseEntity<?> bootstrap(@RequestBody IdentitySessionService.BootstrapRequest input,
+      @RequestHeader(value = "X-Bootstrap-Token", required = false) String bootstrapToken, HttpServletRequest request) {
+    return identity.bootstrap(input, bootstrapToken, request);
   }
 
   @GetMapping("/session")
