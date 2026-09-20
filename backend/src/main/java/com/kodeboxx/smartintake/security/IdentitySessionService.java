@@ -159,10 +159,12 @@ public class IdentitySessionService {
       UUID account = (UUID) row.get("account_id");
       String email = (String) row.get("email");
       List<Map<String, Object>> memberships = setupOnly ? List.of() : db.queryForList(
-          "select o.id organization_id,o.name organization_name,w.id workspace_id,w.name workspace_name,m.role"
-              + " from memberships m join workspaces w on w.id=m.workspace_id join organizations o on o.id=w.organization_id"
-              + " join organization_memberships om on om.account_id=m.account_id and om.organization_id=o.id"
-              + " where m.account_id=? and om.membership_status='active' and o.organization_status='active' order by o.name,w.name,m.role", account);
+          "select o.id organization_id,o.name organization_name,w.id workspace_id,w.name workspace_name,array_remove(array_agg(m.role order by m.role),null) roles"
+              + " from organization_memberships om join organizations o on o.id=om.organization_id join workspaces w on w.organization_id=o.id"
+              + " left join memberships m on m.account_id=om.account_id and m.workspace_id=w.id"
+              + " where om.account_id=? and om.membership_status='active' and o.organization_status='active'"
+              + " and (m.account_id is not null or om.roles && array['owner','administrator'])"
+              + " group by o.id,o.name,w.id,w.name order by o.name,w.name", account);
       List<Map<String, Object>> organizationGrants = setupOnly ? List.of() : db.queryForList(
           "select o.id organization_id,o.name organization_name,om.roles from organization_memberships om join organizations o on o.id=om.organization_id"
               + " where om.account_id=? and om.membership_status='active' and o.organization_status='active' order by o.name", account);
@@ -221,7 +223,10 @@ public class IdentitySessionService {
     Duration idleTtl = setupOnly ? Duration.ofMinutes(15) : IDLE_TTL;
     Duration absoluteTtl = setupOnly ? Duration.ofMinutes(15) : ABSOLUTE_TTL;
     List<Map<String, Object>> contexts = db.queryForList(
-        "select w.organization_id,w.id from memberships m join workspaces w on w.id=m.workspace_id where m.account_id=? order by w.created_at limit 1", account);
+        "select w.organization_id,w.id from organization_memberships om join workspaces w on w.organization_id=om.organization_id"
+            + " left join memberships m on m.account_id=om.account_id and m.workspace_id=w.id"
+            + " where om.account_id=? and om.membership_status='active' and (m.account_id is not null or om.roles && array['owner','administrator'])"
+            + " order by w.created_at limit 1", account);
     UUID organization = contexts.isEmpty() ? null : (UUID) contexts.get(0).get("organization_id");
     UUID workspace = contexts.isEmpty() ? null : (UUID) contexts.get(0).get("id");
     db.update("insert into staff_sessions(token,account_id,expires_at,csrf_token_hash,last_seen_at,absolute_expires_at,updated_at,setup_only,current_organization_id,current_workspace_id) values(?,?,?,?,?,?,?,?,?,?)",
@@ -255,7 +260,7 @@ public class IdentitySessionService {
               "name", membership.get("organization_name"), "membershipState", "active", "organizationRoles", List.of(), "workspaces", new java.util.ArrayList<Map<String, Object>>())))
           .get("workspaces");
       workspaces.add(Map.of("workspaceId", opaque("workspace", (UUID) membership.get("workspace_id")),
-          "name", membership.get("workspace_name"), "roles", List.of(role((String) membership.get("role")))));
+          "name", membership.get("workspace_name"), "roles", sqlArray(membership.get("roles")).stream().map(IdentitySessionService::role).toList()));
     }
     Map<String, Object> authenticated = new LinkedHashMap<>();
     authenticated.put("safeIdentity", Map.of("accountId", opaque("account", account), "username", email, "displayName", displayName(email)));

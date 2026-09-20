@@ -529,6 +529,7 @@ def generated() -> dict[Path, bytes]:
         "get": catalog_operation("m6ListWorkspaceMembers", "List transferable current workspace members",
                                  ["workspace-administrator", "organization.owner", "organization.administrator"], json_response("WorkspaceMemberCollection")),
     }
+    api["paths"]["/v1/workspaces/{workspace}/members"]["get"]["x-authorization"]["tenantScope"] = "organization-visible-workspace"
     patch = api["paths"]["/v1/sessions/{s}"]["patch"]
     patch["parameters"] = [parameter for parameter in patch["parameters"] if parameter.get("name") == "s"]
     patch["responses"]["200"] = {

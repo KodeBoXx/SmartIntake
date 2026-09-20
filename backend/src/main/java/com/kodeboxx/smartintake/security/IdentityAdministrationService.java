@@ -856,7 +856,7 @@ public class IdentityAdministrationService {
   private static String opaque(String prefix) { return prefix + "-" + UUID.randomUUID(); }
   private static String opaque(String prefix, UUID id) { return prefix + "-" + id; }
   private static String organizationCursor(Instant snapshot, Instant createdAt, UUID id) {
-    String value = snapshot.toEpochMilli() + "|" + createdAt.toEpochMilli() + "|" + id;
+    String value = snapshot + "|" + createdAt + "|" + id;
     return Base64.getUrlEncoder().withoutPadding().encodeToString(value.getBytes(StandardCharsets.UTF_8));
   }
   private static OrganizationCursor organizationCursor(String value) {
@@ -864,7 +864,7 @@ public class IdentityAdministrationService {
     try {
       String[] parts = new String(Base64.getUrlDecoder().decode(value), StandardCharsets.UTF_8).split("\\|", -1);
       if (parts.length != 3) throw new IllegalArgumentException();
-      return new OrganizationCursor(Instant.ofEpochMilli(Long.parseLong(parts[0])), Instant.ofEpochMilli(Long.parseLong(parts[1])), UUID.fromString(parts[2]));
+      return new OrganizationCursor(Instant.parse(parts[0]), Instant.parse(parts[1]), UUID.fromString(parts[2]));
     } catch (Exception ignored) { badRequest(); return null; }
   }
   private static Map<String, Object> page() { return Map.of("limit", 50, "nextCursor", null); }

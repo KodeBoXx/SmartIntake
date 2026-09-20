@@ -6484,7 +6484,7 @@ paths:
         - workspace-administrator
         - organization.owner
         - organization.administrator
-        tenantScope: current-server-workspace-membership
+        tenantScope: organization-visible-workspace
       security:
       - staffCookie: []
       responses:
