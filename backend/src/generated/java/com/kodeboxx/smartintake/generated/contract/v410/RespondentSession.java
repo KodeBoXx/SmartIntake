@@ -21,6 +21,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.time.OffsetDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -39,7 +41,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   RespondentSession.JSON_PROPERTY_SESSION_REVISION
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class RespondentSession {
+public class RespondentSession extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_ID = "id";
   @jakarta.annotation.Nonnull
   private String id;
@@ -77,6 +79,7 @@ public class RespondentSession {
   private Integer sessionRevision;
 
   public RespondentSession() {
+
   }
 
   public RespondentSession id(@jakarta.annotation.Nonnull String id) {
@@ -323,18 +326,20 @@ public class RespondentSession {
         Objects.equals(this.updatedAt, respondentSession.updatedAt) &&
         Objects.equals(this.releaseId, respondentSession.releaseId) &&
         Objects.equals(this.expiresAt, respondentSession.expiresAt) &&
-        Objects.equals(this.sessionRevision, respondentSession.sessionRevision);
+        Objects.equals(this.sessionRevision, respondentSession.sessionRevision) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, kind, revision, status, createdAt, updatedAt, releaseId, expiresAt, sessionRevision);
+    return Objects.hash(id, kind, revision, status, createdAt, updatedAt, releaseId, expiresAt, sessionRevision, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class RespondentSession {\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    kind: ").append(toIndentedString(kind)).append("\n");
     sb.append("    revision: ").append(toIndentedString(revision)).append("\n");

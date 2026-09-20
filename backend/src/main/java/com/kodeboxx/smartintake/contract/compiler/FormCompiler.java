@@ -344,6 +344,7 @@ public final class FormCompiler {
 
   private void checkLocales(JsonNode candidate, State state) {
     Set<String> required = new HashSet<>(); collectKeys(candidate.path("data").path("fields"), required);
+    collectAcknowledgmentKeys(candidate.path("flow").path("phases"), required);
     required.add(candidate.path("titleKey").asText());
     for (JsonNode locale : candidate.path("supportedLocales")) {
       JsonNode messages = candidate.path("translations").path(locale.asText()).path("messages");
@@ -353,6 +354,13 @@ public final class FormCompiler {
   }
   private void collectKeys(JsonNode fields, Set<String> keys) {
     for (JsonNode field : fields) { keys.add(field.path("labelKey").asText()); if (field.path("itemSchema").has("fields")) collectKeys(field.path("itemSchema").path("fields"), keys); }
+  }
+  private void collectAcknowledgmentKeys(JsonNode node, Set<String> keys) {
+    if (node.isObject()) {
+      if ("acknowledgment".equals(node.path("control").asText()))
+        keys.add(node.path("acknowledgmentContentKey").asText());
+      node.elements().forEachRemaining(child -> collectAcknowledgmentKeys(child, keys));
+    } else if (node.isArray()) node.forEach(child -> collectAcknowledgmentKeys(child, keys));
   }
 
   private void checkReferences(JsonNode candidate, State state) {

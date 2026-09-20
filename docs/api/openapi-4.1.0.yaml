@@ -1927,31 +1927,16 @@ paths:
         roles:
         - public.share.start
         tenantScope: share-bound
-      x-implementation-status: contract-published
+      x-implementation-status: implemented
       responses:
         '201':
-          description: Successful response.
-          headers:
-            ETag:
-              $ref: '#/components/headers/ETag'
+          description: The unwrapped respondent session bootstrap used by the live
+            route.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RespondentSessionResponse'
-              examples:
-                success:
-                  value:
-                    requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
-                    respondentSession:
-                      id: respondentsession-01J2W5RFR3K24SFWDX2C0N9VW3
-                      kind: RespondentSession
-                      revision: 7
-                      status: active
-                      createdAt: '2026-09-18T00:00:00Z'
-                      updatedAt: '2026-09-18T00:00:00Z'
-                      releaseId: release-01J2W5RFR3K24SFWDX2C0N9VW3
-                      expiresAt: '2026-09-19T00:00:00Z'
-                      sessionRevision: 7
+                type: object
+                additionalProperties: true
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1978,20 +1963,18 @@ paths:
         schema:
           $ref: '#/components/schemas/OpaqueId'
         example: shareId-01J2W5RFR3K24SFWDX2C0N9VW3
-      - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SessionStartRequest'
-            examples:
-              valid:
-                value:
-                  locale: en-US
-                  timeZone: America/Toronto
-              invalid:
-                value: {}
+              type: object
+              additionalProperties: false
+              properties:
+                locale:
+                  type: string
+                timeZone:
+                  type: string
       x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical
         request hash, retained for at least seven days; equal requests replay the
         original result and changed-body reuse is 409. Session mutation replay keys
@@ -2077,31 +2060,16 @@ paths:
         roles:
         - respondent.session.self
         tenantScope: respondent-session
-      x-implementation-status: contract-published
+      x-implementation-status: implemented
       responses:
         '200':
-          description: Successful response.
-          headers:
-            ETag:
-              $ref: '#/components/headers/ETag'
+          description: The unwrapped authoritative session projection used by the
+            live route.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RespondentSessionResponse'
-              examples:
-                success:
-                  value:
-                    requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
-                    respondentSession:
-                      id: respondentsession-01J2W5RFR3K24SFWDX2C0N9VW3
-                      kind: RespondentSession
-                      revision: 7
-                      status: active
-                      createdAt: '2026-09-18T00:00:00Z'
-                      updatedAt: '2026-09-18T00:00:00Z'
-                      releaseId: release-01J2W5RFR3K24SFWDX2C0N9VW3
-                      expiresAt: '2026-09-19T00:00:00Z'
-                      sessionRevision: 7
+                type: object
+                additionalProperties: true
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':

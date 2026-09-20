@@ -388,10 +388,14 @@ public final class TypedAnswerRuntime {
         .forEach(field -> {
           Address address = new Address(field.id(), List.of());
           state.itemOrder.put(address, field.fixedItemIds());
+          requireStateLimits(state);
           putActiveCell(state, address, structuralCell(field, Provenance.system, changedAt));
         });
     roots.values().stream().sorted(Comparator.comparing(Field::id))
-        .forEach(field -> applyDefault(state, field, List.of(), changedAt));
+        .forEach(field -> {
+          applyDefault(state, field, List.of(), changedAt);
+          requireStateLimits(state);
+        });
     return state;
   }
 
@@ -401,6 +405,7 @@ public final class TypedAnswerRuntime {
     if ("list".equals(field.type()) && !field.fixedItemIds().isEmpty()
         && !state.itemOrder.containsKey(address)) {
       state.itemOrder.put(address, field.fixedItemIds());
+      requireStateLimits(state);
       putActiveCell(state, address, structuralCell(field, Provenance.system, changedAt));
     }
     if (answer != null && !state.cells.containsKey(address))
@@ -468,6 +473,14 @@ public final class TypedAnswerRuntime {
     if (!state.cells.containsKey(address) && state.cells.size() >= MAX_ACTIVE_CELLS)
       throw problem("ACTIVE_CELL_LIMIT");
     state.cells.put(address, cell);
+  }
+
+  private void requireStateLimits(State state) {
+    if (state.cells.size() > MAX_ACTIVE_CELLS) throw problem("ACTIVE_CELL_LIMIT");
+    if (state.retainedCells.size() > MAX_ACTIVE_CELLS) throw problem("RETAINED_CELL_LIMIT");
+    if (state.retiredItems.size() > MAX_ACTIVE_CELLS) throw problem("RETIRED_ITEM_LIMIT");
+    if (state.itemOrder.size() > MAX_ACTIVE_CELLS
+        || allActiveItemIds(state).size() > MAX_ACTIVE_CELLS) throw problem("ACTIVE_ITEM_LIMIT");
   }
 
   /** Returns the recursive server-owned answer projection used by expressions, review, and clients. */

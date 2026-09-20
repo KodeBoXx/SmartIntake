@@ -4700,13 +4700,7 @@ export interface operations {
     "ON-post-v1-public-forms-shareid-sessions-1ca37406cb": {
         parameters: {
             query?: never;
-            header: {
-                /**
-                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
-                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
-            };
+            header?: never;
             path: {
                 /**
                  * @description Opaque server-issued identifier; it is never an authority grant.
@@ -4716,20 +4710,24 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody: {
+        requestBody?: {
             content: {
-                "application/json": components["schemas"]["SessionStartRequest"];
+                "application/json": {
+                    locale?: string;
+                    timeZone?: string;
+                };
             };
         };
         responses: {
-            /** @description Successful response. */
+            /** @description The unwrapped respondent session bootstrap used by the live route. */
             201: {
                 headers: {
-                    ETag: components["headers"]["ETag"];
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["RespondentSessionResponse"];
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
             400: components["responses"]["BadRequest"];
@@ -4798,14 +4796,15 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Successful response. */
+            /** @description The unwrapped authoritative session projection used by the live route. */
             200: {
                 headers: {
-                    ETag: components["headers"]["ETag"];
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["RespondentSessionResponse"];
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
             400: components["responses"]["BadRequest"];

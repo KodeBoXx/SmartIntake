@@ -272,7 +272,9 @@ public final class TypedSessionRuntimeService {
       if (!(raw instanceof Map<?, ?> source)) continue;
       Map<String, Object> row = (Map<String, Object>) source;
       String contentKey = Objects.toString(row.get("label"), Objects.toString(row.get("fieldId"), ""));
-      String content = messages.path(contentKey).asText(contentKey);
+      JsonNode localized = messages.path(contentKey);
+      if (!localized.isTextual()) throw new IllegalArgumentException("ACKNOWLEDGMENT_CONTENT_MISSING");
+      String content = localized.asText();
       row.put("locale", locale);
       row.put("contentKey", contentKey);
       row.put("contentHash", CanonicalJson.sha256(json.valueToTree(Map.of(

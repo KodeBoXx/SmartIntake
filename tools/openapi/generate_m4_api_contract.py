@@ -252,6 +252,29 @@ def generated() -> dict[Path, bytes]:
     }
     for operation_config in (patch, submit, attempt):
         operation_config["x-implementation-status"] = "implemented"
+    start = api["paths"]["/v1/public/forms/{shareId}/sessions"]["post"]
+    start["parameters"] = [parameter for parameter in start["parameters"]
+                           if parameter.get("name") == "shareId"]
+    start["requestBody"] = {
+        "required": False,
+        "content": {"application/json": {"schema": {
+            "type": "object", "additionalProperties": False,
+            "properties": {"locale": {"type": "string"}, "timeZone": {"type": "string"}},
+        }}},
+    }
+    start["responses"]["201"] = {
+        "description": "The unwrapped respondent session bootstrap used by the live route.",
+        "content": {"application/json": {"schema": {"type": "object", "additionalProperties": True}}},
+    }
+    read_session = api["paths"]["/v1/sessions/{s}"]["get"]
+    read_session["parameters"] = [parameter for parameter in read_session["parameters"]
+                                  if parameter.get("name") == "s"]
+    read_session["responses"]["200"] = {
+        "description": "The unwrapped authoritative session projection used by the live route.",
+        "content": {"application/json": {"schema": {"type": "object", "additionalProperties": True}}},
+    }
+    for operation_config in (start, read_session):
+        operation_config["x-implementation-status"] = "implemented"
     api["paths"]["/v1/capabilities"]["get"]["responses"]["200"] = {
         "description": "The immutable legacy 4.0.0 capability representation. The additive representation is published at /v1/schemas/capabilities/4.1.0.",
         "content": {"application/json": {"schema": {"$ref": "#/components/schemas/LegacyCapabilityRegistry"}}},

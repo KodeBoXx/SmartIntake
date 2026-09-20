@@ -21,6 +21,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.kodeboxx.smartintake.generated.contract.v410.RespondentSession;
+import java.util.HashMap;
+import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -32,7 +34,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   RespondentSessionResponse.JSON_PROPERTY_RESPONDENT_SESSION
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class RespondentSessionResponse {
+public class RespondentSessionResponse extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_REQUEST_ID = "requestId";
   @jakarta.annotation.Nonnull
   private String requestId;
@@ -42,6 +44,7 @@ public class RespondentSessionResponse {
   private RespondentSession respondentSession;
 
   public RespondentSessionResponse() {
+
   }
 
   public RespondentSessionResponse requestId(@jakarta.annotation.Nonnull String requestId) {
@@ -104,18 +107,20 @@ public class RespondentSessionResponse {
     }
     RespondentSessionResponse respondentSessionResponse = (RespondentSessionResponse) o;
     return Objects.equals(this.requestId, respondentSessionResponse.requestId) &&
-        Objects.equals(this.respondentSession, respondentSessionResponse.respondentSession);
+        Objects.equals(this.respondentSession, respondentSessionResponse.respondentSession) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(requestId, respondentSession);
+    return Objects.hash(requestId, respondentSession, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class RespondentSessionResponse {\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    requestId: ").append(toIndentedString(requestId)).append("\n");
     sb.append("    respondentSession: ").append(toIndentedString(respondentSession)).append("\n");
     sb.append("}");

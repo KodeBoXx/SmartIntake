@@ -26,27 +26,28 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
- * SessionStartRequest
+ * ONPostV1PublicFormsShareidSessions1ca37406cbRequest
  */
 @JsonPropertyOrder({
-  SessionStartRequest.JSON_PROPERTY_LOCALE,
-  SessionStartRequest.JSON_PROPERTY_TIME_ZONE
+  ONPostV1PublicFormsShareidSessions1ca37406cbRequest.JSON_PROPERTY_LOCALE,
+  ONPostV1PublicFormsShareidSessions1ca37406cbRequest.JSON_PROPERTY_TIME_ZONE
 })
+@JsonTypeName("ON_post_v1_public_forms_shareid_sessions_1ca37406cb_request")
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class SessionStartRequest extends HashMap<String, Object> {
+public class ONPostV1PublicFormsShareidSessions1ca37406cbRequest extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_LOCALE = "locale";
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   private String locale;
 
   public static final String JSON_PROPERTY_TIME_ZONE = "timeZone";
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   private String timeZone;
 
-  public SessionStartRequest() {
+  public ONPostV1PublicFormsShareidSessions1ca37406cbRequest() {
 
   }
 
-  public SessionStartRequest locale(@jakarta.annotation.Nonnull String locale) {
+  public ONPostV1PublicFormsShareidSessions1ca37406cbRequest locale(@jakarta.annotation.Nullable String locale) {
     
     this.locale = locale;
     return this;
@@ -56,9 +57,9 @@ public class SessionStartRequest extends HashMap<String, Object> {
    * Get locale
    * @return locale
    */
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_LOCALE)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
   public String getLocale() {
     return locale;
@@ -66,12 +67,12 @@ public class SessionStartRequest extends HashMap<String, Object> {
 
 
   @JsonProperty(JSON_PROPERTY_LOCALE)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setLocale(@jakarta.annotation.Nonnull String locale) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setLocale(@jakarta.annotation.Nullable String locale) {
     this.locale = locale;
   }
 
-  public SessionStartRequest timeZone(@jakarta.annotation.Nonnull String timeZone) {
+  public ONPostV1PublicFormsShareidSessions1ca37406cbRequest timeZone(@jakarta.annotation.Nullable String timeZone) {
     
     this.timeZone = timeZone;
     return this;
@@ -81,9 +82,9 @@ public class SessionStartRequest extends HashMap<String, Object> {
    * Get timeZone
    * @return timeZone
    */
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_TIME_ZONE)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
   public String getTimeZone() {
     return timeZone;
@@ -91,8 +92,8 @@ public class SessionStartRequest extends HashMap<String, Object> {
 
 
   @JsonProperty(JSON_PROPERTY_TIME_ZONE)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setTimeZone(@jakarta.annotation.Nonnull String timeZone) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setTimeZone(@jakarta.annotation.Nullable String timeZone) {
     this.timeZone = timeZone;
   }
 
@@ -104,9 +105,9 @@ public class SessionStartRequest extends HashMap<String, Object> {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    SessionStartRequest sessionStartRequest = (SessionStartRequest) o;
-    return Objects.equals(this.locale, sessionStartRequest.locale) &&
-        Objects.equals(this.timeZone, sessionStartRequest.timeZone) &&
+    ONPostV1PublicFormsShareidSessions1ca37406cbRequest onPostV1PublicFormsShareidSessions1ca37406cbRequest = (ONPostV1PublicFormsShareidSessions1ca37406cbRequest) o;
+    return Objects.equals(this.locale, onPostV1PublicFormsShareidSessions1ca37406cbRequest.locale) &&
+        Objects.equals(this.timeZone, onPostV1PublicFormsShareidSessions1ca37406cbRequest.timeZone) &&
         super.equals(o);
   }
 
@@ -118,7 +119,7 @@ public class SessionStartRequest extends HashMap<String, Object> {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class SessionStartRequest {\n");
+    sb.append("class ONPostV1PublicFormsShareidSessions1ca37406cbRequest {\n");
     sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    locale: ").append(toIndentedString(locale)).append("\n");
     sb.append("    timeZone: ").append(toIndentedString(timeZone)).append("\n");

@@ -625,9 +625,10 @@ public class IntakeApplicationService {
     }
     UUID sub = UUID.randomUUID();
     Instant submittedAt = Instant.now();
+    Map<String, Object> pinnedManifest = canonical ? pinnedRuntimeManifest(s.releaseId()) : null;
     Map<String, Object> envelope = canonical
         ? canonicalEnvelope(sub, s, definition, acceptedAnswers, acceptedRuntimeState,
-            acceptedAcknowledgments, acceptedReviewDigest, submittedAt)
+            acceptedAcknowledgments, acceptedReviewDigest, pinnedManifest, submittedAt)
         : Map.of("contractVersion", "4.0.0", "submissionId", sub, "formId", s.formId(),
             "answers", acceptedAnswers, "submittedAt", submittedAt.toString());
     if (canonical) contracts.requireValid("submission-envelope", "4.0.0", json.valueToTree(envelope));
@@ -643,7 +644,7 @@ public class IntakeApplicationService {
         acceptedReviewProjection == null ? null : stringify(acceptedReviewProjection),
         acceptedReviewDigest,
         canonical ? in.attemptId() : null,
-        canonical ? stringify(runtimeManifest(definition)) : null);
+        canonical ? stringify(pinnedManifest) : null);
     if (acceptedRuntimeState == null) {
       db.update("update sessions set status='SUBMITTED',answers=cast(? as jsonb) where id=?",
           stringify(acceptedAnswers), id);
@@ -729,18 +730,13 @@ public class IntakeApplicationService {
   private Map<String, Object> canonicalEnvelope(
       UUID submissionId, S session, JsonNode definition, Map<String, Object> answers,
       Map<String, Object> runtimeState, List<Map<String, Object>> acknowledgments,
-      String reviewDigest, Instant submittedAt) {
+      String reviewDigest, Map<String, Object> manifest, Instant submittedAt) {
     Map<String, Object> lineage = db.queryForObject("""
         select w.id,o.id from forms f join workspaces w on w.id=f.workspace_id
         join organizations o on o.id=w.organization_id where f.id=?
         """, (rs, row) -> Map.of("workspace", (UUID) rs.getObject(1), "tenant", (UUID) rs.getObject(2)),
         session.formId());
     String packageHash = CanonicalJson.sha256(definition);
-    String manifestJson = db.queryForObject(
-        "select runtime_manifest::text from form_releases where id=?", String.class, session.releaseId());
-    if (manifestJson == null) throw bad("RUNTIME_MANIFEST_MISSING", "Release runtime manifest is not pinned");
-    Map<String, Object> manifest = parse(manifestJson);
-    contracts.requireValid("runtime-manifest", "4.0.0", json.valueToTree(manifest));
     String manifestHash = Objects.toString(manifest.get("runtimeManifestHash"));
     Map<String, Object> release = Map.of(
         "releaseId", canonicalId("release", session.releaseId()),
@@ -779,6 +775,15 @@ public class IntakeApplicationService {
     return Map.copyOf(envelope);
   }
 
+  private Map<String, Object> pinnedRuntimeManifest(UUID releaseId) {
+    String manifestJson = db.queryForObject(
+        "select runtime_manifest::text from form_releases where id=?", String.class, releaseId);
+    if (manifestJson == null) throw bad("RUNTIME_MANIFEST_MISSING", "Release runtime manifest is not pinned");
+    Map<String, Object> manifest = parse(manifestJson);
+    contracts.requireValid("runtime-manifest", "4.0.0", json.valueToTree(manifest));
+    return manifest;
+  }
+
   private Map<String, Object> runtimeManifest(JsonNode definition) {
     Map<String, Object> manifest = new LinkedHashMap<>();
     manifest.put("schemaVersion", "4.0.0");
@@ -787,12 +792,12 @@ public class IntakeApplicationService {
     manifest.put("runtimeManifestVersion", "1");
     manifest.put("runtimeManifestHash", "sha256:" + "0".repeat(64));
     manifest.put("packageHash", CanonicalJson.sha256(definition));
-    manifest.put("policyVersion", "canonical-runtime-1");
+    manifest.put("policyVersion", CanonicalJson.sha256(definition.path("policies")));
     manifest.put("timeZoneDatabaseVersion", TimeZoneRegistry.VERSION);
     List<Map<String, Object>> resolvedComponents = new ArrayList<>();
     for (JsonNode dependency : definition.path("dependencies"))
       resolvedComponents.add(Map.of(
-          "kind", "extension", "id", dependency.path("id").asText(),
+          "kind", dependency.path("kind").asText("extension"), "id", dependency.path("id").asText(),
           "version", dependency.path("version").asText(),
           "digest", dependency.path("digest").asText()));
     manifest.put("resolvedComponents", resolvedComponents);
