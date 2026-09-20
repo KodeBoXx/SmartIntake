@@ -86,6 +86,10 @@ class FormCompilerTests {
     ObjectNode dependencyCycle = canonical(); ((ArrayNode) dependencyCycle.path("dependencies")).add(json.readTree("""
         {"kind":"extension","id":"cycle","version":"1","digest":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","dependsOnId":"cycle"}"""));
     assertCode(compiler.compile(dependencyCycle), "DEPENDENCY_CYCLE"); // C dependency-cycle
+
+    ObjectNode assetDependency = canonical(); ((ArrayNode) assetDependency.path("dependencies")).add(json.readTree("""
+        {"kind":"asset","id":"asset_dependency","version":"1.0.0","digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}"""));
+    assertCode(compiler.compile(assetDependency), "ASSET_DEPENDENCY_UNREPRESENTABLE");
   }
 
   @Test

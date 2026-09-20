@@ -55,6 +55,7 @@ public final class FormCompiler {
     checkRoutes(candidate, state);
     checkLocales(candidate, state);
     checkReferences(candidate, state);
+    checkRuntimeDependencies(candidate, state);
     checkDependencyCycles(candidate, state);
     checkFixedMatrices(candidate.path("flow").path("phases"), "/flow/phases", state);
     if (!problems.isEmpty()) return new CompilationResult(null, problems);
@@ -65,6 +66,15 @@ public final class FormCompiler {
     List<CompiledForm.CompiledPage> pages = state.pages.stream().map(page -> new CompiledForm.CompiledPage(
         page.id, page.order, page.targets, page.review)).toList();
     return new CompilationResult(new CompiledForm(VERSION, candidate, fields, pages, state.expressionNodes, state.reviewPages), problems);
+  }
+
+  private void checkRuntimeDependencies(JsonNode candidate, State state) {
+    for (int index = 0; index < candidate.path("dependencies").size(); index++) {
+      if ("asset".equals(candidate.path("dependencies").get(index).path("kind").asText())) {
+        state.error("ASSET_DEPENDENCY_UNREPRESENTABLE", "/dependencies/" + index,
+            "Asset dependencies are not publishable because the immutable runtime manifest cannot retain their version.");
+      }
+    }
   }
 
   private void collectFields(JsonNode nodes, String pointer, int repeaterDepth, List<String> listAncestors,
