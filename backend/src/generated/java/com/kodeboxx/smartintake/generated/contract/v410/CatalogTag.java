@@ -20,11 +20,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import java.time.OffsetDateTime;
 import java.util.UUID;
-import org.openapitools.jackson.nullable.JsonNullable;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.openapitools.jackson.nullable.JsonNullable;
-import java.util.NoSuchElementException;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -34,7 +31,9 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 @JsonPropertyOrder({
   CatalogTag.JSON_PROPERTY_ID,
   CatalogTag.JSON_PROPERTY_NAME,
-  CatalogTag.JSON_PROPERTY_COLOR
+  CatalogTag.JSON_PROPERTY_COLOR,
+  CatalogTag.JSON_PROPERTY_CREATED_AT,
+  CatalogTag.JSON_PROPERTY_UPDATED_AT
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
 public class CatalogTag {
@@ -48,7 +47,15 @@ public class CatalogTag {
 
   public static final String JSON_PROPERTY_COLOR = "color";
   @jakarta.annotation.Nullable
-  private JsonNullable<String> color = JsonNullable.<String>undefined();
+  private String color;
+
+  public static final String JSON_PROPERTY_CREATED_AT = "createdAt";
+  @jakarta.annotation.Nonnull
+  private OffsetDateTime createdAt;
+
+  public static final String JSON_PROPERTY_UPDATED_AT = "updatedAt";
+  @jakarta.annotation.Nonnull
+  private OffsetDateTime updatedAt;
 
   public CatalogTag() {
   }
@@ -104,8 +111,8 @@ public class CatalogTag {
   }
 
   public CatalogTag color(@jakarta.annotation.Nullable String color) {
-    this.color = JsonNullable.<String>of(color);
     
+    this.color = color;
     return this;
   }
 
@@ -114,26 +121,68 @@ public class CatalogTag {
    * @return color
    */
   @jakarta.annotation.Nullable
-  @JsonIgnore
+  @JsonProperty(JSON_PROPERTY_COLOR)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
   public String getColor() {
-        return color.orElse(null);
-  }
-
-  @JsonProperty(JSON_PROPERTY_COLOR)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-
-  public JsonNullable<String> getColor_JsonNullable() {
     return color;
   }
-  
+
+
   @JsonProperty(JSON_PROPERTY_COLOR)
-  public void setColor_JsonNullable(JsonNullable<String> color) {
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setColor(@jakarta.annotation.Nullable String color) {
     this.color = color;
   }
 
-  public void setColor(@jakarta.annotation.Nullable String color) {
-    this.color = JsonNullable.<String>of(color);
+  public CatalogTag createdAt(@jakarta.annotation.Nonnull OffsetDateTime createdAt) {
+    
+    this.createdAt = createdAt;
+    return this;
+  }
+
+  /**
+   * Get createdAt
+   * @return createdAt
+   */
+  @jakarta.annotation.Nonnull
+  @JsonProperty(JSON_PROPERTY_CREATED_AT)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+
+  public OffsetDateTime getCreatedAt() {
+    return createdAt;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_CREATED_AT)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setCreatedAt(@jakarta.annotation.Nonnull OffsetDateTime createdAt) {
+    this.createdAt = createdAt;
+  }
+
+  public CatalogTag updatedAt(@jakarta.annotation.Nonnull OffsetDateTime updatedAt) {
+    
+    this.updatedAt = updatedAt;
+    return this;
+  }
+
+  /**
+   * Get updatedAt
+   * @return updatedAt
+   */
+  @jakarta.annotation.Nonnull
+  @JsonProperty(JSON_PROPERTY_UPDATED_AT)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+
+  public OffsetDateTime getUpdatedAt() {
+    return updatedAt;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_UPDATED_AT)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setUpdatedAt(@jakarta.annotation.Nonnull OffsetDateTime updatedAt) {
+    this.updatedAt = updatedAt;
   }
 
   @Override
@@ -147,23 +196,14 @@ public class CatalogTag {
     CatalogTag catalogTag = (CatalogTag) o;
     return Objects.equals(this.id, catalogTag.id) &&
         Objects.equals(this.name, catalogTag.name) &&
-        equalsNullable(this.color, catalogTag.color);
-  }
-
-  private static <T> boolean equalsNullable(JsonNullable<T> a, JsonNullable<T> b) {
-    return a == b || (a != null && b != null && a.isPresent() && b.isPresent() && Objects.deepEquals(a.get(), b.get()));
+        Objects.equals(this.color, catalogTag.color) &&
+        Objects.equals(this.createdAt, catalogTag.createdAt) &&
+        Objects.equals(this.updatedAt, catalogTag.updatedAt);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, name, hashCodeNullable(color));
-  }
-
-  private static <T> int hashCodeNullable(JsonNullable<T> a) {
-    if (a == null) {
-      return 1;
-    }
-    return a.isPresent() ? Arrays.deepHashCode(new Object[]{a.get()}) : 31;
+    return Objects.hash(id, name, color, createdAt, updatedAt);
   }
 
   @Override
@@ -173,6 +213,8 @@ public class CatalogTag {
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("    color: ").append(toIndentedString(color)).append("\n");
+    sb.append("    createdAt: ").append(toIndentedString(createdAt)).append("\n");
+    sb.append("    updatedAt: ").append(toIndentedString(updatedAt)).append("\n");
     sb.append("}");
     return sb.toString();
   }

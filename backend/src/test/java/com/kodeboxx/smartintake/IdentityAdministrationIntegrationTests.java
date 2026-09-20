@@ -6,7 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.kodeboxx.smartintake.security.IdentityAdministrationService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.time.Instant;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -30,9 +34,11 @@ import org.springframework.web.server.ResponseStatusException;
 class IdentityAdministrationIntegrationTests {
   @Autowired JdbcTemplate db;
   @Autowired IdentityAdministrationService administration;
+  @Autowired ObjectMapper json;
 
   UUID actor;
   UUID organization;
+  UUID workspace;
   String sessionToken;
 
   @BeforeEach
@@ -40,9 +46,9 @@ class IdentityAdministrationIntegrationTests {
     db.execute("truncate table staff_sessions, identity_secret_actions, identity_invitations, organization_memberships, platform_roles, memberships, workspaces, organizations, accounts cascade");
     actor = account("admin@example.test");
     organization = organization("Primary");
-    UUID workspace = UUID.randomUUID();
+    workspace = UUID.randomUUID();
     db.update("insert into workspaces(id,organization_id,workspace_key,name) values(?,?,?,?)", workspace, organization, "primary", "Primary");
-    db.update("insert into memberships(account_id,workspace_id,role) values(?,?,?)", actor, workspace, "OWNER");
+    db.update("insert into memberships(account_id,workspace_id,role) values(?,?,?)", actor, workspace, "WORKSPACE_ADMINISTRATOR");
     db.update("insert into organization_memberships(account_id,organization_id,roles) values(?,?,array['owner','administrator'])", actor, organization);
     db.update("insert into platform_roles(account_id,role) values(?,'administrator')", actor);
     sessionToken = UUID.randomUUID().toString();
@@ -67,6 +73,7 @@ class IdentityAdministrationIntegrationTests {
   @Test
   void invitationReplacementRevokesPriorProofAndUnknownRecipientCreatesAccountOnAcceptance() {
     UUID invited = account("invitee@example.test");
+    db.update("update accounts set password_hash=? where id=?", new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().encode("password-for-invite"), invited);
     ResponseEntity<?> first = administration.invite(opaque("organization", organization), opaque("account", invited), request());
     ResponseEntity<?> second = administration.invite(opaque("organization", organization), opaque("account", invited), request());
     String oldProof = first.getHeaders().getFirst("X-Invitation-Copy-Link").substring("/invite/".length());
@@ -109,6 +116,95 @@ class IdentityAdministrationIntegrationTests {
     assertThrows(ResponseStatusException.class, () -> administration.workspaceRoles("missing", opaque("account", target), new IdentityAdministrationService.Roles(List.of("administrator")), request()));
   }
 
+  @Test
+  void workspaceRoleApiPersistsOnlyExactPrdRolesAndRejectsReplacedVocabulary() {
+    UUID target = account("workspace-role@example.test");
+    db.update("insert into organization_memberships(account_id,organization_id,roles) values(?,?,array['member'])", target, organization);
+    administration.workspaceRoles("primary", opaque("account", target),
+        new IdentityAdministrationService.Roles(List.of("author", "response-exporter", "translator")), request());
+    assertEquals(List.of("AUTHOR", "RESPONSE_EXPORTER", "TRANSLATOR"), db.queryForList(
+        "select role from memberships where account_id=? and workspace_id=? order by role", String.class, target, workspace));
+    ResponseStatusException rejected = assertThrows(ResponseStatusException.class, () -> administration.workspaceRoles("primary", opaque("account", target),
+        new IdentityAdministrationService.Roles(List.of("owner", "editor", "analyst")), request()));
+    assertEquals(HttpStatus.BAD_REQUEST, rejected.getStatusCode());
+  }
+
+  @Test
+  void recoveryUsesThirtyMinuteProofsAndCredentialChangeInvalidatesEveryOutstandingProof() {
+    administration.recovery(new IdentityAdministrationService.Recovery("admin@example.test"));
+    assertTrue(db.queryForObject("select bool_and(expires_at > now() + interval '29 minutes' and expires_at < now() + interval '31 minutes') from identity_secret_actions where account_id=? and action='self-recovery'", Boolean.class, actor));
+
+    String proof = "superseded-recovery-proof";
+    db.update("insert into identity_secret_actions(id,account_id,action,token_hash,expires_at) values(?,?, 'organization-recovery', ?, now()+interval '24 hours')",
+        UUID.randomUUID(), actor, sha256(proof));
+    db.update("update accounts set password_hash=? where id=?", new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().encode("current-password-15"), actor);
+    assertEquals(HttpStatus.NO_CONTENT, administration.passwordChange(new IdentityAdministrationService.PasswordChange("current-password-15", "replacement-password"), request()).getStatusCode());
+    assertEquals(0, db.queryForObject("select count(*) from identity_secret_actions where account_id=? and used_at is null", Integer.class, actor));
+    assertThrows(ResponseStatusException.class, () -> administration.reset(new IdentityAdministrationService.TokenPassword(proof, "another-password")));
+  }
+
+  @Test
+  void organizationRecoveryCopyProofIsRedeemableOnlyWhileItsTenantMembershipRemainsActive() {
+    UUID target = account("recover@example.test");
+    db.update("update accounts set password_hash=? where id=?", new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().encode("recoverable-password"), target);
+    db.update("insert into organization_memberships(account_id,organization_id,roles) values(?,?,array['member'])", target, organization);
+    ResponseEntity<?> recovery = administration.organizationRecovery(opaque("organization", organization), opaque("account", target),
+        new IdentityAdministrationService.RecoveryRequest("lost device", "administrator-assisted", true, true, null), request());
+    String proof = recovery.getHeaders().getFirst("X-Recovery-Copy-Link").substring("/reset/".length());
+    assertEquals(HttpStatus.NO_CONTENT, administration.reset(new IdentityAdministrationService.TokenPassword(proof, "recovered-password")).getStatusCode());
+    assertThrows(ResponseStatusException.class, () -> administration.reset(new IdentityAdministrationService.TokenPassword(proof, "different-password")));
+  }
+
+  @Test
+  void administrationCreateReplayIsExactAndNeverReissuesCapabilityCopies() {
+    IdentityAdministrationService.UserCreate create = new IdentityAdministrationService.UserCreate("replay@example.test", List.of("member"), "temporary-password");
+    ResponseEntity<?> first = administration.createUserMutation(opaque("organization", organization), create, "create-replay", request());
+    ResponseEntity<?> replay = administration.createUserMutation(opaque("organization", organization), create, "create-replay", request());
+
+    assertEquals(HttpStatus.CREATED, first.getStatusCode());
+    assertEquals(json.valueToTree(first.getBody()), json.valueToTree(replay.getBody()));
+    assertEquals(first.getHeaders().getETag(), replay.getHeaders().getETag());
+    assertTrue(first.getHeaders().containsKey("X-Activation-Copy-Link"));
+    assertFalse(replay.getHeaders().containsKey("X-Activation-Copy-Link"));
+    assertEquals(1, db.queryForObject("select count(*) from accounts where email='replay@example.test'", Integer.class));
+    ResponseStatusException mismatch = assertThrows(ResponseStatusException.class, () -> administration.createUserMutation(
+        opaque("organization", organization), new IdentityAdministrationService.UserCreate("other@example.test", List.of("member"), "temporary-password"), "create-replay", request()));
+    assertEquals(HttpStatus.CONFLICT, mismatch.getStatusCode());
+  }
+
+  @Test
+  void concurrentDuplicateAdministrationMutationsCreateOneResourceAndReplayOneResponse() throws Exception {
+    IdentityAdministrationService.UserCreate create = new IdentityAdministrationService.UserCreate("concurrent@example.test", List.of("member"), "temporary-password");
+    CompletableFuture<ResponseEntity<?>> first = CompletableFuture.supplyAsync(() -> administration.createUserMutation(opaque("organization", organization), create, "concurrent-create", request()));
+    CompletableFuture<ResponseEntity<?>> second = CompletableFuture.supplyAsync(() -> administration.createUserMutation(opaque("organization", organization), create, "concurrent-create", request()));
+    ResponseEntity<?> one = first.get(10, TimeUnit.SECONDS);
+    ResponseEntity<?> two = second.get(10, TimeUnit.SECONDS);
+    assertEquals(json.valueToTree(one.getBody()), json.valueToTree(two.getBody()));
+    assertEquals(1, db.queryForObject("select count(*) from accounts where email='concurrent@example.test'", Integer.class));
+  }
+
+  @Test
+  void revisionedMutationsRequireStrongCurrentEtagAndRetainOwnerSafety() {
+    UUID target = account("revisioned-member@example.test");
+    db.update("insert into organization_memberships(account_id,organization_id,roles) values(?,?,array['member'])", target, organization);
+    IdentityAdministrationService.UserUpdate update = new IdentityAdministrationService.UserUpdate("member-renamed@example.test", List.of("member"));
+    ResponseStatusException missing = assertThrows(ResponseStatusException.class, () -> administration.updateUserMutation(
+        opaque("organization", organization), opaque("account", target), update, "missing-match", null, request()));
+    assertEquals(HttpStatus.PRECONDITION_REQUIRED, missing.getStatusCode());
+    ResponseStatusException stale = assertThrows(ResponseStatusException.class, () -> administration.updateUserMutation(
+        opaque("organization", organization), opaque("account", target), update, "stale-match", "\"rev-9\"", request()));
+    assertEquals(HttpStatus.PRECONDITION_FAILED, stale.getStatusCode());
+    ResponseEntity<?> updated = administration.updateUserMutation(
+        opaque("organization", organization), opaque("account", target), update, "current-match", "\"rev-0\"", request());
+    ResponseEntity<?> updateReplay = administration.updateUserMutation(
+        opaque("organization", organization), opaque("account", target), update, "current-match", "\"rev-0\"", request());
+    assertEquals(json.valueToTree(updated.getBody()), json.valueToTree(updateReplay.getBody()));
+    assertEquals("\"rev-1\"", updateReplay.getHeaders().getETag());
+    ResponseStatusException lastOwner = assertThrows(ResponseStatusException.class, () -> administration.removeUserMutation(
+        opaque("organization", organization), opaque("account", actor), "owner-safety", "\"rev-0\"", request()));
+    assertEquals(HttpStatus.CONFLICT, lastOwner.getStatusCode());
+  }
+
   private HttpStatusCode removeStatus(String organization, String account) {
     try {
       return administration.removeUser(organization, account, request()).getStatusCode();
@@ -138,4 +234,12 @@ class IdentityAdministrationIntegrationTests {
   }
 
   private static String opaque(String prefix, UUID id) { return prefix + "-" + id; }
+
+  private static String sha256(String value) {
+    try {
+      return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8)));
+    } catch (Exception ex) {
+      throw new IllegalStateException(ex);
+    }
+  }
 }

@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -35,7 +34,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 public class CatalogOwner {
   public static final String JSON_PROPERTY_ID = "id";
   @jakarta.annotation.Nonnull
-  private UUID id;
+  private String id;
 
   public static final String JSON_PROPERTY_EMAIL = "email";
   @jakarta.annotation.Nonnull
@@ -44,7 +43,7 @@ public class CatalogOwner {
   public CatalogOwner() {
   }
 
-  public CatalogOwner id(@jakarta.annotation.Nonnull UUID id) {
+  public CatalogOwner id(@jakarta.annotation.Nonnull String id) {
     
     this.id = id;
     return this;
@@ -58,14 +57,14 @@ public class CatalogOwner {
   @JsonProperty(JSON_PROPERTY_ID)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public UUID getId() {
+  public String getId() {
     return id;
   }
 
 
   @JsonProperty(JSON_PROPERTY_ID)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setId(@jakarta.annotation.Nonnull UUID id) {
+  public void setId(@jakarta.annotation.Nonnull String id) {
     this.id = id;
   }
 

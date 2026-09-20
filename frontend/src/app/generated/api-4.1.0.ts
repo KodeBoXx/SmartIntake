@@ -704,38 +704,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/workspaces/{w}/folders": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * GET /v1/workspaces/{w}/folders (catalog folders)
-         * @description Published M2 contract. Implementation is intentionally deferred unless marked implemented.
-         */
-        get: operations["OS-get-v1-workspaces-w-folders-33ea83deb0"];
-        put?: never;
-        /**
-         * POST /v1/workspaces/{w}/folders (catalog folders)
-         * @description Published M2 contract. Implementation is intentionally deferred unless marked implemented.
-         */
-        post: operations["OS-post-v1-workspaces-w-folders-04335a99f1"];
-        /**
-         * DELETE /v1/workspaces/{w}/folders (catalog folders)
-         * @description Published M2 contract. Implementation is intentionally deferred unless marked implemented.
-         */
-        delete: operations["OS-delete-v1-workspaces-w-folders-bf3ff71abf"];
-        options?: never;
-        head?: never;
-        /**
-         * PATCH /v1/workspaces/{w}/folders (catalog folders)
-         * @description Published M2 contract. Implementation is intentionally deferred unless marked implemented.
-         */
-        patch: operations["OS-patch-v1-workspaces-w-folders-462f91440e"];
-        trace?: never;
-    };
     "/v1/workspaces/{w}/forms": {
         parameters: {
             query?: never;
@@ -1066,38 +1034,6 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
-        trace?: never;
-    };
-    "/v1/workspaces/{w}/tags": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * GET /v1/workspaces/{w}/tags (catalog tags)
-         * @description Published M2 contract. Implementation is intentionally deferred unless marked implemented.
-         */
-        get: operations["OS-get-v1-workspaces-w-tags-3f795dc7ec"];
-        put?: never;
-        /**
-         * POST /v1/workspaces/{w}/tags (catalog tags)
-         * @description Published M2 contract. Implementation is intentionally deferred unless marked implemented.
-         */
-        post: operations["OS-post-v1-workspaces-w-tags-a1075ffc3a"];
-        /**
-         * DELETE /v1/workspaces/{w}/tags (catalog tags)
-         * @description Published M2 contract. Implementation is intentionally deferred unless marked implemented.
-         */
-        delete: operations["OS-delete-v1-workspaces-w-tags-1ab7a1ce97"];
-        options?: never;
-        head?: never;
-        /**
-         * PATCH /v1/workspaces/{w}/tags (catalog tags)
-         * @description Published M2 contract. Implementation is intentionally deferred unless marked implemented.
-         */
-        patch: operations["OS-patch-v1-workspaces-w-tags-81684cbff4"];
         trace?: never;
     };
     "/v1/workspaces/{w}/themes": {
@@ -1624,7 +1560,7 @@ export interface components {
         PermittedWorkspaceChoice: {
             workspaceId: components["schemas"]["OpaqueId"];
             name: string;
-            roles: ("administrator" | "author" | "reviewer" | "translator" | "publisher" | "response-viewer" | "response-exporter" | "auditor")[];
+            roles: ("workspace-administrator" | "author" | "reviewer" | "translator" | "publisher" | "response-viewer" | "response-exporter" | "auditor")[];
         };
         PermittedOrganizationChoice: {
             organizationId: components["schemas"]["OpaqueId"];
@@ -1940,7 +1876,7 @@ export interface components {
             createdAt: string;
             /** Format: date-time */
             updatedAt: string;
-            roles: string[];
+            roles: ("workspace-administrator" | "author" | "reviewer" | "translator" | "publisher" | "response-viewer" | "response-exporter" | "auditor")[];
         };
         /** @description Concrete Invitation resource representation. */
         Invitation: {
@@ -2286,7 +2222,7 @@ export interface components {
             roles?: ("administrator" | "member")[];
         };
         WorkspaceRoleAssignmentRequest: {
-            roles: ("owner" | "editor" | "reviewer" | "analyst")[];
+            roles: ("workspace-administrator" | "author" | "reviewer" | "translator" | "publisher" | "response-viewer" | "response-exporter" | "auditor")[];
         };
         InvitationCreateRequest: {
             name: string;
@@ -2916,7 +2852,11 @@ export interface components {
             /** Format: uuid */
             id: string;
             name: string;
-            color?: string | null;
+            color: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
         };
         CatalogFolder: {
             /** Format: uuid */
@@ -2935,7 +2875,6 @@ export interface components {
             color?: string | null;
         };
         CatalogOwner: {
-            /** Format: uuid */
             id: string;
             /** Format: email */
             email: string;
@@ -2956,30 +2895,29 @@ export interface components {
         CatalogPage: {
             items: components["schemas"]["CatalogForm"][];
             nextCursor: string;
+            catalogRevision: number;
         };
         CatalogClassification: {
             folderId?: string | null;
             tagIds?: string[];
         };
         CatalogTransfer: {
-            /** Format: uuid */
             accountId: string;
         };
         CatalogSettings: {
-            /** Format: uuid */
             workspaceId: string;
-            policy: {
+            effective: {
                 [key: string]: unknown;
             };
-            providers: {
+            overrides: {
                 [key: string]: unknown;
             };
         };
         CatalogSettingsInput: {
-            policy?: {
+            policyOverrides?: {
                 [key: string]: unknown;
             };
-            providers?: {
+            providerOverrides?: {
                 [key: string]: unknown;
             };
         };
@@ -4037,7 +3975,6 @@ export interface operations {
             /** @description Successful response. */
             204: {
                 headers: {
-                    ETag: components["headers"]["ETag"];
                     [name: string]: unknown;
                 };
                 content?: never;
@@ -4128,7 +4065,6 @@ export interface operations {
             /** @description Successful response. */
             200: {
                 headers: {
-                    ETag: components["headers"]["ETag"];
                     [name: string]: unknown;
                 };
                 content: {
@@ -4165,7 +4101,6 @@ export interface operations {
             /** @description Successful response. */
             200: {
                 headers: {
-                    ETag: components["headers"]["ETag"];
                     [name: string]: unknown;
                 };
                 content: {
@@ -4189,16 +4124,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AccountActionCreateRequest"];
-            };
-        };
+        requestBody?: never;
         responses: {
-            /** @description Successful response. */
+            /** @description Revokes the current cookie session and expires staff and CSRF cookies. */
             204: {
                 headers: {
-                    ETag: components["headers"]["ETag"];
                     [name: string]: unknown;
                 };
                 content?: never;
@@ -4281,6 +4211,8 @@ export interface operations {
                  * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
                  */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @example "rev-7" */
+                "If-Match": components["parameters"]["IfMatch"];
             };
             path: {
                 /**
@@ -4311,7 +4243,9 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             409: components["responses"]["Conflict"];
+            412: components["responses"]["PreconditionFailed"];
             422: components["responses"]["Unprocessable"];
+            428: components["responses"]["PreconditionRequired"];
             429: components["responses"]["RateLimited"];
             500: components["responses"]["InternalError"];
         };
@@ -4577,6 +4511,8 @@ export interface operations {
                  * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
                  */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @example "rev-7" */
+                "If-Match": components["parameters"]["IfMatch"];
             };
             path: {
                 /**
@@ -4607,7 +4543,9 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             409: components["responses"]["Conflict"];
+            412: components["responses"]["PreconditionFailed"];
             422: components["responses"]["Unprocessable"];
+            428: components["responses"]["PreconditionRequired"];
             429: components["responses"]["RateLimited"];
             500: components["responses"]["InternalError"];
         };
@@ -5724,176 +5662,6 @@ export interface operations {
             500: components["responses"]["InternalError"];
         };
     };
-    "OS-get-v1-workspaces-w-folders-33ea83deb0": {
-        parameters: {
-            query?: {
-                /** @description Opaque stable-snapshot cursor. Pages are stable-sorted, duplicate-free and collectively contain every item exactly once. */
-                cursor?: components["parameters"]["Cursor"];
-                limit?: components["parameters"]["Limit"];
-            };
-            header?: never;
-            path: {
-                /**
-                 * @description Opaque server-issued identifier; it is never an authority grant.
-                 * @example w-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                w: components["schemas"]["OpaqueId"];
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response. */
-            200: {
-                headers: {
-                    ETag: components["headers"]["ETag"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FolderCollection"];
-                };
-            };
-            400: components["responses"]["BadRequest"];
-            401: components["responses"]["Unauthenticated"];
-            403: components["responses"]["Forbidden"];
-            404: components["responses"]["NotFound"];
-            429: components["responses"]["RateLimited"];
-            500: components["responses"]["InternalError"];
-        };
-    };
-    "OS-post-v1-workspaces-w-folders-04335a99f1": {
-        parameters: {
-            query?: never;
-            header: {
-                /**
-                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
-                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
-            };
-            path: {
-                /**
-                 * @description Opaque server-issued identifier; it is never an authority grant.
-                 * @example w-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                w: components["schemas"]["OpaqueId"];
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["FolderCreateRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful response. */
-            201: {
-                headers: {
-                    ETag: components["headers"]["ETag"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FolderResponse"];
-                };
-            };
-            400: components["responses"]["BadRequest"];
-            401: components["responses"]["Unauthenticated"];
-            403: components["responses"]["Forbidden"];
-            404: components["responses"]["NotFound"];
-            409: components["responses"]["Conflict"];
-            422: components["responses"]["Unprocessable"];
-            429: components["responses"]["RateLimited"];
-            500: components["responses"]["InternalError"];
-        };
-    };
-    "OS-delete-v1-workspaces-w-folders-bf3ff71abf": {
-        parameters: {
-            query?: never;
-            header: {
-                /**
-                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
-                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
-            };
-            path: {
-                /**
-                 * @description Opaque server-issued identifier; it is never an authority grant.
-                 * @example w-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                w: components["schemas"]["OpaqueId"];
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response. */
-            204: {
-                headers: {
-                    ETag: components["headers"]["ETag"];
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            400: components["responses"]["BadRequest"];
-            401: components["responses"]["Unauthenticated"];
-            403: components["responses"]["Forbidden"];
-            404: components["responses"]["NotFound"];
-            409: components["responses"]["Conflict"];
-            422: components["responses"]["Unprocessable"];
-            429: components["responses"]["RateLimited"];
-            500: components["responses"]["InternalError"];
-        };
-    };
-    "OS-patch-v1-workspaces-w-folders-462f91440e": {
-        parameters: {
-            query?: never;
-            header: {
-                /** @example "rev-7" */
-                "If-Match": components["parameters"]["IfMatch"];
-                /**
-                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
-                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
-            };
-            path: {
-                /**
-                 * @description Opaque server-issued identifier; it is never an authority grant.
-                 * @example w-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                w: components["schemas"]["OpaqueId"];
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["FolderUpdateRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful response. */
-            200: {
-                headers: {
-                    ETag: components["headers"]["ETag"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FolderResponse"];
-                };
-            };
-            400: components["responses"]["BadRequest"];
-            401: components["responses"]["Unauthenticated"];
-            403: components["responses"]["Forbidden"];
-            404: components["responses"]["NotFound"];
-            409: components["responses"]["Conflict"];
-            412: components["responses"]["PreconditionFailed"];
-            422: components["responses"]["Unprocessable"];
-            428: components["responses"]["PreconditionRequired"];
-            429: components["responses"]["RateLimited"];
-            500: components["responses"]["InternalError"];
-        };
-    };
     "ON-get-v1-workspaces-w-forms-2cc818d28d": {
         parameters: {
             query?: {
@@ -6945,176 +6713,6 @@ export interface operations {
             500: components["responses"]["InternalError"];
         };
     };
-    "OS-get-v1-workspaces-w-tags-3f795dc7ec": {
-        parameters: {
-            query?: {
-                /** @description Opaque stable-snapshot cursor. Pages are stable-sorted, duplicate-free and collectively contain every item exactly once. */
-                cursor?: components["parameters"]["Cursor"];
-                limit?: components["parameters"]["Limit"];
-            };
-            header?: never;
-            path: {
-                /**
-                 * @description Opaque server-issued identifier; it is never an authority grant.
-                 * @example w-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                w: components["schemas"]["OpaqueId"];
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response. */
-            200: {
-                headers: {
-                    ETag: components["headers"]["ETag"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TagCollection"];
-                };
-            };
-            400: components["responses"]["BadRequest"];
-            401: components["responses"]["Unauthenticated"];
-            403: components["responses"]["Forbidden"];
-            404: components["responses"]["NotFound"];
-            429: components["responses"]["RateLimited"];
-            500: components["responses"]["InternalError"];
-        };
-    };
-    "OS-post-v1-workspaces-w-tags-a1075ffc3a": {
-        parameters: {
-            query?: never;
-            header: {
-                /**
-                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
-                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
-            };
-            path: {
-                /**
-                 * @description Opaque server-issued identifier; it is never an authority grant.
-                 * @example w-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                w: components["schemas"]["OpaqueId"];
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["TagCreateRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful response. */
-            201: {
-                headers: {
-                    ETag: components["headers"]["ETag"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TagResponse"];
-                };
-            };
-            400: components["responses"]["BadRequest"];
-            401: components["responses"]["Unauthenticated"];
-            403: components["responses"]["Forbidden"];
-            404: components["responses"]["NotFound"];
-            409: components["responses"]["Conflict"];
-            422: components["responses"]["Unprocessable"];
-            429: components["responses"]["RateLimited"];
-            500: components["responses"]["InternalError"];
-        };
-    };
-    "OS-delete-v1-workspaces-w-tags-1ab7a1ce97": {
-        parameters: {
-            query?: never;
-            header: {
-                /**
-                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
-                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
-            };
-            path: {
-                /**
-                 * @description Opaque server-issued identifier; it is never an authority grant.
-                 * @example w-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                w: components["schemas"]["OpaqueId"];
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response. */
-            204: {
-                headers: {
-                    ETag: components["headers"]["ETag"];
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            400: components["responses"]["BadRequest"];
-            401: components["responses"]["Unauthenticated"];
-            403: components["responses"]["Forbidden"];
-            404: components["responses"]["NotFound"];
-            409: components["responses"]["Conflict"];
-            422: components["responses"]["Unprocessable"];
-            429: components["responses"]["RateLimited"];
-            500: components["responses"]["InternalError"];
-        };
-    };
-    "OS-patch-v1-workspaces-w-tags-81684cbff4": {
-        parameters: {
-            query?: never;
-            header: {
-                /** @example "rev-7" */
-                "If-Match": components["parameters"]["IfMatch"];
-                /**
-                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
-                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
-            };
-            path: {
-                /**
-                 * @description Opaque server-issued identifier; it is never an authority grant.
-                 * @example w-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                w: components["schemas"]["OpaqueId"];
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["TagUpdateRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful response. */
-            200: {
-                headers: {
-                    ETag: components["headers"]["ETag"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TagResponse"];
-                };
-            };
-            400: components["responses"]["BadRequest"];
-            401: components["responses"]["Unauthenticated"];
-            403: components["responses"]["Forbidden"];
-            404: components["responses"]["NotFound"];
-            409: components["responses"]["Conflict"];
-            412: components["responses"]["PreconditionFailed"];
-            422: components["responses"]["Unprocessable"];
-            428: components["responses"]["PreconditionRequired"];
-            429: components["responses"]["RateLimited"];
-            500: components["responses"]["InternalError"];
-        };
-    };
     "OS-get-v1-workspaces-w-themes-e7f6771fc2": {
         parameters: {
             query?: {
@@ -7348,6 +6946,8 @@ export interface operations {
                  * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
                  */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @example "rev-7" */
+                "If-Match": components["parameters"]["IfMatch"];
             };
             path: {
                 /**
@@ -7378,7 +6978,9 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             409: components["responses"]["Conflict"];
+            412: components["responses"]["PreconditionFailed"];
             422: components["responses"]["Unprocessable"];
+            428: components["responses"]["PreconditionRequired"];
             429: components["responses"]["RateLimited"];
             500: components["responses"]["InternalError"];
         };

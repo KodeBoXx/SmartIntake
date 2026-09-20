@@ -32,7 +32,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
  */
 @JsonPropertyOrder({
   CatalogPage.JSON_PROPERTY_ITEMS,
-  CatalogPage.JSON_PROPERTY_NEXT_CURSOR
+  CatalogPage.JSON_PROPERTY_NEXT_CURSOR,
+  CatalogPage.JSON_PROPERTY_CATALOG_REVISION
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
 public class CatalogPage {
@@ -43,6 +44,10 @@ public class CatalogPage {
   public static final String JSON_PROPERTY_NEXT_CURSOR = "nextCursor";
   @jakarta.annotation.Nonnull
   private String nextCursor;
+
+  public static final String JSON_PROPERTY_CATALOG_REVISION = "catalogRevision";
+  @jakarta.annotation.Nonnull
+  private Integer catalogRevision;
 
   public CatalogPage() {
   }
@@ -105,6 +110,32 @@ public class CatalogPage {
     this.nextCursor = nextCursor;
   }
 
+  public CatalogPage catalogRevision(@jakarta.annotation.Nonnull Integer catalogRevision) {
+    
+    this.catalogRevision = catalogRevision;
+    return this;
+  }
+
+  /**
+   * Get catalogRevision
+   * minimum: 0
+   * @return catalogRevision
+   */
+  @jakarta.annotation.Nonnull
+  @JsonProperty(JSON_PROPERTY_CATALOG_REVISION)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+
+  public Integer getCatalogRevision() {
+    return catalogRevision;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_CATALOG_REVISION)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setCatalogRevision(@jakarta.annotation.Nonnull Integer catalogRevision) {
+    this.catalogRevision = catalogRevision;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -115,12 +146,13 @@ public class CatalogPage {
     }
     CatalogPage catalogPage = (CatalogPage) o;
     return Objects.equals(this.items, catalogPage.items) &&
-        Objects.equals(this.nextCursor, catalogPage.nextCursor);
+        Objects.equals(this.nextCursor, catalogPage.nextCursor) &&
+        Objects.equals(this.catalogRevision, catalogPage.catalogRevision);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(items, nextCursor);
+    return Objects.hash(items, nextCursor, catalogRevision);
   }
 
   @Override
@@ -129,6 +161,7 @@ public class CatalogPage {
     sb.append("class CatalogPage {\n");
     sb.append("    items: ").append(toIndentedString(items)).append("\n");
     sb.append("    nextCursor: ").append(toIndentedString(nextCursor)).append("\n");
+    sb.append("    catalogRevision: ").append(toIndentedString(catalogRevision)).append("\n");
     sb.append("}");
     return sb.toString();
   }

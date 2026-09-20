@@ -21,6 +21,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.kodeboxx.smartintake.generated.contract.v410.Tag;
+import java.util.HashMap;
+import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -32,7 +34,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   TagResponse.JSON_PROPERTY_TAG
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class TagResponse {
+public class TagResponse extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_REQUEST_ID = "requestId";
   @jakarta.annotation.Nonnull
   private String requestId;
@@ -42,6 +44,7 @@ public class TagResponse {
   private Tag tag;
 
   public TagResponse() {
+
   }
 
   public TagResponse requestId(@jakarta.annotation.Nonnull String requestId) {
@@ -104,18 +107,20 @@ public class TagResponse {
     }
     TagResponse tagResponse = (TagResponse) o;
     return Objects.equals(this.requestId, tagResponse.requestId) &&
-        Objects.equals(this.tag, tagResponse.tag);
+        Objects.equals(this.tag, tagResponse.tag) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(requestId, tag);
+    return Objects.hash(requestId, tag, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class TagResponse {\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    requestId: ").append(toIndentedString(requestId)).append("\n");
     sb.append("    tag: ").append(toIndentedString(tag)).append("\n");
     sb.append("}");

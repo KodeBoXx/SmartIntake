@@ -11,10 +11,10 @@ const form = { id: 'form-1', formKey: 'clinical', title: 'Clinical intake', stat
 describe('CatalogStaffPageComponent', () => {
   const query = new BehaviorSubject(new Map<string, string | null>());
   const api = {
-    catalogForms: vi.fn(() => of({ items: [form], nextCursor: 'cursor-2' })), catalogFolders: vi.fn(() => of([])), catalogTags: vi.fn(() => of([])), effectiveCatalogSettings: vi.fn(() => of({ workspaceId: 'workspace-1', policy: {}, providers: {} })),
-    createCatalogFolder: vi.fn(() => of({})), createCatalogTag: vi.fn(() => of({})), duplicateCatalogForm: vi.fn(() => of(form)), archiveCatalogForm: vi.fn(() => of(form)), restoreCatalogForm: vi.fn(() => of(form)), classifyCatalogForm: vi.fn(() => of(void 0)), transferCatalogFormOwnership: vi.fn(() => of(form)), updateCatalogSettings: vi.fn(() => of({ workspaceId: 'workspace-1', policy: {}, providers: {} })),
+    catalogForms: vi.fn(() => of({ items: [form], nextCursor: 'cursor-2' })), catalogFolders: vi.fn(() => of([])), catalogTags: vi.fn(() => of([])), effectiveCatalogSettings: vi.fn(() => of({ workspaceId: 'workspace-1', effective: { retention: '30d' }, overrides: { retention: '7d' } })),
+    createCatalogFolder: vi.fn(() => of({})), createCatalogTag: vi.fn(() => of({})), duplicateCatalogForm: vi.fn(() => of(form)), archiveCatalogForm: vi.fn(() => of(form)), restoreCatalogForm: vi.fn(() => of(form)), classifyCatalogForm: vi.fn(() => of(void 0)), transferCatalogFormOwnership: vi.fn(() => of(form)), updateCatalogSettings: vi.fn(() => of({ workspaceId: 'workspace-1', effective: {}, overrides: {} })),
   };
-  const session = { currentWorkspaceId: () => 'workspace-1', currentWorkspace: () => ({ workspaceId: 'workspace-1', name: 'Clinical', roles: ['administrator'] }), currentRoles: () => ['administrator'] };
+  const session = { currentOrganizationId: () => null, currentWorkspaceId: () => 'workspace-1', currentWorkspace: () => ({ workspaceId: 'workspace-1', name: 'Clinical', roles: ['administrator'] }), currentRoles: () => ['administrator'] };
 
   function setup(): ComponentFixture<CatalogStaffPageComponent> {
     api.catalogForms.mockClear();

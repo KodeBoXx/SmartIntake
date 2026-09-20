@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.HashMap;
+import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -31,7 +33,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   TagUpdateRequest.JSON_PROPERTY_COLOR
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class TagUpdateRequest {
+public class TagUpdateRequest extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_LABEL = "label";
   @jakarta.annotation.Nonnull
   private String label;
@@ -41,6 +43,7 @@ public class TagUpdateRequest {
   private String color;
 
   public TagUpdateRequest() {
+
   }
 
   public TagUpdateRequest label(@jakarta.annotation.Nonnull String label) {
@@ -103,18 +106,20 @@ public class TagUpdateRequest {
     }
     TagUpdateRequest tagUpdateRequest = (TagUpdateRequest) o;
     return Objects.equals(this.label, tagUpdateRequest.label) &&
-        Objects.equals(this.color, tagUpdateRequest.color);
+        Objects.equals(this.color, tagUpdateRequest.color) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(label, color);
+    return Objects.hash(label, color, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class TagUpdateRequest {\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    label: ").append(toIndentedString(label)).append("\n");
     sb.append("    color: ").append(toIndentedString(color)).append("\n");
     sb.append("}");

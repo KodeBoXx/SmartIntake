@@ -1,6 +1,7 @@
 import { Route, Routes } from '@angular/router';
 import { describe, expect, it } from 'vitest';
 import { appRoutes } from './app.routes';
+import { FROZEN_STAFF_SCREENS, REQUIRED_STAFF_STATES } from './features/staff/staff-screen-contract';
 
 function flatten(routes: Routes): Route[] {
   return routes.flatMap((route) => [route, ...flatten(route.children ?? [])]);
@@ -28,9 +29,10 @@ describe('M5 route architecture', () => {
     const staffShell = appRoutes.find((route) => route.path === '' && route.canActivate);
     const staffRoutes = (staffShell?.children ?? []).filter((route) => route.data?.['screen']);
     const componentNames = new Set<string>();
-    const expectedComponent = (screen: string): string => {
+    const expectedComponent = (screen: string, route: Route): string => {
       if (['platform-organizations', 'user-list', 'add-user', 'user-detail', 'role-assignment', 'invitation-delivery'].includes(screen)) return 'AdminStaffPageComponent';
-      if (['catalog', 'builder', 'preview', 'review-publish'].includes(screen)) return 'CatalogStaffPageComponent';
+      if (['catalog', 'preview', 'review-publish'].includes(screen)) return 'CatalogStaffPageComponent';
+      if (screen === 'builder') return route.path?.includes('/drafts/') ? 'AppComponent' : 'CatalogStaffPageComponent';
       if (['responses', 'response-detail', 'export-history'].includes(screen)) return 'ResponseStaffPageComponent';
       return 'SettingsStaffPageComponent';
     };
@@ -39,9 +41,19 @@ describe('M5 route architecture', () => {
       if (typeof component === 'function') {
         const name = component.name.replace(/^_/, '');
         componentNames.add(name);
-        expect(name, `screen ${route.data?.['screen']} must use its owned domain boundary`).toBe(expectedComponent(route.data?.['screen']));
+        expect(name, `screen ${route.data?.['screen']} must use its owned domain boundary`).toBe(expectedComponent(route.data?.['screen'], route));
       }
     }
-    expect(componentNames).toEqual(new Set(['AdminStaffPageComponent', 'CatalogStaffPageComponent', 'ResponseStaffPageComponent', 'SettingsStaffPageComponent']));
+    expect(componentNames).toEqual(new Set(['AdminStaffPageComponent', 'CatalogStaffPageComponent', 'ResponseStaffPageComponent', 'SettingsStaffPageComponent', 'AppComponent']));
+  });
+
+  it('maps every frozen staff denominator screen to one explicit lazy route and state contract', () => {
+    const screens = flatten(appRoutes).map((route) => route.data?.['screen']).filter((screen): screen is string => FROZEN_STAFF_SCREENS.includes(screen as typeof FROZEN_STAFF_SCREENS[number]));
+    expect(new Set(screens)).toEqual(new Set(FROZEN_STAFF_SCREENS));
+    expect(REQUIRED_STAFF_STATES).toEqual(['loading', 'empty-or-no-access', 'invalid', 'denied', 'expired', 'email-unavailable']);
+    for (const screen of FROZEN_STAFF_SCREENS) {
+      const route = flatten(appRoutes).find((candidate) => candidate.data?.['screen'] === screen);
+      expect(route?.loadComponent, `${screen} requires its own lazy route behavior`).toBeTypeOf('function');
+    }
   });
 });

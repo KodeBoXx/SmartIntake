@@ -230,10 +230,10 @@ describe('SmartIntakeApiService', () => {
     expect(classify.request.body).toEqual({ folderId: 'folder-1', tagIds: ['tag-a'] });
     classify.flush(null);
 
-    api.updateCatalogSettings('workspace-1', { policy: { retention: '30d' }, providers: { email: false } }).subscribe();
+    api.updateCatalogSettings('workspace-1', { policyOverrides: { retention: '30d' }, providerOverrides: { email: false } }).subscribe();
     const settings = http.expectOne('/v1/workspaces/workspace-1/catalog/settings');
     expect(settings.request.method).toBe('PUT');
-    expect(settings.request.body).toEqual({ policy: { retention: '30d' }, providers: { email: false } });
-    settings.flush({ workspaceId: 'workspace-1', policy: {}, providers: {} });
+    expect(settings.request.body).toEqual({ policyOverrides: { retention: '30d' }, providerOverrides: { email: false } });
+    settings.flush({ workspaceId: 'workspace-1', effective: {}, overrides: {} });
   });
 });

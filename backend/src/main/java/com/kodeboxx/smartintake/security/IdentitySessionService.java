@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -36,15 +37,18 @@ public class IdentitySessionService {
   private final JdbcTemplate db;
   private final IdentitySessionResolver resolver;
   private final CredentialEncoder credentials;
+  private final List<String> allowedOrigins;
   private final SecureRandom random = new SecureRandom();
 
   public record Credentials(String email, String password) {}
   public record BootstrapRequest(String email, String password, String organizationName, String workspaceName) {}
 
-  public IdentitySessionService(JdbcTemplate db, IdentitySessionResolver resolver, CredentialEncoder credentials) {
+  public IdentitySessionService(JdbcTemplate db, IdentitySessionResolver resolver, CredentialEncoder credentials,
+      @Value("${smartintake.security.allowed-origins:http://localhost:4200,http://127.0.0.1:4200}") String origins) {
     this.db = db;
     this.resolver = resolver;
     this.credentials = credentials;
+    this.allowedOrigins = java.util.Arrays.stream(origins.split(",")).map(String::trim).filter(value -> !value.isEmpty()).toList();
   }
 
   @Transactional
@@ -60,7 +64,7 @@ public class IdentitySessionService {
     db.update("insert into accounts(id,email,password_hash) values(?,?,?)", account, normalizedEmail(input.email()), credentials.encode(input.password()));
     db.update("insert into organizations(id,name) values(?,?)", organization, nonBlank(input.organizationName(), "Local organization"));
     db.update("insert into workspaces(id,organization_id,workspace_key,name) values(?,?,?,?)", workspace, organization, "local", nonBlank(input.workspaceName(), "Local workspace"));
-    db.update("insert into memberships(account_id,workspace_id,role) values(?,?,?)", account, workspace, "OWNER");
+    db.update("insert into memberships(account_id,workspace_id,role) values(?,?,?)", account, workspace, "WORKSPACE_ADMINISTRATOR");
     // The protected one-time bootstrap establishes the initial platform authority as well as tenant ownership.
     db.update("insert into platform_roles(account_id,role) values(?,'administrator') on conflict do nothing", account);
     db.update("update identity_bootstrap_state set completed_at=now() where singleton=true");
@@ -81,8 +85,10 @@ public class IdentitySessionService {
   public ResponseEntity<?> signIn(Credentials input, String loginCsrf, HttpServletRequest request) {
     requireOrigin(request);
     consumeLoginCsrf(loginCsrf, cookie(request, LOGIN_CSRF_COOKIE));
-    String subject = sha256(normalizedEmail(input == null ? null : input.email()) + "|" + request.getRemoteAddr());
-    if (throttled(subject)) throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Try again later");
+    String normalized = normalizedEmail(input == null ? null : input.email());
+    List<String> subjects = throttleSubjects(normalized, request.getRemoteAddr());
+    cleanupThrottleBuckets();
+    if (subjects.stream().anyMatch(this::throttled)) throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Try again later");
     UUID account = null;
     try {
       if (input == null || input.email() == null || input.password() == null) throw new IllegalArgumentException();
@@ -99,10 +105,10 @@ public class IdentitySessionService {
       }
       account = ((UUID) accountRow.get("id"));
     } catch (Exception ignored) {
-      registerFailure(subject);
+      subjects.forEach(this::registerFailure);
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
     }
-    db.update("delete from sign_in_throttles where subject_hash=?", subject);
+    subjects.forEach(subject -> db.update("delete from sign_in_throttles where subject_hash=?", subject));
     resolver.session(request, request.getHeader("X-Staff-Session")).ifPresent(token -> db.update("update staff_sessions set revoked_at=now(),updated_at=now() where token::text=? and revoked_at is null", token));
     boolean setupOnly = Boolean.TRUE.equals(db.queryForObject("select activation_state='pending' from accounts where id=?", Boolean.class, account));
     return issued(account, request, HttpStatus.OK, setupOnly);
@@ -113,7 +119,7 @@ public class IdentitySessionService {
     if (token == null) return anonymousSession();
     try {
       Map<String, Object> row = db.queryForMap(
-          "select s.account_id,a.email,s.created_at,s.updated_at,s.last_seen_at,s.absolute_expires_at,s.csrf_token_hash,s.setup_only,s.current_organization_id,s.current_workspace_id"
+          "select s.account_id,a.email,a.activation_state,a.account_status,s.created_at,s.updated_at,s.last_seen_at,s.absolute_expires_at,s.csrf_token_hash,s.setup_only,s.current_organization_id,s.current_workspace_id"
               + " from staff_sessions s join accounts a on a.id=s.account_id where s.token::text=? and s.revoked_at is null and a.account_status='active'"
               + " and s.last_seen_at > now() - interval '2 hours' and s.expires_at > now() and s.absolute_expires_at > now()", token);
       boolean setupOnly = Boolean.TRUE.equals(row.get("setup_only"));
@@ -121,12 +127,14 @@ public class IdentitySessionService {
           setupOnly ? Duration.ofMinutes(15).toSeconds() : IDLE_TTL.toSeconds(), token);
       UUID account = (UUID) row.get("account_id");
       String email = (String) row.get("email");
-      List<Map<String, Object>> memberships = db.queryForList(
+      List<Map<String, Object>> memberships = setupOnly ? List.of() : db.queryForList(
           "select o.id organization_id,o.name organization_name,w.id workspace_id,w.name workspace_name,m.role"
               + " from memberships m join workspaces w on w.id=m.workspace_id join organizations o on o.id=w.organization_id"
               + " where m.account_id=? order by o.name,w.name,m.role", account);
-      return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, staffCookie(token).toString()).body(
-          sessionResponse(account, email, memberships, (UUID) row.get("current_organization_id"), (UUID) row.get("current_workspace_id")));
+      return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, staffCookie(token, setupOnly).toString()).body(
+          sessionResponse(account, email, memberships, setupOnly, (String) row.get("activation_state"),
+              (String) row.get("account_status"), setupOnly ? null : (UUID) row.get("current_organization_id"),
+              setupOnly ? null : (UUID) row.get("current_workspace_id")));
     } catch (Exception ignored) {
       return anonymousSession();
     }
@@ -166,7 +174,7 @@ public class IdentitySessionService {
     if (resolver.isTestProfile() && origin == null) return;
     String ownOrigin = request.getScheme() + "://" + request.getServerName()
         + ((request.getServerPort() == 80 || request.getServerPort() == 443) ? "" : ":" + request.getServerPort());
-    if (origin == null || !(origin.equals(ownOrigin) || origin.equals("http://localhost:4200") || origin.equals("http://127.0.0.1:4200")))
+    if (origin == null || !(origin.equals(ownOrigin) || allowedOrigins.contains(origin)))
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Origin denied");
   }
 
@@ -174,26 +182,27 @@ public class IdentitySessionService {
     String token = UUID.randomUUID().toString();
     String csrf = secret();
     Instant now = Instant.now();
-    Duration ttl = setupOnly ? Duration.ofMinutes(15) : IDLE_TTL;
+    Duration idleTtl = setupOnly ? Duration.ofMinutes(15) : IDLE_TTL;
+    Duration absoluteTtl = setupOnly ? Duration.ofMinutes(15) : ABSOLUTE_TTL;
     List<Map<String, Object>> contexts = db.queryForList(
         "select w.organization_id,w.id from memberships m join workspaces w on w.id=m.workspace_id where m.account_id=? order by w.created_at limit 1", account);
     UUID organization = contexts.isEmpty() ? null : (UUID) contexts.get(0).get("organization_id");
     UUID workspace = contexts.isEmpty() ? null : (UUID) contexts.get(0).get("id");
     db.update("insert into staff_sessions(token,account_id,expires_at,csrf_token_hash,last_seen_at,absolute_expires_at,updated_at,setup_only,current_organization_id,current_workspace_id) values(?,?,?,?,?,?,?,?,?,?)",
-        UUID.fromString(token), account, Timestamp.from(now.plus(ttl)), sha256(csrf), Timestamp.from(now), Timestamp.from(now.plus(ttl)), Timestamp.from(now), setupOnly, organization, workspace);
+        UUID.fromString(token), account, Timestamp.from(now.plus(idleTtl)), sha256(csrf), Timestamp.from(now), Timestamp.from(now.plus(absoluteTtl)), Timestamp.from(now), setupOnly, setupOnly ? null : organization, setupOnly ? null : workspace);
     Map<String, Object> body = Map.of("requestId", opaque("req"), "staffSession", Map.of(
         "id", opaque("staffsession"), "kind", "StaffSession", "revision", 0, "status", "active",
         "createdAt", now.toString(), "updatedAt", now.toString(), "userId", opaque("account", account),
-        "expiresAt", now.plus(ABSOLUTE_TTL).toString(), "csrfToken", csrf));
+        "expiresAt", now.plus(absoluteTtl).toString(), "csrfToken", csrf));
     return ResponseEntity.status(status)
-        .header(HttpHeaders.SET_COOKIE, staffCookie(token).toString())
+        .header(HttpHeaders.SET_COOKIE, staffCookie(token, setupOnly).toString())
         .header("X-CSRF-Token", csrf)
-        .header(HttpHeaders.SET_COOKIE, csrfCookie(csrf).toString())
+        .header(HttpHeaders.SET_COOKIE, csrfCookie(csrf, setupOnly).toString())
         .body(body);
   }
 
   private Map<String, Object> sessionResponse(UUID account, String email, List<Map<String, Object>> memberships,
-      UUID currentOrganization, UUID currentWorkspace) {
+      boolean setupOnly, String activationState, String accountStatus, UUID currentOrganization, UUID currentWorkspace) {
     Map<UUID, Map<String, Object>> organizations = new LinkedHashMap<>();
     for (Map<String, Object> membership : memberships) {
       UUID organization = (UUID) membership.get("organization_id");
@@ -206,14 +215,28 @@ public class IdentitySessionService {
     }
     Map<String, Object> authenticated = new LinkedHashMap<>();
     authenticated.put("safeIdentity", Map.of("accountId", opaque("account", account), "username", email, "displayName", displayName(email)));
-    authenticated.put("activationState", "active");
-    authenticated.put("accountStatus", "active");
-    authenticated.put("organizations", List.copyOf(organizations.values()));
-    authenticated.put("currentOrganizationId", currentOrganization == null
-        ? (organizations.isEmpty() ? null : organizations.values().iterator().next().get("organizationId"))
-        : opaque("organization", currentOrganization));
-    if (currentWorkspace != null) authenticated.put("currentWorkspaceId", opaque("workspace", currentWorkspace));
+    authenticated.put("activationState", activationState);
+    authenticated.put("accountStatus", accountStatus);
+    authenticated.put("awaitingSetup", setupOnly);
+    authenticated.put("organizations", setupOnly ? List.of() : List.copyOf(organizations.values()));
+    if (!setupOnly) {
+      authenticated.put("currentOrganizationId", currentOrganization == null
+          ? (organizations.isEmpty() ? null : organizations.values().iterator().next().get("organizationId"))
+          : opaque("organization", currentOrganization));
+      if (currentWorkspace != null) authenticated.put("currentWorkspaceId", opaque("workspace", currentWorkspace));
+    }
     return Map.of("requestId", opaque("req"), "authenticatedSession", authenticated);
+  }
+
+  private List<String> throttleSubjects(String email, String source) {
+    String safeSource = source == null ? "unknown" : source;
+    // Account, source, and global buckets prevent distributed guessing while never retaining raw identifiers.
+    return List.of(sha256("account|" + email), sha256("source|" + safeSource), sha256("global"));
+  }
+
+  private void cleanupThrottleBuckets() {
+    db.update("delete from sign_in_throttles where updated_at < now() - interval '1 day'");
+    db.update("delete from sign_in_throttles where subject_hash in (select subject_hash from sign_in_throttles order by updated_at desc offset 10000)");
   }
 
   private boolean throttled(String subject) {
@@ -251,7 +274,20 @@ public class IdentitySessionService {
 
   private static String normalizedEmail(String email) { return email == null ? "" : email.toLowerCase(Locale.ROOT); }
   private static String nonBlank(String value, String fallback) { return value == null || value.isBlank() ? fallback : value; }
-  private static String role(String legacyRole) { return "OWNER".equals(legacyRole) ? "administrator" : legacyRole.toLowerCase(Locale.ROOT); }
+  private static String role(String storedRole) {
+    return switch (storedRole) {
+      // OWNER is a read-only compatibility alias for pre-M6 workspace administrators.
+      case "OWNER", "WORKSPACE_ADMINISTRATOR" -> "workspace-administrator";
+      case "AUTHOR" -> "author";
+      case "REVIEWER" -> "reviewer";
+      case "TRANSLATOR" -> "translator";
+      case "PUBLISHER" -> "publisher";
+      case "RESPONSE_VIEWER" -> "response-viewer";
+      case "RESPONSE_EXPORTER" -> "response-exporter";
+      case "AUDITOR" -> "auditor";
+      default -> storedRole.toLowerCase(Locale.ROOT);
+    };
+  }
   private static String displayName(String email) { return email.substring(0, email.indexOf('@')); }
   private String secret() { byte[] bytes = new byte[32]; random.nextBytes(bytes); return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes); }
   private static String opaque(String prefix) { return prefix + "-" + UUID.randomUUID(); }
@@ -259,9 +295,9 @@ public class IdentitySessionService {
   private static String sha256(String value) { try { return java.util.HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8))); } catch (Exception e) { throw new IllegalStateException(e); } }
   private static boolean constantTimeEquals(String left, String right) { return left != null && right != null && MessageDigest.isEqual(left.getBytes(StandardCharsets.UTF_8), right.getBytes(StandardCharsets.UTF_8)); }
   private static String cookie(HttpServletRequest request, String name) { if (request.getCookies() == null) return null; for (Cookie cookie : request.getCookies()) if (name.equals(cookie.getName())) return cookie.getValue(); return null; }
-  public ResponseCookie renewStaffCookie(String value) { return staffCookie(value); }
-  private static ResponseCookie staffCookie(String value) { return ResponseCookie.from(IdentitySessionResolver.STAFF_COOKIE, value).httpOnly(true).secure(true).sameSite("Strict").path("/").maxAge(IDLE_TTL).build(); }
-  private static ResponseCookie csrfCookie(String value) { return ResponseCookie.from(CSRF_COOKIE, value).httpOnly(false).secure(true).sameSite("Strict").path("/").maxAge(IDLE_TTL).build(); }
+  public ResponseCookie renewStaffCookie(String value) { return staffCookie(value, setupOnly(value)); }
+  private static ResponseCookie staffCookie(String value, boolean setupOnly) { return ResponseCookie.from(IdentitySessionResolver.STAFF_COOKIE, value).httpOnly(true).secure(true).sameSite("Strict").path("/").maxAge(setupOnly ? Duration.ofMinutes(15) : IDLE_TTL).build(); }
+  private static ResponseCookie csrfCookie(String value, boolean setupOnly) { return ResponseCookie.from(CSRF_COOKIE, value).httpOnly(false).secure(true).sameSite("Strict").path("/").maxAge(setupOnly ? Duration.ofMinutes(15) : IDLE_TTL).build(); }
   private static ResponseCookie loginCsrfCookie(String value) { return ResponseCookie.from(LOGIN_CSRF_COOKIE, value).httpOnly(true).secure(true).sameSite("Strict").path("/v1/auth").maxAge(LOGIN_CSRF_TTL).build(); }
   private static ResponseCookie expiredCookie(String name, boolean httpOnly) { return ResponseCookie.from(name, "").httpOnly(httpOnly).secure(true).sameSite("Strict").path("/").maxAge(Duration.ZERO).build(); }
 }

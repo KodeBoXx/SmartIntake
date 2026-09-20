@@ -27,13 +27,24 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
- * WorkspaceRoleAssignmentRequest
+ * AuthenticatedSessionOrganizationsInnerWorkspacesInner
  */
 @JsonPropertyOrder({
-  WorkspaceRoleAssignmentRequest.JSON_PROPERTY_ROLES
+  AuthenticatedSessionOrganizationsInnerWorkspacesInner.JSON_PROPERTY_WORKSPACE_ID,
+  AuthenticatedSessionOrganizationsInnerWorkspacesInner.JSON_PROPERTY_NAME,
+  AuthenticatedSessionOrganizationsInnerWorkspacesInner.JSON_PROPERTY_ROLES
 })
+@JsonTypeName("AuthenticatedSession_organizations_inner_workspaces_inner")
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class WorkspaceRoleAssignmentRequest {
+public class AuthenticatedSessionOrganizationsInnerWorkspacesInner {
+  public static final String JSON_PROPERTY_WORKSPACE_ID = "workspaceId";
+  @jakarta.annotation.Nonnull
+  private String workspaceId;
+
+  public static final String JSON_PROPERTY_NAME = "name";
+  @jakarta.annotation.Nonnull
+  private String name;
+
   /**
    * Gets or Sets roles
    */
@@ -85,16 +96,66 @@ public class WorkspaceRoleAssignmentRequest {
   @jakarta.annotation.Nonnull
   private List<RolesEnum> roles = new ArrayList<>();
 
-  public WorkspaceRoleAssignmentRequest() {
+  public AuthenticatedSessionOrganizationsInnerWorkspacesInner() {
   }
 
-  public WorkspaceRoleAssignmentRequest roles(@jakarta.annotation.Nonnull List<RolesEnum> roles) {
+  public AuthenticatedSessionOrganizationsInnerWorkspacesInner workspaceId(@jakarta.annotation.Nonnull String workspaceId) {
+    
+    this.workspaceId = workspaceId;
+    return this;
+  }
+
+  /**
+   * Get workspaceId
+   * @return workspaceId
+   */
+  @jakarta.annotation.Nonnull
+  @JsonProperty(JSON_PROPERTY_WORKSPACE_ID)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+
+  public String getWorkspaceId() {
+    return workspaceId;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_WORKSPACE_ID)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setWorkspaceId(@jakarta.annotation.Nonnull String workspaceId) {
+    this.workspaceId = workspaceId;
+  }
+
+  public AuthenticatedSessionOrganizationsInnerWorkspacesInner name(@jakarta.annotation.Nonnull String name) {
+    
+    this.name = name;
+    return this;
+  }
+
+  /**
+   * Get name
+   * @return name
+   */
+  @jakarta.annotation.Nonnull
+  @JsonProperty(JSON_PROPERTY_NAME)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+
+  public String getName() {
+    return name;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_NAME)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setName(@jakarta.annotation.Nonnull String name) {
+    this.name = name;
+  }
+
+  public AuthenticatedSessionOrganizationsInnerWorkspacesInner roles(@jakarta.annotation.Nonnull List<RolesEnum> roles) {
     
     this.roles = roles;
     return this;
   }
 
-  public WorkspaceRoleAssignmentRequest addRolesItem(RolesEnum rolesItem) {
+  public AuthenticatedSessionOrganizationsInnerWorkspacesInner addRolesItem(RolesEnum rolesItem) {
     if (this.roles == null) {
       this.roles = new ArrayList<>();
     }
@@ -129,19 +190,23 @@ public class WorkspaceRoleAssignmentRequest {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    WorkspaceRoleAssignmentRequest workspaceRoleAssignmentRequest = (WorkspaceRoleAssignmentRequest) o;
-    return Objects.equals(this.roles, workspaceRoleAssignmentRequest.roles);
+    AuthenticatedSessionOrganizationsInnerWorkspacesInner authenticatedSessionOrganizationsInnerWorkspacesInner = (AuthenticatedSessionOrganizationsInnerWorkspacesInner) o;
+    return Objects.equals(this.workspaceId, authenticatedSessionOrganizationsInnerWorkspacesInner.workspaceId) &&
+        Objects.equals(this.name, authenticatedSessionOrganizationsInnerWorkspacesInner.name) &&
+        Objects.equals(this.roles, authenticatedSessionOrganizationsInnerWorkspacesInner.roles);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(roles);
+    return Objects.hash(workspaceId, name, roles);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class WorkspaceRoleAssignmentRequest {\n");
+    sb.append("class AuthenticatedSessionOrganizationsInnerWorkspacesInner {\n");
+    sb.append("    workspaceId: ").append(toIndentedString(workspaceId)).append("\n");
+    sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("    roles: ").append(toIndentedString(roles)).append("\n");
     sb.append("}");
     return sb.toString();

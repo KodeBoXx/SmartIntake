@@ -22,7 +22,9 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -35,7 +37,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   PermittedWorkspaceChoice.JSON_PROPERTY_ROLES
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class PermittedWorkspaceChoice {
+public class PermittedWorkspaceChoice extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_WORKSPACE_ID = "workspaceId";
   @jakarta.annotation.Nonnull
   private String workspaceId;
@@ -48,7 +50,7 @@ public class PermittedWorkspaceChoice {
    * Gets or Sets roles
    */
   public enum RolesEnum {
-    ADMINISTRATOR(String.valueOf("administrator")),
+    WORKSPACE_ADMINISTRATOR(String.valueOf("workspace-administrator")),
     
     AUTHOR(String.valueOf("author")),
     
@@ -96,6 +98,7 @@ public class PermittedWorkspaceChoice {
   private List<RolesEnum> roles = new ArrayList<>();
 
   public PermittedWorkspaceChoice() {
+
   }
 
   public PermittedWorkspaceChoice workspaceId(@jakarta.annotation.Nonnull String workspaceId) {
@@ -192,18 +195,20 @@ public class PermittedWorkspaceChoice {
     PermittedWorkspaceChoice permittedWorkspaceChoice = (PermittedWorkspaceChoice) o;
     return Objects.equals(this.workspaceId, permittedWorkspaceChoice.workspaceId) &&
         Objects.equals(this.name, permittedWorkspaceChoice.name) &&
-        Objects.equals(this.roles, permittedWorkspaceChoice.roles);
+        Objects.equals(this.roles, permittedWorkspaceChoice.roles) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(workspaceId, name, roles);
+    return Objects.hash(workspaceId, name, roles, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class PermittedWorkspaceChoice {\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    workspaceId: ").append(toIndentedString(workspaceId)).append("\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("    roles: ").append(toIndentedString(roles)).append("\n");

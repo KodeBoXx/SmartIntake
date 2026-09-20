@@ -20,26 +20,25 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.kodeboxx.smartintake.generated.contract.v410.PermittedWorkspaceChoice;
+import com.kodeboxx.smartintake.generated.contract.v410.AuthenticatedSessionOrganizationsInnerWorkspacesInner;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
- * PermittedOrganizationChoice
+ * AuthenticatedSessionOrganizationsInner
  */
 @JsonPropertyOrder({
-  PermittedOrganizationChoice.JSON_PROPERTY_ORGANIZATION_ID,
-  PermittedOrganizationChoice.JSON_PROPERTY_NAME,
-  PermittedOrganizationChoice.JSON_PROPERTY_MEMBERSHIP_STATE,
-  PermittedOrganizationChoice.JSON_PROPERTY_WORKSPACES
+  AuthenticatedSessionOrganizationsInner.JSON_PROPERTY_ORGANIZATION_ID,
+  AuthenticatedSessionOrganizationsInner.JSON_PROPERTY_NAME,
+  AuthenticatedSessionOrganizationsInner.JSON_PROPERTY_MEMBERSHIP_STATE,
+  AuthenticatedSessionOrganizationsInner.JSON_PROPERTY_WORKSPACES
 })
+@JsonTypeName("AuthenticatedSession_organizations_inner")
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class PermittedOrganizationChoice extends HashMap<String, Object> {
+public class AuthenticatedSessionOrganizationsInner {
   public static final String JSON_PROPERTY_ORGANIZATION_ID = "organizationId";
   @jakarta.annotation.Nonnull
   private String organizationId;
@@ -48,19 +47,51 @@ public class PermittedOrganizationChoice extends HashMap<String, Object> {
   @jakarta.annotation.Nonnull
   private String name;
 
+  /**
+   * Gets or Sets membershipState
+   */
+  public enum MembershipStateEnum {
+    ACTIVE(String.valueOf("active"));
+
+    private String value;
+
+    MembershipStateEnum(String value) {
+      this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    @JsonCreator
+    public static MembershipStateEnum fromValue(String value) {
+      for (MembershipStateEnum b : MembershipStateEnum.values()) {
+        if (b.value.equals(value)) {
+          return b;
+        }
+      }
+      throw new IllegalArgumentException("Unexpected value '" + value + "'");
+    }
+  }
+
   public static final String JSON_PROPERTY_MEMBERSHIP_STATE = "membershipState";
-  @jakarta.annotation.Nullable
-  private Object membershipState = null;
+  @jakarta.annotation.Nonnull
+  private MembershipStateEnum membershipState;
 
   public static final String JSON_PROPERTY_WORKSPACES = "workspaces";
   @jakarta.annotation.Nonnull
-  private List<PermittedWorkspaceChoice> workspaces = new ArrayList<>();
+  private List<AuthenticatedSessionOrganizationsInnerWorkspacesInner> workspaces = new ArrayList<>();
 
-  public PermittedOrganizationChoice() {
-
+  public AuthenticatedSessionOrganizationsInner() {
   }
 
-  public PermittedOrganizationChoice organizationId(@jakarta.annotation.Nonnull String organizationId) {
+  public AuthenticatedSessionOrganizationsInner organizationId(@jakarta.annotation.Nonnull String organizationId) {
     
     this.organizationId = organizationId;
     return this;
@@ -85,7 +116,7 @@ public class PermittedOrganizationChoice extends HashMap<String, Object> {
     this.organizationId = organizationId;
   }
 
-  public PermittedOrganizationChoice name(@jakarta.annotation.Nonnull String name) {
+  public AuthenticatedSessionOrganizationsInner name(@jakarta.annotation.Nonnull String name) {
     
     this.name = name;
     return this;
@@ -110,7 +141,7 @@ public class PermittedOrganizationChoice extends HashMap<String, Object> {
     this.name = name;
   }
 
-  public PermittedOrganizationChoice membershipState(@jakarta.annotation.Nullable Object membershipState) {
+  public AuthenticatedSessionOrganizationsInner membershipState(@jakarta.annotation.Nonnull MembershipStateEnum membershipState) {
     
     this.membershipState = membershipState;
     return this;
@@ -120,28 +151,28 @@ public class PermittedOrganizationChoice extends HashMap<String, Object> {
    * Get membershipState
    * @return membershipState
    */
-  @jakarta.annotation.Nullable
+  @jakarta.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_MEMBERSHIP_STATE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public Object getMembershipState() {
+  public MembershipStateEnum getMembershipState() {
     return membershipState;
   }
 
 
   @JsonProperty(JSON_PROPERTY_MEMBERSHIP_STATE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setMembershipState(@jakarta.annotation.Nullable Object membershipState) {
+  public void setMembershipState(@jakarta.annotation.Nonnull MembershipStateEnum membershipState) {
     this.membershipState = membershipState;
   }
 
-  public PermittedOrganizationChoice workspaces(@jakarta.annotation.Nonnull List<PermittedWorkspaceChoice> workspaces) {
+  public AuthenticatedSessionOrganizationsInner workspaces(@jakarta.annotation.Nonnull List<AuthenticatedSessionOrganizationsInnerWorkspacesInner> workspaces) {
     
     this.workspaces = workspaces;
     return this;
   }
 
-  public PermittedOrganizationChoice addWorkspacesItem(PermittedWorkspaceChoice workspacesItem) {
+  public AuthenticatedSessionOrganizationsInner addWorkspacesItem(AuthenticatedSessionOrganizationsInnerWorkspacesInner workspacesItem) {
     if (this.workspaces == null) {
       this.workspaces = new ArrayList<>();
     }
@@ -157,14 +188,14 @@ public class PermittedOrganizationChoice extends HashMap<String, Object> {
   @JsonProperty(JSON_PROPERTY_WORKSPACES)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public List<PermittedWorkspaceChoice> getWorkspaces() {
+  public List<AuthenticatedSessionOrganizationsInnerWorkspacesInner> getWorkspaces() {
     return workspaces;
   }
 
 
   @JsonProperty(JSON_PROPERTY_WORKSPACES)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setWorkspaces(@jakarta.annotation.Nonnull List<PermittedWorkspaceChoice> workspaces) {
+  public void setWorkspaces(@jakarta.annotation.Nonnull List<AuthenticatedSessionOrganizationsInnerWorkspacesInner> workspaces) {
     this.workspaces = workspaces;
   }
 
@@ -176,24 +207,22 @@ public class PermittedOrganizationChoice extends HashMap<String, Object> {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    PermittedOrganizationChoice permittedOrganizationChoice = (PermittedOrganizationChoice) o;
-    return Objects.equals(this.organizationId, permittedOrganizationChoice.organizationId) &&
-        Objects.equals(this.name, permittedOrganizationChoice.name) &&
-        Objects.equals(this.membershipState, permittedOrganizationChoice.membershipState) &&
-        Objects.equals(this.workspaces, permittedOrganizationChoice.workspaces) &&
-        super.equals(o);
+    AuthenticatedSessionOrganizationsInner authenticatedSessionOrganizationsInner = (AuthenticatedSessionOrganizationsInner) o;
+    return Objects.equals(this.organizationId, authenticatedSessionOrganizationsInner.organizationId) &&
+        Objects.equals(this.name, authenticatedSessionOrganizationsInner.name) &&
+        Objects.equals(this.membershipState, authenticatedSessionOrganizationsInner.membershipState) &&
+        Objects.equals(this.workspaces, authenticatedSessionOrganizationsInner.workspaces);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(organizationId, name, membershipState, workspaces, super.hashCode());
+    return Objects.hash(organizationId, name, membershipState, workspaces);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class PermittedOrganizationChoice {\n");
-    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
+    sb.append("class AuthenticatedSessionOrganizationsInner {\n");
     sb.append("    organizationId: ").append(toIndentedString(organizationId)).append("\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("    membershipState: ").append(toIndentedString(membershipState)).append("\n");

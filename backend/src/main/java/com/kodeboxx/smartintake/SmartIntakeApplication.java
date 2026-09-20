@@ -5,5 +5,5 @@ import org.springframework.boot.*;import org.springframework.security.crypto.bcr
 
 @SpringBootApplication public class SmartIntakeApplication {
  public static void main(String[] args){SpringApplication.run(SmartIntakeApplication.class,args);}
- @Bean WebMvcConfigurer cors(){return new WebMvcConfigurer(){public void addCorsMappings(CorsRegistry r){r.addMapping("/v1/**").allowedOrigins("http://localhost:4200","http://127.0.0.1:4200").allowedMethods("GET","POST","PUT","PATCH","DELETE").allowedHeaders("Content-Type","X-CSRF-Token","X-Login-CSRF-Token").allowCredentials(true);}};}
+
 }

@@ -22,7 +22,6 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -31,28 +30,28 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
  */
 @JsonPropertyOrder({
   CatalogSettings.JSON_PROPERTY_WORKSPACE_ID,
-  CatalogSettings.JSON_PROPERTY_POLICY,
-  CatalogSettings.JSON_PROPERTY_PROVIDERS
+  CatalogSettings.JSON_PROPERTY_EFFECTIVE,
+  CatalogSettings.JSON_PROPERTY_OVERRIDES
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
 public class CatalogSettings extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_WORKSPACE_ID = "workspaceId";
   @jakarta.annotation.Nonnull
-  private UUID workspaceId;
+  private String workspaceId;
 
-  public static final String JSON_PROPERTY_POLICY = "policy";
+  public static final String JSON_PROPERTY_EFFECTIVE = "effective";
   @jakarta.annotation.Nonnull
-  private Object policy;
+  private Object effective;
 
-  public static final String JSON_PROPERTY_PROVIDERS = "providers";
+  public static final String JSON_PROPERTY_OVERRIDES = "overrides";
   @jakarta.annotation.Nonnull
-  private Object providers;
+  private Object overrides;
 
   public CatalogSettings() {
 
   }
 
-  public CatalogSettings workspaceId(@jakarta.annotation.Nonnull UUID workspaceId) {
+  public CatalogSettings workspaceId(@jakarta.annotation.Nonnull String workspaceId) {
     
     this.workspaceId = workspaceId;
     return this;
@@ -66,65 +65,65 @@ public class CatalogSettings extends HashMap<String, Object> {
   @JsonProperty(JSON_PROPERTY_WORKSPACE_ID)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public UUID getWorkspaceId() {
+  public String getWorkspaceId() {
     return workspaceId;
   }
 
 
   @JsonProperty(JSON_PROPERTY_WORKSPACE_ID)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setWorkspaceId(@jakarta.annotation.Nonnull UUID workspaceId) {
+  public void setWorkspaceId(@jakarta.annotation.Nonnull String workspaceId) {
     this.workspaceId = workspaceId;
   }
 
-  public CatalogSettings policy(@jakarta.annotation.Nonnull Object policy) {
+  public CatalogSettings effective(@jakarta.annotation.Nonnull Object effective) {
     
-    this.policy = policy;
+    this.effective = effective;
     return this;
   }
 
   /**
-   * Get policy
-   * @return policy
+   * Get effective
+   * @return effective
    */
   @jakarta.annotation.Nonnull
-  @JsonProperty(JSON_PROPERTY_POLICY)
+  @JsonProperty(JSON_PROPERTY_EFFECTIVE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public Object getPolicy() {
-    return policy;
+  public Object getEffective() {
+    return effective;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_POLICY)
+  @JsonProperty(JSON_PROPERTY_EFFECTIVE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setPolicy(@jakarta.annotation.Nonnull Object policy) {
-    this.policy = policy;
+  public void setEffective(@jakarta.annotation.Nonnull Object effective) {
+    this.effective = effective;
   }
 
-  public CatalogSettings providers(@jakarta.annotation.Nonnull Object providers) {
+  public CatalogSettings overrides(@jakarta.annotation.Nonnull Object overrides) {
     
-    this.providers = providers;
+    this.overrides = overrides;
     return this;
   }
 
   /**
-   * Get providers
-   * @return providers
+   * Get overrides
+   * @return overrides
    */
   @jakarta.annotation.Nonnull
-  @JsonProperty(JSON_PROPERTY_PROVIDERS)
+  @JsonProperty(JSON_PROPERTY_OVERRIDES)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public Object getProviders() {
-    return providers;
+  public Object getOverrides() {
+    return overrides;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_PROVIDERS)
+  @JsonProperty(JSON_PROPERTY_OVERRIDES)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setProviders(@jakarta.annotation.Nonnull Object providers) {
-    this.providers = providers;
+  public void setOverrides(@jakarta.annotation.Nonnull Object overrides) {
+    this.overrides = overrides;
   }
 
   @Override
@@ -137,14 +136,14 @@ public class CatalogSettings extends HashMap<String, Object> {
     }
     CatalogSettings catalogSettings = (CatalogSettings) o;
     return Objects.equals(this.workspaceId, catalogSettings.workspaceId) &&
-        Objects.equals(this.policy, catalogSettings.policy) &&
-        Objects.equals(this.providers, catalogSettings.providers) &&
+        Objects.equals(this.effective, catalogSettings.effective) &&
+        Objects.equals(this.overrides, catalogSettings.overrides) &&
         super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(workspaceId, policy, providers, super.hashCode());
+    return Objects.hash(workspaceId, effective, overrides, super.hashCode());
   }
 
   @Override
@@ -153,8 +152,8 @@ public class CatalogSettings extends HashMap<String, Object> {
     sb.append("class CatalogSettings {\n");
     sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    workspaceId: ").append(toIndentedString(workspaceId)).append("\n");
-    sb.append("    policy: ").append(toIndentedString(policy)).append("\n");
-    sb.append("    providers: ").append(toIndentedString(providers)).append("\n");
+    sb.append("    effective: ").append(toIndentedString(effective)).append("\n");
+    sb.append("    overrides: ").append(toIndentedString(overrides)).append("\n");
     sb.append("}");
     return sb.toString();
   }

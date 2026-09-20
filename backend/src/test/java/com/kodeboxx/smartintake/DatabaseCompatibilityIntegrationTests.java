@@ -67,8 +67,8 @@ class DatabaseCompatibilityIntegrationTests {
           new FlywayHistory("12", "SQL", "V12__submission_attempt_review_evidence.sql", -1868713494),
           new FlywayHistory("13", "SQL", "V13__pinned_runtime_manifests.sql", -1265314321),
           new FlywayHistory("14", "SQL", "V14__staff_identity_sessions.sql", 724788122),
-          new FlywayHistory("15", "SQL", "V15__identity_lifecycle_tenant_administration.sql", 1269175926),
-          new FlywayHistory("16", "SQL", "V16__catalog_administration.sql", 227155273));
+          new FlywayHistory("15", "SQL", "V15__identity_lifecycle_tenant_administration.sql", 921498486),
+          new FlywayHistory("16", "SQL", "V16__catalog_administration.sql", -2129090709));
 
   @Autowired JdbcTemplate db;
   @Autowired CompatibilityReconciliationService reconciliation;
@@ -657,11 +657,7 @@ class DatabaseCompatibilityIntegrationTests {
         organization,
         workspaceKey,
         "Invalid workspace");
-    db.update(
-        "insert into memberships(account_id,workspace_id,role) values(?,?,?)",
-        account,
-        workspace,
-        "OWNER");
+    db.update("insert into memberships(account_id,workspace_id,role) values(?,?,?)", account, workspace, "PUBLISHER");
     db.update(
         "insert into staff_sessions(token,account_id,expires_at) values(?,?,now()+interval '1"
             + " hour')",
@@ -785,16 +781,8 @@ class DatabaseCompatibilityIntegrationTests {
         organization,
         "mismatch-b-" + workspaceB,
         "B");
-    db.update(
-        "insert into memberships(account_id,workspace_id,role) values(?,?,?)",
-        account,
-        workspaceA,
-        "OWNER");
-    db.update(
-        "insert into memberships(account_id,workspace_id,role) values(?,?,?)",
-        account,
-        workspaceB,
-        "OWNER");
+    for (UUID memberWorkspace : List.of(workspaceA, workspaceB))
+      db.update("insert into memberships(account_id,workspace_id,role) values(?,?,?)", account, memberWorkspace, "RESPONSE_EXPORTER");
     db.update(
         "insert into staff_sessions(token,account_id,expires_at) values(?,?,now()+interval '1"
             + " hour')",

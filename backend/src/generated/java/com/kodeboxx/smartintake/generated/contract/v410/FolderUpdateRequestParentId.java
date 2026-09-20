@@ -15,52 +15,19 @@ package com.kodeboxx.smartintake.generated.contract.v410;
 
 import java.util.Objects;
 import java.util.Arrays;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
- * CatalogTransfer
+ * FolderUpdateRequestParentId
  */
 @JsonPropertyOrder({
-  CatalogTransfer.JSON_PROPERTY_ACCOUNT_ID
 })
+@JsonTypeName("FolderUpdateRequest_parentId")
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class CatalogTransfer {
-  public static final String JSON_PROPERTY_ACCOUNT_ID = "accountId";
-  @jakarta.annotation.Nonnull
-  private String accountId;
-
-  public CatalogTransfer() {
-  }
-
-  public CatalogTransfer accountId(@jakarta.annotation.Nonnull String accountId) {
-    
-    this.accountId = accountId;
-    return this;
-  }
-
-  /**
-   * Get accountId
-   * @return accountId
-   */
-  @jakarta.annotation.Nonnull
-  @JsonProperty(JSON_PROPERTY_ACCOUNT_ID)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-
-  public String getAccountId() {
-    return accountId;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_ACCOUNT_ID)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setAccountId(@jakarta.annotation.Nonnull String accountId) {
-    this.accountId = accountId;
+public class FolderUpdateRequestParentId {
+  public FolderUpdateRequestParentId() {
   }
 
   @Override
@@ -71,20 +38,18 @@ public class CatalogTransfer {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    CatalogTransfer catalogTransfer = (CatalogTransfer) o;
-    return Objects.equals(this.accountId, catalogTransfer.accountId);
+    return true;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(accountId);
+    return Objects.hash();
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class CatalogTransfer {\n");
-    sb.append("    accountId: ").append(toIndentedString(accountId)).append("\n");
+    sb.append("class FolderUpdateRequestParentId {\n");
     sb.append("}");
     return sb.toString();
   }

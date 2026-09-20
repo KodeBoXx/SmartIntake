@@ -26,7 +26,7 @@ paths:
         roles:
         - credential-proof
         tenantScope: purpose-bound
-      x-implementation-status: contract-published
+      x-implementation-status: implemented
       responses:
         '204':
           description: Successful response.
@@ -86,13 +86,10 @@ paths:
         roles:
         - staff.session.self
         tenantScope: account-session
-      x-implementation-status: contract-published
+      x-implementation-status: implemented
       responses:
         '204':
           description: Successful response.
-          headers:
-            ETag:
-              $ref: '#/components/headers/ETag'
           content: {}
         '400':
           $ref: '#/components/responses/BadRequest'
@@ -145,7 +142,7 @@ paths:
         roles:
         - credential-proof
         tenantScope: purpose-bound
-      x-implementation-status: contract-published
+      x-implementation-status: implemented
       responses:
         '202':
           description: Successful response.
@@ -218,7 +215,7 @@ paths:
         roles:
         - credential-proof
         tenantScope: purpose-bound
-      x-implementation-status: contract-published
+      x-implementation-status: implemented
       responses:
         '204':
           description: Successful response.
@@ -277,13 +274,10 @@ paths:
         roles:
         - staff.session.self
         tenantScope: account-session
-      x-implementation-status: contract-published
+      x-implementation-status: implemented
       responses:
         '200':
           description: Successful response.
-          headers:
-            ETag:
-              $ref: '#/components/headers/ETag'
           content:
             application/json:
               schema:
@@ -346,13 +340,10 @@ paths:
         roles:
         - credential-proof
         tenantScope: purpose-bound
-      x-implementation-status: contract-published
+      x-implementation-status: implemented
       responses:
         '200':
           description: Successful response.
-          headers:
-            ETag:
-              $ref: '#/components/headers/ETag'
           content:
             application/json:
               schema:
@@ -427,14 +418,11 @@ paths:
         roles:
         - staff.session.self
         tenantScope: account-session
-      x-implementation-status: contract-published
+      x-implementation-status: implemented
       responses:
         '204':
-          description: Successful response.
-          headers:
-            ETag:
-              $ref: '#/components/headers/ETag'
-          content: {}
+          description: Revokes the current cookie session and expires staff and CSRF
+            cookies.
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -452,18 +440,6 @@ paths:
         '422':
           $ref: '#/components/responses/Unprocessable'
       security: *id001
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AccountActionCreateRequest'
-            examples:
-              valid:
-                value:
-                  name: Example resource
-              invalid:
-                value: {}
       x-replay: Authentication proofs are operation-specific and one-time where applicable;
         retries never replay credentials, tokens, cookies, reset links, activation
         links or transfer capabilities.
@@ -520,7 +496,7 @@ paths:
         roles:
         - credential-proof
         tenantScope: purpose-bound
-      x-implementation-status: contract-published
+      x-implementation-status: implemented
       responses:
         '200':
           description: Successful response.
@@ -595,7 +571,7 @@ paths:
         roles:
         - organization.administrator
         tenantScope: organization
-      x-implementation-status: contract-published
+      x-implementation-status: implemented
       responses:
         '204':
           description: Successful response.
@@ -619,6 +595,10 @@ paths:
           $ref: '#/components/responses/Conflict'
         '422':
           $ref: '#/components/responses/Unprocessable'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
+        '428':
+          $ref: '#/components/responses/PreconditionRequired'
       parameters:
       - name: o
         in: path
@@ -635,12 +615,16 @@ paths:
           $ref: '#/components/schemas/OpaqueId'
         example: i-01J2W5RFR3K24SFWDX2C0N9VW3
       - $ref: '#/components/parameters/IdempotencyKey'
+      - $ref: '#/components/parameters/IfMatch'
       security: *id001
       x-request-body: none
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical
-        request hash, retained for at least seven days; equal requests replay the
-        original result and changed-body reuse is 409. Session mutation replay keys
-        are clientMutationId plus body.
+      x-replay: Idempotency-Key is durably scoped to actor, tenant/account scope,
+        operation and canonical request digest for at least seven days; equal requests
+        replay the original status, body and ETag, while changed-request reuse is
+        409. Secret capability-copy headers are delivered only once and are omitted
+        from replays.
+      x-concurrency: Strong ETag and If-Match are required; missing is 428, stale
+        is 412.
   /v1/organizations/{o}/policies:
     get:
       operationId: OS-get-v1-organizations-o-policies-a6d63aef4b
@@ -1020,7 +1004,7 @@ paths:
         roles:
         - organization.administrator
         tenantScope: organization
-      x-implementation-status: contract-published
+      x-implementation-status: implemented
       responses:
         '201':
           description: Successful response.
@@ -1083,10 +1067,11 @@ paths:
                   email: author@example.test
               invalid:
                 value: {}
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical
-        request hash, retained for at least seven days; equal requests replay the
-        original result and changed-body reuse is 409. Session mutation replay keys
-        are clientMutationId plus body.
+      x-replay: Idempotency-Key is durably scoped to actor, tenant/account scope,
+        operation and canonical request digest for at least seven days; equal requests
+        replay the original status, body and ETag, while changed-request reuse is
+        409. Secret capability-copy headers are delivered only once and are omitted
+        from replays.
   /v1/organizations/{o}/users/{u}:
     patch:
       operationId: ON-patch-v1-organizations-o-users-u-64340c0fdf
@@ -1103,7 +1088,7 @@ paths:
         roles:
         - organization.administrator
         tenantScope: organization
-      x-implementation-status: contract-published
+      x-implementation-status: implemented
       responses:
         '200':
           description: Successful response.
@@ -1178,10 +1163,11 @@ paths:
                   email: author@example.test
               invalid:
                 value: {}
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical
-        request hash, retained for at least seven days; equal requests replay the
-        original result and changed-body reuse is 409. Session mutation replay keys
-        are clientMutationId plus body.
+      x-replay: Idempotency-Key is durably scoped to actor, tenant/account scope,
+        operation and canonical request digest for at least seven days; equal requests
+        replay the original status, body and ETag, while changed-request reuse is
+        409. Secret capability-copy headers are delivered only once and are omitted
+        from replays.
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale
         is 412.
     delete:
@@ -1199,7 +1185,7 @@ paths:
         roles:
         - organization.administrator
         tenantScope: organization
-      x-implementation-status: contract-published
+      x-implementation-status: implemented
       responses:
         '204':
           description: Successful response.
@@ -1223,6 +1209,10 @@ paths:
           $ref: '#/components/responses/Conflict'
         '422':
           $ref: '#/components/responses/Unprocessable'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
+        '428':
+          $ref: '#/components/responses/PreconditionRequired'
       parameters:
       - name: o
         in: path
@@ -1239,12 +1229,16 @@ paths:
           $ref: '#/components/schemas/OpaqueId'
         example: u-01J2W5RFR3K24SFWDX2C0N9VW3
       - $ref: '#/components/parameters/IdempotencyKey'
+      - $ref: '#/components/parameters/IfMatch'
       security: *id001
       x-request-body: none
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical
-        request hash, retained for at least seven days; equal requests replay the
-        original result and changed-body reuse is 409. Session mutation replay keys
-        are clientMutationId plus body.
+      x-replay: Idempotency-Key is durably scoped to actor, tenant/account scope,
+        operation and canonical request digest for at least seven days; equal requests
+        replay the original status, body and ETag, while changed-request reuse is
+        409. Secret capability-copy headers are delivered only once and are omitted
+        from replays.
+      x-concurrency: Strong ETag and If-Match are required; missing is 428, stale
+        is 412.
   /v1/organizations/{o}/users/{u}/invitations:
     post:
       operationId: ON-post-v1-organizations-o-users-u-invitations-2caab11b76
@@ -1261,7 +1255,7 @@ paths:
         roles:
         - organization.administrator
         tenantScope: organization
-      x-implementation-status: contract-published
+      x-implementation-status: implemented
       responses:
         '201':
           description: Successful response.
@@ -1330,10 +1324,11 @@ paths:
                   name: Example resource
               invalid:
                 value: {}
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical
-        request hash, retained for at least seven days; equal requests replay the
-        original result and changed-body reuse is 409. Session mutation replay keys
-        are clientMutationId plus body.
+      x-replay: Idempotency-Key is durably scoped to actor, tenant/account scope,
+        operation and canonical request digest for at least seven days; equal requests
+        replay the original status, body and ETag, while changed-request reuse is
+        409. Secret capability-copy headers are delivered only once and are omitted
+        from replays.
   /v1/organizations/{o}/users/{u}/recovery:
     post:
       operationId: ON-post-v1-organizations-o-users-u-recovery-c327e4cd74
@@ -1350,7 +1345,7 @@ paths:
         roles:
         - organization.administrator
         tenantScope: organization
-      x-implementation-status: contract-published
+      x-implementation-status: implemented
       responses:
         '201':
           description: Successful response.
@@ -1425,10 +1420,11 @@ paths:
                   idempotencyReplay: redacted
               invalid:
                 value: {}
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical
-        request hash, retained for at least seven days; equal requests replay the
-        original result and changed-body reuse is 409. Session mutation replay keys
-        are clientMutationId plus body.
+      x-replay: Idempotency-Key is durably scoped to actor, tenant/account scope,
+        operation and canonical request digest for at least seven days; equal requests
+        replay the original status, body and ETag, while changed-request reuse is
+        409. Secret capability-copy headers are delivered only once and are omitted
+        from replays.
   /v1/platform/accounts/{a}:
     patch:
       operationId: ON-patch-v1-platform-accounts-a-05f292a1f5
@@ -1445,7 +1441,7 @@ paths:
         roles:
         - platform.administrator
         tenantScope: platform
-      x-implementation-status: contract-published
+      x-implementation-status: implemented
       responses:
         '200':
           description: Successful response.
@@ -1511,10 +1507,11 @@ paths:
                   accountStatus: active
               invalid:
                 value: {}
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical
-        request hash, retained for at least seven days; equal requests replay the
-        original result and changed-body reuse is 409. Session mutation replay keys
-        are clientMutationId plus body.
+      x-replay: Idempotency-Key is durably scoped to actor, tenant/account scope,
+        operation and canonical request digest for at least seven days; equal requests
+        replay the original status, body and ETag, while changed-request reuse is
+        409. Secret capability-copy headers are delivered only once and are omitted
+        from replays.
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale
         is 412.
   /v1/platform/accounts/{a}/recovery:
@@ -1533,7 +1530,7 @@ paths:
         roles:
         - platform.administrator
         tenantScope: platform
-      x-implementation-status: contract-published
+      x-implementation-status: implemented
       responses:
         '201':
           description: Successful response.
@@ -1601,10 +1598,11 @@ paths:
                   idempotencyReplay: redacted
               invalid:
                 value: {}
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical
-        request hash, retained for at least seven days; equal requests replay the
-        original result and changed-body reuse is 409. Session mutation replay keys
-        are clientMutationId plus body.
+      x-replay: Idempotency-Key is durably scoped to actor, tenant/account scope,
+        operation and canonical request digest for at least seven days; equal requests
+        replay the original status, body and ETag, while changed-request reuse is
+        409. Secret capability-copy headers are delivered only once and are omitted
+        from replays.
   /v1/platform/organizations:
     get:
       operationId: ON-get-v1-platform-organizations-69b54638c0
@@ -1682,7 +1680,7 @@ paths:
         roles:
         - platform.administrator
         tenantScope: platform
-      x-implementation-status: contract-published
+      x-implementation-status: implemented
       responses:
         '201':
           description: Successful response.
@@ -1736,10 +1734,11 @@ paths:
                   name: Example resource
               invalid:
                 value: {}
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical
-        request hash, retained for at least seven days; equal requests replay the
-        original result and changed-body reuse is 409. Session mutation replay keys
-        are clientMutationId plus body.
+      x-replay: Idempotency-Key is durably scoped to actor, tenant/account scope,
+        operation and canonical request digest for at least seven days; equal requests
+        replay the original status, body and ETag, while changed-request reuse is
+        409. Secret capability-copy headers are delivered only once and are omitted
+        from replays.
   /v1/platform/organizations/{o}:
     patch:
       operationId: ON-patch-v1-platform-organizations-o-f7c610cd38
@@ -1756,7 +1755,7 @@ paths:
         roles:
         - platform.administrator
         tenantScope: platform
-      x-implementation-status: contract-published
+      x-implementation-status: implemented
       responses:
         '200':
           description: Successful response.
@@ -1822,10 +1821,11 @@ paths:
                   name: Example resource
               invalid:
                 value: {}
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical
-        request hash, retained for at least seven days; equal requests replay the
-        original result and changed-body reuse is 409. Session mutation replay keys
-        are clientMutationId plus body.
+      x-replay: Idempotency-Key is durably scoped to actor, tenant/account scope,
+        operation and canonical request digest for at least seven days; equal requests
+        replay the original status, body and ETag, while changed-request reuse is
+        409. Secret capability-copy headers are delivered only once and are omitted
+        from replays.
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale
         is 412.
   /v1/platform/organizations/{o}/users:
@@ -1844,7 +1844,7 @@ paths:
         roles:
         - platform.administrator
         tenantScope: platform
-      x-implementation-status: contract-published
+      x-implementation-status: implemented
       responses:
         '201':
           description: Successful response.
@@ -1907,10 +1907,11 @@ paths:
                   email: author@example.test
               invalid:
                 value: {}
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical
-        request hash, retained for at least seven days; equal requests replay the
-        original result and changed-body reuse is 409. Session mutation replay keys
-        are clientMutationId plus body.
+      x-replay: Idempotency-Key is durably scoped to actor, tenant/account scope,
+        operation and canonical request digest for at least seven days; equal requests
+        replay the original status, body and ETag, while changed-request reuse is
+        409. Secret capability-copy headers are delivered only once and are omitted
+        from replays.
   /v1/public/forms/{shareId}/sessions:
     post:
       operationId: ON-post-v1-public-forms-shareid-sessions-1ca37406cb
@@ -3099,296 +3100,6 @@ paths:
                   - answers
               invalid:
                 value: {}
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical
-        request hash, retained for at least seven days; equal requests replay the
-        original result and changed-body reuse is 409. Session mutation replay keys
-        are clientMutationId plus body.
-  /v1/workspaces/{w}/folders:
-    get:
-      operationId: OS-get-v1-workspaces-w-folders-33ea83deb0
-      summary: GET /v1/workspaces/{w}/folders (catalog folders)
-      description: Published M2 contract. Implementation is intentionally deferred
-        unless marked implemented.
-      x-m0-counted: true
-      x-m0-category: supporting-crud
-      x-m0-inventory-id: OS-get-v1-workspaces-w-folders-33ea83deb0
-      x-prd-citation:
-        lines: '604'
-        source: docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md
-      x-authorization:
-        roles:
-        - workspace.form.read
-        tenantScope: workspace
-      x-implementation-status: contract-published
-      responses:
-        '200':
-          description: Successful response.
-          headers:
-            ETag:
-              $ref: '#/components/headers/ETag'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FolderCollection'
-              examples:
-                success:
-                  value:
-                    requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
-                    items:
-                    - id: folder-01J2W5RFR3K24SFWDX2C0N9VW3
-                      kind: Folder
-                      revision: 7
-                      status: active
-                      createdAt: '2026-09-18T00:00:00Z'
-                      updatedAt: '2026-09-18T00:00:00Z'
-                      name: Studies
-                    page:
-                      limit: 50
-                      nextCursor: null
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthenticated'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '429':
-          $ref: '#/components/responses/RateLimited'
-        '500':
-          $ref: '#/components/responses/InternalError'
-      parameters:
-      - name: w
-        in: path
-        required: true
-        description: Opaque server-issued identifier; it is never an authority grant.
-        schema:
-          $ref: '#/components/schemas/OpaqueId'
-        example: w-01J2W5RFR3K24SFWDX2C0N9VW3
-      - $ref: '#/components/parameters/Cursor'
-      - $ref: '#/components/parameters/Limit'
-      security:
-      - staffCookie: []
-      x-pagination: 'Results use a stable total order and a snapshot cursor: no duplicate
-        items, no missing items, and deterministic continuation while the cursor is
-        valid.'
-    post:
-      operationId: OS-post-v1-workspaces-w-folders-04335a99f1
-      summary: POST /v1/workspaces/{w}/folders (catalog folders)
-      description: Published M2 contract. Implementation is intentionally deferred
-        unless marked implemented.
-      x-m0-counted: true
-      x-m0-category: supporting-crud
-      x-m0-inventory-id: OS-post-v1-workspaces-w-folders-04335a99f1
-      x-prd-citation:
-        lines: '604'
-        source: docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md
-      x-authorization:
-        roles:
-        - workspace.form.write
-        tenantScope: workspace
-      x-implementation-status: contract-published
-      responses:
-        '201':
-          description: Successful response.
-          headers:
-            ETag:
-              $ref: '#/components/headers/ETag'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FolderResponse'
-              examples:
-                success:
-                  value:
-                    requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
-                    folder:
-                      id: folder-01J2W5RFR3K24SFWDX2C0N9VW3
-                      kind: Folder
-                      revision: 7
-                      status: active
-                      createdAt: '2026-09-18T00:00:00Z'
-                      updatedAt: '2026-09-18T00:00:00Z'
-                      name: Studies
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthenticated'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '429':
-          $ref: '#/components/responses/RateLimited'
-        '500':
-          $ref: '#/components/responses/InternalError'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '422':
-          $ref: '#/components/responses/Unprocessable'
-      parameters:
-      - name: w
-        in: path
-        required: true
-        description: Opaque server-issued identifier; it is never an authority grant.
-        schema:
-          $ref: '#/components/schemas/OpaqueId'
-        example: w-01J2W5RFR3K24SFWDX2C0N9VW3
-      - $ref: '#/components/parameters/IdempotencyKey'
-      security: *id001
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/FolderCreateRequest'
-            examples:
-              valid:
-                value:
-                  name: Example resource
-              invalid:
-                value: {}
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical
-        request hash, retained for at least seven days; equal requests replay the
-        original result and changed-body reuse is 409. Session mutation replay keys
-        are clientMutationId plus body.
-    patch:
-      operationId: OS-patch-v1-workspaces-w-folders-462f91440e
-      summary: PATCH /v1/workspaces/{w}/folders (catalog folders)
-      description: Published M2 contract. Implementation is intentionally deferred
-        unless marked implemented.
-      x-m0-counted: true
-      x-m0-category: supporting-crud
-      x-m0-inventory-id: OS-patch-v1-workspaces-w-folders-462f91440e
-      x-prd-citation:
-        lines: '604'
-        source: docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md
-      x-authorization:
-        roles:
-        - workspace.form.write
-        tenantScope: workspace
-      x-implementation-status: contract-published
-      responses:
-        '200':
-          description: Successful response.
-          headers:
-            ETag:
-              $ref: '#/components/headers/ETag'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FolderResponse'
-              examples:
-                success:
-                  value:
-                    requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
-                    folder:
-                      id: folder-01J2W5RFR3K24SFWDX2C0N9VW3
-                      kind: Folder
-                      revision: 7
-                      status: active
-                      createdAt: '2026-09-18T00:00:00Z'
-                      updatedAt: '2026-09-18T00:00:00Z'
-                      name: Studies
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthenticated'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '429':
-          $ref: '#/components/responses/RateLimited'
-        '500':
-          $ref: '#/components/responses/InternalError'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '422':
-          $ref: '#/components/responses/Unprocessable'
-        '412':
-          $ref: '#/components/responses/PreconditionFailed'
-        '428':
-          $ref: '#/components/responses/PreconditionRequired'
-      parameters:
-      - name: w
-        in: path
-        required: true
-        description: Opaque server-issued identifier; it is never an authority grant.
-        schema:
-          $ref: '#/components/schemas/OpaqueId'
-        example: w-01J2W5RFR3K24SFWDX2C0N9VW3
-      - $ref: '#/components/parameters/IfMatch'
-      - $ref: '#/components/parameters/IdempotencyKey'
-      security: *id001
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/FolderUpdateRequest'
-            examples:
-              valid:
-                value:
-                  name: Example resource
-              invalid:
-                value: {}
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical
-        request hash, retained for at least seven days; equal requests replay the
-        original result and changed-body reuse is 409. Session mutation replay keys
-        are clientMutationId plus body.
-      x-concurrency: Strong ETag and If-Match are required; missing is 428, stale
-        is 412.
-    delete:
-      operationId: OS-delete-v1-workspaces-w-folders-bf3ff71abf
-      summary: DELETE /v1/workspaces/{w}/folders (catalog folders)
-      description: Published M2 contract. Implementation is intentionally deferred
-        unless marked implemented.
-      x-m0-counted: true
-      x-m0-category: supporting-crud
-      x-m0-inventory-id: OS-delete-v1-workspaces-w-folders-bf3ff71abf
-      x-prd-citation:
-        lines: '604'
-        source: docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md
-      x-authorization:
-        roles:
-        - workspace.form.write
-        tenantScope: workspace
-      x-implementation-status: contract-published
-      responses:
-        '204':
-          description: Successful response.
-          headers:
-            ETag:
-              $ref: '#/components/headers/ETag'
-          content: {}
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthenticated'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '429':
-          $ref: '#/components/responses/RateLimited'
-        '500':
-          $ref: '#/components/responses/InternalError'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '422':
-          $ref: '#/components/responses/Unprocessable'
-      parameters:
-      - name: w
-        in: path
-        required: true
-        description: Opaque server-issued identifier; it is never an authority grant.
-        schema:
-          $ref: '#/components/schemas/OpaqueId'
-        example: w-01J2W5RFR3K24SFWDX2C0N9VW3
-      - $ref: '#/components/parameters/IdempotencyKey'
-      security: *id001
-      x-request-body: none
       x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical
         request hash, retained for at least seven days; equal requests replay the
         original result and changed-body reuse is 409. Session mutation replay keys
@@ -5631,299 +5342,6 @@ paths:
         example: id-01J2W5RFR3K24SFWDX2C0N9VW3
       security:
       - staffCookie: []
-  /v1/workspaces/{w}/tags:
-    get:
-      operationId: OS-get-v1-workspaces-w-tags-3f795dc7ec
-      summary: GET /v1/workspaces/{w}/tags (catalog tags)
-      description: Published M2 contract. Implementation is intentionally deferred
-        unless marked implemented.
-      x-m0-counted: true
-      x-m0-category: supporting-crud
-      x-m0-inventory-id: OS-get-v1-workspaces-w-tags-3f795dc7ec
-      x-prd-citation:
-        lines: '604'
-        source: docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md
-      x-authorization:
-        roles:
-        - workspace.form.read
-        tenantScope: workspace
-      x-implementation-status: contract-published
-      responses:
-        '200':
-          description: Successful response.
-          headers:
-            ETag:
-              $ref: '#/components/headers/ETag'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TagCollection'
-              examples:
-                success:
-                  value:
-                    requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
-                    items:
-                    - id: tag-01J2W5RFR3K24SFWDX2C0N9VW3
-                      kind: Tag
-                      revision: 7
-                      status: active
-                      createdAt: '2026-09-18T00:00:00Z'
-                      updatedAt: '2026-09-18T00:00:00Z'
-                      label: priority
-                      color: '#164194'
-                    page:
-                      limit: 50
-                      nextCursor: null
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthenticated'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '429':
-          $ref: '#/components/responses/RateLimited'
-        '500':
-          $ref: '#/components/responses/InternalError'
-      parameters:
-      - name: w
-        in: path
-        required: true
-        description: Opaque server-issued identifier; it is never an authority grant.
-        schema:
-          $ref: '#/components/schemas/OpaqueId'
-        example: w-01J2W5RFR3K24SFWDX2C0N9VW3
-      - $ref: '#/components/parameters/Cursor'
-      - $ref: '#/components/parameters/Limit'
-      security:
-      - staffCookie: []
-      x-pagination: 'Results use a stable total order and a snapshot cursor: no duplicate
-        items, no missing items, and deterministic continuation while the cursor is
-        valid.'
-    post:
-      operationId: OS-post-v1-workspaces-w-tags-a1075ffc3a
-      summary: POST /v1/workspaces/{w}/tags (catalog tags)
-      description: Published M2 contract. Implementation is intentionally deferred
-        unless marked implemented.
-      x-m0-counted: true
-      x-m0-category: supporting-crud
-      x-m0-inventory-id: OS-post-v1-workspaces-w-tags-a1075ffc3a
-      x-prd-citation:
-        lines: '604'
-        source: docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md
-      x-authorization:
-        roles:
-        - workspace.form.write
-        tenantScope: workspace
-      x-implementation-status: contract-published
-      responses:
-        '201':
-          description: Successful response.
-          headers:
-            ETag:
-              $ref: '#/components/headers/ETag'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TagResponse'
-              examples:
-                success:
-                  value:
-                    requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
-                    tag:
-                      id: tag-01J2W5RFR3K24SFWDX2C0N9VW3
-                      kind: Tag
-                      revision: 7
-                      status: active
-                      createdAt: '2026-09-18T00:00:00Z'
-                      updatedAt: '2026-09-18T00:00:00Z'
-                      label: priority
-                      color: '#164194'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthenticated'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '429':
-          $ref: '#/components/responses/RateLimited'
-        '500':
-          $ref: '#/components/responses/InternalError'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '422':
-          $ref: '#/components/responses/Unprocessable'
-      parameters:
-      - name: w
-        in: path
-        required: true
-        description: Opaque server-issued identifier; it is never an authority grant.
-        schema:
-          $ref: '#/components/schemas/OpaqueId'
-        example: w-01J2W5RFR3K24SFWDX2C0N9VW3
-      - $ref: '#/components/parameters/IdempotencyKey'
-      security: *id001
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TagCreateRequest'
-            examples:
-              valid:
-                value:
-                  label: Example resource
-              invalid:
-                value: {}
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical
-        request hash, retained for at least seven days; equal requests replay the
-        original result and changed-body reuse is 409. Session mutation replay keys
-        are clientMutationId plus body.
-    patch:
-      operationId: OS-patch-v1-workspaces-w-tags-81684cbff4
-      summary: PATCH /v1/workspaces/{w}/tags (catalog tags)
-      description: Published M2 contract. Implementation is intentionally deferred
-        unless marked implemented.
-      x-m0-counted: true
-      x-m0-category: supporting-crud
-      x-m0-inventory-id: OS-patch-v1-workspaces-w-tags-81684cbff4
-      x-prd-citation:
-        lines: '604'
-        source: docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md
-      x-authorization:
-        roles:
-        - workspace.form.write
-        tenantScope: workspace
-      x-implementation-status: contract-published
-      responses:
-        '200':
-          description: Successful response.
-          headers:
-            ETag:
-              $ref: '#/components/headers/ETag'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TagResponse'
-              examples:
-                success:
-                  value:
-                    requestId: req-01J2W5RFR3K24SFWDX2C0N9VW3
-                    tag:
-                      id: tag-01J2W5RFR3K24SFWDX2C0N9VW3
-                      kind: Tag
-                      revision: 7
-                      status: active
-                      createdAt: '2026-09-18T00:00:00Z'
-                      updatedAt: '2026-09-18T00:00:00Z'
-                      label: priority
-                      color: '#164194'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthenticated'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '429':
-          $ref: '#/components/responses/RateLimited'
-        '500':
-          $ref: '#/components/responses/InternalError'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '422':
-          $ref: '#/components/responses/Unprocessable'
-        '412':
-          $ref: '#/components/responses/PreconditionFailed'
-        '428':
-          $ref: '#/components/responses/PreconditionRequired'
-      parameters:
-      - name: w
-        in: path
-        required: true
-        description: Opaque server-issued identifier; it is never an authority grant.
-        schema:
-          $ref: '#/components/schemas/OpaqueId'
-        example: w-01J2W5RFR3K24SFWDX2C0N9VW3
-      - $ref: '#/components/parameters/IfMatch'
-      - $ref: '#/components/parameters/IdempotencyKey'
-      security: *id001
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TagUpdateRequest'
-            examples:
-              valid:
-                value:
-                  label: Example resource
-              invalid:
-                value: {}
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical
-        request hash, retained for at least seven days; equal requests replay the
-        original result and changed-body reuse is 409. Session mutation replay keys
-        are clientMutationId plus body.
-      x-concurrency: Strong ETag and If-Match are required; missing is 428, stale
-        is 412.
-    delete:
-      operationId: OS-delete-v1-workspaces-w-tags-1ab7a1ce97
-      summary: DELETE /v1/workspaces/{w}/tags (catalog tags)
-      description: Published M2 contract. Implementation is intentionally deferred
-        unless marked implemented.
-      x-m0-counted: true
-      x-m0-category: supporting-crud
-      x-m0-inventory-id: OS-delete-v1-workspaces-w-tags-1ab7a1ce97
-      x-prd-citation:
-        lines: '604'
-        source: docs/source-handoff/Smart-Form-Builder-Lite-PRD-v1.1.md
-      x-authorization:
-        roles:
-        - workspace.form.write
-        tenantScope: workspace
-      x-implementation-status: contract-published
-      responses:
-        '204':
-          description: Successful response.
-          headers:
-            ETag:
-              $ref: '#/components/headers/ETag'
-          content: {}
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthenticated'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '429':
-          $ref: '#/components/responses/RateLimited'
-        '500':
-          $ref: '#/components/responses/InternalError'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '422':
-          $ref: '#/components/responses/Unprocessable'
-      parameters:
-      - name: w
-        in: path
-        required: true
-        description: Opaque server-issued identifier; it is never an authority grant.
-        schema:
-          $ref: '#/components/schemas/OpaqueId'
-        example: w-01J2W5RFR3K24SFWDX2C0N9VW3
-      - $ref: '#/components/parameters/IdempotencyKey'
-      security: *id001
-      x-request-body: none
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical
-        request hash, retained for at least seven days; equal requests replay the
-        original result and changed-body reuse is 409. Session mutation replay keys
-        are clientMutationId plus body.
   /v1/workspaces/{w}/themes:
     get:
       operationId: OS-get-v1-workspaces-w-themes-e7f6771fc2
@@ -6230,7 +5648,7 @@ paths:
         roles:
         - workspace.members.manage
         tenantScope: workspace
-      x-implementation-status: contract-published
+      x-implementation-status: implemented
       responses:
         '200':
           description: Successful response.
@@ -6305,10 +5723,11 @@ paths:
                   - editor
               invalid:
                 value: {}
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical
-        request hash, retained for at least seven days; equal requests replay the
-        original result and changed-body reuse is 409. Session mutation replay keys
-        are clientMutationId plus body.
+      x-replay: Idempotency-Key is durably scoped to actor, tenant/account scope,
+        operation and canonical request digest for at least seven days; equal requests
+        replay the original status, body and ETag, while changed-request reuse is
+        409. Secret capability-copy headers are delivered only once and are omitted
+        from replays.
       x-concurrency: Strong ETag and If-Match are required; missing is 428, stale
         is 412.
     delete:
@@ -6326,7 +5745,7 @@ paths:
         roles:
         - workspace.members.manage
         tenantScope: workspace
-      x-implementation-status: contract-published
+      x-implementation-status: implemented
       responses:
         '204':
           description: Successful response.
@@ -6350,6 +5769,10 @@ paths:
           $ref: '#/components/responses/Conflict'
         '422':
           $ref: '#/components/responses/Unprocessable'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
+        '428':
+          $ref: '#/components/responses/PreconditionRequired'
       parameters:
       - name: w
         in: path
@@ -6366,12 +5789,16 @@ paths:
           $ref: '#/components/schemas/OpaqueId'
         example: u-01J2W5RFR3K24SFWDX2C0N9VW3
       - $ref: '#/components/parameters/IdempotencyKey'
+      - $ref: '#/components/parameters/IfMatch'
       security: *id001
       x-request-body: none
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical
-        request hash, retained for at least seven days; equal requests replay the
-        original result and changed-body reuse is 409. Session mutation replay keys
-        are clientMutationId plus body.
+      x-replay: Idempotency-Key is durably scoped to actor, tenant/account scope,
+        operation and canonical request digest for at least seven days; equal requests
+        replay the original status, body and ETag, while changed-request reuse is
+        409. Secret capability-copy headers are delivered only once and are omitted
+        from replays.
+      x-concurrency: Strong ETag and If-Match are required; missing is 428, stale
+        is 412.
   /v1/workspaces/{w}/webhook-deliveries:
     get:
       operationId: ON-get-v1-workspaces-w-webhook-deliveries-f6b56d678f
@@ -6622,17 +6049,21 @@ paths:
       required: true
       schema:
         type: string
-        minLength: 1
+        pattern: ^workspace-[0-9a-fA-F-]{36}$
     get:
       operationId: m6CatalogSearch
       summary: Search the current workspace form catalog
       x-implementation-status: implemented
       x-authorization:
-        roles:
-        - OWNER
-        - ADMIN
-        - AUTHOR
-        - VIEWER
+        roles: &id010
+        - workspace-administrator
+        - author
+        - reviewer
+        - translator
+        - publisher
+        - response-viewer
+        - response-exporter
+        - auditor
         tenantScope: current-server-workspace-membership
       security:
       - staffCookie: []
@@ -6705,10 +6136,9 @@ paths:
       summary: Duplicate a workspace form
       x-implementation-status: implemented
       x-authorization:
-        roles:
-        - OWNER
-        - ADMINISTRATOR
-        - AUTHOR
+        roles: &id009
+        - workspace-administrator
+        - author
         tenantScope: current-server-workspace-membership
       security:
       - staffCookie: []
@@ -6736,10 +6166,7 @@ paths:
       summary: Archive a workspace form
       x-implementation-status: implemented
       x-authorization:
-        roles:
-        - OWNER
-        - ADMINISTRATOR
-        - AUTHOR
+        roles: *id009
         tenantScope: current-server-workspace-membership
       security:
       - staffCookie: []
@@ -6767,10 +6194,7 @@ paths:
       summary: Restore a workspace form
       x-implementation-status: implemented
       x-authorization:
-        roles:
-        - OWNER
-        - ADMINISTRATOR
-        - AUTHOR
+        roles: *id009
         tenantScope: current-server-workspace-membership
       security:
       - staffCookie: []
@@ -6798,9 +6222,8 @@ paths:
       summary: Transfer form ownership to a current workspace member
       x-implementation-status: implemented
       x-authorization:
-        roles:
-        - OWNER
-        - ADMINISTRATOR
+        roles: &id011
+        - workspace-administrator
         tenantScope: current-server-workspace-membership
       security:
       - staffCookie: []
@@ -6834,10 +6257,7 @@ paths:
       summary: Set form folder and tags
       x-implementation-status: implemented
       x-authorization:
-        roles:
-        - OWNER
-        - ADMINISTRATOR
-        - AUTHOR
+        roles: *id009
         tenantScope: current-server-workspace-membership
       security:
       - staffCookie: []
@@ -6863,11 +6283,7 @@ paths:
       summary: List workspace catalog folders
       x-implementation-status: implemented
       x-authorization:
-        roles:
-        - OWNER
-        - ADMIN
-        - AUTHOR
-        - VIEWER
+        roles: *id010
         tenantScope: current-server-workspace-membership
       security:
       - staffCookie: []
@@ -6890,10 +6306,7 @@ paths:
       summary: Create a workspace catalog folder
       x-implementation-status: implemented
       x-authorization:
-        roles:
-        - OWNER
-        - ADMINISTRATOR
-        - AUTHOR
+        roles: *id009
         tenantScope: current-server-workspace-membership
       security:
       - staffCookie: []
@@ -6927,10 +6340,7 @@ paths:
       summary: Update a workspace catalog folder
       x-implementation-status: implemented
       x-authorization:
-        roles:
-        - OWNER
-        - ADMINISTRATOR
-        - AUTHOR
+        roles: *id009
         tenantScope: current-server-workspace-membership
       security:
       - staffCookie: []
@@ -6957,10 +6367,7 @@ paths:
       summary: Delete a workspace catalog folder
       x-implementation-status: implemented
       x-authorization:
-        roles:
-        - OWNER
-        - ADMINISTRATOR
-        - AUTHOR
+        roles: *id009
         tenantScope: current-server-workspace-membership
       security:
       - staffCookie: []
@@ -6980,11 +6387,7 @@ paths:
       summary: List workspace catalog tags
       x-implementation-status: implemented
       x-authorization:
-        roles:
-        - OWNER
-        - ADMIN
-        - AUTHOR
-        - VIEWER
+        roles: *id010
         tenantScope: current-server-workspace-membership
       security:
       - staffCookie: []
@@ -7007,10 +6410,7 @@ paths:
       summary: Create a workspace catalog tag
       x-implementation-status: implemented
       x-authorization:
-        roles:
-        - OWNER
-        - ADMINISTRATOR
-        - AUTHOR
+        roles: *id009
         tenantScope: current-server-workspace-membership
       security:
       - staffCookie: []
@@ -7044,10 +6444,7 @@ paths:
       summary: Update a workspace catalog tag
       x-implementation-status: implemented
       x-authorization:
-        roles:
-        - OWNER
-        - ADMINISTRATOR
-        - AUTHOR
+        roles: *id009
         tenantScope: current-server-workspace-membership
       security:
       - staffCookie: []
@@ -7074,10 +6471,7 @@ paths:
       summary: Delete a workspace catalog tag
       x-implementation-status: implemented
       x-authorization:
-        roles:
-        - OWNER
-        - ADMINISTRATOR
-        - AUTHOR
+        roles: *id009
         tenantScope: current-server-workspace-membership
       security:
       - staffCookie: []
@@ -7097,9 +6491,7 @@ paths:
       summary: Read effective policy and provider settings
       x-implementation-status: implemented
       x-authorization:
-        roles:
-        - OWNER
-        - ADMINISTRATOR
+        roles: *id011
         tenantScope: current-server-workspace-membership
       security:
       - staffCookie: []
@@ -7120,9 +6512,7 @@ paths:
       summary: Update workspace policy and provider overrides
       x-implementation-status: implemented
       x-authorization:
-        roles:
-        - OWNER
-        - ADMINISTRATOR
+        roles: *id011
         tenantScope: current-server-workspace-membership
       security:
       - staffCookie: []
@@ -8745,7 +8135,7 @@ components:
             minLength: 1
           rowPath:
             $ref: '#/components/schemas/RuntimeRowPath'
-          value: &id009
+          value: &id012
             $ref: '#/components/schemas/InputAnswerValue'
       - type: object
         additionalProperties: false
@@ -8790,11 +8180,11 @@ components:
             minLength: 1
           rowPath:
             $ref: '#/components/schemas/RuntimeRowPath'
-          itemId: &id010
+          itemId: &id013
             $ref: '#/components/schemas/OpaqueId'
           initialFields:
             type: object
-            additionalProperties: *id009
+            additionalProperties: *id012
             default: {}
       - type: object
         additionalProperties: false
@@ -8810,7 +8200,7 @@ components:
             minLength: 1
           rowPath:
             $ref: '#/components/schemas/RuntimeRowPath'
-          itemId: *id010
+          itemId: *id013
       - type: object
         additionalProperties: false
         required:
@@ -8825,10 +8215,10 @@ components:
             minLength: 1
           rowPath:
             $ref: '#/components/schemas/RuntimeRowPath'
-          itemId: *id010
+          itemId: *id013
           beforeItemId:
             anyOf:
-            - *id010
+            - *id013
             - type: 'null'
       discriminator:
         propertyName: op
@@ -9104,8 +8494,8 @@ components:
           type: array
           minItems: 1
           items:
-            enum:
-            - administrator
+            enum: &id019
+            - workspace-administrator
             - author
             - reviewer
             - translator
@@ -9187,19 +8577,19 @@ components:
       - formKey
       - title
       properties:
-        id: &id011
+        id: &id014
           $ref: '#/components/schemas/OpaqueId'
         kind:
           const: Form
-        revision: &id012
+        revision: &id015
           type: integer
           minimum: 0
-        status: &id013
+        status: &id016
           type: string
-        createdAt: &id014
+        createdAt: &id017
           type: string
           format: date-time
-        updatedAt: &id015
+        updatedAt: &id018
           type: string
           format: date-time
         formKey:
@@ -9220,13 +8610,13 @@ components:
       - formId
       - packageHash
       properties:
-        id: *id011
+        id: *id014
         kind:
           const: Draft
-        revision: *id012
-        status: *id013
-        createdAt: *id014
-        updatedAt: *id015
+        revision: *id015
+        status: *id016
+        createdAt: *id017
+        updatedAt: *id018
         formId:
           $ref: '#/components/schemas/OpaqueId'
         packageHash:
@@ -9246,13 +8636,13 @@ components:
       - packageHash
       - definitionVersion
       properties:
-        id: *id011
+        id: *id014
         kind:
           const: Release
-        revision: *id012
-        status: *id013
-        createdAt: *id014
-        updatedAt: *id015
+        revision: *id015
+        status: *id016
+        createdAt: *id017
+        updatedAt: *id018
         formId:
           $ref: '#/components/schemas/OpaqueId'
         packageHash:
@@ -9274,13 +8664,13 @@ components:
       - expiresAt
       - sessionRevision
       properties:
-        id: *id011
+        id: *id014
         kind:
           const: RespondentSession
-        revision: *id012
-        status: *id013
-        createdAt: *id014
-        updatedAt: *id015
+        revision: *id015
+        status: *id016
+        createdAt: *id017
+        updatedAt: *id018
         releaseId:
           $ref: '#/components/schemas/OpaqueId'
         expiresAt:
@@ -9304,13 +8694,13 @@ components:
       - sessionId
       - submittedAt
       properties:
-        id: *id011
+        id: *id014
         kind:
           const: Submission
-        revision: *id012
-        status: *id013
-        createdAt: *id014
-        updatedAt: *id015
+        revision: *id015
+        status: *id016
+        createdAt: *id017
+        updatedAt: *id018
         formId:
           $ref: '#/components/schemas/OpaqueId'
         sessionId:
@@ -9332,13 +8722,13 @@ components:
       - receiptCode
       - submittedAt
       properties:
-        id: *id011
+        id: *id014
         kind:
           const: Receipt
-        revision: *id012
-        status: *id013
-        createdAt: *id014
-        updatedAt: *id015
+        revision: *id015
+        status: *id016
+        createdAt: *id017
+        updatedAt: *id018
         receiptCode:
           $ref: '#/components/schemas/OpaqueId'
         submittedAt:
@@ -9360,13 +8750,13 @@ components:
       - sizeBytes
       - sha256
       properties:
-        id: *id011
+        id: *id014
         kind:
           const: Attachment
-        revision: *id012
-        status: *id013
-        createdAt: *id014
-        updatedAt: *id015
+        revision: *id015
+        status: *id016
+        createdAt: *id017
+        updatedAt: *id018
         fileName:
           type: string
         mediaType:
@@ -9389,13 +8779,13 @@ components:
       - format
       - state
       properties:
-        id: *id011
+        id: *id014
         kind:
           const: ExportJob
-        revision: *id012
-        status: *id013
-        createdAt: *id014
-        updatedAt: *id015
+        revision: *id015
+        status: *id016
+        createdAt: *id017
+        updatedAt: *id018
         format:
           enum:
           - json
@@ -9420,13 +8810,13 @@ components:
       - url
       - events
       properties:
-        id: *id011
+        id: *id014
         kind:
           const: Webhook
-        revision: *id012
-        status: *id013
-        createdAt: *id014
-        updatedAt: *id015
+        revision: *id015
+        status: *id016
+        createdAt: *id017
+        updatedAt: *id018
         url:
           type: string
           format: uri
@@ -9448,13 +8838,13 @@ components:
       - webhookId
       - attempt
       properties:
-        id: *id011
+        id: *id014
         kind:
           const: WebhookDelivery
-        revision: *id012
-        status: *id013
-        createdAt: *id014
-        updatedAt: *id015
+        revision: *id015
+        status: *id016
+        createdAt: *id017
+        updatedAt: *id018
         webhookId:
           $ref: '#/components/schemas/OpaqueId'
         attempt:
@@ -9473,13 +8863,13 @@ components:
       - updatedAt
       - name
       properties:
-        id: *id011
+        id: *id014
         kind:
           const: Folder
-        revision: *id012
-        status: *id013
-        createdAt: *id014
-        updatedAt: *id015
+        revision: *id015
+        status: *id016
+        createdAt: *id017
+        updatedAt: *id018
         name:
           type: string
       description: Concrete Folder resource representation.
@@ -9496,13 +8886,13 @@ components:
       - label
       - color
       properties:
-        id: *id011
+        id: *id014
         kind:
           const: Tag
-        revision: *id012
-        status: *id013
-        createdAt: *id014
-        updatedAt: *id015
+        revision: *id015
+        status: *id016
+        createdAt: *id017
+        updatedAt: *id018
         label:
           type: string
         color:
@@ -9520,13 +8910,13 @@ components:
       - updatedAt
       - blockType
       properties:
-        id: *id011
+        id: *id014
         kind:
           const: Block
-        revision: *id012
-        status: *id013
-        createdAt: *id014
-        updatedAt: *id015
+        revision: *id015
+        status: *id016
+        createdAt: *id017
+        updatedAt: *id018
         blockType:
           type: string
       description: Concrete Block resource representation.
@@ -9542,13 +8932,13 @@ components:
       - updatedAt
       - name
       properties:
-        id: *id011
+        id: *id014
         kind:
           const: Theme
-        revision: *id012
-        status: *id013
-        createdAt: *id014
-        updatedAt: *id015
+        revision: *id015
+        status: *id016
+        createdAt: *id017
+        updatedAt: *id018
         name:
           type: string
       description: Concrete Theme resource representation.
@@ -9564,13 +8954,13 @@ components:
       - updatedAt
       - locale
       properties:
-        id: *id011
+        id: *id014
         kind:
           const: LocaleBundle
-        revision: *id012
-        status: *id013
-        createdAt: *id014
-        updatedAt: *id015
+        revision: *id015
+        status: *id016
+        createdAt: *id017
+        updatedAt: *id018
         locale:
           type: string
       description: Concrete LocaleBundle resource representation.
@@ -9587,13 +8977,13 @@ components:
       - channelType
       - name
       properties:
-        id: *id011
+        id: *id014
         kind:
           const: ShareChannel
-        revision: *id012
-        status: *id013
-        createdAt: *id014
-        updatedAt: *id015
+        revision: *id015
+        status: *id016
+        createdAt: *id017
+        updatedAt: *id018
         channelType:
           type: string
         name:
@@ -9612,13 +9002,13 @@ components:
       - policyType
       - effect
       properties:
-        id: *id011
+        id: *id014
         kind:
           const: Policy
-        revision: *id012
-        status: *id013
-        createdAt: *id014
-        updatedAt: *id015
+        revision: *id015
+        status: *id016
+        createdAt: *id017
+        updatedAt: *id018
         policyType:
           type: string
         effect:
@@ -9636,13 +9026,13 @@ components:
       - updatedAt
       - name
       properties:
-        id: *id011
+        id: *id014
         kind:
           const: Organization
-        revision: *id012
-        status: *id013
-        createdAt: *id014
-        updatedAt: *id015
+        revision: *id015
+        status: *id016
+        createdAt: *id017
+        updatedAt: *id018
         name:
           type: string
       description: Concrete Organization resource representation.
@@ -9659,13 +9049,13 @@ components:
       - email
       - roles
       properties:
-        id: *id011
+        id: *id014
         kind:
           const: OrganizationUser
-        revision: *id012
-        status: *id013
-        createdAt: *id014
-        updatedAt: *id015
+        revision: *id015
+        status: *id016
+        createdAt: *id017
+        updatedAt: *id018
         email:
           type: string
           format: email
@@ -9686,13 +9076,13 @@ components:
       - updatedAt
       - accountStatus
       properties:
-        id: *id011
+        id: *id014
         kind:
           const: PlatformAccount
-        revision: *id012
-        status: *id013
-        createdAt: *id014
-        updatedAt: *id015
+        revision: *id015
+        status: *id016
+        createdAt: *id017
+        updatedAt: *id018
         accountStatus:
           type: string
       description: Concrete PlatformAccount resource representation.
@@ -9708,17 +9098,17 @@ components:
       - updatedAt
       - roles
       properties:
-        id: *id011
+        id: *id014
         kind:
           const: WorkspaceRole
-        revision: *id012
-        status: *id013
-        createdAt: *id014
-        updatedAt: *id015
+        revision: *id015
+        status: *id016
+        createdAt: *id017
+        updatedAt: *id018
         roles:
           type: array
           items:
-            type: string
+            enum: *id019
       description: Concrete WorkspaceRole resource representation.
     Invitation:
       type: object
@@ -9733,13 +9123,13 @@ components:
       - email
       - expiresAt
       properties:
-        id: *id011
+        id: *id014
         kind:
           const: Invitation
-        revision: *id012
-        status: *id013
-        createdAt: *id014
-        updatedAt: *id015
+        revision: *id015
+        status: *id016
+        createdAt: *id017
+        updatedAt: *id018
         email:
           type: string
           format: email
@@ -9760,13 +9150,13 @@ components:
       - candidateDigest
       - expiresAt
       properties:
-        id: *id011
+        id: *id014
         kind:
           const: ImportCandidate
-        revision: *id012
-        status: *id013
-        createdAt: *id014
-        updatedAt: *id015
+        revision: *id015
+        status: *id016
+        createdAt: *id017
+        updatedAt: *id018
         candidateDigest:
           $ref: '#/components/schemas/Sha256'
         expiresAt:
@@ -9786,13 +9176,13 @@ components:
       - valid
       - diagnostics
       properties:
-        id: *id011
+        id: *id014
         kind:
           const: ValidationReport
-        revision: *id012
-        status: *id013
-        createdAt: *id014
-        updatedAt: *id015
+        revision: *id015
+        status: *id016
+        createdAt: *id017
+        updatedAt: *id018
         valid:
           type: boolean
         diagnostics:
@@ -9812,13 +9202,13 @@ components:
       - updatedAt
       - reviewerIds
       properties:
-        id: *id011
+        id: *id014
         kind:
           const: ReviewRequest
-        revision: *id012
-        status: *id013
-        createdAt: *id014
-        updatedAt: *id015
+        revision: *id015
+        status: *id016
+        createdAt: *id017
+        updatedAt: *id018
         reviewerIds:
           type: array
           items:
@@ -9836,13 +9226,13 @@ components:
       - updatedAt
       - releaseId
       properties:
-        id: *id011
+        id: *id014
         kind:
           const: Activation
-        revision: *id012
-        status: *id013
-        createdAt: *id014
-        updatedAt: *id015
+        revision: *id015
+        status: *id016
+        createdAt: *id017
+        updatedAt: *id018
         releaseId:
           $ref: '#/components/schemas/OpaqueId'
       description: Concrete Activation resource representation.
@@ -9858,13 +9248,13 @@ components:
       - updatedAt
       - package
       properties:
-        id: *id011
+        id: *id014
         kind:
           const: PackageExport
-        revision: *id012
-        status: *id013
-        createdAt: *id014
-        updatedAt: *id015
+        revision: *id015
+        status: *id016
+        createdAt: *id017
+        updatedAt: *id018
         package:
           $ref: ../contracts/smart-form-builder-lite/4.0.0/package.schema.json
       description: Concrete PackageExport resource representation.
@@ -9881,13 +9271,13 @@ components:
       - submissionId
       - state
       properties:
-        id: *id011
+        id: *id014
         kind:
           const: SubmissionOperation
-        revision: *id012
-        status: *id013
-        createdAt: *id014
-        updatedAt: *id015
+        revision: *id015
+        status: *id016
+        createdAt: *id017
+        updatedAt: *id018
         submissionId:
           $ref: '#/components/schemas/OpaqueId'
         state:
@@ -9908,13 +9298,13 @@ components:
       - submissionId
       - score
       properties:
-        id: *id011
+        id: *id014
         kind:
           const: Interpretation
-        revision: *id012
-        status: *id013
-        createdAt: *id014
-        updatedAt: *id015
+        revision: *id015
+        status: *id016
+        createdAt: *id017
+        updatedAt: *id018
         submissionId:
           $ref: '#/components/schemas/OpaqueId'
         score:
@@ -9932,13 +9322,13 @@ components:
       - updatedAt
       - action
       properties:
-        id: *id011
+        id: *id014
         kind:
           const: AccountAction
-        revision: *id012
-        status: *id013
-        createdAt: *id014
-        updatedAt: *id015
+        revision: *id015
+        status: *id016
+        createdAt: *id017
+        updatedAt: *id018
         action:
           type: string
       description: Concrete AccountAction resource representation.
@@ -9956,13 +9346,13 @@ components:
       - expiresAt
       - csrfToken
       properties:
-        id: *id011
+        id: *id014
         kind:
           const: StaffSession
-        revision: *id012
-        status: *id013
-        createdAt: *id014
-        updatedAt: *id015
+        revision: *id015
+        status: *id016
+        createdAt: *id017
+        updatedAt: *id018
         userId:
           $ref: '#/components/schemas/OpaqueId'
         expiresAt:
@@ -9987,13 +9377,13 @@ components:
       - ownerSafety
       - idempotencyReplay
       properties:
-        id: *id011
+        id: *id014
         kind:
           const: OrganizationRecovery
-        revision: *id012
-        status: *id013
-        createdAt: *id014
-        updatedAt: *id015
+        revision: *id015
+        status: *id016
+        createdAt: *id017
+        updatedAt: *id018
         safeDelivery:
           enum:
           - verified-email
@@ -10020,13 +9410,13 @@ components:
       - ownerSafety
       - idempotencyReplay
       properties:
-        id: *id011
+        id: *id014
         kind:
           const: PlatformRecovery
-        revision: *id012
-        status: *id013
-        createdAt: *id014
-        updatedAt: *id015
+        revision: *id015
+        status: *id016
+        createdAt: *id017
+        updatedAt: *id018
         safeDelivery:
           enum:
           - verified-email
@@ -10563,11 +9953,7 @@ components:
           type: array
           minItems: 1
           items:
-            enum:
-            - owner
-            - editor
-            - reviewer
-            - analyst
+            enum: *id019
     InvitationCreateRequest:
       type: object
       additionalProperties: false
@@ -12535,8 +11921,11 @@ components:
       required:
       - id
       - name
+      - color
+      - createdAt
+      - updatedAt
       properties:
-        id: &id016
+        id: &id020
           type: string
           format: uuid
         name:
@@ -12548,6 +11937,12 @@ components:
           - string
           - 'null'
           pattern: ^#[0-9A-Fa-f]{6}$
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
     CatalogFolder:
       type: object
       additionalProperties: false
@@ -12557,7 +11952,7 @@ components:
       - createdAt
       - updatedAt
       properties:
-        id: *id016
+        id: *id020
         name:
           type: string
           minLength: 1
@@ -12602,7 +11997,9 @@ components:
       - id
       - email
       properties:
-        id: *id016
+        id:
+          type: string
+          pattern: ^account-[0-9a-fA-F-]{36}$
         email:
           type: string
           format: email
@@ -12620,7 +12017,7 @@ components:
       - owner
       - tags
       properties:
-        id: *id016
+        id: *id020
         formKey:
           type: string
         title:
@@ -12635,7 +12032,7 @@ components:
           format: date-time
         folderId:
           anyOf:
-          - *id016
+          - *id020
           - type: 'null'
         owner:
           $ref: '#/components/schemas/CatalogOwner'
@@ -12649,6 +12046,7 @@ components:
       required:
       - items
       - nextCursor
+      - catalogRevision
       properties:
         items:
           type: array
@@ -12656,48 +12054,55 @@ components:
             $ref: '#/components/schemas/CatalogForm'
         nextCursor:
           type: string
+        catalogRevision:
+          type: integer
+          minimum: 0
     CatalogClassification:
       type: object
       additionalProperties: false
       properties:
         folderId:
           anyOf:
-          - *id016
+          - *id020
           - type: 'null'
         tagIds:
           type: array
           uniqueItems: true
-          items: *id016
+          items: *id020
     CatalogTransfer:
       type: object
       additionalProperties: false
       required:
       - accountId
       properties:
-        accountId: *id016
+        accountId:
+          type: string
+          pattern: ^account-[0-9a-fA-F-]{36}$
     CatalogSettings:
       type: object
       additionalProperties: false
       required:
       - workspaceId
-      - policy
-      - providers
+      - effective
+      - overrides
       properties:
-        workspaceId: *id016
-        policy:
+        workspaceId:
+          type: string
+          pattern: ^workspace-[0-9a-fA-F-]{36}$
+        effective:
           type: object
           additionalProperties: true
-        providers:
+        overrides:
           type: object
           additionalProperties: true
     CatalogSettingsInput:
       type: object
       additionalProperties: false
       properties:
-        policy:
+        policyOverrides:
           type: object
           additionalProperties: true
-        providers:
+        providerOverrides:
           type: object
           additionalProperties: true
     LiveSessionStartResponse:

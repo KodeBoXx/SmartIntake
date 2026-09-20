@@ -193,12 +193,24 @@ def generated() -> dict[Path, bytes]:
     # response. The dedicated catalog paths use a cursor envelope and expose
     # server-derived ownership/settings; no role or workspace claim is accepted
     # in a request body.
+    workspace_roles = [
+        "workspace-administrator", "author", "reviewer", "translator", "publisher",
+        "response-viewer", "response-exporter", "auditor",
+    ]
+    catalog_write_roles = ["workspace-administrator", "author"]
+    workspace_administrator_roles = ["workspace-administrator"]
+    for schema_name in ("PermittedWorkspaceChoice", "WorkspaceRole"):
+        schemas[schema_name]["properties"]["roles"]["items"] = {"enum": workspace_roles}
+    schemas["WorkspaceRoleAssignmentRequest"]["properties"]["roles"]["items"] = {
+        "enum": workspace_roles
+    }
     uuid = {"type": "string", "format": "uuid"}
     schemas["CatalogTag"] = {
         "type": "object", "additionalProperties": False,
-        "required": ["id", "name"],
+        "required": ["id", "name", "color", "createdAt", "updatedAt"],
         "properties": {"id": uuid, "name": {"type": "string", "minLength": 1, "maxLength": 80},
-                       "color": {"type": ["string", "null"], "pattern": "^#[0-9A-Fa-f]{6}$"}},
+                       "color": {"type": ["string", "null"], "pattern": "^#[0-9A-Fa-f]{6}$"},
+                       "createdAt": {"type": "string", "format": "date-time"}, "updatedAt": {"type": "string", "format": "date-time"}},
     }
     schemas["CatalogFolder"] = {
         "type": "object", "additionalProperties": False,
@@ -218,7 +230,7 @@ def generated() -> dict[Path, bytes]:
     }
     schemas["CatalogOwner"] = {
         "type": ["object", "null"], "additionalProperties": False,
-        "required": ["id", "email"], "properties": {"id": uuid, "email": {"type": "string", "format": "email"}},
+        "required": ["id", "email"], "properties": {"id": {"type": "string", "pattern": "^account-[0-9a-fA-F-]{36}$"}, "email": {"type": "string", "format": "email"}},
     }
     schemas["CatalogForm"] = {
         "type": "object", "additionalProperties": False,
@@ -230,9 +242,9 @@ def generated() -> dict[Path, bytes]:
                        "tags": {"type": "array", "items": {"$ref": "#/components/schemas/CatalogTag"}}},
     }
     schemas["CatalogPage"] = {
-        "type": "object", "additionalProperties": False, "required": ["items", "nextCursor"],
+        "type": "object", "additionalProperties": False, "required": ["items", "nextCursor", "catalogRevision"],
         "properties": {"items": {"type": "array", "items": {"$ref": "#/components/schemas/CatalogForm"}},
-                       "nextCursor": {"type": "string"}},
+                       "nextCursor": {"type": "string"}, "catalogRevision": {"type": "integer", "minimum": 0}},
     }
     schemas["CatalogClassification"] = {
         "type": "object", "additionalProperties": False,
@@ -240,17 +252,17 @@ def generated() -> dict[Path, bytes]:
                        "tagIds": {"type": "array", "uniqueItems": True, "items": uuid}},
     }
     schemas["CatalogTransfer"] = {
-        "type": "object", "additionalProperties": False, "required": ["accountId"], "properties": {"accountId": uuid},
+        "type": "object", "additionalProperties": False, "required": ["accountId"], "properties": {"accountId": {"type": "string", "pattern": "^account-[0-9a-fA-F-]{36}$"}},
     }
     schemas["CatalogSettings"] = {
-        "type": "object", "additionalProperties": False, "required": ["workspaceId", "policy", "providers"],
-        "properties": {"workspaceId": uuid, "policy": {"type": "object", "additionalProperties": True},
-                       "providers": {"type": "object", "additionalProperties": True}},
+        "type": "object", "additionalProperties": False, "required": ["workspaceId", "effective", "overrides"],
+        "properties": {"workspaceId": {"type": "string", "pattern": "^workspace-[0-9a-fA-F-]{36}$"},
+                       "effective": {"type": "object", "additionalProperties": True}, "overrides": {"type": "object", "additionalProperties": True}},
     }
     schemas["CatalogSettingsInput"] = {
         "type": "object", "additionalProperties": False,
-        "properties": {"policy": {"type": "object", "additionalProperties": True},
-                       "providers": {"type": "object", "additionalProperties": True}},
+        "properties": {"policyOverrides": {"type": "object", "additionalProperties": True},
+                       "providerOverrides": {"type": "object", "additionalProperties": True}},
     }
     schemas["LiveSessionStartResponse"] = {
         "type": "object", "additionalProperties": False,
@@ -300,6 +312,96 @@ def generated() -> dict[Path, bytes]:
     })
     api["components"] = copy.deepcopy(components["components"])
     rewrite(api)
+    workspace_roles = [
+        "workspace-administrator", "author", "reviewer", "translator", "publisher",
+        "response-viewer", "response-exporter", "auditor",
+    ]
+
+    # M6 identity endpoints are live.  Keep this patch here (rather than hand-editing
+    # generated YAML) so the published 4.1 contract remains reproducible.
+    def walk_password_rules(value: Any) -> None:
+        if isinstance(value, dict):
+            for key, child in value.items():
+                if key == "newPassword" and isinstance(child, dict):
+                    child["minLength"] = 15
+                    child["maxLength"] = 512
+                else:
+                    walk_password_rules(child)
+        elif isinstance(value, list):
+            for child in value:
+                walk_password_rules(child)
+
+    walk_password_rules(schemas)
+    schemas["ActivationRequest"] = {
+        "type": "object", "additionalProperties": False,
+        "required": ["activationToken", "password", "displayName"],
+        "properties": {
+            "activationToken": {"type": "string", "minLength": 24},
+            "password": {"type": "string", "minLength": 15, "maxLength": 512},
+            "displayName": {"type": "string", "minLength": 1, "maxLength": 120},
+        },
+    }
+    schemas["AuthenticatedSession"] = {
+        "type": "object", "additionalProperties": False,
+        "required": ["safeIdentity", "activationState", "accountStatus", "awaitingSetup", "organizations"],
+        "properties": {
+            "safeIdentity": {"type": "object", "additionalProperties": False, "required": ["accountId", "username", "displayName"],
+                             "properties": {"accountId": {"type": "string", "pattern": "^account-"}, "username": {"type": "string"}, "displayName": {"type": "string"}}},
+            "activationState": {"enum": ["active", "pending"]},
+            "accountStatus": {"enum": ["active", "suspended"]},
+            "awaitingSetup": {"type": "boolean"},
+            "organizations": {"type": "array", "items": {"type": "object", "additionalProperties": False,
+                "required": ["organizationId", "name", "membershipState", "workspaces"], "properties": {
+                    "organizationId": {"type": "string", "pattern": "^organization-"}, "name": {"type": "string"},
+                    "membershipState": {"enum": ["active"]}, "workspaces": {"type": "array", "items": {"type": "object", "additionalProperties": False,
+                        "required": ["workspaceId", "name", "roles"], "properties": {"workspaceId": {"type": "string", "pattern": "^workspace-"}, "name": {"type": "string"}, "roles": {"type": "array", "items": {"enum": workspace_roles}}}}}}}},
+            "currentOrganizationId": {"type": ["string", "null"], "pattern": "^organization-"},
+            "currentWorkspaceId": {"type": "string", "pattern": "^workspace-"},
+        },
+    }
+    implemented_identity_paths = [
+        "/v1/auth/activate", "/v1/auth/password-change", "/v1/auth/recovery", "/v1/auth/reset",
+        "/v1/auth/session", "/v1/auth/sign-in", "/v1/auth/sign-out", "/v1/invitations/accept",
+    ]
+    for path in implemented_identity_paths:
+        for operation_config in api["paths"].get(path, {}).values():
+            if isinstance(operation_config, dict) and "responses" in operation_config:
+                operation_config["x-implementation-status"] = "implemented"
+    for path in ("/v1/auth/sign-out", "/v1/auth/password-change", "/v1/auth/session", "/v1/auth/sign-in"):
+        for response in api["paths"][path]["post" if path != "/v1/auth/session" else "get"]["responses"].values():
+            if isinstance(response, dict):
+                response.pop("headers", None)
+    sign_out = api["paths"]["/v1/auth/sign-out"]["post"]
+    sign_out.pop("requestBody", None)
+    sign_out["responses"]["204"] = {"description": "Revokes the current cookie session and expires staff and CSRF cookies."}
+    implemented_admin_mutations = {
+        ("/v1/organizations/{o}/users", "post"), ("/v1/organizations/{o}/users/{u}", "patch"),
+        ("/v1/organizations/{o}/users/{u}", "delete"), ("/v1/organizations/{o}/users/{u}/invitations", "post"),
+        ("/v1/organizations/{o}/invitations/{i}", "delete"), ("/v1/organizations/{o}/users/{u}/recovery", "post"),
+        ("/v1/platform/organizations", "post"), ("/v1/platform/organizations/{o}", "patch"),
+        ("/v1/platform/organizations/{o}/users", "post"), ("/v1/platform/accounts/{a}", "patch"),
+        ("/v1/platform/accounts/{a}/recovery", "post"), ("/v1/workspaces/{w}/users/{u}/roles", "put"),
+        ("/v1/workspaces/{w}/users/{u}/roles", "delete"),
+    }
+    revisioned_admin_mutations = {
+        ("/v1/organizations/{o}/users/{u}", "patch"), ("/v1/organizations/{o}/users/{u}", "delete"),
+        ("/v1/organizations/{o}/invitations/{i}", "delete"), ("/v1/platform/organizations/{o}", "patch"),
+        ("/v1/platform/accounts/{a}", "patch"), ("/v1/workspaces/{w}/users/{u}/roles", "put"),
+        ("/v1/workspaces/{w}/users/{u}/roles", "delete"),
+    }
+    for path, method in implemented_admin_mutations:
+        admin = api["paths"][path][method]
+        admin["x-implementation-status"] = "implemented"
+        admin["x-replay"] = ("Idempotency-Key is durably scoped to actor, tenant/account scope, operation and canonical request digest for at least seven days; "
+                             "equal requests replay the original status, body and ETag, while changed-request reuse is 409. "
+                             "Secret capability-copy headers are delivered only once and are omitted from replays.")
+        if (path, method) in revisioned_admin_mutations:
+            parameters = admin.setdefault("parameters", [])
+            if not any(parameter.get("$ref", "").endswith("/IfMatch") for parameter in parameters):
+                parameters.append({"$ref": "#/components/parameters/IfMatch"})
+            admin["x-concurrency"] = "Strong ETag and If-Match are required; missing is 428, stale is 412."
+            admin["responses"]["412"] = {"$ref": "#/components/responses/PreconditionFailed"}
+            admin["responses"]["428"] = {"$ref": "#/components/responses/PreconditionRequired"}
     catalog_errors = {"400": {"$ref": "#/components/responses/BadRequest"},
                       "401": {"$ref": "#/components/responses/Unauthenticated"},
                       "403": {"$ref": "#/components/responses/Forbidden"},
@@ -316,11 +418,13 @@ def generated() -> dict[Path, bytes]:
             operation["requestBody"] = {"required": True, "content": {"application/json": {"schema": {"$ref": f"#/components/schemas/{body}"}}}}
         return operation
     json_response = lambda schema: {"description": "Successful response.", "content": {"application/json": {"schema": {"$ref": f"#/components/schemas/{schema}"}}}}
-    workspace_parameter = {"name": "workspace", "in": "path", "required": True, "schema": {"type": "string", "minLength": 1}}
+    workspace_parameter = {"name": "workspace", "in": "path", "required": True, "schema": {"type": "string", "pattern": "^workspace-[0-9a-fA-F-]{36}$"}}
+    api["paths"].pop("/v1/workspaces/{w}/folders", None)
+    api["paths"].pop("/v1/workspaces/{w}/tags", None)
     id_parameter = lambda name: {"name": name, "in": "path", "required": True, "schema": uuid}
     api["paths"]["/v1/workspaces/{workspace}/catalog/forms"] = {
         "parameters": [workspace_parameter],
-        "get": {**catalog_operation("m6CatalogSearch", "Search the current workspace form catalog", ["OWNER", "ADMIN", "AUTHOR", "VIEWER"], json_response("CatalogPage")),
+        "get": {**catalog_operation("m6CatalogSearch", "Search the current workspace form catalog", workspace_roles, json_response("CatalogPage")),
                 "parameters": [{"name": "q", "in": "query", "schema": {"type": "string", "maxLength": 200}},
                                {"name": "status", "in": "query", "schema": {"type": "string"}},
                                {"name": "owner", "in": "query", "schema": uuid}, {"name": "folder", "in": "query", "schema": uuid},
@@ -329,21 +433,21 @@ def generated() -> dict[Path, bytes]:
                                {"name": "limit", "in": "query", "schema": {"type": "integer", "minimum": 1, "maximum": 100, "default": 50}},
                                {"name": "cursor", "in": "query", "schema": {"type": "string"}}]},
     }
-    api["paths"]["/v1/workspaces/{workspace}/catalog/forms/{form}/duplicate"] = {"parameters": [workspace_parameter, id_parameter("form")], "post": {**catalog_operation("m6CatalogDuplicate", "Duplicate a workspace form", ["OWNER", "ADMINISTRATOR", "AUTHOR"], json_response("CatalogForm")), "responses": {"201": json_response("CatalogForm"), **catalog_errors}}}
-    for action, operation_id, roles in (("archive", "m6CatalogArchive", ["OWNER", "ADMINISTRATOR", "AUTHOR"]), ("restore", "m6CatalogRestore", ["OWNER", "ADMINISTRATOR", "AUTHOR"])):
+    api["paths"]["/v1/workspaces/{workspace}/catalog/forms/{form}/duplicate"] = {"parameters": [workspace_parameter, id_parameter("form")], "post": {**catalog_operation("m6CatalogDuplicate", "Duplicate a workspace form", catalog_write_roles, json_response("CatalogForm")), "responses": {"201": json_response("CatalogForm"), **catalog_errors}}}
+    for action, operation_id, roles in (("archive", "m6CatalogArchive", catalog_write_roles), ("restore", "m6CatalogRestore", catalog_write_roles)):
         api["paths"][f"/v1/workspaces/{{workspace}}/catalog/forms/{{form}}/{action}"] = {"parameters": [workspace_parameter, id_parameter("form")], "post": catalog_operation(operation_id, action.capitalize() + " a workspace form", roles, json_response("CatalogForm"))}
-    api["paths"]["/v1/workspaces/{workspace}/catalog/forms/{form}/ownership"] = {"parameters": [workspace_parameter, id_parameter("form")], "put": catalog_operation("m6CatalogTransferOwnership", "Transfer form ownership to a current workspace member", ["OWNER", "ADMINISTRATOR"], json_response("CatalogForm"), "CatalogTransfer")}
-    api["paths"]["/v1/workspaces/{workspace}/catalog/forms/{form}/classification"] = {"parameters": [workspace_parameter, id_parameter("form")], "put": {**catalog_operation("m6CatalogClassify", "Set form folder and tags", ["OWNER", "ADMINISTRATOR", "AUTHOR"], {"description": "Classification updated."}, "CatalogClassification"), "responses": {"204": {"description": "Classification updated."}, **catalog_errors}}}
+    api["paths"]["/v1/workspaces/{workspace}/catalog/forms/{form}/ownership"] = {"parameters": [workspace_parameter, id_parameter("form")], "put": catalog_operation("m6CatalogTransferOwnership", "Transfer form ownership to a current workspace member", workspace_administrator_roles, json_response("CatalogForm"), "CatalogTransfer")}
+    api["paths"]["/v1/workspaces/{workspace}/catalog/forms/{form}/classification"] = {"parameters": [workspace_parameter, id_parameter("form")], "put": {**catalog_operation("m6CatalogClassify", "Set form folder and tags", catalog_write_roles, {"description": "Classification updated."}, "CatalogClassification"), "responses": {"204": {"description": "Classification updated."}, **catalog_errors}}}
     for resource, singular, input_schema, output_schema in (("folders", "folder", "CatalogNameInput", "CatalogFolder"), ("tags", "tag", "CatalogTagInput", "CatalogTag")):
         api["paths"][f"/v1/workspaces/{{workspace}}/{resource}"] = {"parameters": [workspace_parameter],
-            "get": catalog_operation(f"m6List{resource.title()}", f"List workspace catalog {resource}", ["OWNER", "ADMIN", "AUTHOR", "VIEWER"], {"description": "Successful response.", "content": {"application/json": {"schema": {"type": "array", "items": {"$ref": f"#/components/schemas/{output_schema}"}}}}}),
-            "post": {**catalog_operation(f"m6Create{singular.title()}", f"Create a workspace catalog {singular}", ["OWNER", "ADMINISTRATOR", "AUTHOR"], json_response(output_schema), input_schema), "responses": {"201": json_response(output_schema), **catalog_errors}}}
+            "get": catalog_operation(f"m6List{resource.title()}", f"List workspace catalog {resource}", workspace_roles, {"description": "Successful response.", "content": {"application/json": {"schema": {"type": "array", "items": {"$ref": f"#/components/schemas/{output_schema}"}}}}}),
+            "post": {**catalog_operation(f"m6Create{singular.title()}", f"Create a workspace catalog {singular}", catalog_write_roles, json_response(output_schema), input_schema), "responses": {"201": json_response(output_schema), **catalog_errors}}}
         api["paths"][f"/v1/workspaces/{{workspace}}/{resource}/{{{singular}}}"] = {"parameters": [workspace_parameter, id_parameter(singular)],
-            "patch": catalog_operation(f"m6Update{singular.title()}", f"Update a workspace catalog {singular}", ["OWNER", "ADMINISTRATOR", "AUTHOR"], json_response(output_schema), input_schema),
-            "delete": {**catalog_operation(f"m6Delete{singular.title()}", f"Delete a workspace catalog {singular}", ["OWNER", "ADMINISTRATOR", "AUTHOR"], {"description": "Deleted."}), "responses": {"204": {"description": "Deleted."}, **catalog_errors}}}
+            "patch": catalog_operation(f"m6Update{singular.title()}", f"Update a workspace catalog {singular}", catalog_write_roles, json_response(output_schema), input_schema),
+            "delete": {**catalog_operation(f"m6Delete{singular.title()}", f"Delete a workspace catalog {singular}", catalog_write_roles, {"description": "Deleted."}), "responses": {"204": {"description": "Deleted."}, **catalog_errors}}}
     api["paths"]["/v1/workspaces/{workspace}/catalog/settings"] = {"parameters": [workspace_parameter],
-        "get": catalog_operation("m6EffectiveCatalogSettings", "Read effective policy and provider settings", ["OWNER", "ADMINISTRATOR"], json_response("CatalogSettings")),
-        "put": catalog_operation("m6UpdateCatalogSettings", "Update workspace policy and provider overrides", ["OWNER", "ADMINISTRATOR"], json_response("CatalogSettings"), "CatalogSettingsInput")}
+        "get": catalog_operation("m6EffectiveCatalogSettings", "Read effective policy and provider settings", workspace_administrator_roles, json_response("CatalogSettings")),
+        "put": catalog_operation("m6UpdateCatalogSettings", "Update workspace policy and provider overrides", workspace_administrator_roles, json_response("CatalogSettings"), "CatalogSettingsInput")}
     patch = api["paths"]["/v1/sessions/{s}"]["patch"]
     patch["parameters"] = [parameter for parameter in patch["parameters"] if parameter.get("name") == "s"]
     patch["responses"]["200"] = {

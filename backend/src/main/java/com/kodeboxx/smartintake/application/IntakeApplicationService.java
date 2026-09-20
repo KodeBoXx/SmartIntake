@@ -138,7 +138,7 @@ public class IntakeApplicationService {
         o,
         "local",
         Optional.ofNullable(in.workspaceName()).orElse("Local workspace"));
-    db.update("insert into memberships(account_id,workspace_id,role) values(?,?,?)", a, w, "OWNER");
+    db.update("insert into memberships(account_id,workspace_id,role) values(?,?,?)", a, w, "WORKSPACE_ADMINISTRATOR");
     db.update(
         "insert into staff_sessions(token,account_id,expires_at) values(?,?,?)",
         t,
@@ -148,7 +148,7 @@ public class IntakeApplicationService {
     return ResponseEntity.status(201)
         .body(
             Map.of(
-                "staffSession", t.toString(), "workspaceKey", "local", "roles", List.of("OWNER")));
+                "staffSession", t.toString(), "workspaceKey", "local", "roles", List.of("workspace-administrator")));
   }
 
   public ResponseEntity<?> signIn(Bootstrap in) {
@@ -208,9 +208,9 @@ public class IntakeApplicationService {
   // Staff form authoring and publishing
 
   public List<Map<String, Object>> forms(String workspace, String token) {
-    UUID ws = authorization.authorize(workspace, token);
+    UUID ws = authorization.authorizeAuthoring(workspace, token);
     return db.query(
-        "select id,form_key,title,status,revision,updated_at from forms where workspace_id=? order"
+        "select f.id,f.form_key,f.title,f.status,f.revision,f.updated_at from forms f left join form_catalog_metadata cm on cm.form_id=f.id where f.workspace_id=? and cm.archived_at is null order"
             + " by updated_at desc",
         (rs, n) ->
             Map.of(
@@ -230,7 +230,7 @@ public class IntakeApplicationService {
   }
 
   public ResponseEntity<?> create(String workspace, String token, CreateForm in) {
-    UUID ws = authorization.authorize(workspace, token);
+    UUID ws = authorization.authorizeAuthoring(workspace, token);
     if (in.formKey() == null || !in.formKey().matches("[a-z][a-z0-9-]{2,99}"))
       throw bad("FORM_KEY_INVALID", "Use a lowercase stable key of at least three characters.");
     UUID id = UUID.randomUUID();
@@ -252,6 +252,7 @@ public class IntakeApplicationService {
 
   public ResponseEntity<?> draft(String workspace, UUID form, String token) {
     authorization.requireOwnedForm(workspace, token, form);
+    requireCatalogActive(form);
     var row = formRow(form);
     return ResponseEntity.ok()
         .eTag(etag(row.revision()))
@@ -269,6 +270,7 @@ public class IntakeApplicationService {
 
   public ResponseEntity<?> save(String workspace, UUID form, String token, String match, Draft in) {
     authorization.requireOwnedForm(workspace, token, form);
+    requireCatalogActive(form);
     requireNewWriteAllowed("FORM", form);
     var row = formRow(form);
     if (match == null)
@@ -304,6 +306,7 @@ public class IntakeApplicationService {
   public ResponseEntity<?> definitionImport(
       String workspace, UUID form, String token, String match, Map<String, Object> candidate) {
     authorization.requireOwnedForm(workspace, token, form);
+    requireCatalogActive(form);
     requireNewWriteAllowed("FORM", form);
     var row = formRow(form);
     if (match == null || !match.equals(etag(row.revision())))
@@ -336,7 +339,8 @@ public class IntakeApplicationService {
   }
 
   public ResponseEntity<?> publish(String workspace, UUID form, String token) {
-    authorization.requireOwnedForm(workspace, token, form);
+    authorization.requirePublishForm(workspace, token, form);
+    requireCatalogActive(form);
     requireNewWriteAllowed("FORM", form);
     var row = formRow(form);
     validateDefinition(parse(row.definition()));
@@ -826,7 +830,7 @@ public class IntakeApplicationService {
   // Staff submission administration and exports
 
   public List<Map<String, Object>> submissions(String workspace, String token) {
-    UUID ws = authorization.authorize(workspace, token);
+    UUID ws = authorization.authorizeResponseRead(workspace, token);
     return db.query(
         "select s.id,s.form_id,s.submitted_at"
             + visibleSubmissionScope()
@@ -843,7 +847,7 @@ public class IntakeApplicationService {
   }
 
   public Object submission(String workspace, UUID id, String token) {
-    UUID ws = authorization.authorize(workspace, token);
+    UUID ws = authorization.authorizeResponseRead(workspace, token);
     try {
       return parse(
           db.queryForObject(
@@ -857,7 +861,7 @@ public class IntakeApplicationService {
   }
 
   public List<Map<String, Object>> jsonExport(String workspace, String token) {
-    UUID ws = authorization.authorize(workspace, token);
+    UUID ws = authorization.authorizeResponseExport(workspace, token);
     return db.query(
         "select s.envelope::text" + visibleSubmissionScope() + " order by s.submitted_at desc",
         (rs, n) -> parse(rs.getString(1)),
@@ -865,7 +869,7 @@ public class IntakeApplicationService {
   }
 
   public String csv(String workspace, String token) {
-    UUID ws = authorization.authorize(workspace, token);
+    UUID ws = authorization.authorizeResponseExport(workspace, token);
     StringBuilder b = new StringBuilder("submission_id,form_id,submitted_at,answers\n");
     db.query(
         "select s.id,s.form_id,s.submitted_at,s.envelope->'answers' answers"
@@ -982,13 +986,19 @@ public class IntakeApplicationService {
   private R latestRelease(UUID form) {
     try {
       return db.queryForObject(
-          "select id,package::text,compatibility_profile_key from form_releases where form_id=? order by version desc limit"
+          "select r.id,r.package::text,r.compatibility_profile_key from form_releases r join forms f on f.id=r.form_id left join form_catalog_metadata cm on cm.form_id=f.id where r.form_id=? and cm.archived_at is null order by r.version desc limit"
               + " 1",
           (rs, n) -> new R((UUID) rs.getObject(1), rs.getString(2), rs.getString(3)),
           form);
     } catch (Exception e) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No published release");
     }
+  }
+
+  /** Archived forms remain readable for existing respondent sessions only. */
+  private void requireCatalogActive(UUID form) {
+    if (db.queryForObject("select count(*) from form_catalog_metadata where form_id=? and archived_at is not null", Integer.class, form) > 0)
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "FORM_ARCHIVED");
   }
 
   private void requireNewWriteAllowed(String recordType, UUID id) {

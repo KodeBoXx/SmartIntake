@@ -107,20 +107,20 @@ export class SmartIntakeApiService {
     return this.http.post('/v1/auth/reset', body, { withCredentials: true });
   }
 
-  listForms(): Observable<FormSummary[]> {
-    return this.http.get<FormSummary[]>('/v1/workspaces/local/forms', this.staff());
+  listForms(workspaceId = 'local'): Observable<FormSummary[]> {
+    return this.http.get<FormSummary[]>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/forms`, this.staff());
   }
 
   currentDraft(formId: string, draftId: string): Observable<CurrentDraft> {
     return this.http.get<CurrentDraft>(`/v1/workspaces/local/forms/${formId}/drafts/${draftId}`, this.staff());
   }
 
-  listResponses(): Observable<ResponseSummary[]> {
-    return this.http.get<ResponseSummary[]>('/v1/workspaces/local/submissions', this.staff());
+  listResponses(workspaceId = 'local'): Observable<ResponseSummary[]> {
+    return this.http.get<ResponseSummary[]>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/submissions`, this.staff());
   }
 
-  responseDetail(id: string): Observable<unknown> {
-    return this.http.get<unknown>(`/v1/workspaces/local/submissions/${id}`, this.staff());
+  responseDetail(id: string, workspaceId = 'local'): Observable<unknown> {
+    return this.http.get<unknown>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/submissions/${id}`, this.staff());
   }
 
   exportDefinition(formId: string): Observable<unknown> {
@@ -133,8 +133,8 @@ export class SmartIntakeApiService {
     });
   }
 
-  exportResponses(): Observable<ResponseSummary[]> {
-    return this.http.get<ResponseSummary[]>('/v1/workspaces/local/exports.json', this.staff());
+  exportResponses(workspaceId = 'local'): Observable<ResponseSummary[]> {
+    return this.http.get<ResponseSummary[]>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/exports.json`, this.staff());
   }
 
   /** M2 publication route; use the generated OpenAPI operation response type. */

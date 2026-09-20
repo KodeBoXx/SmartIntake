@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -36,33 +37,33 @@ public class IdentityAdministrationController {
   @GetMapping("/organizations/{organization}/users")
   ResponseEntity<?> users(@PathVariable String organization, HttpServletRequest http) { return administration.users(organization, http); }
   @PostMapping("/organizations/{organization}/users")
-  ResponseEntity<?> createUser(@PathVariable String organization, @RequestBody IdentityAdministrationService.UserCreate request, HttpServletRequest http) { return administration.createUser(organization, request, http); }
+  ResponseEntity<?> createUser(@PathVariable String organization, @RequestBody IdentityAdministrationService.UserCreate request, @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey, HttpServletRequest http) { return administration.createUserMutation(organization, request, idempotencyKey, http); }
   @PatchMapping("/organizations/{organization}/users/{user}")
-  ResponseEntity<?> updateUser(@PathVariable String organization, @PathVariable String user, @RequestBody IdentityAdministrationService.UserUpdate request, HttpServletRequest http) { return administration.updateUser(organization, user, request, http); }
+  ResponseEntity<?> updateUser(@PathVariable String organization, @PathVariable String user, @RequestBody IdentityAdministrationService.UserUpdate request, @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey, @RequestHeader(value = "If-Match", required = false) String ifMatch, HttpServletRequest http) { return administration.updateUserMutation(organization, user, request, idempotencyKey, ifMatch, http); }
   @DeleteMapping("/organizations/{organization}/users/{user}")
-  ResponseEntity<?> removeUser(@PathVariable String organization, @PathVariable String user, HttpServletRequest http) { return administration.removeUser(organization, user, http); }
+  ResponseEntity<?> removeUser(@PathVariable String organization, @PathVariable String user, @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey, @RequestHeader(value = "If-Match", required = false) String ifMatch, HttpServletRequest http) { return administration.removeUserMutation(organization, user, idempotencyKey, ifMatch, http); }
   @PostMapping("/organizations/{organization}/users/{user}/invitations")
-  ResponseEntity<?> invite(@PathVariable String organization, @PathVariable String user, HttpServletRequest http) { return administration.invite(organization, user, http); }
+  ResponseEntity<?> invite(@PathVariable String organization, @PathVariable String user, @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey, HttpServletRequest http) { return administration.inviteMutation(organization, user, idempotencyKey, http); }
   @DeleteMapping("/organizations/{organization}/invitations/{invitation}")
-  ResponseEntity<?> revokeInvite(@PathVariable String organization, @PathVariable String invitation, HttpServletRequest http) { return administration.revokeInvite(organization, invitation, http); }
+  ResponseEntity<?> revokeInvite(@PathVariable String organization, @PathVariable String invitation, @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey, @RequestHeader(value = "If-Match", required = false) String ifMatch, HttpServletRequest http) { return administration.revokeInviteMutation(organization, invitation, idempotencyKey, ifMatch, http); }
   @PostMapping("/organizations/{organization}/users/{user}/recovery")
-  ResponseEntity<?> organizationRecovery(@PathVariable String organization, @PathVariable String user, @RequestBody IdentityAdministrationService.RecoveryRequest request, HttpServletRequest http) { return administration.organizationRecovery(organization, user, request, http); }
+  ResponseEntity<?> organizationRecovery(@PathVariable String organization, @PathVariable String user, @RequestBody IdentityAdministrationService.RecoveryRequest request, @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey, HttpServletRequest http) { return administration.organizationRecoveryMutation(organization, user, request, idempotencyKey, http); }
 
   @GetMapping("/platform/organizations")
   ResponseEntity<?> platformOrganizations(HttpServletRequest http) { return administration.platformOrganizations(http); }
   @PostMapping("/platform/organizations")
-  ResponseEntity<?> createPlatformOrganization(@RequestBody IdentityAdministrationService.OrganizationCreate request, HttpServletRequest http) { return administration.createPlatformOrganization(request, http); }
+  ResponseEntity<?> createPlatformOrganization(@RequestBody IdentityAdministrationService.OrganizationCreate request, @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey, HttpServletRequest http) { return administration.createPlatformOrganizationMutation(request, idempotencyKey, http); }
   @PatchMapping("/platform/organizations/{organization}")
-  ResponseEntity<?> updatePlatformOrganization(@PathVariable String organization, @RequestBody IdentityAdministrationService.OrganizationUpdate request, HttpServletRequest http) { return administration.updatePlatformOrganization(organization, request, http); }
+  ResponseEntity<?> updatePlatformOrganization(@PathVariable String organization, @RequestBody IdentityAdministrationService.OrganizationUpdate request, @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey, @RequestHeader(value = "If-Match", required = false) String ifMatch, HttpServletRequest http) { return administration.updatePlatformOrganizationMutation(organization, request, idempotencyKey, ifMatch, http); }
   @PostMapping("/platform/organizations/{organization}/users")
-  ResponseEntity<?> addPendingOwner(@PathVariable String organization, @RequestBody IdentityAdministrationService.UserCreate request, HttpServletRequest http) { return administration.addPendingOwner(organization, request, http); }
+  ResponseEntity<?> addPendingOwner(@PathVariable String organization, @RequestBody IdentityAdministrationService.UserCreate request, @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey, HttpServletRequest http) { return administration.addPendingOwnerMutation(organization, request, idempotencyKey, http); }
   @PatchMapping("/platform/accounts/{account}")
-  ResponseEntity<?> updatePlatformAccount(@PathVariable String account, @RequestBody IdentityAdministrationService.PlatformAccountUpdate request, HttpServletRequest http) { return administration.updatePlatformAccount(account, request, http); }
+  ResponseEntity<?> updatePlatformAccount(@PathVariable String account, @RequestBody IdentityAdministrationService.PlatformAccountUpdate request, @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey, @RequestHeader(value = "If-Match", required = false) String ifMatch, HttpServletRequest http) { return administration.updatePlatformAccountMutation(account, request, idempotencyKey, ifMatch, http); }
   @PostMapping("/platform/accounts/{account}/recovery")
-  ResponseEntity<?> platformRecovery(@PathVariable String account, @RequestBody IdentityAdministrationService.RecoveryRequest request, HttpServletRequest http) { return administration.platformRecovery(account, request, http); }
+  ResponseEntity<?> platformRecovery(@PathVariable String account, @RequestBody IdentityAdministrationService.RecoveryRequest request, @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey, HttpServletRequest http) { return administration.platformRecoveryMutation(account, request, idempotencyKey, http); }
 
   @PutMapping("/workspaces/{workspace}/users/{user}/roles")
-  ResponseEntity<?> workspaceRoles(@PathVariable String workspace, @PathVariable String user, @RequestBody IdentityAdministrationService.Roles request, HttpServletRequest http) { return administration.workspaceRoles(workspace, user, request, http); }
+  ResponseEntity<?> workspaceRoles(@PathVariable String workspace, @PathVariable String user, @RequestBody IdentityAdministrationService.Roles request, @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey, @RequestHeader(value = "If-Match", required = false) String ifMatch, HttpServletRequest http) { return administration.workspaceRolesMutation(workspace, user, request, idempotencyKey, ifMatch, http); }
   @DeleteMapping("/workspaces/{workspace}/users/{user}/roles")
-  ResponseEntity<?> removeWorkspaceRoles(@PathVariable String workspace, @PathVariable String user, HttpServletRequest http) { return administration.removeWorkspaceRoles(workspace, user, http); }
+  ResponseEntity<?> removeWorkspaceRoles(@PathVariable String workspace, @PathVariable String user, @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey, @RequestHeader(value = "If-Match", required = false) String ifMatch, HttpServletRequest http) { return administration.removeWorkspaceRolesMutation(workspace, user, idempotencyKey, ifMatch, http); }
 }

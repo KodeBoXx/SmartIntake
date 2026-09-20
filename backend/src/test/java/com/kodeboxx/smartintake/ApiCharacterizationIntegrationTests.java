@@ -81,11 +81,8 @@ class ApiCharacterizationIntegrationTests {
         organization,
         workspace,
         "M1 characterization");
-    db.update(
-        "insert into memberships(account_id,workspace_id,role) values(?,?,?)",
-        account,
-        workspaceId,
-        "OWNER");
+    for (String role : List.of("AUTHOR", "PUBLISHER", "RESPONSE_EXPORTER"))
+      db.update("insert into memberships(account_id,workspace_id,role) values(?,?,?)", account, workspaceId, role);
     db.update(
         "insert into staff_sessions(token,account_id,expires_at) values(?,?,now()+interval '1"
             + " hour')",

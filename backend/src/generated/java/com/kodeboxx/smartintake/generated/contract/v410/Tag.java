@@ -21,6 +21,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.time.OffsetDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -38,7 +40,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   Tag.JSON_PROPERTY_COLOR
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class Tag {
+public class Tag extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_ID = "id";
   @jakarta.annotation.Nonnull
   private String id;
@@ -72,6 +74,7 @@ public class Tag {
   private String color;
 
   public Tag() {
+
   }
 
   public Tag id(@jakarta.annotation.Nonnull String id) {
@@ -291,18 +294,20 @@ public class Tag {
         Objects.equals(this.createdAt, tag.createdAt) &&
         Objects.equals(this.updatedAt, tag.updatedAt) &&
         Objects.equals(this.label, tag.label) &&
-        Objects.equals(this.color, tag.color);
+        Objects.equals(this.color, tag.color) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, kind, revision, status, createdAt, updatedAt, label, color);
+    return Objects.hash(id, kind, revision, status, createdAt, updatedAt, label, color, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class Tag {\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    kind: ").append(toIndentedString(kind)).append("\n");
     sb.append("    revision: ").append(toIndentedString(revision)).append("\n");

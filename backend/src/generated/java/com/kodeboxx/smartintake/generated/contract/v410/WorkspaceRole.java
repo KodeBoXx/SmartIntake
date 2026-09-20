@@ -65,9 +65,56 @@ public class WorkspaceRole {
   @jakarta.annotation.Nonnull
   private OffsetDateTime updatedAt;
 
+  /**
+   * Gets or Sets roles
+   */
+  public enum RolesEnum {
+    WORKSPACE_ADMINISTRATOR(String.valueOf("workspace-administrator")),
+    
+    AUTHOR(String.valueOf("author")),
+    
+    REVIEWER(String.valueOf("reviewer")),
+    
+    TRANSLATOR(String.valueOf("translator")),
+    
+    PUBLISHER(String.valueOf("publisher")),
+    
+    RESPONSE_VIEWER(String.valueOf("response-viewer")),
+    
+    RESPONSE_EXPORTER(String.valueOf("response-exporter")),
+    
+    AUDITOR(String.valueOf("auditor"));
+
+    private String value;
+
+    RolesEnum(String value) {
+      this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    @JsonCreator
+    public static RolesEnum fromValue(String value) {
+      for (RolesEnum b : RolesEnum.values()) {
+        if (b.value.equals(value)) {
+          return b;
+        }
+      }
+      throw new IllegalArgumentException("Unexpected value '" + value + "'");
+    }
+  }
+
   public static final String JSON_PROPERTY_ROLES = "roles";
   @jakarta.annotation.Nonnull
-  private List<String> roles = new ArrayList<>();
+  private List<RolesEnum> roles = new ArrayList<>();
 
   public WorkspaceRole() {
   }
@@ -223,13 +270,13 @@ public class WorkspaceRole {
     this.updatedAt = updatedAt;
   }
 
-  public WorkspaceRole roles(@jakarta.annotation.Nonnull List<String> roles) {
+  public WorkspaceRole roles(@jakarta.annotation.Nonnull List<RolesEnum> roles) {
     
     this.roles = roles;
     return this;
   }
 
-  public WorkspaceRole addRolesItem(String rolesItem) {
+  public WorkspaceRole addRolesItem(RolesEnum rolesItem) {
     if (this.roles == null) {
       this.roles = new ArrayList<>();
     }
@@ -245,14 +292,14 @@ public class WorkspaceRole {
   @JsonProperty(JSON_PROPERTY_ROLES)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public List<String> getRoles() {
+  public List<RolesEnum> getRoles() {
     return roles;
   }
 
 
   @JsonProperty(JSON_PROPERTY_ROLES)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setRoles(@jakarta.annotation.Nonnull List<String> roles) {
+  public void setRoles(@jakarta.annotation.Nonnull List<RolesEnum> roles) {
     this.roles = roles;
   }
 

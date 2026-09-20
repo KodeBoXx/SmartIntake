@@ -29,71 +29,71 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
  * CatalogSettingsInput
  */
 @JsonPropertyOrder({
-  CatalogSettingsInput.JSON_PROPERTY_POLICY,
-  CatalogSettingsInput.JSON_PROPERTY_PROVIDERS
+  CatalogSettingsInput.JSON_PROPERTY_POLICY_OVERRIDES,
+  CatalogSettingsInput.JSON_PROPERTY_PROVIDER_OVERRIDES
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
 public class CatalogSettingsInput extends HashMap<String, Object> {
-  public static final String JSON_PROPERTY_POLICY = "policy";
+  public static final String JSON_PROPERTY_POLICY_OVERRIDES = "policyOverrides";
   @jakarta.annotation.Nullable
-  private Object policy;
+  private Object policyOverrides;
 
-  public static final String JSON_PROPERTY_PROVIDERS = "providers";
+  public static final String JSON_PROPERTY_PROVIDER_OVERRIDES = "providerOverrides";
   @jakarta.annotation.Nullable
-  private Object providers;
+  private Object providerOverrides;
 
   public CatalogSettingsInput() {
 
   }
 
-  public CatalogSettingsInput policy(@jakarta.annotation.Nullable Object policy) {
+  public CatalogSettingsInput policyOverrides(@jakarta.annotation.Nullable Object policyOverrides) {
     
-    this.policy = policy;
+    this.policyOverrides = policyOverrides;
     return this;
   }
 
   /**
-   * Get policy
-   * @return policy
+   * Get policyOverrides
+   * @return policyOverrides
    */
   @jakarta.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_POLICY)
+  @JsonProperty(JSON_PROPERTY_POLICY_OVERRIDES)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
-  public Object getPolicy() {
-    return policy;
+  public Object getPolicyOverrides() {
+    return policyOverrides;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_POLICY)
+  @JsonProperty(JSON_PROPERTY_POLICY_OVERRIDES)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setPolicy(@jakarta.annotation.Nullable Object policy) {
-    this.policy = policy;
+  public void setPolicyOverrides(@jakarta.annotation.Nullable Object policyOverrides) {
+    this.policyOverrides = policyOverrides;
   }
 
-  public CatalogSettingsInput providers(@jakarta.annotation.Nullable Object providers) {
+  public CatalogSettingsInput providerOverrides(@jakarta.annotation.Nullable Object providerOverrides) {
     
-    this.providers = providers;
+    this.providerOverrides = providerOverrides;
     return this;
   }
 
   /**
-   * Get providers
-   * @return providers
+   * Get providerOverrides
+   * @return providerOverrides
    */
   @jakarta.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_PROVIDERS)
+  @JsonProperty(JSON_PROPERTY_PROVIDER_OVERRIDES)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
-  public Object getProviders() {
-    return providers;
+  public Object getProviderOverrides() {
+    return providerOverrides;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_PROVIDERS)
+  @JsonProperty(JSON_PROPERTY_PROVIDER_OVERRIDES)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setProviders(@jakarta.annotation.Nullable Object providers) {
-    this.providers = providers;
+  public void setProviderOverrides(@jakarta.annotation.Nullable Object providerOverrides) {
+    this.providerOverrides = providerOverrides;
   }
 
   @Override
@@ -105,14 +105,14 @@ public class CatalogSettingsInput extends HashMap<String, Object> {
       return false;
     }
     CatalogSettingsInput catalogSettingsInput = (CatalogSettingsInput) o;
-    return Objects.equals(this.policy, catalogSettingsInput.policy) &&
-        Objects.equals(this.providers, catalogSettingsInput.providers) &&
+    return Objects.equals(this.policyOverrides, catalogSettingsInput.policyOverrides) &&
+        Objects.equals(this.providerOverrides, catalogSettingsInput.providerOverrides) &&
         super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(policy, providers, super.hashCode());
+    return Objects.hash(policyOverrides, providerOverrides, super.hashCode());
   }
 
   @Override
@@ -120,8 +120,8 @@ public class CatalogSettingsInput extends HashMap<String, Object> {
     StringBuilder sb = new StringBuilder();
     sb.append("class CatalogSettingsInput {\n");
     sb.append("    ").append(toIndentedString(super.toString())).append("\n");
-    sb.append("    policy: ").append(toIndentedString(policy)).append("\n");
-    sb.append("    providers: ").append(toIndentedString(providers)).append("\n");
+    sb.append("    policyOverrides: ").append(toIndentedString(policyOverrides)).append("\n");
+    sb.append("    providerOverrides: ").append(toIndentedString(providerOverrides)).append("\n");
     sb.append("}");
     return sb.toString();
   }

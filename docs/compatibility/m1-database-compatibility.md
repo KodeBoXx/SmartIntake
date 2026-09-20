@@ -93,7 +93,7 @@ application until the transaction below has committed and its post-checks pass.
    approved operational process (or wait for their expiry), record the approval,
    and rerun the preflight.
 2. Run the preflight transaction below with a role permitted to lock and alter
-   these tables. It fails closed for an incomplete/failed V5--V14 application or
+   these tables. It fails closed for an incomplete/failed V5--V16 application or
    for any later successful migration. Do not substitute `CASCADE`, disable
    Flyway validation, or delete individual submissions to satisfy a check.
 3. Commit the drop transaction, run the post-check, then deploy the
@@ -102,7 +102,7 @@ application until the transaction below has committed and its post-checks pass.
    submissions and a later V7 deployment will correctly refuse to proceed.
 4. This rollback is permitted only when no canonical M4 record or runtime state
    exists. To return forward, restore the verified pre-rollback backup before
-   deploying the current application. Reapplying V5--V14 to the destructively
+   deploying the current application. Reapplying V5--V16 to the destructively
    rolled-back database is not a lossless recovery procedure. Reconcile
    duplicate submissions explicitly before retrying V7; never merge or delete
    them as part of a migration.
@@ -114,7 +114,10 @@ set local statement_timeout = '30s';
 
 lock table flyway_schema_history, session_mutations, submissions, sessions, form_releases, forms,
            record_migration_state, compatibility_quarantine_evidence,
-           compatibility_profiles in access exclusive mode;
+           compatibility_profiles, catalog_workspace_revisions, form_catalog_metadata,
+           form_catalog_tags, catalog_folders, catalog_tags, catalog_workspace_settings,
+           catalog_organization_settings, organization_memberships, identity_invitations,
+           identity_secret_actions, platform_roles in access exclusive mode;
 
 do $$
 begin
@@ -139,13 +142,15 @@ begin
           or (version = '11' and type = 'SQL' and script = 'V11__m4_compatibility_runtime.sql' and checksum = 1780789261)
           or (version = '12' and type = 'SQL' and script = 'V12__submission_attempt_review_evidence.sql' and checksum = -1868713494)
           or (version = '13' and type = 'SQL' and script = 'V13__pinned_runtime_manifests.sql' and checksum = -1265314321)
-          or (version = '14' and type = 'SQL' and script = 'V14__staff_identity_sessions.sql' and checksum = 724788122),
+          or (version = '14' and type = 'SQL' and script = 'V14__staff_identity_sessions.sql' and checksum = 724788122)
+          or (version = '15' and type = 'SQL' and script = 'V15__identity_lifecycle_tenant_administration.sql' and checksum = 921498486)
+          or (version = '16' and type = 'SQL' and script = 'V16__catalog_administration.sql' and checksum = -2129090709),
           false)
   )
-  or (select count(*) from flyway_schema_history where success) <> 14
+  or (select count(*) from flyway_schema_history where success) <> 16
   or (select count(distinct (version, type, script, checksum))
-      from flyway_schema_history where success) <> 14 then
-    raise exception 'Rollback refused: successful Flyway history is not the exact V1-V14 SQL allowlist';
+      from flyway_schema_history where success) <> 16 then
+    raise exception 'Rollback refused: successful Flyway history is not the exact V1-V16 SQL allowlist';
   end if;
   if exists (
       select 1
@@ -183,7 +188,31 @@ begin
      or exists (select 1 from sessions where runtime_state is not null) then
     raise exception 'Rollback refused: canonical M4 records or runtime state require verified backup restoration or approved retirement/export';
   end if;
+
+-- V16 catalog state must be absent; it has no representation before M6.
+if exists (select 1 from form_catalog_metadata)
+   or exists (select 1 from catalog_folders)
+   or exists (select 1 from catalog_tags)
+   or exists (select 1 from catalog_workspace_settings)
+   or exists (select 1 from catalog_organization_settings) then
+  raise exception 'Rollback refused: catalog administration state requires backup restoration or retirement';
+end if;
 end $$;
+
+-- V16/V15 are reversible only after the preflight has retired their state.
+drop trigger catalog_forms_revision on forms;
+drop trigger catalog_folders_revision on catalog_folders;
+drop trigger catalog_tags_revision on catalog_tags;
+drop trigger catalog_metadata_revision on form_catalog_metadata;
+drop trigger catalog_form_tags_revision on form_catalog_tags;
+drop function catalog_touch_workspace_revision();
+drop table catalog_workspace_revisions, form_catalog_tags, form_catalog_metadata,
+           catalog_workspace_settings, catalog_organization_settings, catalog_folders, catalog_tags;
+drop table identity_secret_actions, identity_invitations, organization_memberships, platform_roles;
+drop index if exists staff_sessions_current_context_idx;
+alter table staff_sessions drop column setup_only, drop column current_organization_id, drop column current_workspace_id;
+alter table organizations drop column organization_status;
+alter table accounts drop column account_status, drop column activation_state, drop column display_name, drop column temporary_password_expires_at;
 
 -- V14 is reversible only after the preflight has retired every active opaque staff session.
 delete from staff_sessions;
@@ -223,12 +252,12 @@ alter table forms drop column compatibility_profile_key;
 drop table compatibility_quarantine_evidence;
 drop table record_migration_state;
 drop table compatibility_profiles;
-delete from flyway_schema_history where version in ('5', '6', '7', '8', '9', '10', '11', '12', '13', '14');
+delete from flyway_schema_history where version in ('5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16');
 commit;
 
 -- Run after commit. Every *_remains value must be false and mutation_key_uuid_restored true
 -- before deploying the old binary.
-select exists (select 1 from flyway_schema_history where version in ('5', '6', '7', '8', '9', '10', '11', '12', '13', '14')) as compatibility_history_remains,
+select exists (select 1 from flyway_schema_history where version in ('5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16')) as compatibility_history_remains,
        exists (select 1 from pg_constraint
                where conrelid = 'submissions'::regclass
                    and conname = 'submissions_session_id_unique') as uniqueness_remains,

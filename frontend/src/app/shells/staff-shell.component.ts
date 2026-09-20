@@ -2,6 +2,7 @@ import { Component, computed, inject } from '@angular/core';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { CuiAppShellComponent, CuiButtonComponent, CuiHeaderComponent, CuiHeaderDrawerDirective, CuiIconComponent, CuiNavItemComponent, CuiSelectComponent, CuiSidebarShellComponent } from '@certinal/ui';
 import { StaffSessionStore } from '../core/m5-session.store';
+import { hasWorkspaceRole } from '../core/workspace-roles';
 
 @Component({
   standalone: true,
@@ -42,7 +43,7 @@ export class StaffShellComponent {
   private readonly router = inject(Router);
   readonly organizationOptions = computed(() => this.session.organizations().map((item) => ({ label: item.name, value: item.organizationId })));
   readonly workspaceOptions = computed(() => this.session.currentOrganization()?.workspaces.map((item) => ({ label: item.name, value: item.workspaceId })) ?? []);
-  canAdmin(): boolean { return this.session.currentRoles().some((role) => ['administrator', 'owner'].includes(role)); }
+  canAdmin(): boolean { return hasWorkspaceRole(this.session.currentRoles(), 'workspace-administrator'); }
   formsUrl(): string { const id = this.session.currentWorkspaceId(); return id ? `/workspaces/${id}/forms` : '/settings/organization'; }
   responsesUrl(): string { const id = this.session.currentWorkspaceId(); return id ? `/workspaces/${id}/submissions` : '/settings/organization'; }
   selectOrganization(id: string | null): void { if (id) { this.session.selectOrganization(id); void this.router.navigateByUrl(this.formsUrl()); } }

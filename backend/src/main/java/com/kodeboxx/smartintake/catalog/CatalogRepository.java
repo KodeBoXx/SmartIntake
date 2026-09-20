@@ -31,11 +31,12 @@ public class CatalogRepository {
 
   public record Search(String query, String status, String owner, String folder, List<String> tags,
                        Boolean archived, int limit, String cursor) {}
-  public record Page(List<Map<String, Object>> items, String nextCursor) {}
+  public record Page(List<Map<String, Object>> items, String nextCursor, long catalogRevision) {}
 
   public Page search(UUID workspaceId, Search search) {
     String fingerprint = fingerprint(workspaceId, search);
-    Cursor cursor = cursor(search.cursor(), fingerprint);
+    long catalogRevision = revision(workspaceId);
+    Cursor cursor = cursor(search.cursor(), fingerprint, catalogRevision);
     Instant snapshot = cursor == null ? Instant.now() : cursor.snapshot();
     StringBuilder sql = new StringBuilder("""
         select f.id, f.form_key, f.title, f.status, f.revision, f.updated_at,
@@ -89,7 +90,7 @@ public class CatalogRepository {
       UUID folderId = rs.getObject("folder_id", UUID.class);
       row.put("folderId", folderId == null ? null : folderId.toString());
       UUID ownerId = rs.getObject("owner_account_id", UUID.class);
-      row.put("owner", ownerId == null ? null : Map.of("id", ownerId.toString(), "email", rs.getString("owner_email")));
+      row.put("owner", ownerId == null ? null : Map.of("id", opaque("account", ownerId), "email", rs.getString("owner_email")));
       row.put("tags", formTags(id));
       return row;
     }, args.toArray());
@@ -99,9 +100,9 @@ public class CatalogRepository {
     if (hasNext && !rows.isEmpty()) {
       Map<String, Object> last = rows.get(rows.size() - 1);
       next = encode(new Cursor(snapshot, Instant.parse((String) last.get("updatedAt")),
-          UUID.fromString((String) last.get("id")), fingerprint));
+          UUID.fromString((String) last.get("id")), fingerprint, catalogRevision));
     }
-    return new Page(List.copyOf(rows), next);
+    return new Page(List.copyOf(rows), next, catalogRevision);
   }
 
   public List<Map<String, Object>> folders(UUID workspaceId) {
@@ -126,7 +127,7 @@ public class CatalogRepository {
 
   public List<Map<String, Object>> tags(UUID workspaceId) {
     return db.query("select id,name,color,created_at,updated_at from catalog_tags where workspace_id=? order by lower(name), id",
-        (rs, ignored) -> entity(rs.getObject("id", UUID.class), rs.getString("name"), rs.getString("color"),
+        (rs, ignored) -> tagEntity(rs.getObject("id", UUID.class), rs.getString("name"), rs.getString("color"),
             rs.getTimestamp("created_at").toInstant(), rs.getTimestamp("updated_at").toInstant()), workspaceId);
   }
   public Map<String, Object> createTag(UUID workspaceId, String name, String color) {
@@ -186,8 +187,12 @@ public class CatalogRepository {
 
   public Map<String, Object> effectiveSettings(UUID workspaceId) {
     Map<String, Object> row = db.queryForMap("select w.organization_id, coalesce(os.policy_settings,'{}'::jsonb)::text op, coalesce(os.provider_settings,'{}'::jsonb)::text orv, coalesce(ws.policy_settings,'{}'::jsonb)::text wp, coalesce(ws.provider_settings,'{}'::jsonb)::text wpr from workspaces w left join catalog_organization_settings os on os.organization_id=w.organization_id left join catalog_workspace_settings ws on ws.workspace_id=w.id where w.id=?", workspaceId);
-    return Map.of("workspaceId", workspaceId.toString(), "policy", merge(map((String) row.get("op")), map((String) row.get("wp"))),
-        "providers", merge(map((String) row.get("orv")), map((String) row.get("wpr"))));
+    Map<String, Object> policyOverride = map((String) row.get("wp"));
+    Map<String, Object> providerOverride = map((String) row.get("wpr"));
+    return Map.of("workspaceId", opaque("workspace", workspaceId),
+        "effective", Map.of("policy", merge(map((String) row.get("op")), policyOverride),
+            "providers", merge(map((String) row.get("orv")), providerOverride)),
+        "overrides", Map.of("policy", policyOverride, "providers", providerOverride));
   }
   public Map<String, Object> updateSettings(UUID workspaceId, Map<String, Object> policy, Map<String, Object> providers) {
     db.update("insert into catalog_workspace_settings(workspace_id,policy_settings,provider_settings) values(?,cast(? as jsonb),cast(? as jsonb)) on conflict(workspace_id) do update set policy_settings=excluded.policy_settings, provider_settings=excluded.provider_settings, updated_at=now()", workspaceId, stringify(policy), stringify(providers));
@@ -202,7 +207,7 @@ public class CatalogRepository {
     return tag;
   }, form); }
   private Map<String, Object> folder(UUID id) { return db.queryForObject("select id,name,created_at,updated_at from catalog_folders where id=?", (rs, ignored) -> entity(rs.getObject("id", UUID.class), rs.getString("name"), null, rs.getTimestamp("created_at").toInstant(), rs.getTimestamp("updated_at").toInstant()), id); }
-  private Map<String, Object> tag(UUID id) { return db.queryForObject("select id,name,color,created_at,updated_at from catalog_tags where id=?", (rs, ignored) -> entity(rs.getObject("id", UUID.class), rs.getString("name"), rs.getString("color"), rs.getTimestamp("created_at").toInstant(), rs.getTimestamp("updated_at").toInstant()), id); }
+  private Map<String, Object> tag(UUID id) { return db.queryForObject("select id,name,color,created_at,updated_at from catalog_tags where id=?", (rs, ignored) -> tagEntity(rs.getObject("id", UUID.class), rs.getString("name"), rs.getString("color"), rs.getTimestamp("created_at").toInstant(), rs.getTimestamp("updated_at").toInstant()), id); }
   private Map<String, Object> form(UUID id) {
     return db.queryForObject("""
         select f.id,f.form_key,f.title,f.status,f.revision,f.updated_at,m.folder_id,m.owner_account_id,m.archived_at,
@@ -217,7 +222,7 @@ public class CatalogRepository {
       row.put("revision", rs.getLong("revision")); row.put("updatedAt", rs.getTimestamp("updated_at").toInstant().toString());
       UUID folder = rs.getObject("folder_id", UUID.class); UUID owner = rs.getObject("owner_account_id", UUID.class);
       row.put("folderId", folder == null ? null : folder.toString());
-      row.put("owner", owner == null ? null : Map.of("id", owner.toString(), "email", rs.getString("owner_email")));
+      row.put("owner", owner == null ? null : Map.of("id", opaque("account", owner), "email", rs.getString("owner_email")));
       row.put("tags", formTags(id));
       return row;
     }, id);
@@ -225,18 +230,21 @@ public class CatalogRepository {
   private void requireForm(UUID workspace, UUID form) { if (db.queryForObject("select count(*) from forms where id=? and workspace_id=?", Integer.class, form, workspace) != 1) throw notFound(); }
   private void ensureMetadata(UUID form, UUID owner) { db.update("insert into form_catalog_metadata(form_id,owner_account_id) values(?,?) on conflict(form_id) do nothing", form, owner); }
   private Map<String, Object> entity(UUID id, String name, String color, Instant created, Instant updated) { Map<String,Object> value = new LinkedHashMap<>(); value.put("id",id.toString()); value.put("name",name); if(color!=null)value.put("color",color); value.put("createdAt",created.toString()); value.put("updatedAt",updated.toString()); return value; }
+  private Map<String, Object> tagEntity(UUID id, String name, String color, Instant created, Instant updated) { Map<String,Object> value = entity(id, name, null, created, updated); value.put("color", color); return value; }
   private String duplicateKey(UUID workspace, String original) { String base = original.length() > 90 ? original.substring(0, 90) : original; for (int n=2;n<10000;n++) { String key=base+"-copy-"+n; if (db.queryForObject("select count(*) from forms where workspace_id=? and form_key=?", Integer.class, workspace,key)==0) return key; } throw bad("DUPLICATE_KEY_EXHAUSTED", "Unable to allocate duplicate key"); }
   private List<String> normalizedTags(List<String> tags) { return tags == null ? List.of() : tags.stream().filter(value -> value != null && !value.isBlank()).map(String::trim).sorted().distinct().toList(); }
   private String fingerprint(UUID workspace, Search search) { return sha(workspace + "|" + nullSafe(search.query()).toLowerCase() + "|" + nullSafe(search.status()).toUpperCase() + "|" + nullSafe(search.owner()) + "|" + nullSafe(search.folder()) + "|" + normalizedTags(search.tags()) + "|" + Boolean.TRUE.equals(search.archived())); }
-  private Cursor cursor(String encoded, String fingerprint) { if(encoded==null||encoded.isBlank()) return null; try { String[] p=new String(Base64.getUrlDecoder().decode(encoded),StandardCharsets.UTF_8).split("\\|",-1); if(p.length!=4 || !MessageDigest.isEqual(p[3].getBytes(StandardCharsets.UTF_8),fingerprint.getBytes(StandardCharsets.UTF_8))) throw new IllegalArgumentException(); return new Cursor(Instant.ofEpochMilli(Long.parseLong(p[0])),Instant.ofEpochMilli(Long.parseLong(p[1])),UUID.fromString(p[2]),p[3]); } catch(Exception e){throw bad("CATALOG_CURSOR_INVALID","Cursor does not match this catalog query");} }
-  private String encode(Cursor cursor) { return Base64.getUrlEncoder().withoutPadding().encodeToString((cursor.snapshot().toEpochMilli()+"|"+cursor.updatedAt().toEpochMilli()+"|"+cursor.id()+"|"+cursor.fingerprint()).getBytes(StandardCharsets.UTF_8)); }
-  private record Cursor(Instant snapshot, Instant updatedAt, UUID id, String fingerprint) {}
+  private long revision(UUID workspace) { return db.queryForObject("select revision from catalog_workspace_revisions where workspace_id=?", Long.class, workspace); }
+  private Cursor cursor(String encoded, String fingerprint, long currentRevision) { if(encoded==null||encoded.isBlank()) return null; try { String[] p=new String(Base64.getUrlDecoder().decode(encoded),StandardCharsets.UTF_8).split("\\|",-1); if(p.length!=5 || !MessageDigest.isEqual(p[3].getBytes(StandardCharsets.UTF_8),fingerprint.getBytes(StandardCharsets.UTF_8))) throw new IllegalArgumentException(); long revision=Long.parseLong(p[4]); if(revision != currentRevision) throw new ResponseStatusException(HttpStatus.CONFLICT,"CATALOG_CURSOR_STALE"); return new Cursor(Instant.ofEpochMilli(Long.parseLong(p[0])),Instant.ofEpochMilli(Long.parseLong(p[1])),UUID.fromString(p[2]),p[3],revision); } catch(ResponseStatusException e){throw e;} catch(Exception e){throw bad("CATALOG_CURSOR_INVALID","Cursor does not match this catalog query");} }
+  private String encode(Cursor cursor) { return Base64.getUrlEncoder().withoutPadding().encodeToString((cursor.snapshot().toEpochMilli()+"|"+cursor.updatedAt().toEpochMilli()+"|"+cursor.id()+"|"+cursor.fingerprint()+"|"+cursor.revision()).getBytes(StandardCharsets.UTF_8)); }
+  private record Cursor(Instant snapshot, Instant updatedAt, UUID id, String fingerprint, long revision) {}
+  private String opaque(String kind, UUID id) { return kind + "-" + id; }
   private Map<String,Object> map(String value) { try { return value == null ? Map.of() : json.readValue(value,new TypeReference<>(){}); } catch(Exception e){throw new IllegalStateException(e);} }
   @SuppressWarnings("unchecked") private Map<String,Object> merge(Map<String,Object> base,Map<String,Object> override){Map<String,Object> out=new LinkedHashMap<>(base); override.forEach((key,value)->out.put(key,value instanceof Map<?,?> child && out.get(key) instanceof Map<?,?> parent ? merge((Map<String,Object>)parent,(Map<String,Object>)child):value));return out;}
   private String stringify(Object value){try{return json.writeValueAsString(value==null?Map.of():value);}catch(Exception e){throw new IllegalArgumentException(e);}}
   private String name(String value,int max,String label){if(value==null||value.trim().isEmpty()||value.trim().length()>max)throw bad("CATALOG_INPUT_INVALID","Valid "+label+" required");return value.trim();}
   private String color(String value){if(value==null||value.isBlank())return null; if(!value.matches("#[0-9A-Fa-f]{6}"))throw bad("CATALOG_INPUT_INVALID","Color must be #RRGGBB");return value;}
-  private UUID uuid(String value,String label){try{return UUID.fromString(value);}catch(Exception e){throw bad("CATALOG_INPUT_INVALID","Invalid "+label);}}
+  private UUID uuid(String value,String label){try{String prefix=label.equals("owner")?"account-":""; return UUID.fromString(!prefix.isEmpty() && value.startsWith(prefix) ? value.substring(prefix.length()) : value);}catch(Exception e){throw bad("CATALOG_INPUT_INVALID","Invalid "+label);}}
   private String nullSafe(String value){return value==null?"":value;}
   private String sha(String value){try{return java.util.HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8)));}catch(Exception e){throw new IllegalStateException(e);}}
   private ResponseStatusException notFound(){return new ResponseStatusException(HttpStatus.NOT_FOUND,"Resource not found");}

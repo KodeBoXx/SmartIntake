@@ -114,8 +114,8 @@ class IdentitySessionIntegrationTests {
       assertEquals(HttpStatus.UNAUTHORIZED, rejected.getStatusCode());
       assertFalse(rejected.getBody().contains("nobody@example.test"));
     }
-    assertEquals(10, db.queryForObject("select failure_count from sign_in_throttles", Integer.class));
-    assertTrue(db.queryForObject("select blocked_until > now() + interval '14 minutes' from sign_in_throttles", Boolean.class));
+    assertEquals(10, db.queryForObject("select min(failure_count) from sign_in_throttles", Integer.class));
+    assertTrue(db.queryForObject("select bool_and(blocked_until > now() + interval '14 minutes') from sign_in_throttles", Boolean.class));
     ResponseEntity<String> anonymous = http.getForEntity(url("/session"), String.class);
     HttpHeaders login = jsonHeaders();
     login.set(HttpHeaders.COOKIE, cookie(anonymous, IdentitySessionService.LOGIN_CSRF_COOKIE));

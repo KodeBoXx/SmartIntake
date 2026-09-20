@@ -16,9 +16,12 @@ import com.kodeboxx.smartintake.security.IdentitySessionResolver;
 /** M6 catalog authority boundary. Request role claims are deliberately never accepted. */
 @Service
 public class CatalogApplicationService {
-  // ADMIN is retained for workspaces created before the explicit administrator role.
-  private static final Set<String> CATALOG_WRITE = Set.of("OWNER", "ADMINISTRATOR", "ADMIN", "AUTHOR", "EDITOR");
-  private static final Set<String> SETTINGS_WRITE = Set.of("OWNER", "ADMINISTRATOR", "ADMIN");
+  // OWNER is retained only for pre-M6 workspace-administrator compatibility.
+  private static final Set<String> CATALOG_READ = Set.of(
+      "WORKSPACE_ADMINISTRATOR", "OWNER", "AUTHOR", "REVIEWER", "TRANSLATOR", "PUBLISHER",
+      "RESPONSE_VIEWER", "RESPONSE_EXPORTER", "AUDITOR");
+  private static final Set<String> CATALOG_WRITE = Set.of("WORKSPACE_ADMINISTRATOR", "OWNER", "AUTHOR");
+  private static final Set<String> SETTINGS_WRITE = Set.of("WORKSPACE_ADMINISTRATOR", "OWNER");
   private final CatalogRepository catalog;
   private final JdbcTemplate db;
   private final IdentitySessionResolver sessions;
@@ -32,17 +35,17 @@ public class CatalogApplicationService {
   public record Named(String name) {}
   public record TagInput(String name, String color) {}
   public record FormClassification(UUID folderId, List<UUID> tagIds) {}
-  public record Transfer(UUID accountId) {}
-  public record Settings(Map<String, Object> policy, Map<String, Object> providers) {}
+  public record Transfer(String accountId) {}
+  public record Settings(Map<String, Object> policyOverrides, Map<String, Object> providerOverrides) {}
 
   public Map<String, Object> search(String workspace, String headerToken, HttpServletRequest request,
                                     CatalogRepository.Search search) {
-    Principal principal = principal(workspace, headerToken, request, Set.of());
+    Principal principal = principal(workspace, headerToken, request, CATALOG_READ);
     CatalogRepository.Page page = catalog.search(principal.workspaceId(), search);
-    return Map.of("items", page.items(), "nextCursor", page.nextCursor() == null ? "" : page.nextCursor());
+    return Map.of("items", page.items(), "nextCursor", page.nextCursor() == null ? "" : page.nextCursor(), "catalogRevision", page.catalogRevision());
   }
   public List<Map<String, Object>> folders(String workspace, String token, HttpServletRequest request) {
-    return catalog.folders(principal(workspace, token, request, Set.of()).workspaceId());
+    return catalog.folders(principal(workspace, token, request, CATALOG_READ).workspaceId());
   }
   @Transactional public Map<String, Object> createFolder(String workspace, String token, HttpServletRequest request, Named input) {
     return catalog.createFolder(principal(workspace, token, request, CATALOG_WRITE).workspaceId(), input == null ? null : input.name());
@@ -54,7 +57,7 @@ public class CatalogApplicationService {
     catalog.deleteFolder(principal(workspace, token, request, CATALOG_WRITE).workspaceId(), folder);
   }
   public List<Map<String, Object>> tags(String workspace, String token, HttpServletRequest request) {
-    return catalog.tags(principal(workspace, token, request, Set.of()).workspaceId());
+    return catalog.tags(principal(workspace, token, request, CATALOG_READ).workspaceId());
   }
   @Transactional public Map<String, Object> createTag(String workspace, String token, HttpServletRequest request, TagInput input) {
     return catalog.createTag(principal(workspace, token, request, CATALOG_WRITE).workspaceId(), input == null ? null : input.name(), input == null ? null : input.color());
@@ -79,7 +82,7 @@ public class CatalogApplicationService {
   @Transactional public Map<String, Object> transfer(String workspace, String token, HttpServletRequest request, UUID form, Transfer input) {
     Principal principal = principal(workspace, token, request, SETTINGS_WRITE);
     if (input == null || input.accountId() == null) throw bad("TRANSFER_TARGET_INVALID", "A workspace account is required");
-    return catalog.transfer(principal.workspaceId(), form, input.accountId());
+    return catalog.transfer(principal.workspaceId(), form, opaqueId("account", input.accountId()));
   }
   @Transactional public void classify(String workspace, String token, HttpServletRequest request, UUID form, FormClassification input) {
     Principal principal = principal(workspace, token, request, CATALOG_WRITE);
@@ -92,13 +95,13 @@ public class CatalogApplicationService {
   }
   @Transactional public Map<String, Object> updateSettings(String workspace, String token, HttpServletRequest request, Settings input) {
     return catalog.updateSettings(principal(workspace, token, request, SETTINGS_WRITE).workspaceId(),
-        input == null || input.policy() == null ? Map.of() : input.policy(),
-        input == null || input.providers() == null ? Map.of() : input.providers());
+        input == null || input.policyOverrides() == null ? Map.of() : input.policyOverrides(),
+        input == null || input.providerOverrides() == null ? Map.of() : input.providerOverrides());
   }
 
   private Principal principal(String workspaceKey, String headerToken, HttpServletRequest request, Set<String> requiredRoles) {
     UUID workspace;
-    try { workspace = db.queryForObject("select w.id from workspaces w join organizations o on o.id=w.organization_id where w.workspace_key=? and o.organization_status='active'", UUID.class, workspaceKey); }
+    try { workspace = db.queryForObject("select w.id from workspaces w join organizations o on o.id=w.organization_id where (w.workspace_key=? or w.id=?::uuid) and o.organization_status='active'", UUID.class, workspaceKey, workspaceKey != null && workspaceKey.startsWith("workspace-") ? opaqueId("workspace", workspaceKey) : new UUID(0, 0)); }
     catch (Exception ignored) { throw missing(); }
     String session = sessions.session(request, headerToken).orElseThrow(this::unauthenticated);
     UUID account;
@@ -115,4 +118,8 @@ public class CatalogApplicationService {
   private ResponseStatusException forbidden() { return new ResponseStatusException(HttpStatus.FORBIDDEN, "Current workspace role cannot perform this action"); }
   private ResponseStatusException missing() { return new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource not found"); }
   private ResponseStatusException bad(String code, String detail) { return new ResponseStatusException(HttpStatus.BAD_REQUEST, code + ": " + detail); }
+  private UUID opaqueId(String kind, String value) {
+    try { return UUID.fromString(value.startsWith(kind + "-") ? value.substring(kind.length() + 1) : value); }
+    catch (Exception ignored) { throw bad("CATALOG_INPUT_INVALID", "Invalid " + kind + " identifier"); }
+  }
 }

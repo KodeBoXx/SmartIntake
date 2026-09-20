@@ -39,9 +39,9 @@ class CatalogAdministrationIntegrationTests {
     ownerToken = UUID.randomUUID().toString(); otherToken = UUID.randomUUID().toString(); viewerToken = UUID.randomUUID().toString();
     db.update("insert into organizations(id,name) values(?,?)", organization, "Org");
     db.update("insert into workspaces(id,organization_id,workspace_key,name) values(?,?,?,?),(?,?,?,?)", firstWorkspace, organization, "catalog-a", "A", secondWorkspace, organization, "catalog-b", "B");
-    account(owner, "owner@catalog.test", firstWorkspace, "OWNER", ownerToken);
-    account(otherOwner, "other@catalog.test", secondWorkspace, "OWNER", otherToken);
-    account(viewer, "viewer@catalog.test", firstWorkspace, "VIEWER", viewerToken);
+    account(owner, "owner@catalog.test", firstWorkspace, "WORKSPACE_ADMINISTRATOR", ownerToken);
+    account(otherOwner, "other@catalog.test", secondWorkspace, "WORKSPACE_ADMINISTRATOR", otherToken);
+    account(viewer, "viewer@catalog.test", firstWorkspace, "REVIEWER", viewerToken);
     firstForm = form(firstWorkspace, "alpha-form", "Alpha intake", "2026-01-03T00:00:00Z");
     secondForm = form(firstWorkspace, "beta-form", "Beta intake", "2026-01-02T00:00:00Z");
     thirdForm = form(firstWorkspace, "gamma-form", "Gamma intake", "2026-01-01T00:00:00Z");
@@ -60,6 +60,9 @@ class CatalogAdministrationIntegrationTests {
     assertEquals("beta-form", ((Map<?, ?>) ((List<?>) secondPage.get("items")).get(0)).get("formKey"));
     assertNotEquals(((Map<?, ?>) ((List<?>) firstPage.get("items")).get(0)).get("id"), ((Map<?, ?>) ((List<?>) secondPage.get("items")).get(0)).get("id"));
     assertEquals(HttpStatus.BAD_REQUEST, call("catalog-a/catalog/forms?limit=1&status=DRAFT&cursor=" + cursor, HttpMethod.GET, ownerToken, null).getStatusCode());
+    assertEquals(HttpStatus.OK, call("workspace-" + firstWorkspace + "/catalog/forms?limit=1", HttpMethod.GET, ownerToken, null).getStatusCode());
+    db.update("update form_catalog_metadata set archived_at=now() where form_id=?", thirdForm);
+    assertEquals(HttpStatus.CONFLICT, call("catalog-a/catalog/forms?limit=1&cursor=" + cursor, HttpMethod.GET, ownerToken, null).getStatusCode());
     assertEquals(HttpStatus.NOT_FOUND, call("catalog-b/catalog/forms", HttpMethod.GET, ownerToken, null).getStatusCode());
   }
 
@@ -81,19 +84,45 @@ class CatalogAdministrationIntegrationTests {
     assertTrue(String.valueOf(object(copy).get("formKey")).contains("-copy-"));
   }
 
+  @Test void catalogAcceptsOnlyPrdWorkspaceRolesAndRetainsOwnerCompatibility() throws Exception {
+    assertEquals(HttpStatus.OK, call("catalog-a/catalog/forms", HttpMethod.GET, viewerToken, null).getStatusCode());
+    assertEquals(HttpStatus.FORBIDDEN, call("catalog-a/folders", HttpMethod.POST, viewerToken, Map.of("name", "Denied")).getStatusCode());
+
+    UUID author = UUID.randomUUID();
+    String authorToken = UUID.randomUUID().toString();
+    account(author, "author@catalog.test", firstWorkspace, "AUTHOR", authorToken);
+    assertEquals(HttpStatus.CREATED, call("catalog-a/folders", HttpMethod.POST, authorToken, Map.of("name", "Author folder")).getStatusCode());
+    assertEquals(HttpStatus.FORBIDDEN, call("catalog-a/catalog/settings", HttpMethod.GET, authorToken, null).getStatusCode());
+
+    UUID legacyOwner = UUID.randomUUID();
+    String legacyOwnerToken = UUID.randomUUID().toString();
+    account(legacyOwner, "legacy-owner@catalog.test", firstWorkspace, "OWNER", legacyOwnerToken);
+    assertEquals(HttpStatus.OK, call("catalog-a/catalog/settings", HttpMethod.GET, legacyOwnerToken, null).getStatusCode());
+
+    UUID organizationAdministrator = UUID.randomUUID();
+    String organizationAdministratorToken = UUID.randomUUID().toString();
+    db.update("insert into accounts(id,email,password_hash) values(?,?,?)", organizationAdministrator, "organization-admin@catalog.test", "unused");
+    db.update("insert into organization_memberships(account_id,organization_id,roles) values(?,?,array['administrator'])", organizationAdministrator, organization);
+    db.update("insert into staff_sessions(token,account_id,expires_at) values(?,?,now()+interval '1 hour')", UUID.fromString(organizationAdministratorToken), organizationAdministrator);
+    assertEquals(HttpStatus.NOT_FOUND, call("catalog-a/catalog/forms", HttpMethod.GET, organizationAdministratorToken, null).getStatusCode());
+  }
+
   @Test void ownershipAndEffectiveSettingsRemainInsideWorkspace() throws Exception {
     db.update("insert into memberships(account_id,workspace_id,role) values(?,?,?)", viewer, firstWorkspace, "AUTHOR");
-    assertEquals(HttpStatus.OK, call("catalog-a/catalog/forms/" + firstForm + "/ownership", HttpMethod.PUT, ownerToken, Map.of("accountId", viewer.toString())).getStatusCode());
+    assertEquals(HttpStatus.OK, call("catalog-a/catalog/forms/" + firstForm + "/ownership", HttpMethod.PUT, ownerToken, Map.of("accountId", "account-" + viewer)).getStatusCode());
     assertEquals(viewer, db.queryForObject("select owner_account_id from form_catalog_metadata where form_id=?", UUID.class, firstForm));
-    assertEquals(HttpStatus.BAD_REQUEST, call("catalog-a/catalog/forms/" + firstForm + "/ownership", HttpMethod.PUT, ownerToken, Map.of("accountId", otherOwner.toString())).getStatusCode());
+    assertEquals(HttpStatus.BAD_REQUEST, call("catalog-a/catalog/forms/" + firstForm + "/ownership", HttpMethod.PUT, ownerToken, Map.of("accountId", "account-" + otherOwner)).getStatusCode());
     db.update("insert into catalog_organization_settings(organization_id,policy_settings,provider_settings) values(?,cast(? as jsonb),cast(? as jsonb))", organization, "{\"retention\":{\"days\":30},\"enabled\":true}", "{\"email\":{\"enabled\":false}}");
-    ResponseEntity<String> changed = call("catalog-a/catalog/settings", HttpMethod.PUT, ownerToken, Map.of("policy", Map.of("retention", Map.of("days", 7)), "providers", Map.of("email", Map.of("from", "noreply@example.test"))));
+    ResponseEntity<String> changed = call("catalog-a/catalog/settings", HttpMethod.PUT, ownerToken, Map.of("policyOverrides", Map.of("retention", Map.of("days", 7)), "providerOverrides", Map.of("email", Map.of("from", "noreply@example.test"))));
     assertEquals(HttpStatus.OK, changed.getStatusCode());
-    Map<String, Object> policy = (Map<String, Object>) object(changed).get("policy");
+    Map<String, Object> effective = (Map<String, Object>) object(changed).get("effective");
+    Map<String, Object> policy = (Map<String, Object>) effective.get("policy");
     assertEquals(7, ((Map<?, ?>) policy.get("retention")).get("days"));
-    Map<String, Object> providers = (Map<String, Object>) object(changed).get("providers");
+    Map<String, Object> providers = (Map<String, Object>) effective.get("providers");
     assertEquals(false, ((Map<?, ?>) providers.get("email")).get("enabled"));
     assertEquals("noreply@example.test", ((Map<?, ?>) providers.get("email")).get("from"));
+    Map<String, Object> overrides = (Map<String, Object>) object(changed).get("overrides");
+    assertEquals(Map.of("retention", Map.of("days", 7)), overrides.get("policy"));
   }
 
   private void account(UUID id, String email, UUID workspace, String role, String token) {

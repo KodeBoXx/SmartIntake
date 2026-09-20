@@ -24,81 +24,82 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
- * ActivationRequest
+ * AuthenticatedSessionSafeIdentity
  */
 @JsonPropertyOrder({
-  ActivationRequest.JSON_PROPERTY_ACTIVATION_TOKEN,
-  ActivationRequest.JSON_PROPERTY_PASSWORD,
-  ActivationRequest.JSON_PROPERTY_DISPLAY_NAME
+  AuthenticatedSessionSafeIdentity.JSON_PROPERTY_ACCOUNT_ID,
+  AuthenticatedSessionSafeIdentity.JSON_PROPERTY_USERNAME,
+  AuthenticatedSessionSafeIdentity.JSON_PROPERTY_DISPLAY_NAME
 })
+@JsonTypeName("AuthenticatedSession_safeIdentity")
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class ActivationRequest {
-  public static final String JSON_PROPERTY_ACTIVATION_TOKEN = "activationToken";
+public class AuthenticatedSessionSafeIdentity {
+  public static final String JSON_PROPERTY_ACCOUNT_ID = "accountId";
   @jakarta.annotation.Nonnull
-  private String activationToken;
+  private String accountId;
 
-  public static final String JSON_PROPERTY_PASSWORD = "password";
+  public static final String JSON_PROPERTY_USERNAME = "username";
   @jakarta.annotation.Nonnull
-  private String password;
+  private String username;
 
   public static final String JSON_PROPERTY_DISPLAY_NAME = "displayName";
   @jakarta.annotation.Nonnull
   private String displayName;
 
-  public ActivationRequest() {
+  public AuthenticatedSessionSafeIdentity() {
   }
 
-  public ActivationRequest activationToken(@jakarta.annotation.Nonnull String activationToken) {
+  public AuthenticatedSessionSafeIdentity accountId(@jakarta.annotation.Nonnull String accountId) {
     
-    this.activationToken = activationToken;
+    this.accountId = accountId;
     return this;
   }
 
   /**
-   * Get activationToken
-   * @return activationToken
+   * Get accountId
+   * @return accountId
    */
   @jakarta.annotation.Nonnull
-  @JsonProperty(JSON_PROPERTY_ACTIVATION_TOKEN)
+  @JsonProperty(JSON_PROPERTY_ACCOUNT_ID)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public String getActivationToken() {
-    return activationToken;
+  public String getAccountId() {
+    return accountId;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_ACTIVATION_TOKEN)
+  @JsonProperty(JSON_PROPERTY_ACCOUNT_ID)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setActivationToken(@jakarta.annotation.Nonnull String activationToken) {
-    this.activationToken = activationToken;
+  public void setAccountId(@jakarta.annotation.Nonnull String accountId) {
+    this.accountId = accountId;
   }
 
-  public ActivationRequest password(@jakarta.annotation.Nonnull String password) {
+  public AuthenticatedSessionSafeIdentity username(@jakarta.annotation.Nonnull String username) {
     
-    this.password = password;
+    this.username = username;
     return this;
   }
 
   /**
-   * Get password
-   * @return password
+   * Get username
+   * @return username
    */
   @jakarta.annotation.Nonnull
-  @JsonProperty(JSON_PROPERTY_PASSWORD)
+  @JsonProperty(JSON_PROPERTY_USERNAME)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public String getPassword() {
-    return password;
+  public String getUsername() {
+    return username;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_PASSWORD)
+  @JsonProperty(JSON_PROPERTY_USERNAME)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setPassword(@jakarta.annotation.Nonnull String password) {
-    this.password = password;
+  public void setUsername(@jakarta.annotation.Nonnull String username) {
+    this.username = username;
   }
 
-  public ActivationRequest displayName(@jakarta.annotation.Nonnull String displayName) {
+  public AuthenticatedSessionSafeIdentity displayName(@jakarta.annotation.Nonnull String displayName) {
     
     this.displayName = displayName;
     return this;
@@ -131,23 +132,23 @@ public class ActivationRequest {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ActivationRequest activationRequest = (ActivationRequest) o;
-    return Objects.equals(this.activationToken, activationRequest.activationToken) &&
-        Objects.equals(this.password, activationRequest.password) &&
-        Objects.equals(this.displayName, activationRequest.displayName);
+    AuthenticatedSessionSafeIdentity authenticatedSessionSafeIdentity = (AuthenticatedSessionSafeIdentity) o;
+    return Objects.equals(this.accountId, authenticatedSessionSafeIdentity.accountId) &&
+        Objects.equals(this.username, authenticatedSessionSafeIdentity.username) &&
+        Objects.equals(this.displayName, authenticatedSessionSafeIdentity.displayName);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(activationToken, password, displayName);
+    return Objects.hash(accountId, username, displayName);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class ActivationRequest {\n");
-    sb.append("    activationToken: ").append(toIndentedString(activationToken)).append("\n");
-    sb.append("    password: ").append(toIndentedString(password)).append("\n");
+    sb.append("class AuthenticatedSessionSafeIdentity {\n");
+    sb.append("    accountId: ").append(toIndentedString(accountId)).append("\n");
+    sb.append("    username: ").append(toIndentedString(username)).append("\n");
     sb.append("    displayName: ").append(toIndentedString(displayName)).append("\n");
     sb.append("}");
     return sb.toString();
