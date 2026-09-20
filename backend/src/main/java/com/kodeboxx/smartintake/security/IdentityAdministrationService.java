@@ -287,8 +287,8 @@ public class IdentityAdministrationService {
       db.update("insert into accounts(id,email,password_hash,activation_state) values(?,?,?,'active')", account,
           invitation.get("email"), credentials.encode(request.password()));
     } else {
-      Map<String, Object> existing = db.queryForMap("select password_hash,account_status from accounts where id=? for update", account);
-      if (!"active".equals(existing.get("account_status")) || request.password() == null
+      Map<String, Object> existing = db.queryForMap("select password_hash,account_status,activation_state from accounts where id=? for update", account);
+      if (!"active".equals(existing.get("account_status")) || !"active".equals(existing.get("activation_state")) || request.password() == null
           || !credentials.matches(request.password(), (String) existing.get("password_hash"))) {
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
       }
@@ -300,7 +300,7 @@ public class IdentityAdministrationService {
     db.update("insert into organization_memberships(account_id,organization_id,roles,membership_status) values(?,?,?,'active') on conflict(account_id,organization_id) do update set " + conflict,
         account, organization, roles.toArray(String[]::new));
     if (roles.contains("owner")) {
-      Integer activeOwner = db.queryForObject("select count(*) from organization_memberships where account_id=? and organization_id=? and membership_status='active' and 'owner'=any(roles)", Integer.class, account, organization);
+      Integer activeOwner = db.queryForObject("select count(*) from organization_memberships om join accounts a on a.id=om.account_id where om.account_id=? and om.organization_id=? and om.membership_status='active' and 'owner'=any(om.roles) and a.account_status='active' and a.activation_state='active'", Integer.class, account, organization);
       if (activeOwner != null && activeOwner == 1) db.update("update organizations set organization_status='active',revision=revision+1 where id=? and organization_status='awaiting_owner_activation'", organization);
     }
     db.update("update identity_invitations set used_at=now(),updated_at=now() where id=?", invitation.get("id"));
@@ -409,16 +409,13 @@ public class IdentityAdministrationService {
       requireOrganizationAdministrator(actor, organization);
     }
     List<Map<String, Object>> items = db.queryForList(
-        "select m.account_id,array_agg(m.role order by m.role) as roles,coalesce(wrr.revision,0) revision from memberships m "
-            + "join accounts a on a.id=m.account_id "
-            + "join workspaces w on w.id=m.workspace_id "
-            + "join organizations o on o.id=w.organization_id "
-            + "join organization_memberships om on om.account_id=m.account_id and om.organization_id=w.organization_id "
-            + "left join workspace_role_revisions wrr on wrr.account_id=m.account_id and wrr.workspace_id=m.workspace_id "
-            + "where m.workspace_id=? and a.account_status='active' and o.organization_status='active' "
-            + "and om.membership_status='active' and m.role in ('WORKSPACE_ADMINISTRATOR','OWNER','AUTHOR','REVIEWER','TRANSLATOR','PUBLISHER','RESPONSE_VIEWER','RESPONSE_EXPORTER','AUDITOR') "
-            + "group by m.account_id,wrr.revision order by m.account_id",
-        workspace);
+        "select om.account_id,array_remove(array_agg(m.role order by m.role),null) roles,coalesce(wrr.revision,0) revision from workspaces w "
+            + "join organizations o on o.id=w.organization_id join organization_memberships om on om.organization_id=w.organization_id "
+            + "join accounts a on a.id=om.account_id left join memberships m on m.account_id=om.account_id and m.workspace_id=w.id "
+            + "left join workspace_role_revisions wrr on wrr.account_id=om.account_id and wrr.workspace_id=w.id "
+            + "where w.id=? and a.account_status='active' and a.activation_state='active' and o.organization_status='active' and om.membership_status='active' "
+            + "and (m.account_id is not null or (om.account_id=? and om.roles && array['owner','administrator'])) "
+            + "group by om.account_id,wrr.revision order by om.account_id", workspace, actor);
     return ResponseEntity.ok(Map.of("requestId", opaque("req"), "items", items.stream().map(IdentityAdministrationService::workspaceMember).toList()));
   }
 
@@ -476,13 +473,18 @@ public class IdentityAdministrationService {
 
   public ResponseEntity<?> platformOrganizations(String cursor, int requestedLimit, HttpServletRequest http) {
     requirePlatformAdministrator(currentAccount(http));
-    int limit = Math.max(1, Math.min(requestedLimit, 100));
-    UUID after = cursor == null || cursor.isBlank() ? null : opaqueId(cursor);
-    List<Map<String, Object>> rows = db.queryForList("select id,name,organization_status,revision,created_at from organizations where (?::uuid is null or id > ?::uuid) order by id limit ?", after, after, limit + 1);
+    if (requestedLimit < 1 || requestedLimit > 200) badRequest();
+    int limit = requestedLimit;
+    OrganizationCursor parsed = organizationCursor(cursor);
+    Instant snapshot = parsed == null ? Instant.now() : parsed.snapshot();
+    Instant afterCreated = parsed == null ? Instant.EPOCH : parsed.createdAt();
+    UUID afterId = parsed == null ? new UUID(0, 0) : parsed.id();
+    List<Map<String, Object>> rows = db.queryForList("select id,name,organization_status,revision,created_at from organizations where created_at<=? and (created_at,id)>(?,?) order by created_at,id limit ?", Timestamp.from(snapshot), Timestamp.from(afterCreated), afterId, limit + 1);
     boolean more = rows.size() > limit;
     List<Map<String, Object>> pageItems = more ? rows.subList(0, limit) : rows;
     List<Map<String, Object>> items = pageItems.stream().map(this::organizationResource).toList();
-    String nextCursor = more ? opaque("organization", (UUID) pageItems.get(pageItems.size() - 1).get("id")) : null;
+    Map<String, Object> last = more ? pageItems.get(pageItems.size() - 1) : null;
+    String nextCursor = more ? organizationCursor(snapshot, ((Timestamp) last.get("created_at")).toInstant(), (UUID) last.get("id")) : null;
     Map<String, Object> page = new LinkedHashMap<>(); page.put("limit", limit); page.put("nextCursor", nextCursor);
     return ResponseEntity.ok(Map.of("requestId", opaque("req"), "items", items, "page", page));
   }
@@ -853,6 +855,18 @@ public class IdentityAdministrationService {
   private static UUID opaqueId(String value) { try { return UUID.fromString(value.substring(value.indexOf('-') + 1)); } catch (Exception ex) { throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource not found"); } }
   private static String opaque(String prefix) { return prefix + "-" + UUID.randomUUID(); }
   private static String opaque(String prefix, UUID id) { return prefix + "-" + id; }
+  private static String organizationCursor(Instant snapshot, Instant createdAt, UUID id) {
+    String value = snapshot.toEpochMilli() + "|" + createdAt.toEpochMilli() + "|" + id;
+    return Base64.getUrlEncoder().withoutPadding().encodeToString(value.getBytes(StandardCharsets.UTF_8));
+  }
+  private static OrganizationCursor organizationCursor(String value) {
+    if (value == null || value.isBlank()) return null;
+    try {
+      String[] parts = new String(Base64.getUrlDecoder().decode(value), StandardCharsets.UTF_8).split("\\|", -1);
+      if (parts.length != 3) throw new IllegalArgumentException();
+      return new OrganizationCursor(Instant.ofEpochMilli(Long.parseLong(parts[0])), Instant.ofEpochMilli(Long.parseLong(parts[1])), UUID.fromString(parts[2]));
+    } catch (Exception ignored) { badRequest(); return null; }
+  }
   private static Map<String, Object> page() { return Map.of("limit", 50, "nextCursor", null); }
   private static void badRequest() { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request"); }
   private static ResponseStatusException unauthorized() { return new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Staff session required"); }
@@ -875,5 +889,6 @@ public class IdentityAdministrationService {
   private Map<String, Object> platformAccount(UUID account, String status, long revision) { return resource("PlatformAccount", "account", account, "active", revision, Instant.now(), Instant.now(), Map.of("accountStatus", status)); }
   private static Map<String, Object> resource(String kind, String prefix, UUID id, String status, long revision, Instant created, Instant updated, Map<String, Object> fields) { Map<String, Object> output = new LinkedHashMap<>(); output.put("id", opaque(prefix, id)); output.put("kind", kind); output.put("revision", revision); output.put("status", status); output.put("createdAt", created.toString()); output.put("updatedAt", updated.toString()); output.putAll(fields); return output; }
   private record ActionCapability(UUID id, String token) {}
+  private record OrganizationCursor(Instant snapshot, Instant createdAt, UUID id) {}
   private record ActionGrant(UUID account, UUID organization) {}
 }

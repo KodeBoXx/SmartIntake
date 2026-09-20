@@ -6489,6 +6489,8 @@ paths:
       x-authorization:
         roles:
         - workspace-administrator
+        - organization.owner
+        - organization.administrator
         tenantScope: current-server-workspace-membership
       security:
       - staffCookie: []
@@ -12277,7 +12279,7 @@ components:
           minimum: 0
         roles:
           type: array
-          minItems: 1
+          minItems: 0
           uniqueItems: true
           items:
             enum:

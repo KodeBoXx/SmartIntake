@@ -211,7 +211,7 @@ def generated() -> dict[Path, bytes]:
             "accountId": {"type": "string", "pattern": "^account-[0-9a-fA-F-]{36}$"},
             "membershipStatus": {"const": "active"},
             "revision": {"type": "integer", "minimum": 0},
-            "roles": {"type": "array", "minItems": 1, "uniqueItems": True,
+            "roles": {"type": "array", "minItems": 0, "uniqueItems": True,
                       "items": {"enum": workspace_roles}},
         },
     }
@@ -527,7 +527,7 @@ def generated() -> dict[Path, bytes]:
     api["paths"]["/v1/workspaces/{workspace}/members"] = {
         "parameters": [workspace_parameter],
         "get": catalog_operation("m6ListWorkspaceMembers", "List transferable current workspace members",
-                                 workspace_administrator_roles, json_response("WorkspaceMemberCollection")),
+                                 ["workspace-administrator", "organization.owner", "organization.administrator"], json_response("WorkspaceMemberCollection")),
     }
     patch = api["paths"]["/v1/sessions/{s}"]["patch"]
     patch["parameters"] = [parameter for parameter in patch["parameters"] if parameter.get("name") == "s"]

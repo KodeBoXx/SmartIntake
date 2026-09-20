@@ -6480,7 +6480,10 @@ paths:
       summary: List transferable current workspace members
       x-implementation-status: implemented
       x-authorization:
-        roles: *id014
+        roles:
+        - workspace-administrator
+        - organization.owner
+        - organization.administrator
         tenantScope: current-server-workspace-membership
       security:
       - staffCookie: []
@@ -12012,7 +12015,7 @@ components:
           minimum: 0
         roles:
           type: array
-          minItems: 1
+          minItems: 0
           uniqueItems: true
           items:
             enum: *id022

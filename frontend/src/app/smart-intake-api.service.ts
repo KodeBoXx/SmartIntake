@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, map, tap } from 'rxjs';
+import { EMPTY, Observable, expand, map, reduce, tap } from 'rxjs';
 import { FormDefinition, ResponseSummary } from './models/form-definition.models';
 import type { components, operations } from './generated/api-4.1.0';
 import type { RuntimeOperation, ServerProjection } from './runtime/runtime-types';
@@ -76,7 +76,16 @@ export class SmartIntakeApiService {
     return this.http.post<void>('/v1/auth/sign-out', {}, { withCredentials: true });
   }
 
-  platformOrganizations(): Observable<components['schemas']['Organization'][]> { return this.http.get<components['schemas']['OrganizationCollection']>('/v1/platform/organizations', this.staff()).pipe(map((response) => response.items)); }
+  platformOrganizationPage(cursor?: string): Observable<components['schemas']['OrganizationCollection']> {
+    const params = new HttpParams().set('limit', 200).set('cursor', cursor ?? '');
+    return this.http.get<components['schemas']['OrganizationCollection']>('/v1/platform/organizations', { ...this.staff(), params });
+  }
+  platformOrganizations(): Observable<components['schemas']['Organization'][]> {
+    return this.platformOrganizationPage().pipe(
+      expand((page) => page.page.nextCursor ? this.platformOrganizationPage(page.page.nextCursor) : EMPTY),
+      reduce((items, page) => items.concat(page.items), [] as components['schemas']['Organization'][]),
+    );
+  }
   createPlatformOrganization(body: components['schemas']['OrganizationCreateRequest'], retryKey?: string): Observable<components['schemas']['Organization'] & AuthorizedDeliveryCopies> {
     return this.http.post<components['schemas']['OrganizationResponse']>('/v1/platform/organizations', body, this.mutation('POST', '/v1/platform/organizations', body, retryKey)).pipe(
       tap((response) => this.rememberEtag(response)),
