@@ -18,71 +18,83 @@ describe('SmartIntakeApiService', () => {
 
   afterEach(() => http?.verify());
 
-  it('uses exact bootstrap and sign-in contracts with local development credentials', () => {
-    api.bootstrap().subscribe();
-    const bootstrap = http.expectOne('/v1/auth/bootstrap');
-    expect(bootstrap.request.method).toBe('POST');
-    expect(bootstrap.request.body).toEqual({ email: 'owner@local.test', password: 'LocalDevelopmentPassword!' });
-    bootstrap.flush({ staffSession: 'staff-token' });
+  it('bootstraps only a cookie-backed safe server session', () => {
+    api.session().subscribe(session => expect(session.identity.username).toBe('owner'));
+    const session = http.expectOne('/v1/auth/session');
+    expect(session.request.method).toBe('GET');
+    expect(session.request.withCredentials).toBe(true);
+    expect(session.request.headers.has('X-Staff-Session')).toBe(false);
+    session.flush({ authenticatedSession: { safeIdentity: { accountId: 'account-1', username: 'owner', displayName: 'Owner' }, activationState: 'active', accountStatus: 'active', organizations: [], currentOrganizationId: null } });
+  });
 
-    api.signIn().subscribe();
+  it('sends supplied credentials with the bound login-CSRF challenge', () => {
+    api.signIn({ email: 'owner@example.test', password: 'user-supplied' }, 'login-csrf').subscribe();
     const signIn = http.expectOne('/v1/auth/sign-in');
     expect(signIn.request.method).toBe('POST');
-    expect(signIn.request.body).toEqual({ email: 'owner@local.test', password: 'LocalDevelopmentPassword!' });
-    signIn.flush({ staffSession: 'staff-token' });
+    expect(signIn.request.withCredentials).toBe(true);
+    expect(signIn.request.headers.get('X-Login-CSRF-Token')).toBe('login-csrf');
+    expect(signIn.request.body).toEqual({ email: 'owner@example.test', password: 'user-supplied' });
+    signIn.flush({ staffSession: { id: 'session-1' } });
   });
 
   it('creates, persists, and publishes drafts with current revisions', () => {
     const definition = createDefaultDefinition();
-    api.createForm('staff-token', 'responsive-intake', 'Responsive intake').subscribe();
+    api.createForm('responsive-intake', 'Responsive intake').subscribe();
     const create = http.expectOne('/v1/workspaces/local/forms');
     expect(create.request.method).toBe('POST');
-    expect(create.request.headers.get('X-Staff-Session')).toBe('staff-token');
+    expect(create.request.withCredentials).toBe(true);
+    expect(create.request.headers.has('X-Staff-Session')).toBe(false);
     expect(create.request.body).toEqual({ formKey: 'responsive-intake', title: 'Responsive intake' });
     create.flush({ id: 'form-1', draftId: 'draft-1', revision: 1, definition });
 
-    api.updateDraft('staff-token', 'form-1', 'draft-1', 3, definition).subscribe();
+    api.updateDraft('form-1', 'draft-1', 3, definition).subscribe();
     const save = http.expectOne('/v1/workspaces/local/forms/form-1/drafts/draft-1');
     expect(save.request.method).toBe('PUT');
-    expect(save.request.headers.get('X-Staff-Session')).toBe('staff-token');
+    expect(save.request.withCredentials).toBe(true);
+    expect(save.request.headers.has('X-Staff-Session')).toBe(false);
     expect(save.request.headers.get('If-Match')).toBe('"3"');
     expect(save.request.body).toEqual({ definition });
     save.flush({ revision: 4, definition, diagnostics: [] });
 
-    api.publish('staff-token', 'form-1').subscribe();
+    api.publish('form-1').subscribe();
     const publish = http.expectOne('/v1/workspaces/local/forms/form-1/releases');
     expect(publish.request.method).toBe('POST');
-    expect(publish.request.headers.get('X-Staff-Session')).toBe('staff-token');
+    expect(publish.request.withCredentials).toBe(true);
+    expect(publish.request.headers.has('X-Staff-Session')).toBe(false);
     expect(publish.request.body).toEqual({});
     publish.flush({ releaseId: 'release-1', version: 1, shareId: 'form-1', status: 'PUBLISHED' });
   });
 
   it('validates staff sessions and reads the current draft through existing form routes', () => {
-    api.listForms('staff-token').subscribe();
+    api.listForms().subscribe();
     const forms = http.expectOne('/v1/workspaces/local/forms');
     expect(forms.request.method).toBe('GET');
-    expect(forms.request.headers.get('X-Staff-Session')).toBe('staff-token');
+    expect(forms.request.withCredentials).toBe(true);
+    expect(forms.request.headers.has('X-Staff-Session')).toBe(false);
     forms.flush([{ id: 'form-1', formKey: 'responsive-intake', title: 'Responsive intake', status: 'DRAFT', revision: 3, updatedAt: '2026-09-18' }]);
 
-    api.currentDraft('staff-token', 'form-1', 'draft-1').subscribe();
+    api.currentDraft('form-1', 'draft-1').subscribe();
     const draft = http.expectOne('/v1/workspaces/local/forms/form-1/drafts/draft-1');
     expect(draft.request.method).toBe('GET');
-    expect(draft.request.headers.get('X-Staff-Session')).toBe('staff-token');
+    expect(draft.request.withCredentials).toBe(true);
+    expect(draft.request.headers.has('X-Staff-Session')).toBe(false);
     draft.flush({ id: 'draft-1', revision: 3, definition: createDefaultDefinition(), diagnostics: [] });
   });
 
   it('keeps definition transfer paths, bodies, and current If-Match headers intact', () => {
-    api.exportDefinition('staff-token', 'form-1').subscribe();
+    api.exportDefinition('form-1').subscribe();
     const exported = http.expectOne('/v1/workspaces/local/forms/form-1/definition-export');
     expect(exported.request.method).toBe('GET');
-    expect(exported.request.headers.get('X-Staff-Session')).toBe('staff-token');
+    expect(exported.request.withCredentials).toBe(true);
+    expect(exported.request.headers.has('X-Staff-Session')).toBe(false);
     exported.flush({ contractVersion: '4.0.0' });
 
     const definition = { contractVersion: '4.0.0', formKey: 'responsive-intake' };
-    api.importDefinition('staff-token', 'form-1', 7, definition).subscribe();
+    api.importDefinition('form-1', 7, definition).subscribe();
     const imported = http.expectOne('/v1/workspaces/local/forms/form-1/definition-import');
     expect(imported.request.method).toBe('PUT');
-    expect(imported.request.headers.get('X-Staff-Session')).toBe('staff-token');
+    expect(imported.request.withCredentials).toBe(true);
+    expect(imported.request.headers.has('X-Staff-Session')).toBe(false);
     expect(imported.request.headers.get('If-Match')).toBe('"7"');
     expect(imported.request.body).toEqual(definition);
     imported.flush({ revision: 8 });
@@ -147,22 +159,25 @@ describe('SmartIntakeApiService', () => {
   });
 
   it('keeps response administration paths and staff headers intact', () => {
-    api.listResponses('staff-token').subscribe();
+    api.listResponses().subscribe();
     const list = http.expectOne('/v1/workspaces/local/submissions');
     expect(list.request.method).toBe('GET');
-    expect(list.request.headers.get('X-Staff-Session')).toBe('staff-token');
+    expect(list.request.withCredentials).toBe(true);
+    expect(list.request.headers.has('X-Staff-Session')).toBe(false);
     list.flush([]);
 
-    api.responseDetail('staff-token', 'receipt-1').subscribe();
+    api.responseDetail('receipt-1').subscribe();
     const detail = http.expectOne('/v1/workspaces/local/submissions/receipt-1');
     expect(detail.request.method).toBe('GET');
-    expect(detail.request.headers.get('X-Staff-Session')).toBe('staff-token');
+    expect(detail.request.withCredentials).toBe(true);
+    expect(detail.request.headers.has('X-Staff-Session')).toBe(false);
     detail.flush({ id: 'receipt-1' });
 
-    api.exportResponses('staff-token').subscribe();
+    api.exportResponses().subscribe();
     const responses = http.expectOne('/v1/workspaces/local/exports.json');
     expect(responses.request.method).toBe('GET');
-    expect(responses.request.headers.get('X-Staff-Session')).toBe('staff-token');
+    expect(responses.request.withCredentials).toBe(true);
+    expect(responses.request.headers.has('X-Staff-Session')).toBe(false);
     responses.flush([]);
   });
 

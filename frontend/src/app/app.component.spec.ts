@@ -9,8 +9,6 @@ describe('AppComponent journeys', () => {
   function createApi() {
     const definition = createDefaultDefinition();
     return {
-      bootstrap: vi.fn(() => of({ staffSession: 'bootstrapped' })),
-      signIn: vi.fn(() => of({ staffSession: 'signed-in' })),
       listForms: vi.fn(() => of([] as Array<{ id: string; formKey: string; title: string; status: string; revision: number; updatedAt: string }>)),
       currentDraft: vi.fn(() => of({ id: 'form-1', revision: 2, definition, diagnostics: [] })),
       createForm: vi.fn(() => of({ id: 'form-1', draftId: 'draft-1', revision: 1, definition })),
@@ -32,106 +30,7 @@ describe('AppComponent journeys', () => {
       .find((button) => button.textContent?.trim() === text) as HTMLButtonElement;
   }
 
-  it('uses bootstrap then sign-in fallback and persists the recovered staff token', () => {
-    localStorage.removeItem('smartintake.staffSession');
-    const api = createApi();
-    api.bootstrap.mockReturnValue(throwError(() => new Error('already bootstrapped')));
-    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
-    const component = TestBed.createComponent(AppComponent).componentInstance;
-
-    expect(api.bootstrap).toHaveBeenCalledOnce();
-    expect(api.signIn).toHaveBeenCalledOnce();
-    expect(component.staffToken).toBe('signed-in');
-    expect(localStorage.getItem('smartintake.staffSession')).toBe('signed-in');
-  });
-
-  it('shows a session failure only when bootstrap and sign-in both fail', () => {
-    localStorage.removeItem('smartintake.staffSession');
-    const api = createApi();
-    api.bootstrap.mockReturnValue(throwError(() => new Error('bootstrap failed')));
-    api.signIn.mockReturnValue(throwError(() => new Error('sign-in failed')));
-    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
-    const component = TestBed.createComponent(AppComponent).componentInstance;
-
-    expect(component.message()).toBe('Unable to start a staff session.');
-  });
-
-  it('retries empty-token authentication before authoritative draft rehydration', () => {
-    localStorage.removeItem('smartintake.staffSession');
-    const api = createApi();
-    const firstSignIn = new Subject<{ staffSession: string }>();
-    const retrySignIn = new Subject<{ staffSession: string }>();
-    const forms = new Subject<Array<{ id: string; formKey: string; title: string; status: string; revision: number; updatedAt: string }>>();
-    const draft = new Subject<{ id: string; revision: number; definition: ReturnType<typeof createDefaultDefinition>; diagnostics: never[] }>();
-    api.bootstrap.mockReturnValue(throwError(() => new Error('bootstrap unavailable')));
-    api.signIn.mockReturnValueOnce(firstSignIn.asObservable()).mockReturnValueOnce(retrySignIn.asObservable());
-    api.listForms.mockReturnValue(forms.asObservable());
-    api.currentDraft.mockReturnValue(draft.asObservable());
-    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
-    const component = TestBed.createComponent(AppComponent).componentInstance;
-
-    firstSignIn.error(new Error('sign-in unavailable'));
-    expect(component.staffToken).toBe('');
-    expect(component.rehydrationFailed()).toBe(true);
-    expect(component.editorLocked()).toBe(true);
-
-    component.retryDraftRehydration();
-    expect(api.bootstrap).toHaveBeenCalledTimes(2);
-    expect(api.signIn).toHaveBeenCalledTimes(2);
-    expect(component.rehydrating()).toBe(true);
-
-    retrySignIn.next({ staffSession: 'retry-token' });
-    expect(api.listForms).toHaveBeenCalledWith('retry-token');
-    forms.next([{ id: 'form-1', formKey: 'responsive-intake', title: 'Responsive intake', status: 'DRAFT', revision: 4, updatedAt: '2026-09-18' }]);
-    expect(api.currentDraft).toHaveBeenCalledWith('retry-token', 'form-1', 'form-1');
-    draft.next({ id: 'draft-1', revision: 4, definition: createDefaultDefinition(), diagnostics: [] });
-
-    expect(component.rehydrating()).toBe(false);
-    expect(component.rehydrationFailed()).toBe(false);
-    expect(component.editorLocked()).toBe(false);
-  });
-
-  it('keeps authoring locked when empty-token retry authentication fails again', () => {
-    localStorage.removeItem('smartintake.staffSession');
-    const api = createApi();
-    const firstSignIn = new Subject<{ staffSession: string }>();
-    const retrySignIn = new Subject<{ staffSession: string }>();
-    api.bootstrap.mockReturnValue(throwError(() => new Error('bootstrap unavailable')));
-    api.signIn.mockReturnValueOnce(firstSignIn.asObservable()).mockReturnValueOnce(retrySignIn.asObservable());
-    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
-    const component = TestBed.createComponent(AppComponent).componentInstance;
-
-    firstSignIn.error(new Error('sign-in unavailable'));
-    component.retryDraftRehydration();
-    retrySignIn.error(new Error('sign-in unavailable again'));
-
-    expect(api.bootstrap).toHaveBeenCalledTimes(2);
-    expect(api.signIn).toHaveBeenCalledTimes(2);
-    expect(component.staffToken).toBe('');
-    expect(component.rehydrating()).toBe(false);
-    expect(component.rehydrationFailed()).toBe(true);
-    expect(component.editorLocked()).toBe(true);
-    expect(component.message()).toBe('Unable to start a staff session.');
-    expect(api.listForms).not.toHaveBeenCalled();
-  });
-
-  it('clears a stale stored staff token and recovers through bootstrap then sign-in', () => {
-    localStorage.setItem('smartintake.staffSession', 'stale-token');
-    const api = createApi();
-    api.listForms.mockReturnValueOnce(throwError(() => ({ status: 401 }))).mockReturnValue(of([]));
-    api.bootstrap.mockReturnValue(throwError(() => new Error('already bootstrapped')));
-    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
-    const component = TestBed.createComponent(AppComponent).componentInstance;
-
-    expect(api.listForms).toHaveBeenNthCalledWith(1, 'stale-token');
-    expect(api.bootstrap).toHaveBeenCalledOnce();
-    expect(api.signIn).toHaveBeenCalledOnce();
-    expect(component.staffToken).toBe('signed-in');
-    expect(localStorage.getItem('smartintake.staffSession')).toBe('signed-in');
-  });
-
   it('rehydrates the authoritative default draft after validating a stored session', () => {
-    localStorage.setItem('smartintake.staffSession', 'existing-token');
     const api = createApi();
     const restored = { ...createDefaultDefinition(), title: 'Restored intake' };
     api.listForms.mockReturnValue(of([{ id: 'form-1', formKey: 'responsive-intake', title: 'Responsive intake', status: 'DRAFT', revision: 4, updatedAt: '2026-09-18' }]));
@@ -139,7 +38,7 @@ describe('AppComponent journeys', () => {
     TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
     const component = TestBed.createComponent(AppComponent).componentInstance;
 
-    expect(api.currentDraft).toHaveBeenCalledWith('existing-token', 'form-1', 'form-1');
+    expect(api.currentDraft).toHaveBeenCalledWith('form-1', 'form-1');
     expect(component.formId).toBe('form-1');
     expect(component.draftId).toBe('draft-1');
     expect(component.draftRevision()).toBe(4);
@@ -148,7 +47,6 @@ describe('AppComponent journeys', () => {
   });
 
   it('locks authoring until form lookup and authoritative draft rehydration complete', () => {
-    localStorage.setItem('smartintake.staffSession', 'existing-token');
     const api = createApi();
     const forms = new Subject<Array<{ id: string; formKey: string; title: string; status: string; revision: number; updatedAt: string }>>();
     const draft = new Subject<{ id: string; revision: number; definition: ReturnType<typeof createDefaultDefinition>; diagnostics: never[] }>();
@@ -170,7 +68,7 @@ describe('AppComponent journeys', () => {
     expect(api.createForm).not.toHaveBeenCalled();
 
     forms.next([{ id: 'form-1', formKey: 'responsive-intake', title: 'Responsive intake', status: 'DRAFT', revision: 4, updatedAt: '2026-09-18' }]);
-    expect(api.currentDraft).toHaveBeenCalledWith('existing-token', 'form-1', 'form-1');
+    expect(api.currentDraft).toHaveBeenCalledWith('form-1', 'form-1');
     expect(component.rehydrating()).toBe(true);
 
     draft.next({ id: 'draft-1', revision: 4, definition: createDefaultDefinition(), diagnostics: [] });
@@ -180,7 +78,6 @@ describe('AppComponent journeys', () => {
   });
 
   it('fails closed when an existing form draft cannot be loaded', () => {
-    localStorage.setItem('smartintake.staffSession', 'existing-token');
     const api = createApi();
     api.listForms.mockReturnValue(of([{ id: 'form-1', formKey: 'responsive-intake', title: 'Responsive intake', status: 'DRAFT', revision: 4, updatedAt: '2026-09-18' }]));
     api.currentDraft.mockReturnValue(throwError(() => new Error('draft unavailable')));
@@ -197,7 +94,6 @@ describe('AppComponent journeys', () => {
   });
 
   it('creates then persists a draft, repeats with its current revision, publishes from the toolbar, and submits a session', () => {
-    localStorage.removeItem('smartintake.staffSession');
     const api = createApi();
     TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
     const fixture = TestBed.createComponent(AppComponent);
@@ -209,15 +105,15 @@ describe('AppComponent journeys', () => {
     expect(toolbar.classList.contains('w-full')).toBe(true);
 
     toolbarButton(fixture, 'Save draft').click();
-    expect(api.createForm).toHaveBeenCalledWith('bootstrapped', 'responsive-intake', 'Responsive intake');
-    expect(api.updateDraft).toHaveBeenCalledWith('bootstrapped', 'form-1', 'draft-1', 1, component.definition());
+    expect(api.createForm).toHaveBeenCalledWith('responsive-intake', 'Responsive intake');
+    expect(api.updateDraft).toHaveBeenCalledWith('form-1', 'draft-1', 1, component.definition());
     expect(component.draftRevision()).toBe(2);
     toolbarButton(fixture, 'Save draft').click();
     expect(api.createForm).toHaveBeenCalledOnce();
-    expect(api.updateDraft).toHaveBeenLastCalledWith('bootstrapped', 'form-1', 'draft-1', 2, component.definition());
+    expect(api.updateDraft).toHaveBeenLastCalledWith('form-1', 'draft-1', 2, component.definition());
 
     toolbarButton(fixture, 'Publish').click();
-    expect(api.publish).toHaveBeenCalledWith('bootstrapped', 'form-1');
+    expect(api.publish).toHaveBeenCalledWith('form-1');
     expect(component.message()).toBe('Form published. Release release-1');
 
     component.startPreview();
@@ -231,7 +127,6 @@ describe('AppComponent journeys', () => {
   });
 
   it('serializes a dirty draft save before publishing and blocks edits while persistence is in flight', () => {
-    localStorage.setItem('smartintake.staffSession', 'existing-token');
     const api = createApi();
     const saved = new Subject<{ revision: number; definition: ReturnType<typeof createDefaultDefinition>; diagnostics: never[] }>();
     const published = new Subject<{ releaseId: string; version: number; shareId: string; status: string }>();
@@ -265,7 +160,7 @@ describe('AppComponent journeys', () => {
     component.publish();
     expect(api.updateDraft).toHaveBeenCalledOnce();
     saved.next({ revision: 2, definition: savedDefinition, diagnostics: [] });
-    expect(api.publish).toHaveBeenCalledWith('existing-token', 'form-1');
+    expect(api.publish).toHaveBeenCalledWith('form-1');
     expect(component.publishing()).toBe(true);
 
     component.publish();
@@ -275,7 +170,6 @@ describe('AppComponent journeys', () => {
   });
 
   it('uses its current revision then replaces the editor with the canonical imported draft', async () => {
-    localStorage.setItem('smartintake.staffSession', 'existing-token');
     const api = createApi();
     TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
     const fixture = TestBed.createComponent(AppComponent);
@@ -291,15 +185,14 @@ describe('AppComponent journeys', () => {
 
     importInput.dispatchEvent(new Event('change'));
     await Promise.resolve();
-    expect(api.importDefinition).toHaveBeenCalledWith('existing-token', 'form-1', 7, { contractVersion: '4.0.0' });
-    expect(api.currentDraft).toHaveBeenCalledWith('existing-token', 'form-1', 'draft-1');
+    expect(api.importDefinition).toHaveBeenCalledWith('form-1', 7, { contractVersion: '4.0.0' });
+    expect(api.currentDraft).toHaveBeenCalledWith('form-1', 'draft-1');
     expect(component.draftRevision()).toBe(8);
     expect(component.definition().title).toBe('Canonical imported draft');
     expect(component.saving()).toBe(false);
   });
 
   it('recovers the saving state when an imported definition cannot be parsed', async () => {
-    localStorage.setItem('smartintake.staffSession', 'existing-token');
     const api = createApi();
     TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }] });
     const fixture = TestBed.createComponent(AppComponent);
@@ -319,7 +212,6 @@ describe('AppComponent journeys', () => {
   });
 
   it('filters the inlined response list from its rendered search control', () => {
-    localStorage.setItem('smartintake.staffSession', 'existing-token');
     const api = createApi();
     api.listResponses.mockReturnValue(of([
       { id: 'receipt-1', submittedAt: '2026-09-16' },
@@ -349,7 +241,6 @@ describe('AppComponent journeys', () => {
   });
 
   it('opens an authorized response detail after an inlined response row click', () => {
-    localStorage.setItem('smartintake.staffSession', 'existing-token');
     const api = createApi();
     api.listResponses.mockReturnValue(of([{ id: 'receipt-1', submittedAt: '2026-09-16' }]));
     api.responseDetail.mockReturnValue(of({ id: 'receipt-1', answers: { name: 'Ada' } }));
@@ -364,7 +255,7 @@ describe('AppComponent journeys', () => {
     responseRow.click();
     fixture.detectChanges();
 
-    expect(api.responseDetail).toHaveBeenCalledWith('existing-token', 'receipt-1');
+    expect(api.responseDetail).toHaveBeenCalledWith('receipt-1');
     expect(fixture.nativeElement.textContent).toContain('Authorized response detail');
     expect(fixture.nativeElement.textContent).toContain('Ada');
 
@@ -377,7 +268,6 @@ describe('AppComponent journeys', () => {
   });
 
   it('keeps the newest response detail when an older request completes later', () => {
-    localStorage.setItem('smartintake.staffSession', 'existing-token');
     const api = createApi();
     const first = new Subject<{ id: string; answers: { name: string } }>();
     const second = new Subject<{ id: string; answers: { name: string } }>();
@@ -394,7 +284,6 @@ describe('AppComponent journeys', () => {
   });
 
   it('ignores an older response detail failure after the newest request succeeds', () => {
-    localStorage.setItem('smartintake.staffSession', 'existing-token');
     const api = createApi();
     const first = new Subject<{ id: string; answers: { name: string } }>();
     const second = new Subject<{ id: string; answers: { name: string } }>();
@@ -412,7 +301,6 @@ describe('AppComponent journeys', () => {
   });
 
   it('does not reopen a response detail after it is closed during a pending request', () => {
-    localStorage.setItem('smartintake.staffSession', 'existing-token');
     const api = createApi();
     const pending = new Subject<{ id: string }>();
     api.responseDetail.mockReturnValue(pending.asObservable());
@@ -427,7 +315,6 @@ describe('AppComponent journeys', () => {
   });
 
   it('renders response failures globally and clears stale response detail', () => {
-    localStorage.setItem('smartintake.staffSession', 'existing-token');
     const api = createApi();
     api.listResponses.mockReturnValue(throwError(() => new Error('list failed')));
     api.responseDetail.mockReturnValue(throwError(() => new Error('detail failed')));
@@ -450,7 +337,6 @@ describe('AppComponent journeys', () => {
   });
 
   it('preserves draft, publish, and session failure messages', () => {
-    localStorage.setItem('smartintake.staffSession', 'existing-token');
     const api = createApi();
     api.createForm.mockReturnValue(throwError(() => new Error('conflict')));
     api.publish.mockReturnValue(throwError(() => new Error('publish failure')));

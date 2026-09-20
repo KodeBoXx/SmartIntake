@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { FormDefinition, ResponseSummary } from './models/form-definition.models';
 import type { components, operations } from './generated/api-4.1.0';
 import type { RuntimeOperation, ServerProjection } from './runtime/runtime-types';
@@ -9,10 +9,12 @@ export { AjvContractValidationAdapter } from './ajv-contract-validation.adapter'
 export type { ContractDiagnostic, ContractValidationResult } from './ajv-contract-validation.adapter';
 export type { CanonicalDecimal, CanonicalInt64 } from './generated/contracts';
 
-type StaffSession = { staffSession: string; workspaceKey?: string };
+type GeneratedSignInRequest = components['schemas']['SignInRequest'];
 type GeneratedSessionMutation = components['schemas']['SessionMutation'];
 type GeneratedAcknowledgment = components['schemas']['Acknowledgment'];
 type GeneratedInputAnswer = components['schemas']['InputAnswerValue'];
+export type StaffIdentity = components['schemas']['SafeAccountIdentity'];
+export type StaffSession = { identity: StaffIdentity; csrfToken?: string };
 export type CreatedForm = { id: string; draftId: string; revision: number; definition: FormDefinition };
 export type SavedDraft = { revision: number; definition: FormDefinition; diagnostics: unknown[] };
 export type PublishedForm = { releaseId: string; version: number; shareId: string; status: string };
@@ -31,42 +33,67 @@ export type TypedSessionProjection = ServerProjection & {
 export class SmartIntakeApiService {
   constructor(private readonly http: HttpClient) {}
 
-  bootstrap(): Observable<StaffSession> {
-    return this.http.post<StaffSession>('/v1/auth/bootstrap', this.localCredentials());
+  /** Cookie-authenticated safe identity; a 401 issues the one-time login CSRF header. */
+  session(): Observable<StaffSession> {
+    return this.http.get<unknown>('/v1/auth/session', { withCredentials: true }).pipe(mapSession);
   }
 
-  signIn(): Observable<StaffSession> {
-    return this.http.post<StaffSession>('/v1/auth/sign-in', this.localCredentials());
+  signIn(credentials: GeneratedSignInRequest, loginCsrfToken: string): Observable<void> {
+    return this.http.post<unknown>('/v1/auth/sign-in', credentials, {
+      withCredentials: true,
+      headers: new HttpHeaders({ 'X-Login-CSRF-Token': loginCsrfToken }),
+    }).pipe(map(() => void 0));
   }
 
-  listForms(staffToken: string): Observable<FormSummary[]> {
-    return this.http.get<FormSummary[]>('/v1/workspaces/local/forms', this.staff(staffToken));
+  /** One-time setup is intentionally separate from the generated 4.1 sign-in contract. */
+  bootstrap(input: { email: string; password: string; organizationName: string; workspaceName: string }): Observable<void> {
+    return this.http.post('/v1/auth/bootstrap', input, { withCredentials: true }).pipe(map(() => void 0));
   }
 
-  currentDraft(staffToken: string, formId: string, draftId: string): Observable<CurrentDraft> {
-    return this.http.get<CurrentDraft>(`/v1/workspaces/local/forms/${formId}/drafts/${draftId}`, this.staff(staffToken));
+  signOut(): Observable<void> {
+    return this.http.post<void>('/v1/auth/sign-out', {}, { withCredentials: true });
   }
 
-  listResponses(staffToken: string): Observable<ResponseSummary[]> {
-    return this.http.get<ResponseSummary[]>('/v1/workspaces/local/submissions', this.staff(staffToken));
+  activate(body: components['schemas']['AccountActivationRequest']): Observable<unknown> {
+    return this.http.post('/v1/auth/activate', body, { withCredentials: true });
   }
 
-  responseDetail(staffToken: string, id: string): Observable<unknown> {
-    return this.http.get<unknown>(`/v1/workspaces/local/submissions/${id}`, this.staff(staffToken));
+  requestRecovery(body: components['schemas']['RecoveryRequest']): Observable<unknown> {
+    return this.http.post('/v1/auth/recovery', body, { withCredentials: true });
   }
 
-  exportDefinition(staffToken: string, formId: string): Observable<unknown> {
-    return this.http.get<unknown>(`/v1/workspaces/local/forms/${formId}/definition-export`, this.staff(staffToken));
+  resetPassword(body: components['schemas']['PasswordResetRequest']): Observable<unknown> {
+    return this.http.post('/v1/auth/reset', body, { withCredentials: true });
   }
 
-  importDefinition(staffToken: string, formId: string, revision: number, definition: unknown): Observable<{ revision: number }> {
+  listForms(): Observable<FormSummary[]> {
+    return this.http.get<FormSummary[]>('/v1/workspaces/local/forms', this.staff());
+  }
+
+  currentDraft(formId: string, draftId: string): Observable<CurrentDraft> {
+    return this.http.get<CurrentDraft>(`/v1/workspaces/local/forms/${formId}/drafts/${draftId}`, this.staff());
+  }
+
+  listResponses(): Observable<ResponseSummary[]> {
+    return this.http.get<ResponseSummary[]>('/v1/workspaces/local/submissions', this.staff());
+  }
+
+  responseDetail(id: string): Observable<unknown> {
+    return this.http.get<unknown>(`/v1/workspaces/local/submissions/${id}`, this.staff());
+  }
+
+  exportDefinition(formId: string): Observable<unknown> {
+    return this.http.get<unknown>(`/v1/workspaces/local/forms/${formId}/definition-export`, this.staff());
+  }
+
+  importDefinition(formId: string, revision: number, definition: unknown): Observable<{ revision: number }> {
     return this.http.put<{ revision: number }>(`/v1/workspaces/local/forms/${formId}/definition-import`, definition, {
-      headers: new HttpHeaders({ 'X-Staff-Session': staffToken, 'If-Match': this.etag(revision) }),
+      headers: new HttpHeaders({ 'If-Match': this.etag(revision) }), withCredentials: true,
     });
   }
 
-  exportResponses(staffToken: string): Observable<ResponseSummary[]> {
-    return this.http.get<ResponseSummary[]>('/v1/workspaces/local/exports.json', this.staff(staffToken));
+  exportResponses(): Observable<ResponseSummary[]> {
+    return this.http.get<ResponseSummary[]>('/v1/workspaces/local/exports.json', this.staff());
   }
 
   /** M2 publication route; use the generated OpenAPI operation response type. */
@@ -74,18 +101,18 @@ export class SmartIntakeApiService {
     return this.http.get<PublishedSchema>(`/v1/schemas/${encodeURIComponent(kind)}/${encodeURIComponent(version)}`);
   }
 
-  createForm(staffToken: string, formKey: string, title: string): Observable<CreatedForm> {
-    return this.http.post<CreatedForm>('/v1/workspaces/local/forms', { formKey, title }, this.staff(staffToken));
+  createForm(formKey: string, title: string): Observable<CreatedForm> {
+    return this.http.post<CreatedForm>('/v1/workspaces/local/forms', { formKey, title }, this.staff());
   }
 
-  updateDraft(staffToken: string, formId: string, draftId: string, revision: number, definition: FormDefinition): Observable<SavedDraft> {
+  updateDraft(formId: string, draftId: string, revision: number, definition: FormDefinition): Observable<SavedDraft> {
     return this.http.put<SavedDraft>(`/v1/workspaces/local/forms/${formId}/drafts/${draftId}`, { definition }, {
-      headers: new HttpHeaders({ 'X-Staff-Session': staffToken, 'If-Match': this.etag(revision) }),
+      headers: new HttpHeaders({ 'If-Match': this.etag(revision) }), withCredentials: true,
     });
   }
 
-  publish(staffToken: string, formId: string): Observable<PublishedForm> {
-    return this.http.post<PublishedForm>(`/v1/workspaces/local/forms/${formId}/releases`, {}, this.staff(staffToken));
+  publish(formId: string): Observable<PublishedForm> {
+    return this.http.post<PublishedForm>(`/v1/workspaces/local/forms/${formId}/releases`, {}, this.staff());
   }
 
   startSession(formId: string): Observable<{ sessionId: string; respondentSession: string; revision: number }> {
@@ -126,16 +153,12 @@ export class SmartIntakeApiService {
     }, this.respondent(respondentToken));
   }
 
-  private staff(staffToken: string) {
-    return { headers: new HttpHeaders({ 'X-Staff-Session': staffToken }) };
+  private staff() {
+    return { withCredentials: true };
   }
 
   private respondent(respondentToken: string) {
     return { headers: new HttpHeaders({ 'X-Respondent-Session': respondentToken }) };
-  }
-
-  private localCredentials() {
-    return { email: 'owner@local.test', password: 'LocalDevelopmentPassword!' };
   }
 
   private wireOperation(operation: RuntimeOperation): GeneratedSessionMutation {
@@ -172,4 +195,14 @@ export class SmartIntakeApiService {
 
 function wireInputAnswer(answer: unknown): GeneratedInputAnswer {
   return JSON.parse(JSON.stringify(answer)) as GeneratedInputAnswer;
+}
+
+function mapSession(source: Observable<unknown>): Observable<StaffSession> {
+  return source.pipe(map((body) => {
+    const value = body as { authenticatedSession?: { safeIdentity?: StaffIdentity }; safeIdentity?: StaffIdentity };
+    const authenticated = value.authenticatedSession;
+    const identity = authenticated?.safeIdentity ?? value.safeIdentity;
+    if (!identity?.accountId || !identity.username) throw new Error('The server returned an invalid staff session.');
+    return { identity };
+  }));
 }

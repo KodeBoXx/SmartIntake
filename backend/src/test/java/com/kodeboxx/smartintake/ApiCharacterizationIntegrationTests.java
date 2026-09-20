@@ -13,6 +13,7 @@ import java.util.*;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.boot.test.context.*;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.boot.test.web.client.*;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.*;
@@ -23,6 +24,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
  * M1 characterization for the complete legacy /v1 route surface. Assertions deliberately describe
  * observed Lite behavior rather than introducing a future contract.
  */
+@ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ApiCharacterizationIntegrationTests {
   @LocalServerPort int port;
@@ -126,18 +128,16 @@ class ApiCharacterizationIntegrationTests {
     assertEquals(HttpStatus.NOT_FOUND, call("/schemas/package/4.0.0/validate", HttpMethod.POST, headers(null), "{}").getStatusCode());
     Map<String, Object> credentials =
         Map.of("email", "m1-" + account + "@example.test", "password", "correct-horse-battery");
-    ResponseEntity<String> signIn =
-        call("/auth/sign-in", HttpMethod.POST, headers(null), credentials);
+    ResponseEntity<String> anonymous = http.getForEntity(u("/auth/session"), String.class);
+    assertEquals(HttpStatus.UNAUTHORIZED, anonymous.getStatusCode());
+    HttpHeaders loginHeaders = headers(null);
+    loginHeaders.set("X-Login-CSRF-Token", anonymous.getHeaders().getFirst("X-Login-CSRF-Token"));
+    loginHeaders.set(HttpHeaders.COOKIE, anonymous.getHeaders().getFirst(HttpHeaders.SET_COOKIE).split(";", 2)[0]);
+    ResponseEntity<String> signIn = call("/auth/sign-in", HttpMethod.POST, loginHeaders, credentials);
     assertEquals(HttpStatus.OK, signIn.getStatusCode());
-    assertEquals("local", object(signIn.getBody()).get("workspaceKey"));
-    String signedIn = (String) object(signIn.getBody()).get("staffSession");
-    assertEquals(
-        HttpStatus.NO_CONTENT,
-        call("/auth/logout", HttpMethod.POST, headers(signedIn), null).getStatusCode());
-    assertEquals(
-        HttpStatus.UNAUTHORIZED,
-        call("/workspaces/" + workspace + "/forms", HttpMethod.GET, headers(signedIn), null)
-            .getStatusCode());
+    assertTrue(object(signIn.getBody()).containsKey("staffSession"));
+    assertEquals(HttpStatus.NO_CONTENT, call("/auth/logout", HttpMethod.POST, headers(staff), null).getStatusCode());
+    assertEquals(HttpStatus.UNAUTHORIZED, call("/workspaces/" + workspace + "/forms", HttpMethod.GET, headers(staff), null).getStatusCode());
     ResponseEntity<String> bootstrap =
         call(
             "/auth/bootstrap",
@@ -145,14 +145,13 @@ class ApiCharacterizationIntegrationTests {
             headers(null),
             Map.of("email", "later@example.test", "password", "correct-horse-battery"));
     assertEquals(HttpStatus.CONFLICT, bootstrap.getStatusCode());
-    assertEquals(
-        HttpStatus.UNAUTHORIZED,
-        call(
-                "/auth/sign-in",
-                HttpMethod.POST,
-                headers(null),
-                Map.of("email", "m1-" + account + "@example.test", "password", "wrong-password"))
-            .getStatusCode());
+    ResponseEntity<String> secondAnonymous = http.getForEntity(u("/auth/session"), String.class);
+    HttpHeaders rejectedLoginHeaders = headers(null);
+    rejectedLoginHeaders.set("X-Login-CSRF-Token", secondAnonymous.getHeaders().getFirst("X-Login-CSRF-Token"));
+    rejectedLoginHeaders.set(HttpHeaders.COOKIE, secondAnonymous.getHeaders().getFirst(HttpHeaders.SET_COOKIE).split(";", 2)[0]);
+    assertEquals(HttpStatus.UNAUTHORIZED,
+        call("/auth/sign-in", HttpMethod.POST, rejectedLoginHeaders,
+            Map.of("email", "m1-" + account + "@example.test", "password", "wrong-password")).getStatusCode());
   }
 
   @Test

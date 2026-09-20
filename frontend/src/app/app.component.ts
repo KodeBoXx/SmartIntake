@@ -22,9 +22,9 @@ import { CurrentDraft, FormSummary, SmartIntakeApiService } from './smart-intake
   standalone: true,
   imports: [AppToolbarComponent, CommonModule, FormsModule],
   template: `
-<header class="border-b border-stone-200 bg-white"><div class="mx-auto flex max-w-7xl items-center justify-between px-5 py-4"><div><p class="type-caption-bold text-emerald-700">SMART INTAKE</p><h1 class="type-h3">Form Builder Lite</h1></div><span class="type-caption">{{staffToken?'Staff session active':'Local bootstrap/sign-in required'}}</span></div></header>
+<header class="border-b border-stone-200 bg-white"><div class="mx-auto flex max-w-7xl items-center justify-between px-5 py-4"><div><p class="type-caption-bold text-emerald-700">SMART INTAKE</p><h1 class="type-h3">Form Builder Lite</h1></div><span class="type-caption">Cookie-authenticated staff session</span></div></header>
 <main class="mx-auto max-w-7xl px-5 py-6">
-<nav appToolbar class="mb-5 flex w-full flex-wrap gap-2" [staffToken]="staffToken" [saveDisabled]="editorLocked()" [publishDisabled]="editorLocked()" [importDisabled]="editorLocked()" (author)="mode.set('editor')" (preview)="startPreview()" (save)="save()" (publish)="publish()" (definitionExport)="exportDefinition()" (definitionImport)="importDefinition($event)" (responsesExport)="exportResponses()" (responseAdmin)="loadResponses()"></nav>
+<nav appToolbar class="mb-5 flex w-full flex-wrap gap-2" [saveDisabled]="editorLocked()" [publishDisabled]="editorLocked()" [importDisabled]="editorLocked()" (author)="mode.set('editor')" (preview)="startPreview()" (save)="save()" (publish)="publish()" (definitionExport)="exportDefinition()" (definitionImport)="importDefinition($event)" (responsesExport)="exportResponses()" (responseAdmin)="loadResponses()"></nav>
 <p *ngIf="message()" class="notice" role="status">{{message()}}</p>
 <p *ngIf="rehydrating()" class="notice" role="status">Loading saved draft…</p>
 <button *ngIf="rehydrationFailed()" class="pill mt-3" (click)="retryDraftRehydration()">Retry saved draft</button>
@@ -65,7 +65,6 @@ export class AppComponent {
   responseDetail = signal<unknown>(null);
   responseQuery = '';
   answers: Record<string, unknown> = {};
-  staffToken = localStorage.getItem('smartintake.staffSession') || '';
   formId = '';
   draftId = '';
   respondentId = '';
@@ -82,13 +81,15 @@ export class AppComponent {
   private responseDetailGeneration = 0;
 
   constructor(private readonly api: SmartIntakeApiService) {
-    this.bootstrap();
+    // This route is protected by staffSessionGuard. Rehydrate only after the
+    // server-authoritative guard has accepted the HttpOnly cookie.
+    this.rehydrateDefaultForm();
   }
 
   page() { return this.definition().pages[this.pageIndex()]; }
   field() { return this.page().fields[this.fieldIndex()]; }
   allFields() { return this.definition().pages.flatMap((page) => page.fields); }
-  editorLocked() { return !this.staffToken || this.rehydrating() || this.rehydrationFailed() || this.saving() || this.publishing() || this.draftReloadRequired(); }
+  editorLocked() { return this.rehydrating() || this.rehydrationFailed() || this.saving() || this.publishing() || this.draftReloadRequired(); }
   touch() {
     if (this.editorLocked()) return;
     this.definition.update((definition) => ({ ...definition, pages: [...definition.pages] }));
@@ -151,41 +152,6 @@ export class AppComponent {
   visible(field: Field) { return !field.visibleWhen?.fieldId || this.answers[field.visibleWhen.fieldId] === field.visibleWhen.equals; }
   isRequired(field: Field) { return !!field.required || !!(field.requiredRule && this.answers[field.requiredRuleField ?? ''] === field.requiredRuleValue); }
 
-  bootstrap() {
-    if (this.staffToken) {
-      this.validateStoredSession();
-      return;
-    }
-    this.api.bootstrap().subscribe({ next: (response) => this.persistStaffSession(response.staffSession), error: () => this.signIn() });
-  }
-
-  private signIn() {
-    this.api.signIn().subscribe({ next: (response) => this.persistStaffSession(response.staffSession), error: () => this.failRehydration('Unable to start a staff session.') });
-  }
-
-  private persistStaffSession(token: string) {
-    this.staffToken = token;
-    localStorage.setItem('smartintake.staffSession', token);
-    this.rehydrating.set(true);
-    this.rehydrationFailed.set(false);
-    this.rehydrateDefaultForm();
-  }
-
-  private validateStoredSession() {
-    this.api.listForms(this.staffToken).subscribe({
-      next: (forms) => this.rehydrateDefaultForm(forms),
-      error: (error) => {
-        if (error.status !== 401) {
-          this.failRehydration('Unable to validate the stored staff session.');
-          return;
-        }
-        this.staffToken = '';
-        localStorage.removeItem('smartintake.staffSession');
-        this.bootstrap();
-      },
-    });
-  }
-
   private rehydrateDefaultForm(knownForms?: FormSummary[]) {
     const load = (forms: FormSummary[]) => {
       const form = forms.find((candidate) => candidate.formKey === this.definition().formKey);
@@ -193,20 +159,19 @@ export class AppComponent {
         this.completeRehydration();
         return;
       }
-      this.api.currentDraft(this.staffToken, form.id, form.id).subscribe({
+      this.api.currentDraft(form.id, form.id).subscribe({
         next: (draft) => this.applyDraft(form.id, draft),
         error: () => this.failRehydration('Saved draft unavailable. Retry before editing.'),
       });
     };
     if (knownForms) load(knownForms);
-    else this.api.listForms(this.staffToken).subscribe({ next: load, error: () => this.failRehydration('Unable to load saved drafts. Retry before editing.') });
+    else this.api.listForms().subscribe({ next: load, error: () => this.failRehydration('Unable to load saved drafts. Retry before editing.') });
   }
 
   retryDraftRehydration() {
     this.rehydrating.set(true);
     this.rehydrationFailed.set(false);
-    if (this.staffToken) this.rehydrateDefaultForm();
-    else this.bootstrap();
+    this.rehydrateDefaultForm();
   }
 
   private completeRehydration() {
@@ -236,7 +201,7 @@ export class AppComponent {
     this.responseDetailGeneration++;
     this.responseDetail.set(null);
     this.responses.set([]);
-    this.api.listResponses(this.staffToken).subscribe({
+    this.api.listResponses().subscribe({
       next: (response) => this.responses.set(response),
       error: () => { this.responseDetail.set(null); this.message.set('Response list unavailable.'); },
     });
@@ -248,7 +213,7 @@ export class AppComponent {
   openResponse = (id: string) => {
     const generation = ++this.responseDetailGeneration;
     this.responseDetail.set(null);
-    this.api.responseDetail(this.staffToken, id).subscribe({
+    this.api.responseDetail(id).subscribe({
       next: (response) => { if (generation === this.responseDetailGeneration) this.responseDetail.set(response); },
       error: () => {
         if (generation !== this.responseDetailGeneration) return;
@@ -261,7 +226,7 @@ export class AppComponent {
 
   exportDefinition() {
     if (!this.formId) { this.message.set('Save a form before export.'); return; }
-    this.api.exportDefinition(this.staffToken, this.formId).subscribe({ next: (response) => this.download(response, 'smart-intake-definition.json'), error: () => this.message.set('Definition export failed.') });
+    this.api.exportDefinition(this.formId).subscribe({ next: (response) => this.download(response, 'smart-intake-definition.json'), error: () => this.message.set('Definition export failed.') });
   }
 
   importDefinition(event: Event) {
@@ -269,7 +234,7 @@ export class AppComponent {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file || !this.formId) { this.message.set('Save a form before import.'); return; }
     this.saving.set(true);
-    file.text().then((text) => this.api.importDefinition(this.staffToken, this.formId, this.draftRevision(), JSON.parse(text)).subscribe({
+    file.text().then((text) => this.api.importDefinition(this.formId, this.draftRevision(), JSON.parse(text)).subscribe({
       next: () => this.refetchImportedDraft(),
       error: (error) => { this.saving.set(false); this.message.set(error.error?.diagnostics?.[0]?.message || 'Import rejected.'); },
     })).catch(() => {
@@ -280,7 +245,7 @@ export class AppComponent {
 
   private refetchImportedDraft() {
     this.draftReloadRequired.set(true);
-    this.api.currentDraft(this.staffToken, this.formId, this.draftId || this.formId).subscribe({
+    this.api.currentDraft(this.formId, this.draftId || this.formId).subscribe({
       next: (draft) => {
         this.applyDraft(this.formId, draft);
         this.saving.set(false);
@@ -293,13 +258,12 @@ export class AppComponent {
     });
   }
 
-  exportResponses() { this.api.exportResponses(this.staffToken).subscribe({ next: (response) => this.download(response, 'smart-intake-responses.json'), error: () => this.message.set('Response export failed.') }); }
+  exportResponses() { this.api.exportResponses().subscribe({ next: (response) => this.download(response, 'smart-intake-responses.json'), error: () => this.message.set('Response export failed.') }); }
   download(value: unknown, name: string) { const anchor = document.createElement('a'); anchor.href = URL.createObjectURL(new Blob([JSON.stringify(value, null, 2)], { type: 'application/json' })); anchor.download = name; anchor.click(); URL.revokeObjectURL(anchor.href); }
 
   save(afterSave?: () => void) {
     if (this.rehydrating()) { this.message.set('Loading saved draft. Please wait.'); return; }
     if (this.rehydrationFailed()) { this.message.set('Saved draft must be reloaded before editing.'); return; }
-    if (!this.staffToken) { this.message.set('Waiting for a staff session.'); return; }
     if (this.saving() || this.publishing() || this.draftReloadRequired()) {
       this.message.set('Wait for the current draft operation to finish.');
       return;
@@ -309,7 +273,7 @@ export class AppComponent {
       this.updateDraft(afterSave);
       return;
     }
-    this.api.createForm(this.staffToken, this.definition().formKey, this.definition().title).subscribe({
+    this.api.createForm(this.definition().formKey, this.definition().title).subscribe({
       next: (created) => {
         this.formId = created.id;
         this.draftId = created.draftId || created.id;
@@ -321,7 +285,7 @@ export class AppComponent {
   }
 
   private updateDraft(afterSave?: () => void) {
-    this.api.updateDraft(this.staffToken, this.formId, this.draftId || this.formId, this.draftRevision(), this.definition()).subscribe({
+    this.api.updateDraft(this.formId, this.draftId || this.formId, this.draftRevision(), this.definition()).subscribe({
       next: (saved) => {
         this.draftRevision.set(saved.revision);
         this.definition.set(saved.definition);
@@ -347,7 +311,7 @@ export class AppComponent {
       return;
     }
     this.publishing.set(true);
-    this.api.publish(this.staffToken, this.formId).subscribe({
+    this.api.publish(this.formId).subscribe({
       next: (release) => { this.publishing.set(false); this.message.set(`Form published. Release ${release.releaseId}`); },
       error: () => { this.publishing.set(false); this.message.set('Publish failed.'); },
     });

@@ -15,7 +15,6 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   `,
 })
 export class AppToolbarComponent {
-  @Input() staffToken = '';
   @Input() saveDisabled = false;
   @Input() publishDisabled = false;
   @Input() importDisabled = false;

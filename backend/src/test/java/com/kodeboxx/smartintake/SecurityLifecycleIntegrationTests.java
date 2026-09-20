@@ -1,7 +1,9 @@
 package com.kodeboxx.smartintake;
 
 import java.util.*; import org.junit.jupiter.api.*; import org.springframework.beans.factory.annotation.*; import org.springframework.boot.test.context.*; import org.springframework.boot.test.web.client.*; import org.springframework.boot.test.web.server.LocalServerPort; import org.springframework.http.*; import org.springframework.jdbc.core.JdbcTemplate; import static org.junit.jupiter.api.Assertions.*;
+import org.springframework.test.context.ActiveProfiles;
 
+@ActiveProfiles("test")
 @SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SecurityLifecycleIntegrationTests {
  @LocalServerPort int port; @Autowired TestRestTemplate http; @Autowired JdbcTemplate db; UUID form, session; String staff, respondent;

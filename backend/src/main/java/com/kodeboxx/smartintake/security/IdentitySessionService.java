@@ -1,0 +1,236 @@
+package com.kodeboxx.smartintake.security;
+
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.SecureRandom;
+import java.sql.Timestamp;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Base64;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
+/** Dedicated M6 identity boundary for bootstrap, credential proof, and staff session lifecycle. */
+@Service
+public class IdentitySessionService {
+  public static final String CSRF_COOKIE = "SI_CSRF";
+  public static final String LOGIN_CSRF_COOKIE = "SI_LOGIN_CSRF";
+  private static final Duration IDLE_TTL = Duration.ofHours(2);
+  private static final Duration ABSOLUTE_TTL = Duration.ofHours(12);
+  private static final Duration LOGIN_CSRF_TTL = Duration.ofMinutes(5);
+  private static final Duration THROTTLE_WINDOW = Duration.ofMinutes(15);
+  private static final int THROTTLE_LIMIT = 10;
+  private final JdbcTemplate db;
+  private final IdentitySessionResolver resolver;
+  private final CredentialEncoder credentials;
+  private final SecureRandom random = new SecureRandom();
+
+  public record Credentials(String email, String password) {}
+  public record BootstrapRequest(String email, String password, String organizationName, String workspaceName) {}
+
+  public IdentitySessionService(JdbcTemplate db, IdentitySessionResolver resolver, CredentialEncoder credentials) {
+    this.db = db;
+    this.resolver = resolver;
+    this.credentials = credentials;
+  }
+
+  @Transactional
+  public ResponseEntity<?> bootstrap(BootstrapRequest input, HttpServletRequest request) {
+    requireOrigin(request);
+    validateCredentials(input.email(), input.password());
+    Boolean completed = db.queryForObject("select completed_at is not null from identity_bootstrap_state where singleton=true for update", Boolean.class);
+    if (Boolean.TRUE.equals(completed) || db.queryForObject("select count(*) from accounts", Integer.class) != 0)
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "Bootstrap closed");
+    UUID account = UUID.randomUUID();
+    UUID organization = UUID.randomUUID();
+    UUID workspace = UUID.randomUUID();
+    db.update("insert into accounts(id,email,password_hash) values(?,?,?)", account, normalizedEmail(input.email()), credentials.encode(input.password()));
+    db.update("insert into organizations(id,name) values(?,?)", organization, nonBlank(input.organizationName(), "Local organization"));
+    db.update("insert into workspaces(id,organization_id,workspace_key,name) values(?,?,?,?)", workspace, organization, "local", nonBlank(input.workspaceName(), "Local workspace"));
+    db.update("insert into memberships(account_id,workspace_id,role) values(?,?,?)", account, workspace, "OWNER");
+    db.update("update identity_bootstrap_state set completed_at=now() where singleton=true");
+    return issued(account, request, HttpStatus.CREATED);
+  }
+
+  public ResponseEntity<?> anonymousSession() {
+    String token = UUID.randomUUID().toString();
+    db.update("delete from login_csrf_challenges where expires_at <= now() or consumed_at is not null");
+    db.update("insert into login_csrf_challenges(token_hash,expires_at) values(?,?)", sha256(token), Timestamp.from(Instant.now().plus(LOGIN_CSRF_TTL)));
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+        .header("X-Login-CSRF-Token", token)
+        .header(HttpHeaders.SET_COOKIE, loginCsrfCookie(token).toString())
+        .build();
+  }
+
+  @Transactional(noRollbackFor = ResponseStatusException.class)
+  public ResponseEntity<?> signIn(Credentials input, String loginCsrf, HttpServletRequest request) {
+    requireOrigin(request);
+    consumeLoginCsrf(loginCsrf, cookie(request, LOGIN_CSRF_COOKIE));
+    String subject = sha256(normalizedEmail(input == null ? null : input.email()) + "|" + request.getRemoteAddr());
+    if (throttled(subject)) throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Try again later");
+    UUID account = null;
+    try {
+      if (input == null || input.email() == null || input.password() == null) throw new IllegalArgumentException();
+      List<Map<String, Object>> rows = db.queryForList("select id,password_hash from accounts where email=?", normalizedEmail(input.email()));
+      String hash = rows.isEmpty() ? credentials.encode("invalid-credential-proof") : (String) rows.get(0).get("password_hash");
+      if (!credentials.matches(input.password(), hash) || rows.isEmpty()) throw new IllegalArgumentException();
+      account = ((UUID) rows.get(0).get("id"));
+    } catch (Exception ignored) {
+      registerFailure(subject);
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
+    }
+    db.update("delete from sign_in_throttles where subject_hash=?", subject);
+    resolver.session(request, request.getHeader("X-Staff-Session")).ifPresent(token -> db.update("update staff_sessions set revoked_at=now(),updated_at=now() where token::text=? and revoked_at is null", token));
+    return issued(account, request, HttpStatus.OK);
+  }
+
+  public ResponseEntity<?> currentSession(HttpServletRequest request) {
+    String token = resolver.session(request, request.getHeader("X-Staff-Session")).orElse(null);
+    if (token == null) return anonymousSession();
+    try {
+      Map<String, Object> row = db.queryForMap(
+          "select s.account_id,a.email,s.created_at,s.updated_at,s.last_seen_at,s.absolute_expires_at,s.csrf_token_hash"
+              + " from staff_sessions s join accounts a on a.id=s.account_id where s.token::text=? and s.revoked_at is null"
+              + " and s.last_seen_at > now() - interval '2 hours' and s.expires_at > now() and s.absolute_expires_at > now()", token);
+      db.update("update staff_sessions set last_seen_at=now(),expires_at=now()+interval '2 hours',updated_at=now() where token::text=?", token);
+      UUID account = (UUID) row.get("account_id");
+      String email = (String) row.get("email");
+      List<Map<String, Object>> memberships = db.queryForList(
+          "select o.id organization_id,o.name organization_name,w.id workspace_id,w.name workspace_name,m.role"
+              + " from memberships m join workspaces w on w.id=m.workspace_id join organizations o on o.id=w.organization_id"
+              + " where m.account_id=? order by o.name,w.name,m.role", account);
+      return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, staffCookie(token).toString()).body(sessionResponse(account, email, memberships));
+    } catch (Exception ignored) {
+      return anonymousSession();
+    }
+  }
+
+  @Transactional
+  public ResponseEntity<?> signOut(HttpServletRequest request) {
+    // StaffCsrfFilter owns the single CSRF/Origin check for an authenticated sign-out request.
+    String token = resolver.session(request, request.getHeader("X-Staff-Session")).orElse(null);
+    if (token != null) db.update("update staff_sessions set revoked_at=now(),updated_at=now() where token::text=? and revoked_at is null", token);
+    return ResponseEntity.noContent()
+        .header(HttpHeaders.SET_COOKIE, expiredCookie(IdentitySessionResolver.STAFF_COOKIE, true).toString())
+        .header(HttpHeaders.SET_COOKIE, expiredCookie(CSRF_COOKIE, false).toString())
+        .build();
+  }
+
+  public boolean validCsrf(String token, String presentedCsrf) {
+    if (token == null || presentedCsrf == null) return false;
+    try {
+      String stored = db.queryForObject("select csrf_token_hash from staff_sessions where token::text=? and revoked_at is null", String.class, token);
+      return constantTimeEquals(stored, sha256(presentedCsrf));
+    } catch (Exception ignored) {
+      return false;
+    }
+  }
+
+  public void requireOrigin(HttpServletRequest request) {
+    String origin = request.getHeader(HttpHeaders.ORIGIN);
+    if (resolver.isTestProfile() && origin == null) return;
+    String ownOrigin = request.getScheme() + "://" + request.getServerName()
+        + ((request.getServerPort() == 80 || request.getServerPort() == 443) ? "" : ":" + request.getServerPort());
+    if (origin == null || !(origin.equals(ownOrigin) || origin.equals("http://localhost:4200") || origin.equals("http://127.0.0.1:4200")))
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Origin denied");
+  }
+
+  private ResponseEntity<?> issued(UUID account, HttpServletRequest request, HttpStatus status) {
+    String token = UUID.randomUUID().toString();
+    String csrf = secret();
+    Instant now = Instant.now();
+    db.update("insert into staff_sessions(token,account_id,expires_at,csrf_token_hash,last_seen_at,absolute_expires_at,updated_at) values(?,?,?,?,?,?,?)",
+        UUID.fromString(token), account, Timestamp.from(now.plus(IDLE_TTL)), sha256(csrf), Timestamp.from(now), Timestamp.from(now.plus(ABSOLUTE_TTL)), Timestamp.from(now));
+    Map<String, Object> body = Map.of("requestId", opaque("req"), "staffSession", Map.of(
+        "id", opaque("staffsession"), "kind", "StaffSession", "revision", 0, "status", "active",
+        "createdAt", now.toString(), "updatedAt", now.toString(), "userId", opaque("account", account),
+        "expiresAt", now.plus(ABSOLUTE_TTL).toString(), "csrfToken", csrf));
+    return ResponseEntity.status(status)
+        .header(HttpHeaders.SET_COOKIE, staffCookie(token).toString())
+        .header("X-CSRF-Token", csrf)
+        .header(HttpHeaders.SET_COOKIE, csrfCookie(csrf).toString())
+        .body(body);
+  }
+
+  private Map<String, Object> sessionResponse(UUID account, String email, List<Map<String, Object>> memberships) {
+    Map<UUID, Map<String, Object>> organizations = new LinkedHashMap<>();
+    for (Map<String, Object> membership : memberships) {
+      UUID organization = (UUID) membership.get("organization_id");
+      @SuppressWarnings("unchecked") List<Map<String, Object>> workspaces = (List<Map<String, Object>>) organizations
+          .computeIfAbsent(organization, ignored -> new LinkedHashMap<>(Map.of("organizationId", opaque("organization", organization),
+              "name", membership.get("organization_name"), "membershipState", "active", "workspaces", new java.util.ArrayList<Map<String, Object>>())))
+          .get("workspaces");
+      workspaces.add(Map.of("workspaceId", opaque("workspace", (UUID) membership.get("workspace_id")),
+          "name", membership.get("workspace_name"), "roles", List.of(role((String) membership.get("role")))));
+    }
+    Map<String, Object> authenticated = new LinkedHashMap<>();
+    authenticated.put("safeIdentity", Map.of("accountId", opaque("account", account), "username", email, "displayName", displayName(email)));
+    authenticated.put("activationState", "active");
+    authenticated.put("accountStatus", "active");
+    authenticated.put("organizations", List.copyOf(organizations.values()));
+    authenticated.put("currentOrganizationId", organizations.isEmpty() ? null : organizations.values().iterator().next().get("organizationId"));
+    return Map.of("requestId", opaque("req"), "authenticatedSession", authenticated);
+  }
+
+  private boolean throttled(String subject) {
+    List<Map<String, Object>> rows = db.queryForList("select failure_count,window_started_at,blocked_until from sign_in_throttles where subject_hash=?", subject);
+    if (rows.isEmpty()) return false;
+    Object blocked = rows.get(0).get("blocked_until");
+    return blocked instanceof Timestamp timestamp && timestamp.toInstant().isAfter(Instant.now());
+  }
+
+  private void registerFailure(String subject) {
+    List<Map<String, Object>> rows = db.queryForList("select failure_count,window_started_at from sign_in_throttles where subject_hash=? for update", subject);
+    Instant now = Instant.now();
+    if (rows.isEmpty()) {
+      db.update("insert into sign_in_throttles(subject_hash,failure_count,window_started_at,updated_at) values(?,?,?,?)", subject, 1, Timestamp.from(now), Timestamp.from(now));
+      return;
+    }
+    Timestamp started = (Timestamp) rows.get(0).get("window_started_at");
+    int failures = started.toInstant().plus(THROTTLE_WINDOW).isBefore(now) ? 1 : ((Number) rows.get(0).get("failure_count")).intValue() + 1;
+    Timestamp reset = failures == 1 ? Timestamp.from(now) : started;
+    Timestamp blocked = failures >= THROTTLE_LIMIT ? Timestamp.from(now.plus(THROTTLE_WINDOW)) : null;
+    db.update("update sign_in_throttles set failure_count=?,window_started_at=?,blocked_until=?,updated_at=? where subject_hash=?", failures, reset, blocked, Timestamp.from(now), subject);
+  }
+
+  private void consumeLoginCsrf(String header, String cookie) {
+    if (header == null || cookie == null || !constantTimeEquals(header, cookie)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Sign-in denied");
+    int changed = db.update("update login_csrf_challenges set consumed_at=now() where token_hash=? and consumed_at is null and expires_at>now()", sha256(header));
+    if (changed != 1) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Sign-in denied");
+  }
+
+  private void validateCredentials(String email, String password) {
+    if (email == null || !email.contains("@") || email.length() > 254 || password == null
+        || password.codePointCount(0, password.length()) < 15 || password.codePointCount(0, password.length()) > 512)
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid credentials");
+  }
+
+  private static String normalizedEmail(String email) { return email == null ? "" : email.toLowerCase(Locale.ROOT); }
+  private static String nonBlank(String value, String fallback) { return value == null || value.isBlank() ? fallback : value; }
+  private static String role(String legacyRole) { return "OWNER".equals(legacyRole) ? "administrator" : legacyRole.toLowerCase(Locale.ROOT); }
+  private static String displayName(String email) { return email.substring(0, email.indexOf('@')); }
+  private String secret() { byte[] bytes = new byte[32]; random.nextBytes(bytes); return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes); }
+  private static String opaque(String prefix) { return prefix + "-" + UUID.randomUUID(); }
+  private static String opaque(String prefix, UUID id) { return prefix + "-" + id; }
+  private static String sha256(String value) { try { return java.util.HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8))); } catch (Exception e) { throw new IllegalStateException(e); } }
+  private static boolean constantTimeEquals(String left, String right) { return left != null && right != null && MessageDigest.isEqual(left.getBytes(StandardCharsets.UTF_8), right.getBytes(StandardCharsets.UTF_8)); }
+  private static String cookie(HttpServletRequest request, String name) { if (request.getCookies() == null) return null; for (Cookie cookie : request.getCookies()) if (name.equals(cookie.getName())) return cookie.getValue(); return null; }
+  public ResponseCookie renewStaffCookie(String value) { return staffCookie(value); }
+  private static ResponseCookie staffCookie(String value) { return ResponseCookie.from(IdentitySessionResolver.STAFF_COOKIE, value).httpOnly(true).secure(true).sameSite("Strict").path("/").maxAge(IDLE_TTL).build(); }
+  private static ResponseCookie csrfCookie(String value) { return ResponseCookie.from(CSRF_COOKIE, value).httpOnly(false).secure(true).sameSite("Strict").path("/").maxAge(IDLE_TTL).build(); }
+  private static ResponseCookie loginCsrfCookie(String value) { return ResponseCookie.from(LOGIN_CSRF_COOKIE, value).httpOnly(true).secure(true).sameSite("Strict").path("/v1/auth").maxAge(LOGIN_CSRF_TTL).build(); }
+  private static ResponseCookie expiredCookie(String name, boolean httpOnly) { return ResponseCookie.from(name, "").httpOnly(httpOnly).secure(true).sameSite("Strict").path("/").maxAge(Duration.ZERO).build(); }
+}

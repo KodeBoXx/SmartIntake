@@ -1,14 +1,15 @@
 # M1 database compatibility boundary
 
 This is an additive compatibility boundary. Flyway V1 through V10 remain
-byte-for-byte immutable. V11 through V13 are additive: V11 registers the writable canonical
+byte-for-byte immutable. V11 through V14 are additive: V11 registers the writable canonical
 4.0.0 profile, adds nullable typed runtime state, and widens mutation replay
-keys without rewriting their values. V7 registers the writable M1
-current-prototype profile and enforces one submission per session.
-It is not application-rollback-compatible by itself: an application binary from
+keys without rewriting their values; V14 adds opaque, revocable staff sessions,
+login-CSRF challenges, bounded sign-in throttles, and the one-time bootstrap guard.
+V7 registers the writable M1 current-prototype profile and enforces one submission per
+session. It is not application-rollback-compatible by itself: an application binary from
 before `d1662ed` must not run against a database whose Flyway history includes
-V5--V13 without the coordinated procedure below.
-The companion integration test pins the exact successful V1--V13 Flyway history.
+V5--V14 without the coordinated procedure below. The companion integration test pins the
+exact successful V1--V14 Flyway history.
 
 ## Profiles and write boundary
 
@@ -92,7 +93,7 @@ application until the transaction below has committed and its post-checks pass.
    approved operational process (or wait for their expiry), record the approval,
    and rerun the preflight.
 2. Run the preflight transaction below with a role permitted to lock and alter
-   these tables. It fails closed for an incomplete/failed V5--V13 application or
+   these tables. It fails closed for an incomplete/failed V5--V14 application or
    for any later successful migration. Do not substitute `CASCADE`, disable
    Flyway validation, or delete individual submissions to satisfy a check.
 3. Commit the drop transaction, run the post-check, then deploy the
@@ -101,7 +102,7 @@ application until the transaction below has committed and its post-checks pass.
    submissions and a later V7 deployment will correctly refuse to proceed.
 4. This rollback is permitted only when no canonical M4 record or runtime state
    exists. To return forward, restore the verified pre-rollback backup before
-   deploying the current application. Reapplying V5--V13 to the destructively
+   deploying the current application. Reapplying V5--V14 to the destructively
    rolled-back database is not a lossless recovery procedure. Reconcile
    duplicate submissions explicitly before retrying V7; never merge or delete
    them as part of a migration.
@@ -137,13 +138,14 @@ begin
           or (version = '10' and type = 'SQL' and script = 'V10__bind_session_mutation_request_digest.sql' and checksum = 1365084057)
           or (version = '11' and type = 'SQL' and script = 'V11__m4_compatibility_runtime.sql' and checksum = 1780789261)
           or (version = '12' and type = 'SQL' and script = 'V12__submission_attempt_review_evidence.sql' and checksum = -1868713494)
-          or (version = '13' and type = 'SQL' and script = 'V13__pinned_runtime_manifests.sql' and checksum = -1265314321),
+          or (version = '13' and type = 'SQL' and script = 'V13__pinned_runtime_manifests.sql' and checksum = -1265314321)
+          or (version = '14' and type = 'SQL' and script = 'V14__staff_identity_sessions.sql' and checksum = 724788122),
           false)
   )
-  or (select count(*) from flyway_schema_history where success) <> 13
+  or (select count(*) from flyway_schema_history where success) <> 14
   or (select count(distinct (version, type, script, checksum))
-      from flyway_schema_history where success) <> 13 then
-    raise exception 'Rollback refused: successful Flyway history is not the exact V1-V13 SQL allowlist';
+      from flyway_schema_history where success) <> 14 then
+    raise exception 'Rollback refused: successful Flyway history is not the exact V1-V14 SQL allowlist';
   end if;
   if exists (
       select 1
@@ -170,6 +172,9 @@ begin
   ) then
     raise exception 'Rollback refused: V11 contains replay keys that cannot be represented as V4 UUIDs';
   end if;
+  if exists (select 1 from staff_sessions where revoked_at is null and absolute_expires_at > transaction_timestamp()) then
+    raise exception 'Rollback refused: revoke or expire all active V14 staff sessions before downgrading opaque tokens';
+  end if;
   if exists (select 1 from forms where compatibility_profile_key = 'canonical-4.0.0')
      or exists (select 1 from forms where definition->>'schemaVersion' = '4.0.0')
      or exists (select 1 from form_releases where compatibility_profile_key = 'canonical-4.0.0')
@@ -180,6 +185,17 @@ begin
   end if;
 end $$;
 
+-- V14 is reversible only after the preflight has retired every active opaque staff session.
+delete from staff_sessions;
+drop table sign_in_throttles;
+drop table login_csrf_challenges;
+drop table identity_bootstrap_state;
+drop index if exists staff_sessions_account_active_idx;
+alter table staff_sessions drop column csrf_token_hash,
+                           drop column last_seen_at,
+                           drop column absolute_expires_at,
+                           drop column revoked_at,
+                           drop column updated_at;
 alter table submissions drop constraint submissions_session_id_unique;
 drop table submission_attempts;
 alter table submissions drop column review_projection,
@@ -207,12 +223,12 @@ alter table forms drop column compatibility_profile_key;
 drop table compatibility_quarantine_evidence;
 drop table record_migration_state;
 drop table compatibility_profiles;
-delete from flyway_schema_history where version in ('5', '6', '7', '8', '9', '10', '11', '12', '13');
+delete from flyway_schema_history where version in ('5', '6', '7', '8', '9', '10', '11', '12', '13', '14');
 commit;
 
 -- Run after commit. Every *_remains value must be false and mutation_key_uuid_restored true
 -- before deploying the old binary.
-select exists (select 1 from flyway_schema_history where version in ('5', '6', '7', '8', '9', '10', '11', '12', '13')) as compatibility_history_remains,
+select exists (select 1 from flyway_schema_history where version in ('5', '6', '7', '8', '9', '10', '11', '12', '13', '14')) as compatibility_history_remains,
        exists (select 1 from pg_constraint
                where conrelid = 'submissions'::regclass
                    and conname = 'submissions_session_id_unique') as uniqueness_remains,
