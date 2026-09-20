@@ -189,6 +189,31 @@ def generated() -> dict[Path, bytes]:
             "errorCode": {"type": ["string", "null"]},
         },
     }
+    schemas["LiveSessionStartResponse"] = {
+        "type": "object", "additionalProperties": False,
+        "required": ["sessionId", "respondentSession", "revision", "locale", "runtimeManifest", "release", "expiresAt"],
+        "properties": {
+            "sessionId": {"type": "string", "format": "uuid"},
+            "respondentSession": {"type": "string", "format": "uuid"},
+            "revision": {"const": 0}, "locale": {"type": "string"},
+            "runtimeManifest": {"type": "object", "additionalProperties": True},
+            "release": {"type": "object", "additionalProperties": True},
+            "expiresAt": {"type": "string", "format": "date-time"},
+        },
+    }
+    schemas["LiveSessionResponse"] = {
+        "type": "object", "additionalProperties": False,
+        "required": ["sessionId", "revision", "answers", "status", "runtimeManifest", "definition", "invalidInputs"],
+        "properties": {
+            "sessionId": {"type": "string", "format": "uuid"},
+            "revision": {"type": "integer", "minimum": 0},
+            "answers": {"type": "object", "additionalProperties": True},
+            "status": {"type": "string"},
+            "runtimeManifest": {"type": "object", "additionalProperties": True},
+            "definition": {"type": "object", "additionalProperties": True},
+            "invalidInputs": {"type": "array", "items": {"type": "object", "additionalProperties": True}},
+        },
+    }
     schemas["LegacyCapabilityRegistry"] = copy.deepcopy(schemas["CapabilityRegistry"])
     capability = schemas["CapabilityRegistry"]
     capability["required"].extend(["apiContractVersion", "schemaContractVersion", "apiContracts"])
@@ -264,14 +289,15 @@ def generated() -> dict[Path, bytes]:
     }
     start["responses"]["201"] = {
         "description": "The unwrapped respondent session bootstrap used by the live route.",
-        "content": {"application/json": {"schema": {"type": "object", "additionalProperties": True}}},
+        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/LiveSessionStartResponse"}}},
     }
+    start.pop("x-replay", None)
     read_session = api["paths"]["/v1/sessions/{s}"]["get"]
     read_session["parameters"] = [parameter for parameter in read_session["parameters"]
                                   if parameter.get("name") == "s"]
     read_session["responses"]["200"] = {
         "description": "The unwrapped authoritative session projection used by the live route.",
-        "content": {"application/json": {"schema": {"type": "object", "additionalProperties": True}}},
+        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/LiveSessionResponse"}}},
     }
     for operation_config in (start, read_session):
         operation_config["x-implementation-status"] = "implemented"

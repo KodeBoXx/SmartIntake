@@ -350,6 +350,10 @@ public final class FormCompiler {
       JsonNode messages = candidate.path("translations").path(locale.asText()).path("messages");
       for (String key : required) if (!key.isBlank() && !messages.has(key))
         state.error("LOCALE_KEY_MISSING", CompilationDiagnostic.child("/translations", locale.asText()), "Every declared locale must contain referenced message keys.");
+      for (String key : acknowledgmentKeys(candidate))
+        if (!messages.path(key).isTextual())
+          state.error("ACKNOWLEDGMENT_CONTENT_INVALID", CompilationDiagnostic.child("/translations", locale.asText()),
+              "Acknowledgment content must be a localized text message.");
     }
   }
   private void collectKeys(JsonNode fields, Set<String> keys) {
@@ -361,6 +365,11 @@ public final class FormCompiler {
         keys.add(node.path("acknowledgmentContentKey").asText());
       node.elements().forEachRemaining(child -> collectAcknowledgmentKeys(child, keys));
     } else if (node.isArray()) node.forEach(child -> collectAcknowledgmentKeys(child, keys));
+  }
+  private Set<String> acknowledgmentKeys(JsonNode candidate) {
+    Set<String> keys = new HashSet<>();
+    collectAcknowledgmentKeys(candidate.path("flow").path("phases"), keys);
+    return keys;
   }
 
   private void checkReferences(JsonNode candidate, State state) {

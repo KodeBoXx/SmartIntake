@@ -795,11 +795,20 @@ public class IntakeApplicationService {
     manifest.put("policyVersion", CanonicalJson.sha256(definition.path("policies")));
     manifest.put("timeZoneDatabaseVersion", TimeZoneRegistry.VERSION);
     List<Map<String, Object>> resolvedComponents = new ArrayList<>();
-    for (JsonNode dependency : definition.path("dependencies"))
+    for (JsonNode dependency : definition.path("dependencies")) {
+      String sourceKind = dependency.path("kind").asText();
+      if ("asset".equals(sourceKind)) continue;
+      String manifestKind = switch (sourceKind) {
+        case "theme" -> "theme";
+        case "locale" -> "locale";
+        case "extension" -> "extension";
+        case "block", "component" -> "fieldControl";
+        default -> throw bad("DEPENDENCY_KIND_INVALID", "Unsupported runtime dependency kind");
+      };
       resolvedComponents.add(Map.of(
-          "kind", dependency.path("kind").asText("extension"), "id", dependency.path("id").asText(),
-          "version", dependency.path("version").asText(),
-          "digest", dependency.path("digest").asText()));
+          "kind", manifestKind, "id", dependency.path("id").asText(),
+          "version", dependency.path("version").asText(), "digest", dependency.path("digest").asText()));
+    }
     manifest.put("resolvedComponents", resolvedComponents);
     manifest.put("resolvedAssets", json.convertValue(definition.path("assets"), List.class));
     manifest.put("extensions", Map.of());

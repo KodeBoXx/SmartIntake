@@ -2691,6 +2691,41 @@ export interface components {
             submissionId?: string | null;
             errorCode?: string | null;
         };
+        LiveSessionStartResponse: {
+            /** Format: uuid */
+            sessionId: string;
+            /** Format: uuid */
+            respondentSession: string;
+            /** @constant */
+            revision: 0;
+            locale: string;
+            runtimeManifest: {
+                [key: string]: unknown;
+            };
+            release: {
+                [key: string]: unknown;
+            };
+            /** Format: date-time */
+            expiresAt: string;
+        };
+        LiveSessionResponse: {
+            /** Format: uuid */
+            sessionId: string;
+            revision: number;
+            answers: {
+                [key: string]: unknown;
+            };
+            status: string;
+            runtimeManifest: {
+                [key: string]: unknown;
+            };
+            definition: {
+                [key: string]: unknown;
+            };
+            invalidInputs: {
+                [key: string]: unknown;
+            }[];
+        };
         LegacyCapabilityRegistry: {
             registryVersion: string;
             /** @constant */
@@ -4725,9 +4760,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
+                    "application/json": components["schemas"]["LiveSessionStartResponse"];
                 };
             };
             400: components["responses"]["BadRequest"];
@@ -4802,9 +4835,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
+                    "application/json": components["schemas"]["LiveSessionResponse"];
                 };
             };
             400: components["responses"]["BadRequest"];

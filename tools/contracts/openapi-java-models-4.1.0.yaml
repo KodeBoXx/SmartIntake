@@ -1900,8 +1900,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties: true
+                $ref: '#/components/schemas/LiveSessionStartResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1940,9 +1939,6 @@ paths:
                   type: string
                 timeZone:
                   type: string
-      x-replay: Idempotency-Key is scoped to tenant, actor, operation and canonical request hash, retained for at least seven
-        days; equal requests replay the original result and changed-body reuse is 409. Session mutation replay keys are clientMutationId
-        plus body.
   /v1/schemas/{kind}/{version}:
     get:
       operationId: ON-get-v1-schemas-kind-version-4c108bde88
@@ -2027,8 +2023,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties: true
+                $ref: '#/components/schemas/LiveSessionResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -12165,6 +12160,71 @@ components:
           type:
           - string
           - 'null'
+    LiveSessionStartResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - sessionId
+      - respondentSession
+      - revision
+      - locale
+      - runtimeManifest
+      - release
+      - expiresAt
+      properties:
+        sessionId:
+          type: string
+          format: uuid
+        respondentSession:
+          type: string
+          format: uuid
+        revision:
+          const: 0
+        locale:
+          type: string
+        runtimeManifest:
+          type: object
+          additionalProperties: true
+        release:
+          type: object
+          additionalProperties: true
+        expiresAt:
+          type: string
+          format: date-time
+    LiveSessionResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - sessionId
+      - revision
+      - answers
+      - status
+      - runtimeManifest
+      - definition
+      - invalidInputs
+      properties:
+        sessionId:
+          type: string
+          format: uuid
+        revision:
+          type: integer
+          minimum: 0
+        answers:
+          type: object
+          additionalProperties: true
+        status:
+          type: string
+        runtimeManifest:
+          type: object
+          additionalProperties: true
+        definition:
+          type: object
+          additionalProperties: true
+        invalidInputs:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
     LegacyCapabilityRegistry:
       type: object
       additionalProperties: false

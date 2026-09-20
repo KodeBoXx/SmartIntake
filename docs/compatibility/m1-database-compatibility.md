@@ -140,9 +140,9 @@ begin
           or (version = '13' and type = 'SQL' and script = 'V13__pinned_runtime_manifests.sql' and checksum = -1265314321),
           false)
   )
-  or (select count(*) from flyway_schema_history where success) <> 11
+  or (select count(*) from flyway_schema_history where success) <> 13
   or (select count(distinct (version, type, script, checksum))
-      from flyway_schema_history where success) <> 11 then
+      from flyway_schema_history where success) <> 13 then
     raise exception 'Rollback refused: successful Flyway history is not the exact V1-V13 SQL allowlist';
   end if;
   if exists (
@@ -212,7 +212,7 @@ commit;
 
 -- Run after commit. Every *_remains value must be false and mutation_key_uuid_restored true
 -- before deploying the old binary.
-select exists (select 1 from flyway_schema_history where version in ('5', '6', '7', '8', '9', '10', '11', '12')) as compatibility_history_remains,
+select exists (select 1 from flyway_schema_history where version in ('5', '6', '7', '8', '9', '10', '11', '12', '13')) as compatibility_history_remains,
        exists (select 1 from pg_constraint
                where conrelid = 'submissions'::regclass
                    and conname = 'submissions_session_id_unique') as uniqueness_remains,
