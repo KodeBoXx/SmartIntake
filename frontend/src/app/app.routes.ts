@@ -30,6 +30,7 @@ export const appRoutes: Routes = [
       adminStaff('users/:userId/roles', 'role-assignment'),
       adminStaff('invitations', 'invitation-delivery'),
       catalogStaff('workspaces/:workspaceId/forms', 'catalog'),
+      { path: 'preview/:draftId', data: { screen: 'preview' }, loadComponent: () => import('./app.component').then((m) => m.AppComponent) },
       { path: 'workspaces/:workspaceId/forms/new', data: { screen: 'builder' }, loadComponent: () => import('./app.component').then((m) => m.AppComponent) },
       { path: 'workspaces/:workspaceId/forms/:formId/drafts/:draftId', data: { screen: 'builder' }, loadComponent: () => import('./app.component').then((m) => m.AppComponent) },
       { path: 'workspaces/:workspaceId/forms/:formId/drafts/:draftId/preview', data: { screen: 'preview' }, loadComponent: () => import('./app.component').then((m) => m.AppComponent) },

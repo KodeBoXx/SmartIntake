@@ -67,6 +67,34 @@ const axeCases = [
 ];
 
 test.describe('M5 routed Certinal shell', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.route('**/v1/auth/session', async (route) => {
+      const referer = route.request().headers()['referer'] || route.request().frame().url();
+      if (referer.includes('m5Auth=expired')) { await route.fulfill({ status: 440, body: '{}' }); return; }
+      const anonymous = /\/(sign-in|setup|activation|recovery|invitation)(\/|\?|$)/.test(referer) || referer.includes('m5Auth=expired');
+      if (anonymous) {
+        await route.fulfill({ status: 401, headers: { 'X-Login-CSRF-Token': 'e2e-login-csrf' }, body: '{}' });
+        return;
+      }
+      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({
+        authenticatedSession: {
+          safeIdentity: { accountId: 'demo-account', username: 'demo@example.test', displayName: 'Demo user' },
+          platformRoles: ['administrator'],
+          organizations: [{
+            organizationId: 'demo-organization', name: 'Demo organization', membershipState: 'active', organizationRoles: ['owner', 'administrator'],
+            workspaces: [{ workspaceId: 'demo', name: 'Demo workspace', roles: ['workspace-administrator', 'form-author', 'publisher', 'response-viewer', 'response-exporter'] }],
+          }],
+          currentOrganizationId: 'demo-organization', currentWorkspaceId: 'demo',
+        },
+      }) });
+    });
+    await page.route('**/v1/workspaces/demo/catalog/forms*', (route) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ items: [{ id: 'demo-form', formKey: 'demo', title: 'Demo form', status: 'draft', revision: 1, updatedAt: '2026-09-20T00:00:00Z', folderId: null, owner: { id: 'demo-account', email: 'demo@example.test' }, tags: [] }], nextCursor: null }) }));
+    await page.route('**/v1/workspaces/demo/folders', (route) => route.fulfill({ status: 200, contentType: 'application/json', body: '[]' }));
+    await page.route('**/v1/workspaces/demo/tags', (route) => route.fulfill({ status: 200, contentType: 'application/json', body: '[]' }));
+    await page.route('**/v1/workspaces/demo/catalog/settings', (route) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ effective: { policy: {}, providers: {} }, overrides: { policy: {}, providers: {} } }) }));
+    await page.route('**/v1/workspaces/demo/members*', (route) => route.fulfill({ status: 200, contentType: 'application/json', body: '[]' }));
+  });
+
   for (const route of semanticRoutes) {
     test(`opens and reloads ${route.id} in ${route.state}`, async ({ page }) => {
       await page.goto(route.path);
@@ -88,11 +116,11 @@ test.describe('M5 routed Certinal shell', () => {
     await page.goto('/workspaces/demo/forms?m5Auth=expired');
     await waitForLazyPage(page, 'auth');
     await page.getByRole('button', { name: 'Sign in again' }).click();
-    await expect(page).toHaveURL(/\/workspaces\/demo\/forms/);
+    await expect(page).toHaveURL(/\/sign-in\?returnUrl=%2Fworkspaces%2Fdemo%2Fforms/);
   });
 
   test('synchronizes every detail drawer close path and restores focus', async ({ page }) => {
-    await page.goto('/workspaces/demo/submissions/demo');
+    await page.goto('/workspaces/demo/forms');
     await waitForLazyPage(page, 'staff');
     const view = page.getByRole('button', { name: 'View' });
     await view.focus();

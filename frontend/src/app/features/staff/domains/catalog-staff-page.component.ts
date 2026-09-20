@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, DOCUMENT, HostListener, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CuiAlertComponent, CuiButtonComponent, CuiCardComponent, CuiConfirmDialogComponent, CuiDrawerComponent, CuiEmptyStateComponent, CuiInputComponent, CuiSelectComponent, CuiTagComponent } from '@certinal/ui';
 import { StaffSessionStore } from '../../../core/m5-session.store';
@@ -15,10 +15,10 @@ type CatalogState = 'loading' | 'ready' | 'empty' | 'invalid' | 'denied' | 'expi
   providers: [{ provide: M5_STAFF_DOMAIN, useValue: 'catalog' }],
   template: `
 <section class="mx-auto max-w-6xl space-y-5" data-testid="catalog-page" [attr.data-state]="state()">
-  <div class="flex flex-wrap items-end justify-between gap-3"><div><p class="type-caption">WORKSPACE {{ screen().toUpperCase() }}</p><h1 class="type-h3">{{ screenTitle() }}</h1><p class="type-caption">{{ workspaceContext()?.name || 'No selected workspace' }}</p></div>@if (screen() === 'catalog') { <cui-button [disabled]="!canEdit()" (buttonClick)="createForm()">Create form</cui-button> }</div>
+  <div class="flex flex-wrap items-end justify-between gap-3"><div><p class="type-caption">WORKSPACE {{ screen().toUpperCase() }}</p><h1 class="type-h3">{{ screenTitle() }}</h1><p class="type-caption">{{ workspaceContext()?.name || 'No selected workspace' }}</p></div>@if (screen() === 'catalog' && state() === 'ready') { <cui-button [disabled]="!canEdit()" (buttonClick)="createForm()">Create form</cui-button> }</div>
   @if (message()) { <cui-alert [variant]="state() === 'invalid' || state() === 'denied' ? 'error' : 'warning'" [title]="state()">{{ message() }}</cui-alert> }
   @if (state() === 'loading') { <cui-card><p class="type-body">Loading the server-authorized catalog…</p></cui-card> }
-  @else if (state() === 'empty') { <cui-empty-state icon="inbox" title="No forms found" description="Try changing the filters or create the first form in this workspace." /> }
+  @else if (showsEmptyState()) { <cui-empty-state icon="inbox" title="No forms found" description="Try changing the filters or create the first form in this workspace." /> }
   @else if (state() === 'ready') {
     @if (screen() !== 'catalog') { <cui-card><p class="type-body">{{ workflowDescription() }}</p>@if (screen() === 'builder') { <cui-button class="mt-3" [disabled]="!canEdit()" (buttonClick)="openLegacyBuilder()">Open authoring builder</cui-button> } @else if (screen() === 'review-publish') { <cui-button class="mt-3" [disabled]="!canPublish()" (buttonClick)="publishFromReview()">Publish reviewed form</cui-button> } @else { <cui-button class="mt-3" variant="secondary" (buttonClick)="openLegacyBuilder()">Open draft</cui-button> }</cui-card> }
     @else {
@@ -37,13 +37,28 @@ type CatalogState = 'loading' | 'ready' | 'empty' | 'invalid' | 'denied' | 'expi
 })
 export class CatalogStaffPageComponent {
   readonly api = inject(SmartIntakeApiService); readonly session = inject(StaffSessionStore); readonly route = inject(ActivatedRoute); readonly router = inject(Router);
+  private readonly document = inject(DOCUMENT);
+  private detailReturnFocus: HTMLElement | null = null;
   readonly state = signal<CatalogState>('loading'); readonly message = signal(''); readonly forms = signal<CatalogForm[]>([]); readonly folders = signal<{ id: string; name: string }[]>([]); readonly tags = signal<{ id: string; name: string }[]>([]); readonly nextCursor = signal('');
   readonly detailId = signal<string | null>(null); readonly detailOpen = signal(false); readonly selected = computed(() => this.forms().find((form) => form.id === this.detailId()) ?? null); readonly screen = signal(this.route.snapshot.data['screen'] as string);
   readonly folderOptions = computed(() => [{ label: 'All folders', value: '' }, ...this.folders().map((folder) => ({ label: folder.name, value: folder.id }))]); readonly tagOptions = computed(() => [{ label: 'All tags', value: '' }, ...this.tags().map((tag) => ({ label: tag.name, value: tag.id }))]);
   readonly statusOptions = [{ label: 'All statuses', value: '' }, ...['draft', 'published', 'archived'].map((value) => ({ label: value[0].toUpperCase() + value.slice(1), value }))]; readonly memberOptions = signal<{ label: string; value: string }[]>([]);
   query = ''; status: string | null = ''; folder: string | null = ''; tag: string | null = ''; folderName = ''; tagName = ''; detailFolder: string | null = ''; detailTag: string | null = ''; ownerAccountId = ''; policyJson = '{}'; providerJson = '{}'; overridePolicyJson = '{}'; overrideProviderJson = '{}'; archiveOpen = false;
 
-  constructor() { this.route.queryParamMap.subscribe((params) => { const details = params.get('details'); this.detailId.set(details); this.detailOpen.set(!!details); }); this.loadMetadata(); this.load(); }
+  private loadedWorkspace: string | null = null;
+  constructor() {
+    this.route.queryParamMap.subscribe((params) => { const details = params.get('details'); this.detailId.set(details); this.detailOpen.set(!!details); });
+    if (typeof (this.session as any).state !== 'function') { this.loadMetadata(); this.load(); return; }
+    effect(() => {
+      if (this.session.state() !== 'authenticated') return;
+      const workspace = this.workspaceContext()?.workspaceId ?? null;
+      if (!workspace || workspace === this.loadedWorkspace) return;
+      this.loadedWorkspace = workspace;
+      this.message.set('');
+      this.loadMetadata();
+      this.load();
+    });
+  }
   workspaceContext() {
     const requestedWorkspaceId = this.route.snapshot.paramMap?.get('workspaceId') ?? null;
     if (typeof (this.session as any).organizations !== 'function') {
@@ -55,6 +70,7 @@ export class CatalogStaffPageComponent {
     return workspaceRoleContext(this.session.organizations(), requestedWorkspaceId, this.session.currentWorkspaceId());
   }
   canEdit(): boolean { return hasWorkspaceRole(this.workspaceContext()?.roles ?? [], 'author'); }
+  showsEmptyState(): boolean { return ['empty', 'empty-or-no-access', 'denied', 'no-access', 'email-unavailable'].includes(this.state()); }
   canPublish(): boolean { return hasWorkspaceRole(this.workspaceContext()?.roles ?? [], 'publisher'); }
   canManage(): boolean { return hasWorkspaceRole(this.workspaceContext()?.roles ?? [], 'workspace-administrator'); }
   screenTitle(): string { return ({ catalog: 'Forms', builder: 'Form builder', preview: 'Form preview', 'review-publish': 'Review and publish' } as Record<string, string>)[this.screen()] ?? 'Forms'; }
@@ -64,8 +80,19 @@ export class CatalogStaffPageComponent {
   nextPage(): void { this.load(this.nextCursor(), true); }
   load(cursor = '', append = false): void { const workspace = this.workspace(); if (!workspace) return; this.state.set('loading'); this.api.catalogForms(workspace, { q: this.query, status: this.status || undefined, folder: this.folder || undefined, tag: this.tag ? [this.tag] : undefined, cursor: cursor || undefined, limit: 25 }).subscribe({ next: (page) => { this.forms.set(append ? [...this.forms(), ...page.items] : page.items); this.nextCursor.set(page.nextCursor || ''); this.state.set(this.forms().length ? 'ready' : 'empty'); }, error: (error) => this.fail(error.status) }); }
   loadMetadata(): void { const workspace = this.workspace(); if (!workspace) return; this.api.catalogFolders(workspace).subscribe({ next: (folders) => this.folders.set(folders), error: (error) => this.fail(error.status) }); this.api.catalogTags(workspace).subscribe({ next: (tags) => this.tags.set(tags), error: (error) => this.fail(error.status) }); if (!this.canManage()) return; this.api.effectiveCatalogSettings(workspace).subscribe({ next: (settings) => this.applySettings(settings), error: (error) => this.fail(error.status) }); this.api.workspaceMembers(workspace).subscribe({ next: (members) => this.memberOptions.set(members.map((member) => ({ label: member.displayName || member.email || member.accountId, value: member.accountId }))), error: (error) => this.fail(error.status) }); }
-  openDetails(id: string): void { this.detailId.set(id); this.detailOpen.set(true); const form = this.selected(); this.detailFolder = form?.folderId ?? ''; this.detailTag = form?.tags[0]?.id ?? ''; void this.router.navigate([], { relativeTo: this.route, queryParams: { details: id }, queryParamsHandling: 'merge' }); }
-  closeDetails(): void { this.detailOpen.set(false); this.detailId.set(null); void this.router.navigate([], { relativeTo: this.route, queryParams: { details: null }, queryParamsHandling: 'merge' }); }
+  openDetails(id: string): void { this.detailReturnFocus = this.document.activeElement as HTMLElement | null; this.detailId.set(id); this.detailOpen.set(true); const form = this.selected(); this.detailFolder = form?.folderId ?? ''; this.detailTag = form?.tags[0]?.id ?? ''; void this.router.navigate([], { relativeTo: this.route, queryParams: { details: id }, queryParamsHandling: 'merge' }); setTimeout(() => this.document.querySelector<HTMLElement>('cui-drawer [role="dialog"]')?.focus()); }
+  closeDetails(): void { this.detailOpen.set(false); this.detailId.set(null); void this.router.navigate([], { relativeTo: this.route, queryParams: { details: null }, queryParamsHandling: 'merge' }); queueMicrotask(() => this.detailReturnFocus?.focus()); }
+  @HostListener('document:keydown', ['$event'])
+  trapDetailFocus(event: KeyboardEvent): void {
+    if (!this.detailOpen() || event.key !== 'Tab') return;
+    const panel = this.document.querySelector<HTMLElement>('cui-drawer [role="dialog"]');
+    if (!panel) return;
+    const focusable = [...panel.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')];
+    if (!focusable.length) { event.preventDefault(); panel.focus(); return; }
+    const first = focusable[0]; const last = focusable[focusable.length - 1];
+    if (event.shiftKey && (this.document.activeElement === first || this.document.activeElement === panel)) { event.preventDefault(); last.focus(); }
+    else if (!event.shiftKey && this.document.activeElement === last) { event.preventDefault(); first.focus(); }
+  }
   createFolder(): void { const workspace = this.workspace(); if (!workspace || !this.folderName.trim()) return this.invalid('Enter a folder name.'); this.api.createCatalogFolder(workspace, this.folderName.trim()).subscribe({ next: () => { this.folderName = ''; this.loadMetadata(); }, error: (error) => this.fail(error.status) }); }
   createTag(): void { const workspace = this.workspace(); if (!workspace || !this.tagName.trim()) return this.invalid('Enter a tag name.'); this.api.createCatalogTag(workspace, this.tagName.trim()).subscribe({ next: () => { this.tagName = ''; this.loadMetadata(); }, error: (error) => this.fail(error.status) }); }
   duplicateSelected(): void { this.mutate((workspace, form) => this.api.duplicateCatalogForm(workspace, form.id), 'Form duplicated.'); }

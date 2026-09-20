@@ -12,12 +12,13 @@ type AuthViewState = 'ready' | 'loading' | 'invalid' | 'denied' | 'expired' | 'e
   imports: [CuiAlertComponent, CuiButtonComponent, CuiCardComponent, CuiInputComponent],
   template: `
     <main class="mx-auto max-w-2xl p-6" data-testid="auth-page" [attr.data-state]="state()">
+      <p class="type-caption" data-testid="state-evidence">State: {{ state() }}</p>
       <cui-card padding="lg">
         <p class="type-caption">SMART INTAKE STAFF</p><h1 class="type-h3">{{ title }}</h1>
         @if (message()) { <cui-alert class="mt-4" [variant]="isError() ? 'error' : 'warning'" [title]="alertTitle()">{{ message() }}</cui-alert> }
         @if (state() === 'loading') { <p class="type-body mt-4">Checking your secure session…</p> }
         @else if (state() === 'submitted') { <p class="type-body mt-4">The request completed. Email delivery may be unavailable in this environment.</p>@if (delivery().activationCopyLink) { <cui-alert class="mt-4" variant="warning" title="Authorized activation link">Deliver this one-time activation link only to the authorized recipient: {{ delivery().activationCopyLink }}</cui-alert> } @if (delivery().recoveryCopyLink) { <cui-alert class="mt-4" variant="warning" title="Authorized recovery link">Deliver this one-time recovery link only to the authorized recipient: {{ delivery().recoveryCopyLink }}</cui-alert> } @if (delivery().temporaryPasswordCopy) { <cui-alert class="mt-4" variant="warning" title="Authorized temporary password">Deliver this temporary password only to the authorized recipient: {{ delivery().temporaryPasswordCopy }}</cui-alert> } }
-        @else if (state() !== 'denied' && state() !== 'throttled') {
+        @else if (state() === 'ready') {
           @if (screen === 'sign-in') {
             <cui-input class="mt-4" label="Email" type="email" autocomplete="username" [(value)]="email" [error]="fieldError('email')" />
             <cui-input class="mt-4" label="Password" type="password" autocomplete="current-password" [(value)]="password" [error]="fieldError('password')" />
@@ -127,6 +128,6 @@ export class AuthPageComponent {
   }
   private errorState(status: number): AuthViewState { return status === 429 ? 'throttled' : status === 403 ? 'denied' : status === 410 ? 'expired' : status === 503 ? 'email-unavailable' : 'invalid'; }
   private messageFor(state: AuthViewState): string {
-    return ({ invalid: 'The supplied details could not be accepted.', denied: 'This account cannot access Smart Intake.', expired: 'Your session or link has expired.', 'email-unavailable': 'Email delivery is unavailable; contact an administrator for the no-email path.', throttled: 'Too many attempts. Wait before trying again.', error: 'The service is unavailable. Try again later.' } as Partial<Record<AuthViewState, string>>)[state] ?? '';
+    return ({ invalid: 'The supplied details could not be accepted.', denied: 'This account cannot access Smart Intake.', 'no-access': 'This account cannot access Smart Intake.', 'empty-or-no-access': 'No account or access is available.', expired: 'Your session or link has expired.', 'email-unavailable': 'Email delivery is unavailable; contact an administrator for the no-email path.', throttled: 'Too many attempts. Wait before trying again.', error: 'The service is unavailable. Try again later.' } as Record<string, string>)[state] ?? '';
   }
 }

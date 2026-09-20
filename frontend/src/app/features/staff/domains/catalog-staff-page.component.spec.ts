@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, of, throwError } from 'rxjs';
@@ -49,5 +50,24 @@ describe('CatalogStaffPageComponent', () => {
     api.catalogForms.mockReturnValueOnce(throwError(() => ({ status: 403 })));
     component.load();
     expect(component.state()).toBe('denied');
+  });
+
+  it('loads after the server-authoritative session finishes hydrating', () => {
+    const hydrated = {
+      state: signal('loading'), organizations: signal<any[]>([]), currentWorkspaceId: signal<string | null>(null),
+      currentOrganizationId: signal<string | null>(null), currentWorkspace: () => null, currentRoles: () => [],
+    };
+    api.catalogForms.mockClear();
+    TestBed.configureTestingModule({ imports: [CatalogStaffPageComponent], providers: [
+      { provide: SmartIntakeApiService, useValue: api }, { provide: StaffSessionStore, useValue: hydrated },
+      { provide: Router, useValue: { navigate: vi.fn(() => Promise.resolve(true)) } },
+      { provide: ActivatedRoute, useValue: { snapshot: { data: { screen: 'catalog' }, queryParamMap: new Map(), paramMap: new Map([['workspaceId', 'workspace-1']]) }, queryParamMap: query.asObservable() } },
+    ] });
+    const fixture = TestBed.createComponent(CatalogStaffPageComponent); fixture.detectChanges();
+    expect(api.catalogForms).not.toHaveBeenCalled();
+    hydrated.organizations.set([{ organizationId: 'organization-1', name: 'One', organizationRoles: [], workspaces: [{ workspaceId: 'workspace-1', name: 'Clinical', roles: ['workspace-administrator'] }] }]);
+    hydrated.currentWorkspaceId.set('workspace-1'); hydrated.state.set('authenticated'); fixture.detectChanges();
+    expect(api.catalogForms).toHaveBeenCalledWith('workspace-1', expect.objectContaining({ limit: 25 }));
+    expect(fixture.componentInstance.state()).toBe('ready');
   });
 });
