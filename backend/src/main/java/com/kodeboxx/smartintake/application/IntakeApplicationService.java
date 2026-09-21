@@ -991,13 +991,19 @@ public class IntakeApplicationService {
   }
 
   private R latestRelease(UUID form) {
+    Integer archived = db.queryForObject(
+        "select count(*) from form_catalog_metadata where form_id=? and archived_at is not null",
+        Integer.class,
+        form);
+    if (archived != null && archived > 0)
+      throw new ResponseStatusException(HttpStatus.GONE, "This form is no longer accepting responses");
     try {
       return db.queryForObject(
           "select r.id,r.package::text,r.compatibility_profile_key from form_releases r join forms f on f.id=r.form_id left join form_catalog_metadata cm on cm.form_id=f.id where r.form_id=? and cm.archived_at is null order by r.version desc limit"
               + " 1",
           (rs, n) -> new R((UUID) rs.getObject(1), rs.getString(2), rs.getString(3)),
           form);
-    } catch (Exception e) {
+    } catch (EmptyResultDataAccessException e) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No published release");
     }
   }

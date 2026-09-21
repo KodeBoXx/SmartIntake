@@ -411,6 +411,20 @@ class ApiCharacterizationIntegrationTests {
                 form,
                 submission)
             >= 3);
+    db.update(
+        "insert into form_catalog_metadata(form_id,archived_at) values(?,now()) on conflict(form_id) do update set archived_at=excluded.archived_at",
+        form);
+    assertEquals(
+        HttpStatus.GONE,
+        call(
+                "/public/forms/" + form + "/sessions",
+                HttpMethod.POST,
+                ambientStaffCookie,
+                Map.of("locale", "en", "timeZone", "UTC"))
+            .getStatusCode());
+    assertEquals(
+        HttpStatus.OK,
+        call("/sessions/" + session, HttpMethod.GET, respondentHeaders(), null).getStatusCode());
   }
 
   @Test
