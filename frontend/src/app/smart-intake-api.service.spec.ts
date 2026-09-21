@@ -190,6 +190,8 @@ describe('SmartIntakeApiService', () => {
     expect(first.request.headers.get('If-Match')).toBe('"7"');
     expect(first.request.body).toEqual({ commands: [
       { op: 'add', path: '/translations/en/messages/name.label', value: 'Legal name' },
+      { op: 'add', path: '/translations/hi/messages/name.label', value: '' },
+      { op: 'add', path: '/translations/ar/messages/name.label', value: '' },
     ], definition: document.definition, expectedHash: 'before-hash' });
     first.flush({ code: 'TRANSIENT' }, { status: 503, statusText: 'Service Unavailable' });
     const retried = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/commands');

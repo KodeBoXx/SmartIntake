@@ -154,7 +154,23 @@ function authoringPatch(command: AuthoringCommand, document: AuthoringDocument):
   // M7's server persists bounded JSON-pointer commands. The UI's local grouping is
   // presentation-only, so persist its human-readable semantic log in the package's
   // permitted metadata extension rather than invoking any respondent endpoint.
-  return command.patches ?? canonicalPatches(document, command);
+  const patches = command.patches ?? canonicalPatches(document, command);
+  const bundles = ((document.definition as { translations?: Record<string, { messages?: Record<string, unknown> }> }).translations ?? {});
+  const structural: unknown[] = [];
+  for (const patch of patches) {
+    if (!patch || typeof patch !== 'object') continue;
+    const path = (patch as { path?: string }).path ?? '';
+    const match = path.match(/^\/translations\/([^/]+)\/messages\/(.+)$/);
+    if (!match) continue;
+    const activeLocale = match[1];
+    const key = match[2];
+    for (const [locale, bundle] of Object.entries(bundles)) {
+      if (locale !== activeLocale && bundle.messages?.[key] === undefined) {
+        structural.push({ op: 'add', path: `/translations/${locale}/messages/${key}`, value: '' });
+      }
+    }
+  }
+  return [...patches, ...structural];
 }
 export type PublishedSchema = operations['ON-get-v1-schemas-kind-version-4c108bde88']['responses'][200]['content']['application/schema+json'];
 export type TypedSessionProjection = ServerProjection & {
