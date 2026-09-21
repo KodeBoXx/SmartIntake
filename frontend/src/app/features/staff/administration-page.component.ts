@@ -19,7 +19,7 @@ type ViewState = 'loading' | 'ready' | 'empty' | 'invalid' | 'denied' | 'expired
 @else if (state() !== 'denied' && state() !== 'expired') {
   @if (screen === 'platform-organizations') { <cui-card><div class="flex flex-wrap items-end gap-3"><cui-input label="Organization name" [(value)]="organizationName" /><cui-input label="First owner email" type="email" [(value)]="ownerEmail" /><cui-button [disabled]="!isPlatformAdmin()" (buttonClick)="createOrganization()">Create organization</cui-button></div>@for (organization of organizations(); track organization.id) { <div class="mt-4 flex items-center justify-between"><span class="type-body">{{ organization.name }}</span><cui-tag tone="emerald">{{ organization.status }}</cui-tag></div> }</cui-card> }
   @else if (screen === 'organization-settings') { <cui-card><cui-input label="Organization name" [(value)]="organizationName" /><cui-button class="mt-3" [disabled]="!canManage()" (buttonClick)="saveOrganization()">Save organization</cui-button></cui-card> }
-  @else if (screen === 'user-list' || screen === 'user-detail' || screen === 'add-user' || screen === 'role-assignment') { <cui-card><div class="flex flex-wrap items-end gap-3"><cui-input label="User email" type="email" [(value)]="email" [error]="state() === 'invalid' ? 'Enter a valid email address.' : undefined" /><cui-select label="Organization role" [options]="roleOptions" [(value)]="role" /><cui-select label="Workspace role" [options]="workspaceRoleOptions" [(value)]="workspaceRole" /><cui-button [disabled]="!canManage()" (buttonClick)="addUser()">Add user</cui-button></div>@for (user of users(); track user.id) { <div class="mt-4 flex flex-wrap items-center justify-between gap-2"><div><p class="type-body">{{ user.email }}</p><p class="type-caption">{{ user.roles.join(', ') || 'member' }}</p></div><div class="flex gap-2">@if (canAssignWorkspaceRoles(user.id)) { <cui-button size="sm" variant="secondary" (buttonClick)="assignRoles(user.id, user.workspaceRevision ?? 0)">Assign workspace role</cui-button> } @if (canManage()) { <cui-button size="sm" variant="tertiary" (buttonClick)="invite(user.id)">Invite</cui-button> }</div></div> }</cui-card> }
+  @else if (screen === 'user-list' || screen === 'user-detail' || screen === 'add-user' || screen === 'role-assignment') { <cui-card><div class="flex flex-wrap items-end gap-3"><cui-input label="User email" type="email" [(value)]="email" [error]="state() === 'invalid' ? 'Enter a valid email address.' : undefined" /><cui-select label="Organization role" [options]="roleOptions" [(value)]="role" /><cui-select label="Workspace role" [options]="workspaceRoleOptions" [(value)]="workspaceRole" /><cui-button [disabled]="!canManage()" (buttonClick)="addUser()">Add user</cui-button></div>@for (user of users(); track user.id) { <div class="mt-4 flex flex-wrap items-center justify-between gap-2"><div><p class="type-body">{{ user.email }}</p><p class="type-caption">{{ user.roles.join(', ') || 'member' }}</p></div><div class="flex gap-2">@if (canAssignWorkspaceRoles(user.id)) { <cui-button size="sm" variant="secondary" (buttonClick)="assignRoles(user.id, user.workspaceRevision ?? 0, user.workspaceRoles ?? [])">Assign workspace role</cui-button> } @if (canManage()) { <cui-button size="sm" variant="tertiary" (buttonClick)="invite(user.id)">Invite</cui-button> }</div></div> }</cui-card> }
   @else if (screen === 'invitation-delivery') { <cui-card><p class="type-body">Invitation delivery</p><p class="type-caption">When email is unavailable, provide the copy-link path only after the server creates an invitation.</p>@if (delivery().invitationCopyLink) { <cui-alert class="mt-3" variant="warning" title="No-email delivery">Copy this one-time invitation link: {{ delivery().invitationCopyLink }}</cui-alert> }</cui-card> }
   @else { <cui-card><p class="type-body">Provider and policy controls</p><p class="type-caption">Policies shown here are loaded for the selected server-authorized organization.</p><p class="type-caption mt-3">{{ policies().length }} policy record(s) available.</p></cui-card> }
 }
@@ -70,7 +70,19 @@ export class AdministrationPageComponent {
     this.api.updateOrganization(organization.organizationId, revision, body, this.retryKey(action, resource, body)).subscribe({ next: () => { this.completeAction(action, resource); this.message.set('Organization settings saved.'); }, error: (error) => this.fail(error.status) });
   }
   addUser(): void { const organizationId = this.session.currentOrganizationId(); if (!organizationId || !/^\S+@\S+\.\S+$/.test(this.email)) { this.state.set('invalid'); return; } const body = { email: this.email, roles: [this.role as 'member' | 'administrator'] }; const action = 'add-user'; const resource = `organizations/${organizationId}/users`; this.api.addOrganizationUser(organizationId, body, this.retryKey(action, resource, body)).subscribe({ next: (invitation) => { this.completeAction(action, resource); this.delivery.set(deliveryFor(invitation)); this.email = ''; this.state.set('no-email'); this.message.set('Invitation created. Deliver the one-time invitation link to the intended recipient.'); }, error: (error) => this.fail(error.status) }); }
-  assignRoles(userId: string, revision: number): void { const workspace = this.session.currentWorkspaceId(); if (!workspace || !this.canAssignWorkspaceRoles(userId)) return; const body = { roles: [this.workspaceRole] as any }; const action = 'assign-roles'; const resource = `workspaces/${workspace}/users/${userId}/roles`; this.api.assignWorkspaceRoles(workspace, userId, revision, body, this.retryKey(action, resource, body)).subscribe({ next: () => { this.completeAction(action, resource); this.message.set('Workspace role assignment saved.'); }, error: (error) => this.fail(error.status) }); }
+  assignRoles(userId: string, revision: number, currentRoles: readonly string[]): void {
+    const workspace = this.session.currentWorkspaceId();
+    if (!workspace || !this.canAssignWorkspaceRoles(userId)) return;
+    const assignment = additiveWorkspaceRoleAssignment(userId, currentRoles, this.workspaceRole);
+    const body = { roles: assignment.roles as any };
+    const action = 'assign-roles';
+    const resource = `workspaces/${workspace}/users/${assignment.accountId}/roles`;
+    this.api.assignWorkspaceRoles(workspace, assignment.accountId, revision, body, this.retryKey(action, resource, body)).subscribe({ next: () => {
+      this.completeAction(action, resource);
+      this.message.set('Workspace role assignment saved. Existing administrator access was preserved.');
+      this.load();
+    }, error: (error) => this.fail(error.status) });
+  }
   invite(userId: string): void { const organization = this.session.currentOrganizationId(); if (!organization) return; const name = 'Invitation'; const action = 'invite'; const resource = `organizations/${organization}/users/${userId}/invitations`; this.api.inviteOrganizationUser(organization, userId, name, this.retryKey(action, resource, { name })).subscribe({ next: (invitation) => { this.completeAction(action, resource); this.delivery.set(deliveryFor(invitation)); this.message.set(invitation.invitationCopyLink ? 'Copy and deliver this one-time invitation link only to the intended recipient.' : 'Invitation created. Email delivery is unavailable and no issuer copy-link was returned.'); this.state.set('no-email'); }, error: (error) => this.fail(error.status) }); }
   private retryKey(action: string, resource: string, payload: unknown): string { return this.retryKeys.key(action, resource, payload, () => this.api.createMutationAction()); }
   private completeAction(action: string, resource: string): void { this.retryKeys.complete(action, resource); }
@@ -79,4 +91,11 @@ export class AdministrationPageComponent {
 
 function deliveryFor(value: AuthorizedDeliveryCopies): AuthorizedDeliveryCopies {
   return { activationCopyLink: value.activationCopyLink, invitationCopyLink: value.invitationCopyLink, temporaryPasswordCopy: value.temporaryPasswordCopy };
+}
+
+export function additiveWorkspaceRoleAssignment(userId: string, currentRoles: readonly string[], role: string): { accountId: string; roles: string[] } {
+  return {
+    accountId: userId.replace(/^organizationuser-/, 'account-'),
+    roles: [...new Set([...currentRoles, role])],
+  };
 }
