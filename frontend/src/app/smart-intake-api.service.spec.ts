@@ -71,7 +71,7 @@ describe('SmartIntakeApiService', () => {
     expect(save.request.method).toBe('PUT');
     expect(save.request.withCredentials).toBe(true);
     expect(save.request.headers.has('X-Staff-Session')).toBe(false);
-    expect(save.request.headers.get('If-Match')).toBe('"rev-3"');
+    expect(save.request.headers.get('If-Match')).toBe('"3"');
     expect(save.request.body).toEqual({ definition });
     save.flush({ revision: 4, definition, diagnostics: [] });
 
@@ -114,7 +114,7 @@ describe('SmartIntakeApiService', () => {
     expect(imported.request.method).toBe('PUT');
     expect(imported.request.withCredentials).toBe(true);
     expect(imported.request.headers.has('X-Staff-Session')).toBe(false);
-    expect(imported.request.headers.get('If-Match')).toBe('"rev-7"');
+    expect(imported.request.headers.get('If-Match')).toBe('"7"');
     expect(imported.request.body).toEqual(definition);
     imported.flush({ revision: 8 });
   });

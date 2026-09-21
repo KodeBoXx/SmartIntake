@@ -176,7 +176,7 @@ export class SmartIntakeApiService {
 
   importDefinition(workspaceId: string, formId: string, revision: number, definition: unknown): Observable<{ revision: number }> {
     return this.http.put<{ revision: number }>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/forms/${formId}/definition-import`, definition, {
-      headers: new HttpHeaders({ 'If-Match': this.etag(revision) }), withCredentials: true,
+      headers: new HttpHeaders({ 'If-Match': this.formRevisionEtag(revision) }), withCredentials: true,
     });
   }
 
@@ -195,7 +195,7 @@ export class SmartIntakeApiService {
 
   updateDraft(workspaceId: string, formId: string, draftId: string, revision: number, definition: FormDefinition): Observable<SavedDraft> {
     return this.http.put<SavedDraft>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/forms/${formId}/drafts/${draftId}`, { definition }, {
-      headers: new HttpHeaders({ 'If-Match': this.etag(revision) }), withCredentials: true,
+      headers: new HttpHeaders({ 'If-Match': this.formRevisionEtag(revision) }), withCredentials: true,
     });
   }
 
@@ -280,6 +280,7 @@ export class SmartIntakeApiService {
     if (typeof revision === 'string') return revision.startsWith('"rev-') ? revision : `"rev-${revision.replace(/^"|"$/g, '')}"`;
     return `"rev-${revision}"`;
   }
+  private formRevisionEtag(revision: number): string { return `"${revision}"`; }
 
   /** Callers retain this opaque token only while retrying one unchanged user action. */
   createMutationAction(): string { return crypto.randomUUID(); }
