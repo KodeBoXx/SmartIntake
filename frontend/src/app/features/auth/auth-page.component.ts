@@ -6,6 +6,7 @@ import { AuthorizedDeliveryCopies, SmartIntakeApiService } from '../../smart-int
 import { titleCase } from '../../shared/m5-route-state';
 
 type AuthViewState = 'ready' | 'loading' | 'invalid' | 'denied' | 'expired' | 'email-unavailable' | 'throttled' | 'submitted' | 'error';
+const AUTH_VIEW_STATES = new Set<AuthViewState>(['ready', 'loading', 'invalid', 'denied', 'expired', 'email-unavailable', 'throttled', 'submitted', 'error']);
 
 @Component({
   standalone: true,
@@ -54,7 +55,7 @@ export class AuthPageComponent {
   private readonly api = inject(SmartIntakeApiService);
   readonly screen = this.route.snapshot.data['screen'] as 'sign-in' | 'setup' | 'activation' | 'recovery' | 'invitation';
   readonly title = titleCase(this.screen);
-  readonly state = signal<AuthViewState>(this.route.snapshot.queryParamMap.get('state') as AuthViewState || 'ready');
+  readonly state = signal<AuthViewState>(authViewState(this.route.snapshot.queryParamMap.get('state')));
   readonly message = signal(this.messageFor(this.state()));
   readonly delivery = signal<AuthorizedDeliveryCopies>({});
   email = '';
@@ -132,4 +133,8 @@ export class AuthPageComponent {
   private messageFor(state: AuthViewState): string {
     return ({ invalid: 'The supplied details could not be accepted.', denied: 'This account cannot access Smart Intake.', 'no-access': 'This account cannot access Smart Intake.', 'empty-or-no-access': 'No account or access is available.', expired: 'Your session or link has expired.', 'email-unavailable': 'Email delivery is unavailable; contact an administrator for the no-email path.', throttled: 'Too many attempts. Wait before trying again.', error: 'The service is unavailable. Try again later.' } as Record<string, string>)[state] ?? '';
   }
+}
+
+export function authViewState(value: string | null): AuthViewState {
+  return value && AUTH_VIEW_STATES.has(value as AuthViewState) ? value as AuthViewState : 'ready';
 }
