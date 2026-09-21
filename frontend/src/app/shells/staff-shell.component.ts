@@ -62,7 +62,10 @@ export class StaffShellComponent {
     });
   }
   canAdmin(): boolean { return this.session.isPlatformAdministrator() || this.session.currentOrganizationRoles().some((role) => role === 'owner' || role === 'administrator'); }
-  adminUrl(): string { return this.session.isPlatformAdministrator() ? '/platform/organizations' : this.session.currentOrganizationRoles().some((role) => role === 'owner' || role === 'administrator') ? '/users' : '/settings/organization'; }
+  adminUrl(): string {
+    if (this.session.currentOrganizationId() && this.session.currentWorkspaceId() && this.canAdmin()) return '/users';
+    return this.session.isPlatformAdministrator() ? '/platform/organizations' : '/settings/organization';
+  }
   formsUrl(): string { const id = this.session.currentWorkspaceId(); return id ? `/workspaces/${id}/forms` : this.adminUrl(); }
   responsesUrl(): string { const id = this.session.currentWorkspaceId(); return id ? `/workspaces/${id}/submissions` : this.adminUrl(); }
   selectOrganization(id: string | null): void { if (id) { this.session.selectOrganization(id); void this.router.navigateByUrl(this.formsUrl()); } }
