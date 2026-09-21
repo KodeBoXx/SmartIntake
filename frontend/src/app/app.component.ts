@@ -75,6 +75,7 @@ export class AppComponent {
   answers: Record<string, unknown> = {};
   formId = '';
   draftId = '';
+  publishedShareId = '';
   respondentId = '';
   respondentToken = '';
   respondentRevision = 0;
@@ -395,7 +396,11 @@ export class AppComponent {
     }
     this.publishing.set(true);
     this.api.publish(this.workspaceId(), this.formId).subscribe({
-      next: (release) => { this.publishing.set(false); this.message.set(`Form published. Release ${release.releaseId}`); },
+      next: (release) => {
+        this.publishing.set(false);
+        this.publishedShareId = release.shareId;
+        this.message.set(`Form published. Release ${release.releaseId}`);
+      },
       error: () => { this.publishing.set(false); this.message.set('Publish failed.'); },
     });
   }
@@ -403,7 +408,22 @@ export class AppComponent {
   startPreview() {
     this.mode.set('preview');
     this.previewPage.set(0);
-    if (this.formId) this.api.startSession(this.formId).subscribe({ next: (response) => { this.respondentId = response.sessionId; this.respondentToken = response.respondentSession; this.respondentRevision = response.revision; }, error: () => this.message.set('Publish the saved form before starting a public session.') });
+    const shareId = this.publishedShareId || this.formId;
+    if (shareId) this.api.startSession(shareId).subscribe({
+      next: (response) => {
+        this.respondentId = response.sessionId;
+        this.respondentToken = response.respondentSession;
+        this.respondentRevision = response.revision;
+      },
+      error: (failure: HttpErrorResponse) => this.message.set(this.publicSessionFailure(failure)),
+    });
+  }
+
+  private publicSessionFailure(failure: HttpErrorResponse): string {
+    if (failure.status === 404) return 'Publish the saved form before starting a public session.';
+    if (failure.status === 403) return 'Public session start was denied.';
+    if (failure.status === 410) return 'This public form is no longer accepting new responses.';
+    return 'Could not start the public session. Try again.';
   }
 
   previousPage() { this.previewPage.update((page) => page - 1); }

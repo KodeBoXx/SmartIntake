@@ -124,6 +124,8 @@ describe('SmartIntakeApiService', () => {
     const started = http.expectOne('/v1/public/forms/form-1/sessions');
     expect(started.request.method).toBe('POST');
     expect(started.request.body).toEqual({});
+    expect(started.request.withCredentials).toBe(false);
+    expect(started.request.headers.has('X-CSRF-Token')).toBe(false);
     started.flush({ sessionId: 'session-1', respondentSession: 'respondent-token', revision: 3 });
 
     const patch = { baseRevision: 3, clientMutationId: 'mutation-1', answers: { name: 'Ada' } };

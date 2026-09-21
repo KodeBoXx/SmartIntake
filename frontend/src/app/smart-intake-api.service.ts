@@ -203,8 +203,10 @@ export class SmartIntakeApiService {
     return this.http.post<PublishedForm>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/forms/${formId}/releases`, {}, this.staff());
   }
 
-  startSession(formId: string): Observable<{ sessionId: string; respondentSession: string; revision: number }> {
-    return this.http.post<{ sessionId: string; respondentSession: string; revision: number }>(`/v1/public/forms/${formId}/sessions`, {});
+  startSession(shareId: string): Observable<{ sessionId: string; respondentSession: string; revision: number }> {
+    return this.http.post<{ sessionId: string; respondentSession: string; revision: number }>(`/v1/public/forms/${encodeURIComponent(shareId)}/sessions`, {}, {
+      withCredentials: false,
+    });
   }
 
   patchSession(sessionId: string, respondentToken: string, body: unknown): Observable<{ acceptedRevision: number }> {

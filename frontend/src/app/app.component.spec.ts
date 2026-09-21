@@ -223,6 +223,7 @@ describe('AppComponent journeys', () => {
     toolbarButton(fixture, 'Publish').click();
     expect(api.publish).toHaveBeenCalledWith('local', 'form-1');
     expect(component.message()).toBe('Form published. Release release-1');
+    expect(component.publishedShareId).toBe('form-1');
 
     component.startPreview();
     expect(component.mode()).toBe('preview');
@@ -232,6 +233,36 @@ describe('AppComponent journeys', () => {
     expect(api.patchSession).toHaveBeenCalledWith('session-1', 'respondent-token', expect.objectContaining({ baseRevision: 3, answers: { name: 'Ada' } }));
     expect(api.submitSession).toHaveBeenCalledWith('session-1', 'respondent-token', 4);
     expect(component.message()).toBe('Response received. Receipt receipt-1');
+  });
+
+  it.each([
+    [404, 'Publish the saved form before starting a public session.'],
+    [403, 'Public session start was denied.'],
+    [410, 'This public form is no longer accepting new responses.'],
+    [500, 'Could not start the public session. Try again.'],
+  ])('reports public session start HTTP %s truthfully', (status, message) => {
+    const api = createApi();
+    api.startSession.mockReturnValue(throwError(() => new HttpErrorResponse({ status })));
+    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }, staffSessionProvider] });
+    const component = TestBed.createComponent(AppComponent).componentInstance;
+    component.formId = 'form-1';
+
+    component.startPreview();
+
+    expect(component.message()).toBe(message);
+  });
+
+  it('starts the public session with the share identifier returned by publication', () => {
+    const api = createApi();
+    api.publish.mockReturnValue(of({ releaseId: 'release-1', version: 1, shareId: 'public-share-1', status: 'PUBLISHED' }));
+    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }, staffSessionProvider] });
+    const component = TestBed.createComponent(AppComponent).componentInstance;
+    component.formId = 'form-1';
+
+    component.publish();
+    component.startPreview();
+
+    expect(api.startSession).toHaveBeenCalledWith('public-share-1');
   });
 
   it('serializes a dirty draft save before publishing and blocks edits while persistence is in flight', () => {
@@ -448,7 +479,7 @@ describe('AppComponent journeys', () => {
     const api = createApi();
     api.createForm.mockReturnValue(throwError(() => new Error('conflict')));
     api.publish.mockReturnValue(throwError(() => new Error('publish failure')));
-    api.startSession.mockReturnValue(throwError(() => new Error('unpublished')));
+    api.startSession.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 404 })));
     TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }, staffSessionProvider] });
     const component = TestBed.createComponent(AppComponent).componentInstance;
 

@@ -10,9 +10,10 @@ export class StaffCsrfContext {
 /** Applies only to same-origin staff mutations; respondent-secret transport is untouched. */
 export const staffCsrfInterceptor: HttpInterceptorFn = (request, next) => {
   const context = inject(StaffCsrfContext);
+  const isRespondentRequest = request.url.startsWith('/v1/public/')
+    || request.url.startsWith('/v1/sessions/');
   const isStaffMutation = request.url.startsWith('/v1/')
-    && !request.url.startsWith('/v1/public/')
-    && !request.url.startsWith('/v1/sessions/')
+    && !isRespondentRequest
     && !['GET', 'HEAD', 'OPTIONS'].includes(request.method)
     && request.url !== '/v1/auth/sign-in'
     && request.url !== '/v1/auth/recovery'
@@ -21,5 +22,5 @@ export const staffCsrfInterceptor: HttpInterceptorFn = (request, next) => {
   const token = context.token() ?? document.cookie.split('; ').find((entry) => entry.startsWith('SI_CSRF='))?.split('=')[1] ?? null;
   return next(isStaffMutation && token
     ? request.clone({ withCredentials: true, setHeaders: { 'X-CSRF-Token': token } })
-    : request.clone({ withCredentials: request.url.startsWith('/v1/') && !request.url.startsWith('/v1/sessions/') }));
+    : request.clone({ withCredentials: request.url.startsWith('/v1/') && !isRespondentRequest }));
 };

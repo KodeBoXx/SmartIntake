@@ -39,6 +39,15 @@ describe('staffCsrfInterceptor', () => {
     request.flush({});
   });
 
+  it('marks public session start credential-independent and omits staff CSRF', () => {
+    csrf.set('staff-csrf');
+    http.post('/v1/public/forms/share-1/sessions', {}).subscribe();
+    const request = requests.expectOne('/v1/public/forms/share-1/sessions');
+    expect(request.request.withCredentials).toBe(false);
+    expect(request.request.headers.has('X-CSRF-Token')).toBe(false);
+    request.flush({});
+  });
+
   it('does not require an existing staff CSRF token for the login challenge request', () => {
     http.post('/v1/auth/sign-in', { email: 'owner@example.test', password: 'user-supplied' }).subscribe();
     const request = requests.expectOne('/v1/auth/sign-in');

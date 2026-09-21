@@ -9,7 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-/** Enforces double-submit CSRF and Origin checks for every cookie-authenticated staff mutation. */
+/** Enforces double-submit CSRF and Origin checks for cookie-authenticated staff routes. */
 @Component
 public class StaffCsrfFilter extends OncePerRequestFilter {
   private final IdentitySessionResolver sessions;
@@ -25,6 +25,7 @@ public class StaffCsrfFilter extends OncePerRequestFilter {
     String path = request.getRequestURI();
     if (!path.startsWith("/v1/") || "HEAD".equals(request.getMethod())
         || "OPTIONS".equals(request.getMethod())) return true;
+    if (path.startsWith("/v1/public/") || path.startsWith("/v1/sessions/")) return true;
     boolean anonymousBootstrap = path.equals("/v1/auth/bootstrap") || path.equals("/v1/auth/sign-in");
     return anonymousBootstrap && sessions.cookieSession(request).isEmpty();
   }

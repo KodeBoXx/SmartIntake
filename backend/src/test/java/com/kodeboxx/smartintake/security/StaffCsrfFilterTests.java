@@ -54,6 +54,41 @@ class StaffCsrfFilterTests {
     verify(identity, never()).validCsrf(anyString(), anyString());
   }
 
+  @Test
+  void ambientStaffCookieDoesNotSubjectAnonymousPublicSessionStartToStaffCsrf() throws Exception {
+    IdentitySessionService identity = mock(IdentitySessionService.class);
+    ExposedFilter filter = new ExposedFilter(new IdentitySessionResolver(new MockEnvironment()), identity);
+    MockHttpServletRequest request = authenticatedRequest("/v1/public/forms/share-1/sessions");
+    request.removeHeader("X-CSRF-Token");
+    MockHttpServletResponse response = new MockHttpServletResponse();
+    boolean[] invoked = {false};
+
+    assertTrue(filter.skip(request));
+    filter.doFilter(request, response, (ignoredRequest, ignoredResponse) -> invoked[0] = true);
+
+    assertTrue(invoked[0]);
+    assertEquals(200, response.getStatus());
+    verifyNoInteractions(identity);
+  }
+
+  @Test
+  void ambientStaffCookieDoesNotSubjectRespondentBearerMutationsToStaffCsrf() throws Exception {
+    IdentitySessionService identity = mock(IdentitySessionService.class);
+    ExposedFilter filter = new ExposedFilter(new IdentitySessionResolver(new MockEnvironment()), identity);
+    MockHttpServletRequest request = authenticatedRequest("/v1/sessions/session-1");
+    request.removeHeader("X-CSRF-Token");
+    request.addHeader("X-Respondent-Session", "respondent-secret");
+    MockHttpServletResponse response = new MockHttpServletResponse();
+    boolean[] invoked = {false};
+
+    assertTrue(filter.skip(request));
+    filter.doFilter(request, response, (ignoredRequest, ignoredResponse) -> invoked[0] = true);
+
+    assertTrue(invoked[0]);
+    assertEquals(200, response.getStatus());
+    verifyNoInteractions(identity);
+  }
+
   private static MockHttpServletRequest authenticatedRequest(String path) {
     MockHttpServletRequest request = new MockHttpServletRequest("POST", path);
     request.setCookies(new Cookie(IdentitySessionResolver.STAFF_COOKIE, "opaque-session"),

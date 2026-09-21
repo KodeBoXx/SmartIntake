@@ -9,6 +9,7 @@ import com.kodeboxx.smartintake.compatibility.CompatibilityReconciliationService
 import com.kodeboxx.smartintake.compatibility.RespondentSecretVerifier;
 import com.kodeboxx.smartintake.contract.PackageStamp;
 import com.kodeboxx.smartintake.contract.TimeZoneRegistry;
+import com.kodeboxx.smartintake.security.IdentitySessionResolver;
 import java.util.*;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.*;
@@ -51,6 +52,7 @@ class ApiCharacterizationIntegrationTests {
     HttpHeaders h = new HttpHeaders();
     h.setContentType(MediaType.APPLICATION_JSON);
     h.set("X-Respondent-Session", respondent);
+    h.set(HttpHeaders.COOKIE, IdentitySessionResolver.STAFF_COOKIE + "=" + staff);
     return h;
   }
 
@@ -272,13 +274,23 @@ class ApiCharacterizationIntegrationTests {
             null);
     assertEquals(HttpStatus.CREATED, published.getStatusCode());
     assertEquals("PUBLISHED", object(published.getBody()).get("status"));
+    HttpHeaders ambientStaffCookie = headers(null);
+    ambientStaffCookie.set(HttpHeaders.COOKIE, IdentitySessionResolver.STAFF_COOKIE + "=" + staff);
     ResponseEntity<String> started =
         call(
             "/public/forms/" + form + "/sessions",
             HttpMethod.POST,
-            headers(null),
+            ambientStaffCookie,
             Map.of("locale", "en", "timeZone", "UTC"));
     assertEquals(HttpStatus.CREATED, started.getStatusCode());
+    assertEquals(
+        HttpStatus.CREATED,
+        call(
+                "/public/forms/" + form + "/sessions",
+                HttpMethod.POST,
+                headers(null),
+                Map.of("locale", "en", "timeZone", "UTC"))
+            .getStatusCode());
     Map<String, Object> startedBody = object(started.getBody());
     session = UUID.fromString(startedBody.get("sessionId").toString());
     respondent = (String) startedBody.get("respondentSession");
