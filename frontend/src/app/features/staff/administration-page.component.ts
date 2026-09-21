@@ -33,7 +33,7 @@ export class AdministrationPageComponent {
   constructor() { this.load(); }
   canManage(): boolean { return this.session.currentOrganizationRoles().some((role) => role === 'owner' || role === 'administrator'); }
   canManageWorkspace(): boolean { return this.session.currentRoles().includes('workspace-administrator'); }
-  canAssignWorkspaceRoles(userId: string): boolean { return this.canManageWorkspace() || (this.canManage() && userId === this.session.identity()?.accountId); }
+  canAssignWorkspaceRoles(userId: string): boolean { return canAssignWorkspaceRole(this.canManageWorkspace(), this.canManage(), userId, this.session.identity()?.accountId); }
   isPlatformAdmin(): boolean { return this.session.isPlatformAdministrator(); }
   load(): void {
     const organizationId = this.session.currentOrganizationId();
@@ -95,7 +95,15 @@ function deliveryFor(value: AuthorizedDeliveryCopies): AuthorizedDeliveryCopies 
 
 export function additiveWorkspaceRoleAssignment(userId: string, currentRoles: readonly string[], role: string): { accountId: string; roles: string[] } {
   return {
-    accountId: userId.replace(/^organizationuser-/, 'account-'),
+    accountId: accountIdForOrganizationUser(userId),
     roles: [...new Set([...currentRoles, role])],
   };
+}
+
+export function canAssignWorkspaceRole(workspaceAdministrator: boolean, organizationAdministrator: boolean, userId: string, currentAccountId: string | null | undefined): boolean {
+  return workspaceAdministrator || (organizationAdministrator && accountIdForOrganizationUser(userId) === currentAccountId);
+}
+
+export function accountIdForOrganizationUser(userId: string): string {
+  return userId.replace(/^organizationuser-/, 'account-');
 }

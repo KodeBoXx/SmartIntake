@@ -7,6 +7,8 @@ import { CuiAlertComponent, CuiCardComponent } from '@certinal/ui';
 import { authoringDocument, SmartIntakeApiService } from '../../smart-intake-api.service';
 import { AuthoringComment, AuthoringDocument, AuthoringImportCandidate, ContentSettings, PresenceMember, PreviewResult, ReusableComponent, ThemeSettings } from './authoring.types';
 import { AuthoringStore } from './authoring.store';
+import { StaffSessionStore } from '../../core/m5-session.store';
+import { authoringStorageKey } from '../../core/authoring-cache';
 
 type AuthoringTab = 'author' | 'preview' | 'history' | 'import' | 'components' | 'theme' | 'content';
 
@@ -104,6 +106,7 @@ export class AuthoringPageComponent implements OnDestroy {
   readonly store = inject(AuthoringStore);
   private readonly api = inject(SmartIntakeApiService);
   private readonly route = inject(ActivatedRoute);
+  private readonly session = inject(StaffSessionStore);
   readonly tabs: readonly { id: AuthoringTab; label: string }[] = [{ id: 'author', label: 'Author' }, { id: 'preview', label: 'Preview' }, { id: 'history', label: 'History' }, { id: 'import', label: 'Import' }, { id: 'components', label: 'Components' }, { id: 'theme', label: 'Theme' }, { id: 'content', label: 'Content' }];
   readonly locales = ['en', 'hi', 'ar'] as const;
   readonly saving = signal(false); readonly notice = signal(''); readonly previewResult = signal<PreviewResult | null>(null); readonly importCandidate = signal<unknown | null>(null); readonly importValidation = signal<AuthoringImportCandidate | null>(null); readonly components = signal<readonly ReusableComponent[]>([]); readonly comments = signal<readonly AuthoringComment[]>([]); readonly presence = signal<readonly PresenceMember[]>([]);
@@ -149,6 +152,6 @@ export class AuthoringPageComponent implements OnDestroy {
   private selectedItem(): { id: string; title?: string; label?: string; pages?: unknown; sections?: unknown } | undefined { const id = this.store.selectedId(); for (const phase of this.store.document().phases) { if (phase.id === id) return phase; for (const page of phase.pages) { if (page.id === id) return page; for (const section of page.sections) { if (section.id === id) return section; const node = section.nodes.find((candidate) => candidate.id === id); if (node) return node; } } } return undefined; }
   private containingSection(id: string | null): { id: string } | undefined { for (const phase of this.store.document().phases) for (const page of phase.pages) for (const section of page.sections) if (section.id === id || section.nodes.some((node) => node.id === id)) return section; return undefined; }
   private componentInsertionPath(sectionId: string): string | null { const definition = this.store.document().definition as { flow?: { phases?: { pages?: { sections?: { id?: string }[] }[] }[] } } | undefined; for (const [phaseIndex, phase] of (definition?.flow?.phases ?? []).entries()) for (const [pageIndex, page] of (phase.pages ?? []).entries()) { const sectionIndex = (page.sections ?? []).findIndex((section) => section.id === sectionId); if (sectionIndex >= 0) return `/flow/phases/${phaseIndex}/pages/${pageIndex}/sections/${sectionIndex}/nodes/-`; } return null; }
-  private workspaceId(): string { return this.route.snapshot.paramMap.get('workspaceId') ?? ''; } private formId(): string { return this.route.snapshot.paramMap.get('formId') ?? ''; } private draftId(): string { return this.route.snapshot.paramMap.get('draftId') ?? ''; } private storageKey(): string { return `smart-intake.authoring.${this.workspaceId()}.${this.formId()}.${this.draftId()}`; }
+  private workspaceId(): string { return this.route.snapshot.paramMap.get('workspaceId') ?? ''; } private formId(): string { return this.route.snapshot.paramMap.get('formId') ?? ''; } private draftId(): string { return this.route.snapshot.paramMap.get('draftId') ?? ''; } private storageKey(): string { return authoringStorageKey(this.session.identity()?.accountId, this.workspaceId(), this.formId(), this.draftId()); }
   private handleError(error: unknown): void { const response = error as HttpErrorResponse; if (response.status === 409 || response.status === 412) { const body = response.error as { conflictId?: string; revision?: number; server?: unknown; client?: unknown }; const revision = body?.revision ?? this.store.document().revision; const server = body?.server === undefined ? this.store.document() : authoringDocument({ draftId: this.draftId(), revision, definition: body.server }); const client = body?.client === undefined ? this.store.document() : authoringDocument({ draftId: this.draftId(), revision, definition: body.client }); this.store.setConflict(client, server, body?.conflictId ?? '', 'This draft changed on the server. Choose a version to continue.', this.storageKey()); return; } this.notice.set(response.status === 0 ? 'The authoring service is unavailable.' : `Authoring request failed (${response.status || 'unknown'}).`); }
 }

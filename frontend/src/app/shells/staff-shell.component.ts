@@ -4,6 +4,11 @@ import { CuiAlertComponent, CuiAppShellComponent, CuiButtonComponent, CuiCardCom
 import { StaffSessionStore } from '../core/m5-session.store';
 import { filter } from 'rxjs';
 
+export function settingsUrl(platformAdministrator: boolean, organizationRoles: readonly string[]): string {
+  if (organizationRoles.some((role) => role === 'owner' || role === 'administrator')) return '/users';
+  return platformAdministrator ? '/platform/organizations' : '/settings/organization';
+}
+
 @Component({
   standalone: true,
   imports: [RouterOutlet, RouterLink, CuiAlertComponent, CuiAppShellComponent, CuiButtonComponent, CuiCardComponent, CuiEmptyStateComponent, CuiHeaderComponent, CuiHeaderDrawerDirective, CuiIconComponent, CuiNavItemComponent, CuiSelectComponent, CuiSidebarShellComponent],
@@ -63,8 +68,7 @@ export class StaffShellComponent {
   }
   canAdmin(): boolean { return this.session.isPlatformAdministrator() || this.session.currentOrganizationRoles().some((role) => role === 'owner' || role === 'administrator'); }
   adminUrl(): string {
-    if (this.session.currentOrganizationId() && this.session.currentWorkspaceId() && this.canAdmin()) return '/users';
-    return this.session.isPlatformAdministrator() ? '/platform/organizations' : '/settings/organization';
+    return settingsUrl(this.session.isPlatformAdministrator(), this.session.currentOrganizationRoles());
   }
   formsUrl(): string { const id = this.session.currentWorkspaceId(); return id ? `/workspaces/${id}/forms` : this.adminUrl(); }
   responsesUrl(): string { const id = this.session.currentWorkspaceId(); return id ? `/workspaces/${id}/submissions` : this.adminUrl(); }

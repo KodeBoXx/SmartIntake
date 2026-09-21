@@ -3,6 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Observable, catchError, map, of, shareReplay, switchMap, tap } from 'rxjs';
 import { SmartIntakeApiService, StaffIdentity, StaffSession, StaffOrganization } from '../smart-intake-api.service';
 import { StaffCsrfContext } from './staff-csrf.interceptor';
+import { clearAuthoringStorage } from './authoring-cache';
 
 export type StaffSessionState = 'loading' | 'authenticated' | 'anonymous' | 'expired' | 'denied' | 'error';
 export type M5StubState = 'ready' | 'sign-in' | 'loading' | 'empty' | 'empty-or-no-access' | 'invalid' | 'denied' | 'no-access' | 'expired' | 'email-unavailable' | 'throttled' | 'offline' | 'stale' | 'closed' | 'start' | 'pending' | 'succeeded' | 'failed' | 'tombstone' | 'conflict' | 'error' | 'no-side-effects' | 'acknowledgment' | 'not-found';
@@ -49,11 +50,8 @@ export class StaffSessionStore {
 
   signOut(): Observable<void> {
     return this.api.signOut().pipe(
+      catchError(() => of(void 0)),
       tap(() => this.clear('anonymous')),
-      catchError((error: unknown) => {
-        if (error instanceof HttpErrorResponse && error.status === 401) this.clear('anonymous');
-        return of(void 0);
-      }),
     );
   }
 
@@ -84,6 +82,7 @@ export class StaffSessionStore {
   }
 
   private applySession(session: StaffSession): StaffSessionState {
+    if (this.identity()?.accountId && this.identity()?.accountId !== session.identity.accountId) clearAuthoringStorage();
     this.identity.set(session.identity);
     this.platformRoles.set(session.platformRoles);
     this.organizations.set(session.organizations);
@@ -118,6 +117,7 @@ export class StaffSessionStore {
   }
 
   private clear(state: Exclude<StaffSessionState, 'loading' | 'authenticated'>, clearCsrf = true): void {
+    clearAuthoringStorage();
     this.identity.set(null);
     this.platformRoles.set([]);
     this.organizations.set([]);
