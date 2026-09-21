@@ -198,7 +198,7 @@ class AuthoringIntegrationTests {
     @SuppressWarnings("unchecked") Map<String,Object> translations=(Map<String,Object>) definition.get("translations");
     @SuppressWarnings("unchecked") Map<String,Object> english=(Map<String,Object>) translations.get("en");
     @SuppressWarnings("unchecked") Map<String,Object> messages=(Map<String,Object>) english.get("messages");
-    messages.put("guidance.questionsandanswers","[{\"question\":\"What is this?\",\"answer\":\"A governed answer.\"}]");
+    messages.put("guidance.questionsandanswers","[{\"question\":\"What is this?\",\"answer\":\"A governed answer.\",\"scope\":{\"pageId\":\"pg_main\",\"sectionId\":\"sec_main\",\"fieldId\":\"fld_name\"}}]");
     assertEquals(HttpStatus.OK,call("/content",HttpMethod.PUT,"\"2\"",Map.of("translations",translations),"qa-translation").getStatusCode());
     when(speechPort.configured()).thenReturn(true);
     when(speechPort.defaultVoice("en")).thenReturn("en-approved");
@@ -206,11 +206,12 @@ class AuthoringIntegrationTests {
     when(speechPort.synthesize("A governed answer.","en","en-approved"))
         .thenReturn(new SpeechPort.SpeechResult(true,"OK","en","audio/mpeg",new byte[] {1},2));
 
-    ResponseEntity<String> available=call("/speech",HttpMethod.POST,null,Map.of("locale","en","question","What is this?"));
+    Map<String,Object> scope=Map.of("pageId","pg_main","sectionId","sec_main","fieldId","fld_name");
+    ResponseEntity<String> available=call("/speech",HttpMethod.POST,null,Map.of("locale","en","question","What is this?","scope",scope));
     assertEquals(HttpStatus.OK,available.getStatusCode());
     assertTrue(available.getBody().contains("\"available\":true"));
     verify(speechPort).synthesize("A governed answer.","en","en-approved");
-    ResponseEntity<String> unavailable=call("/speech",HttpMethod.POST,null,Map.of("locale","en","question","Unknown question"));
+    ResponseEntity<String> unavailable=call("/speech",HttpMethod.POST,null,Map.of("locale","en","question","Unknown question","scope",scope));
     assertEquals(HttpStatus.OK,unavailable.getStatusCode());
     assertTrue(unavailable.getBody().contains("SPEECH_QUESTION_NOT_FOUND"));
     verify(speechPort,times(1)).synthesize(anyString(),anyString(),anyString());
@@ -392,6 +393,11 @@ class AuthoringIntegrationTests {
     assertEquals(HttpStatus.OK,firstResolve.getStatusCode());
     assertEquals(firstResolve.getBody(),call("/resolve",HttpMethod.POST,"\"3\"",resolution,"resolve-key").getBody());
     assertEquals(HttpStatus.CONFLICT,call("/resolve",HttpMethod.POST,"\"3\"",Map.of("conflictId",conflict.get("conflictId"),"definition",Map.of()),"resolve-key").getStatusCode());
+  }
+
+  @Test void rejects_governed_references_without_stable_ids_or_message_keys() {
+    ResponseEntity<String> invalid=call("/content",HttpMethod.PUT,"\"1\"",Map.of("guidance",Map.of("brief",Map.of("id","invalid id","messageKey","Guidance.Bad"))),"invalid-guidance-reference");
+    assertEquals(HttpStatus.UNPROCESSABLE_ENTITY,invalid.getStatusCode());
   }
 
   private String fixture() throws Exception { return Files.readString(Path.of("..", "docs", "contracts", "smart-form-builder-lite", "4.0.0", "fixtures", "package-prd-inline-minimal.positive.json")); }

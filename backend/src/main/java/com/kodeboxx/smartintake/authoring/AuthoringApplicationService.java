@@ -295,6 +295,7 @@ public class AuthoringApplicationService {
       return ResponseEntity.ok().eTag(etag(current.revision())).body(map("revision",current.revision(),"approved",locales));
     }
     if (guidance == translations || !guidance && !translations) throw bad("CONTENT_SCOPE_INVALID","Update guidance or translations in separate requests.");
+    if (guidance) validateGuidanceReferences(json.valueToTree(body.get("guidance")));
     Map<String,Object> patch = new LinkedHashMap<>(); patch.put("commands", List.of(
         map("op", "set", "path", guidance?"/guidance":"/translations", "value", guidance?body.get("guidance"):body.get("translations"))));
     ResponseEntity<?> result=commandsInternal(f, d, m, patch, author);
@@ -359,7 +360,7 @@ public class AuthoringApplicationService {
     String locale = required(request, "locale");
     JsonNode definition=parse(row(f).definition());
     boolean questionRequest = request.containsKey("question");
-    String text = questionRequest ? governedAnswer(definition, locale, required(request, "question")) : required(request, "text");
+    String text = questionRequest ? governedAnswer(definition, locale, required(request, "question"), request.get("scope")) : required(request, "text");
     if (text == null) return unavailable(locale, "SPEECH_QUESTION_NOT_FOUND");
     String voice = request.containsKey("voice") ? required(request, "voice") : speech.defaultVoice(locale);
     if(!List.of("en","hi","ar").contains(locale)||text.length()>4_000||!supportsLocale(definition, locale)||(!questionRequest&&!governedText(definition,locale,text)))
@@ -493,17 +494,34 @@ public class AuthoringApplicationService {
     return CanonicalJson.sha256(effective);
   }
   private boolean governedText(JsonNode definition,String locale,String text){return containsText(definition.path("translations").path(locale),text)||containsText(definition.path("guidance"),text);}
-  /** Resolves only a translation referenced by the canonical Q&A guidance entry. */
-  private String governedAnswer(JsonNode definition, String locale, String question) {
+  /** Resolves only a translation referenced by the canonical Q&A guidance entry in the visible guidance scope. */
+  private String governedAnswer(JsonNode definition, String locale, String question, Object requestedScope) {
     String key=definition.path("guidance").path("questionsAndAnswers").path("messageKey").asText();
     JsonNode source=definition.path("translations").path(locale).path("messages").path(key);
-    if (key.isBlank() || !source.isTextual()) return null;
+    JsonNode scope=json.valueToTree(requestedScope);
+    if (key.isBlank() || !source.isTextual() || !scope.isObject() || scope.isEmpty()) return null;
     try {
       JsonNode questions=json.readTree(source.asText());
       if (!questions.isArray()) return null;
-      for (JsonNode entry:questions) if (question.equals(entry.path("question").asText()) && entry.path("answer").isTextual()) return entry.path("answer").asText();
+      for (JsonNode entry:questions) if (question.equals(entry.path("question").asText()) && scopedQuestion(entry.path("scope"), scope) && entry.path("answer").isTextual()) return entry.path("answer").asText();
       return null;
     } catch (Exception ignored) { return null; }
+  }
+  private boolean scopedQuestion(JsonNode questionScope, JsonNode visibleScope) {
+    if (!questionScope.isObject() || questionScope.isEmpty() || questionScope.size()!=visibleScope.size()) return false;
+    Iterator<Map.Entry<String,JsonNode>> fields=questionScope.fields();
+    while(fields.hasNext()) { Map.Entry<String,JsonNode> field=fields.next(); if (!List.of("pageId","sectionId","fieldId").contains(field.getKey()) || !field.getValue().isTextual() || !field.getValue().asText().equals(visibleScope.path(field.getKey()).asText())) return false; }
+    return true;
+  }
+  private void validateGuidanceReferences(JsonNode guidance) {
+    if (!guidance.isObject()) throw bad("GUIDANCE_REFERENCE_INVALID", "Guidance references must be an object.");
+    Iterator<Map.Entry<String,JsonNode>> fields=guidance.fields();
+    while(fields.hasNext()) { Map.Entry<String,JsonNode> field=fields.next(); JsonNode reference=field.getValue();
+      if (!field.getKey().matches("[A-Za-z][A-Za-z0-9_-]{0,127}") || !reference.isObject()
+          || !reference.path("id").isTextual() || !reference.path("id").asText().matches("[A-Za-z][A-Za-z0-9_.-]{0,127}")
+          || !reference.path("messageKey").isTextual() || !reference.path("messageKey").asText().matches("[a-z][a-z0-9_.-]{0,127}"))
+        throw bad("GUIDANCE_REFERENCE_INVALID", "Every guidance entry must preserve a valid stable id and messageKey.");
+    }
   }
   private boolean supportsLocale(JsonNode definition, String locale) { for (JsonNode supported : definition.path("supportedLocales")) if (locale.equals(supported.asText())) return true; return false; }
   private boolean containsText(JsonNode node,String text){if(node.isTextual())return text.equals(node.asText());if(node.isContainerNode())for(JsonNode child:node)if(containsText(child,text))return true;return false;}

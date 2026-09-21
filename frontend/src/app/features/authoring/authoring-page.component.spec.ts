@@ -85,6 +85,33 @@ describe('AuthoringPageComponent backend contract integration', () => {
     expect(fixture.nativeElement.textContent).not.toContain('Cached secret');
   });
 
+  it('keeps imported reference IDs and message keys while staging selected-locale text', () => {
+    fixture.detectChanges();
+    const base = '/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1';
+    http.expectOne(base).flush({ formId: 'form-1', draftId: 'draft-1', revision: 7, definition: { title: 'Governed draft', pages: [] } });
+    http.expectOne(`${base}/history`).flush([]);
+    http.expectOne('/v1/workspaces/workspace-1/reusable-components').flush([]);
+    http.expectOne(`${base}/theme`).flush({ revision: 7, theme: { preset: 'Certinal', tokens: {} } });
+    http.expectOne(`${base}/content`).flush({ revision: 7, guidance: { brief: { id: 'Imported-Brief_7', messageKey: 'imported.brief.v7' }, narration: { id: 'Imported-Narration_9', messageKey: 'imported.narration.v9' } }, translations: { hi: { direction: 'ltr', messages: { 'imported.brief.v7': 'हिन्दी निर्देश', 'imported.narration.v9': 'हिन्दी वर्णन' } } } });
+    http.expectOne(`${base}/comments`).flush([]);
+    http.expectOne(`${base}/presence`).flush([]);
+    fixture.componentInstance.setLocale('hi');
+    fixture.componentInstance['populateContentEditors'](fixture.componentInstance.content());
+
+    expect(fixture.componentInstance.referencesText).toContain('Imported-Brief_7');
+    expect(fixture.componentInstance.referencesText).toContain('imported.brief.v7');
+    expect(fixture.componentInstance.briefGuidanceText).toBe('हिन्दी निर्देश');
+    expect(fixture.nativeElement.querySelector('input[aria-label="Question for Click to Ask"]')).toBeNull();
+    fixture.componentInstance.briefGuidanceText = 'बदला हुआ निर्देश';
+    fixture.componentInstance.saveGuidance();
+    const save = http.expectOne(`${base}/content`);
+    expect(save.request.body).toEqual({ guidance: { brief: { id: 'Imported-Brief_7', messageKey: 'imported.brief.v7' }, narration: { id: 'Imported-Narration_9', messageKey: 'imported.narration.v9' } } });
+    save.flush({ revision: 8, definition: { title: 'Governed draft', pages: [] } });
+    http.expectOne(`${base}/content`).flush({ revision: 8, guidance: { brief: { id: 'Imported-Brief_7', messageKey: 'imported.brief.v7' }, narration: { id: 'Imported-Narration_9', messageKey: 'imported.narration.v9' } }, translations: { hi: { direction: 'ltr', messages: { 'imported.brief.v7': 'हिन्दी निर्देश', 'imported.narration.v9': 'हिन्दी वर्णन' } } } });
+    expect(fixture.componentInstance.briefGuidanceText).toBe('बदला हुआ निर्देश');
+    expect(fixture.componentInstance.content().locale).toBe('hi');
+  });
+
   it('keeps a reviewer-readable draft and locale review content when an author-only optional resource is forbidden', () => {
     fixture.detectChanges();
     const base = '/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1';
@@ -103,6 +130,26 @@ describe('AuthoringPageComponent backend contract integration', () => {
     expect(fixture.nativeElement.textContent).toContain('Reviewer draft');
   });
 
+  it('clears draft cache and renders expiry when an optional resource reports an expired session', () => {
+    const key = 'smart-intake.authoring.unidentified.workspace-1.form-1.draft-1';
+    localStorage.setItem(key, JSON.stringify({ document: { id: 'draft-1', revision: 7, title: 'Sensitive draft', phases: [] }, undo: [], redo: [], history: [], selectedId: null, pending: [], redoPending: [], pendingMutationKey: null, componentInsertionKeys: {}, operationKeys: {}, conflict: null }));
+    fixture.detectChanges();
+    const base = '/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1';
+    http.expectOne(base).flush({ formId: 'form-1', draftId: 'draft-1', revision: 7, definition: { title: 'Sensitive draft', pages: [] } });
+    http.expectOne(`${base}/history`).flush([]);
+    http.expectOne('/v1/workspaces/workspace-1/reusable-components').flush({}, { status: 419, statusText: 'Session expired' });
+    http.expectOne(`${base}/theme`).flush({ revision: 7, theme: { preset: 'Certinal', tokens: {} } });
+    http.expectOne(`${base}/content`).flush({ revision: 7, guidance: {}, translations: {} });
+    http.expectOne(`${base}/comments`).flush([]);
+    http.expectOne(`${base}/presence`).flush([]);
+    fixture.detectChanges();
+
+    expect(localStorage.getItem(key)).toBeNull();
+    expect(fixture.componentInstance.resourceState()).toBe('expired');
+    expect(fixture.componentInstance.content()).toEqual({ locale: 'en', translations: {}, guidance: {}, localeReviews: [] });
+    expect(fixture.nativeElement.textContent).toContain('Session expired');
+  });
+
   it('refreshes current locale review rows as soon as a revision mutation is accepted', () => {
     fixture.detectChanges();
     const base = '/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1';
@@ -110,13 +157,15 @@ describe('AuthoringPageComponent backend contract integration', () => {
     http.expectOne(`${base}/history`).flush([]);
     http.expectOne('/v1/workspaces/workspace-1/reusable-components').flush([]);
     http.expectOne(`${base}/theme`).flush({ revision: 7, theme: { preset: 'Certinal', tokens: {} } });
-    http.expectOne(`${base}/content`).flush({ revision: 7, guidance: {}, translations: {} });
+    http.expectOne(`${base}/content`).flush({ revision: 7, guidance: {}, translations: { hi: { direction: 'ltr', messages: {} } } });
     http.expectOne(`${base}/comments`).flush([]);
     http.expectOne(`${base}/presence`).flush([]);
 
+    fixture.componentInstance.setLocale('hi');
     fixture.componentInstance['acceptRevision']({ id: 'draft-1', revision: 8, title: 'Revision refresh', phases: [], definition: { title: 'Revision refresh', pages: [] } });
-    http.expectOne(`${base}/content`).flush({ revision: 8, guidance: {}, translations: { en: { direction: 'ltr', messages: {} } }, localeReviews: [{ locale: 'en', sourceRevision: 8, status: 'DRAFT', reviewedAt: null }] });
+    http.expectOne(`${base}/content`).flush({ revision: 8, guidance: {}, translations: { en: { direction: 'ltr', messages: {} }, hi: { direction: 'ltr', messages: {} } }, localeReviews: [{ locale: 'hi', sourceRevision: 8, status: 'DRAFT', reviewedAt: null }] });
 
-    expect(fixture.componentInstance.content().localeReviews?.[0]).toMatchObject({ locale: 'en', sourceRevision: 8, status: 'DRAFT' });
+    expect(fixture.componentInstance.content().localeReviews?.[0]).toMatchObject({ locale: 'hi', sourceRevision: 8, status: 'DRAFT' });
+    expect(fixture.componentInstance.content().locale).toBe('hi');
   });
 });
