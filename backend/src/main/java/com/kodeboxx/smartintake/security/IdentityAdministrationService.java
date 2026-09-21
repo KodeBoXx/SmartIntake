@@ -867,7 +867,12 @@ public class IdentityAdministrationService {
       return new OrganizationCursor(Instant.parse(parts[0]), Instant.parse(parts[1]), UUID.fromString(parts[2]));
     } catch (Exception ignored) { badRequest(); return null; }
   }
-  private static Map<String, Object> page() { return Map.of("limit", 50, "nextCursor", null); }
+  private static Map<String, Object> page() {
+    Map<String, Object> page = new LinkedHashMap<>();
+    page.put("limit", 50);
+    page.put("nextCursor", null);
+    return page;
+  }
   private static void badRequest() { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request"); }
   private static ResponseStatusException unauthorized() { return new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Staff session required"); }
   private static ResponseStatusException forbidden() { return new ResponseStatusException(HttpStatus.FORBIDDEN, "Current authority required"); }

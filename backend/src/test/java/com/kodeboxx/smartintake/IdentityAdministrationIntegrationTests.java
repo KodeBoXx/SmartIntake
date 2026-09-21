@@ -95,6 +95,19 @@ class IdentityAdministrationIntegrationTests {
   }
 
   @Test
+  void organizationUserListingReturnsANullFinalCursorWithoutFailing() {
+    ResponseEntity<?> response = administration.users(opaque("organization", organization), request());
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    @SuppressWarnings("unchecked")
+    Map<String, Object> body = (Map<String, Object>) response.getBody();
+    @SuppressWarnings("unchecked")
+    Map<String, Object> page = (Map<String, Object>) body.get("page");
+    assertEquals(50, page.get("limit"));
+    assertTrue(page.containsKey("nextCursor"));
+    assertEquals(null, page.get("nextCursor"));
+  }
+
+  @Test
   void concurrentOwnerRemovalLeavesAnActiveOwner() throws Exception {
     UUID secondOwner = account("second-owner@example.test");
     db.update("insert into organization_memberships(account_id,organization_id,roles) values(?,?,array['owner','administrator'])", secondOwner, organization);
