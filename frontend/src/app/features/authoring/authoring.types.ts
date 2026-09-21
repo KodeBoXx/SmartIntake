@@ -42,6 +42,8 @@ export interface AuthoringDocument {
   readonly phases: readonly AuthoringPhase[];
   readonly definition?: unknown;
   readonly packageHash?: string;
+  /** Compiler diagnostics are persisted with an invalid repairable draft response. */
+  readonly diagnostics?: readonly { code: string; pointer?: string; message: string }[];
 }
 
 export interface AuthoringHistoryEntry {
@@ -148,6 +150,8 @@ export interface AuthoringCommand {
   readonly destinationId?: string;
   /** Removing the last child of a composite is destructive and must be explicitly confirmed. */
   readonly cascade?: boolean;
+  /** Set only after the author explicitly accepts the displayed dependency impact. */
+  readonly acceptInvalidDraft?: boolean;
   readonly label?: string;
   readonly node?: AuthoringNode;
   /** Closed canonical field properties supplied by the visual field inspector. */

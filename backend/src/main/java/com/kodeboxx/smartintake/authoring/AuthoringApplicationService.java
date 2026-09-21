@@ -129,8 +129,14 @@ public class AuthoringApplicationService {
     requireBounded(next);
     if (request.containsKey("expectedHash") && !CanonicalJson.sha256(parse(current.definition())).equals(request.get("expectedHash")))
       return stale(form, draft, current, clientFor(request, current), match);
+    // A destructive visual removal may intentionally leave references behind.  That is
+    // an authoring draft state, never a publishable package: the caller has to opt in
+    // and the batch must actually remove a package node.  All other invalid writes
+    // remain rejected at the compiler boundary.
+    boolean acceptedBrokenReferenceDraft = Boolean.TRUE.equals(request.get("acceptInvalidDraft"))
+        && commands.stream().anyMatch(command -> "remove".equals(String.valueOf(command.get("op"))));
     return persist(form, draft, current, next, author, "COMMAND_BATCH",
-        Map.of("commands", commands), Map.of("commands", inverses));
+        Map.of("commands", commands), Map.of("commands", inverses), acceptedBrokenReferenceDraft);
   }
 
   public List<Map<String, Object>> history(String workspace, UUID form, String draft, String token) {
@@ -428,14 +434,20 @@ public class AuthoringApplicationService {
   private ResponseEntity<?> updateSubdocument(String w,UUID f,String d,String t,String match,String pointer,Object value) { authorizeWrite(w,f,d,t); return commandsInternal(f,d,match,map("commands",List.of(map("op","set","path",pointer,"value",value))),actor(t)); }
 
   private ResponseEntity<?> persist(UUID form,String draft,Row current,JsonNode next,UUID actor,String operation,Object command,Object inverse) {
-    requireBounded(next); requireCompilable(next); long revision=current.revision()+1; String before=CanonicalJson.sha256(parse(current.definition())); String after=CanonicalJson.sha256(next);
+    return persist(form, draft, current, next, actor, operation, command, inverse, false);
+  }
+  /** Persists an explicitly accepted, repairable dependency break as a draft only. */
+  private ResponseEntity<?> persist(UUID form,String draft,Row current,JsonNode next,UUID actor,String operation,Object command,Object inverse,boolean acceptInvalidDraft) {
+    requireBounded(next); List<Map<String,Object>> problems=diagnostics(next);
+    if (!problems.isEmpty() && !acceptInvalidDraft) requireCompilable(next);
+    long revision=current.revision()+1; String before=CanonicalJson.sha256(parse(current.definition())); String after=CanonicalJson.sha256(next);
     int updated=db.update("update forms set definition=cast(? as jsonb),revision=?,updated_at=now() where id=? and revision=?",stringify(next),revision,form,current.revision());
     if(updated!=1) return stale(form,draft,row(form),next,etag(current.revision()));
     if (!"UNDO".equals(operation) && !"REDO".equals(operation))
       db.update("delete from form_authoring_history where form_id=? and draft_id=? and undone_at is not null",form,UUID.fromString(draft));
     db.update("insert into form_authoring_history(id,form_id,draft_id,revision,command_id,actor_account_id,operation,command,inverse_command,before_hash,after_hash) values(?,?,?,?,?,?,?,cast(? as jsonb),cast(? as jsonb),?,?)",UUID.randomUUID(),form,UUID.fromString(draft),revision,UUID.randomUUID().toString(),actor,operation,stringify(json.valueToTree(command)),stringify(json.valueToTree(inverse)),before,after);
     persistLocaleReview(form, draft, next, actor, revision);
-    return ResponseEntity.ok().eTag(etag(revision)).body(map("revision",revision,"etag",etag(revision),"definition",next,"packageHash",after,"diagnostics",diagnostics(next),"impact",impact(parse(current.definition()),next)));
+    return ResponseEntity.ok().eTag(etag(revision)).body(map("revision",revision,"etag",etag(revision),"definition",next,"packageHash",after,"diagnostics",problems,"draftState",problems.isEmpty()?"VALID":"INVALID","impact",impact(parse(current.definition()),next)));
   }
 
   private ResponseEntity<?> stale(UUID form,String draft,Row server,JsonNode client,String match) {
@@ -542,12 +554,16 @@ public class AuthoringApplicationService {
   /** Finds the binding from the visible hierarchy rather than trusting a client-supplied guidance ID. */
   private String visibleGuidanceId(JsonNode definition, JsonNode scope) {
     if (!scope.isObject() || !scope.path("pageId").isTextual()) return null;
-    String pageId=scope.path("pageId").asText(); String sectionId=scope.path("sectionId").asText(null); String fieldId=scope.path("fieldId").asText(null);
+    String pageId=scope.path("pageId").asText(); String sectionId=scope.path("sectionId").asText(null); String fieldId=scope.path("fieldId").asText(null); String placementId=scope.path("placementId").asText(null);
     for (JsonNode phase:definition.path("flow").path("phases")) for (JsonNode page:phase.path("pages")) if (pageId.equals(page.path("id").asText())) {
       if (sectionId==null) return page.path("guidanceId").asText(null);
       for (JsonNode section:page.path("sections")) if (sectionId.equals(section.path("id").asText())) {
         if (fieldId==null) return section.path("guidanceId").asText(page.path("guidanceId").asText(null));
-        JsonNode node=findQuestionNode(section.path("nodes"), fieldId);
+        // A shared nested field can have several visible placements.  Resolve the
+        // requested canonical placement inside this exact section before falling
+        // back to a field-level binding; never let a first recursive match win.
+        JsonNode node=placementId == null ? findQuestionNode(section.path("nodes"), fieldId)
+            : findQuestionNodeById(section.path("nodes"), placementId, fieldId);
         if (node!=null) {
           String nodeBinding=node.path("guidanceId").asText(null);
           if (nodeBinding!=null) return nodeBinding;
@@ -566,6 +582,17 @@ public class AuthoringApplicationService {
       JsonNode nested=findQuestionNode(node.path("children"),fieldId);
       if (nested!=null) return nested;
       nested=findQuestionNode(node.path("nodes"),fieldId);
+      if (nested!=null) return nested;
+    }
+    return null;
+  }
+  private JsonNode findQuestionNodeById(JsonNode nodes, String placementId, String fieldId) {
+    if (!nodes.isArray()) return null;
+    for (JsonNode node:nodes) {
+      if (placementId.equals(node.path("id").asText()) && (fieldId == null || fieldId.equals(node.path("fieldId").asText()))) return node;
+      JsonNode nested=findQuestionNodeById(node.path("children"), placementId, fieldId);
+      if (nested!=null) return nested;
+      nested=findQuestionNodeById(node.path("nodes"), placementId, fieldId);
       if (nested!=null) return nested;
     }
     return null;

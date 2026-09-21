@@ -76,15 +76,15 @@ function canonicalBundle(value: unknown): LocaleBundle {
 }
 
 export function authoringDocument(value: unknown): AuthoringDocument {
-  const response = value as { formId?: string; draftId?: string; revision?: number; definition?: unknown; packageHash?: string };
+  const response = value as { formId?: string; draftId?: string; revision?: number; definition?: unknown; packageHash?: string; diagnostics?: AuthoringDocument['diagnostics'] };
   const definition = (response.definition ?? value) as Record<string, unknown>;
   if (Array.isArray(definition['phases'])) return {
     id: response.draftId ?? String(definition['id'] ?? 'draft'), revision: response.revision ?? Number(definition['revision'] ?? 0), title: String(definition['title'] ?? 'Untitled intake form'),
-    phases: definition['phases'] as AuthoringDocument['phases'], definition, packageHash: response.packageHash,
+    phases: definition['phases'] as AuthoringDocument['phases'], definition, packageHash: response.packageHash, diagnostics: response.diagnostics,
   };
   const flow = definition['flow'] as { phases?: Record<string, unknown>[] } | undefined;
   if (Array.isArray(flow?.phases)) return {
-    id: response.draftId ?? String(definition['id'] ?? 'draft'), revision: response.revision ?? 0, title: String(definition['formKey'] ?? 'Untitled intake form'), definition, packageHash: response.packageHash,
+    id: response.draftId ?? String(definition['id'] ?? 'draft'), revision: response.revision ?? 0, title: String(definition['formKey'] ?? 'Untitled intake form'), definition, packageHash: response.packageHash, diagnostics: response.diagnostics,
     phases: flow.phases.map((phase, phaseIndex) => ({ id: String(phase['id'] ?? `phase-${phaseIndex + 1}`), title: translated(definition, String(phase['titleKey'] ?? ''), `Phase ${phaseIndex + 1}`), pages: (Array.isArray(phase['pages']) ? phase['pages'] as Record<string, unknown>[] : []).map((page, pageIndex) => ({ id: String(page['id'] ?? `page-${pageIndex + 1}`), title: translated(definition, String(page['titleKey'] ?? ''), `Page ${pageIndex + 1}`), sections: (Array.isArray(page['sections']) ? page['sections'] as Record<string, unknown>[] : []).map((section, sectionIndex) => ({ id: String(section['id'] ?? `section-${sectionIndex + 1}`), title: translated(definition, String(section['titleKey'] ?? ''), `Section ${sectionIndex + 1}`), nodes: (Array.isArray(section['nodes']) ? section['nodes'] as Record<string, unknown>[] : []).map((node, nodeIndex) => projectedNode(definition, node, String(node['id'] ?? `node-${nodeIndex + 1}`), `/flow/phases/${phaseIndex}/pages/${pageIndex}/sections/${sectionIndex}/nodes/${nodeIndex}`)) })) })) })),
   };
   const pages = Array.isArray(definition['pages']) ? definition['pages'] as Record<string, unknown>[] : [];
@@ -303,7 +303,11 @@ export class SmartIntakeApiService {
 
   authoringCommands(workspaceId: string, formId: string, draftId: string, revision: number, document: AuthoringDocument, commands: readonly AuthoringCommand[], idempotencyKey = this.createMutationAction()): Observable<AuthoringDocument> {
     const url = `${this.authoringBase(workspaceId, formId, draftId)}/commands`;
-    return this.http.post<unknown>(url, { commands: commands.flatMap((command) => authoringPatch(command, document)), definition: document.definition, expectedHash: document.packageHash }, { withCredentials: true, headers: new HttpHeaders({ 'If-Match': this.formRevisionEtag(revision), 'Idempotency-Key': idempotencyKey }) }).pipe(map(authoringDocument));
+    const acceptedDependencyBreak = commands.some((command) => command.type === 'remove-node' && command.acceptInvalidDraft === true);
+    return this.http.post<unknown>(url, {
+      commands: commands.flatMap((command) => authoringPatch(command, document)), definition: document.definition,
+      expectedHash: document.packageHash, ...(acceptedDependencyBreak ? { acceptInvalidDraft: true } : {}),
+    }, { withCredentials: true, headers: new HttpHeaders({ 'If-Match': this.formRevisionEtag(revision), 'Idempotency-Key': idempotencyKey }) }).pipe(map(authoringDocument));
   }
 
   authoringHistory(workspaceId: string, formId: string, draftId: string): Observable<AuthoringHistoryEntry[]> {
@@ -374,7 +378,7 @@ export class SmartIntakeApiService {
     return this.http.post<PreviewResult>(`${this.authoringBase(workspaceId, formId, draftId)}/preview`, { answers, locale }, this.staff());
   }
   /** The service chooses an approved locale voice; clients supply governed content or a scoped Q&A question. */
-  authoringSpeech(workspaceId: string, formId: string, draftId: string, locale: SupportedAuthoringLocale, request: { question?: string; scope?: { pageId?: string; sectionId?: string; fieldId?: string } }): Observable<SpeechResult> {
+  authoringSpeech(workspaceId: string, formId: string, draftId: string, locale: SupportedAuthoringLocale, request: { question?: string; scope?: { pageId?: string; sectionId?: string; fieldId?: string; placementId?: string; placementPath?: string } }): Observable<SpeechResult> {
     return this.http.post<SpeechResult>(`${this.authoringBase(workspaceId, formId, draftId)}/speech`, { locale, ...request }, this.staff());
   }
 

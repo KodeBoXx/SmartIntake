@@ -75,6 +75,33 @@ class AuthoringIntegrationTests {
     assertEquals(sessions,db.queryForObject("select count(*) from sessions",Integer.class)); assertEquals(submissions,db.queryForObject("select count(*) from submissions",Integer.class));
   }
 
+  @Test void persists_an_explicitly_accepted_dependency_break_as_an_invalid_repairable_draft() throws Exception {
+    var definition=(com.fasterxml.jackson.databind.node.ObjectNode) json.readTree(fixture());
+    definition.withObject("expressions").set("depends_on_name", json.readTree("{\"op\":\"exists\",\"args\":[{\"ref\":{\"fieldId\":\"fld_name\",\"scope\":\"root\"}}]}"));
+    db.update("update forms set definition=cast(? as jsonb) where id=?", json.writeValueAsString(definition), form);
+
+    ResponseEntity<String> saved=call("/commands",HttpMethod.POST,"\"1\"",Map.of(
+        "acceptInvalidDraft",true,
+        "commands",List.of(
+            Map.of("op","remove","path","/flow/phases/0/pages/0/sections/0/nodes/0"),
+            Map.of("op","remove","path","/data/fields/0"),
+            Map.of("op","remove","path","/translations/en/messages/q.name"))));
+    assertEquals(HttpStatus.OK,saved.getStatusCode(),saved.getBody());
+    JsonNode body=json.readTree(saved.getBody());
+    assertEquals("INVALID",body.path("draftState").asText());
+    assertFalse(body.path("diagnostics").isEmpty(),body.toPrettyString());
+    assertEquals(2L,db.queryForObject("select revision from forms where id=?",Long.class,form));
+    JsonNode reopened=json.readTree(call("",HttpMethod.GET,null,null).getBody());
+    assertFalse(reopened.path("diagnostics").isEmpty(),reopened.toPrettyString());
+
+    ResponseEntity<String> repaired=call("/commands",HttpMethod.POST,"\"2\"",Map.of("commands",List.of(
+        Map.of("op","add","path","/data/fields/-","value",definition.at("/data/fields/0")),
+        Map.of("op","add","path","/flow/phases/0/pages/0/sections/0/nodes/-","value",definition.at("/flow/phases/0/pages/0/sections/0/nodes/0")),
+        Map.of("op","add","path","/translations/en/messages/q.name","value",definition.at("/translations/en/messages/q.name")))));
+    assertEquals(HttpStatus.OK,repaired.getStatusCode(),repaired.getBody());
+    assertEquals("VALID",json.readTree(repaired.getBody()).path("draftState").asText());
+  }
+
   @Test void normal_form_creation_persists_a_canonical_template_that_opens_and_accepts_a_numeric_etag_command() throws Exception {
     String formKey="canonical-"+UUID.randomUUID().toString().substring(0,8);
     ResponseEntity<String> created=forms(HttpMethod.POST,Map.of("formKey",formKey,"title","Canonical authoring","profile","canonical-4.0.0"));
