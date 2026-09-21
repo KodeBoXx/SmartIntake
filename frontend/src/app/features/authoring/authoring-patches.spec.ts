@@ -82,4 +82,30 @@ describe('canonical authoring patches', () => {
     const final = applyCanonicalPatches(once, canonicalPatches(afterFirst, { type: 'remove-node', targetId: 'node-b' })) as typeof shared;
     expect(final.data.fields).toEqual([]);
   });
+
+  it('finds nested field definitions and does not remove their expressions while any recursive placement survives', () => {
+    const recursive = structuredClone(definition) as typeof definition & { data: { fields: Array<Record<string, unknown>> }; flow: { phases: Array<Record<string, unknown>> } };
+    recursive.data.fields = [{ id: 'group', key: 'group', type: 'object', labelKey: 'group.label', itemSchema: { fields: [{ id: 'field-a', key: 'field-a', type: 'text', labelKey: 'field-a.label' }] } }];
+    (recursive.flow.phases[0].pages[0].sections[0].nodes as unknown) = [{ id: 'outer', kind: 'group', children: [{ id: 'node-a', kind: 'question', fieldId: 'field-a', control: 'shortText' }, { id: 'node-b', kind: 'question', fieldId: 'field-a', control: 'shortText' }] }];
+    const nestedDocument = authoringDocument({ draftId: 'draft-a', revision: 4, definition: recursive });
+    const once = applyCanonicalPatches(recursive, canonicalPatches(nestedDocument, { type: 'remove-node', targetId: 'node-a' })) as typeof recursive;
+    expect(once.data.fields[0].itemSchema).toBeDefined();
+    expect(once.expressions).toHaveProperty('whenName');
+    const finalDocument = authoringDocument({ draftId: 'draft-a', revision: 4, definition: once });
+    const final = applyCanonicalPatches(once, canonicalPatches(finalDocument, { type: 'remove-node', targetId: 'node-b' })) as typeof recursive;
+    expect((final.data.fields[0].itemSchema as { fields: unknown[] }).fields).toEqual([]);
+    expect(final.expressions).toEqual({});
+  });
+
+  it('canonicalizes stale control-specific settings when an author changes destination', () => {
+    const configured = structuredClone(definition);
+    (configured.data.fields as unknown as Array<Record<string, unknown>>)[0] = { ...configured.data.fields[0], type: 'choice', options: [{ id: 'yes', labelKey: 'yes' }], itemSchema: { fields: [] }, unit: 'USD', ordered: true, calculated: true, mode: 'calculated', constraints: { min: 1, maxItems: 3, exclusiveOptionIds: ['yes'] } };
+    const configuredDocument = authoringDocument({ draftId: 'draft-a', revision: 4, definition: configured });
+    const next = applyCanonicalPatches(configured, canonicalPatches(configuredDocument, { type: 'update-field', targetId: 'node-a', field: { control: 'shortText' } })) as typeof configured;
+    expect(next.data.fields[0]).toMatchObject({ type: 'text' });
+    expect(next.data.fields[0]).not.toHaveProperty('options');
+    expect(next.data.fields[0]).not.toHaveProperty('itemSchema');
+    expect(next.data.fields[0]).not.toHaveProperty('unit');
+    expect(next.data.fields[0]).not.toHaveProperty('calculated');
+  });
 });

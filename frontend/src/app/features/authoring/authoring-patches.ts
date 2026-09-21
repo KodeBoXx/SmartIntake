@@ -29,6 +29,8 @@ const FIELD_KEYS = new Set([
   'mode', 'normalizer',
 ]);
 
+const CONSTRAINT_KEYS = new Set(['min', 'max', 'step', 'scale', 'minItems', 'maxItems', 'fixedItemIds', 'exclusiveOptionIds', 'required', 'minLength', 'maxLength']);
+
 function fieldOnly(value: CanonicalObject): CanonicalObject {
   return Object.fromEntries(Object.entries(value).filter(([key]) => FIELD_KEYS.has(key)));
 }
@@ -43,29 +45,79 @@ function canonicalOptions(value: unknown): CanonicalObject[] | undefined {
     });
 }
 
+/** The schema is closed, so a control switch must remove settings that belong to its old destination. */
+function canonicalFieldForControl(value: CanonicalObject, control: string): CanonicalObject {
+  const type = CONTROL_TYPES[control] ?? String(value.type ?? 'text');
+  const result = fieldOnly(value);
+  const constraints = result.constraints && typeof result.constraints === 'object' && !Array.isArray(result.constraints)
+    ? Object.fromEntries(Object.entries(result.constraints as CanonicalObject).filter(([key]) => CONSTRAINT_KEYS.has(key))) : undefined;
+  if (constraints && Object.keys(constraints).length) result.constraints = constraints;
+  else delete result.constraints;
+  const choices = choiceControl(control);
+  const composite = ['address', 'contact', 'person', 'repeatingCards', 'dynamicMatrix', 'fixedMatrix'].includes(control);
+  const numeric = ['integer', 'rating', 'scale', 'integerSlider', 'decimal', 'amount', 'currency', 'fractionalSlider'].includes(control);
+  const attachment = control === 'fileUpload';
+  if (!choices) delete result.options;
+  if (!composite) delete result.itemSchema;
+  if (!numeric) {
+    const next = result.constraints as CanonicalObject | undefined;
+    if (next) for (const key of ['min', 'max', 'step', 'scale']) delete next[key];
+  }
+  if (!choices && !composite && !attachment) {
+    const next = result.constraints as CanonicalObject | undefined;
+    if (next) for (const key of ['minItems', 'maxItems', 'fixedItemIds', 'exclusiveOptionIds']) delete next[key];
+  }
+  if (!['amount', 'currency'].includes(control)) delete result.unit;
+  if (!['ranking', 'fixedMatrix'].includes(control)) delete result.ordered;
+  if (control !== 'calculated') {
+    delete result.calculated;
+    if (result.mode === 'calculated') result.mode = 'input';
+  }
+  result.type = type;
+  return result;
+}
+
 function flow(document: CanonicalObject): CanonicalObject[] { return ((document.flow as CanonicalObject | undefined)?.phases as CanonicalObject[] | undefined) ?? []; }
 function children(value: CanonicalObject, name: string): CanonicalObject[] { return value[name] as CanonicalObject[] ?? []; }
 
 function locate(document: CanonicalObject, target: string): Located | null {
+  const locateNode = (nodes: CanonicalObject[], path: string): Located | null => {
+    for (const [nodeIndex, node] of nodes.entries()) {
+      const nodePath = `${path}/${nodeIndex}`;
+      if (node.id === target) return { path: nodePath, kind: 'node', fieldId: String(node.fieldId ?? '') };
+      for (const key of ['nodes', 'children']) {
+        const nested = locateNode(children(node, key), `${nodePath}/${key}`);
+        if (nested) return nested;
+      }
+    }
+    return null;
+  };
   for (const [phaseIndex, phase] of flow(document).entries()) {
     if (phase.id === target) return { path: `/flow/phases/${phaseIndex}`, kind: 'phase', key: String(phase.titleKey ?? '') };
     for (const [pageIndex, page] of children(phase, 'pages').entries()) {
       if (page.id === target) return { path: `/flow/phases/${phaseIndex}/pages/${pageIndex}`, kind: 'page', key: String(page.titleKey ?? '') };
       for (const [sectionIndex, section] of children(page, 'sections').entries()) {
         if (section.id === target) return { path: `/flow/phases/${phaseIndex}/pages/${pageIndex}/sections/${sectionIndex}`, kind: 'section', key: String(section.titleKey ?? '') };
-        for (const [nodeIndex, node] of children(section, 'nodes').entries()) {
-          if (node.id === target) return { path: `/flow/phases/${phaseIndex}/pages/${pageIndex}/sections/${sectionIndex}/nodes/${nodeIndex}`, kind: 'node', fieldId: String(node.fieldId ?? '') };
-        }
+        const nested = locateNode(children(section, 'nodes'), `/flow/phases/${phaseIndex}/pages/${pageIndex}/sections/${sectionIndex}/nodes`);
+        if (nested) return nested;
       }
     }
   }
   return null;
 }
 
-function field(document: CanonicalObject, fieldId: string): { value: CanonicalObject; index: number } | null {
-  const fields = ((document.data as CanonicalObject | undefined)?.fields as CanonicalObject[] | undefined) ?? [];
-  const index = fields.findIndex((candidate) => candidate.id === fieldId);
-  return index < 0 ? null : { value: fields[index], index };
+function field(document: CanonicalObject, fieldId: string): { value: CanonicalObject; path: string } | null {
+  const visit = (fields: CanonicalObject[], path: string): { value: CanonicalObject; path: string } | null => {
+    for (const [index, candidate] of fields.entries()) {
+      const candidatePath = `${path}/${index}`;
+      if (candidate.id === fieldId) return { value: candidate, path: candidatePath };
+      const children = ((candidate.itemSchema as CanonicalObject | undefined)?.fields as CanonicalObject[] | undefined) ?? [];
+      const nested = visit(children, `${candidatePath}/itemSchema/fields`);
+      if (nested) return nested;
+    }
+    return null;
+  };
+  return visit((((document.data as CanonicalObject | undefined)?.fields as CanonicalObject[] | undefined) ?? []), '/data/fields');
 }
 
 function translation(path: string, value: string): CanonicalPatch {
@@ -146,7 +198,8 @@ export function canonicalPatches(authoring: AuthoringDocument, command: Authorin
     const fieldType = CONTROL_TYPES[control] ?? String(configured.type ?? 'text');
     const options = canonicalOptions(supplied.options);
     if (options) configured.options = options;
-    const patches: CanonicalPatch[] = [{ op: 'replace', path: `/data/fields/${current.index}`, value: { ...configured, type: fieldType } }, { op: 'replace', path: found.path, value: { ...atNode(document, found.path), control, fieldType } }];
+    const canonical = canonicalFieldForControl({ ...configured, type: fieldType }, control);
+    const patches: CanonicalPatch[] = [{ op: 'replace', path: current.path, value: canonical }, { op: 'replace', path: found.path, value: { ...atNode(document, found.path), control, fieldType } }];
     if (typeof supplied.help === 'string' && typeof configured.descriptionKey === 'string') patches.push(translation(configured.descriptionKey, supplied.help));
     if (Array.isArray(supplied.options)) for (const option of supplied.options) if (option && typeof option === 'object' && typeof (option as CanonicalObject).label === 'string') patches.push(translation(String((option as CanonicalObject).labelKey), String((option as CanonicalObject).label)));
     return patches;
@@ -164,12 +217,12 @@ export function canonicalPatches(authoring: AuthoringDocument, command: Authorin
     const patches: CanonicalPatch[] = [{ op: 'remove', path: found.path }];
     const remainingPlacements = allQuestionNodes(document).filter((node) => node.fieldId === fieldId && node.id !== command.targetId).length;
     if (currentField && remainingPlacements === 0) {
-      patches.push({ op: 'remove', path: `/data/fields/${currentField.index}` });
+      patches.push({ op: 'remove', path: currentField.path });
       const key = currentField.value.labelKey;
       if (typeof key === 'string') patches.push({ op: 'remove', path: `/translations/en/messages/${escape(key)}` });
+      const expressions = document.expressions as CanonicalObject | undefined;
+      for (const [key, expression] of Object.entries(expressions ?? {})) if (expressionReferences(expression, fieldId)) patches.push({ op: 'remove', path: `/expressions/${escape(key)}` });
     }
-    const expressions = document.expressions as CanonicalObject | undefined;
-    for (const [key, expression] of Object.entries(expressions ?? {})) if (expressionReferences(expression, fieldId)) patches.push({ op: 'remove', path: `/expressions/${escape(key)}` });
     return patches;
   }
   if (command.type === 'move' && found && command.destinationId) {
@@ -182,8 +235,9 @@ export function canonicalPatches(authoring: AuthoringDocument, command: Authorin
 }
 
 function allQuestionNodes(document: CanonicalObject): CanonicalObject[] {
+  const visit = (nodes: CanonicalObject[]): CanonicalObject[] => nodes.flatMap((node) => [node, ...visit(children(node, 'nodes')), ...visit(children(node, 'children'))]);
   return flow(document).flatMap((phase) => children(phase, 'pages').flatMap((page) =>
-    children(page, 'sections').flatMap((section) => children(section, 'nodes'))));
+    children(page, 'sections').flatMap((section) => visit(children(section, 'nodes')))));
 }
 
 function atNode(document: CanonicalObject, pointer: string): CanonicalObject {
