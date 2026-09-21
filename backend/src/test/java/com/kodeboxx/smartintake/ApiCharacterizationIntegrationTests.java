@@ -9,10 +9,12 @@ import com.kodeboxx.smartintake.compatibility.CompatibilityReconciliationService
 import com.kodeboxx.smartintake.compatibility.RespondentSecretVerifier;
 import com.kodeboxx.smartintake.contract.PackageStamp;
 import com.kodeboxx.smartintake.contract.TimeZoneRegistry;
+import com.kodeboxx.smartintake.security.IdentitySessionResolver;
 import java.util.*;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.boot.test.context.*;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.boot.test.web.client.*;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.*;
@@ -23,6 +25,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
  * M1 characterization for the complete legacy /v1 route surface. Assertions deliberately describe
  * observed Lite behavior rather than introducing a future contract.
  */
+@ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ApiCharacterizationIntegrationTests {
   @LocalServerPort int port;
@@ -49,6 +52,7 @@ class ApiCharacterizationIntegrationTests {
     HttpHeaders h = new HttpHeaders();
     h.setContentType(MediaType.APPLICATION_JSON);
     h.set("X-Respondent-Session", respondent);
+    h.set(HttpHeaders.COOKIE, IdentitySessionResolver.STAFF_COOKIE + "=" + staff);
     return h;
   }
 
@@ -79,11 +83,9 @@ class ApiCharacterizationIntegrationTests {
         organization,
         workspace,
         "M1 characterization");
-    db.update(
-        "insert into memberships(account_id,workspace_id,role) values(?,?,?)",
-        account,
-        workspaceId,
-        "OWNER");
+    for (String role : List.of("AUTHOR", "PUBLISHER", "RESPONSE_EXPORTER"))
+      db.update("insert into memberships(account_id,workspace_id,role) values(?,?,?)", account, workspaceId, role);
+    db.update("insert into organization_memberships(account_id,organization_id,roles,membership_status) values(?,?,array['member'],'active')", account, organization);
     db.update(
         "insert into staff_sessions(token,account_id,expires_at) values(?,?,now()+interval '1"
             + " hour')",
@@ -126,33 +128,32 @@ class ApiCharacterizationIntegrationTests {
     assertEquals(HttpStatus.NOT_FOUND, call("/schemas/package/4.0.0/validate", HttpMethod.POST, headers(null), "{}").getStatusCode());
     Map<String, Object> credentials =
         Map.of("email", "m1-" + account + "@example.test", "password", "correct-horse-battery");
-    ResponseEntity<String> signIn =
-        call("/auth/sign-in", HttpMethod.POST, headers(null), credentials);
+    ResponseEntity<String> anonymous = http.getForEntity(u("/auth/session"), String.class);
+    assertEquals(HttpStatus.UNAUTHORIZED, anonymous.getStatusCode());
+    HttpHeaders loginHeaders = headers(null);
+    loginHeaders.set("X-Login-CSRF-Token", anonymous.getHeaders().getFirst("X-Login-CSRF-Token"));
+    loginHeaders.set(HttpHeaders.COOKIE, anonymous.getHeaders().getFirst(HttpHeaders.SET_COOKIE).split(";", 2)[0]);
+    ResponseEntity<String> signIn = call("/auth/sign-in", HttpMethod.POST, loginHeaders, credentials);
     assertEquals(HttpStatus.OK, signIn.getStatusCode());
-    assertEquals("local", object(signIn.getBody()).get("workspaceKey"));
-    String signedIn = (String) object(signIn.getBody()).get("staffSession");
-    assertEquals(
-        HttpStatus.NO_CONTENT,
-        call("/auth/logout", HttpMethod.POST, headers(signedIn), null).getStatusCode());
-    assertEquals(
-        HttpStatus.UNAUTHORIZED,
-        call("/workspaces/" + workspace + "/forms", HttpMethod.GET, headers(signedIn), null)
-            .getStatusCode());
+    assertTrue(object(signIn.getBody()).containsKey("staffSession"));
+    assertEquals(HttpStatus.NO_CONTENT, call("/auth/logout", HttpMethod.POST, headers(staff), null).getStatusCode());
+    assertEquals(HttpStatus.UNAUTHORIZED, call("/workspaces/" + workspace + "/forms", HttpMethod.GET, headers(staff), null).getStatusCode());
+    HttpHeaders bootstrapHeaders = headers(null);
+    bootstrapHeaders.set("X-Bootstrap-Token", "test-bootstrap-token");
     ResponseEntity<String> bootstrap =
         call(
             "/auth/bootstrap",
             HttpMethod.POST,
-            headers(null),
+            bootstrapHeaders,
             Map.of("email", "later@example.test", "password", "correct-horse-battery"));
     assertEquals(HttpStatus.CONFLICT, bootstrap.getStatusCode());
-    assertEquals(
-        HttpStatus.UNAUTHORIZED,
-        call(
-                "/auth/sign-in",
-                HttpMethod.POST,
-                headers(null),
-                Map.of("email", "m1-" + account + "@example.test", "password", "wrong-password"))
-            .getStatusCode());
+    ResponseEntity<String> secondAnonymous = http.getForEntity(u("/auth/session"), String.class);
+    HttpHeaders rejectedLoginHeaders = headers(null);
+    rejectedLoginHeaders.set("X-Login-CSRF-Token", secondAnonymous.getHeaders().getFirst("X-Login-CSRF-Token"));
+    rejectedLoginHeaders.set(HttpHeaders.COOKIE, secondAnonymous.getHeaders().getFirst(HttpHeaders.SET_COOKIE).split(";", 2)[0]);
+    assertEquals(HttpStatus.UNAUTHORIZED,
+        call("/auth/sign-in", HttpMethod.POST, rejectedLoginHeaders,
+            Map.of("email", "m1-" + account + "@example.test", "password", "wrong-password")).getStatusCode());
   }
 
   @Test
@@ -175,19 +176,43 @@ class ApiCharacterizationIntegrationTests {
             .getStatusCode());
     ResponseEntity<String> draft =
         call(
-            "/workspaces/" + workspace + "/forms/" + form + "/drafts/legacy-draft",
+            "/workspaces/" + workspace + "/forms/" + form + "/drafts/" + form,
             HttpMethod.GET,
             staffHeaders,
             null);
     assertEquals(HttpStatus.OK, draft.getStatusCode());
     assertEquals("\"1\"", draft.getHeaders().getETag());
+    assertEquals(
+        HttpStatus.NOT_FOUND,
+        call(
+                "/workspaces/" + workspace + "/forms/" + form + "/drafts/" + UUID.randomUUID(),
+                HttpMethod.GET,
+                staffHeaders,
+                null)
+            .getStatusCode());
+    assertEquals(
+        HttpStatus.NOT_FOUND,
+        call(
+                "/workspaces/" + workspace + "/forms/" + form + "/drafts/opaque-draft",
+                HttpMethod.GET,
+                staffHeaders,
+                null)
+            .getStatusCode());
     Map<String, Object> draftBody = object(draft.getBody());
     @SuppressWarnings("unchecked")
     Map<String, Object> definition = (Map<String, Object>) draftBody.get("definition");
     assertEquals(
+        HttpStatus.NOT_FOUND,
+        call(
+                "/workspaces/" + workspace + "/forms/" + form + "/drafts/opaque-draft",
+                HttpMethod.PUT,
+                staffHeaders,
+                Map.of("definition", definition))
+            .getStatusCode());
+    assertEquals(
         HttpStatus.PRECONDITION_REQUIRED,
         call(
-                "/workspaces/" + workspace + "/forms/" + form + "/drafts/legacy-draft",
+                "/workspaces/" + workspace + "/forms/" + form + "/drafts/" + form,
                 HttpMethod.PUT,
                 staffHeaders,
                 Map.of("definition", definition))
@@ -197,7 +222,7 @@ class ApiCharacterizationIntegrationTests {
     assertEquals(
         HttpStatus.PRECONDITION_FAILED,
         call(
-                "/workspaces/" + workspace + "/forms/" + form + "/drafts/legacy-draft",
+                "/workspaces/" + workspace + "/forms/" + form + "/drafts/" + form,
                 HttpMethod.PUT,
                 stale,
                 Map.of("definition", definition))
@@ -206,7 +231,7 @@ class ApiCharacterizationIntegrationTests {
     revisionOne.setIfMatch("\"1\"");
     ResponseEntity<String> saved =
         call(
-            "/workspaces/" + workspace + "/forms/" + form + "/drafts/legacy-draft",
+            "/workspaces/" + workspace + "/forms/" + form + "/drafts/" + form,
             HttpMethod.PUT,
             revisionOne,
             Map.of("definition", definition));
@@ -249,13 +274,23 @@ class ApiCharacterizationIntegrationTests {
             null);
     assertEquals(HttpStatus.CREATED, published.getStatusCode());
     assertEquals("PUBLISHED", object(published.getBody()).get("status"));
+    HttpHeaders ambientStaffCookie = headers(null);
+    ambientStaffCookie.set(HttpHeaders.COOKIE, IdentitySessionResolver.STAFF_COOKIE + "=" + staff);
     ResponseEntity<String> started =
         call(
             "/public/forms/" + form + "/sessions",
             HttpMethod.POST,
-            headers(null),
+            ambientStaffCookie,
             Map.of("locale", "en", "timeZone", "UTC"));
     assertEquals(HttpStatus.CREATED, started.getStatusCode());
+    assertEquals(
+        HttpStatus.CREATED,
+        call(
+                "/public/forms/" + form + "/sessions",
+                HttpMethod.POST,
+                headers(null),
+                Map.of("locale", "en", "timeZone", "UTC"))
+            .getStatusCode());
     Map<String, Object> startedBody = object(started.getBody());
     session = UUID.fromString(startedBody.get("sessionId").toString());
     respondent = (String) startedBody.get("respondentSession");
@@ -376,6 +411,20 @@ class ApiCharacterizationIntegrationTests {
                 form,
                 submission)
             >= 3);
+    db.update(
+        "insert into form_catalog_metadata(form_id,archived_at) values(?,now()) on conflict(form_id) do update set archived_at=excluded.archived_at",
+        form);
+    assertEquals(
+        HttpStatus.GONE,
+        call(
+                "/public/forms/" + form + "/sessions",
+                HttpMethod.POST,
+                ambientStaffCookie,
+                Map.of("locale", "en", "timeZone", "UTC"))
+            .getStatusCode());
+    assertEquals(
+        HttpStatus.OK,
+        call("/sessions/" + session, HttpMethod.GET, respondentHeaders(), null).getStatusCode());
   }
 
   @Test
@@ -429,7 +478,7 @@ class ApiCharacterizationIntegrationTests {
     assertEquals(
         HttpStatus.UNPROCESSABLE_ENTITY,
         call(
-                "/workspaces/" + workspace + "/forms/" + strictForm + "/drafts/legacy-draft",
+                "/workspaces/" + workspace + "/forms/" + strictForm + "/drafts/" + strictForm,
                 HttpMethod.PUT,
                 revisionOne,
                 Map.of("definition", missingFieldLabel))
@@ -503,7 +552,7 @@ class ApiCharacterizationIntegrationTests {
     assertEquals(
         HttpStatus.UNPROCESSABLE_ENTITY,
         call(
-                "/workspaces/" + workspace + "/forms/" + legacyForm + "/drafts/legacy-draft",
+                "/workspaces/" + workspace + "/forms/" + legacyForm + "/drafts/" + legacyForm,
                 HttpMethod.PUT,
                 revisionOne,
                 Map.of("definition", legacyDefinition))
@@ -551,7 +600,7 @@ class ApiCharacterizationIntegrationTests {
     assertEquals(
         HttpStatus.UNPROCESSABLE_ENTITY,
         call(
-                "/workspaces/" + workspace + "/forms/" + quarantinedForm + "/drafts/legacy-draft",
+                "/workspaces/" + workspace + "/forms/" + quarantinedForm + "/drafts/" + quarantinedForm,
                 HttpMethod.PUT,
                 revisionOne,
                 Map.of("definition", legacyDefinition))

@@ -189,6 +189,100 @@ def generated() -> dict[Path, bytes]:
             "errorCode": {"type": ["string", "null"]},
         },
     }
+    # M6 catalog administration is additive to the immutable 4.0.0 collection
+    # response. The dedicated catalog paths use a cursor envelope and expose
+    # server-derived ownership/settings; no role or workspace claim is accepted
+    # in a request body.
+    workspace_roles = [
+        "workspace-administrator", "author", "reviewer", "translator", "publisher",
+        "response-viewer", "response-exporter", "auditor",
+    ]
+    catalog_authoring_roles = ["author"]
+    workspace_administrator_roles = ["workspace-administrator"]
+    for schema_name in ("PermittedWorkspaceChoice", "WorkspaceRole"):
+        schemas[schema_name]["properties"]["roles"]["items"] = {"enum": workspace_roles}
+    schemas["WorkspaceRoleAssignmentRequest"]["properties"]["roles"]["items"] = {
+        "enum": workspace_roles
+    }
+    schemas["WorkspaceMember"] = {
+        "type": "object", "additionalProperties": False,
+        "required": ["accountId", "membershipStatus", "revision", "roles"],
+        "properties": {
+            "accountId": {"type": "string", "pattern": "^account-[0-9a-fA-F-]{36}$"},
+            "membershipStatus": {"const": "active"},
+            "revision": {"type": "integer", "minimum": 0},
+            "roles": {"type": "array", "minItems": 0, "uniqueItems": True,
+                      "items": {"enum": workspace_roles}},
+        },
+    }
+    schemas["WorkspaceMemberCollection"] = {
+        "type": "object", "additionalProperties": False,
+        "required": ["requestId", "items"],
+        "properties": {
+            "requestId": {"$ref": "#/components/schemas/OpaqueId"},
+            "items": {"type": "array", "items": {"$ref": "#/components/schemas/WorkspaceMember"}},
+        },
+    }
+    uuid = {"type": "string", "format": "uuid"}
+    schemas["CatalogTag"] = {
+        "type": "object", "additionalProperties": False,
+        "required": ["id", "name", "color", "createdAt", "updatedAt"],
+        "properties": {"id": uuid, "name": {"type": "string", "minLength": 1, "maxLength": 80},
+                       "color": {"type": ["string", "null"], "pattern": "^#[0-9A-Fa-f]{6}$"},
+                       "createdAt": {"type": "string", "format": "date-time"}, "updatedAt": {"type": "string", "format": "date-time"}},
+    }
+    schemas["CatalogFolder"] = {
+        "type": "object", "additionalProperties": False,
+        "required": ["id", "name", "createdAt", "updatedAt"],
+        "properties": {"id": uuid, "name": {"type": "string", "minLength": 1, "maxLength": 160},
+                       "createdAt": {"type": "string", "format": "date-time"},
+                       "updatedAt": {"type": "string", "format": "date-time"}},
+    }
+    schemas["CatalogNameInput"] = {
+        "type": "object", "additionalProperties": False, "required": ["name"],
+        "properties": {"name": {"type": "string", "minLength": 1, "maxLength": 160}},
+    }
+    schemas["CatalogTagInput"] = {
+        "type": "object", "additionalProperties": False, "required": ["name"],
+        "properties": {"name": {"type": "string", "minLength": 1, "maxLength": 80},
+                       "color": {"type": ["string", "null"], "pattern": "^#[0-9A-Fa-f]{6}$"}},
+    }
+    schemas["CatalogOwner"] = {
+        "type": ["object", "null"], "additionalProperties": False,
+        "required": ["id", "email"], "properties": {"id": {"type": "string", "pattern": "^account-[0-9a-fA-F-]{36}$"}, "email": {"type": "string", "format": "email"}},
+    }
+    schemas["CatalogForm"] = {
+        "type": "object", "additionalProperties": False,
+        "required": ["id", "formKey", "title", "status", "revision", "updatedAt", "folderId", "owner", "tags"],
+        "properties": {"id": uuid, "formKey": {"type": "string"}, "title": {"type": "string"},
+                       "status": {"type": "string"}, "revision": {"type": "integer", "minimum": 1},
+                       "updatedAt": {"type": "string", "format": "date-time"}, "folderId": {"anyOf": [uuid, {"type": "null"}]},
+                       "owner": {"$ref": "#/components/schemas/CatalogOwner"},
+                       "tags": {"type": "array", "items": {"$ref": "#/components/schemas/CatalogTag"}}},
+    }
+    schemas["CatalogPage"] = {
+        "type": "object", "additionalProperties": False, "required": ["items", "nextCursor", "catalogRevision"],
+        "properties": {"items": {"type": "array", "items": {"$ref": "#/components/schemas/CatalogForm"}},
+                       "nextCursor": {"type": "string"}, "catalogRevision": {"type": "integer", "minimum": 0}},
+    }
+    schemas["CatalogClassification"] = {
+        "type": "object", "additionalProperties": False,
+        "properties": {"folderId": {"anyOf": [uuid, {"type": "null"}]},
+                       "tagIds": {"type": "array", "uniqueItems": True, "items": uuid}},
+    }
+    schemas["CatalogTransfer"] = {
+        "type": "object", "additionalProperties": False, "required": ["accountId"], "properties": {"accountId": {"type": "string", "pattern": "^account-[0-9a-fA-F-]{36}$"}},
+    }
+    schemas["CatalogSettings"] = {
+        "type": "object", "additionalProperties": False, "required": ["workspaceId", "effective", "overrides"],
+        "properties": {"workspaceId": {"type": "string", "pattern": "^workspace-[0-9a-fA-F-]{36}$"},
+                       "effective": {"type": "object", "additionalProperties": True}, "overrides": {"type": "object", "additionalProperties": True}},
+    }
+    schemas["CatalogSettingsInput"] = {
+        "type": "object", "additionalProperties": False,
+        "properties": {"policyOverrides": {"type": "object", "additionalProperties": True},
+                       "providerOverrides": {"type": "object", "additionalProperties": True}},
+    }
     schemas["LiveSessionStartResponse"] = {
         "type": "object", "additionalProperties": False,
         "required": ["sessionId", "respondentSession", "revision", "locale", "runtimeManifest", "release", "expiresAt"],
@@ -237,6 +331,205 @@ def generated() -> dict[Path, bytes]:
     })
     api["components"] = copy.deepcopy(components["components"])
     rewrite(api)
+    workspace_roles = [
+        "workspace-administrator", "author", "reviewer", "translator", "publisher",
+        "response-viewer", "response-exporter", "auditor",
+    ]
+
+    # M6 identity endpoints are live.  Keep this patch here (rather than hand-editing
+    # generated YAML) so the published 4.1 contract remains reproducible.
+    def walk_password_rules(value: Any) -> None:
+        if isinstance(value, dict):
+            for key, child in value.items():
+                if key in {"password", "newPassword"} and isinstance(child, dict):
+                    child["minLength"] = 15
+                    child["maxLength"] = 512
+                else:
+                    walk_password_rules(child)
+        elif isinstance(value, list):
+            for child in value:
+                walk_password_rules(child)
+
+    walk_password_rules(schemas)
+    schemas["ActivationRequest"] = {
+        "type": "object", "additionalProperties": False,
+        "required": ["activationToken", "password", "displayName"],
+        "properties": {
+            "activationToken": {"type": "string", "minLength": 24},
+            "password": {"type": "string", "minLength": 15, "maxLength": 512},
+            "displayName": {"type": "string", "minLength": 1, "maxLength": 120},
+        },
+    }
+    schemas["AuthenticatedSession"] = {
+        "type": "object", "additionalProperties": False,
+        "required": ["safeIdentity", "activationState", "accountStatus", "awaitingSetup", "platformRoles", "organizations"],
+        "properties": {
+            "safeIdentity": {"type": "object", "additionalProperties": False, "required": ["accountId", "username", "displayName"],
+                             "properties": {"accountId": {"type": "string", "pattern": "^account-"}, "username": {"type": "string"}, "displayName": {"type": "string"}}},
+            "activationState": {"enum": ["active", "pending"]},
+            "accountStatus": {"enum": ["active", "suspended"]},
+            "awaitingSetup": {"type": "boolean"},
+            "platformRoles": {"type": "array", "items": {"enum": ["administrator"]}, "uniqueItems": True},
+            "organizations": {"type": "array", "items": {"type": "object", "additionalProperties": False,
+                "required": ["organizationId", "name", "membershipState", "organizationRoles", "workspaces"], "properties": {
+                    "organizationId": {"type": "string", "pattern": "^organization-"}, "name": {"type": "string"},
+                    "membershipState": {"enum": ["active"]}, "organizationRoles": {"type": "array", "items": {"enum": ["owner", "administrator", "member"]}, "uniqueItems": True},
+                    "workspaces": {"type": "array", "items": {"type": "object", "additionalProperties": False,
+                        "required": ["workspaceId", "name", "roles"], "properties": {"workspaceId": {"type": "string", "pattern": "^workspace-"}, "name": {"type": "string"}, "roles": {"type": "array", "items": {"enum": workspace_roles}}}}}}}},
+            "currentOrganizationId": {"type": ["string", "null"], "pattern": "^organization-"},
+            "currentWorkspaceId": {"type": "string", "pattern": "^workspace-"},
+        },
+    }
+    schemas["BootstrapRequest"] = {
+        "type": "object", "additionalProperties": False,
+        "required": ["email", "password"],
+        "properties": {
+            "email": {"type": "string", "format": "email", "maxLength": 254},
+            "password": {"type": "string", "minLength": 15, "maxLength": 512},
+            "organizationName": {"type": "string", "minLength": 1, "maxLength": 160},
+            "workspaceName": {"type": "string", "minLength": 1, "maxLength": 160},
+        },
+    }
+    schemas["OrganizationCreateRequest"]["required"] = ["name", "ownerEmail"]
+    schemas["OrganizationCreateRequest"]["properties"]["ownerEmail"] = {"type": "string", "format": "email", "maxLength": 254}
+    schemas["BootstrapResponse"] = {
+        "type": "object", "additionalProperties": False, "required": ["requestId", "bootstrap"],
+        "properties": {"requestId": {"type": "string"}, "bootstrap": {"const": "pending-activation"}},
+    }
+    parameters = components["components"]["parameters"]
+    parameters["BootstrapToken"] = {
+        "name": "X-Bootstrap-Token", "in": "header", "required": True,
+        "schema": {"type": "string", "minLength": 1},
+        "description": "Deployment-provisioned, one-time bootstrap proof. It is consumed atomically and must never be logged.",
+    }
+    components["components"]["securitySchemes"]["staffCookie"]["name"] = "SI_STAFF_SESSION"
+    parameters["LoginCsrfCookie"]["name"] = "SI_LOGIN_CSRF"
+    parameters["CsrfCookie"] = {
+        "name": "SI_CSRF", "in": "cookie", "required": True,
+        "schema": {"type": "string", "minLength": 24},
+        "description": "Readable SameSite=Strict CSRF cookie whose value must match X-CSRF-Token for a cookie-authenticated mutation.",
+    }
+    def rename_cookie_values(value: Any) -> None:
+        if isinstance(value, dict):
+            for key, child in value.items():
+                if isinstance(child, str):
+                    value[key] = child.replace("smartintake_staff", "SI_STAFF_SESSION").replace("smartintake_login_csrf", "SI_LOGIN_CSRF").replace("smartintake_csrf", "SI_CSRF")
+                else:
+                    rename_cookie_values(child)
+        elif isinstance(value, list):
+            for child in value:
+                rename_cookie_values(child)
+    rename_cookie_values(components)
+    api["paths"]["/v1/auth/bootstrap"] = {
+        "post": {
+            "operationId": "m6Bootstrap", "summary": "Initialize the one-time staff bootstrap owner",
+            "x-implementation-status": "implemented",
+            "parameters": [{"$ref": "#/components/parameters/BootstrapToken"}],
+            "requestBody": {"required": True, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/BootstrapRequest"}}}},
+            "responses": {
+                "201": {"description": "Pending owner activation created; the proof is returned only in X-Activation-Copy-Link.",
+                        "headers": {"X-Activation-Copy-Link": {"schema": {"type": "string"}}},
+                        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/BootstrapResponse"}}}},
+                "403": {"$ref": "#/components/responses/Forbidden"}, "409": {"$ref": "#/components/responses/Conflict"},
+            },
+        },
+    }
+    implemented_identity_paths = [
+        "/v1/auth/activate", "/v1/auth/password-change", "/v1/auth/recovery", "/v1/auth/reset",
+        "/v1/auth/session", "/v1/auth/sign-in", "/v1/auth/sign-out", "/v1/invitations/accept",
+    ]
+    for path in implemented_identity_paths:
+        for operation_config in api["paths"].get(path, {}).values():
+            if isinstance(operation_config, dict) and "responses" in operation_config:
+                operation_config["x-implementation-status"] = "implemented"
+    for path in ("/v1/auth/sign-out", "/v1/auth/password-change", "/v1/auth/session", "/v1/auth/sign-in"):
+        for response in api["paths"][path]["post" if path != "/v1/auth/session" else "get"]["responses"].values():
+            if isinstance(response, dict):
+                response.pop("headers", None)
+    sign_out = api["paths"]["/v1/auth/sign-out"]["post"]
+    sign_out.pop("requestBody", None)
+    sign_out["responses"]["204"] = {"description": "Revokes the current cookie session and expires staff and CSRF cookies."}
+    implemented_admin_mutations = {
+        ("/v1/organizations/{o}/users", "post"), ("/v1/organizations/{o}/users/{u}", "patch"),
+        ("/v1/organizations/{o}/users/{u}", "delete"), ("/v1/organizations/{o}/users/{u}/invitations", "post"),
+        ("/v1/organizations/{o}/invitations/{i}", "delete"), ("/v1/organizations/{o}/users/{u}/recovery", "post"),
+        ("/v1/platform/organizations", "post"), ("/v1/platform/organizations/{o}", "patch"),
+        ("/v1/platform/organizations/{o}/users", "post"), ("/v1/platform/accounts/{a}", "patch"),
+        ("/v1/platform/accounts/{a}/recovery", "post"), ("/v1/workspaces/{w}/users/{u}/roles", "put"),
+        ("/v1/workspaces/{w}/users/{u}/roles", "delete"),
+    }
+    revisioned_admin_mutations = {
+        ("/v1/organizations/{o}/users/{u}", "patch"), ("/v1/organizations/{o}/users/{u}", "delete"),
+        ("/v1/organizations/{o}/invitations/{i}", "delete"), ("/v1/platform/organizations/{o}", "patch"),
+        ("/v1/platform/accounts/{a}", "patch"), ("/v1/workspaces/{w}/users/{u}/roles", "put"),
+        ("/v1/workspaces/{w}/users/{u}/roles", "delete"),
+    }
+    for path, method in implemented_admin_mutations:
+        admin = api["paths"][path][method]
+        admin["x-implementation-status"] = "implemented"
+        admin["x-replay"] = ("Idempotency-Key is durably scoped to actor, tenant/account scope, operation and canonical request digest for at least seven days; "
+                             "equal requests replay the original status, body and ETag, while changed-request reuse is 409. "
+                             "Secret capability-copy headers are delivered only once and are omitted from replays.")
+        if (path, method) in revisioned_admin_mutations:
+            parameters = admin.setdefault("parameters", [])
+            if not any(parameter.get("$ref", "").endswith("/IfMatch") for parameter in parameters):
+                parameters.append({"$ref": "#/components/parameters/IfMatch"})
+            admin["x-concurrency"] = "Strong ETag and If-Match are required; missing is 428, stale is 412."
+            admin["responses"]["412"] = {"$ref": "#/components/responses/PreconditionFailed"}
+            admin["responses"]["428"] = {"$ref": "#/components/responses/PreconditionRequired"}
+    catalog_errors = {"400": {"$ref": "#/components/responses/BadRequest"},
+                      "401": {"$ref": "#/components/responses/Unauthenticated"},
+                      "403": {"$ref": "#/components/responses/Forbidden"},
+                      "404": {"$ref": "#/components/responses/NotFound"}}
+    def catalog_operation(operation_id: str, summary: str, roles: list[str], response: dict[str, Any], body: str | None = None,
+                          state_changing: bool = False) -> dict[str, Any]:
+        operation = {
+            "operationId": operation_id, "summary": summary,
+            "x-implementation-status": "implemented",
+            "x-authorization": {"roles": roles, "tenantScope": "current-server-workspace-membership"},
+            "security": [{"staffCookie": [], **({"csrfHeader": []} if state_changing else {})}],
+            "responses": {"200": response, **catalog_errors},
+        }
+        if body:
+            operation["requestBody"] = {"required": True, "content": {"application/json": {"schema": {"$ref": f"#/components/schemas/{body}"}}}}
+        return operation
+    json_response = lambda schema: {"description": "Successful response.", "content": {"application/json": {"schema": {"$ref": f"#/components/schemas/{schema}"}}}}
+    workspace_parameter = {"name": "workspace", "in": "path", "required": True, "schema": {"type": "string", "pattern": "^workspace-[0-9a-fA-F-]{36}$"}}
+    api["paths"].pop("/v1/workspaces/{w}/folders", None)
+    api["paths"].pop("/v1/workspaces/{w}/tags", None)
+    id_parameter = lambda name: {"name": name, "in": "path", "required": True, "schema": uuid}
+    api["paths"]["/v1/workspaces/{workspace}/catalog/forms"] = {
+        "parameters": [workspace_parameter],
+        "get": {**catalog_operation("m6CatalogSearch", "Search the current workspace form catalog", workspace_roles, json_response("CatalogPage")),
+                "parameters": [{"name": "q", "in": "query", "schema": {"type": "string", "maxLength": 200}},
+                               {"name": "status", "in": "query", "schema": {"type": "string"}},
+                               {"name": "owner", "in": "query", "schema": uuid}, {"name": "folder", "in": "query", "schema": uuid},
+                               {"name": "tag", "in": "query", "explode": True, "schema": {"type": "array", "items": {"type": "string"}}},
+                               {"name": "archived", "in": "query", "schema": {"type": "boolean", "default": False}},
+                               {"name": "limit", "in": "query", "schema": {"type": "integer", "minimum": 1, "maximum": 100, "default": 50}},
+                               {"name": "cursor", "in": "query", "schema": {"type": "string"}}]},
+    }
+    api["paths"]["/v1/workspaces/{workspace}/catalog/forms/{form}/duplicate"] = {"parameters": [workspace_parameter, id_parameter("form")], "post": {**catalog_operation("m6CatalogDuplicate", "Duplicate a workspace form", catalog_authoring_roles, json_response("CatalogForm"), state_changing=True), "responses": {"201": json_response("CatalogForm"), **catalog_errors}}}
+    for action, operation_id in (("archive", "m6CatalogArchive"), ("restore", "m6CatalogRestore")):
+        api["paths"][f"/v1/workspaces/{{workspace}}/catalog/forms/{{form}}/{action}"] = {"parameters": [workspace_parameter, id_parameter("form")], "post": catalog_operation(operation_id, action.capitalize() + " a workspace form", catalog_authoring_roles, json_response("CatalogForm"), state_changing=True)}
+    api["paths"]["/v1/workspaces/{workspace}/catalog/forms/{form}/ownership"] = {"parameters": [workspace_parameter, id_parameter("form")], "put": catalog_operation("m6CatalogTransferOwnership", "Transfer form ownership to a current workspace member", workspace_administrator_roles, json_response("CatalogForm"), "CatalogTransfer", state_changing=True)}
+    api["paths"]["/v1/workspaces/{workspace}/catalog/forms/{form}/classification"] = {"parameters": [workspace_parameter, id_parameter("form")], "put": {**catalog_operation("m6CatalogClassify", "Set form folder and tags", catalog_authoring_roles, {"description": "Classification updated."}, "CatalogClassification", state_changing=True), "responses": {"204": {"description": "Classification updated."}, **catalog_errors}}}
+    for resource, singular, input_schema, output_schema in (("folders", "folder", "CatalogNameInput", "CatalogFolder"), ("tags", "tag", "CatalogTagInput", "CatalogTag")):
+        api["paths"][f"/v1/workspaces/{{workspace}}/{resource}"] = {"parameters": [workspace_parameter],
+            "get": catalog_operation(f"m6List{resource.title()}", f"List workspace catalog {resource}", workspace_roles, {"description": "Successful response.", "content": {"application/json": {"schema": {"type": "array", "items": {"$ref": f"#/components/schemas/{output_schema}"}}}}}),
+            "post": {**catalog_operation(f"m6Create{singular.title()}", f"Create a workspace catalog {singular}", catalog_authoring_roles, json_response(output_schema), input_schema, state_changing=True), "responses": {"201": json_response(output_schema), **catalog_errors}}}
+        api["paths"][f"/v1/workspaces/{{workspace}}/{resource}/{{{singular}}}"] = {"parameters": [workspace_parameter, id_parameter(singular)],
+            "patch": catalog_operation(f"m6Update{singular.title()}", f"Update a workspace catalog {singular}", catalog_authoring_roles, json_response(output_schema), input_schema, state_changing=True),
+            "delete": {**catalog_operation(f"m6Delete{singular.title()}", f"Delete a workspace catalog {singular}", catalog_authoring_roles, {"description": "Deleted."}, state_changing=True), "responses": {"204": {"description": "Deleted."}, **catalog_errors}}}
+    api["paths"]["/v1/workspaces/{workspace}/catalog/settings"] = {"parameters": [workspace_parameter],
+        "get": catalog_operation("m6EffectiveCatalogSettings", "Read effective policy and provider settings", workspace_administrator_roles, json_response("CatalogSettings")),
+        "put": catalog_operation("m6UpdateCatalogSettings", "Update workspace policy and provider overrides", workspace_administrator_roles, json_response("CatalogSettings"), "CatalogSettingsInput", state_changing=True)}
+    api["paths"]["/v1/workspaces/{workspace}/members"] = {
+        "parameters": [workspace_parameter],
+        "get": catalog_operation("m6ListWorkspaceMembers", "List transferable current workspace members",
+                                 ["workspace-administrator", "organization.owner", "organization.administrator"], json_response("WorkspaceMemberCollection")),
+    }
+    api["paths"]["/v1/workspaces/{workspace}/members"]["get"]["x-authorization"]["tenantScope"] = "organization-visible-workspace"
     patch = api["paths"]["/v1/sessions/{s}"]["patch"]
     patch["parameters"] = [parameter for parameter in patch["parameters"] if parameter.get("name") == "s"]
     patch["responses"]["200"] = {
@@ -277,6 +570,96 @@ def generated() -> dict[Path, bytes]:
     }
     for operation_config in (patch, submit, attempt):
         operation_config["x-implementation-status"] = "implemented"
+    # The live draft controller uses the canonical form UUID as its draft ID and
+    # returns its maps unwrapped.  Do not inherit the old planned M2 envelope or
+    # generic mutation replay metadata for this optimistic-concurrency endpoint.
+    draft_path = api["paths"]["/v1/workspaces/{w}/forms/{f}/drafts/{d}"]
+    schemas["LiveDraftRead"] = {
+        "type": "object", "additionalProperties": False,
+        "required": ["id", "revision", "definition", "diagnostics"],
+        "properties": {"id": {"type": "string", "format": "uuid"}, "revision": {"type": "integer", "minimum": 1},
+                       "definition": {"type": "object"}, "diagnostics": {"type": "array", "items": {}}},
+    }
+    schemas["LiveDraftWrite"] = {
+        "type": "object", "additionalProperties": False,
+        "required": ["revision", "definition", "diagnostics"],
+        "properties": {"revision": {"type": "integer", "minimum": 1}, "definition": {"type": "object"},
+                       "diagnostics": {"type": "array", "items": {}}},
+    }
+    draft_read_example = {"id": "11111111-1111-1111-1111-111111111111", "revision": 3,
+                          "definition": {"formKey": "intake"}, "diagnostics": []}
+    draft_write_example = {"revision": 4, "definition": {"formKey": "intake"}, "diagnostics": []}
+    for method, schema in (("get", "LiveDraftRead"), ("put", "LiveDraftWrite")):
+        operation_config = draft_path[method]
+        operation_config["x-implementation-status"] = "implemented"
+        operation_config["description"] = "Live canonical UUID draft endpoint; responses are unwrapped."
+        operation_config["responses"]["200"] = {"description": "Unwrapped live draft response.",
+            "headers": {"ETag": {"$ref": "#/components/headers/ETag"}},
+            "content": {"application/json": {"schema": {"$ref": f"#/components/schemas/{schema}"},
+                                                "example": draft_read_example if method == "get" else draft_write_example}}}
+        operation_config.pop("x-replay", None)
+    draft_parameters = [
+        {"name": "w", "in": "path", "required": True, "schema": {"$ref": "#/components/schemas/OpaqueId"}},
+        {"name": "f", "in": "path", "required": True, "schema": {"$ref": "#/components/schemas/OpaqueId"}},
+        {"name": "d", "in": "path", "required": True, "schema": {"type": "string", "format": "uuid"}},
+    ]
+    draft_path["get"]["parameters"] = draft_parameters
+    draft_path["put"]["parameters"] = draft_parameters + [{"$ref": "#/components/parameters/IfMatch"}]
+    draft_path["put"]["requestBody"] = {"required": True, "content": {"application/json": {"schema": {
+        "type": "object", "additionalProperties": False, "required": ["definition"],
+        "properties": {"definition": {"type": "object"}}}, "example": {"definition": {"formKey": "intake"}}}}}
+    headers = components["components"].setdefault("headers", {})
+    for name, description in {
+        "X-Temporary-Password-Copy": "Authorized one-time temporary password delivery. Never log or persist this value.",
+        "X-Invitation-Copy-Link": "Authorized one-time invitation delivery link. Never log or persist this value.",
+        "X-Recovery-Copy-Link": "Authorized one-time recovery delivery link. Never log or persist this value.",
+        "X-Activation-Copy-Link": "Authorized one-time activation delivery link. Never log or persist this value.",
+    }.items():
+        headers[name] = {"description": description, "schema": {"type": "string"}}
+    def copy_header(path: str, method: str, status: str, name: str) -> None:
+        operation = api["paths"].get(path, {}).get(method)
+        if operation is not None:
+            operation.setdefault("responses", {}).setdefault(status, {"description": "Successful response."}) \
+                .setdefault("headers", {})[name] = {"$ref": f"#/components/headers/{name}"}
+    copy_header("/v1/organizations/{o}/users", "post", "201", "X-Temporary-Password-Copy")
+    copy_header("/v1/organizations/{o}/users", "post", "201", "X-Activation-Copy-Link")
+    copy_header("/v1/organizations/{o}/users", "post", "201", "X-Invitation-Copy-Link")
+    copy_header("/v1/platform/organizations/{o}/users", "post", "201", "X-Temporary-Password-Copy")
+    copy_header("/v1/platform/organizations/{o}/users", "post", "201", "X-Activation-Copy-Link")
+    copy_header("/v1/organizations/{o}/users/{u}/invitations", "post", "201", "X-Invitation-Copy-Link")
+    copy_header("/v1/organizations/{o}/users/{u}/recovery", "post", "201", "X-Recovery-Copy-Link")
+    copy_header("/v1/platform/accounts/{a}/recovery", "post", "201", "X-Recovery-Copy-Link")
+    copy_header("/v1/auth/bootstrap", "post", "201", "X-Activation-Copy-Link")
+    copy_header("/v1/platform/organizations", "post", "201", "X-Activation-Copy-Link")
+    copy_header("/v1/platform/organizations", "post", "201", "X-Invitation-Copy-Link")
+    copy_header("/v1/platform/organizations", "post", "201", "X-Temporary-Password-Copy")
+    organization_user_create = api["paths"]["/v1/organizations/{o}/users"]["post"]
+    organization_user_create["responses"]["201"]["content"]["application/json"]["schema"] = {"$ref": "#/components/schemas/InvitationResponse"}
+    organization_user_create["responses"]["201"]["headers"].pop("X-Activation-Copy-Link", None)
+    organization_user_create["responses"]["201"]["headers"].pop("X-Temporary-Password-Copy", None)
+    invitation_value = {"requestId": "req-01J2W5RFR3K24SFWDX2C0N9VW3", "invitation": {
+        "id": "invitation-01J2W5RFR3K24SFWDX2C0N9VW3", "kind": "Invitation", "revision": 0,
+        "status": "pending", "createdAt": "2026-09-18T00:00:00Z", "updatedAt": "2026-09-18T00:00:00Z",
+        "email": "recipient@example.test", "expiresAt": "2026-09-21T00:00:00Z"}}
+    organization_user_create["responses"]["201"]["content"]["application/json"]["examples"] = {"success": {"value": invitation_value}}
+    api["paths"]["/v1/platform/organizations"]["post"]["requestBody"]["content"]["application/json"]["examples"]["valid"]["value"] = {
+        "name": "Example organization", "ownerEmail": "owner@example.test"}
+    platform_organizations = api["paths"]["/v1/platform/organizations"]
+    platform_organizations["get"]["x-implementation-status"] = "implemented"
+    platform_organizations["get"]["responses"]["200"].pop("headers", None)
+    organization_response_example = platform_organizations["post"]["responses"]["201"]["content"]["application/json"]["examples"]["success"]["value"]["organization"]
+    organization_response_example["status"] = "awaiting_owner_activation"
+    organization_response_example["revision"] = 0
+    pending_owner = api["paths"]["/v1/platform/organizations/{o}/users"]["post"]
+    pending_owner["responses"]["201"]["content"]["application/json"]["schema"] = {"$ref": "#/components/schemas/InvitationResponse"}
+    pending_owner["responses"]["201"]["content"]["application/json"]["examples"] = {"success": {"value": invitation_value}}
+    pending_owner["responses"]["201"]["headers"] = {"X-Invitation-Copy-Link": {"$ref": "#/components/headers/X-Invitation-Copy-Link"}}
+    session_example = api["paths"]["/v1/auth/session"]["get"]["responses"]["200"]["content"]["application/json"]["examples"]["success"]["value"]["authenticatedSession"]
+    session_example["awaitingSetup"] = False
+    session_example["platformRoles"] = []
+    for organization in session_example["organizations"]:
+        organization["organizationRoles"] = ["member"]
+    api["paths"]["/v1/invitations/accept"]["post"]["responses"]["200"].pop("headers", None)
     start = api["paths"]["/v1/public/forms/{shareId}/sessions"]["post"]
     start["parameters"] = [parameter for parameter in start["parameters"]
                            if parameter.get("name") == "shareId"]
@@ -305,6 +688,23 @@ def generated() -> dict[Path, bytes]:
         "description": "The immutable legacy 4.0.0 capability representation. The additive representation is published at /v1/schemas/capabilities/4.1.0.",
         "content": {"application/json": {"schema": {"$ref": "#/components/schemas/LegacyCapabilityRegistry"}}},
     }
+
+    # Cookie-authenticated reads do not require a CSRF proof. Every non-GET
+    # cookie-authenticated operation does, including the additive catalog and
+    # workspace-member routes above. Keep this method-derived so later 4.1
+    # additions cannot accidentally publish the wrong browser security contract.
+    for path_item in api["paths"].values():
+        for method, operation_config in path_item.items():
+            if not isinstance(operation_config, dict) or method not in {"get", "post", "put", "patch", "delete"}:
+                continue
+            security = operation_config.get("security", [])
+            if any("staffCookie" in requirement for requirement in security):
+                operation_config["security"] = [{"staffCookie": [], **({} if method == "get" else {"csrfHeader": []})}]
+
+    # `api` receives a deep copy before the M6 schema patches above. Refresh it
+    # immediately before serialization so the monolithic published/backend copies
+    # remain byte-for-byte aligned with the generated components document.
+    api["components"] = copy.deepcopy(components["components"])
 
     def encode(value: Any) -> bytes:
         return (HEADER + yaml.safe_dump(value, sort_keys=False, allow_unicode=True)).encode()

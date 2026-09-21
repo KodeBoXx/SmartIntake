@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.HashMap;
+import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -30,12 +32,13 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   AccountActionCreateRequest.JSON_PROPERTY_NAME
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class AccountActionCreateRequest {
+public class AccountActionCreateRequest extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_NAME = "name";
   @jakarta.annotation.Nonnull
   private String name;
 
   public AccountActionCreateRequest() {
+
   }
 
   public AccountActionCreateRequest name(@jakarta.annotation.Nonnull String name) {
@@ -72,18 +75,20 @@ public class AccountActionCreateRequest {
       return false;
     }
     AccountActionCreateRequest accountActionCreateRequest = (AccountActionCreateRequest) o;
-    return Objects.equals(this.name, accountActionCreateRequest.name);
+    return Objects.equals(this.name, accountActionCreateRequest.name) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name);
+    return Objects.hash(name, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class AccountActionCreateRequest {\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("}");
     return sb.toString();

@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/smartintake}
+    username: ${DATABASE_USER:smartintake}
+    password: ${DATABASE_PASSWORD:smartintake}
+    driver-class-name: org.postgresql.Driver
+  flyway:
+    enabled: true
+smartintake:
+  bootstrap-token: test-bootstrap-token
+  trusted-proxy-addresses: 127.0.0.1

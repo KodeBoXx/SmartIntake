@@ -704,38 +704,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/workspaces/{w}/folders": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * GET /v1/workspaces/{w}/folders (catalog folders)
-         * @description Published M2 contract. Implementation is intentionally deferred unless marked implemented.
-         */
-        get: operations["OS-get-v1-workspaces-w-folders-33ea83deb0"];
-        put?: never;
-        /**
-         * POST /v1/workspaces/{w}/folders (catalog folders)
-         * @description Published M2 contract. Implementation is intentionally deferred unless marked implemented.
-         */
-        post: operations["OS-post-v1-workspaces-w-folders-04335a99f1"];
-        /**
-         * DELETE /v1/workspaces/{w}/folders (catalog folders)
-         * @description Published M2 contract. Implementation is intentionally deferred unless marked implemented.
-         */
-        delete: operations["OS-delete-v1-workspaces-w-folders-bf3ff71abf"];
-        options?: never;
-        head?: never;
-        /**
-         * PATCH /v1/workspaces/{w}/folders (catalog folders)
-         * @description Published M2 contract. Implementation is intentionally deferred unless marked implemented.
-         */
-        patch: operations["OS-patch-v1-workspaces-w-folders-462f91440e"];
-        trace?: never;
-    };
     "/v1/workspaces/{w}/forms": {
         parameters: {
             query?: never;
@@ -789,12 +757,12 @@ export interface paths {
         };
         /**
          * GET /v1/workspaces/{w}/forms/{f}/drafts/{d}
-         * @description Published M2 contract. Implementation is intentionally deferred unless marked implemented.
+         * @description Live canonical UUID draft endpoint; responses are unwrapped.
          */
         get: operations["ON-get-v1-workspaces-w-forms-f-drafts-d-4ba2cf8375"];
         /**
          * PUT /v1/workspaces/{w}/forms/{f}/drafts/{d}
-         * @description Published M2 contract. Implementation is intentionally deferred unless marked implemented.
+         * @description Live canonical UUID draft endpoint; responses are unwrapped.
          */
         put: operations["ON-put-v1-workspaces-w-forms-f-drafts-d-d5d5fa6522"];
         post?: never;
@@ -1068,38 +1036,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/workspaces/{w}/tags": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * GET /v1/workspaces/{w}/tags (catalog tags)
-         * @description Published M2 contract. Implementation is intentionally deferred unless marked implemented.
-         */
-        get: operations["OS-get-v1-workspaces-w-tags-3f795dc7ec"];
-        put?: never;
-        /**
-         * POST /v1/workspaces/{w}/tags (catalog tags)
-         * @description Published M2 contract. Implementation is intentionally deferred unless marked implemented.
-         */
-        post: operations["OS-post-v1-workspaces-w-tags-a1075ffc3a"];
-        /**
-         * DELETE /v1/workspaces/{w}/tags (catalog tags)
-         * @description Published M2 contract. Implementation is intentionally deferred unless marked implemented.
-         */
-        delete: operations["OS-delete-v1-workspaces-w-tags-1ab7a1ce97"];
-        options?: never;
-        head?: never;
-        /**
-         * PATCH /v1/workspaces/{w}/tags (catalog tags)
-         * @description Published M2 contract. Implementation is intentionally deferred unless marked implemented.
-         */
-        patch: operations["OS-patch-v1-workspaces-w-tags-81684cbff4"];
-        trace?: never;
-    };
     "/v1/workspaces/{w}/themes": {
         parameters: {
             query?: never;
@@ -1210,6 +1146,263 @@ export interface paths {
          * @description Published M2 contract. Implementation is intentionally deferred unless marked implemented.
          */
         post: operations["ON-post-v1-workspaces-w-webhooks-e95a4d5035"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/bootstrap": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Initialize the one-time staff bootstrap owner */
+        post: operations["m6Bootstrap"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{workspace}/catalog/forms": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+            };
+            cookie?: never;
+        };
+        /** Search the current workspace form catalog */
+        get: operations["m6CatalogSearch"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{workspace}/catalog/forms/{form}/duplicate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+                form: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Duplicate a workspace form */
+        post: operations["m6CatalogDuplicate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{workspace}/catalog/forms/{form}/archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+                form: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Archive a workspace form */
+        post: operations["m6CatalogArchive"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{workspace}/catalog/forms/{form}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+                form: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Restore a workspace form */
+        post: operations["m6CatalogRestore"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{workspace}/catalog/forms/{form}/ownership": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+                form: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        /** Transfer form ownership to a current workspace member */
+        put: operations["m6CatalogTransferOwnership"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{workspace}/catalog/forms/{form}/classification": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+                form: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        /** Set form folder and tags */
+        put: operations["m6CatalogClassify"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{workspace}/folders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+            };
+            cookie?: never;
+        };
+        /** List workspace catalog folders */
+        get: operations["m6ListFolders"];
+        put?: never;
+        /** Create a workspace catalog folder */
+        post: operations["m6CreateFolder"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{workspace}/folders/{folder}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+                folder: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete a workspace catalog folder */
+        delete: operations["m6DeleteFolder"];
+        options?: never;
+        head?: never;
+        /** Update a workspace catalog folder */
+        patch: operations["m6UpdateFolder"];
+        trace?: never;
+    };
+    "/v1/workspaces/{workspace}/tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+            };
+            cookie?: never;
+        };
+        /** List workspace catalog tags */
+        get: operations["m6ListTags"];
+        put?: never;
+        /** Create a workspace catalog tag */
+        post: operations["m6CreateTag"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{workspace}/tags/{tag}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+                tag: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete a workspace catalog tag */
+        delete: operations["m6DeleteTag"];
+        options?: never;
+        head?: never;
+        /** Update a workspace catalog tag */
+        patch: operations["m6UpdateTag"];
+        trace?: never;
+    };
+    "/v1/workspaces/{workspace}/catalog/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+            };
+            cookie?: never;
+        };
+        /** Read effective policy and provider settings */
+        get: operations["m6EffectiveCatalogSettings"];
+        /** Update workspace policy and provider overrides */
+        put: operations["m6UpdateCatalogSettings"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/workspaces/{workspace}/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+            };
+            cookie?: never;
+        };
+        /** List transferable current workspace members */
+        get: operations["m6ListWorkspaceMembers"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1403,7 +1596,7 @@ export interface components {
         PermittedWorkspaceChoice: {
             workspaceId: components["schemas"]["OpaqueId"];
             name: string;
-            roles: ("administrator" | "author" | "reviewer" | "translator" | "publisher" | "response-viewer" | "response-exporter" | "auditor")[];
+            roles: ("workspace-administrator" | "author" | "reviewer" | "translator" | "publisher" | "response-viewer" | "response-exporter" | "auditor")[];
         };
         PermittedOrganizationChoice: {
             organizationId: components["schemas"]["OpaqueId"];
@@ -1412,15 +1605,32 @@ export interface components {
             membershipState: "active";
             workspaces: components["schemas"]["PermittedWorkspaceChoice"][];
         };
-        /** @description Authenticated safe identity, activation state and server-authorized organization/workspace choices. */
         AuthenticatedSession: {
-            safeIdentity: components["schemas"]["SafeAccountIdentity"];
+            safeIdentity: {
+                accountId: string;
+                username: string;
+                displayName: string;
+            };
             /** @enum {unknown} */
-            activationState: "awaiting-setup" | "active";
-            /** @constant */
-            accountStatus: "active";
-            organizations: components["schemas"]["PermittedOrganizationChoice"][];
-            currentOrganizationId: components["schemas"]["OpaqueId"] | null;
+            activationState: "active" | "pending";
+            /** @enum {unknown} */
+            accountStatus: "active" | "suspended";
+            awaitingSetup: boolean;
+            platformRoles: "administrator"[];
+            organizations: {
+                organizationId: string;
+                name: string;
+                /** @enum {unknown} */
+                membershipState: "active";
+                organizationRoles: ("owner" | "administrator" | "member")[];
+                workspaces: {
+                    workspaceId: string;
+                    name: string;
+                    roles: ("workspace-administrator" | "author" | "reviewer" | "translator" | "publisher" | "response-viewer" | "response-exporter" | "auditor")[];
+                }[];
+            }[];
+            currentOrganizationId?: string | null;
+            currentWorkspaceId?: string;
         };
         /** @description Concrete Form resource representation. */
         Form: {
@@ -1719,7 +1929,7 @@ export interface components {
             createdAt: string;
             /** Format: date-time */
             updatedAt: string;
-            roles: string[];
+            roles: ("workspace-administrator" | "author" | "reviewer" | "translator" | "publisher" | "response-viewer" | "response-exporter" | "auditor")[];
         };
         /** @description Concrete Invitation resource representation. */
         Invitation: {
@@ -1950,8 +2160,9 @@ export interface components {
             name: string;
         };
         ActivationRequest: {
-            releaseId: components["schemas"]["OpaqueId"];
-            shareChannelIds: components["schemas"]["OpaqueId"][];
+            activationToken: string;
+            password: string;
+            displayName: string;
         };
         PackageExportUpdateRequest: {
             name: string;
@@ -2049,6 +2260,8 @@ export interface components {
         };
         OrganizationCreateRequest: {
             name: string;
+            /** Format: email */
+            ownerEmail: string;
         };
         OrganizationUserCreateRequest: {
             /** Format: email */
@@ -2065,7 +2278,7 @@ export interface components {
             roles?: ("administrator" | "member")[];
         };
         WorkspaceRoleAssignmentRequest: {
-            roles: ("owner" | "editor" | "reviewer" | "analyst")[];
+            roles: ("workspace-administrator" | "author" | "reviewer" | "translator" | "publisher" | "response-viewer" | "response-exporter" | "auditor")[];
         };
         InvitationCreateRequest: {
             name: string;
@@ -2691,6 +2904,90 @@ export interface components {
             submissionId?: string | null;
             errorCode?: string | null;
         };
+        WorkspaceMember: {
+            accountId: string;
+            /** @constant */
+            membershipStatus: "active";
+            revision: number;
+            roles: ("workspace-administrator" | "author" | "reviewer" | "translator" | "publisher" | "response-viewer" | "response-exporter" | "auditor")[];
+        };
+        WorkspaceMemberCollection: {
+            requestId: components["schemas"]["OpaqueId"];
+            items: components["schemas"]["WorkspaceMember"][];
+        };
+        CatalogTag: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            color: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        CatalogFolder: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        CatalogNameInput: {
+            name: string;
+        };
+        CatalogTagInput: {
+            name: string;
+            color?: string | null;
+        };
+        CatalogOwner: {
+            id: string;
+            /** Format: email */
+            email: string;
+        } | null;
+        CatalogForm: {
+            /** Format: uuid */
+            id: string;
+            formKey: string;
+            title: string;
+            status: string;
+            revision: number;
+            /** Format: date-time */
+            updatedAt: string;
+            folderId: string | null;
+            owner: components["schemas"]["CatalogOwner"];
+            tags: components["schemas"]["CatalogTag"][];
+        };
+        CatalogPage: {
+            items: components["schemas"]["CatalogForm"][];
+            nextCursor: string;
+            catalogRevision: number;
+        };
+        CatalogClassification: {
+            folderId?: string | null;
+            tagIds?: string[];
+        };
+        CatalogTransfer: {
+            accountId: string;
+        };
+        CatalogSettings: {
+            workspaceId: string;
+            effective: {
+                [key: string]: unknown;
+            };
+            overrides: {
+                [key: string]: unknown;
+            };
+        };
+        CatalogSettingsInput: {
+            policyOverrides?: {
+                [key: string]: unknown;
+            };
+            providerOverrides?: {
+                [key: string]: unknown;
+            };
+        };
         LiveSessionStartResponse: {
             /** Format: uuid */
             sessionId: string;
@@ -2787,6 +3084,30 @@ export interface components {
              * @description M1 compatibility alias derived from operatorSignatures; use operatorSignatures for arity metadata.
              */
             operators: string[];
+        };
+        BootstrapRequest: {
+            /** Format: email */
+            email: string;
+            password: string;
+            organizationName?: string;
+            workspaceName?: string;
+        };
+        BootstrapResponse: {
+            requestId: string;
+            /** @constant */
+            bootstrap: "pending-activation";
+        };
+        LiveDraftRead: {
+            /** Format: uuid */
+            id: string;
+            revision: number;
+            definition: Record<string, never>;
+            diagnostics: unknown[];
+        };
+        LiveDraftWrite: {
+            revision: number;
+            definition: Record<string, never>;
+            diagnostics: unknown[];
         };
         id: string;
         sha256: string;
@@ -3672,6 +3993,10 @@ export interface components {
         LoginCsrfToken: string;
         /** @description Secure, HttpOnly, SameSite=Strict cookie set by unauthenticated GET /v1/auth/session and consumed with the matching X-Login-CSRF-Token. */
         LoginCsrfCookie: string;
+        /** @description Deployment-provisioned, one-time bootstrap proof. It is consumed atomically and must never be logged. */
+        BootstrapToken: string;
+        /** @description Readable SameSite=Strict CSRF cookie whose value must match X-CSRF-Token for a cookie-authenticated mutation. */
+        CsrfCookie: string;
     };
     requestBodies: never;
     headers: {
@@ -3689,10 +4014,18 @@ export interface components {
          */
         LoginCsrfToken: string;
         /**
-         * @description Sets smartintake_login_csrf as a Secure, HttpOnly, SameSite=Strict, short-lived cookie bound to the returned one-time token.
-         * @example smartintake_login_csrf=bound-01J2W5RFR3K24SFWDX2C0N9VW3; Secure; HttpOnly; SameSite=Strict; Path=/v1/auth
+         * @description Sets SI_LOGIN_CSRF as a Secure, HttpOnly, SameSite=Strict, short-lived cookie bound to the returned one-time token.
+         * @example SI_LOGIN_CSRF=bound-01J2W5RFR3K24SFWDX2C0N9VW3; Secure; HttpOnly; SameSite=Strict; Path=/v1/auth
          */
         LoginCsrfSetCookie: string;
+        /** @description Authorized one-time temporary password delivery. Never log or persist this value. */
+        "X-Temporary-Password-Copy": string;
+        /** @description Authorized one-time invitation delivery link. Never log or persist this value. */
+        "X-Invitation-Copy-Link": string;
+        /** @description Authorized one-time recovery delivery link. Never log or persist this value. */
+        "X-Recovery-Copy-Link": string;
+        /** @description Authorized one-time activation delivery link. Never log or persist this value. */
+        "X-Activation-Copy-Link": string;
     };
     pathItems: never;
 }
@@ -3745,7 +4078,6 @@ export interface operations {
             /** @description Successful response. */
             204: {
                 headers: {
-                    ETag: components["headers"]["ETag"];
                     [name: string]: unknown;
                 };
                 content?: never;
@@ -3836,7 +4168,6 @@ export interface operations {
             /** @description Successful response. */
             200: {
                 headers: {
-                    ETag: components["headers"]["ETag"];
                     [name: string]: unknown;
                 };
                 content: {
@@ -3861,7 +4192,7 @@ export interface operations {
             path?: never;
             cookie: {
                 /** @description Secure, HttpOnly, SameSite=Strict cookie set by unauthenticated GET /v1/auth/session and consumed with the matching X-Login-CSRF-Token. */
-                smartintake_login_csrf: components["parameters"]["LoginCsrfCookie"];
+                SI_LOGIN_CSRF: components["parameters"]["LoginCsrfCookie"];
             };
         };
         requestBody: {
@@ -3873,7 +4204,6 @@ export interface operations {
             /** @description Successful response. */
             200: {
                 headers: {
-                    ETag: components["headers"]["ETag"];
                     [name: string]: unknown;
                 };
                 content: {
@@ -3897,16 +4227,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AccountActionCreateRequest"];
-            };
-        };
+        requestBody?: never;
         responses: {
-            /** @description Successful response. */
+            /** @description Revokes the current cookie session and expires staff and CSRF cookies. */
             204: {
                 headers: {
-                    ETag: components["headers"]["ETag"];
                     [name: string]: unknown;
                 };
                 content?: never;
@@ -3963,7 +4288,6 @@ export interface operations {
             /** @description Successful response. */
             200: {
                 headers: {
-                    ETag: components["headers"]["ETag"];
                     [name: string]: unknown;
                 };
                 content: {
@@ -3989,6 +4313,8 @@ export interface operations {
                  * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
                  */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @example "rev-7" */
+                "If-Match": components["parameters"]["IfMatch"];
             };
             path: {
                 /**
@@ -4019,7 +4345,9 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             409: components["responses"]["Conflict"];
+            412: components["responses"]["PreconditionFailed"];
             422: components["responses"]["Unprocessable"];
+            428: components["responses"]["PreconditionRequired"];
             429: components["responses"]["RateLimited"];
             500: components["responses"]["InternalError"];
         };
@@ -4260,10 +4588,11 @@ export interface operations {
             201: {
                 headers: {
                     ETag: components["headers"]["ETag"];
+                    "X-Invitation-Copy-Link": components["headers"]["X-Invitation-Copy-Link"];
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["OrganizationUserResponse"];
+                    "application/json": components["schemas"]["InvitationResponse"];
                 };
             };
             400: components["responses"]["BadRequest"];
@@ -4285,6 +4614,8 @@ export interface operations {
                  * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
                  */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @example "rev-7" */
+                "If-Match": components["parameters"]["IfMatch"];
             };
             path: {
                 /**
@@ -4315,7 +4646,9 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             409: components["responses"]["Conflict"];
+            412: components["responses"]["PreconditionFailed"];
             422: components["responses"]["Unprocessable"];
+            428: components["responses"]["PreconditionRequired"];
             429: components["responses"]["RateLimited"];
             500: components["responses"]["InternalError"];
         };
@@ -4408,6 +4741,7 @@ export interface operations {
             201: {
                 headers: {
                     ETag: components["headers"]["ETag"];
+                    "X-Invitation-Copy-Link": components["headers"]["X-Invitation-Copy-Link"];
                     [name: string]: unknown;
                 };
                 content: {
@@ -4458,6 +4792,7 @@ export interface operations {
             201: {
                 headers: {
                     ETag: components["headers"]["ETag"];
+                    "X-Recovery-Copy-Link": components["headers"]["X-Recovery-Copy-Link"];
                     [name: string]: unknown;
                 };
                 content: {
@@ -4552,6 +4887,7 @@ export interface operations {
             201: {
                 headers: {
                     ETag: components["headers"]["ETag"];
+                    "X-Recovery-Copy-Link": components["headers"]["X-Recovery-Copy-Link"];
                     [name: string]: unknown;
                 };
                 content: {
@@ -4584,7 +4920,6 @@ export interface operations {
             /** @description Successful response. */
             200: {
                 headers: {
-                    ETag: components["headers"]["ETag"];
                     [name: string]: unknown;
                 };
                 content: {
@@ -4622,6 +4957,9 @@ export interface operations {
             201: {
                 headers: {
                     ETag: components["headers"]["ETag"];
+                    "X-Activation-Copy-Link": components["headers"]["X-Activation-Copy-Link"];
+                    "X-Invitation-Copy-Link": components["headers"]["X-Invitation-Copy-Link"];
+                    "X-Temporary-Password-Copy": components["headers"]["X-Temporary-Password-Copy"];
                     [name: string]: unknown;
                 };
                 content: {
@@ -4715,11 +5053,11 @@ export interface operations {
             /** @description Successful response. */
             201: {
                 headers: {
-                    ETag: components["headers"]["ETag"];
+                    "X-Invitation-Copy-Link": components["headers"]["X-Invitation-Copy-Link"];
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["OrganizationUserResponse"];
+                    "application/json": components["schemas"]["InvitationResponse"];
                 };
             };
             400: components["responses"]["BadRequest"];
@@ -5432,176 +5770,6 @@ export interface operations {
             500: components["responses"]["InternalError"];
         };
     };
-    "OS-get-v1-workspaces-w-folders-33ea83deb0": {
-        parameters: {
-            query?: {
-                /** @description Opaque stable-snapshot cursor. Pages are stable-sorted, duplicate-free and collectively contain every item exactly once. */
-                cursor?: components["parameters"]["Cursor"];
-                limit?: components["parameters"]["Limit"];
-            };
-            header?: never;
-            path: {
-                /**
-                 * @description Opaque server-issued identifier; it is never an authority grant.
-                 * @example w-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                w: components["schemas"]["OpaqueId"];
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response. */
-            200: {
-                headers: {
-                    ETag: components["headers"]["ETag"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FolderCollection"];
-                };
-            };
-            400: components["responses"]["BadRequest"];
-            401: components["responses"]["Unauthenticated"];
-            403: components["responses"]["Forbidden"];
-            404: components["responses"]["NotFound"];
-            429: components["responses"]["RateLimited"];
-            500: components["responses"]["InternalError"];
-        };
-    };
-    "OS-post-v1-workspaces-w-folders-04335a99f1": {
-        parameters: {
-            query?: never;
-            header: {
-                /**
-                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
-                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
-            };
-            path: {
-                /**
-                 * @description Opaque server-issued identifier; it is never an authority grant.
-                 * @example w-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                w: components["schemas"]["OpaqueId"];
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["FolderCreateRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful response. */
-            201: {
-                headers: {
-                    ETag: components["headers"]["ETag"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FolderResponse"];
-                };
-            };
-            400: components["responses"]["BadRequest"];
-            401: components["responses"]["Unauthenticated"];
-            403: components["responses"]["Forbidden"];
-            404: components["responses"]["NotFound"];
-            409: components["responses"]["Conflict"];
-            422: components["responses"]["Unprocessable"];
-            429: components["responses"]["RateLimited"];
-            500: components["responses"]["InternalError"];
-        };
-    };
-    "OS-delete-v1-workspaces-w-folders-bf3ff71abf": {
-        parameters: {
-            query?: never;
-            header: {
-                /**
-                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
-                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
-            };
-            path: {
-                /**
-                 * @description Opaque server-issued identifier; it is never an authority grant.
-                 * @example w-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                w: components["schemas"]["OpaqueId"];
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response. */
-            204: {
-                headers: {
-                    ETag: components["headers"]["ETag"];
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            400: components["responses"]["BadRequest"];
-            401: components["responses"]["Unauthenticated"];
-            403: components["responses"]["Forbidden"];
-            404: components["responses"]["NotFound"];
-            409: components["responses"]["Conflict"];
-            422: components["responses"]["Unprocessable"];
-            429: components["responses"]["RateLimited"];
-            500: components["responses"]["InternalError"];
-        };
-    };
-    "OS-patch-v1-workspaces-w-folders-462f91440e": {
-        parameters: {
-            query?: never;
-            header: {
-                /** @example "rev-7" */
-                "If-Match": components["parameters"]["IfMatch"];
-                /**
-                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
-                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
-            };
-            path: {
-                /**
-                 * @description Opaque server-issued identifier; it is never an authority grant.
-                 * @example w-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                w: components["schemas"]["OpaqueId"];
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["FolderUpdateRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful response. */
-            200: {
-                headers: {
-                    ETag: components["headers"]["ETag"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FolderResponse"];
-                };
-            };
-            400: components["responses"]["BadRequest"];
-            401: components["responses"]["Unauthenticated"];
-            403: components["responses"]["Forbidden"];
-            404: components["responses"]["NotFound"];
-            409: components["responses"]["Conflict"];
-            412: components["responses"]["PreconditionFailed"];
-            422: components["responses"]["Unprocessable"];
-            428: components["responses"]["PreconditionRequired"];
-            429: components["responses"]["RateLimited"];
-            500: components["responses"]["InternalError"];
-        };
-    };
     "ON-get-v1-workspaces-w-forms-2cc818d28d": {
         parameters: {
             query?: {
@@ -5743,34 +5911,22 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /**
-                 * @description Opaque server-issued identifier; it is never an authority grant.
-                 * @example w-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
                 w: components["schemas"]["OpaqueId"];
-                /**
-                 * @description Opaque server-issued identifier; it is never an authority grant.
-                 * @example f-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
                 f: components["schemas"]["OpaqueId"];
-                /**
-                 * @description Opaque server-issued identifier; it is never an authority grant.
-                 * @example d-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                d: components["schemas"]["OpaqueId"];
+                d: string;
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description Successful response. */
+            /** @description Unwrapped live draft response. */
             200: {
                 headers: {
                     ETag: components["headers"]["ETag"];
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["DraftResponse"];
+                    "application/json": components["schemas"]["LiveDraftRead"];
                 };
             };
             400: components["responses"]["BadRequest"];
@@ -5787,45 +5943,35 @@ export interface operations {
             header: {
                 /** @example "rev-7" */
                 "If-Match": components["parameters"]["IfMatch"];
-                /**
-                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
-                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
-                /**
-                 * @description Opaque server-issued identifier; it is never an authority grant.
-                 * @example w-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
                 w: components["schemas"]["OpaqueId"];
-                /**
-                 * @description Opaque server-issued identifier; it is never an authority grant.
-                 * @example f-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
                 f: components["schemas"]["OpaqueId"];
-                /**
-                 * @description Opaque server-issued identifier; it is never an authority grant.
-                 * @example d-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                d: components["schemas"]["OpaqueId"];
+                d: string;
             };
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["DraftSaveRequest"];
+                /** @example {
+                 *       "definition": {
+                 *         "formKey": "intake"
+                 *       }
+                 *     } */
+                "application/json": {
+                    definition: Record<string, never>;
+                };
             };
         };
         responses: {
-            /** @description Successful response. */
+            /** @description Unwrapped live draft response. */
             200: {
                 headers: {
                     ETag: components["headers"]["ETag"];
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["DraftResponse"];
+                    "application/json": components["schemas"]["LiveDraftWrite"];
                 };
             };
             400: components["responses"]["BadRequest"];
@@ -6653,176 +6799,6 @@ export interface operations {
             500: components["responses"]["InternalError"];
         };
     };
-    "OS-get-v1-workspaces-w-tags-3f795dc7ec": {
-        parameters: {
-            query?: {
-                /** @description Opaque stable-snapshot cursor. Pages are stable-sorted, duplicate-free and collectively contain every item exactly once. */
-                cursor?: components["parameters"]["Cursor"];
-                limit?: components["parameters"]["Limit"];
-            };
-            header?: never;
-            path: {
-                /**
-                 * @description Opaque server-issued identifier; it is never an authority grant.
-                 * @example w-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                w: components["schemas"]["OpaqueId"];
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response. */
-            200: {
-                headers: {
-                    ETag: components["headers"]["ETag"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TagCollection"];
-                };
-            };
-            400: components["responses"]["BadRequest"];
-            401: components["responses"]["Unauthenticated"];
-            403: components["responses"]["Forbidden"];
-            404: components["responses"]["NotFound"];
-            429: components["responses"]["RateLimited"];
-            500: components["responses"]["InternalError"];
-        };
-    };
-    "OS-post-v1-workspaces-w-tags-a1075ffc3a": {
-        parameters: {
-            query?: never;
-            header: {
-                /**
-                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
-                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
-            };
-            path: {
-                /**
-                 * @description Opaque server-issued identifier; it is never an authority grant.
-                 * @example w-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                w: components["schemas"]["OpaqueId"];
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["TagCreateRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful response. */
-            201: {
-                headers: {
-                    ETag: components["headers"]["ETag"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TagResponse"];
-                };
-            };
-            400: components["responses"]["BadRequest"];
-            401: components["responses"]["Unauthenticated"];
-            403: components["responses"]["Forbidden"];
-            404: components["responses"]["NotFound"];
-            409: components["responses"]["Conflict"];
-            422: components["responses"]["Unprocessable"];
-            429: components["responses"]["RateLimited"];
-            500: components["responses"]["InternalError"];
-        };
-    };
-    "OS-delete-v1-workspaces-w-tags-1ab7a1ce97": {
-        parameters: {
-            query?: never;
-            header: {
-                /**
-                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
-                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
-            };
-            path: {
-                /**
-                 * @description Opaque server-issued identifier; it is never an authority grant.
-                 * @example w-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                w: components["schemas"]["OpaqueId"];
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response. */
-            204: {
-                headers: {
-                    ETag: components["headers"]["ETag"];
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            400: components["responses"]["BadRequest"];
-            401: components["responses"]["Unauthenticated"];
-            403: components["responses"]["Forbidden"];
-            404: components["responses"]["NotFound"];
-            409: components["responses"]["Conflict"];
-            422: components["responses"]["Unprocessable"];
-            429: components["responses"]["RateLimited"];
-            500: components["responses"]["InternalError"];
-        };
-    };
-    "OS-patch-v1-workspaces-w-tags-81684cbff4": {
-        parameters: {
-            query?: never;
-            header: {
-                /** @example "rev-7" */
-                "If-Match": components["parameters"]["IfMatch"];
-                /**
-                 * @description Scoped to tenant, actor, operation and canonical request hash; retained for at least 7 days.
-                 * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
-            };
-            path: {
-                /**
-                 * @description Opaque server-issued identifier; it is never an authority grant.
-                 * @example w-01J2W5RFR3K24SFWDX2C0N9VW3
-                 */
-                w: components["schemas"]["OpaqueId"];
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["TagUpdateRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful response. */
-            200: {
-                headers: {
-                    ETag: components["headers"]["ETag"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TagResponse"];
-                };
-            };
-            400: components["responses"]["BadRequest"];
-            401: components["responses"]["Unauthenticated"];
-            403: components["responses"]["Forbidden"];
-            404: components["responses"]["NotFound"];
-            409: components["responses"]["Conflict"];
-            412: components["responses"]["PreconditionFailed"];
-            422: components["responses"]["Unprocessable"];
-            428: components["responses"]["PreconditionRequired"];
-            429: components["responses"]["RateLimited"];
-            500: components["responses"]["InternalError"];
-        };
-    };
     "OS-get-v1-workspaces-w-themes-e7f6771fc2": {
         parameters: {
             query?: {
@@ -7056,6 +7032,8 @@ export interface operations {
                  * @example idem-01J2W5RFR3K24SFWDX2C0N9VW3
                  */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @example "rev-7" */
+                "If-Match": components["parameters"]["IfMatch"];
             };
             path: {
                 /**
@@ -7086,7 +7064,9 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             409: components["responses"]["Conflict"];
+            412: components["responses"]["PreconditionFailed"];
             422: components["responses"]["Unprocessable"];
+            428: components["responses"]["PreconditionRequired"];
             429: components["responses"]["RateLimited"];
             500: components["responses"]["InternalError"];
         };
@@ -7221,6 +7201,518 @@ export interface operations {
             422: components["responses"]["Unprocessable"];
             429: components["responses"]["RateLimited"];
             500: components["responses"]["InternalError"];
+        };
+    };
+    m6Bootstrap: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Deployment-provisioned, one-time bootstrap proof. It is consumed atomically and must never be logged. */
+                "X-Bootstrap-Token": components["parameters"]["BootstrapToken"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BootstrapRequest"];
+            };
+        };
+        responses: {
+            /** @description Pending owner activation created; the proof is returned only in X-Activation-Copy-Link. */
+            201: {
+                headers: {
+                    "X-Activation-Copy-Link": components["headers"]["X-Activation-Copy-Link"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BootstrapResponse"];
+                };
+            };
+            403: components["responses"]["Forbidden"];
+            409: components["responses"]["Conflict"];
+        };
+    };
+    m6CatalogSearch: {
+        parameters: {
+            query?: {
+                q?: string;
+                status?: string;
+                owner?: string;
+                folder?: string;
+                tag?: string[];
+                archived?: boolean;
+                limit?: number;
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                workspace: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogPage"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    m6CatalogDuplicate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+                form: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogForm"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    m6CatalogArchive: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+                form: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogForm"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    m6CatalogRestore: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+                form: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogForm"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    m6CatalogTransferOwnership: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+                form: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CatalogTransfer"];
+            };
+        };
+        responses: {
+            /** @description Successful response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogForm"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    m6CatalogClassify: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+                form: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CatalogClassification"];
+            };
+        };
+        responses: {
+            /** @description Classification updated. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    m6ListFolders: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogFolder"][];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    m6CreateFolder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CatalogNameInput"];
+            };
+        };
+        responses: {
+            /** @description Successful response. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogFolder"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    m6DeleteFolder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+                folder: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Deleted. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    m6UpdateFolder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+                folder: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CatalogNameInput"];
+            };
+        };
+        responses: {
+            /** @description Successful response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogFolder"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    m6ListTags: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogTag"][];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    m6CreateTag: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CatalogTagInput"];
+            };
+        };
+        responses: {
+            /** @description Successful response. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogTag"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    m6DeleteTag: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+                tag: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Deleted. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    m6UpdateTag: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+                tag: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CatalogTagInput"];
+            };
+        };
+        responses: {
+            /** @description Successful response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogTag"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    m6EffectiveCatalogSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogSettings"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    m6UpdateCatalogSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CatalogSettingsInput"];
+            };
+        };
+        responses: {
+            /** @description Successful response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogSettings"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    m6ListWorkspaceMembers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkspaceMemberCollection"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
         };
     };
 }

@@ -38,13 +38,21 @@ public class WorkspaceRoleAssignmentRequest {
    * Gets or Sets roles
    */
   public enum RolesEnum {
-    OWNER(String.valueOf("owner")),
+    WORKSPACE_ADMINISTRATOR(String.valueOf("workspace-administrator")),
     
-    EDITOR(String.valueOf("editor")),
+    AUTHOR(String.valueOf("author")),
     
     REVIEWER(String.valueOf("reviewer")),
     
-    ANALYST(String.valueOf("analyst"));
+    TRANSLATOR(String.valueOf("translator")),
+    
+    PUBLISHER(String.valueOf("publisher")),
+    
+    RESPONSE_VIEWER(String.valueOf("response-viewer")),
+    
+    RESPONSE_EXPORTER(String.valueOf("response-exporter")),
+    
+    AUDITOR(String.valueOf("auditor"));
 
     private String value;
 

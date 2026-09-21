@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.kodeboxx.smartintake.generated.contract.v410.BlockCollectionPage;
+import com.kodeboxx.smartintake.generated.contract.v410.AccountActionCollectionPage;
 import com.kodeboxx.smartintake.generated.contract.v410.Tag;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,7 +50,7 @@ public class TagCollection extends HashMap<String, Object> {
 
   public static final String JSON_PROPERTY_PAGE = "page";
   @jakarta.annotation.Nonnull
-  private BlockCollectionPage page;
+  private AccountActionCollectionPage page;
 
   public TagCollection() {
 
@@ -114,7 +114,7 @@ public class TagCollection extends HashMap<String, Object> {
     this.items = items;
   }
 
-  public TagCollection page(@jakarta.annotation.Nonnull BlockCollectionPage page) {
+  public TagCollection page(@jakarta.annotation.Nonnull AccountActionCollectionPage page) {
     
     this.page = page;
     return this;
@@ -128,14 +128,14 @@ public class TagCollection extends HashMap<String, Object> {
   @JsonProperty(JSON_PROPERTY_PAGE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public BlockCollectionPage getPage() {
+  public AccountActionCollectionPage getPage() {
     return page;
   }
 
 
   @JsonProperty(JSON_PROPERTY_PAGE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setPage(@jakarta.annotation.Nonnull BlockCollectionPage page) {
+  public void setPage(@jakarta.annotation.Nonnull AccountActionCollectionPage page) {
     this.page = page;
   }
 

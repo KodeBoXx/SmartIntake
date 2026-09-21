@@ -20,37 +20,45 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.kodeboxx.smartintake.generated.contract.v410.PermittedOrganizationChoice;
-import com.kodeboxx.smartintake.generated.contract.v410.SafeAccountIdentity;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.kodeboxx.smartintake.generated.contract.v410.AuthenticatedSessionOrganizationsInner;
+import com.kodeboxx.smartintake.generated.contract.v410.AuthenticatedSessionSafeIdentity;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
- * Authenticated safe identity, activation state and server-authorized organization/workspace choices.
+ * AuthenticatedSession
  */
 @JsonPropertyOrder({
   AuthenticatedSession.JSON_PROPERTY_SAFE_IDENTITY,
   AuthenticatedSession.JSON_PROPERTY_ACTIVATION_STATE,
   AuthenticatedSession.JSON_PROPERTY_ACCOUNT_STATUS,
+  AuthenticatedSession.JSON_PROPERTY_AWAITING_SETUP,
+  AuthenticatedSession.JSON_PROPERTY_PLATFORM_ROLES,
   AuthenticatedSession.JSON_PROPERTY_ORGANIZATIONS,
-  AuthenticatedSession.JSON_PROPERTY_CURRENT_ORGANIZATION_ID
+  AuthenticatedSession.JSON_PROPERTY_CURRENT_ORGANIZATION_ID,
+  AuthenticatedSession.JSON_PROPERTY_CURRENT_WORKSPACE_ID
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class AuthenticatedSession {
+public class AuthenticatedSession extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_SAFE_IDENTITY = "safeIdentity";
   @jakarta.annotation.Nonnull
-  private SafeAccountIdentity safeIdentity;
+  private AuthenticatedSessionSafeIdentity safeIdentity;
 
   /**
    * Gets or Sets activationState
    */
   public enum ActivationStateEnum {
-    AWAITING_SETUP(String.valueOf("awaiting-setup")),
+    ACTIVE(String.valueOf("active")),
     
-    ACTIVE(String.valueOf("active"));
+    PENDING(String.valueOf("pending"));
 
     private String value;
 
@@ -83,22 +91,103 @@ public class AuthenticatedSession {
   @jakarta.annotation.Nonnull
   private ActivationStateEnum activationState;
 
+  /**
+   * Gets or Sets accountStatus
+   */
+  public enum AccountStatusEnum {
+    ACTIVE(String.valueOf("active")),
+    
+    SUSPENDED(String.valueOf("suspended"));
+
+    private String value;
+
+    AccountStatusEnum(String value) {
+      this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    @JsonCreator
+    public static AccountStatusEnum fromValue(String value) {
+      for (AccountStatusEnum b : AccountStatusEnum.values()) {
+        if (b.value.equals(value)) {
+          return b;
+        }
+      }
+      throw new IllegalArgumentException("Unexpected value '" + value + "'");
+    }
+  }
+
   public static final String JSON_PROPERTY_ACCOUNT_STATUS = "accountStatus";
-  @jakarta.annotation.Nullable
-  private Object accountStatus = null;
+  @jakarta.annotation.Nonnull
+  private AccountStatusEnum accountStatus;
+
+  public static final String JSON_PROPERTY_AWAITING_SETUP = "awaitingSetup";
+  @jakarta.annotation.Nonnull
+  private Boolean awaitingSetup;
+
+  /**
+   * Gets or Sets platformRoles
+   */
+  public enum PlatformRolesEnum {
+    ADMINISTRATOR(String.valueOf("administrator"));
+
+    private String value;
+
+    PlatformRolesEnum(String value) {
+      this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    @JsonCreator
+    public static PlatformRolesEnum fromValue(String value) {
+      for (PlatformRolesEnum b : PlatformRolesEnum.values()) {
+        if (b.value.equals(value)) {
+          return b;
+        }
+      }
+      throw new IllegalArgumentException("Unexpected value '" + value + "'");
+    }
+  }
+
+  public static final String JSON_PROPERTY_PLATFORM_ROLES = "platformRoles";
+  @jakarta.annotation.Nonnull
+  private Set<PlatformRolesEnum> platformRoles = new LinkedHashSet<>();
 
   public static final String JSON_PROPERTY_ORGANIZATIONS = "organizations";
   @jakarta.annotation.Nonnull
-  private List<PermittedOrganizationChoice> organizations = new ArrayList<>();
+  private List<AuthenticatedSessionOrganizationsInner> organizations = new ArrayList<>();
 
   public static final String JSON_PROPERTY_CURRENT_ORGANIZATION_ID = "currentOrganizationId";
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   private String currentOrganizationId;
 
+  public static final String JSON_PROPERTY_CURRENT_WORKSPACE_ID = "currentWorkspaceId";
+  @jakarta.annotation.Nullable
+  private String currentWorkspaceId;
+
   public AuthenticatedSession() {
+
   }
 
-  public AuthenticatedSession safeIdentity(@jakarta.annotation.Nonnull SafeAccountIdentity safeIdentity) {
+  public AuthenticatedSession safeIdentity(@jakarta.annotation.Nonnull AuthenticatedSessionSafeIdentity safeIdentity) {
     
     this.safeIdentity = safeIdentity;
     return this;
@@ -112,14 +201,14 @@ public class AuthenticatedSession {
   @JsonProperty(JSON_PROPERTY_SAFE_IDENTITY)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public SafeAccountIdentity getSafeIdentity() {
+  public AuthenticatedSessionSafeIdentity getSafeIdentity() {
     return safeIdentity;
   }
 
 
   @JsonProperty(JSON_PROPERTY_SAFE_IDENTITY)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setSafeIdentity(@jakarta.annotation.Nonnull SafeAccountIdentity safeIdentity) {
+  public void setSafeIdentity(@jakarta.annotation.Nonnull AuthenticatedSessionSafeIdentity safeIdentity) {
     this.safeIdentity = safeIdentity;
   }
 
@@ -148,7 +237,7 @@ public class AuthenticatedSession {
     this.activationState = activationState;
   }
 
-  public AuthenticatedSession accountStatus(@jakarta.annotation.Nullable Object accountStatus) {
+  public AuthenticatedSession accountStatus(@jakarta.annotation.Nonnull AccountStatusEnum accountStatus) {
     
     this.accountStatus = accountStatus;
     return this;
@@ -158,28 +247,87 @@ public class AuthenticatedSession {
    * Get accountStatus
    * @return accountStatus
    */
-  @jakarta.annotation.Nullable
+  @jakarta.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_ACCOUNT_STATUS)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public Object getAccountStatus() {
+  public AccountStatusEnum getAccountStatus() {
     return accountStatus;
   }
 
 
   @JsonProperty(JSON_PROPERTY_ACCOUNT_STATUS)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setAccountStatus(@jakarta.annotation.Nullable Object accountStatus) {
+  public void setAccountStatus(@jakarta.annotation.Nonnull AccountStatusEnum accountStatus) {
     this.accountStatus = accountStatus;
   }
 
-  public AuthenticatedSession organizations(@jakarta.annotation.Nonnull List<PermittedOrganizationChoice> organizations) {
+  public AuthenticatedSession awaitingSetup(@jakarta.annotation.Nonnull Boolean awaitingSetup) {
+    
+    this.awaitingSetup = awaitingSetup;
+    return this;
+  }
+
+  /**
+   * Get awaitingSetup
+   * @return awaitingSetup
+   */
+  @jakarta.annotation.Nonnull
+  @JsonProperty(JSON_PROPERTY_AWAITING_SETUP)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+
+  public Boolean getAwaitingSetup() {
+    return awaitingSetup;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_AWAITING_SETUP)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setAwaitingSetup(@jakarta.annotation.Nonnull Boolean awaitingSetup) {
+    this.awaitingSetup = awaitingSetup;
+  }
+
+  public AuthenticatedSession platformRoles(@jakarta.annotation.Nonnull Set<PlatformRolesEnum> platformRoles) {
+    
+    this.platformRoles = platformRoles;
+    return this;
+  }
+
+  public AuthenticatedSession addPlatformRolesItem(PlatformRolesEnum platformRolesItem) {
+    if (this.platformRoles == null) {
+      this.platformRoles = new LinkedHashSet<>();
+    }
+    this.platformRoles.add(platformRolesItem);
+    return this;
+  }
+
+  /**
+   * Get platformRoles
+   * @return platformRoles
+   */
+  @jakarta.annotation.Nonnull
+  @JsonProperty(JSON_PROPERTY_PLATFORM_ROLES)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+
+  public Set<PlatformRolesEnum> getPlatformRoles() {
+    return platformRoles;
+  }
+
+
+  @JsonDeserialize(as = LinkedHashSet.class)
+  @JsonProperty(JSON_PROPERTY_PLATFORM_ROLES)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setPlatformRoles(@jakarta.annotation.Nonnull Set<PlatformRolesEnum> platformRoles) {
+    this.platformRoles = platformRoles;
+  }
+
+  public AuthenticatedSession organizations(@jakarta.annotation.Nonnull List<AuthenticatedSessionOrganizationsInner> organizations) {
     
     this.organizations = organizations;
     return this;
   }
 
-  public AuthenticatedSession addOrganizationsItem(PermittedOrganizationChoice organizationsItem) {
+  public AuthenticatedSession addOrganizationsItem(AuthenticatedSessionOrganizationsInner organizationsItem) {
     if (this.organizations == null) {
       this.organizations = new ArrayList<>();
     }
@@ -195,18 +343,18 @@ public class AuthenticatedSession {
   @JsonProperty(JSON_PROPERTY_ORGANIZATIONS)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public List<PermittedOrganizationChoice> getOrganizations() {
+  public List<AuthenticatedSessionOrganizationsInner> getOrganizations() {
     return organizations;
   }
 
 
   @JsonProperty(JSON_PROPERTY_ORGANIZATIONS)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setOrganizations(@jakarta.annotation.Nonnull List<PermittedOrganizationChoice> organizations) {
+  public void setOrganizations(@jakarta.annotation.Nonnull List<AuthenticatedSessionOrganizationsInner> organizations) {
     this.organizations = organizations;
   }
 
-  public AuthenticatedSession currentOrganizationId(@jakarta.annotation.Nonnull String currentOrganizationId) {
+  public AuthenticatedSession currentOrganizationId(@jakarta.annotation.Nullable String currentOrganizationId) {
     
     this.currentOrganizationId = currentOrganizationId;
     return this;
@@ -216,9 +364,9 @@ public class AuthenticatedSession {
    * Get currentOrganizationId
    * @return currentOrganizationId
    */
-  @jakarta.annotation.Nonnull
+  @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_CURRENT_ORGANIZATION_ID)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
   public String getCurrentOrganizationId() {
     return currentOrganizationId;
@@ -226,9 +374,34 @@ public class AuthenticatedSession {
 
 
   @JsonProperty(JSON_PROPERTY_CURRENT_ORGANIZATION_ID)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setCurrentOrganizationId(@jakarta.annotation.Nonnull String currentOrganizationId) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setCurrentOrganizationId(@jakarta.annotation.Nullable String currentOrganizationId) {
     this.currentOrganizationId = currentOrganizationId;
+  }
+
+  public AuthenticatedSession currentWorkspaceId(@jakarta.annotation.Nullable String currentWorkspaceId) {
+    
+    this.currentWorkspaceId = currentWorkspaceId;
+    return this;
+  }
+
+  /**
+   * Get currentWorkspaceId
+   * @return currentWorkspaceId
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_CURRENT_WORKSPACE_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public String getCurrentWorkspaceId() {
+    return currentWorkspaceId;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_CURRENT_WORKSPACE_ID)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setCurrentWorkspaceId(@jakarta.annotation.Nullable String currentWorkspaceId) {
+    this.currentWorkspaceId = currentWorkspaceId;
   }
 
   @Override
@@ -243,24 +416,32 @@ public class AuthenticatedSession {
     return Objects.equals(this.safeIdentity, authenticatedSession.safeIdentity) &&
         Objects.equals(this.activationState, authenticatedSession.activationState) &&
         Objects.equals(this.accountStatus, authenticatedSession.accountStatus) &&
+        Objects.equals(this.awaitingSetup, authenticatedSession.awaitingSetup) &&
+        Objects.equals(this.platformRoles, authenticatedSession.platformRoles) &&
         Objects.equals(this.organizations, authenticatedSession.organizations) &&
-        Objects.equals(this.currentOrganizationId, authenticatedSession.currentOrganizationId);
+        Objects.equals(this.currentOrganizationId, authenticatedSession.currentOrganizationId) &&
+        Objects.equals(this.currentWorkspaceId, authenticatedSession.currentWorkspaceId) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(safeIdentity, activationState, accountStatus, organizations, currentOrganizationId);
+    return Objects.hash(safeIdentity, activationState, accountStatus, awaitingSetup, platformRoles, organizations, currentOrganizationId, currentWorkspaceId, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class AuthenticatedSession {\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    safeIdentity: ").append(toIndentedString(safeIdentity)).append("\n");
     sb.append("    activationState: ").append(toIndentedString(activationState)).append("\n");
     sb.append("    accountStatus: ").append(toIndentedString(accountStatus)).append("\n");
+    sb.append("    awaitingSetup: ").append(toIndentedString(awaitingSetup)).append("\n");
+    sb.append("    platformRoles: ").append(toIndentedString(platformRoles)).append("\n");
     sb.append("    organizations: ").append(toIndentedString(organizations)).append("\n");
     sb.append("    currentOrganizationId: ").append(toIndentedString(currentOrganizationId)).append("\n");
+    sb.append("    currentWorkspaceId: ").append(toIndentedString(currentWorkspaceId)).append("\n");
     sb.append("}");
     return sb.toString();
   }

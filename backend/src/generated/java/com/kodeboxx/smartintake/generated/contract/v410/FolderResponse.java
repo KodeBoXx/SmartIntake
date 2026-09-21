@@ -21,6 +21,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.kodeboxx.smartintake.generated.contract.v410.Folder;
+import java.util.HashMap;
+import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -32,7 +34,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   FolderResponse.JSON_PROPERTY_FOLDER
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class FolderResponse {
+public class FolderResponse extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_REQUEST_ID = "requestId";
   @jakarta.annotation.Nonnull
   private String requestId;
@@ -42,6 +44,7 @@ public class FolderResponse {
   private Folder folder;
 
   public FolderResponse() {
+
   }
 
   public FolderResponse requestId(@jakarta.annotation.Nonnull String requestId) {
@@ -104,18 +107,20 @@ public class FolderResponse {
     }
     FolderResponse folderResponse = (FolderResponse) o;
     return Objects.equals(this.requestId, folderResponse.requestId) &&
-        Objects.equals(this.folder, folderResponse.folder);
+        Objects.equals(this.folder, folderResponse.folder) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(requestId, folder);
+    return Objects.hash(requestId, folder, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class FolderResponse {\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    requestId: ").append(toIndentedString(requestId)).append("\n");
     sb.append("    folder: ").append(toIndentedString(folder)).append("\n");
     sb.append("}");

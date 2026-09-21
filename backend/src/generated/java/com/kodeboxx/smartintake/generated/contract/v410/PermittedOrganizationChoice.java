@@ -23,7 +23,9 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.kodeboxx.smartintake.generated.contract.v410.PermittedWorkspaceChoice;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -37,7 +39,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   PermittedOrganizationChoice.JSON_PROPERTY_WORKSPACES
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class PermittedOrganizationChoice {
+public class PermittedOrganizationChoice extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_ORGANIZATION_ID = "organizationId";
   @jakarta.annotation.Nonnull
   private String organizationId;
@@ -55,6 +57,7 @@ public class PermittedOrganizationChoice {
   private List<PermittedWorkspaceChoice> workspaces = new ArrayList<>();
 
   public PermittedOrganizationChoice() {
+
   }
 
   public PermittedOrganizationChoice organizationId(@jakarta.annotation.Nonnull String organizationId) {
@@ -177,18 +180,20 @@ public class PermittedOrganizationChoice {
     return Objects.equals(this.organizationId, permittedOrganizationChoice.organizationId) &&
         Objects.equals(this.name, permittedOrganizationChoice.name) &&
         Objects.equals(this.membershipState, permittedOrganizationChoice.membershipState) &&
-        Objects.equals(this.workspaces, permittedOrganizationChoice.workspaces);
+        Objects.equals(this.workspaces, permittedOrganizationChoice.workspaces) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(organizationId, name, membershipState, workspaces);
+    return Objects.hash(organizationId, name, membershipState, workspaces, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class PermittedOrganizationChoice {\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    organizationId: ").append(toIndentedString(organizationId)).append("\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("    membershipState: ").append(toIndentedString(membershipState)).append("\n");

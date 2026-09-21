@@ -27,13 +27,18 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
  * OrganizationCreateRequest
  */
 @JsonPropertyOrder({
-  OrganizationCreateRequest.JSON_PROPERTY_NAME
+  OrganizationCreateRequest.JSON_PROPERTY_NAME,
+  OrganizationCreateRequest.JSON_PROPERTY_OWNER_EMAIL
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
 public class OrganizationCreateRequest {
   public static final String JSON_PROPERTY_NAME = "name";
   @jakarta.annotation.Nonnull
   private String name;
+
+  public static final String JSON_PROPERTY_OWNER_EMAIL = "ownerEmail";
+  @jakarta.annotation.Nonnull
+  private String ownerEmail;
 
   public OrganizationCreateRequest() {
   }
@@ -63,6 +68,31 @@ public class OrganizationCreateRequest {
     this.name = name;
   }
 
+  public OrganizationCreateRequest ownerEmail(@jakarta.annotation.Nonnull String ownerEmail) {
+    
+    this.ownerEmail = ownerEmail;
+    return this;
+  }
+
+  /**
+   * Get ownerEmail
+   * @return ownerEmail
+   */
+  @jakarta.annotation.Nonnull
+  @JsonProperty(JSON_PROPERTY_OWNER_EMAIL)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+
+  public String getOwnerEmail() {
+    return ownerEmail;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_OWNER_EMAIL)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setOwnerEmail(@jakarta.annotation.Nonnull String ownerEmail) {
+    this.ownerEmail = ownerEmail;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -72,12 +102,13 @@ public class OrganizationCreateRequest {
       return false;
     }
     OrganizationCreateRequest organizationCreateRequest = (OrganizationCreateRequest) o;
-    return Objects.equals(this.name, organizationCreateRequest.name);
+    return Objects.equals(this.name, organizationCreateRequest.name) &&
+        Objects.equals(this.ownerEmail, organizationCreateRequest.ownerEmail);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name);
+    return Objects.hash(name, ownerEmail);
   }
 
   @Override
@@ -85,6 +116,7 @@ public class OrganizationCreateRequest {
     StringBuilder sb = new StringBuilder();
     sb.append("class OrganizationCreateRequest {\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
+    sb.append("    ownerEmail: ").append(toIndentedString(ownerEmail)).append("\n");
     sb.append("}");
     return sb.toString();
   }

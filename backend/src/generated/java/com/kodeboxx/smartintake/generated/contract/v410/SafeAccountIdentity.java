@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.HashMap;
+import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -32,7 +34,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   SafeAccountIdentity.JSON_PROPERTY_DISPLAY_NAME
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class SafeAccountIdentity {
+public class SafeAccountIdentity extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_ACCOUNT_ID = "accountId";
   @jakarta.annotation.Nonnull
   private String accountId;
@@ -46,6 +48,7 @@ public class SafeAccountIdentity {
   private String displayName;
 
   public SafeAccountIdentity() {
+
   }
 
   public SafeAccountIdentity accountId(@jakarta.annotation.Nonnull String accountId) {
@@ -134,18 +137,20 @@ public class SafeAccountIdentity {
     SafeAccountIdentity safeAccountIdentity = (SafeAccountIdentity) o;
     return Objects.equals(this.accountId, safeAccountIdentity.accountId) &&
         Objects.equals(this.username, safeAccountIdentity.username) &&
-        Objects.equals(this.displayName, safeAccountIdentity.displayName);
+        Objects.equals(this.displayName, safeAccountIdentity.displayName) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(accountId, username, displayName);
+    return Objects.hash(accountId, username, displayName, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class SafeAccountIdentity {\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    accountId: ").append(toIndentedString(accountId)).append("\n");
     sb.append("    username: ").append(toIndentedString(username)).append("\n");
     sb.append("    displayName: ").append(toIndentedString(displayName)).append("\n");

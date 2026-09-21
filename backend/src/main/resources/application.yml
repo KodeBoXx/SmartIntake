@@ -7,3 +7,9 @@ spring:
     enabled: true
 server:
   port: ${PORT:8080}
+  # Tomcat applies forwarded client addresses only for the deployment's configured
+  # trusted proxy range; application source throttling then sees that canonical IP.
+  forward-headers-strategy: native
+  tomcat:
+    remoteip:
+      internal-proxies: ${SMARTINTAKE_TRUSTED_PROXY_REGEX:^127\.0\.0\.1$|^::1$}

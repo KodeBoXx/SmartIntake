@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { M5_STAFF_DOMAIN, StaffPageComponent } from '../staff-page.component';
+import { AdministrationPageComponent } from '../administration-page.component';
 
-@Component({ selector: 'app-admin-staff-page', standalone: true, imports: [StaffPageComponent], providers: [{ provide: M5_STAFF_DOMAIN, useValue: 'admin' }], template: '<app-staff-page />' })
+@Component({ selector: 'app-admin-staff-page', standalone: true, imports: [AdministrationPageComponent], template: '<app-administration-page />' })
 export class AdminStaffPageComponent {}

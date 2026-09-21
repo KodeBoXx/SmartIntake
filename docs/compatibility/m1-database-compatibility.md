@@ -1,14 +1,15 @@
 # M1 database compatibility boundary
 
 This is an additive compatibility boundary. Flyway V1 through V10 remain
-byte-for-byte immutable. V11 through V13 are additive: V11 registers the writable canonical
+byte-for-byte immutable. V11 through V14 are additive: V11 registers the writable canonical
 4.0.0 profile, adds nullable typed runtime state, and widens mutation replay
-keys without rewriting their values. V7 registers the writable M1
-current-prototype profile and enforces one submission per session.
-It is not application-rollback-compatible by itself: an application binary from
+keys without rewriting their values; V14 adds opaque, revocable staff sessions,
+login-CSRF challenges, bounded sign-in throttles, and the one-time bootstrap guard.
+V7 registers the writable M1 current-prototype profile and enforces one submission per
+session. It is not application-rollback-compatible by itself: an application binary from
 before `d1662ed` must not run against a database whose Flyway history includes
-V5--V13 without the coordinated procedure below.
-The companion integration test pins the exact successful V1--V13 Flyway history.
+V5--V14 without the coordinated procedure below. The companion integration test pins the
+exact successful V1--V14 Flyway history.
 
 ## Profiles and write boundary
 
@@ -92,7 +93,7 @@ application until the transaction below has committed and its post-checks pass.
    approved operational process (or wait for their expiry), record the approval,
    and rerun the preflight.
 2. Run the preflight transaction below with a role permitted to lock and alter
-   these tables. It fails closed for an incomplete/failed V5--V13 application or
+   these tables. It fails closed for an incomplete/failed V5--V18 application or
    for any later successful migration. Do not substitute `CASCADE`, disable
    Flyway validation, or delete individual submissions to satisfy a check.
 3. Commit the drop transaction, run the post-check, then deploy the
@@ -101,7 +102,7 @@ application until the transaction below has committed and its post-checks pass.
    submissions and a later V7 deployment will correctly refuse to proceed.
 4. This rollback is permitted only when no canonical M4 record or runtime state
    exists. To return forward, restore the verified pre-rollback backup before
-   deploying the current application. Reapplying V5--V13 to the destructively
+   deploying the current application. Reapplying V5--V18 to the destructively
    rolled-back database is not a lossless recovery procedure. Reconcile
    duplicate submissions explicitly before retrying V7; never merge or delete
    them as part of a migration.
@@ -113,7 +114,11 @@ set local statement_timeout = '30s';
 
 lock table flyway_schema_history, session_mutations, submissions, sessions, form_releases, forms,
            record_migration_state, compatibility_quarantine_evidence,
-           compatibility_profiles in access exclusive mode;
+           compatibility_profiles, catalog_workspace_revisions, form_catalog_metadata,
+           form_catalog_tags, catalog_folders, catalog_tags, catalog_workspace_settings,
+           catalog_organization_settings, accounts, organizations, workspaces, memberships,
+           staff_sessions, organization_memberships, identity_invitations, identity_secret_actions,
+           platform_roles, administration_mutation_replays, workspace_role_revisions in access exclusive mode;
 
 do $$
 begin
@@ -137,13 +142,18 @@ begin
           or (version = '10' and type = 'SQL' and script = 'V10__bind_session_mutation_request_digest.sql' and checksum = 1365084057)
           or (version = '11' and type = 'SQL' and script = 'V11__m4_compatibility_runtime.sql' and checksum = 1780789261)
           or (version = '12' and type = 'SQL' and script = 'V12__submission_attempt_review_evidence.sql' and checksum = -1868713494)
-          or (version = '13' and type = 'SQL' and script = 'V13__pinned_runtime_manifests.sql' and checksum = -1265314321),
+          or (version = '13' and type = 'SQL' and script = 'V13__pinned_runtime_manifests.sql' and checksum = -1265314321)
+          or (version = '14' and type = 'SQL' and script = 'V14__staff_identity_sessions.sql' and checksum = 724788122)
+          or (version = '15' and type = 'SQL' and script = 'V15__identity_lifecycle_tenant_administration.sql' and checksum = -2047153491)
+          or (version = '16' and type = 'SQL' and script = 'V16__catalog_administration.sql' and checksum = -2129090709)
+          or (version = '17' and type = 'SQL' and script = 'V17__pending_organization_owner_activation.sql' and checksum = -1184501692)
+          or (version = '18' and type = 'SQL' and script = 'V18__widen_organization_lifecycle_state.sql' and checksum = 1138518176),
           false)
   )
-  or (select count(*) from flyway_schema_history where success) <> 13
+  or (select count(*) from flyway_schema_history where success) <> 18
   or (select count(distinct (version, type, script, checksum))
-      from flyway_schema_history where success) <> 13 then
-    raise exception 'Rollback refused: successful Flyway history is not the exact V1-V13 SQL allowlist';
+      from flyway_schema_history where success) <> 18 then
+    raise exception 'Rollback refused: successful Flyway history is not the exact V1-V18 SQL allowlist';
   end if;
   if exists (
       select 1
@@ -170,6 +180,37 @@ begin
   ) then
     raise exception 'Rollback refused: V11 contains replay keys that cannot be represented as V4 UUIDs';
   end if;
+  if exists (select 1 from staff_sessions where revoked_at is null and absolute_expires_at > transaction_timestamp()) then
+    raise exception 'Rollback refused: revoke or expire all active V14 staff sessions before downgrading opaque tokens';
+  end if;
+  if to_regclass('public.platform_roles') is null
+     or to_regclass('public.organization_memberships') is null
+     or to_regclass('public.identity_invitations') is null
+     or to_regclass('public.identity_secret_actions') is null
+     or to_regclass('public.administration_mutation_replays') is null
+     or to_regclass('public.workspace_role_revisions') is null
+     or to_regclass('public.identity_invitations_active_idx') is null
+     or to_regclass('public.organization_memberships_active_owner_idx') is null
+     or to_regclass('public.staff_sessions_current_context_idx') is null
+     or to_regclass('public.administration_mutation_replays_expiry_idx') is null
+     or (select count(*) from information_schema.columns where table_schema='public' and table_name='accounts'
+         and column_name in ('account_status', 'activation_state', 'display_name', 'temporary_password_expires_at', 'revision')) <> 5
+     or (select count(*) from information_schema.columns where table_schema='public' and table_name='organizations'
+         and column_name in ('organization_status', 'revision')) <> 2
+     or (select count(*) from information_schema.columns where table_schema='public' and table_name='staff_sessions'
+         and column_name in ('setup_only', 'current_organization_id', 'current_workspace_id')) <> 3
+     or not exists (select 1 from information_schema.columns where table_schema='public' and table_name='organization_memberships' and column_name='revision')
+     or not exists (select 1 from information_schema.columns where table_schema='public' and table_name='memberships' and column_name='revision') then
+    raise exception 'Rollback refused: V15 identity administration/revision objects are incomplete';
+  end if;
+  if exists (select 1 from platform_roles)
+     or exists (select 1 from organization_memberships)
+     or exists (select 1 from identity_invitations)
+     or exists (select 1 from identity_secret_actions)
+     or exists (select 1 from administration_mutation_replays)
+     or exists (select 1 from workspace_role_revisions) then
+    raise exception 'Rollback refused: V15 identity administration state requires backup restoration or approved retirement';
+  end if;
   if exists (select 1 from forms where compatibility_profile_key = 'canonical-4.0.0')
      or exists (select 1 from forms where definition->>'schemaVersion' = '4.0.0')
      or exists (select 1 from form_releases where compatibility_profile_key = 'canonical-4.0.0')
@@ -178,8 +219,47 @@ begin
      or exists (select 1 from sessions where runtime_state is not null) then
     raise exception 'Rollback refused: canonical M4 records or runtime state require verified backup restoration or approved retirement/export';
   end if;
+
+-- V16 catalog state must be absent; it has no representation before M6.
+if exists (select 1 from form_catalog_metadata)
+   or exists (select 1 from catalog_folders)
+   or exists (select 1 from catalog_tags)
+   or exists (select 1 from catalog_workspace_settings)
+   or exists (select 1 from catalog_organization_settings) then
+  raise exception 'Rollback refused: catalog administration state requires backup restoration or retirement';
+end if;
 end $$;
 
+-- V18/V17/V16/V15 are reversible only after the preflight has retired their state.
+drop trigger catalog_forms_revision on forms;
+drop trigger catalog_folders_revision on catalog_folders;
+drop trigger catalog_tags_revision on catalog_tags;
+drop trigger catalog_metadata_revision on form_catalog_metadata;
+drop trigger catalog_form_tags_revision on form_catalog_tags;
+drop function catalog_touch_workspace_revision();
+drop index if exists forms_workspace_catalog_updated_idx;
+drop table catalog_workspace_revisions, form_catalog_tags, form_catalog_metadata,
+           catalog_workspace_settings, catalog_organization_settings, catalog_folders, catalog_tags;
+drop index if exists administration_mutation_replays_expiry_idx;
+drop table administration_mutation_replays, workspace_role_revisions, identity_secret_actions,
+           identity_invitations, organization_memberships, platform_roles;
+drop index if exists staff_sessions_current_context_idx;
+alter table staff_sessions drop column setup_only, drop column current_organization_id, drop column current_workspace_id;
+alter table memberships drop column revision;
+alter table organizations drop column organization_status, drop column revision;
+alter table accounts drop column account_status, drop column activation_state, drop column display_name, drop column temporary_password_expires_at, drop column revision;
+
+-- V14 is reversible only after the preflight has retired every active opaque staff session.
+delete from staff_sessions;
+drop table sign_in_throttles;
+drop table login_csrf_challenges;
+drop table identity_bootstrap_state;
+drop index if exists staff_sessions_account_active_idx;
+alter table staff_sessions drop column csrf_token_hash,
+                           drop column last_seen_at,
+                           drop column absolute_expires_at,
+                           drop column revoked_at,
+                           drop column updated_at;
 alter table submissions drop constraint submissions_session_id_unique;
 drop table submission_attempts;
 alter table submissions drop column review_projection,
@@ -207,12 +287,12 @@ alter table forms drop column compatibility_profile_key;
 drop table compatibility_quarantine_evidence;
 drop table record_migration_state;
 drop table compatibility_profiles;
-delete from flyway_schema_history where version in ('5', '6', '7', '8', '9', '10', '11', '12', '13');
+delete from flyway_schema_history where version in ('5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18');
 commit;
 
 -- Run after commit. Every *_remains value must be false and mutation_key_uuid_restored true
 -- before deploying the old binary.
-select exists (select 1 from flyway_schema_history where version in ('5', '6', '7', '8', '9', '10', '11', '12', '13')) as compatibility_history_remains,
+select exists (select 1 from flyway_schema_history where version in ('5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18')) as compatibility_history_remains,
        exists (select 1 from pg_constraint
                where conrelid = 'submissions'::regclass
                    and conname = 'submissions_session_id_unique') as uniqueness_remains,
@@ -226,6 +306,26 @@ select exists (select 1 from flyway_schema_history where version in ('5', '6', '
                where conrelid = 'session_mutations'::regclass
                  and conname in ('session_mutations_request_digest_format',
                                  'session_mutations_client_mutation_id_opaque_id')) as mutation_constraint_remains,
+       exists (select 1 from information_schema.tables
+               where table_schema='public' and table_name in ('platform_roles', 'organization_memberships',
+                 'identity_invitations', 'identity_secret_actions', 'administration_mutation_replays',
+                 'workspace_role_revisions')) as v15_table_remains,
+       exists (select 1 from information_schema.columns
+               where table_schema='public' and ((table_name='accounts' and column_name in ('account_status',
+                    'activation_state', 'display_name', 'temporary_password_expires_at', 'revision'))
+                  or (table_name='organizations' and column_name in ('organization_status', 'revision'))
+                  or (table_name='staff_sessions' and column_name in ('setup_only', 'current_organization_id', 'current_workspace_id'))
+                  or (table_name='organization_memberships' and column_name='revision')
+                  or (table_name='memberships' and column_name='revision')))
+                 as v15_column_remains,
+       exists (select 1 from pg_indexes
+               where schemaname='public' and indexname in ('identity_invitations_active_idx',
+                 'organization_memberships_active_owner_idx', 'staff_sessions_current_context_idx',
+                 'administration_mutation_replays_expiry_idx'))
+                 as v15_index_remains,
+       exists (select 1 from pg_indexes
+               where schemaname='public' and indexname = 'forms_workspace_catalog_updated_idx')
+                 as v16_forms_workspace_catalog_updated_index_remains,
        coalesce((select data_type = 'uuid' from information_schema.columns
                  where table_name = 'session_mutations' and column_name = 'client_mutation_id'), false)
                  as mutation_key_uuid_restored;

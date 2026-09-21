@@ -21,6 +21,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.kodeboxx.smartintake.generated.contract.v410.PackageDocument;
+import java.util.HashMap;
+import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -32,7 +34,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   DraftSaveRequest.JSON_PROPERTY_EDIT_NOTE
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class DraftSaveRequest {
+public class DraftSaveRequest extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_PACKAGE = "package";
   @jakarta.annotation.Nonnull
   private PackageDocument _package;
@@ -42,6 +44,7 @@ public class DraftSaveRequest {
   private String editNote;
 
   public DraftSaveRequest() {
+
   }
 
   public DraftSaveRequest _package(@jakarta.annotation.Nonnull PackageDocument _package) {
@@ -104,18 +107,20 @@ public class DraftSaveRequest {
     }
     DraftSaveRequest draftSaveRequest = (DraftSaveRequest) o;
     return Objects.equals(this._package, draftSaveRequest._package) &&
-        Objects.equals(this.editNote, draftSaveRequest.editNote);
+        Objects.equals(this.editNote, draftSaveRequest.editNote) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(_package, editNote);
+    return Objects.hash(_package, editNote, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class DraftSaveRequest {\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    _package: ").append(toIndentedString(_package)).append("\n");
     sb.append("    editNote: ").append(toIndentedString(editNote)).append("\n");
     sb.append("}");

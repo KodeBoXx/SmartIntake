@@ -20,6 +20,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.kodeboxx.smartintake.generated.contract.v410.FolderUpdateRequestParentId;
+import java.util.HashMap;
+import java.util.Map;
+import org.openapitools.jackson.nullable.JsonNullable;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.openapitools.jackson.nullable.JsonNullable;
+import java.util.NoSuchElementException;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -31,16 +38,17 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   FolderCreateRequest.JSON_PROPERTY_PARENT_ID
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class FolderCreateRequest {
+public class FolderCreateRequest extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_NAME = "name";
   @jakarta.annotation.Nonnull
   private String name;
 
   public static final String JSON_PROPERTY_PARENT_ID = "parentId";
   @jakarta.annotation.Nullable
-  private String parentId;
+  private JsonNullable<FolderUpdateRequestParentId> parentId = JsonNullable.<FolderUpdateRequestParentId>undefined();
 
   public FolderCreateRequest() {
+
   }
 
   public FolderCreateRequest name(@jakarta.annotation.Nonnull String name) {
@@ -68,9 +76,9 @@ public class FolderCreateRequest {
     this.name = name;
   }
 
-  public FolderCreateRequest parentId(@jakarta.annotation.Nullable String parentId) {
+  public FolderCreateRequest parentId(@jakarta.annotation.Nullable FolderUpdateRequestParentId parentId) {
+    this.parentId = JsonNullable.<FolderUpdateRequestParentId>of(parentId);
     
-    this.parentId = parentId;
     return this;
   }
 
@@ -79,18 +87,26 @@ public class FolderCreateRequest {
    * @return parentId
    */
   @jakarta.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_PARENT_ID)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  @JsonIgnore
 
-  public String getParentId() {
-    return parentId;
+  public FolderUpdateRequestParentId getParentId() {
+        return parentId.orElse(null);
   }
 
-
   @JsonProperty(JSON_PROPERTY_PARENT_ID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setParentId(@jakarta.annotation.Nullable String parentId) {
+
+  public JsonNullable<FolderUpdateRequestParentId> getParentId_JsonNullable() {
+    return parentId;
+  }
+  
+  @JsonProperty(JSON_PROPERTY_PARENT_ID)
+  public void setParentId_JsonNullable(JsonNullable<FolderUpdateRequestParentId> parentId) {
     this.parentId = parentId;
+  }
+
+  public void setParentId(@jakarta.annotation.Nullable FolderUpdateRequestParentId parentId) {
+    this.parentId = JsonNullable.<FolderUpdateRequestParentId>of(parentId);
   }
 
   @Override
@@ -103,18 +119,31 @@ public class FolderCreateRequest {
     }
     FolderCreateRequest folderCreateRequest = (FolderCreateRequest) o;
     return Objects.equals(this.name, folderCreateRequest.name) &&
-        Objects.equals(this.parentId, folderCreateRequest.parentId);
+        equalsNullable(this.parentId, folderCreateRequest.parentId) &&
+        super.equals(o);
+  }
+
+  private static <T> boolean equalsNullable(JsonNullable<T> a, JsonNullable<T> b) {
+    return a == b || (a != null && b != null && a.isPresent() && b.isPresent() && Objects.deepEquals(a.get(), b.get()));
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, parentId);
+    return Objects.hash(name, hashCodeNullable(parentId), super.hashCode());
+  }
+
+  private static <T> int hashCodeNullable(JsonNullable<T> a) {
+    if (a == null) {
+      return 1;
+    }
+    return a.isPresent() ? Arrays.deepHashCode(new Object[]{a.get()}) : 31;
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class FolderCreateRequest {\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("    parentId: ").append(toIndentedString(parentId)).append("\n");
     sb.append("}");

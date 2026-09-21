@@ -20,9 +20,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -30,78 +27,100 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
  * ActivationRequest
  */
 @JsonPropertyOrder({
-  ActivationRequest.JSON_PROPERTY_RELEASE_ID,
-  ActivationRequest.JSON_PROPERTY_SHARE_CHANNEL_IDS
+  ActivationRequest.JSON_PROPERTY_ACTIVATION_TOKEN,
+  ActivationRequest.JSON_PROPERTY_PASSWORD,
+  ActivationRequest.JSON_PROPERTY_DISPLAY_NAME
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
 public class ActivationRequest {
-  public static final String JSON_PROPERTY_RELEASE_ID = "releaseId";
+  public static final String JSON_PROPERTY_ACTIVATION_TOKEN = "activationToken";
   @jakarta.annotation.Nonnull
-  private String releaseId;
+  private String activationToken;
 
-  public static final String JSON_PROPERTY_SHARE_CHANNEL_IDS = "shareChannelIds";
+  public static final String JSON_PROPERTY_PASSWORD = "password";
   @jakarta.annotation.Nonnull
-  private List<String> shareChannelIds = new ArrayList<>();
+  private String password;
+
+  public static final String JSON_PROPERTY_DISPLAY_NAME = "displayName";
+  @jakarta.annotation.Nonnull
+  private String displayName;
 
   public ActivationRequest() {
   }
 
-  public ActivationRequest releaseId(@jakarta.annotation.Nonnull String releaseId) {
+  public ActivationRequest activationToken(@jakarta.annotation.Nonnull String activationToken) {
     
-    this.releaseId = releaseId;
+    this.activationToken = activationToken;
     return this;
   }
 
   /**
-   * Get releaseId
-   * @return releaseId
+   * Get activationToken
+   * @return activationToken
    */
   @jakarta.annotation.Nonnull
-  @JsonProperty(JSON_PROPERTY_RELEASE_ID)
+  @JsonProperty(JSON_PROPERTY_ACTIVATION_TOKEN)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public String getReleaseId() {
-    return releaseId;
+  public String getActivationToken() {
+    return activationToken;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_RELEASE_ID)
+  @JsonProperty(JSON_PROPERTY_ACTIVATION_TOKEN)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setReleaseId(@jakarta.annotation.Nonnull String releaseId) {
-    this.releaseId = releaseId;
+  public void setActivationToken(@jakarta.annotation.Nonnull String activationToken) {
+    this.activationToken = activationToken;
   }
 
-  public ActivationRequest shareChannelIds(@jakarta.annotation.Nonnull List<String> shareChannelIds) {
+  public ActivationRequest password(@jakarta.annotation.Nonnull String password) {
     
-    this.shareChannelIds = shareChannelIds;
-    return this;
-  }
-
-  public ActivationRequest addShareChannelIdsItem(String shareChannelIdsItem) {
-    if (this.shareChannelIds == null) {
-      this.shareChannelIds = new ArrayList<>();
-    }
-    this.shareChannelIds.add(shareChannelIdsItem);
+    this.password = password;
     return this;
   }
 
   /**
-   * Get shareChannelIds
-   * @return shareChannelIds
+   * Get password
+   * @return password
    */
   @jakarta.annotation.Nonnull
-  @JsonProperty(JSON_PROPERTY_SHARE_CHANNEL_IDS)
+  @JsonProperty(JSON_PROPERTY_PASSWORD)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
-  public List<String> getShareChannelIds() {
-    return shareChannelIds;
+  public String getPassword() {
+    return password;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_SHARE_CHANNEL_IDS)
+  @JsonProperty(JSON_PROPERTY_PASSWORD)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setShareChannelIds(@jakarta.annotation.Nonnull List<String> shareChannelIds) {
-    this.shareChannelIds = shareChannelIds;
+  public void setPassword(@jakarta.annotation.Nonnull String password) {
+    this.password = password;
+  }
+
+  public ActivationRequest displayName(@jakarta.annotation.Nonnull String displayName) {
+    
+    this.displayName = displayName;
+    return this;
+  }
+
+  /**
+   * Get displayName
+   * @return displayName
+   */
+  @jakarta.annotation.Nonnull
+  @JsonProperty(JSON_PROPERTY_DISPLAY_NAME)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+
+  public String getDisplayName() {
+    return displayName;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_DISPLAY_NAME)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setDisplayName(@jakarta.annotation.Nonnull String displayName) {
+    this.displayName = displayName;
   }
 
   @Override
@@ -113,21 +132,23 @@ public class ActivationRequest {
       return false;
     }
     ActivationRequest activationRequest = (ActivationRequest) o;
-    return Objects.equals(this.releaseId, activationRequest.releaseId) &&
-        Objects.equals(this.shareChannelIds, activationRequest.shareChannelIds);
+    return Objects.equals(this.activationToken, activationRequest.activationToken) &&
+        Objects.equals(this.password, activationRequest.password) &&
+        Objects.equals(this.displayName, activationRequest.displayName);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(releaseId, shareChannelIds);
+    return Objects.hash(activationToken, password, displayName);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class ActivationRequest {\n");
-    sb.append("    releaseId: ").append(toIndentedString(releaseId)).append("\n");
-    sb.append("    shareChannelIds: ").append(toIndentedString(shareChannelIds)).append("\n");
+    sb.append("    activationToken: ").append(toIndentedString(activationToken)).append("\n");
+    sb.append("    password: ").append(toIndentedString(password)).append("\n");
+    sb.append("    displayName: ").append(toIndentedString(displayName)).append("\n");
     sb.append("}");
     return sb.toString();
   }

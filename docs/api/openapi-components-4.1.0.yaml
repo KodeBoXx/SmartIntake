@@ -8,7 +8,7 @@ components:
     staffCookie:
       type: apiKey
       in: cookie
-      name: smartintake_staff
+      name: SI_STAFF_SESSION
       description: Opaque HttpOnly staff session cookie; sign-in validates Origin
         and binds a login-CSRF token before issuing it.
     csrfHeader:
@@ -64,7 +64,7 @@ components:
       description: One-time value returned in the unauthenticated GET /v1/auth/session
         401 response; it must match the server-bound login-CSRF cookie.
     LoginCsrfCookie:
-      name: smartintake_login_csrf
+      name: SI_LOGIN_CSRF
       in: cookie
       required: true
       schema:
@@ -72,6 +72,24 @@ components:
         minLength: 24
       description: Secure, HttpOnly, SameSite=Strict cookie set by unauthenticated
         GET /v1/auth/session and consumed with the matching X-Login-CSRF-Token.
+    BootstrapToken:
+      name: X-Bootstrap-Token
+      in: header
+      required: true
+      schema:
+        type: string
+        minLength: 1
+      description: Deployment-provisioned, one-time bootstrap proof. It is consumed
+        atomically and must never be logged.
+    CsrfCookie:
+      name: SI_CSRF
+      in: cookie
+      required: true
+      schema:
+        type: string
+        minLength: 24
+      description: Readable SameSite=Strict CSRF cookie whose value must match X-CSRF-Token
+        for a cookie-authenticated mutation.
   headers:
     ETag:
       schema:
@@ -100,10 +118,30 @@ components:
     LoginCsrfSetCookie:
       schema:
         type: string
-      example: smartintake_login_csrf=bound-01J2W5RFR3K24SFWDX2C0N9VW3; Secure; HttpOnly;
-        SameSite=Strict; Path=/v1/auth
-      description: Sets smartintake_login_csrf as a Secure, HttpOnly, SameSite=Strict,
-        short-lived cookie bound to the returned one-time token.
+      example: SI_LOGIN_CSRF=bound-01J2W5RFR3K24SFWDX2C0N9VW3; Secure; HttpOnly; SameSite=Strict;
+        Path=/v1/auth
+      description: Sets SI_LOGIN_CSRF as a Secure, HttpOnly, SameSite=Strict, short-lived
+        cookie bound to the returned one-time token.
+    X-Temporary-Password-Copy:
+      description: Authorized one-time temporary password delivery. Never log or persist
+        this value.
+      schema:
+        type: string
+    X-Invitation-Copy-Link:
+      description: Authorized one-time invitation delivery link. Never log or persist
+        this value.
+      schema:
+        type: string
+    X-Recovery-Copy-Link:
+      description: Authorized one-time recovery delivery link. Never log or persist
+        this value.
+      schema:
+        type: string
+    X-Activation-Copy-Link:
+      description: Authorized one-time activation delivery link. Never log or persist
+        this value.
+      schema:
+        type: string
   examples:
     Problem:
       value:
@@ -1871,8 +1909,8 @@ components:
           type: array
           minItems: 1
           items:
-            enum:
-            - administrator
+            enum: &id008
+            - workspace-administrator
             - author
             - reviewer
             - translator
@@ -1908,39 +1946,104 @@ components:
       - safeIdentity
       - activationState
       - accountStatus
+      - awaitingSetup
+      - platformRoles
       - organizations
-      - currentOrganizationId
       properties:
         safeIdentity:
-          $ref: '#/components/schemas/SafeAccountIdentity'
+          type: object
+          additionalProperties: false
+          required:
+          - accountId
+          - username
+          - displayName
+          properties:
+            accountId:
+              type: string
+              pattern: ^account-
+            username:
+              type: string
+            displayName:
+              type: string
         activationState:
           enum:
-          - awaiting-setup
           - active
+          - pending
         accountStatus:
-          const: active
+          enum:
+          - active
+          - suspended
+        awaitingSetup:
+          type: boolean
+        platformRoles:
+          type: array
+          items:
+            enum:
+            - administrator
+          uniqueItems: true
         organizations:
           type: array
           items:
-            $ref: '#/components/schemas/PermittedOrganizationChoice'
+            type: object
+            additionalProperties: false
+            required:
+            - organizationId
+            - name
+            - membershipState
+            - organizationRoles
+            - workspaces
+            properties:
+              organizationId:
+                type: string
+                pattern: ^organization-
+              name:
+                type: string
+              membershipState:
+                enum:
+                - active
+              organizationRoles:
+                type: array
+                items:
+                  enum:
+                  - owner
+                  - administrator
+                  - member
+                uniqueItems: true
+              workspaces:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: false
+                  required:
+                  - workspaceId
+                  - name
+                  - roles
+                  properties:
+                    workspaceId:
+                      type: string
+                      pattern: ^workspace-
+                    name:
+                      type: string
+                    roles:
+                      type: array
+                      items:
+                        enum:
+                        - workspace-administrator
+                        - author
+                        - reviewer
+                        - translator
+                        - publisher
+                        - response-viewer
+                        - response-exporter
+                        - auditor
         currentOrganizationId:
-          anyOf:
-          - $ref: '#/components/schemas/OpaqueId'
-          - type: 'null'
-      description: Authenticated safe identity, activation state and server-authorized
-        organization/workspace choices.
-      if:
-        properties:
-          activationState:
-            const: awaiting-setup
-        required:
-        - activationState
-      then:
-        properties:
-          organizations:
-            maxItems: 0
-          currentOrganizationId:
-            type: 'null'
+          type:
+          - string
+          - 'null'
+          pattern: ^organization-
+        currentWorkspaceId:
+          type: string
+          pattern: ^workspace-
     Form:
       type: object
       additionalProperties: false
@@ -2485,7 +2588,7 @@ components:
         roles:
           type: array
           items:
-            type: string
+            enum: *id008
       description: Concrete WorkspaceRole resource representation.
     Invitation:
       type: object
@@ -2951,16 +3054,21 @@ components:
       type: object
       additionalProperties: false
       required:
-      - releaseId
-      - shareChannelIds
+      - activationToken
+      - password
+      - displayName
       properties:
-        releaseId:
-          $ref: '#/components/schemas/OpaqueId'
-        shareChannelIds:
-          type: array
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/OpaqueId'
+        activationToken:
+          type: string
+          minLength: 24
+        password:
+          type: string
+          minLength: 15
+          maxLength: 512
+        displayName:
+          type: string
+          minLength: 1
+          maxLength: 120
     PackageExportUpdateRequest:
       type: object
       additionalProperties: false
@@ -3170,7 +3278,7 @@ components:
           format: email
         password:
           type: string
-          minLength: 12
+          minLength: 15
           maxLength: 512
     AccountActionCreateRequest:
       type: object
@@ -3205,7 +3313,8 @@ components:
           minLength: 24
         password:
           type: string
-          minLength: 12
+          minLength: 15
+          maxLength: 512
         displayName:
           type: string
           minLength: 1
@@ -3222,7 +3331,8 @@ components:
           minLength: 1
         newPassword:
           type: string
-          minLength: 12
+          minLength: 15
+          maxLength: 512
     RecoveryRequest:
       type: object
       additionalProperties: false
@@ -3244,7 +3354,8 @@ components:
           minLength: 24
         newPassword:
           type: string
-          minLength: 12
+          minLength: 15
+          maxLength: 512
     InvitationAcceptanceRequest:
       type: object
       additionalProperties: false
@@ -3257,7 +3368,8 @@ components:
           minLength: 24
         password:
           type: string
-          minLength: 12
+          minLength: 15
+          maxLength: 512
     OrganizationUpdateRequest:
       type: object
       additionalProperties: false
@@ -3273,11 +3385,16 @@ components:
       additionalProperties: false
       required:
       - name
+      - ownerEmail
       properties:
         name:
           type: string
           minLength: 1
           maxLength: 160
+        ownerEmail:
+          type: string
+          format: email
+          maxLength: 254
     OrganizationUserCreateRequest:
       type: object
       additionalProperties: false
@@ -3330,11 +3447,7 @@ components:
           type: array
           minItems: 1
           items:
-            enum:
-            - owner
-            - editor
-            - reviewer
-            - analyst
+            enum: *id008
     InvitationCreateRequest:
       type: object
       additionalProperties: false
@@ -5296,6 +5409,232 @@ components:
           type:
           - string
           - 'null'
+    WorkspaceMember:
+      type: object
+      additionalProperties: false
+      required:
+      - accountId
+      - membershipStatus
+      - revision
+      - roles
+      properties:
+        accountId:
+          type: string
+          pattern: ^account-[0-9a-fA-F-]{36}$
+        membershipStatus:
+          const: active
+        revision:
+          type: integer
+          minimum: 0
+        roles:
+          type: array
+          minItems: 0
+          uniqueItems: true
+          items:
+            enum: *id008
+    WorkspaceMemberCollection:
+      type: object
+      additionalProperties: false
+      required:
+      - requestId
+      - items
+      properties:
+        requestId:
+          $ref: '#/components/schemas/OpaqueId'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkspaceMember'
+    CatalogTag:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - color
+      - createdAt
+      - updatedAt
+      properties:
+        id: &id009
+          type: string
+          format: uuid
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        color:
+          type:
+          - string
+          - 'null'
+          pattern: ^#[0-9A-Fa-f]{6}$
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    CatalogFolder:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - createdAt
+      - updatedAt
+      properties:
+        id: *id009
+        name:
+          type: string
+          minLength: 1
+          maxLength: 160
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    CatalogNameInput:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 160
+    CatalogTagInput:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        color:
+          type:
+          - string
+          - 'null'
+          pattern: ^#[0-9A-Fa-f]{6}$
+    CatalogOwner:
+      type:
+      - object
+      - 'null'
+      additionalProperties: false
+      required:
+      - id
+      - email
+      properties:
+        id:
+          type: string
+          pattern: ^account-[0-9a-fA-F-]{36}$
+        email:
+          type: string
+          format: email
+    CatalogForm:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - formKey
+      - title
+      - status
+      - revision
+      - updatedAt
+      - folderId
+      - owner
+      - tags
+      properties:
+        id: *id009
+        formKey:
+          type: string
+        title:
+          type: string
+        status:
+          type: string
+        revision:
+          type: integer
+          minimum: 1
+        updatedAt:
+          type: string
+          format: date-time
+        folderId:
+          anyOf:
+          - *id009
+          - type: 'null'
+        owner:
+          $ref: '#/components/schemas/CatalogOwner'
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/CatalogTag'
+    CatalogPage:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - nextCursor
+      - catalogRevision
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CatalogForm'
+        nextCursor:
+          type: string
+        catalogRevision:
+          type: integer
+          minimum: 0
+    CatalogClassification:
+      type: object
+      additionalProperties: false
+      properties:
+        folderId:
+          anyOf:
+          - *id009
+          - type: 'null'
+        tagIds:
+          type: array
+          uniqueItems: true
+          items: *id009
+    CatalogTransfer:
+      type: object
+      additionalProperties: false
+      required:
+      - accountId
+      properties:
+        accountId:
+          type: string
+          pattern: ^account-[0-9a-fA-F-]{36}$
+    CatalogSettings:
+      type: object
+      additionalProperties: false
+      required:
+      - workspaceId
+      - effective
+      - overrides
+      properties:
+        workspaceId:
+          type: string
+          pattern: ^workspace-[0-9a-fA-F-]{36}$
+        effective:
+          type: object
+          additionalProperties: true
+        overrides:
+          type: object
+          additionalProperties: true
+    CatalogSettingsInput:
+      type: object
+      additionalProperties: false
+      properties:
+        policyOverrides:
+          type: object
+          additionalProperties: true
+        providerOverrides:
+          type: object
+          additionalProperties: true
     LiveSessionStartResponse:
       type: object
       additionalProperties: false
@@ -5536,6 +5875,76 @@ components:
           deprecated: true
           description: M1 compatibility alias derived from operatorSignatures; use
             operatorSignatures for arity metadata.
+    BootstrapRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - email
+      - password
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        password:
+          type: string
+          minLength: 15
+          maxLength: 512
+        organizationName:
+          type: string
+          minLength: 1
+          maxLength: 160
+        workspaceName:
+          type: string
+          minLength: 1
+          maxLength: 160
+    BootstrapResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - requestId
+      - bootstrap
+      properties:
+        requestId:
+          type: string
+        bootstrap:
+          const: pending-activation
+    LiveDraftRead:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - revision
+      - definition
+      - diagnostics
+      properties:
+        id:
+          type: string
+          format: uuid
+        revision:
+          type: integer
+          minimum: 1
+        definition:
+          type: object
+        diagnostics:
+          type: array
+          items: {}
+    LiveDraftWrite:
+      type: object
+      additionalProperties: false
+      required:
+      - revision
+      - definition
+      - diagnostics
+      properties:
+        revision:
+          type: integer
+          minimum: 1
+        definition:
+          type: object
+        diagnostics:
+          type: array
+          items: {}
   x-contract-schema-resources:
   - $ref: ../contracts/smart-form-builder-lite/4.0.0/package.schema.json
   - $ref: ../contracts/smart-form-builder-lite/4.0.0/expression.schema.json

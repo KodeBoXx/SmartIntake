@@ -26,10 +26,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
+@ActiveProfiles("test")
 @SpringBootTest
 class DatabaseCompatibilityIntegrationTests {
   private static final ObjectMapper JSON = new ObjectMapper();
@@ -63,7 +65,12 @@ class DatabaseCompatibilityIntegrationTests {
               "10", "SQL", "V10__bind_session_mutation_request_digest.sql", 1365084057),
           new FlywayHistory("11", "SQL", "V11__m4_compatibility_runtime.sql", 1780789261),
           new FlywayHistory("12", "SQL", "V12__submission_attempt_review_evidence.sql", -1868713494),
-          new FlywayHistory("13", "SQL", "V13__pinned_runtime_manifests.sql", -1265314321));
+          new FlywayHistory("13", "SQL", "V13__pinned_runtime_manifests.sql", -1265314321),
+          new FlywayHistory("14", "SQL", "V14__staff_identity_sessions.sql", 724788122),
+          new FlywayHistory("15", "SQL", "V15__identity_lifecycle_tenant_administration.sql", -2047153491),
+          new FlywayHistory("16", "SQL", "V16__catalog_administration.sql", -2129090709),
+          new FlywayHistory("17", "SQL", "V17__pending_organization_owner_activation.sql", -1184501692),
+          new FlywayHistory("18", "SQL", "V18__widen_organization_lifecycle_state.sql", 1138518176));
 
   @Autowired JdbcTemplate db;
   @Autowired CompatibilityReconciliationService reconciliation;
@@ -652,11 +659,8 @@ class DatabaseCompatibilityIntegrationTests {
         organization,
         workspaceKey,
         "Invalid workspace");
-    db.update(
-        "insert into memberships(account_id,workspace_id,role) values(?,?,?)",
-        account,
-        workspace,
-        "OWNER");
+    db.update("insert into memberships(account_id,workspace_id,role) values(?,?,?)", account, workspace, "PUBLISHER");
+    db.update("insert into organization_memberships(account_id,organization_id,roles,membership_status) values(?,?,array['member'],'active')", account, organization);
     db.update(
         "insert into staff_sessions(token,account_id,expires_at) values(?,?,now()+interval '1"
             + " hour')",
@@ -780,16 +784,9 @@ class DatabaseCompatibilityIntegrationTests {
         organization,
         "mismatch-b-" + workspaceB,
         "B");
-    db.update(
-        "insert into memberships(account_id,workspace_id,role) values(?,?,?)",
-        account,
-        workspaceA,
-        "OWNER");
-    db.update(
-        "insert into memberships(account_id,workspace_id,role) values(?,?,?)",
-        account,
-        workspaceB,
-        "OWNER");
+    for (UUID memberWorkspace : List.of(workspaceA, workspaceB))
+      db.update("insert into memberships(account_id,workspace_id,role) values(?,?,?)", account, memberWorkspace, "RESPONSE_EXPORTER");
+    db.update("insert into organization_memberships(account_id,organization_id,roles,membership_status) values(?,?,array['member'],'active')", account, organization);
     db.update(
         "insert into staff_sessions(token,account_id,expires_at) values(?,?,now()+interval '1"
             + " hour')",
@@ -1042,6 +1039,43 @@ class DatabaseCompatibilityIntegrationTests {
         .web(WebApplicationType.NONE)
         .properties("spring.main.web-application-type=none")
         .run();
+  }
+
+  @Test
+  void v14_adds_only_staff_identity_security_state() {
+    assertEquals(
+        1,
+        db.queryForObject(
+            "select count(*) from information_schema.tables where table_schema='public'"
+                + " and table_name='identity_bootstrap_state'",
+            Integer.class));
+    assertEquals(
+        1,
+        db.queryForObject(
+            "select count(*) from information_schema.tables where table_schema='public'"
+                + " and table_name='login_csrf_challenges'",
+            Integer.class));
+    assertEquals(
+        1,
+        db.queryForObject(
+            "select count(*) from information_schema.columns where table_name='staff_sessions'"
+                + " and column_name='absolute_expires_at'",
+            Integer.class));
+  }
+
+  @Test
+  void v15_adds_tenant_identity_lifecycle_state() {
+    for (String table : List.of("platform_roles", "organization_memberships", "identity_invitations", "identity_secret_actions",
+        "administration_mutation_replays", "workspace_role_revisions")) {
+      assertEquals(1, db.queryForObject("select count(*) from information_schema.tables where table_schema='public' and table_name=?", Integer.class, table));
+    }
+    for (String column : List.of("account_status", "activation_state", "temporary_password_expires_at", "revision")) {
+      assertEquals(1, db.queryForObject("select count(*) from information_schema.columns where table_name='accounts' and column_name=?", Integer.class, column));
+    }
+    for (String table : List.of("organizations", "organization_memberships", "memberships")) {
+      assertEquals(1, db.queryForObject("select count(*) from information_schema.columns where table_name=? and column_name='revision'", Integer.class, table));
+    }
+    assertEquals(1, db.queryForObject("select count(*) from information_schema.columns where table_name='staff_sessions' and column_name='setup_only'", Integer.class));
   }
 
   private static void assertStoredJson(String expected, String persisted) throws Exception {

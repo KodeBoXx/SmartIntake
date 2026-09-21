@@ -21,6 +21,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.kodeboxx.smartintake.generated.contract.v410.Draft;
+import java.util.HashMap;
+import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -32,7 +34,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   DraftResponse.JSON_PROPERTY_DRAFT
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
-public class DraftResponse {
+public class DraftResponse extends HashMap<String, Object> {
   public static final String JSON_PROPERTY_REQUEST_ID = "requestId";
   @jakarta.annotation.Nonnull
   private String requestId;
@@ -42,6 +44,7 @@ public class DraftResponse {
   private Draft draft;
 
   public DraftResponse() {
+
   }
 
   public DraftResponse requestId(@jakarta.annotation.Nonnull String requestId) {
@@ -104,18 +107,20 @@ public class DraftResponse {
     }
     DraftResponse draftResponse = (DraftResponse) o;
     return Objects.equals(this.requestId, draftResponse.requestId) &&
-        Objects.equals(this.draft, draftResponse.draft);
+        Objects.equals(this.draft, draftResponse.draft) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(requestId, draft);
+    return Objects.hash(requestId, draft, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class DraftResponse {\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    requestId: ").append(toIndentedString(requestId)).append("\n");
     sb.append("    draft: ").append(toIndentedString(draft)).append("\n");
     sb.append("}");
