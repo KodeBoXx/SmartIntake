@@ -1,4 +1,10 @@
 import { expect, test } from '@playwright/test';
+import { readFileSync, writeFileSync } from 'node:fs';
+
+const compilerFixture = JSON.parse(readFileSync('../docs/contracts/smart-form-builder-lite/4.0.0/fixtures/package.positive.json', 'utf8')) as {
+  data: { fields: unknown[] };
+  flow: { phases: Array<{ pages: Array<{ sections: Array<{ id: string; nodes: unknown[] }> }> }> };
+};
 
 const document = {
   formId: 'demo', draftId: 'draft', revision: 3, definition: {
@@ -55,7 +61,9 @@ test.describe('M7 visual authoring', () => {
     await field.focus();
     await page.keyboard.press('ArrowUp');
     await expect(page.locator('[data-authoring-id="section-page-details"]')).toBeFocused();
-    for (let index = 0; index < 101; index++) await page.getByRole('button', { name: 'Add phase' }).click();
+    // Dispatch genuine browser click events without Playwright's repeated actionability
+    // wait as the tree intentionally grows beyond the 100-command history boundary.
+    for (let index = 0; index < 101; index++) await page.getByRole('button', { name: 'Add phase' }).dispatchEvent('click');
     await expect(page.getByRole('button', { name: 'Undo' })).toBeEnabled();
     await page.keyboard.press('Control+z');
   });
@@ -78,5 +86,36 @@ test.describe('M7 visual authoring', () => {
     await expect(page.getByText(/Speech is unavailable/i)).toBeVisible();
     await page.setViewportSize({ width: 390, height: 844 });
     await expect(page.getByTestId('authoring-page')).toBeVisible();
+  });
+
+  test('constructs a 30-field canonical package through visual actions for compiler proof', async ({ page }) => {
+    let captured: unknown;
+    const browserDefinition = structuredClone(compilerFixture);
+    browserDefinition.flow.phases[0].pages[0].sections[0].nodes.push({ id: 'browser_review', kind: 'review', labelKey: 'title' });
+    const browserDocument = {
+      ...document,
+      definition: browserDefinition,
+      revision: 7,
+      packageHash: 'browser-proof-package',
+    };
+    await page.route('**/v1/workspaces/demo/forms/demo/authoring/draft/commands', async (route) => {
+      captured = JSON.parse(route.request().postData() ?? '{}').definition;
+      await route.fulfill({ contentType: 'application/json', body: JSON.stringify(browserDocument) });
+    });
+    await page.route('**/v1/workspaces/demo/forms/demo/authoring/draft', async (route) => {
+      if (route.request().method() === 'GET') await route.fulfill({ contentType: 'application/json', body: JSON.stringify(browserDocument) });
+      else await route.fallback();
+    });
+
+    await page.goto(base);
+    const sectionId = compilerFixture.flow.phases[0].pages[0].sections[0].id;
+    await page.locator(`[data-authoring-id="${sectionId}"]`).click();
+    const requiredAdds = 30 - compilerFixture.data.fields.length;
+    for (let index = 0; index < requiredAdds; index++) await page.getByRole('button', { name: 'Add', exact: true }).dispatchEvent('click');
+    await page.getByRole('button', { name: 'Save changes' }).click();
+    await expect.poll(() => captured).toBeTruthy();
+    const packageDefinition = captured as { data?: { fields?: unknown[] } };
+    expect(packageDefinition.data?.fields).toHaveLength(30);
+    writeFileSync('/var/tmp/smartintake-browser-30-field-package.json', JSON.stringify(packageDefinition, null, 2));
   });
 });

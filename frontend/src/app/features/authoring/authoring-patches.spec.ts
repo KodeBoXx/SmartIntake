@@ -93,7 +93,9 @@ describe('canonical authoring patches', () => {
     expect(once.expressions).toHaveProperty('whenName');
     const finalDocument = authoringDocument({ draftId: 'draft-a', revision: 4, definition: once });
     const final = applyCanonicalPatches(once, canonicalPatches(finalDocument, { type: 'remove-node', targetId: 'node-b' })) as typeof recursive;
-    expect((final.data.fields[0].itemSchema as { fields: unknown[] }).fields).toEqual([]);
+    // A final nested deletion removes the enclosing composite instead of leaving
+    // the schema-invalid itemSchema.fields: [] behind.
+    expect(final.data.fields).toEqual([]);
     expect(final.expressions).toEqual({});
   });
 
@@ -107,5 +109,33 @@ describe('canonical authoring patches', () => {
     expect(next.data.fields[0]).not.toHaveProperty('itemSchema');
     expect(next.data.fields[0]).not.toHaveProperty('unit');
     expect(next.data.fields[0]).not.toHaveProperty('calculated');
+  });
+
+  it('keeps composite labels in translations and creates a dependency-bound calculated extension', () => {
+    const next = applyCanonicalPatches(definition, canonicalPatches(document, {
+      type: 'update-field', targetId: 'node-a', field: {
+        control: 'calculated', calculated: true, mode: 'calculated',
+        extensions: { 'x-kodeboxx.calculation': { dependencyId: 'calculation_runtime', version: '1.0.0', digest: `sha256:${'a'.repeat(64)}`, value: 'whenName' } },
+      },
+    })) as typeof definition & { dependencies: unknown[] };
+    expect(next.data.fields[0]).not.toHaveProperty('control');
+    expect(next.dependencies).toEqual([{ kind: 'extension', id: 'calculation_runtime', version: '1.0.0', digest: `sha256:${'a'.repeat(64)}` }]);
+  });
+
+  it('serializes fixed matrix labels and clears optional destination settings', () => {
+    const next = applyCanonicalPatches(definition, canonicalPatches(document, {
+      type: 'update-field', targetId: 'node-a', field: {
+        control: 'fixedMatrix', sensitivity: null, guidanceId: null, fixedRows: [{ id: 'row_one', labelKey: 'authoring.field-a.row.row_one', label: 'Row one' }],
+        fixedRowLabels: { row_one: 'authoring.field-a.row.row_one' }, itemSchema: { fields: [{ id: 'row_value', key: 'value', type: 'text', labelKey: 'authoring.field-a.row.value' }] },
+      },
+    })) as typeof definition;
+    expect((next.data.fields[0] as unknown as { constraints: { fixedItemIds: string[] } }).constraints.fixedItemIds).toEqual(['row_one']);
+    expect((next.flow.phases[0].pages[0].sections[0].nodes[0] as unknown as { fixedRowLabels: Record<string, string> }).fixedRowLabels.row_one).toBe('authoring.field-a.row.row_one');
+    expect((next.translations.en.messages as Record<string, string>)['authoring.field-a.row.row_one']).toBe('Row one');
+    const clearedDocument = authoringDocument({ draftId: 'draft-a', revision: 4, definition: next });
+    const cleared = applyCanonicalPatches(next, canonicalPatches(clearedDocument, {
+      type: 'update-field', targetId: 'node-a', field: { control: 'fixedMatrix', fixedRows: [], fixedRowLabels: null },
+    })) as typeof definition;
+    expect((cleared.data.fields[0] as unknown as { constraints?: { fixedItemIds?: string[] } }).constraints?.fixedItemIds).toBeUndefined();
   });
 });

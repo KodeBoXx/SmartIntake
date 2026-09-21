@@ -4,6 +4,7 @@ export type CanonicalPatch = { op: 'add' | 'replace' | 'remove' | 'move'; path: 
 
 type CanonicalObject = Record<string, unknown>;
 type Located = { path: string; kind: 'phase' | 'page' | 'section' | 'node'; key?: string; fieldId?: string };
+type FieldLocation = { value: CanonicalObject; path: string; ancestors: { value: CanonicalObject; path: string }[] };
 
 const escape = (segment: string) => segment.replaceAll('~', '~0').replaceAll('/', '~1');
 const generatedId = () => `id_${crypto.randomUUID().replaceAll('-', '')}`;
@@ -32,7 +33,13 @@ const FIELD_KEYS = new Set([
 const CONSTRAINT_KEYS = new Set(['min', 'max', 'step', 'scale', 'minItems', 'maxItems', 'fixedItemIds', 'exclusiveOptionIds', 'required', 'minLength', 'maxLength']);
 
 function fieldOnly(value: CanonicalObject): CanonicalObject {
-  return Object.fromEntries(Object.entries(value).filter(([key]) => FIELD_KEYS.has(key)));
+  const field = Object.fromEntries(Object.entries(value).filter(([key]) => FIELD_KEYS.has(key))) as CanonicalObject;
+  if (field.itemSchema && typeof field.itemSchema === 'object' && !Array.isArray(field.itemSchema)) {
+    const itemSchema = field.itemSchema as CanonicalObject;
+    const nested = Array.isArray(itemSchema.fields) ? itemSchema.fields : [];
+    field.itemSchema = { fields: nested.filter((child): child is CanonicalObject => !!child && typeof child === 'object' && !Array.isArray(child)).map(fieldOnly) };
+  }
+  return field;
 }
 
 function canonicalOptions(value: unknown): CanonicalObject[] | undefined {
@@ -73,6 +80,12 @@ function canonicalFieldForControl(value: CanonicalObject, control: string): Cano
     delete result.calculated;
     if (result.mode === 'calculated') result.mode = 'input';
   }
+  for (const key of ['guidanceId', 'sensitivity', 'unit', 'descriptionKey']) {
+    if (result[key] === '' || result[key] === null) delete result[key];
+  }
+  for (const key of ['allowUnknown', 'allowDeclined', 'allowNotApplicable', 'ordered', 'required', 'readOnly', 'calculated']) {
+    if (result[key] === undefined) delete result[key];
+  }
   result.type = type;
   return result;
 }
@@ -106,18 +119,18 @@ function locate(document: CanonicalObject, target: string): Located | null {
   return null;
 }
 
-function field(document: CanonicalObject, fieldId: string): { value: CanonicalObject; path: string } | null {
-  const visit = (fields: CanonicalObject[], path: string): { value: CanonicalObject; path: string } | null => {
+function field(document: CanonicalObject, fieldId: string): FieldLocation | null {
+  const visit = (fields: CanonicalObject[], path: string, ancestors: { value: CanonicalObject; path: string }[]): FieldLocation | null => {
     for (const [index, candidate] of fields.entries()) {
       const candidatePath = `${path}/${index}`;
-      if (candidate.id === fieldId) return { value: candidate, path: candidatePath };
+      if (candidate.id === fieldId) return { value: candidate, path: candidatePath, ancestors };
       const children = ((candidate.itemSchema as CanonicalObject | undefined)?.fields as CanonicalObject[] | undefined) ?? [];
-      const nested = visit(children, `${candidatePath}/itemSchema/fields`);
+      const nested = visit(children, `${candidatePath}/itemSchema/fields`, [...ancestors, { value: candidate, path: candidatePath }]);
       if (nested) return nested;
     }
     return null;
   };
-  return visit((((document.data as CanonicalObject | undefined)?.fields as CanonicalObject[] | undefined) ?? []), '/data/fields');
+  return visit((((document.data as CanonicalObject | undefined)?.fields as CanonicalObject[] | undefined) ?? []), '/data/fields', []);
 }
 
 function translation(path: string, value: string): CanonicalPatch {
@@ -182,10 +195,13 @@ export function canonicalPatches(authoring: AuthoringDocument, command: Authorin
     const fieldId = command.fieldId ?? `${id}_field`;
     const key = labelKey(fieldId);
     const control = command.node?.control ?? 'shortText';
-    const fieldType = CONTROL_TYPES[control] ?? 'text';
+    const existing = field(document, fieldId);
+    const fieldType = existing?.value.type as string ?? CONTROL_TYPES[control] ?? 'text';
+    const node = { id, kind: 'question', fieldId, fieldType, control };
+    if (existing) return [{ op: 'add', path: `${found.path}/nodes/-`, value: node }];
     return [
       { op: 'add', path: '/data/fields/-', value: { id: fieldId, key: fieldId, type: fieldType, labelKey: key, constraints: { required: false }, ...(choiceControl(control) ? { options: [] } : {}) } },
-      { op: 'add', path: `${found.path}/nodes/-`, value: { id, kind: 'question', fieldId, fieldType, control } },
+      { op: 'add', path: `${found.path}/nodes/-`, value: node },
       translation(key, command.node?.label || label || 'New field'),
     ];
   }
@@ -194,14 +210,44 @@ export function canonicalPatches(authoring: AuthoringDocument, command: Authorin
     if (!current) return [];
     const supplied = command.field as CanonicalObject;
     const configured = fieldOnly({ ...fieldOnly(current.value), ...fieldOnly(supplied) });
+    if (Array.isArray(supplied.fixedRows)) {
+      const ids = supplied.fixedRows.filter((row): row is CanonicalObject => !!row && typeof row === 'object').map((row) => row.id).filter((id): id is string => typeof id === 'string');
+      const constraints = { ...(configured.constraints as CanonicalObject ?? {}) };
+      if (ids.length) constraints.fixedItemIds = ids;
+      else delete constraints.fixedItemIds;
+      if (Object.keys(constraints).length) configured.constraints = constraints;
+      else delete configured.constraints;
+    }
     const control = String(command.field.control ?? atNode(document, found.path)?.control ?? 'shortText');
     const fieldType = CONTROL_TYPES[control] ?? String(configured.type ?? 'text');
     const options = canonicalOptions(supplied.options);
     if (options) configured.options = options;
     const canonical = canonicalFieldForControl({ ...configured, type: fieldType }, control);
-    const patches: CanonicalPatch[] = [{ op: 'replace', path: current.path, value: canonical }, { op: 'replace', path: found.path, value: { ...atNode(document, found.path), control, fieldType } }];
+    const existingNode = atNode(document, found.path);
+    const nextNode: CanonicalObject = { ...existingNode, control, fieldType };
+    for (const key of ['roles', 'summaryFieldIds', 'children', 'fixedRowLabels', 'acknowledgmentContentKey']) {
+      if (Object.prototype.hasOwnProperty.call(supplied, key)) {
+        const value = supplied[key];
+        if (value === null || value === '' || (Array.isArray(value) && !value.length) || (typeof value === 'object' && value && !Object.keys(value as CanonicalObject).length)) delete nextNode[key];
+        else nextNode[key] = value;
+      }
+    }
+    const patches: CanonicalPatch[] = [{ op: 'replace', path: current.path, value: canonical }, { op: 'replace', path: found.path, value: nextNode }];
     if (typeof supplied.help === 'string' && typeof configured.descriptionKey === 'string') patches.push(translation(configured.descriptionKey, supplied.help));
+    if (typeof supplied.acknowledgmentContent === 'string' && typeof nextNode.acknowledgmentContentKey === 'string' && supplied.acknowledgmentContent) patches.push(translation(nextNode.acknowledgmentContentKey, supplied.acknowledgmentContent));
     if (Array.isArray(supplied.options)) for (const option of supplied.options) if (option && typeof option === 'object' && typeof (option as CanonicalObject).label === 'string') patches.push(translation(String((option as CanonicalObject).labelKey), String((option as CanonicalObject).label)));
+    const visualChildren = (((supplied.itemSchema as CanonicalObject | undefined)?.fields as CanonicalObject[] | undefined) ?? []);
+    for (const child of visualChildren) if (typeof child.labelKey === 'string' && typeof (child as CanonicalObject).__label === 'string') patches.push(translation(child.labelKey, String((child as CanonicalObject).__label)));
+    const rows = supplied.fixedRows;
+    if (Array.isArray(rows)) for (const row of rows) if (row && typeof row === 'object' && typeof (row as CanonicalObject).label === 'string') patches.push(translation(String((row as CanonicalObject).labelKey), String((row as CanonicalObject).label)));
+    const calculation = canonical.extensions && typeof canonical.extensions === 'object'
+      ? (canonical.extensions as CanonicalObject)['x-kodeboxx.calculation'] as CanonicalObject | undefined : undefined;
+    if (calculation?.dependencyId && calculation.version && calculation.digest) {
+      const dependencies = Array.isArray(document.dependencies) ? document.dependencies as CanonicalObject[] : [];
+      const index = dependencies.findIndex((dependency) => dependency.id === calculation.dependencyId);
+      const dependency = { kind: 'extension', id: calculation.dependencyId, version: calculation.version, digest: calculation.digest };
+      patches.push({ op: index < 0 ? 'add' : 'replace', path: index < 0 ? Array.isArray(document.dependencies) ? '/dependencies/-' : '/dependencies' : `/dependencies/${index}`, value: index < 0 && !Array.isArray(document.dependencies) ? [dependency] : dependency });
+    }
     return patches;
   }
   if (command.type === 'set-expression' && command.expressionId && command.expression) return [{ op: document.expressions && Object.prototype.hasOwnProperty.call(document.expressions, command.expressionId) ? 'replace' : 'add', path: `/expressions/${escape(command.expressionId)}`, value: command.expression }];
@@ -217,11 +263,20 @@ export function canonicalPatches(authoring: AuthoringDocument, command: Authorin
     const patches: CanonicalPatch[] = [{ op: 'remove', path: found.path }];
     const remainingPlacements = allQuestionNodes(document).filter((node) => node.fieldId === fieldId && node.id !== command.targetId).length;
     if (currentField && remainingPlacements === 0) {
-      patches.push({ op: 'remove', path: currentField.path });
-      const key = currentField.value.labelKey;
-      if (typeof key === 'string') patches.push({ op: 'remove', path: `/translations/en/messages/${escape(key)}` });
+      // itemSchema.fields has minItems: 1. Removing its final child must remove the
+      // enclosing composite definition (and its placements), never serialize fields: [].
+      const removal = currentField.ancestors.length && siblingsAt(document, currentField.path).length === 1
+        ? currentField.ancestors.at(-1)! : { value: currentField.value, path: currentField.path };
+      const removedFields = fieldsIn(removal.value);
+      const removedIds = new Set(removedFields.map((candidate) => String(candidate.id)));
+      for (const placement of allQuestionNodeLocations(document).filter((node) => removedIds.has(String(node.value.fieldId)) && node.path !== found.path)) patches.push({ op: 'remove', path: placement.path });
+      patches.push({ op: 'remove', path: removal.path });
+      for (const removed of removedFields) {
+        const key = removed.labelKey;
+        if (typeof key === 'string') patches.push({ op: 'remove', path: `/translations/en/messages/${escape(key)}` });
+      }
       const expressions = document.expressions as CanonicalObject | undefined;
-      for (const [key, expression] of Object.entries(expressions ?? {})) if (expressionReferences(expression, fieldId)) patches.push({ op: 'remove', path: `/expressions/${escape(key)}` });
+      for (const [key, expression] of Object.entries(expressions ?? {})) if ([...removedIds].some((id) => expressionReferences(expression, id))) patches.push({ op: 'remove', path: `/expressions/${escape(key)}` });
     }
     return patches;
   }
@@ -238,6 +293,26 @@ function allQuestionNodes(document: CanonicalObject): CanonicalObject[] {
   const visit = (nodes: CanonicalObject[]): CanonicalObject[] => nodes.flatMap((node) => [node, ...visit(children(node, 'nodes')), ...visit(children(node, 'children'))]);
   return flow(document).flatMap((phase) => children(phase, 'pages').flatMap((page) =>
     children(page, 'sections').flatMap((section) => visit(children(section, 'nodes')))));
+}
+
+function allQuestionNodeLocations(document: CanonicalObject): { value: CanonicalObject; path: string }[] {
+  const visit = (nodes: CanonicalObject[], path: string): { value: CanonicalObject; path: string }[] => nodes.flatMap((node, index) => {
+    const nodePath = `${path}/${index}`;
+    return [{ value: node, path: nodePath }, ...visit(children(node, 'nodes'), `${nodePath}/nodes`), ...visit(children(node, 'children'), `${nodePath}/children`)];
+  });
+  return flow(document).flatMap((phase, phaseIndex) => children(phase, 'pages').flatMap((page, pageIndex) =>
+    children(page, 'sections').flatMap((section, sectionIndex) => visit(children(section, 'nodes'), `/flow/phases/${phaseIndex}/pages/${pageIndex}/sections/${sectionIndex}/nodes`))));
+}
+
+function fieldsIn(value: CanonicalObject): CanonicalObject[] {
+  const nested = ((value.itemSchema as CanonicalObject | undefined)?.fields as CanonicalObject[] | undefined) ?? [];
+  return [value, ...nested.flatMap(fieldsIn)];
+}
+
+function siblingsAt(document: CanonicalObject, path: string): CanonicalObject[] {
+  const tokens = path.split('/');
+  const collection = atNode(document, tokens.slice(0, -1).join('/'));
+  return Array.isArray(collection) ? collection as CanonicalObject[] : [];
 }
 
 function atNode(document: CanonicalObject, pointer: string): CanonicalObject {
