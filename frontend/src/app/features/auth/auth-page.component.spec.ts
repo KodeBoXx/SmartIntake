@@ -12,6 +12,10 @@ describe('AuthPageComponent', () => {
     expect(authViewState('unknown')).toBe('ready');
     expect(authViewState(null)).toBe('ready');
     expect(authViewState('expired')).toBe('expired');
+    expect(authViewState('empty-or-no-access')).toBe('empty-or-no-access');
+    expect(authViewState('no-access')).toBe('no-access');
+    expect(authViewState('sign-in')).toBe('sign-in');
+    expect(authViewState('pending')).toBe('pending');
   });
 
   it('redirects a fresh sign-in to the server-selected workspace', () => {

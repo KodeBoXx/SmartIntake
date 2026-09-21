@@ -28,7 +28,7 @@ test.describe('M7 authoritative visual authoring oracle', () => {
     await page.getByRole('textbox', { name: 'Email' }).fill(email!);
     await page.getByRole('textbox', { name: 'Password' }).fill(password!);
     await page.getByRole('button', { name: 'Sign in' }).click();
-    await expect(page.getByRole('button', { name: 'Forms' })).toBeVisible();
+    await expect(page).toHaveURL(new RegExp(`/workspaces/${workspaceId}/forms`));
     await page.goto(`${baseUrl}/workspaces/${encodeURIComponent(workspaceId!)}/forms/new`);
     await page.getByTestId('form-key').fill(activeFormKey);
     await page.locator('.title-input').fill(oracle.formName);

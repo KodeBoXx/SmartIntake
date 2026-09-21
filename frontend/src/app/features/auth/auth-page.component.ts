@@ -5,8 +5,8 @@ import { StaffSessionStore } from '../../core/m5-session.store';
 import { AuthorizedDeliveryCopies, SmartIntakeApiService } from '../../smart-intake-api.service';
 import { titleCase } from '../../shared/m5-route-state';
 
-type AuthViewState = 'ready' | 'loading' | 'invalid' | 'denied' | 'expired' | 'email-unavailable' | 'throttled' | 'submitted' | 'error';
-const AUTH_VIEW_STATES = new Set<AuthViewState>(['ready', 'loading', 'invalid', 'denied', 'expired', 'email-unavailable', 'throttled', 'submitted', 'error']);
+type AuthViewState = 'ready' | 'sign-in' | 'pending' | 'loading' | 'invalid' | 'denied' | 'no-access' | 'empty-or-no-access' | 'expired' | 'email-unavailable' | 'throttled' | 'submitted' | 'error';
+const AUTH_VIEW_STATES = new Set<AuthViewState>(['ready', 'sign-in', 'pending', 'loading', 'invalid', 'denied', 'no-access', 'empty-or-no-access', 'expired', 'email-unavailable', 'throttled', 'submitted', 'error']);
 
 @Component({
   standalone: true,
