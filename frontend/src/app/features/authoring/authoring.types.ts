@@ -142,7 +142,7 @@ export interface ReusableComponent {
 }
 
 export interface AuthoringCommand {
-  readonly type: 'rename' | 'add-phase' | 'add-page' | 'add-section' | 'add-node' | 'remove-node' | 'move' | 'insert-component' | 'update-field' | 'set-expression' | 'set-route';
+  readonly type: 'rename' | 'add-phase' | 'add-page' | 'add-section' | 'add-node' | 'remove-node' | 'remove-page' | 'move' | 'insert-component' | 'update-field' | 'set-expression' | 'set-route' | 'set-default-next';
   readonly targetId?: string;
   /** Stable ID allocated before both visual and canonical projections are applied. */
   readonly entityId?: string;

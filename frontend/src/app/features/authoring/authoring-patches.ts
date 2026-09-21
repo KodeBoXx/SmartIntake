@@ -314,6 +314,26 @@ export function canonicalPatches(authoring: AuthoringDocument, command: Authorin
     const existing = routes.findIndex((route) => route.id === command.route!.id);
     return [{ op: existing < 0 ? 'add' : 'replace', path: existing < 0 ? Array.isArray(page.routes) ? `${found.path}/routes/-` : `${found.path}/routes` : `${found.path}/routes/${existing}`, value: existing < 0 && !Array.isArray(page.routes) ? [command.route] : command.route }];
   }
+  if (command.type === 'set-default-next' && found?.kind === 'page') {
+    const page = atNode(document, found.path) as CanonicalObject;
+    const hasDefault = typeof page.defaultNextPageId === 'string';
+    if (!command.destinationId) return hasDefault ? [{ op: 'remove', path: `${found.path}/defaultNextPageId` }] : [];
+    return [{ op: hasDefault ? 'replace' : 'add', path: `${found.path}/defaultNextPageId`, value: command.destinationId }];
+  }
+  if (command.type === 'remove-page' && found?.kind === 'page') {
+    if ((document.flow as CanonicalObject | undefined)?.startPageId === command.targetId) return [];
+    const references: CanonicalPatch[] = [];
+    for (const [phaseIndex, phase] of flow(document).entries()) {
+      for (const [pageIndex, page] of children(phase, 'pages').entries()) {
+        const pagePath = `/flow/phases/${phaseIndex}/pages/${pageIndex}`;
+        const routes = children(page, 'routes');
+        for (let routeIndex = routes.length - 1; routeIndex >= 0; routeIndex--)
+          if (routes[routeIndex].targetPageId === command.targetId) references.push({ op: 'remove', path: `${pagePath}/routes/${routeIndex}` });
+        if (page.defaultNextPageId === command.targetId) references.push({ op: 'remove', path: `${pagePath}/defaultNextPageId` });
+      }
+    }
+    return [...references, { op: 'remove', path: found.path }];
+  }
   if (command.type === 'remove-node' && found?.kind === 'node') {
     const fieldId = found.fieldId ?? '';
     const currentField = field(document, fieldId);

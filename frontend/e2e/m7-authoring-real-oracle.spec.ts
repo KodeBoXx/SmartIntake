@@ -97,6 +97,14 @@ test.describe('M7 authoritative visual authoring oracle', () => {
     await page.getByRole('treeitem', { name: 'New field', exact: true }).last().click();
     await rename(page, 'reviewAcknowledged');
     await configure(page, { key: 'reviewAcknowledged', control: 'acknowledgment', required: true, acknowledgmentContent: 'I confirm this information is accurate.', requireTrue: true, finalReviewOnly: true, voiceSupplyProhibited: true });
+    await selectNode(page, 'node_review');
+    await page.getByLabel('Destination section').selectOption({ label: 'Review / Review and submit / Review and submit' });
+    await page.getByRole('button', { name: 'Move node', exact: true }).click();
+    await selectNode(page, 'page_review');
+    await page.getByRole('button', { name: 'Remove page', exact: true }).click();
+    await page.getByRole('treeitem', { name: 'Equipment', exact: true }).nth(1).click();
+    await page.getByLabel('Default next page').selectOption({ label: 'Review and submit' });
+    await page.getByRole('button', { name: 'Save default route', exact: true }).click();
 
     // Operator-specific trees use the actual nested operand controls. Each shape
     // exercises its own literal/reference type, variable arity, and aggregate/item scope.
@@ -110,6 +118,7 @@ test.describe('M7 authoritative visual authoring oracle', () => {
 
     const persisted = await readPersisted(page);
     assertAuthoritativeShape(persisted);
+    assertUntranslatedStructuralPlaceholders(persisted);
     await assertIndependentCompiler(page, persisted);
     writeFileSync('/var/tmp/smartintake-real-browser-author-oracle-package.json', JSON.stringify(persisted, null, 2));
   });
@@ -258,7 +267,7 @@ function normalizeAuthoringPackage(persisted: Record<string, any>): Record<strin
   const byId = new Map(fields.map((field) => [field.id, field]));
   const keyFor = (id: unknown) => byId.get(String(id))?.qualifiedKey ?? String(id);
   const expressions = Object.fromEntries(Object.entries(persisted.expressions ?? {}).map(([id, expression]) => [id, normalizeExpression(expression, keyFor)]));
-  const placements = flattenPlacements(persisted.flow?.phases ?? []).map(({ node, page, section }) => normalizePlacement(node, page, section, keyFor, messages));
+  const placements = flattenPlacements(persisted.flow?.phases ?? []).filter(({ node }) => typeof node.fieldId === 'string').map(({ node, page, section }) => normalizePlacement(node, page, section, keyFor, messages));
   return {
     formKey: persisted.formKey,
     title: messages[persisted.titleKey],
@@ -268,7 +277,7 @@ function normalizeAuthoringPackage(persisted: Record<string, any>): Record<strin
         routes: (page.routes ?? []).map((route: any) => ({ targetPage: pageLabel(persisted, route.targetPageId, messages), whenExpressionId: route.whenExpressionId })),
       })),
     })),
-    fields: fields.map((field) => ({ key: field.qualifiedKey, canonicalType: field.type, parentKey: field.parentKey, label: messages[field.labelKey], config: oracleConfigFromField(field, placements, expressions, keyFor, messages) })),
+    fields: fields.map((field) => ({ key: field.qualifiedKey, canonicalType: field.type, parentKey: field.parentKey, config: oracleConfigFromField(field, placements, expressions, keyFor, messages) })),
     placements,
     expressions,
     dependencies: (persisted.dependencies ?? []).map((dependency: any) => ({ kind: dependency.kind, id: dependency.id, version: dependency.version, digest: dependency.digest })),
@@ -285,7 +294,7 @@ function expectedAuthoringPackage(): Record<string, unknown> {
       { label: 'Equipment', pages: [{ label: 'Equipment', sections: ['Equipment'], routes: [] }] },
       { label: 'Review', pages: [{ label: 'Review and submit', sections: ['Review and submit'], routes: [] }] },
     ],
-    fields: oracle.fields.map(({ expected }) => ({ key: expected.key, canonicalType: expected.canonicalType, parentKey: expected.parentKey, label: expected.key, config: expected.config })),
+    fields: oracle.fields.map(({ expected }) => ({ key: expected.key, canonicalType: expected.canonicalType, parentKey: expected.parentKey, config: expected.config })),
     placements: expectedPlacements(),
     expressions: expectedExpressions(),
     dependencies: [{ kind: 'extension', id: 'authoring-calculations', version: '1.0.0', digest: `sha256:${'0'.repeat(64)}` }],
@@ -325,7 +334,7 @@ function oracleConfigFromField(field: any, placements: Record<string, unknown>[]
       answerCells: placements.filter((candidate) => candidate.key === field.qualifiedKey).length - 1,
       instances: placements.filter((candidate) => candidate.key === field.qualifiedKey).map((candidate) => compact({ page: candidate.page, editable: !(candidate.settings as Record<string, unknown>).readOnly || undefined, readOnly: (candidate.settings as Record<string, unknown>).readOnly || undefined })),
       falseIsValidAnswer: field.type === 'boolean', hiddenRetention: field.hiddenRetention, sensitive: field.sensitivity === 'sensitive',
-      requiredWhile: requiredWhile(field.requiredExpressionId, expressions), minSelected: constraints.minItems, exclusiveOptionIds: constraints.exclusiveOptionIds, options,
+      requiredWhile: requiredWhile(field.requiredExpressionId, expressions), minSelected: constraints.minItems, minItems: constraints.minItems, exclusiveOptionIds: constraints.exclusiveOptionIds, options,
       format: field.type === 'date' ? 'ISO calendar date' : undefined, informationOnly: field.type === 'date', min: constraints.min, max: constraints.max, step: constraints.step,
       endpointLabels: [settings.endpointLowLabel, settings.endpointHighLabel], keyboardMoveControls: field.ordered === true, ordered: field.ordered,
       default: field.default?.value, allowAdd: settings.allowAdd, allowRemove: settings.allowRemove, allowReorder: settings.allowReorder, alternateInstancesBindSameField: settings.alternateInstancesBindSameField,
@@ -335,7 +344,7 @@ function oracleConfigFromField(field: any, placements: Record<string, unknown>[]
       requiredWithinTest: Boolean(field.required ?? constraints.required), visibility: visibility(field.visibilityExpressionId, expressions),
       fixedItemIds: constraints.fixedItemIds, labels: Object.values((placement.fixedRowLabels as Record<string, string> | undefined) ?? {}).length ? Object.values(placement.fixedRowLabels as Record<string, string>) : (field.options ?? []).map((option: any) => messages[option.labelKey]),
       initialStatus: field.default?.status ?? 'unanswered', requiredPerFixedRow: Boolean(field.required ?? constraints.required), scope: field.qualifiedKey === 'checks.checkDetails' ? 'item' : undefined,
-      noImplicitRegionRequirement: field.type === 'object', roles: placement.roles && Object.keys(placement.roles as Record<string, string>), noUSFormatRule: field.normalizer === 'preserve',
+      noImplicitRegionRequirement: field.type === 'object', roles: normalizedRoles(placement.roles, expected.roles), noUSFormatRule: field.normalizer === 'preserve',
       allowDeclined: field.allowDeclined, allowUnknown: field.allowUnknown, distinctFromUnanswered: field.allowUnknown && field.allowDeclined, respondentOverride: !field.readOnly, serverRecomputes: field.calculated === true,
       applicableItemsOnly: field.extensions?.['x-kodeboxx.calculation']?.value === 'operator_sum', expression: field.extensions?.['x-kodeboxx.calculation']?.value === 'operator_sum' ? 'sum(ref(equipment,root), multiply(ref(quantity,item), ref(unitCost,item)))' : undefined,
       scale: constraints.scale, allowedMime: settings.allowedMime, maxFiles: constraints.maxItems, scanReadiness: settings.scanReadiness,
@@ -350,7 +359,27 @@ function requiredWhile(id: string | undefined, expressions: Record<string, unkno
 function visibility(id: string | undefined, expressions: Record<string, unknown>): string | undefined { if (id === 'operator_isAnswered' && JSON.stringify(expressions[id]).includes('accessoryName')) return 'isAnswered(ref(accessoryName, scope=parentItem))'; return id; }
 function compact(value: Record<string, unknown>): Record<string, unknown> { return Object.fromEntries(Object.entries(value).filter(([, candidate]) => candidate !== undefined)); }
 function pageLabel(persisted: any, pageId: string, messages: Record<string, string>): string | undefined { return persisted.flow.phases.flatMap((phase: any) => phase.pages).find((page: any) => page.id === pageId)?.titleKey && messages[persisted.flow.phases.flatMap((phase: any) => phase.pages).find((page: any) => page.id === pageId).titleKey]; }
-function normalizeExpression(value: any, keyFor: (id: unknown) => string): any { if (Array.isArray(value)) return value.map((item) => normalizeExpression(item, keyFor)); if (!value || typeof value !== 'object') return value; if (value.ref?.fieldId) return { ...value, ref: { ...value.ref, fieldId: keyFor(value.ref.fieldId) } }; return Object.fromEntries(Object.entries(value).map(([key, child]) => [key, normalizeExpression(child, keyFor)])); }
+function normalizeExpression(value: any, keyFor: (id: unknown) => string): any { if (Array.isArray(value)) return value.map((item) => normalizeExpression(item, keyFor)); if (!value || typeof value !== 'object') return value; if (value.ref?.fieldId) { const { parentDepth, ...ref } = value.ref; return { ...value, ref: { ...ref, fieldId: keyFor(value.ref.fieldId), ...(parentDepth && parentDepth !== 1 ? { parentDepth } : {}) } }; } return Object.fromEntries(Object.entries(value).map(([key, child]) => [key, normalizeExpression(child, keyFor)])); }
+
+function normalizedRoles(value: unknown, expected: unknown): string[] | undefined {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
+  const actual = Object.keys(value as Record<string, unknown>);
+  const authoritative = Array.isArray(expected) ? expected.filter((role): role is string => typeof role === 'string') : [];
+  return [...authoritative.filter((role) => actual.includes(role)), ...actual.filter((role) => !authoritative.includes(role)).sort()];
+}
+
+function assertUntranslatedStructuralPlaceholders(persisted: Record<string, any>): void {
+  const translations = persisted.translations ?? {};
+  const authoredKeys = Object.keys(translations.en?.messages ?? {}).filter((key) => key.startsWith('authoring.'));
+  expect(authoredKeys.length).toBeGreaterThan(0);
+  for (const locale of ['hi', 'ar']) {
+    const messages = translations[locale]?.messages ?? {};
+    for (const key of authoredKeys) {
+      expect(Object.prototype.hasOwnProperty.call(messages, key)).toBe(true);
+      expect(messages[key]).toBe('');
+    }
+  }
+}
 
 function expectedPlacements(): Record<string, unknown>[] {
   const placement = (key: string, page: string, section: string, control: string, extras: Record<string, unknown> = {}) => {

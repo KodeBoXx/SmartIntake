@@ -1231,14 +1231,14 @@ public class IntakeApplicationService {
     root.put("data", Map.of("fields", List.of(
         Map.of("id","fld_name","key","name","type","text","labelKey","q.name","sensitivity","personal","mode","input","hiddenRetention","clear","normalizer","preserve","constraints",Map.of("required",true,"maxLength",120)),
         Map.of("id","fld_acknowledgment","key","acknowledgment","type","boolean","labelKey","q.acknowledgment","sensitivity","personal","mode","input","hiddenRetention","clear","normalizer","preserve","constraints",Map.of("required",false)))));
-    root.put("flow", Map.of("startPageId","page_name","phases",List.of(Map.of("id","phase_request","titleKey","form.title","pages",List.of(
-        Map.of("id","page_name","titleKey","q.name","sections",List.of(Map.of("id","section_name","titleKey","q.name","layout","stack","nodes",List.of(Map.of("id","node_name","kind","question","fieldId","fld_name","control","shortText"),Map.of("id","node_acknowledgment","kind","question","fieldId","fld_acknowledgment","control","acknowledgment","acknowledgmentContentKey","q.acknowledgment")))),"routes",List.of(),"defaultNextPageId","page_review"),
+    root.put("flow", Map.of("startPageId","page_name","phases",List.of(Map.of("id","phase_request","titleKey","phase.request","pages",List.of(
+        Map.of("id","page_name","titleKey","page.about","sections",List.of(Map.of("id","section_name","titleKey","section.about","layout","stack","nodes",List.of(Map.of("id","node_name","kind","question","fieldId","fld_name","control","shortText"),Map.of("id","node_acknowledgment","kind","question","fieldId","fld_acknowledgment","control","acknowledgment","acknowledgmentContentKey","q.acknowledgment")))),"routes",List.of(),"defaultNextPageId","page_review"),
         Map.of("id","page_review","titleKey","page.review","sections",List.of(Map.of("id","section_review","titleKey","page.review","layout","stack","nodes",List.of(Map.of("id","node_review","kind","review")))),"routes",List.of()))))));
     root.put("expressions",Map.of()); root.put("guidance",Map.of());
     root.put("translations",Map.of(
-        "en", translation("ltr", title, "A guided intake.", "Full name", "I acknowledge this information.", "Review and submit", "Your response has been received."),
-        "hi", translation("ltr", title, "एक निर्देशित इनटेक.", "पूरा नाम", "मैं इस जानकारी को स्वीकार करता/करती हूँ।", "समीक्षा करें और भेजें", "आपकी प्रतिक्रिया प्राप्त हो गई है।"),
-        "ar", translation("rtl", title, "نموذج إرشادي.", "الاسم الكامل", "أقر بهذه المعلومات.", "راجع وأرسل", "تم استلام ردك.")));
+        "en", translation("ltr", title, "A guided intake.", "Request", "About", "About", "Full name", "I acknowledge this information.", "Review and submit", "Your response has been received."),
+        "hi", translation("ltr", title, "एक निर्देशित इनटेक.", "अनुरोध", "विवरण", "विवरण", "पूरा नाम", "मैं इस जानकारी को स्वीकार करता/करती हूँ।", "समीक्षा करें और भेजें", "आपकी प्रतिक्रिया प्राप्त हो गई है।"),
+        "ar", translation("rtl", title, "نموذج إرشادي.", "الطلب", "التفاصيل", "التفاصيل", "الاسم الكامل", "أقر بهذه المعلومات.", "راجع وأرسل", "تم استلام ردك.")));
     root.put("theme",Map.of("themeKey","accessible-default","version","1.0.0","tokens",Map.of("accent","#175CD3","background","#FFFFFF","text","#182230","fontFamily","system","density","comfortable","radius",8)));
     root.put("policies",Map.of("reviewBeforeSubmit",true,"draftExpiryDays",30,"showProgress",true,"presentation","grouped","guidanceMode","text","narrationAutoplay",false,"allowVoiceQuestions",false,"retentionPolicyKey","standard-intake","responseAccess","anonymous","confirmationKey","confirmation"));
     root.put("dependencies",List.of()); root.put("assets",List.of()); return root;
@@ -1247,10 +1247,11 @@ public class IntakeApplicationService {
   /** Canonical starter used by the isolated M7 migration path; legacy APIs retain their old shape. */
   public Map<String,Object> canonicalAuthoringTemplate(String key, String title) { return canonicalSampleDefinition(key,title); }
 
-  private Map<String, Object> translation(String direction, String title, String description, String name,
-      String acknowledgment, String review, String confirmation) {
+  private Map<String, Object> translation(String direction, String title, String description, String phase,
+      String page, String section, String name, String acknowledgment, String review, String confirmation) {
     return Map.of("direction", direction, "messages", Map.of("form.title", title,
-        "form.description", description, "q.name", name, "q.acknowledgment", acknowledgment,
+        "form.description", description, "phase.request", phase, "page.about", page,
+        "section.about", section, "q.name", name, "q.acknowledgment", acknowledgment,
         "page.review", review, "confirmation", confirmation), "pronunciations", List.of());
   }
 

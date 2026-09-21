@@ -36,6 +36,29 @@ describe('canonical authoring patches', () => {
     expect((next.translations.en.messages as Record<string, string>)['authoring.field-new.label']).toBe('Legal name');
   });
 
+  it('removes a non-start page and its incoming default and branch routes', () => {
+    const withReview = structuredClone(definition) as Record<string, any>;
+    withReview.flow.startPageId = 'page-a';
+    withReview.flow.phases[0].pages[0].defaultNextPageId = 'page-review';
+    withReview.flow.phases[0].pages[0].routes = [{ id: 'route-review', targetPageId: 'page-review', whenExpressionId: 'whenName' }];
+    withReview.flow.phases[0].pages.push({ id: 'page-review', titleKey: 'page-review.label', sections: [], routes: [] });
+    const projected = authoringDocument({ draftId: 'draft-a', revision: 4, definition: withReview });
+    const next = applyCanonicalPatches(withReview, canonicalPatches(projected, { type: 'remove-page', targetId: 'page-review' })) as Record<string, any>;
+    expect(next.flow.phases[0].pages.map((page: { id: string }) => page.id)).toEqual(['page-a']);
+    expect(next.flow.phases[0].pages[0]).not.toHaveProperty('defaultNextPageId');
+    expect(next.flow.phases[0].pages[0].routes).toEqual([]);
+    expect(canonicalPatches(projected, { type: 'remove-page', targetId: 'page-a' })).toEqual([]);
+  });
+
+  it('sets and clears a page default route through canonical pointers', () => {
+    const projected = authoringDocument({ draftId: 'draft-a', revision: 4, definition });
+    const added = applyCanonicalPatches(definition, canonicalPatches(projected, { type: 'set-default-next', targetId: 'page-a', destinationId: 'page-b' })) as Record<string, any>;
+    expect(added.flow.phases[0].pages[0].defaultNextPageId).toBe('page-b');
+    const next = authoringDocument({ draftId: 'draft-a', revision: 4, definition: added });
+    const cleared = applyCanonicalPatches(added, canonicalPatches(next, { type: 'set-default-next', targetId: 'page-a', destinationId: '' })) as Record<string, any>;
+    expect(cleared.flow.phases[0].pages[0]).not.toHaveProperty('defaultNextPageId');
+  });
+
   it('renames through translations, preserves dependent expressions as repairable diagnostics, and moves nodes by canonical pointer', () => {
     const renamed = applyCanonicalPatches(definition, canonicalPatches(document, { type: 'rename', targetId: 'node-a', label: 'Legal name' })) as typeof definition;
     expect(renamed.data.fields[0].labelKey).toBe('field-a.label');

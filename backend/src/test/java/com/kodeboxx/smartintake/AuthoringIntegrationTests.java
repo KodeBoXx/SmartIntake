@@ -163,6 +163,14 @@ class AuthoringIntegrationTests {
     assertEquals(List.of("en", "hi", "ar"), json.convertValue(definition.path("supportedLocales"), new TypeReference<List<String>>() {}));
     assertEquals("ltr",definition.at("/translations/hi/direction").asText());
     assertEquals("rtl",definition.at("/translations/ar/direction").asText());
+    assertEquals(2,definition.at("/flow/phases/0/pages").size());
+    assertEquals("form.title",definition.path("titleKey").asText());
+    assertEquals("phase.request",definition.at("/flow/phases/0/titleKey").asText());
+    assertEquals("page.about",definition.at("/flow/phases/0/pages/0/titleKey").asText());
+    assertEquals("section.about",definition.at("/flow/phases/0/pages/0/sections/0/titleKey").asText());
+    assertEquals("q.name",definition.at("/data/fields/0/labelKey").asText());
+    assertNotEquals(definition.at("/translations/en/messages/phase.request").asText(),definition.at("/translations/hi/messages/phase.request").asText());
+    assertNotEquals(definition.at("/translations/en/messages/page.about").asText(),definition.at("/translations/ar/messages/page.about").asText());
     assertEquals(3,db.queryForObject("select count(*) from form_authoring_locale_reviews where form_id=? and draft_id=? and source_revision=1 and status='DRAFT'",Integer.class,createdForm,createdForm));
 
     ResponseEntity<String> opened=authoringCall(createdForm,"",HttpMethod.GET,null,null);
