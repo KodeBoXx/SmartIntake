@@ -33,6 +33,7 @@ export interface AuthoringDocument {
   readonly title: string;
   readonly phases: readonly AuthoringPhase[];
   readonly definition?: unknown;
+  readonly packageHash?: string;
 }
 
 export interface AuthoringHistoryEntry {
@@ -67,6 +68,8 @@ export interface PresenceMember {
 
 export interface ThemeSettings {
   readonly preset: string;
+  readonly themeKey?: string;
+  readonly revision?: number;
   readonly tokens: Record<string, string>;
   readonly locks: readonly string[];
   readonly preflight: readonly { code: string; severity: 'error' | 'warning'; message: string }[];
@@ -78,6 +81,8 @@ export interface ContentSettings {
   readonly glossary: readonly { term: string; definition: string }[];
   readonly questions: readonly { question: string; answer: string }[];
   readonly narration?: string;
+  readonly guidance?: Record<string, unknown>;
+  readonly revision?: number;
   readonly localeCompleteness?: Partial<Record<'en' | 'hi' | 'ar', { present: boolean; complete: boolean }>>;
 }
 
@@ -95,6 +100,7 @@ export interface AuthoringCommand {
   readonly label?: string;
   readonly node?: AuthoringNode;
   readonly component?: ReusableComponent;
+  readonly patches?: readonly import('./authoring-patches').CanonicalPatch[];
 }
 
 export interface PreviewResult {

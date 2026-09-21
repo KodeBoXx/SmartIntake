@@ -1181,6 +1181,26 @@ public class IntakeApplicationService {
                 List.of(name, contact, email))));
   }
 
+  /** New authoring forms start canonical; legacy definitions remain readable but are never silently rewritten. */
+  private Map<String, Object> canonicalSampleDefinition(String key, String title) {
+    Map<String,Object> root = new LinkedHashMap<>();
+    root.put("schemaVersion", "4.0.0"); root.put("engineContract", "4.0.0"); root.put("contractVersion", "4.0.0");
+    root.put("kind", "smart-form-package"); root.put("formKey", key); root.put("definitionVersion", "1.0.0");
+    root.put("titleKey", "form.title"); root.put("descriptionKey", "form.description"); root.put("defaultLocale", "en"); root.put("supportedLocales", List.of("en"));
+    root.put("data", Map.of("fields", List.of(Map.of("id","fld_name","key","name","type","text","labelKey","q.name","sensitivity","personal","mode","input","hiddenRetention","clear","normalizer","preserve","constraints",Map.of("required",true,"maxLength",120)))));
+    root.put("flow", Map.of("startPageId","page_name","phases",List.of(Map.of("id","phase_request","titleKey","form.title","pages",List.of(
+        Map.of("id","page_name","titleKey","q.name","sections",List.of(Map.of("id","section_name","titleKey","q.name","layout","stack","nodes",List.of(Map.of("id","node_name","kind","question","fieldId","fld_name","control","shortText")))),"routes",List.of(),"defaultNextPageId","page_review"),
+        Map.of("id","page_review","titleKey","page.review","sections",List.of(Map.of("id","section_review","titleKey","page.review","layout","stack","nodes",List.of(Map.of("id","node_review","kind","review")))),"routes",List.of()))))));
+    root.put("expressions",Map.of()); root.put("guidance",Map.of());
+    root.put("translations",Map.of("en",Map.of("direction","ltr","reviewState","approved","messages",Map.of("form.title",title,"form.description","A guided intake.","q.name","Full name","page.review","Review and submit","confirmation","Your response has been received."),"pronunciations",List.of())));
+    root.put("theme",Map.of("themeKey","accessible-default","version","1.0.0","tokens",Map.of("accent","#175CD3","background","#FFFFFF","text","#182230","fontFamily","system","density","comfortable","radius",8)));
+    root.put("policies",Map.of("reviewBeforeSubmit",true,"draftExpiryDays",30,"showProgress",true,"presentation","grouped","guidanceMode","text","narrationAutoplay",false,"allowVoiceQuestions",false,"retentionPolicyKey","standard-intake","responseAccess","anonymous","confirmationKey","confirmation"));
+    root.put("dependencies",List.of()); root.put("assets",List.of()); return root;
+  }
+
+  /** Canonical starter used by the isolated M7 migration path; legacy APIs retain their old shape. */
+  public Map<String,Object> canonicalAuthoringTemplate(String key, String title) { return canonicalSampleDefinition(key,title); }
+
   private void validateDefinition(Map<String, Object> d) {
     try {
       var candidate = json.valueToTree(d);

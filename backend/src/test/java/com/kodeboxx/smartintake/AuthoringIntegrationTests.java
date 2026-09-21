@@ -40,7 +40,7 @@ class AuthoringIntegrationTests {
     db.update("insert into organization_memberships(account_id,organization_id,roles,membership_status) values(?,?,array['member'],'active')",account,org);
     db.update("insert into memberships(account_id,workspace_id,role) values(?,?,?)",account,ws,"AUTHOR");
     db.update("insert into staff_sessions(token,account_id,expires_at) values(?,?,now()+interval '1 hour')",UUID.fromString(token),account);
-    db.update("insert into forms(id,workspace_id,form_key,title,definition,revision) values(?,?,?,?,cast(? as jsonb),1)",form,ws,"m7-"+form.toString().substring(0,8),"M7",fixture());
+    db.update("insert into forms(id,workspace_id,form_key,title,definition,revision,compatibility_profile_key) values(?,?,?,?,cast(? as jsonb),1,?)",form,ws,"m7-"+form.toString().substring(0,8),"M7",fixture(),"canonical-4.0.0");
   }
 
   @Test void persists_bounded_history_undo_conflicts_and_side_effect_free_preview() throws Exception {
@@ -54,7 +54,7 @@ class AuthoringIntegrationTests {
     ResponseEntity<String> redone=call("/redo",HttpMethod.POST,"\""+revision+"\"",Map.of());
     assertEquals(HttpStatus.OK,redone.getStatusCode()); revision++;
     ResponseEntity<String> stale=call("/commands",HttpMethod.POST,"\"1\"",Map.of("commands",List.of(Map.of("op","set","path","/translations/en/messages/q.name","value","Stale"))));
-    assertEquals(HttpStatus.CONFLICT,stale.getStatusCode());
+    assertEquals(HttpStatus.PRECONDITION_FAILED,stale.getStatusCode());
     assertEquals(1,db.queryForObject("select count(*) from form_authoring_conflicts where form_id=?",Integer.class,form));
     assertEquals(1L,db.queryForObject("select expected_revision from form_authoring_conflicts where form_id=?",Long.class,form));
     int sessions=db.queryForObject("select count(*) from sessions",Integer.class); int submissions=db.queryForObject("select count(*) from submissions",Integer.class);
@@ -67,7 +67,7 @@ class AuthoringIntegrationTests {
     List<Integer> huge=new ArrayList<>(); for(int i=0;i<100_001;i++) huge.add(i);
     ResponseEntity<String> response=call("/imports/validate",HttpMethod.POST,null,Map.of("candidate",huge));
     assertEquals(HttpStatus.UNPROCESSABLE_ENTITY,response.getStatusCode());
-    ResponseEntity<String> speech=call("/speech",HttpMethod.POST,null,Map.of("locale","en","voice","test","text","Hello"));
+    ResponseEntity<String> speech=call("/speech",HttpMethod.POST,null,Map.of("locale","en","voice","default","text","Full name"));
     assertEquals(HttpStatus.OK,speech.getStatusCode()); assertTrue(speech.getBody().contains("SPEECH_UNAVAILABLE"));
   }
 
@@ -130,7 +130,8 @@ class AuthoringIntegrationTests {
     ResponseEntity<String> inserted=call("/components/name-question/insert",HttpMethod.POST,"\"1\"",request,"component-insert");
     assertEquals(HttpStatus.OK,inserted.getStatusCode(),inserted.getBody());
     assertEquals(1,db.queryForObject("select count(*) from form_authoring_history where form_id=? and operation='COMPONENT_INSERT'",Integer.class,form));
-    assertTrue(inserted.getBody().contains("component-node") == false, "copy remaps source IDs");
+    assertTrue(inserted.getBody().contains("\"idMap\":{\"component-node\":\"copy_"), inserted.getBody());
+    assertTrue(inserted.getBody().contains("\"kind\":\"component\""), "canonical dependencies pin component identity");
     ResponseEntity<String> replay=call("/components/name-question/insert",HttpMethod.POST,"\"1\"",request,"component-insert");
     assertEquals(HttpStatus.OK,replay.getStatusCode());
     assertEquals(inserted.getBody(),replay.getBody());
@@ -148,6 +149,7 @@ class AuthoringIntegrationTests {
     assertTrue(content.getBody().contains("\"en\":{\"present\":true,\"complete\":true}"));
     assertTrue(content.getBody().contains("\"hi\":{\"present\":false,\"complete\":false}"));
     assertTrue(content.getBody().contains("\"ar\":{\"present\":false,\"complete\":false}"));
+    db.update("insert into memberships(account_id,workspace_id,role) select ?,workspace_id,'WORKSPACE_ADMINISTRATOR' from forms where id=?",account,form);
     Map<String,Object> theme=Map.of("themeKey","accessible-default","version","1.0.0","tokens",Map.of("accent","#175CD3","background","#FFFFFF","text","#182230","fontFamily","system","density","comfortable","radius",8));
     ResponseEntity<String> locked=call("/theme",HttpMethod.PUT,"\"1\"",Map.of("theme",theme,"locks",List.of("/tokens/accent")));
     assertEquals(HttpStatus.OK,locked.getStatusCode());
@@ -160,7 +162,7 @@ class AuthoringIntegrationTests {
   private String fixture() throws Exception { return Files.readString(Path.of("..", "docs", "contracts", "smart-form-builder-lite", "4.0.0", "fixtures", "package-prd-inline-minimal.positive.json")); }
   private ResponseEntity<String> call(String suffix,HttpMethod method,String match,Object body) { return call(suffix,method,match,body,UUID.randomUUID().toString()); }
   private ResponseEntity<String> call(String suffix,HttpMethod method,String match,Object body,String key) {
-    HttpHeaders headers=new HttpHeaders(); headers.setContentType(MediaType.APPLICATION_JSON); headers.set("X-Staff-Session",token); if(match!=null)headers.setIfMatch(match); if("/commands".equals(suffix)||suffix.contains("/components/"))headers.set("Idempotency-Key",key);
+    HttpHeaders headers=new HttpHeaders(); headers.setContentType(MediaType.APPLICATION_JSON); headers.set("X-Staff-Session",token); if(match!=null)headers.setIfMatch(match); if("/commands".equals(suffix)||suffix.contains("/components/")||"/imports/commit".equals(suffix))headers.set("Idempotency-Key",key);
     return http.exchange("http://localhost:"+port+"/v1/workspaces/"+workspace+"/forms/"+form+"/authoring/"+form+suffix,method,new HttpEntity<>(body,headers),String.class);
   }
   private ResponseEntity<String> component(HttpMethod method,String suffix,Object body) {

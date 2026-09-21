@@ -1,5 +1,6 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { AuthoringCommand, AuthoringConflict, AuthoringDocument, AuthoringHistoryEntry, DEFAULT_AUTHORING_DOCUMENT } from './authoring.types';
+import { applyCanonicalPatches, canonicalPatches } from './authoring-patches';
 
 const HISTORY_LIMIT = 120;
 
@@ -33,7 +34,7 @@ export class AuthoringStore {
 
   hydrate(key: string, server: AuthoringDocument): void {
     const saved = this.read(key);
-    if (saved && saved.document.id === server.id) {
+    if (saved && saved.document.id === server.id && saved.document.revision >= server.revision) {
       this.document.set(saved.document);
       this.undoStack.set(saved.undo.slice(-HISTORY_LIMIT));
       this.redoStack.set(saved.redo.slice(-HISTORY_LIMIT));
@@ -53,16 +54,18 @@ export class AuthoringStore {
 
   apply(command: AuthoringCommand, key: string): void {
     const before = this.document();
-    const next = applyCommand(before, command);
+    const enriched = { ...command, patches: command.patches ?? canonicalPatches(before, command) };
+    const rendered = applyCommand(before, enriched);
+    const next = { ...rendered, definition: applyCanonicalPatches(before.definition, enriched.patches ?? []) };
     if (next === before) return;
     this.undoStack.set([...this.undoStack(), before].slice(-HISTORY_LIMIT));
     this.redoStack.set([]);
-    this.pendingCommands.set([...this.pendingCommands(), command]);
+    this.pendingCommands.set([...this.pendingCommands(), enriched]);
     this.pendingMutationKey.set(null);
     this.componentInsertionKeys.set({});
     this.document.set(next);
-    this.selectedId.set(command.node?.id ?? command.targetId ?? this.selectedId());
-    this.history.set([{ id: crypto.randomUUID(), label: command.label ?? command.type, at: new Date().toISOString(), impact: impactFor(command) }, ...this.history()].slice(0, HISTORY_LIMIT));
+    this.selectedId.set(enriched.node?.id ?? enriched.targetId ?? this.selectedId());
+    this.history.set([{ id: crypto.randomUUID(), label: enriched.label ?? enriched.type, at: new Date().toISOString(), impact: impactFor(enriched) }, ...this.history()].slice(0, HISTORY_LIMIT));
     this.persist(key);
   }
 
@@ -72,6 +75,7 @@ export class AuthoringStore {
     this.undoStack.set(this.undoStack().slice(0, -1));
     this.redoStack.set([...this.redoStack(), this.document()].slice(-HISTORY_LIMIT));
     this.document.set(previous);
+    this.pendingCommands.set(this.pendingCommands().slice(0, -1));
     this.history.set([{ id: crypto.randomUUID(), label: 'Undo', at: new Date().toISOString() }, ...this.history()].slice(0, HISTORY_LIMIT));
     this.persist(key);
     return previous;

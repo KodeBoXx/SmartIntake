@@ -72,7 +72,9 @@ class DatabaseCompatibilityIntegrationTests {
           new FlywayHistory("17", "SQL", "V17__pending_organization_owner_activation.sql", -1184501692),
           new FlywayHistory("18", "SQL", "V18__widen_organization_lifecycle_state.sql", 1138518176),
           new FlywayHistory("19", "SQL", "V19__m7_visual_authoring.sql", 845506169),
-          new FlywayHistory("20", "SQL", "V20__m7_authoring_theme_locks.sql", 578832989));
+          new FlywayHistory("20", "SQL", "V20__m7_authoring_theme_locks.sql", 578832989),
+          new FlywayHistory("21", "SQL", "V21__m7_import_policy_binding.sql", 1785856019),
+          new FlywayHistory("22", "SQL", "V22__m7_locale_review_governance.sql", -1479797992));
 
   @Autowired JdbcTemplate db;
   @Autowired CompatibilityReconciliationService reconciliation;
