@@ -241,18 +241,19 @@ public class IntakeApplicationService {
     UUID ws = authorization.authorizeAuthoring(workspace, token);
     if (in.formKey() == null || !in.formKey().matches("[a-z][a-z0-9-]{2,99}"))
       throw bad("FORM_KEY_INVALID", "Use a lowercase stable key of at least three characters.");
+    String title = createTitle(in.title());
     if (in.profile() != null && !CompatibilityProfile.CANONICAL_4_0_0.key().equals(in.profile()))
       throw bad("PROFILE_UNSUPPORTED", "profile must be canonical-4.0.0 when supplied.");
     UUID id = UUID.randomUUID();
     boolean canonical = CompatibilityProfile.CANONICAL_4_0_0.key().equals(in.profile());
-    Map<String, Object> def = canonical ? canonicalAuthoringTemplate(in.formKey(), in.title()) : sampleDefinition(in.formKey(), in.title());
+    Map<String, Object> def = canonical ? canonicalAuthoringTemplate(in.formKey(), title) : sampleDefinition(in.formKey(), title);
     db.update(
         "insert into forms(id,workspace_id,form_key,title,definition,compatibility_profile_key)"
             + " values(?,?,?,?,cast(? as jsonb),?)",
         id,
         ws,
         in.formKey(),
-        in.title(),
+        title,
         stringify(def),
         canonical ? CompatibilityProfile.CANONICAL_4_0_0.key() : CompatibilityProfile.M1_CURRENT_PROTOTYPE.key());
     if (canonical) persistLocaleReviewDrafts(id, def, currentAccount(token), 1);
@@ -1226,13 +1227,18 @@ public class IntakeApplicationService {
     Map<String,Object> root = new LinkedHashMap<>();
     root.put("schemaVersion", "4.0.0"); root.put("engineContract", "4.0.0"); root.put("contractVersion", "4.0.0");
     root.put("kind", "smart-form-package"); root.put("formKey", key); root.put("definitionVersion", "1.0.0");
-    root.put("titleKey", "form.title"); root.put("descriptionKey", "form.description"); root.put("defaultLocale", "en"); root.put("supportedLocales", List.of("en"));
-    root.put("data", Map.of("fields", List.of(Map.of("id","fld_name","key","name","type","text","labelKey","q.name","sensitivity","personal","mode","input","hiddenRetention","clear","normalizer","preserve","constraints",Map.of("required",true,"maxLength",120)))));
+    root.put("titleKey", "form.title"); root.put("descriptionKey", "form.description"); root.put("defaultLocale", "en"); root.put("supportedLocales", List.of("en", "hi", "ar"));
+    root.put("data", Map.of("fields", List.of(
+        Map.of("id","fld_name","key","name","type","text","labelKey","q.name","sensitivity","personal","mode","input","hiddenRetention","clear","normalizer","preserve","constraints",Map.of("required",true,"maxLength",120)),
+        Map.of("id","fld_acknowledgment","key","acknowledgment","type","boolean","labelKey","q.acknowledgment","sensitivity","personal","mode","input","hiddenRetention","clear","normalizer","preserve","constraints",Map.of("required",false)))));
     root.put("flow", Map.of("startPageId","page_name","phases",List.of(Map.of("id","phase_request","titleKey","form.title","pages",List.of(
-        Map.of("id","page_name","titleKey","q.name","sections",List.of(Map.of("id","section_name","titleKey","q.name","layout","stack","nodes",List.of(Map.of("id","node_name","kind","question","fieldId","fld_name","control","shortText")))),"routes",List.of(),"defaultNextPageId","page_review"),
+        Map.of("id","page_name","titleKey","q.name","sections",List.of(Map.of("id","section_name","titleKey","q.name","layout","stack","nodes",List.of(Map.of("id","node_name","kind","question","fieldId","fld_name","control","shortText"),Map.of("id","node_acknowledgment","kind","question","fieldId","fld_acknowledgment","control","acknowledgment","acknowledgmentContentKey","q.acknowledgment")))),"routes",List.of(),"defaultNextPageId","page_review"),
         Map.of("id","page_review","titleKey","page.review","sections",List.of(Map.of("id","section_review","titleKey","page.review","layout","stack","nodes",List.of(Map.of("id","node_review","kind","review")))),"routes",List.of()))))));
     root.put("expressions",Map.of()); root.put("guidance",Map.of());
-    root.put("translations",Map.of("en",Map.of("direction","ltr","reviewState","approved","messages",Map.of("form.title",title,"form.description","A guided intake.","q.name","Full name","page.review","Review and submit","confirmation","Your response has been received."),"pronunciations",List.of())));
+    root.put("translations",Map.of(
+        "en", translation("ltr", title, "A guided intake.", "Full name", "I acknowledge this information.", "Review and submit", "Your response has been received."),
+        "hi", translation("ltr", title, "एक निर्देशित इनटेक.", "पूरा नाम", "मैं इस जानकारी को स्वीकार करता/करती हूँ।", "समीक्षा करें और भेजें", "आपकी प्रतिक्रिया प्राप्त हो गई है।"),
+        "ar", translation("rtl", title, "نموذج إرشادي.", "الاسم الكامل", "أقر بهذه المعلومات.", "راجع وأرسل", "تم استلام ردك.")));
     root.put("theme",Map.of("themeKey","accessible-default","version","1.0.0","tokens",Map.of("accent","#175CD3","background","#FFFFFF","text","#182230","fontFamily","system","density","comfortable","radius",8)));
     root.put("policies",Map.of("reviewBeforeSubmit",true,"draftExpiryDays",30,"showProgress",true,"presentation","grouped","guidanceMode","text","narrationAutoplay",false,"allowVoiceQuestions",false,"retentionPolicyKey","standard-intake","responseAccess","anonymous","confirmationKey","confirmation"));
     root.put("dependencies",List.of()); root.put("assets",List.of()); return root;
@@ -1240,6 +1246,21 @@ public class IntakeApplicationService {
 
   /** Canonical starter used by the isolated M7 migration path; legacy APIs retain their old shape. */
   public Map<String,Object> canonicalAuthoringTemplate(String key, String title) { return canonicalSampleDefinition(key,title); }
+
+  private Map<String, Object> translation(String direction, String title, String description, String name,
+      String acknowledgment, String review, String confirmation) {
+    return Map.of("direction", direction, "messages", Map.of("form.title", title,
+        "form.description", description, "q.name", name, "q.acknowledgment", acknowledgment,
+        "page.review", review, "confirmation", confirmation), "pronunciations", List.of());
+  }
+
+  /** FormCreateRequest keeps title optional; normalize omission while rejecting invalid supplied titles. */
+  private String createTitle(String title) {
+    if (title == null) return "Untitled form";
+    if (title.isBlank() || title.length() > 200)
+      throw bad("FORM_TITLE_INVALID", "title must contain 1-200 characters.");
+    return title;
+  }
 
   private void validateDefinition(Map<String, Object> d) {
     try {

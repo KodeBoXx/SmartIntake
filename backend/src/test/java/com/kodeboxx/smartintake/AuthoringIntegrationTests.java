@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kodeboxx.smartintake.contract.CanonicalJson;
 import com.kodeboxx.smartintake.security.IdentitySessionResolver;
+import com.kodeboxx.smartintake.speech.SpeechPort;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -21,15 +22,23 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.*;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 @ActiveProfiles("test")
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    properties = {"smartintake.speech.user-daily-quota=1", "smartintake.speech.tenant-daily-quota=1"})
 class AuthoringIntegrationTests {
   @LocalServerPort int port;
   @Autowired TestRestTemplate http;
   @Autowired JdbcTemplate db;
   @Autowired ObjectMapper json;
+  @MockBean SpeechPort speechPort;
   UUID account, form;
   String workspace, token;
 
@@ -71,6 +80,11 @@ class AuthoringIntegrationTests {
     assertEquals(HttpStatus.CREATED,created.getStatusCode(),created.getBody());
     UUID createdForm=UUID.fromString(json.readTree(created.getBody()).path("id").asText());
     assertEquals("canonical-4.0.0",db.queryForObject("select compatibility_profile_key from forms where id=?",String.class,createdForm));
+    var definition=json.readTree(created.getBody()).path("definition");
+    assertEquals(List.of("en", "hi", "ar"), json.convertValue(definition.path("supportedLocales"), new TypeReference<List<String>>() {}));
+    assertEquals("ltr",definition.at("/translations/hi/direction").asText());
+    assertEquals("rtl",definition.at("/translations/ar/direction").asText());
+    assertEquals(3,db.queryForObject("select count(*) from form_authoring_locale_reviews where form_id=? and draft_id=? and source_revision=1 and status='DRAFT'",Integer.class,createdForm,createdForm));
 
     ResponseEntity<String> opened=authoringCall(createdForm,"",HttpMethod.GET,null,null);
     assertEquals(HttpStatus.OK,opened.getStatusCode(),opened.getBody());
@@ -89,14 +103,14 @@ class AuthoringIntegrationTests {
     assertEquals(HttpStatus.CREATED,created.getStatusCode(),created.getBody());
     UUID createdForm=UUID.fromString(json.readTree(created.getBody()).path("id").asText());
     String initialHash=CanonicalJson.sha256(json.readTree(created.getBody()).path("definition"));
-    assertEquals(1,db.queryForObject("select count(*) from form_authoring_locale_reviews where form_id=? and draft_id=? and locale='en' and source_revision=1 and source_package_hash=? and status='DRAFT'",Integer.class,createdForm,createdForm,initialHash));
+    assertEquals(3,db.queryForObject("select count(*) from form_authoring_locale_reviews where form_id=? and draft_id=? and source_revision=1 and source_package_hash=? and status='DRAFT'",Integer.class,createdForm,createdForm,initialHash));
 
-    assertEquals(HttpStatus.OK,authoringCall(createdForm,"/content",HttpMethod.PUT,"\"1\"",Map.of("approveLocales",List.of("en")),"approve-v1").getStatusCode());
+    assertEquals(HttpStatus.OK,authoringCall(createdForm,"/content",HttpMethod.PUT,"\"1\"",Map.of("approveLocales",List.of("en", "hi", "ar")),"approve-v1").getStatusCode());
     ResponseEntity<String> edit=authoringCall(createdForm,"/commands",HttpMethod.POST,"\"1\"",Map.of("commands",List.of(Map.of("op","set","path","/theme/tokens/accent","value","#0055AA"))),"theme-edit-v2");
     assertEquals(HttpStatus.OK,edit.getStatusCode(),edit.getBody());
     String revisedHash=json.readTree(edit.getBody()).path("packageHash").asText();
-    assertEquals(1,db.queryForObject("select count(*) from form_authoring_locale_reviews where form_id=? and draft_id=? and locale='en' and source_revision=2 and source_package_hash=? and status='DRAFT'",Integer.class,createdForm,createdForm,revisedHash));
-    assertEquals(HttpStatus.OK,authoringCall(createdForm,"/content",HttpMethod.PUT,"\"2\"",Map.of("approveLocales",List.of("en")),"approve-v2").getStatusCode());
+    assertEquals(3,db.queryForObject("select count(*) from form_authoring_locale_reviews where form_id=? and draft_id=? and source_revision=2 and source_package_hash=? and status='DRAFT'",Integer.class,createdForm,createdForm,revisedHash));
+    assertEquals(HttpStatus.OK,authoringCall(createdForm,"/content",HttpMethod.PUT,"\"2\"",Map.of("approveLocales",List.of("en", "hi", "ar")),"approve-v2").getStatusCode());
     assertEquals(HttpStatus.CREATED,publish(createdForm).getStatusCode());
   }
 
@@ -109,6 +123,16 @@ class AuthoringIntegrationTests {
 
     ResponseEntity<String> rejected=forms(HttpMethod.POST,Map.of("formKey","unknown-"+UUID.randomUUID().toString().substring(0,8),"title","Unknown profile","profile","legacy-prototype"));
     assertEquals(HttpStatus.UNPROCESSABLE_ENTITY,rejected.getStatusCode());
+  }
+
+  @Test void canonical_creation_defaults_an_omitted_title_and_rejects_an_invalid_explicit_title() throws Exception {
+    String key="untitled-"+UUID.randomUUID().toString().substring(0,8);
+    ResponseEntity<String> created=forms(HttpMethod.POST,Map.of("formKey",key,"profile","canonical-4.0.0"));
+    assertEquals(HttpStatus.CREATED,created.getStatusCode(),created.getBody());
+    UUID createdForm=UUID.fromString(json.readTree(created.getBody()).path("id").asText());
+    assertEquals("Untitled form",db.queryForObject("select title from forms where id=?",String.class,createdForm));
+    assertEquals("Untitled form",json.readTree(created.getBody()).at("/definition/translations/en/messages/form.title").asText());
+    assertEquals(HttpStatus.UNPROCESSABLE_ENTITY,forms(HttpMethod.POST,Map.of("formKey","blank-"+UUID.randomUUID().toString().substring(0,8),"title","   ","profile","canonical-4.0.0")).getStatusCode());
   }
 
   @Test void preview_converts_plain_synthetic_answers_through_typed_respondent_operations() throws Exception {
@@ -126,12 +150,50 @@ class AuthoringIntegrationTests {
     assertEquals(submissions,db.queryForObject("select count(*) from submissions",Integer.class));
   }
 
+  @Test void preview_uses_the_requested_locale_in_the_runtime_projection() throws Exception {
+    ResponseEntity<String> created=forms(HttpMethod.POST,Map.of("formKey","localized-"+UUID.randomUUID().toString().substring(0,8),"title","Localized","profile","canonical-4.0.0"));
+    UUID createdForm=UUID.fromString(json.readTree(created.getBody()).path("id").asText());
+    ResponseEntity<String> preview=authoringCall(createdForm,"/preview",HttpMethod.POST,null,Map.of("locale","ar","answers",Map.of("fld_name","Ada","fld_acknowledgment",true)));
+    assertEquals(HttpStatus.OK,preview.getStatusCode(),preview.getBody());
+    var body=json.readTree(preview.getBody());
+    assertEquals("ar",body.at("/projection/locale").asText());
+    assertEquals("ar",body.at("/projection/review/reviewGates/0/locale").asText(),body.toPrettyString());
+    assertEquals("q.acknowledgment",body.at("/projection/review/reviewGates/0/contentKey").asText());
+  }
+
   @Test void rejects_hostile_candidate_and_returns_disabled_speech_without_provider_call() throws Exception {
     List<Integer> huge=new ArrayList<>(); for(int i=0;i<100_001;i++) huge.add(i);
     ResponseEntity<String> response=call("/imports/validate",HttpMethod.POST,null,Map.of("candidate",huge));
     assertEquals(HttpStatus.UNPROCESSABLE_ENTITY,response.getStatusCode());
     ResponseEntity<String> speech=call("/speech",HttpMethod.POST,null,Map.of("locale","en","voice","default","text","Full name"));
     assertEquals(HttpStatus.OK,speech.getStatusCode()); assertTrue(speech.getBody().contains("SPEECH_UNAVAILABLE"));
+  }
+
+  @Test void authorizes_speech_and_enforces_configured_locale_voice_and_durable_quotas_before_invocation() throws Exception {
+    ResponseEntity<String> created=forms(HttpMethod.POST,Map.of("formKey","speech-"+UUID.randomUUID().toString().substring(0,8),"title","Speech","profile","canonical-4.0.0"));
+    UUID speechForm=UUID.fromString(json.readTree(created.getBody()).path("id").asText());
+    when(speechPort.configured()).thenReturn(true);
+    when(speechPort.approvedVoice("en","en-approved")).thenReturn(true);
+    when(speechPort.synthesize("Full name","en","en-approved"))
+        .thenReturn(new SpeechPort.SpeechResult(true,"OK","en","audio/mpeg",new byte[] {1,2,3},7));
+
+    ResponseEntity<String> first=authoringCall(speechForm,"/speech",HttpMethod.POST,null,Map.of("locale","en","voice","en-approved","text","Full name"));
+    assertEquals(HttpStatus.OK,first.getStatusCode(),first.getBody());
+    assertTrue(first.getBody().contains("\"available\":true"));
+    assertEquals(1,db.queryForObject("select count(*) from form_authoring_speech_usage where organization_id=(select organization_id from workspaces where id=(select workspace_id from forms where id=?)) and scope='TENANT' and request_count=1",Integer.class,speechForm));
+    assertEquals(1,db.queryForObject("select count(*) from form_authoring_speech_usage where scope='USER' and subject_id=? and request_count=1",Integer.class,account));
+
+    ResponseEntity<String> wrongLocaleVoice=authoringCall(speechForm,"/speech",HttpMethod.POST,null,Map.of("locale","hi","voice","en-approved","text","पूरा नाम"));
+    assertEquals(HttpStatus.OK,wrongLocaleVoice.getStatusCode());
+    assertTrue(wrongLocaleVoice.getBody().contains("SPEECH_VOICE_UNAVAILABLE"));
+    ResponseEntity<String> quota=authoringCall(speechForm,"/speech",HttpMethod.POST,null,Map.of("locale","en","voice","en-approved","text","Full name"));
+    assertEquals(HttpStatus.OK,quota.getStatusCode());
+    assertTrue(quota.getBody().contains("SPEECH_QUOTA_EXHAUSTED"));
+    verify(speechPort,times(1)).synthesize("Full name","en","en-approved");
+
+    db.update("delete from memberships where account_id=?",account);
+    assertEquals(HttpStatus.FORBIDDEN,authoringCall(speechForm,"/speech",HttpMethod.POST,null,Map.of("locale","en","voice","en-approved","text","Full name")).getStatusCode());
+    verify(speechPort,times(1)).synthesize(anyString(),anyString(),anyString());
   }
 
   @Test void commits_a_valid_canonical_candidate_and_preserves_its_normalized_digest() throws Exception {

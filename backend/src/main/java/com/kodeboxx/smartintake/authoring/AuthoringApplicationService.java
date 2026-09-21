@@ -30,6 +30,7 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,6 +59,8 @@ public class AuthoringApplicationService {
   private final AdministrationMutationExecutor replays;
   private final IntakeApplicationService intake;
   private final Clock clock;
+  @Value("${smartintake.speech.user-daily-quota:100}") private int speechUserDailyQuota;
+  @Value("${smartintake.speech.tenant-daily-quota:1000}") private int speechTenantDailyQuota;
 
   public AuthoringApplicationService(JdbcTemplate db, ObjectMapper json, StaffAuthorization authorization,
       IdentitySessionResolver sessions, FormCompiler compiler, SpeechPort speech) {
@@ -327,7 +330,8 @@ public class AuthoringApplicationService {
       String timezone = boundedTimezone(request.get("timezone"));
       String sessionDate = boundedDate(request.get("sessionDate"), timezone);
       String device = boundedDevice(request.get("device"));
-      var outcome=runtime.mutate(definition, json.createObjectNode(), previewOperations(answers), sessionDate, timezone, clock.instant());
+      var outcome=runtime.mutate(definition, json.createObjectNode(), null, previewOperations(answers), null,
+          sessionDate, timezone, locale, clock.instant());
       errors=outcome.validation(); projection=map("answers",outcome.answers(),"review",outcome.reviewProjection(),
           "reachablePageIds",outcome.reachablePageIds(),"requiredCount",outcome.requiredCount(),
           "completedRequiredCount",outcome.completedRequiredCount(),"accepted",outcome.accepted(),
@@ -349,14 +353,19 @@ public class AuthoringApplicationService {
     return operations;
   }
 
+  @Transactional
   public Map<String,Object> speech(String w, UUID f, String d, String t, Map<String,Object> request) {
     authorizeRead(w, f, d, t);
     String locale = required(request, "locale"); String voice = required(request, "voice"); String text = required(request, "text");
     JsonNode definition=parse(row(f).definition());
-    if(!List.of("en","hi","ar").contains(locale)||!voice.matches("(?:default|[A-Za-z0-9_-]{1,80})")||!governedText(definition,locale,text))
+    if(!List.of("en","hi","ar").contains(locale)||text.length()>4_000||!supportsLocale(definition, locale)||!governedText(definition,locale,text))
       throw bad("SPEECH_GOVERNANCE", "Speech text, locale, or voice is not governed by the package.");
+    if (!speech.configured()) return unavailable(locale, "SPEECH_UNAVAILABLE");
+    if (!speech.approvedVoice(locale, voice)) return unavailable(locale, "SPEECH_VOICE_UNAVAILABLE");
+    UUID author = actor(t);
+    if (!reserveSpeechQuota(f, author)) return unavailable(locale, "SPEECH_QUOTA_EXHAUSTED");
     SpeechPort.SpeechResult result = speech.synthesize(text, locale, voice);
-    if (!result.available()) return map("available",false,"code",result.code(),"locale",locale);
+    if (!result.available()) return unavailable(locale, result.code());
     return map("available",true,"locale",locale,"contentType",result.contentType(),"audioBase64",Base64.getEncoder().encodeToString(result.audio()),"latencyMillis",result.latencyMillis());
   }
 
@@ -480,7 +489,21 @@ public class AuthoringApplicationService {
     return CanonicalJson.sha256(effective);
   }
   private boolean governedText(JsonNode definition,String locale,String text){return containsText(definition.path("translations").path(locale),text)||containsText(definition.path("guidance"),text);}
+  private boolean supportsLocale(JsonNode definition, String locale) { for (JsonNode supported : definition.path("supportedLocales")) if (locale.equals(supported.asText())) return true; return false; }
   private boolean containsText(JsonNode node,String text){if(node.isTextual())return text.equals(node.asText());if(node.isContainerNode())for(JsonNode child:node)if(containsText(child,text))return true;return false;}
+  private Map<String,Object> unavailable(String locale, String code) { return map("available",false,"code",code,"locale",locale); }
+  private boolean reserveSpeechQuota(UUID form, UUID account) {
+    if (speechUserDailyQuota < 1 || speechTenantDailyQuota < 1) return false;
+    UUID organization = db.queryForObject("select w.organization_id from forms f join workspaces w on w.id=f.workspace_id where f.id=?", UUID.class, form);
+    if (!reserveSpeechQuota(organization, "USER", account, speechUserDailyQuota)) return false;
+    if (reserveSpeechQuota(organization, "TENANT", organization, speechTenantDailyQuota)) return true;
+    db.update("update form_authoring_speech_usage set request_count=request_count-1 where organization_id=? and scope=? and subject_id=? and usage_day=current_date and request_count>0", organization, "USER", account);
+    return false;
+  }
+  private boolean reserveSpeechQuota(UUID organization, String scope, UUID subject, int limit) {
+    Boolean reserved = db.query("insert into form_authoring_speech_usage(organization_id,scope,subject_id,usage_day,request_count) values(?,?,?,current_date,1) on conflict(organization_id,scope,subject_id,usage_day) do update set request_count=form_authoring_speech_usage.request_count+1 where form_authoring_speech_usage.request_count < ? returning true", rs -> rs.next() ? rs.getBoolean(1) : false, organization, scope, subject, limit);
+    return Boolean.TRUE.equals(reserved);
+  }
   private String boundedChoice(Object value,List<String> allowed,String fallback){String candidate=value==null?fallback:String.valueOf(value);if(!allowed.contains(candidate))throw bad("PREVIEW_CONTEXT_INVALID","Unsupported locale.");return candidate;}
   private String boundedTimezone(Object value){String timezone=value==null?"UTC":String.valueOf(value);try{ZoneId.of(timezone);}catch(Exception e){throw bad("PREVIEW_CONTEXT_INVALID","Invalid timezone.");}if(timezone.length()>64)throw bad("PREVIEW_CONTEXT_INVALID","Timezone is too long.");return timezone;}
   private String boundedDate(Object value,String timezone){String date=value==null?LocalDate.now(clock.withZone(ZoneId.of(timezone))).toString():String.valueOf(value);try{LocalDate.parse(date);}catch(Exception e){throw bad("PREVIEW_CONTEXT_INVALID","Invalid session date.");}return date;}
