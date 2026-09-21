@@ -15,7 +15,10 @@ import com.kodeboxx.smartintake.security.IdentitySessionResolver;
 import com.kodeboxx.smartintake.security.StaffAuthorization;
 import com.kodeboxx.smartintake.speech.SpeechPort;
 import jakarta.servlet.http.HttpServletRequest;
+import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Iterator;
@@ -54,16 +57,22 @@ public class AuthoringApplicationService {
   private final TypedSessionRuntimeService runtime;
   private final AdministrationMutationExecutor replays;
   private final IntakeApplicationService intake;
+  private final Clock clock;
 
   public AuthoringApplicationService(JdbcTemplate db, ObjectMapper json, StaffAuthorization authorization,
       IdentitySessionResolver sessions, FormCompiler compiler, SpeechPort speech) {
-    this(db, json, authorization, sessions, compiler, speech, null, null, null);
+    this(db, json, authorization, sessions, compiler, speech, null, null, null, Clock.systemUTC());
   }
 
   @Autowired
   public AuthoringApplicationService(JdbcTemplate db, ObjectMapper json, StaffAuthorization authorization,
       IdentitySessionResolver sessions, FormCompiler compiler, SpeechPort speech,
       TypedSessionRuntimeService runtime, AdministrationMutationExecutor replays, IntakeApplicationService intake) {
+    this(db, json, authorization, sessions, compiler, speech, runtime, replays, intake, Clock.systemUTC());
+  }
+  AuthoringApplicationService(JdbcTemplate db, ObjectMapper json, StaffAuthorization authorization,
+      IdentitySessionResolver sessions, FormCompiler compiler, SpeechPort speech,
+      TypedSessionRuntimeService runtime, AdministrationMutationExecutor replays, IntakeApplicationService intake, Clock clock) {
     this.db = db;
     this.json = json;
     this.authorization = authorization;
@@ -73,13 +82,13 @@ public class AuthoringApplicationService {
     this.runtime = runtime;
     this.replays = replays;
     this.intake = intake;
+    this.clock = clock;
     // Spring MVC uses this shared mapper before binding authoring Maps; reject ambiguous imports.
     this.json.enable(JsonParser.Feature.STRICT_DUPLICATE_DETECTION);
   }
 
   public ResponseEntity<?> document(String workspace, UUID form, String draft, String token) {
     authorizeRead(workspace, form, draft, token);
-    migrateLegacyForAuthoring(form);
     Row row = row(form);
     JsonNode definition = parse(row.definition());
     return ResponseEntity.ok().eTag(etag(row.revision())).body(Map.of(
@@ -131,27 +140,37 @@ public class AuthoringApplicationService {
   }
 
   @Transactional
-  public ResponseEntity<?> undo(String workspace, UUID form, String draft, String token, String match) {
-    authorizeWrite(workspace, form, draft, token); Row current = row(form);
+  public ResponseEntity<?> undo(String workspace, UUID form, String draft, String token, String match, String idempotencyKey) {
+    authorizeWrite(workspace, form, draft, token); UUID author=actor(token);
+    if(replays==null)return undoInternal(form,draft,match,author);
+    return replays.execute(author,"authoring:"+form+":"+draft,"authoring-undo",idempotencyKey,map("ifMatch",match),()->undoInternal(form,draft,match,author));
+  }
+  private ResponseEntity<?> undoInternal(UUID form, String draft, String match, UUID author) {
+    Row current = row(form);
     if (!matches(match, current.revision())) return stale(form, draft, current, parse(current.definition()), match);
     History history = db.query("select id,inverse_command::text,command::text from form_authoring_history where form_id=? and draft_id=? and undone_at is null and operation not in ('UNDO','REDO') order by created_at desc limit 1",
         rs -> rs.next() ? new History((UUID) rs.getObject(1), rs.getString(2), rs.getString(3)) : null, form, UUID.fromString(draft));
     if (history == null) throw bad("UNDO_EMPTY", "Nothing to undo.");
     JsonNode next = applyBatch(parse(current.definition()), parse(history.inverse()));
-    ResponseEntity<?> result = persist(form, draft, current, next, actor(token), "UNDO", parse(history.inverse()), parse(history.command()));
+    ResponseEntity<?> result = persist(form, draft, current, next, author, "UNDO", parse(history.inverse()), parse(history.command()));
     if (result.getStatusCode().is2xxSuccessful()) db.update("update form_authoring_history set undone_at=now() where id=?", history.id());
     return result;
   }
 
   @Transactional
-  public ResponseEntity<?> redo(String workspace, UUID form, String draft, String token, String match) {
-    authorizeWrite(workspace, form, draft, token); Row current = row(form);
+  public ResponseEntity<?> redo(String workspace, UUID form, String draft, String token, String match, String idempotencyKey) {
+    authorizeWrite(workspace, form, draft, token); UUID author=actor(token);
+    if(replays==null)return redoInternal(form,draft,match,author);
+    return replays.execute(author,"authoring:"+form+":"+draft,"authoring-redo",idempotencyKey,map("ifMatch",match),()->redoInternal(form,draft,match,author));
+  }
+  private ResponseEntity<?> redoInternal(UUID form, String draft, String match, UUID author) {
+    Row current = row(form);
     if (!matches(match, current.revision())) return stale(form, draft, current, parse(current.definition()), match);
     History history = db.query("select id,inverse_command::text,command::text from form_authoring_history where form_id=? and draft_id=? and undone_at is not null and operation not in ('UNDO','REDO') order by undone_at desc limit 1",
         rs -> rs.next() ? new History((UUID) rs.getObject(1), rs.getString(2), rs.getString(3)) : null, form, UUID.fromString(draft));
     if (history == null) throw bad("REDO_EMPTY", "Nothing to redo.");
     JsonNode next = applyBatch(parse(current.definition()), parse(history.command()));
-    ResponseEntity<?> result = persist(form, draft, current, next, actor(token), "REDO", parse(history.command()), parse(history.inverse()));
+    ResponseEntity<?> result = persist(form, draft, current, next, author, "REDO", parse(history.command()), parse(history.inverse()));
     if (result.getStatusCode().is2xxSuccessful()) db.update("update form_authoring_history set undone_at=null where id=?", history.id());
     return result;
   }
@@ -176,7 +195,7 @@ public class AuthoringApplicationService {
     String digest = CanonicalJson.sha256(candidate); List<Map<String, Object>> results = diagnostics(candidate);
     String state = results.isEmpty() ? "VALID" : "INVALID"; UUID id = UUID.randomUUID();
     db.update("insert into form_import_candidates(id,form_id,draft_id,base_revision,candidate_digest,candidate,diagnostics,state,created_by,policy_hash,expires_at) values(?,?,?,?,?,cast(? as jsonb),cast(? as jsonb),?,?,?,now()+interval '30 minutes')",
-        id, form, UUID.fromString(draft), current.revision(), digest, stringify(candidate), stringify(json.valueToTree(results)), state, actor(token), policyHash(parse(current.definition())));
+        id, form, UUID.fromString(draft), current.revision(), digest, stringify(candidate), stringify(json.valueToTree(results)), state, actor(token), effectivePolicyHash(form));
     return map("candidateId", id.toString(), "digest", digest, "baseRevision", current.revision(), "state", state, "diagnostics", results);
   }
 
@@ -192,7 +211,7 @@ public class AuthoringApplicationService {
         rs -> rs.next() ? new Candidate(rs.getLong(1), rs.getString(2), rs.getString(3), rs.getString(4),rs.getString(5)) : null,
         UUID.fromString(required(request, "candidateId")), form, UUID.fromString(draft),author);
     if (candidate == null || !"VALID".equals(candidate.state())) throw bad("IMPORT_CANDIDATE_INVALID", "Validate a current valid candidate first.");
-    if (!matches(match, current.revision()) || candidate.baseRevision() != current.revision() || !candidate.digest().equals(request.get("digest")) || !candidate.policyHash().equals(policyHash(parse(current.definition()))))
+    if (!matches(match, current.revision()) || candidate.baseRevision() != current.revision() || !candidate.digest().equals(request.get("digest")) || !candidate.policyHash().equals(effectivePolicyHash(form)))
       return stale(form, draft, current, parse(candidate.json()), match);
     JsonNode next = parse(candidate.json());
     String mode = String.valueOf(request.getOrDefault("mode", "UPDATE"));
@@ -211,23 +230,40 @@ public class AuthoringApplicationService {
   public ResponseEntity<?> content(String workspace, UUID form, String draft, String token) {
     Map<String,Object> content = documentBody(workspace, form, draft, token, "/guidance", "/translations");
     content.put("localeCompleteness", localeCompleteness((JsonNode) content.get("translations")));
+    content.put("localeReviews", db.query("select locale,source_revision,status,reviewed_at from form_authoring_locale_reviews where form_id=? and draft_id=? order by locale",(rs,n)->map("locale",rs.getString(1),"sourceRevision",rs.getLong(2),"status",rs.getString(3),"reviewedAt",rs.getObject(4).toString()),form,UUID.fromString(draft)));
     return ResponseEntity.ok(content);
   }
   @Transactional public ResponseEntity<?> updateTheme(String w, UUID f, String d, String t, String m, Map<String, Object> body) {
-    if (body.containsKey("locks")) authorization.authorizeWorkspaceAdministration(w,t);
+    boolean administratorLocks = body.containsKey("locks");
+    if (administratorLocks) authorization.authorizeWorkspaceAdministration(w,t);
     JsonNode before = at(parse(row(f).definition()), "/theme"); JsonNode next = json.valueToTree(body.get("theme"));
     for (String lock : themeLocks(f, d)) if (!at(before, lock).equals(at(next, lock)))
       throw bad("THEME_LOCKED", "Theme token is locked: " + lock);
-    ResponseEntity<?> saved = updateSubdocument(w, f, d, t, m, "/theme", next);
-    if (saved.getStatusCode().is2xxSuccessful() && body.containsKey("locks")) replaceThemeLocks(f, d, t, body.get("locks"));
+    ResponseEntity<?> saved;
+    if (administratorLocks) {
+      Row current = row(f);
+      if (!matches(m, current.revision())) return stale(f, d, current, parse(current.definition()), m);
+      saved = persist(f, d, current, apply(parse(current.definition()), map("op", "set", "path", "/theme", "value", next)).document(), actor(t), "THEME_UPDATE", Map.of("theme", next), Map.of("theme", before));
+    } else saved = updateSubdocument(w, f, d, t, m, "/theme", next);
+    if (saved.getStatusCode().is2xxSuccessful() && administratorLocks) replaceThemeLocks(f, d, t, body.get("locks"));
     return saved;
   }
   @Transactional public ResponseEntity<?> updateContent(String w, UUID f, String d, String t, String m, Map<String, Object> body) {
+    boolean guidance = body.containsKey("guidance"); boolean translations = body.containsKey("translations"); boolean approval = body.containsKey("approveLocales");
+    if (approval) {
+      authorization.requireReviewForm(w, t, f); requireAuthoringWritable(f);
+      Row current=row(f); if(!matches(m,current.revision()))return stale(f,d,current,parse(current.definition()),m);
+      JsonNode locales=json.valueToTree(body.get("approveLocales")); if(!locales.isArray())throw bad("LOCALE_APPROVAL_INVALID","approveLocales must be an array.");
+      UUID reviewer=actor(t); for(JsonNode locale:locales){if(!locale.isTextual())throw bad("LOCALE_APPROVAL_INVALID","Locale must be textual.");int changed=db.update("update form_authoring_locale_reviews set status='APPROVED',reviewed_by=?,reviewed_at=now() where form_id=? and draft_id=? and locale=? and source_revision=? and status='DRAFT'",reviewer,f,UUID.fromString(d),locale.asText(),current.revision());if(changed!=1)throw bad("LOCALE_APPROVAL_STALE","Locale is not an unreviewed current translation.");}
+      return ResponseEntity.ok().eTag(etag(current.revision())).body(map("revision",current.revision(),"approved",locales));
+    }
+    if (guidance == translations || !guidance && !translations) throw bad("CONTENT_SCOPE_INVALID","Update guidance or translations in separate requests.");
+    if (guidance) authorization.requireGuidanceForm(w,t,f); else authorization.requireTranslationForm(w,t,f);
+    requireAuthoringWritable(f);
     Map<String,Object> patch = new LinkedHashMap<>(); patch.put("commands", List.of(
-        map("op", "set", "path", "/guidance", "value", body.getOrDefault("guidance", Map.of())),
-        map("op", "set", "path", "/translations", "value", body.getOrDefault("translations", Map.of()))));
-    authorizeContentWrite(w, f, d, t); ResponseEntity<?> result=commandsInternal(f, d, m, patch, actor(t));
-    if(result.getStatusCode().is2xxSuccessful()) persistLocaleReview(f,d,parse(row(f).definition()),actor(t));
+        map("op", "set", "path", guidance?"/guidance":"/translations", "value", guidance?body.get("guidance"):body.get("translations"))));
+    ResponseEntity<?> result=commandsInternal(f, d, m, patch, actor(t));
+    if(result.getStatusCode().is2xxSuccessful() && translations) persistLocaleReview(f,d,parse(row(f).definition()),actor(t));
     return result;
   }
 
@@ -238,10 +274,10 @@ public class AuthoringApplicationService {
     authorizeRead(w,f,d,t); String pointer=required(body,"pointer"); String text=required(body,"body"); if(pointer.length()>MAX_POINTER || text.length()>4000) throw bad("COMMENT_LIMIT","Comment exceeds a limit."); UUID id=UUID.randomUUID(); db.update("insert into form_authoring_comments(id,form_id,draft_id,pointer,body,author_account_id) values(?,?,?,?,?,?)",id,f,UUID.fromString(d),pointer,text,actor(t)); return map("id",id.toString(),"pointer",pointer,"body",text);
   }
   public List<Map<String,Object>> presence(String w, UUID f, String d, String t) {
-    authorizeRead(w,f,d,t); db.update("delete from form_authoring_presence where expires_at<=now()"); return db.query("select account_id,cursor_pointer,display_name,expires_at from form_authoring_presence where form_id=? and draft_id=? order by updated_at",(rs,n)->map("accountId",rs.getObject(1).toString(),"cursor",rs.getString(2),"displayName",rs.getString(3),"expiresAt",rs.getObject(4).toString()),f,UUID.fromString(d));
+    authorizeRead(w,f,d,t); db.update("delete from form_authoring_presence where expires_at<=now()"); return db.query("select p.account_id,p.cursor_pointer,coalesce(a.display_name,a.email),p.expires_at from form_authoring_presence p join accounts a on a.id=p.account_id where p.form_id=? and p.draft_id=? order by p.updated_at",(rs,n)->map("accountId",rs.getObject(1).toString(),"cursor",rs.getString(2),"displayName",rs.getString(3),"expiresAt",rs.getObject(4).toString()),f,UUID.fromString(d));
   }
   public ResponseEntity<?> presence(String w, UUID f, String d, String t, Map<String,Object> body) {
-    authorizeRead(w,f,d,t); String cursor=String.valueOf(body.getOrDefault("cursor", "")); if(cursor.length()>MAX_POINTER) throw bad("PRESENCE_LIMIT","Cursor pointer is too long."); UUID account=actor(t); db.update("insert into form_authoring_presence(form_id,draft_id,account_id,cursor_pointer,display_name,expires_at) values(?,?,?,?,?,now()+interval '90 seconds') on conflict(form_id,draft_id,account_id) do update set cursor_pointer=excluded.cursor_pointer,display_name=excluded.display_name,expires_at=excluded.expires_at,updated_at=now()",f,UUID.fromString(d),account,cursor,body.getOrDefault("displayName","")); return ResponseEntity.noContent().build();
+    authorizeRead(w,f,d,t); String cursor=String.valueOf(body.getOrDefault("cursor", "")); if(cursor.length()>MAX_POINTER) throw bad("PRESENCE_LIMIT","Cursor pointer is too long."); UUID account=actor(t); String displayName=db.queryForObject("select coalesce(display_name,email) from accounts where id=?",String.class,account); db.update("insert into form_authoring_presence(form_id,draft_id,account_id,cursor_pointer,display_name,expires_at) values(?,?,?,?,?,now()+interval '90 seconds') on conflict(form_id,draft_id,account_id) do update set cursor_pointer=excluded.cursor_pointer,display_name=excluded.display_name,expires_at=excluded.expires_at,updated_at=now()",f,UUID.fromString(d),account,cursor,displayName); return ResponseEntity.noContent().build();
   }
 
   /** Synthetic state is projected through the same canonical runtime without durable respondent effects. */
@@ -249,10 +285,15 @@ public class AuthoringApplicationService {
     authorizeRead(w,f,d,t); JsonNode definition=parse(row(f).definition()); JsonNode answers=json.valueToTree(request.getOrDefault("answers",Map.of()));
     List<Map<String,Object>> errors=diagnostics(definition); Map<String,Object> projection=Map.of();
     if (errors.isEmpty() && runtime != null) {
-      var outcome=runtime.mutate(definition, answers, List.of(), "2026-09-21", "UTC", Instant.now());
+      String locale = boundedChoice(request.get("locale"), List.of("en", "hi", "ar"), "en");
+      String timezone = boundedTimezone(request.get("timezone"));
+      String sessionDate = boundedDate(request.get("sessionDate"), timezone);
+      String device = boundedDevice(request.get("device"));
+      var outcome=runtime.mutate(definition, answers, List.of(), sessionDate, timezone, clock.instant());
       errors=outcome.validation(); projection=map("answers",outcome.answers(),"review",outcome.reviewProjection(),
           "reachablePageIds",outcome.reachablePageIds(),"requiredCount",outcome.requiredCount(),
-          "completedRequiredCount",outcome.completedRequiredCount(),"accepted",outcome.accepted());
+          "completedRequiredCount",outcome.completedRequiredCount(),"accepted",outcome.accepted(),
+          "locale", locale, "timezone", timezone, "device", device, "sessionDate", sessionDate);
     }
     return map("mode","synthetic", "packageHash",CanonicalJson.sha256(definition), "diagnostics",errors,
         "projection",projection, "effects",Map.of("sessions",0,"submissions",0,"email",0,"webhooks",0,"providers",0));
@@ -271,7 +312,11 @@ public class AuthoringApplicationService {
 
   public List<Map<String,Object>> components(String w,String token) { UUID ws=authorization.authorizeAuthoring(w,token); return db.query("select id,component_key,name,version,status,fragment_hash,updated_at from reusable_components where workspace_id=? order by component_key,version desc",(rs,n)->map("id",rs.getObject(1).toString(),"key",rs.getString(2),"name",rs.getString(3),"version",rs.getInt(4),"status",rs.getString(5),"hash",rs.getString(6),"updatedAt",rs.getObject(7).toString()),ws); }
   @Transactional public ResponseEntity<?> component(String w,String token,Map<String,Object> body) {
-    UUID ws=authorization.authorizeAuthoring(w,token); String key=required(body,"key"); String name=required(body,"name"); JsonNode fragment=json.valueToTree(body.get("fragment")); requireBounded(fragment); int version=db.queryForObject("select coalesce(max(version),0)+1 from reusable_components where workspace_id=? and component_key=?",Integer.class,ws,key); UUID id=UUID.randomUUID(); String hash=CanonicalJson.sha256(fragment); db.update("insert into reusable_components(id,workspace_id,component_key,name,version,fragment,fragment_hash,created_by) values(?,?,?,?,?,cast(? as jsonb),?,?)",id,ws,key,name,version,stringify(fragment),hash,actor(token)); return ResponseEntity.status(201).body(map("id",id.toString(),"key",key,"version",version,"hash",hash,"fragment",fragment)); }
+    UUID ws=authorization.authorizeAuthoring(w,token); String key=required(body,"key"); String name=required(body,"name"); JsonNode fragment=json.valueToTree(body.get("fragment")); requireBounded(fragment);
+    db.queryForObject("select pg_advisory_xact_lock(hashtext(?))", (rs, row) -> 0, ws+":"+key);
+    String hash=CanonicalJson.sha256(fragment); Component existing=db.query("select version,fragment::text,fragment_hash from reusable_components where workspace_id=? and component_key=? and fragment_hash=? order by version desc limit 1",rs->rs.next()?new Component(rs.getInt(1),rs.getString(2),rs.getString(3)):null,ws,key,hash);
+    if(existing!=null)return ResponseEntity.ok().body(map("key",key,"version",existing.version(),"hash",existing.hash(),"fragment",parse(existing.fragment())));
+    int version=db.queryForObject("select coalesce(max(version),0)+1 from reusable_components where workspace_id=? and component_key=?",Integer.class,ws,key); UUID id=UUID.randomUUID(); db.update("insert into reusable_components(id,workspace_id,component_key,name,version,fragment,fragment_hash,created_by) values(?,?,?,?,?,cast(? as jsonb),?,?)",id,ws,key,name,version,stringify(fragment),hash,actor(token)); return ResponseEntity.status(201).body(map("id",id.toString(),"key",key,"version",version,"hash",hash,"fragment",fragment)); }
 
   /** Copies one pinned component version into the canonical package; later catalog edits cannot alter it. */
   @Transactional public ResponseEntity<?> insertComponent(String w, UUID f, String d, String token, String match,
@@ -328,12 +373,12 @@ public class AuthoringApplicationService {
 
   private JsonNode applyBatch(JsonNode root,JsonNode batch) { if (batch.isTextual()) return parse(batch.asText()); if (batch.path("definition").isTextual()) return parse(batch.path("definition").asText()); JsonNode current=root; JsonNode commands=batch.path("commands"); if(!commands.isArray()||commands.size()>MAX_COMMANDS) throw bad("COMMAND_LIMIT","Invalid history command."); for(JsonNode command:commands){ Map<String,Object> map=json.convertValue(command,Map.class); checkCommand(map); current=apply(current,map).document(); } return current; }
   private Applied apply(JsonNode root,Map<String,Object> command) {
-    String op=String.valueOf(command.getOrDefault("op",command.get("operation"))).toLowerCase(); String path=required(command,"path"); JsonNode copy=root.deepCopy(); JsonNode old=at(copy,path);
-    if("remove".equals(op)){ if(old.isMissingNode()) throw bad("COMMAND_PATH_INVALID","Path does not exist."); remove(copy,path); return new Applied(copy,map("op","add","path",path,"value",old)); }
-    if("move".equals(op)){ String from=required(command,"from"); JsonNode moved=at(copy,from); if(moved.isMissingNode()) throw bad("COMMAND_PATH_INVALID","Move source does not exist."); remove(copy,from); String destination=effectiveAddPath(copy,path); put(copy,path,moved,true); return new Applied(copy,map("op","move","from",destination,"path",from)); }
+    String op=String.valueOf(command.getOrDefault("op",command.get("operation"))).toLowerCase(); String path=required(command,"path"); JsonNode copy=root.deepCopy();
+    if("remove".equals(op)){ JsonNode old=at(copy,path); if(old.isMissingNode()) throw bad("COMMAND_PATH_INVALID","Path does not exist."); remove(copy,path); return new Applied(copy,map("op","add","path",path,"value",old)); }
+    if("move".equals(op)){ String from=required(command,"from"); JsonNode moved=at(copy,from); if(moved.isMissingNode()) throw bad("COMMAND_PATH_INVALID","Move source does not exist."); JsonNode overwritten="-".equals(lastToken(path))?json.getNodeFactory().missingNode():at(copy,path); boolean objectTarget=parent(copy,path).node() instanceof ObjectNode; remove(copy,from); String destination=effectiveAddPath(copy,path); put(copy,path,moved,true); Map<String,Object> moveBack=map("op","move","from",destination,"path",from); return new Applied(copy, objectTarget&&!overwritten.isMissingNode()?map("commands",List.of(moveBack,map("op","set","path",path,"value",overwritten))):moveBack); }
     if(!"add".equals(op)&&!"replace".equals(op)&&!"set".equals(op)) throw bad("COMMAND_OPERATION_INVALID","Unsupported command operation.");
     JsonNode value=json.valueToTree(command.get("value")); if(value.isMissingNode()||value.isNull()) throw bad("COMMAND_VALUE_REQUIRED","A value is required.");
-    String effective="add".equals(op)?effectiveAddPath(copy,path):path; put(copy,path,value,"add".equals(op)); Map<String,Object> inverse=old.isMissingNode()?map("op","remove","path",effective):map("op","set","path",path,"value",old); return new Applied(copy,inverse);
+    String effective="add".equals(op)?effectiveAddPath(copy,path):path; JsonNode old="add".equals(op)&&parent(copy,path).node() instanceof ArrayNode?json.getNodeFactory().missingNode():at(copy,path); put(copy,path,value,"add".equals(op)); Map<String,Object> inverse="add".equals(op)&&parent(root,path).node() instanceof ArrayNode?map("op","remove","path",effective):(old.isMissingNode()?map("op","remove","path",effective):map("op","set","path",path,"value",old)); return new Applied(copy,inverse);
   }
   private void put(JsonNode root,String pointer,JsonNode value,boolean add) { Parent parent=parent(root,pointer); if(parent.node() instanceof ObjectNode object){object.set(parent.token(),value);return;} if(parent.node() instanceof ArrayNode array){if("-".equals(parent.token())&&!add)throw bad("COMMAND_PATH_INVALID","- is valid only for array add.");int i="-".equals(parent.token())?array.size():index(parent.token(),add?array.size():array.size()-1);if(add) array.insert(i,value); else array.set(i,value);return;} throw bad("COMMAND_PATH_INVALID","Parent is not a container."); }
   private void remove(JsonNode root,String pointer) { Parent parent=parent(root,pointer); if(parent.node() instanceof ObjectNode object){object.remove(parent.token());return;} if(parent.node() instanceof ArrayNode array){array.remove(index(parent.token(),array.size()));return;} throw bad("COMMAND_PATH_INVALID","Parent is not a container."); }
@@ -342,12 +387,13 @@ public class AuthoringApplicationService {
   private String effectiveAddPath(JsonNode root,String pointer){Parent p=parent(root,pointer);return p.node() instanceof ArrayNode array&&"-".equals(p.token())?pointer.substring(0,pointer.length()-1)+array.size():pointer;}
   private int index(String value,int max){try{if(value.startsWith("+")||value.length()>1&&value.startsWith("0"))throw new NumberFormatException();int i=Integer.parseInt(value);if(i<0||i>max)throw new NumberFormatException();return i;}catch(Exception e){throw bad("COMMAND_PATH_INVALID","Array index is invalid.");}}
   private String unescape(String value){return value.replace("~1","/").replace("~0","~");}
+  private String lastToken(String pointer){return unescape(pointer.substring(pointer.lastIndexOf('/')+1));}
 
   private JsonNode remapIds(JsonNode source) { return remapIds(source, UUID.randomUUID(), 0, CanonicalJson.sha256(source)).document(); }
   private Remapped remapIds(JsonNode source,UUID form,long revision,String digest) { JsonNode copy=source.deepCopy(); Map<String,String> ids=new LinkedHashMap<>(); collectIds(copy,ids,form,revision,digest); replaceIds(copy,ids); return new Remapped(copy,Map.copyOf(ids)); }
   private void collectIds(JsonNode node,Map<String,String> ids,UUID form,long revision,String digest){if(node.isObject()){node.fields().forEachRemaining(e->{if("id".equals(e.getKey())&&e.getValue().isTextual())ids.putIfAbsent(e.getValue().asText(),"copy_"+UUID.nameUUIDFromBytes((form+":"+revision+":"+digest+":"+e.getValue().asText()).getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString().replace("-",""));collectIds(e.getValue(),ids,form,revision,digest);});}else if(node.isArray())node.forEach(n->collectIds(n,ids,form,revision,digest));}
   private void replaceIds(JsonNode node,Map<String,String> ids){if(node.isObject()){Iterator<Map.Entry<String,JsonNode>> it=node.fields();while(it.hasNext()){var e=it.next();if(e.getValue().isTextual()&&ids.containsKey(e.getValue().asText()))((ObjectNode)node).put(e.getKey(),ids.get(e.getValue().asText()));else replaceIds(e.getValue(),ids);}}else if(node.isArray())for(int i=0;i<node.size();i++){JsonNode child=node.get(i);if(child.isTextual()&&ids.containsKey(child.asText()))((ArrayNode)node).set(i,json.getNodeFactory().textNode(ids.get(child.asText())));else replaceIds(child,ids);}}
-  private JsonNode pinComponent(JsonNode root,String key,Component component){ObjectNode copy=(ObjectNode)root.deepCopy();ArrayNode dependencies=copy.withArray("dependencies");String id=key.replace('-','_');for(JsonNode dependency:dependencies)if("component".equals(dependency.path("kind").asText())&&id.equals(dependency.path("id").asText()))return copy;dependencies.add(json.valueToTree(map("kind","component","id",id,"version",String.valueOf(component.version()),"digest",component.hash())));return copy;}
+  private JsonNode pinComponent(JsonNode root,String key,Component component){ObjectNode copy=(ObjectNode)root.deepCopy();ArrayNode dependencies=copy.withArray("dependencies");String id=key.replace('-','_');for(int index=dependencies.size()-1;index>=0;index--){JsonNode dependency=dependencies.get(index);if("component".equals(dependency.path("kind").asText())&&id.equals(dependency.path("id").asText())){if(String.valueOf(component.version()).equals(dependency.path("version").asText())&&component.hash().equals(dependency.path("digest").asText()))return copy;dependencies.remove(index);}}dependencies.add(json.valueToTree(map("kind","component","id",id,"version",String.valueOf(component.version()),"digest",component.hash())));return copy;}
 
   private List<Map<String,Object>> diagnostics(JsonNode candidate){ return compiler.compile(candidate).diagnostics().stream().map(d->map("code",d.code(),"pointer",d.pointer(),"message",d.message())).toList(); }
   private Map<String,Object> impact(JsonNode before,JsonNode after){LinkedHashSet<String> changed=new LinkedHashSet<>(); compare(before,after,"",changed); return map("changedPointers",changed.stream().limit(200).toList(),"changedCount",changed.size(),"semantic",changed.isEmpty()?"NONE":"PACKAGE_CHANGED"); }
@@ -364,8 +410,7 @@ public class AuthoringApplicationService {
   private void checkCommand(Map<String,Object> command){if(command==null||command.size()>8)throw bad("COMMAND_INVALID","Command is invalid.");required(command,"path");if(String.valueOf(command.get("path")).length()>MAX_POINTER)throw bad("COMMAND_PATH_INVALID","Path is too long.");}
   private void authorizeRead(String w,UUID f,String d,String t){draft(f,d);authorization.requireReadableForm(w,t,f);}
   private void authorizeContentWrite(String w,UUID f,String d,String t){draft(f,d);authorization.requireContentForm(w,t,f);requireAuthoringWritable(f);}
-  private void authorizeWrite(String w,UUID f,String d,String t){draft(f,d);authorization.requireOwnedForm(w,t,f);migrateLegacyForAuthoring(f);requireAuthoringWritable(f);}
-  @Transactional private void migrateLegacyForAuthoring(UUID form){if(intake==null)return;Map<String,Object> source=db.query("select form_key,title,compatibility_profile_key from forms where id=?",rs->rs.next()?map("key",rs.getString(1),"title",rs.getString(2),"profile",rs.getString(3)):null,form);if(source!=null&&!"canonical-4.0.0".equals(source.get("profile"))){String canonical=stringify(json.valueToTree(intake.canonicalAuthoringTemplate(String.valueOf(source.get("key")),String.valueOf(source.get("title")))));db.update("update forms set definition=cast(? as jsonb),compatibility_profile_key='canonical-4.0.0',revision=revision+1,updated_at=now() where id=?",canonical,form);}}
+  private void authorizeWrite(String w,UUID f,String d,String t){draft(f,d);authorization.requireOwnedForm(w,t,f);requireAuthoringWritable(f);}
   private void requireAuthoringWritable(UUID form){Integer archived=db.queryForObject("select count(*) from form_catalog_metadata where form_id=? and archived_at is not null",Integer.class,form);if(archived!=null&&archived>0)throw new ResponseStatusException(HttpStatus.CONFLICT,"FORM_ARCHIVED");String profile=db.queryForObject("select compatibility_profile_key from forms where id=?",String.class,form);if(!"canonical-4.0.0".equals(profile))throw new ResponseStatusException(HttpStatus.CONFLICT,"CANONICAL_MIGRATION_REQUIRED");Boolean quarantined=db.queryForObject("select exists(select 1 from record_migration_state where record_type='FORM' and record_key=? and state='QUARANTINED')",Boolean.class,form.toString());if(Boolean.TRUE.equals(quarantined))throw new ResponseStatusException(HttpStatus.CONFLICT,"FORM_QUARANTINED");}
   private void draft(UUID form,String draft){if(!form.toString().equals(draft))throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Resource not found");}
   private Row row(UUID form){ Row result=db.query("select revision,definition::text from forms where id=?",rs->rs.next()?new Row(rs.getLong(1),rs.getString(2)):null,form); if(result==null)throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Resource not found"); return result; }
@@ -376,10 +421,20 @@ public class AuthoringApplicationService {
   private String required(Map<String,Object> body,String key){Object value=body.get(key);if(value==null||String.valueOf(value).isBlank())throw bad("AUTHORING_REQUEST_INVALID",key+" is required.");return String.valueOf(value);}
   private boolean matches(String value,long revision){if(value==null||value.isBlank())throw new ResponseStatusException(HttpStatus.PRECONDITION_REQUIRED,"If-Match required");return etag(revision).equals(value);}
   private JsonNode clientFor(Map<String,Object> request,Row current){if(request.containsKey("definition"))return json.valueToTree(request.get("definition"));try{JsonNode attempted=parse(current.definition());for(Map<String,Object> command:maps(request.get("commands")))attempted=apply(attempted,command).document();return attempted;}catch(RuntimeException ignored){return parse(current.definition());}}
-  private String policyHash(JsonNode definition){return CanonicalJson.sha256(definition.path("policies"));}
+  /** Import validity is bound to the administrator-controlled effective workspace policy, not the candidate. */
+  private String effectivePolicyHash(UUID form){
+    Map<String,Object> row=db.query("select coalesce(os.policy_settings,'{}'::jsonb)::text organization_policy,coalesce(ws.policy_settings,'{}'::jsonb)::text workspace_policy from forms f join workspaces w on w.id=f.workspace_id left join catalog_organization_settings os on os.organization_id=w.organization_id left join catalog_workspace_settings ws on ws.workspace_id=w.id where f.id=?",rs->rs.next()?map("organization",rs.getString(1),"workspace",rs.getString(2)):null,form);
+    if(row==null)throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Resource not found");
+    ObjectNode effective=json.createObjectNode(); effective.setAll((ObjectNode)parse(String.valueOf(row.get("organization")))); effective.setAll((ObjectNode)parse(String.valueOf(row.get("workspace"))));
+    return CanonicalJson.sha256(effective);
+  }
   private boolean governedText(JsonNode definition,String locale,String text){return containsText(definition.path("translations").path(locale),text)||containsText(definition.path("guidance"),text);}
   private boolean containsText(JsonNode node,String text){if(node.isTextual())return text.equals(node.asText());if(node.isContainerNode())for(JsonNode child:node)if(containsText(child,text))return true;return false;}
-  private void persistLocaleReview(UUID form,String draft,JsonNode definition,UUID actor){JsonNode translations=definition.path("translations");translations.fields().forEachRemaining(entry->db.update("insert into form_authoring_locale_reviews(form_id,draft_id,locale,source_revision,status,reviewed_by,reviewed_at) values(?,?,?,?,?,?,now()) on conflict(form_id,draft_id,locale) do update set source_revision=excluded.source_revision,status=excluded.status,reviewed_by=excluded.reviewed_by,reviewed_at=excluded.reviewed_at",form,UUID.fromString(draft),entry.getKey(),row(form).revision(),entry.getValue().path("reviewState").asText("draft"),actor));}
+  private String boundedChoice(Object value,List<String> allowed,String fallback){String candidate=value==null?fallback:String.valueOf(value);if(!allowed.contains(candidate))throw bad("PREVIEW_CONTEXT_INVALID","Unsupported locale.");return candidate;}
+  private String boundedTimezone(Object value){String timezone=value==null?"UTC":String.valueOf(value);try{ZoneId.of(timezone);}catch(Exception e){throw bad("PREVIEW_CONTEXT_INVALID","Invalid timezone.");}if(timezone.length()>64)throw bad("PREVIEW_CONTEXT_INVALID","Timezone is too long.");return timezone;}
+  private String boundedDate(Object value,String timezone){String date=value==null?LocalDate.now(clock.withZone(ZoneId.of(timezone))).toString():String.valueOf(value);try{LocalDate.parse(date);}catch(Exception e){throw bad("PREVIEW_CONTEXT_INVALID","Invalid session date.");}return date;}
+  private String boundedDevice(Object value){String device=value==null?"author-preview":String.valueOf(value);if(!device.matches("[A-Za-z0-9 _.-]{1,80}"))throw bad("PREVIEW_CONTEXT_INVALID","Invalid device.");return device;}
+  private void persistLocaleReview(UUID form,String draft,JsonNode definition,UUID actor){JsonNode translations=definition.path("translations");long revision=row(form).revision();translations.fields().forEachRemaining(entry->db.update("insert into form_authoring_locale_reviews(form_id,draft_id,locale,source_revision,status,reviewed_by,reviewed_at) values(?,?,?,?,?,?,now()) on conflict(form_id,draft_id,locale) do update set source_revision=excluded.source_revision,status='DRAFT',reviewed_by=excluded.reviewed_by,reviewed_at=excluded.reviewed_at",form,UUID.fromString(draft),entry.getKey(),revision,"DRAFT",actor));}
   private long expectedRevision(String match){try{if(match!=null&&match.matches("\"[0-9]+\""))return Long.parseLong(match.substring(1,match.length()-1));}catch(RuntimeException ignored){}return -1;}
   private String etag(long revision){return "\""+revision+"\"";}
   private ResponseStatusException bad(String code,String message){return new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,code+": "+message);}

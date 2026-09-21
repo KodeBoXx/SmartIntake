@@ -162,7 +162,7 @@ class AuthoringIntegrationTests {
   private String fixture() throws Exception { return Files.readString(Path.of("..", "docs", "contracts", "smart-form-builder-lite", "4.0.0", "fixtures", "package-prd-inline-minimal.positive.json")); }
   private ResponseEntity<String> call(String suffix,HttpMethod method,String match,Object body) { return call(suffix,method,match,body,UUID.randomUUID().toString()); }
   private ResponseEntity<String> call(String suffix,HttpMethod method,String match,Object body,String key) {
-    HttpHeaders headers=new HttpHeaders(); headers.setContentType(MediaType.APPLICATION_JSON); headers.set("X-Staff-Session",token); if(match!=null)headers.setIfMatch(match); if("/commands".equals(suffix)||suffix.contains("/components/")||"/imports/commit".equals(suffix))headers.set("Idempotency-Key",key);
+    HttpHeaders headers=new HttpHeaders(); headers.setContentType(MediaType.APPLICATION_JSON); headers.set("X-Staff-Session",token); if(match!=null)headers.setIfMatch(match); if("/commands".equals(suffix)||"/undo".equals(suffix)||"/redo".equals(suffix)||suffix.contains("/components/")||"/imports/commit".equals(suffix))headers.set("Idempotency-Key",key);
     return http.exchange("http://localhost:"+port+"/v1/workspaces/"+workspace+"/forms/"+form+"/authoring/"+form+suffix,method,new HttpEntity<>(body,headers),String.class);
   }
   private ResponseEntity<String> component(HttpMethod method,String suffix,Object body) {

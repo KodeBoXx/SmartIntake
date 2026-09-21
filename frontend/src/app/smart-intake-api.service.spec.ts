@@ -195,6 +195,23 @@ describe('SmartIntakeApiService', () => {
     insert.flush({ revision: 9, definition: { title: 'Saved', pages: [] } });
   });
 
+  it('sends stable caller-owned keys on server undo and redo with the numeric authoring ETag', () => {
+    api.authoringUndo('workspace-1', 'form-1', 'draft-1', 8, 'undo-key').pipe(retry(1)).subscribe();
+    const undo = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/undo');
+    expect(undo.request.headers.get('If-Match')).toBe('"8"');
+    expect(undo.request.headers.get('Idempotency-Key')).toBe('undo-key');
+    undo.flush({}, { status: 503, statusText: 'Retry' });
+    const retriedUndo = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/undo');
+    expect(retriedUndo.request.headers.get('Idempotency-Key')).toBe('undo-key');
+    retriedUndo.flush({ revision: 9, definition: { title: 'Undo', pages: [] } });
+
+    api.authoringRedo('workspace-1', 'form-1', 'draft-1', 9, 'redo-key').subscribe();
+    const redo = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/redo');
+    expect(redo.request.headers.get('If-Match')).toBe('"9"');
+    expect(redo.request.headers.get('Idempotency-Key')).toBe('redo-key');
+    redo.flush({ revision: 10, definition: { title: 'Redo', pages: [] } });
+  });
+
   it('maps top-level theme locks/preflight and backend locale completeness envelopes', () => {
     api.authoringTheme('workspace-1', 'form-1', 'draft-1').subscribe((theme) => expect(theme).toMatchObject({ preset: 'accessible-default', locks: ['/tokens/accent'], preflight: [{ code: 'contrast' }] }));
     const theme = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/theme');
@@ -202,7 +219,25 @@ describe('SmartIntakeApiService', () => {
 
     api.authoringContent('workspace-1', 'form-1', 'draft-1').subscribe((content) => expect(content.localeCompleteness).toEqual({ en: { present: true, complete: true }, hi: { present: false, complete: false }, ar: { present: false, complete: false } }));
     const content = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/content');
-    content.flush({ revision: 7, guidance: { narration: 'Read aloud' }, translations: { en: { guidance: 'Complete this.' } }, localeCompleteness: { en: { present: true, complete: true }, hi: { present: false, complete: false }, ar: { present: false, complete: false } } });
+    content.flush({ revision: 7, guidance: { welcome: { id: 'guidance-welcome', messageKey: 'guidance.welcome' } }, translations: { en: { direction: 'ltr', messages: { 'guidance.welcome': 'Complete this.' }, pronunciations: [], reviewState: 'approved' } }, localeCompleteness: { en: { present: true, complete: true }, hi: { present: false, complete: false }, ar: { present: false, complete: false } } });
+  });
+
+  it('preserves required theme version and sends one closed content scope at a time', () => {
+    const theme = { preset: 'accessible-default', themeKey: 'accessible-default', version: '3', tokens: { accent: '#175CD3' }, locks: [], preflight: [] };
+    api.updateAuthoringTheme('workspace-1', 'form-1', 'draft-1', 7, theme).subscribe((result) => expect(result.document?.revision).toBe(8));
+    const savedTheme = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/theme');
+    expect(savedTheme.request.body).toEqual({ theme: { themeKey: 'accessible-default', version: '3', tokens: { accent: '#175CD3' } } });
+    savedTheme.flush({ revision: 8, definition: { title: 'Theme', pages: [] } });
+    const refreshedTheme = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/theme');
+    refreshedTheme.flush({ revision: 8, theme: { themeKey: 'accessible-default', version: '3', tokens: { accent: '#175CD3' } }, locks: [], preflight: [] });
+
+    const content = { locale: 'ar' as const, translations: { ar: { direction: 'rtl' as const, messages: { 'guidance.welcome': 'أهلاً' }, pronunciations: [] } }, guidance: { welcome: { id: 'guidance-welcome', messageKey: 'guidance.welcome' } } };
+    api.updateAuthoringContent('workspace-1', 'form-1', 'draft-1', 8, content, 'translations').subscribe((result) => expect(result.document?.revision).toBe(9));
+    const savedContent = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/content');
+    expect(savedContent.request.body).toEqual({ translations: content.translations });
+    savedContent.flush({ revision: 9, definition: { title: 'Content', pages: [] } });
+    const refreshedContent = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/content');
+    refreshedContent.flush({ revision: 9, guidance: content.guidance, translations: content.translations, localeCompleteness: {} });
   });
 
   it('resolves a retained backend conflict using its conflict id and chosen definition', () => {

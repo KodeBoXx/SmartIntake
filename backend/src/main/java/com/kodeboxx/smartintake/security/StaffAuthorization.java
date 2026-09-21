@@ -28,6 +28,9 @@ public class StaffAuthorization {
   public UUID authorizeContentWrite(String workspace, String header) {
     return authorize(workspace, header, "AUTHOR", "REVIEWER", "TRANSLATOR");
   }
+  public UUID authorizeGuidanceWrite(String workspace, String header) { return authorize(workspace, header, "AUTHOR"); }
+  public UUID authorizeTranslationWrite(String workspace, String header) { return authorize(workspace, header, "TRANSLATOR"); }
+  public UUID authorizeTranslationReview(String workspace, String header) { return authorize(workspace, header, "REVIEWER"); }
   public UUID authorizePublishing(String workspace, String header) { return authorize(workspace, header, "PUBLISHER"); }
   public UUID authorizeResponseRead(String workspace, String header) { return authorize(workspace, header, "RESPONSE_VIEWER", "RESPONSE_EXPORTER"); }
   public UUID authorizeResponseExport(String workspace, String header) { return authorize(workspace, header, "RESPONSE_EXPORTER"); }
@@ -92,6 +95,14 @@ public class StaffAuthorization {
   }
   public void requireContentForm(String workspace, String token, UUID form) {
     UUID ws = authorizeContentWrite(workspace, token);
+    if (db.queryForObject("select count(*) from forms where id=? and workspace_id=?", Integer.class, form, ws) == 0)
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource not found");
+  }
+  public void requireGuidanceForm(String workspace, String token, UUID form) { requireForm(workspace, token, form, this::authorizeGuidanceWrite); }
+  public void requireTranslationForm(String workspace, String token, UUID form) { requireForm(workspace, token, form, this::authorizeTranslationWrite); }
+  public void requireReviewForm(String workspace, String token, UUID form) { requireForm(workspace, token, form, this::authorizeTranslationReview); }
+  private void requireForm(String workspace,String token,UUID form,java.util.function.BiFunction<String,String,UUID> authorization) {
+    UUID ws=authorization.apply(workspace,token);
     if (db.queryForObject("select count(*) from forms where id=? and workspace_id=?", Integer.class, form, ws) == 0)
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource not found");
   }

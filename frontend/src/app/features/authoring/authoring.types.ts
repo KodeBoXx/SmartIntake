@@ -42,6 +42,7 @@ export interface AuthoringHistoryEntry {
   readonly at: string;
   readonly revision?: number;
   readonly impact?: readonly string[];
+  readonly undone?: boolean;
 }
 
 export interface AuthoringConflict {
@@ -69,21 +70,34 @@ export interface PresenceMember {
 export interface ThemeSettings {
   readonly preset: string;
   readonly themeKey?: string;
+  /** Canonical package theme version, distinct from the authoring revision. */
+  readonly version?: string;
   readonly revision?: number;
   readonly tokens: Record<string, string>;
   readonly locks: readonly string[];
   readonly preflight: readonly { code: string; severity: 'error' | 'warning'; message: string }[];
+  readonly document?: AuthoringDocument;
+}
+
+export interface LocaleBundle {
+  readonly direction: 'ltr' | 'rtl';
+  readonly messages: Record<string, string>;
+  readonly pronunciations?: readonly string[];
+  readonly reviewState?: 'approved-prd-fixed-values' | 'approved';
+}
+
+export interface GuidanceEntry {
+  readonly id: string;
+  readonly messageKey: string;
 }
 
 export interface ContentSettings {
   readonly locale: 'en' | 'hi' | 'ar';
-  readonly translations: Record<string, Record<string, string>>;
-  readonly glossary: readonly { term: string; definition: string }[];
-  readonly questions: readonly { question: string; answer: string }[];
-  readonly narration?: string;
-  readonly guidance?: Record<string, unknown>;
+  readonly translations: Record<string, LocaleBundle>;
+  readonly guidance: Record<string, GuidanceEntry>;
   readonly revision?: number;
   readonly localeCompleteness?: Partial<Record<'en' | 'hi' | 'ar', { present: boolean; complete: boolean }>>;
+  readonly document?: AuthoringDocument;
 }
 
 export interface ReusableComponent {
@@ -95,8 +109,12 @@ export interface ReusableComponent {
 }
 
 export interface AuthoringCommand {
-  readonly type: 'rename' | 'add-phase' | 'add-page' | 'add-section' | 'add-node' | 'remove-node' | 'insert-component';
+  readonly type: 'rename' | 'add-phase' | 'add-page' | 'add-section' | 'add-node' | 'remove-node' | 'move' | 'insert-component';
   readonly targetId?: string;
+  /** Stable ID allocated before both visual and canonical projections are applied. */
+  readonly entityId?: string;
+  readonly fieldId?: string;
+  readonly destinationId?: string;
   readonly label?: string;
   readonly node?: AuthoringNode;
   readonly component?: ReusableComponent;

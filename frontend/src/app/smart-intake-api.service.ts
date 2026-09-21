@@ -1,10 +1,10 @@
 import { HttpClient, HttpHeaders, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { EMPTY, Observable, expand, map, reduce, tap } from 'rxjs';
+import { EMPTY, Observable, expand, map, reduce, switchMap, tap } from 'rxjs';
 import { FormDefinition, ResponseSummary } from './models/form-definition.models';
 import type { components, operations } from './generated/api-4.1.0';
 import type { RuntimeOperation, ServerProjection } from './runtime/runtime-types';
-import type { AuthoringComment, AuthoringCommand, AuthoringDocument, AuthoringHistoryEntry, AuthoringImportCandidate, ContentSettings, PresenceMember, PreviewResult, ReusableComponent, ThemeSettings } from './features/authoring/authoring.types';
+import type { AuthoringComment, AuthoringCommand, AuthoringDocument, AuthoringHistoryEntry, AuthoringImportCandidate, ContentSettings, LocaleBundle, PresenceMember, PreviewResult, ReusableComponent, ThemeSettings } from './features/authoring/authoring.types';
 import { canonicalPatches } from './features/authoring/authoring-patches';
 
 export { AjvContractValidationAdapter } from './ajv-contract-validation.adapter';
@@ -43,26 +43,33 @@ type BackendComment = { id: string; pointer: string; body: string; authorId?: st
 type BackendPresence = { accountId: string; cursor?: string; displayName: string; expiresAt?: string };
 type BackendHistory = { id: string; revision: number; operation: string; createdAt: string; beforeHash?: string; afterHash?: string; undone?: boolean };
 type BackendComponent = { id: string; key: string; name: string; version: number; status: string; hash: string; updatedAt: string };
-type BackendTheme = { revision: number; theme?: { themeKey?: string; preset?: string; tokens?: Record<string, string> }; locks?: string[]; preflight?: ThemeSettings['preflight'] };
-type BackendContent = { revision: number; guidance?: Record<string, unknown>; translations?: ContentSettings['translations']; localeCompleteness?: Record<string, { present: boolean; complete: boolean }> };
+type BackendTheme = { revision: number; theme?: { themeKey?: string; preset?: string; version?: string; tokens?: Record<string, string> }; locks?: string[]; preflight?: ThemeSettings['preflight'] };
+type BackendContent = { revision: number; guidance?: ContentSettings['guidance']; translations?: ContentSettings['translations']; localeCompleteness?: Record<string, { present: boolean; complete: boolean }> };
 
 function authoringComment(comment: BackendComment): AuthoringComment {
   return { id: comment.id, targetId: comment.pointer, body: comment.body, author: comment.authorId ?? 'Current collaborator', createdAt: comment.createdAt ?? '' };
 }
 
 function authoringHistory(entry: BackendHistory): AuthoringHistoryEntry {
-  return { id: entry.id, revision: entry.revision, label: entry.operation.replaceAll('_', ' '), at: entry.createdAt, impact: entry.beforeHash === entry.afterHash ? [] : ['Canonical package changed.'] };
+  return { id: entry.id, revision: entry.revision, label: entry.operation.replaceAll('_', ' '), at: entry.createdAt, undone: entry.undone, impact: entry.beforeHash === entry.afterHash ? [] : ['Canonical package changed.'] };
 }
 
 function authoringTheme(value: BackendTheme): ThemeSettings {
   const theme = value.theme ?? {};
   const legacy = theme as { locks?: string[]; preflight?: ThemeSettings['preflight'] };
-  return { preset: theme.preset ?? theme.themeKey ?? 'Certinal', themeKey: theme.themeKey ?? theme.preset, revision: value.revision, tokens: theme.tokens ?? {}, locks: value.locks ?? legacy.locks ?? [], preflight: value.preflight ?? legacy.preflight ?? [] };
+  return { preset: theme.preset ?? theme.themeKey ?? 'Certinal', themeKey: theme.themeKey ?? theme.preset, version: String(theme.version ?? '1'), revision: value.revision, tokens: theme.tokens ?? {}, locks: value.locks ?? legacy.locks ?? [], preflight: value.preflight ?? legacy.preflight ?? [] };
 }
 
 function authoringContent(value: BackendContent): ContentSettings {
-  const guidance = value.guidance ?? {};
-  return { locale: 'en', translations: value.translations ?? { en: {}, hi: {}, ar: {} }, glossary: Array.isArray(guidance['glossary']) ? guidance['glossary'] as ContentSettings['glossary'] : [], questions: Array.isArray(guidance['questions']) ? guidance['questions'] as ContentSettings['questions'] : [], narration: String(guidance['narration'] ?? ''), guidance, revision: value.revision, localeCompleteness: value.localeCompleteness };
+  const translations = value.translations ?? {};
+  const canonicalBundles = Object.fromEntries(Object.entries(translations).map(([locale, bundle]) => [locale, canonicalBundle(bundle)])) as Record<string, LocaleBundle>;
+  for (const locale of ['en', 'hi', 'ar'] as const) canonicalBundles[locale] ??= { direction: locale === 'ar' ? 'rtl' : 'ltr', messages: {} };
+  return { locale: 'en', translations: canonicalBundles, guidance: value.guidance ?? {}, revision: value.revision, localeCompleteness: value.localeCompleteness };
+}
+
+function canonicalBundle(value: unknown): LocaleBundle {
+  const bundle = (value ?? {}) as Partial<LocaleBundle>;
+  return { direction: bundle.direction === 'rtl' ? 'rtl' : 'ltr', messages: bundle.messages ?? {}, ...(bundle.pronunciations ? { pronunciations: bundle.pronunciations } : {}), ...(bundle.reviewState ? { reviewState: bundle.reviewState } : {}) };
 }
 
 export function authoringDocument(value: unknown): AuthoringDocument {
@@ -75,7 +82,7 @@ export function authoringDocument(value: unknown): AuthoringDocument {
   const flow = definition['flow'] as { phases?: Record<string, unknown>[] } | undefined;
   if (Array.isArray(flow?.phases)) return {
     id: response.draftId ?? String(definition['id'] ?? 'draft'), revision: response.revision ?? 0, title: String(definition['formKey'] ?? 'Untitled intake form'), definition, packageHash: response.packageHash,
-    phases: flow.phases.map((phase, phaseIndex) => ({ id: String(phase['id'] ?? `phase-${phaseIndex + 1}`), title: String(phase['title'] ?? phase['titleKey'] ?? `Phase ${phaseIndex + 1}`), pages: (Array.isArray(phase['pages']) ? phase['pages'] as Record<string, unknown>[] : []).map((page, pageIndex) => ({ id: String(page['id'] ?? `page-${pageIndex + 1}`), title: String(page['title'] ?? page['titleKey'] ?? `Page ${pageIndex + 1}`), sections: (Array.isArray(page['sections']) ? page['sections'] as Record<string, unknown>[] : []).map((section, sectionIndex) => ({ id: String(section['id'] ?? `section-${sectionIndex + 1}`), title: String(section['title'] ?? section['titleKey'] ?? `Section ${sectionIndex + 1}`), nodes: (Array.isArray(section['nodes']) ? section['nodes'] as Record<string, unknown>[] : []).map((node, nodeIndex) => ({ id: String(node['id'] ?? `node-${nodeIndex + 1}`), kind: String(node['kind'] ?? 'field') === 'question' ? 'field' as const : 'display' as const, label: String(node['label'] ?? node['fieldId'] ?? node['kind'] ?? `Node ${nodeIndex + 1}`), control: String(node['control'] ?? node['kind'] ?? 'content') })) })) })) })),
+    phases: flow.phases.map((phase, phaseIndex) => ({ id: String(phase['id'] ?? `phase-${phaseIndex + 1}`), title: translated(definition, String(phase['titleKey'] ?? ''), `Phase ${phaseIndex + 1}`), pages: (Array.isArray(phase['pages']) ? phase['pages'] as Record<string, unknown>[] : []).map((page, pageIndex) => ({ id: String(page['id'] ?? `page-${pageIndex + 1}`), title: translated(definition, String(page['titleKey'] ?? ''), `Page ${pageIndex + 1}`), sections: (Array.isArray(page['sections']) ? page['sections'] as Record<string, unknown>[] : []).map((section, sectionIndex) => ({ id: String(section['id'] ?? `section-${sectionIndex + 1}`), title: translated(definition, String(section['titleKey'] ?? ''), `Section ${sectionIndex + 1}`), nodes: (Array.isArray(section['nodes']) ? section['nodes'] as Record<string, unknown>[] : []).map((node, nodeIndex) => ({ id: String(node['id'] ?? `node-${nodeIndex + 1}`), kind: String(node['kind'] ?? 'field') === 'question' ? 'field' as const : 'display' as const, label: translated(definition, String(fieldLabelKey(definition, String(node['fieldId'] ?? '')) ?? node['labelKey'] ?? ''), String(node['kind'] ?? `Node ${nodeIndex + 1}`)), control: String(node['control'] ?? node['kind'] ?? 'content') })) })) })) })),
   };
   const pages = Array.isArray(definition['pages']) ? definition['pages'] as Record<string, unknown>[] : [];
   return {
@@ -85,6 +92,18 @@ export function authoringDocument(value: unknown): AuthoringDocument {
       return { id: pageId, title: String(page['title'] ?? `Page ${pageIndex + 1}`), sections: [{ id: `section-${pageId}`, title: 'Questions', nodes: fields.map((field, fieldIndex) => ({ id: String(field['id'] ?? `field-${fieldIndex + 1}`), kind: 'field' as const, label: String(field['label'] ?? field['title'] ?? field['key'] ?? `Field ${fieldIndex + 1}`), control: String(field['control'] ?? field['type'] ?? 'field') })) }] };
     }) }],
   };
+}
+
+function fieldLabelKey(definition: Record<string, unknown>, fieldId: string): unknown {
+  const fields = ((definition.data as { fields?: Record<string, unknown>[] } | undefined)?.fields ?? []);
+  return fields.find((field) => field.id === fieldId)?.labelKey;
+}
+
+function translated(definition: Record<string, unknown>, key: string, fallback: string): string {
+  const locale = String(definition.defaultLocale ?? 'en');
+  const messages = (((definition.translations as Record<string, { messages?: Record<string, unknown> }> | undefined)?.[locale] ?? {}).messages ?? {});
+  const value = messages[key];
+  return typeof value === 'string' ? value : fallback;
 }
 
 function authoringPatch(command: AuthoringCommand, document: AuthoringDocument): readonly unknown[] {
@@ -233,12 +252,12 @@ export class SmartIntakeApiService {
     return this.http.get<BackendHistory[]>(`${this.authoringBase(workspaceId, formId, draftId)}/history`, this.staff()).pipe(map((history) => history.map(authoringHistory)));
   }
 
-  authoringUndo(workspaceId: string, formId: string, draftId: string, revision: number): Observable<AuthoringDocument> {
-    return this.authoringAction(workspaceId, formId, draftId, revision, 'undo');
+  authoringUndo(workspaceId: string, formId: string, draftId: string, revision: number, idempotencyKey = this.createMutationAction()): Observable<AuthoringDocument> {
+    return this.authoringAction(workspaceId, formId, draftId, revision, 'undo', idempotencyKey);
   }
 
-  authoringRedo(workspaceId: string, formId: string, draftId: string, revision: number): Observable<AuthoringDocument> {
-    return this.authoringAction(workspaceId, formId, draftId, revision, 'redo');
+  authoringRedo(workspaceId: string, formId: string, draftId: string, revision: number, idempotencyKey = this.createMutationAction()): Observable<AuthoringDocument> {
+    return this.authoringAction(workspaceId, formId, draftId, revision, 'redo', idempotencyKey);
   }
 
   resolveAuthoringConflict(workspaceId: string, formId: string, draftId: string, revision: number, conflictId: string, definition: unknown): Observable<AuthoringDocument> {
@@ -250,8 +269,8 @@ export class SmartIntakeApiService {
     return this.http.post<AuthoringImportCandidate>(`${this.authoringBase(workspaceId, formId, draftId)}/imports/validate`, { candidate }, this.staff());
   }
 
-  commitAuthoringImport(workspaceId: string, formId: string, draftId: string, revision: number, candidate: Pick<AuthoringImportCandidate, 'candidateId' | 'digest'>, mode: 'UPDATE' | 'COPY' = 'UPDATE'): Observable<AuthoringDocument> {
-    return this.http.post<unknown>(`${this.authoringBase(workspaceId, formId, draftId)}/imports/commit`, { candidateId: candidate.candidateId, digest: candidate.digest, mode }, { withCredentials: true, headers: new HttpHeaders({ 'If-Match': this.formRevisionEtag(revision), 'Idempotency-Key': this.createMutationAction() }) }).pipe(map(authoringDocument));
+  commitAuthoringImport(workspaceId: string, formId: string, draftId: string, revision: number, candidate: Pick<AuthoringImportCandidate, 'candidateId' | 'digest'>, mode: 'UPDATE' | 'COPY' = 'UPDATE', idempotencyKey = this.createMutationAction()): Observable<AuthoringDocument> {
+    return this.http.post<unknown>(`${this.authoringBase(workspaceId, formId, draftId)}/imports/commit`, { candidateId: candidate.candidateId, digest: candidate.digest, mode }, { withCredentials: true, headers: new HttpHeaders({ 'If-Match': this.formRevisionEtag(revision), 'Idempotency-Key': idempotencyKey }) }).pipe(map(authoringDocument));
   }
 
   reusableComponents(workspaceId: string): Observable<ReusableComponent[]> {
@@ -265,9 +284,21 @@ export class SmartIntakeApiService {
   }
 
   authoringTheme(workspaceId: string, formId: string, draftId: string): Observable<ThemeSettings> { return this.http.get<BackendTheme>(`${this.authoringBase(workspaceId, formId, draftId)}/theme`, this.staff()).pipe(map(authoringTheme)); }
-  updateAuthoringTheme(workspaceId: string, formId: string, draftId: string, revision: number, theme: ThemeSettings): Observable<ThemeSettings> { const wireTheme = { themeKey: theme.themeKey ?? theme.preset, tokens: theme.tokens }; return this.http.put<unknown>(`${this.authoringBase(workspaceId, formId, draftId)}/theme`, { theme: wireTheme }, { withCredentials: true, headers: new HttpHeaders({ 'If-Match': this.formRevisionEtag(revision), 'Idempotency-Key': this.createMutationAction() }) }).pipe(map(() => ({ ...theme, themeKey: wireTheme.themeKey }))); }
+  updateAuthoringTheme(workspaceId: string, formId: string, draftId: string, revision: number, theme: ThemeSettings): Observable<ThemeSettings> {
+    const wireTheme = { themeKey: theme.themeKey ?? theme.preset, version: theme.version ?? '1', tokens: theme.tokens };
+    return this.http.put<unknown>(`${this.authoringBase(workspaceId, formId, draftId)}/theme`, { theme: wireTheme }, { withCredentials: true, headers: new HttpHeaders({ 'If-Match': this.formRevisionEtag(revision), 'Idempotency-Key': this.createMutationAction() }) }).pipe(
+      map(authoringDocument),
+      switchMap((document) => this.authoringTheme(workspaceId, formId, draftId).pipe(map((returned) => ({ ...returned, document })))),
+    );
+  }
   authoringContent(workspaceId: string, formId: string, draftId: string): Observable<ContentSettings> { return this.http.get<BackendContent>(`${this.authoringBase(workspaceId, formId, draftId)}/content`, this.staff()).pipe(map(authoringContent)); }
-  updateAuthoringContent(workspaceId: string, formId: string, draftId: string, revision: number, content: ContentSettings): Observable<ContentSettings> { const guidance = { ...(content.guidance ?? {}), glossary: content.glossary, questions: content.questions, narration: content.narration ?? '' }; return this.http.put<unknown>(`${this.authoringBase(workspaceId, formId, draftId)}/content`, { guidance, translations: content.translations }, { withCredentials: true, headers: new HttpHeaders({ 'If-Match': this.formRevisionEtag(revision), 'Idempotency-Key': this.createMutationAction() }) }).pipe(map(() => ({ ...content, guidance }))); }
+  updateAuthoringContent(workspaceId: string, formId: string, draftId: string, revision: number, content: ContentSettings, scope: 'guidance' | 'translations'): Observable<ContentSettings> {
+    const body = scope === 'guidance' ? { guidance: content.guidance } : { translations: content.translations };
+    return this.http.put<unknown>(`${this.authoringBase(workspaceId, formId, draftId)}/content`, body, { withCredentials: true, headers: new HttpHeaders({ 'If-Match': this.formRevisionEtag(revision), 'Idempotency-Key': this.createMutationAction() }) }).pipe(
+      map(authoringDocument),
+      switchMap((document) => this.authoringContent(workspaceId, formId, draftId).pipe(map((returned) => ({ ...returned, document })))),
+    );
+  }
   authoringComments(workspaceId: string, formId: string, draftId: string): Observable<AuthoringComment[]> { return this.http.get<BackendComment[]>(`${this.authoringBase(workspaceId, formId, draftId)}/comments`, this.staff()).pipe(map((comments) => comments.map(authoringComment))); }
   addAuthoringComment(workspaceId: string, formId: string, draftId: string, body: string, targetId: string): Observable<AuthoringComment> { return this.http.post<BackendComment>(`${this.authoringBase(workspaceId, formId, draftId)}/comments`, { body, pointer: targetId }, this.staff()).pipe(map(authoringComment)); }
   authoringPresence(workspaceId: string, formId: string, draftId: string): Observable<PresenceMember[]> { return this.http.get<BackendPresence[]>(`${this.authoringBase(workspaceId, formId, draftId)}/presence`, this.staff()).pipe(map((members) => members.map((member) => ({ accountId: member.accountId, displayName: member.displayName, selectedId: member.cursor, expiresAt: member.expiresAt })))); }
@@ -367,8 +398,8 @@ export class SmartIntakeApiService {
     return `/v1/workspaces/${encodeURIComponent(workspaceId)}/forms/${encodeURIComponent(formId)}/authoring/${encodeURIComponent(draftId)}`;
   }
 
-  private authoringAction(workspaceId: string, formId: string, draftId: string, revision: number, action: 'undo' | 'redo'): Observable<AuthoringDocument> {
-    return this.http.post<unknown>(`${this.authoringBase(workspaceId, formId, draftId)}/${action}`, {}, { withCredentials: true, headers: new HttpHeaders({ 'If-Match': this.formRevisionEtag(revision), 'Idempotency-Key': this.createMutationAction() }) }).pipe(map(authoringDocument));
+  private authoringAction(workspaceId: string, formId: string, draftId: string, revision: number, action: 'undo' | 'redo', idempotencyKey: string): Observable<AuthoringDocument> {
+    return this.http.post<unknown>(`${this.authoringBase(workspaceId, formId, draftId)}/${action}`, {}, { withCredentials: true, headers: new HttpHeaders({ 'If-Match': this.formRevisionEtag(revision), 'Idempotency-Key': idempotencyKey }) }).pipe(map(authoringDocument));
   }
 
   private respondent(respondentToken: string) {

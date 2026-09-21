@@ -46,6 +46,35 @@ describe('AuthoringStore', () => {
     expect(reloaded.pendingMutationKey()).toBeNull();
   });
 
+  it('rotates a command key when undo or redo changes the pending batch and restores redo work', () => {
+    const key = 'authoring.pending-redo';
+    const store = new AuthoringStore();
+    store.hydrate(key, { ...DEFAULT_AUTHORING_DOCUMENT, id: 'draft-5' });
+    store.apply({ type: 'rename', targetId: 'field-name', label: 'Legal name' }, key);
+    const beforeUndo = store.commandBatchKey(key);
+    store.undo(key);
+    expect(store.pendingCommands()).toEqual([]);
+    expect(store.redoPendingCommands()).toHaveLength(1);
+    expect(store.pendingMutationKey()).toBeNull();
+    store.redo(key);
+    expect(store.pendingCommands()).toHaveLength(1);
+    expect(store.commandBatchKey(key)).not.toBe(beforeUndo);
+  });
+
+  it('keeps retained conflict evidence across reload even when the server revision advances', () => {
+    const key = 'authoring.conflict-reload';
+    const store = new AuthoringStore();
+    const client = { ...DEFAULT_AUTHORING_DOCUMENT, id: 'draft-6', title: 'Client version' };
+    const server = { ...DEFAULT_AUTHORING_DOCUMENT, id: 'draft-6', title: 'Server version', revision: 4 };
+    store.hydrate(key, client);
+    store.setConflict(client, server, 'conflict-1', 'Retained server conflict', key);
+
+    const reloaded = new AuthoringStore();
+    reloaded.hydrate(key, { ...server, revision: 5 });
+    expect(reloaded.document().revision).toBe(5);
+    expect(reloaded.conflict()).toMatchObject({ id: 'conflict-1', client: { title: 'Client version' }, server: { title: 'Server version' } });
+  });
+
   it('retains a pinned component insertion key for the same revision and path', () => {
     const key = 'authoring.component-idempotency';
     const store = new AuthoringStore();

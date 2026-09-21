@@ -1,7 +1,22 @@
 import { expect, test } from '@playwright/test';
 
 const document = {
-  formId: 'demo', draftId: 'draft', revision: 3, definition: { title: 'Employment intake', pages: [{ id: 'page-details', title: 'Details', fields: [{ id: 'field-name', label: 'Full name', type: 'text' }] }] }, packageHash: 'package-hash', diagnostics: [], history: [],
+  formId: 'demo', draftId: 'draft', revision: 3, definition: {
+    titleKey: 'form.title', defaultLocale: 'en',
+    data: { fields: [{ id: 'field-name', key: 'field-name', type: 'text', labelKey: 'field-name.label' }] },
+    flow: { phases: [{ id: 'phase-intake', titleKey: 'phase-intake.label', pages: [{ id: 'page-details', titleKey: 'page-details.label', sections: [{ id: 'section-page-details', titleKey: 'section-page-details.label', nodes: [{ id: 'field-name', kind: 'question', fieldId: 'field-name', control: 'shortText' }] }] }] }] },
+    translations: { en: { direction: 'ltr', messages: { 'form.title': 'Employment intake', 'phase-intake.label': 'Intake', 'page-details.label': 'Details', 'section-page-details.label': 'Questions', 'field-name.label': 'Full name' } } },
+    expressions: {},
+  }, packageHash: 'package-hash', diagnostics: [], history: [],
+};
+const content = {
+  revision: 3, guidance: { guidance: { id: 'guidance', messageKey: 'guidance.message' } },
+  translations: {
+    en: { direction: 'ltr', messages: { 'guidance.message': 'Use a legal name.' } },
+    hi: { direction: 'ltr', messages: {} },
+    ar: { direction: 'rtl', messages: {} },
+  },
+  localeCompleteness: { en: { present: true, complete: true }, hi: { present: true, complete: false }, ar: { present: true, complete: false } },
 };
 const base = '/workspaces/demo/forms/demo/drafts/draft/author';
 let previewCalls = 0;
@@ -13,8 +28,8 @@ test.describe('M7 visual authoring', () => {
     await page.route('**/v1/workspaces/demo/reusable-components', (route) => route.fulfill({ contentType: 'application/json', body: JSON.stringify([{ id: 'address', key: 'postal-address', version: 2, status: 'ACTIVE', hash: 'component-hash', updatedAt: '2026-09-21T00:00:00Z', name: 'Postal address' }]) }));
     await page.route('**/v1/workspaces/demo/forms/demo/authoring/draft**', async (route) => {
       const path = new URL(route.request().url()).pathname;
-      if (path.endsWith('/theme')) { await route.fulfill({ contentType: 'application/json', body: JSON.stringify({ revision: 3, theme: { themeKey: 'Certinal', tokens: {} }, locks: ['/tokens/accent'], preflight: [{ code: 'contrast', severity: 'warning', message: 'Review contrast.' }] }) }); return; }
-      if (path.endsWith('/content')) { await route.fulfill({ contentType: 'application/json', body: JSON.stringify({ revision: 3, guidance: { narration: 'Complete the fields.' }, translations: { en: { guidance: 'Use a legal name.' }, hi: {}, ar: {} }, localeCompleteness: { en: { present: true, complete: true }, hi: { present: true, complete: false }, ar: { present: true, complete: false } } }) }); return; }
+      if (path.endsWith('/theme')) { await route.fulfill({ contentType: 'application/json', body: JSON.stringify({ revision: 3, theme: { themeKey: 'Certinal', version: '1', tokens: {} }, locks: ['/tokens/accent'], preflight: [{ code: 'contrast', severity: 'warning', message: 'Review contrast.' }] }) }); return; }
+      if (path.endsWith('/content')) { await route.fulfill({ contentType: 'application/json', body: JSON.stringify(content) }); return; }
       if (path.endsWith('/history')) { await route.fulfill({ contentType: 'application/json', body: '[]' }); return; }
       if (path.endsWith('/comments') || path.endsWith('/presence')) { await route.fulfill({ contentType: 'application/json', body: '[]' }); return; }
       if (path.endsWith('/preview')) { await route.fulfill({ contentType: 'application/json', body: JSON.stringify({ mode: 'synthetic', packageHash: 'package-hash', diagnostics: [], syntheticAnswers: { 'field-name': 'Ada Lovelace' }, effects: { sessions: 0, submissions: 0, email: 0, webhooks: 0, providers: 0 } }) }); return; }
@@ -26,8 +41,8 @@ test.describe('M7 visual authoring', () => {
       previewCalls++;
       await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ mode: 'synthetic', packageHash: 'package-hash', diagnostics: [], syntheticAnswers: { 'field-name': 'Ada Lovelace' }, effects: { sessions: 0, submissions: 0, email: 0, webhooks: 0, providers: 0 } }) });
     });
-    await page.route('**/v1/workspaces/demo/forms/demo/authoring/draft/theme', (route) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ revision: 3, theme: { themeKey: 'Certinal', tokens: {} }, locks: ['/tokens/accent'], preflight: [{ code: 'contrast', severity: 'warning', message: 'Review contrast.' }] }) }));
-    await page.route('**/v1/workspaces/demo/forms/demo/authoring/draft/content', (route) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ revision: 3, guidance: { narration: 'Complete the fields.' }, translations: { en: { guidance: 'Use a legal name.' }, hi: {}, ar: {} }, localeCompleteness: { en: { present: true, complete: true }, hi: { present: true, complete: false }, ar: { present: true, complete: false } } }) }));
+    await page.route('**/v1/workspaces/demo/forms/demo/authoring/draft/theme', (route) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ revision: 3, theme: { themeKey: 'Certinal', version: '1', tokens: {} }, locks: ['/tokens/accent'], preflight: [{ code: 'contrast', severity: 'warning', message: 'Review contrast.' }] }) }));
+    await page.route('**/v1/workspaces/demo/forms/demo/authoring/draft/content', (route) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(content) }));
   });
 
   test('renders the canonical hierarchy, keyboard focus and local 100-command history', async ({ page }) => {
