@@ -344,7 +344,7 @@ export class AppComponent {
       return;
     }
     this.saving.set(true);
-    this.api.createForm(this.workspaceId(), this.definition().formKey, this.definition().title).subscribe({
+    this.api.createForm(this.workspaceId(), this.definition().formKey, this.definition().title, 'canonical-4.0.0').subscribe({
       next: (created) => {
         this.formId = created.id;
         this.draftId = created.draftId || created.id;

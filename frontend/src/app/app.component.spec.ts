@@ -190,7 +190,7 @@ describe('AppComponent journeys', () => {
 
     component.openAuthoring();
 
-    expect(api.createForm).toHaveBeenCalledWith('local', expect.any(String), 'Responsive intake');
+    expect(api.createForm).toHaveBeenCalledWith('local', expect.any(String), 'Responsive intake', 'canonical-4.0.0');
     expect(api.updateDraft).not.toHaveBeenCalled();
     expect(router.navigate).toHaveBeenCalledWith(['/workspaces', 'local', 'forms', 'form-1', 'drafts', 'draft-1', 'author']);
   });

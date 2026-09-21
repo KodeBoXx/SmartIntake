@@ -336,8 +336,8 @@ export class SmartIntakeApiService {
     return this.http.get<PublishedSchema>(`/v1/schemas/${encodeURIComponent(kind)}/${encodeURIComponent(version)}`);
   }
 
-  createForm(workspaceId: string, formKey: string, title: string): Observable<CreatedForm> {
-    return this.http.post<CreatedForm>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/forms`, { formKey, title }, this.staff());
+  createForm(workspaceId: string, formKey: string, title: string, profile?: 'canonical-4.0.0'): Observable<CreatedForm> {
+    return this.http.post<CreatedForm>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/forms`, { formKey, title, ...(profile ? { profile } : {}) }, this.staff());
   }
 
   updateDraft(workspaceId: string, formId: string, draftId: string, revision: number, definition: FormDefinition): Observable<SavedDraft> {

@@ -77,7 +77,7 @@ public class IntakeApplicationService {
   public record Bootstrap(
       String email, String password, String organizationName, String workspaceName) {}
 
-  public record CreateForm(String formKey, String title) {}
+  public record CreateForm(String formKey, String title, String profile) {}
 
   public record Draft(Map<String, Object> definition) {}
 
@@ -234,7 +234,8 @@ public class IntakeApplicationService {
     if (in.formKey() == null || !in.formKey().matches("[a-z][a-z0-9-]{2,99}"))
       throw bad("FORM_KEY_INVALID", "Use a lowercase stable key of at least three characters.");
     UUID id = UUID.randomUUID();
-    Map<String, Object> def = canonicalAuthoringTemplate(in.formKey(), in.title());
+    boolean canonical = CompatibilityProfile.CANONICAL_4_0_0.key().equals(in.profile());
+    Map<String, Object> def = canonical ? canonicalAuthoringTemplate(in.formKey(), in.title()) : sampleDefinition(in.formKey(), in.title());
     db.update(
         "insert into forms(id,workspace_id,form_key,title,definition,compatibility_profile_key)"
             + " values(?,?,?,?,cast(? as jsonb),?)",
@@ -243,7 +244,7 @@ public class IntakeApplicationService {
         in.formKey(),
         in.title(),
         stringify(def),
-        CompatibilityProfile.CANONICAL_4_0_0.key());
+        canonical ? CompatibilityProfile.CANONICAL_4_0_0.key() : CompatibilityProfile.M1_CURRENT_PROTOTYPE.key());
     audit("FORM_CREATED", id);
     return ResponseEntity.status(201)
         .eTag(etag(1))

@@ -66,7 +66,7 @@ class AuthoringIntegrationTests {
 
   @Test void normal_form_creation_persists_a_canonical_template_that_opens_and_accepts_a_numeric_etag_command() throws Exception {
     String formKey="canonical-"+UUID.randomUUID().toString().substring(0,8);
-    ResponseEntity<String> created=forms(HttpMethod.POST,Map.of("formKey",formKey,"title","Canonical authoring"));
+    ResponseEntity<String> created=forms(HttpMethod.POST,Map.of("formKey",formKey,"title","Canonical authoring","profile","canonical-4.0.0"));
     assertEquals(HttpStatus.CREATED,created.getStatusCode(),created.getBody());
     UUID createdForm=UUID.fromString(json.readTree(created.getBody()).path("id").asText());
     assertEquals("canonical-4.0.0",db.queryForObject("select compatibility_profile_key from forms where id=?",String.class,createdForm));
