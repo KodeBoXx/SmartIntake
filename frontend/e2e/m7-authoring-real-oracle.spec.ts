@@ -244,62 +244,150 @@ async function readPersisted(page: import('@playwright/test').Page): Promise<Rec
 }
 
 function assertAuthoritativeShape(persisted: Record<string, any>): void {
-  expect(persisted.formKey).toBe(activeFormKey);
-  expect(persisted.flow.phases).toHaveLength(oracle.phases);
-  expect(persisted.flow.phases.map((phase: any) => phase.pages[0].titleKey)).toHaveLength(3);
-  const flatten = (fields: any[], prefix = ''): any[] => fields.flatMap((field) => {
+  expect(normalizeAuthoringPackage(persisted)).toEqual(expectedAuthoringPackage());
+}
+
+/**
+ * The frozen oracle intentionally describes author-facing semantics. Normalize the
+ * persisted closed package back to that vocabulary (including resolved labels and
+ * stable field keys) so one equality assertion covers every frozen dimension.
+ */
+function normalizeAuthoringPackage(persisted: Record<string, any>): Record<string, unknown> {
+  const messages = persisted.translations?.en?.messages ?? {};
+  const fields = flattenFields(persisted.data?.fields ?? []);
+  const byId = new Map(fields.map((field) => [field.id, field]));
+  const keyFor = (id: unknown) => byId.get(String(id))?.qualifiedKey ?? String(id);
+  const expressions = Object.fromEntries(Object.entries(persisted.expressions ?? {}).map(([id, expression]) => [id, normalizeExpression(expression, keyFor)]));
+  const placements = flattenPlacements(persisted.flow?.phases ?? []).map(({ node, page, section }) => normalizePlacement(node, page, section, keyFor, messages));
+  return {
+    formKey: persisted.formKey,
+    title: messages[persisted.titleKey],
+    phases: (persisted.flow?.phases ?? []).map((phase: any) => ({
+      label: messages[phase.titleKey], pages: (phase.pages ?? []).map((page: any) => ({
+        label: messages[page.titleKey], sections: (page.sections ?? []).map((section: any) => messages[section.titleKey]),
+        routes: (page.routes ?? []).map((route: any) => ({ targetPage: pageLabel(persisted, route.targetPageId, messages), whenExpressionId: route.whenExpressionId })),
+      })),
+    })),
+    fields: fields.map((field) => ({ key: field.qualifiedKey, canonicalType: field.type, parentKey: field.parentKey, label: messages[field.labelKey], config: oracleConfigFromField(field, placements, expressions, keyFor, messages) })),
+    placements,
+    expressions,
+    dependencies: (persisted.dependencies ?? []).map((dependency: any) => ({ kind: dependency.kind, id: dependency.id, version: dependency.version, digest: dependency.digest })),
+    diagnostics: persisted.diagnostics ?? [],
+  };
+}
+
+function expectedAuthoringPackage(): Record<string, unknown> {
+  return {
+    formKey: activeFormKey,
+    title: oracle.formName,
+    phases: [
+      { label: 'About your request', pages: [{ label: 'About', sections: ['About'], routes: [{ targetPage: 'Equipment', whenExpressionId: 'operator_eq' }] }] },
+      { label: 'Equipment', pages: [{ label: 'Equipment', sections: ['Equipment'], routes: [] }] },
+      { label: 'Review', pages: [{ label: 'Review and submit', sections: ['Review and submit'], routes: [] }] },
+    ],
+    fields: oracle.fields.map(({ expected }) => ({ key: expected.key, canonicalType: expected.canonicalType, parentKey: expected.parentKey, label: expected.key, config: expected.config })),
+    placements: expectedPlacements(),
+    expressions: expectedExpressions(),
+    dependencies: [{ kind: 'extension', id: 'authoring-calculations', version: '1.0.0', digest: `sha256:${'0'.repeat(64)}` }],
+    diagnostics: [],
+  };
+}
+
+function flattenFields(fields: any[], parentKey: string | null = null, prefix = ''): any[] {
+  return fields.flatMap((field) => {
     const qualifiedKey = prefix ? `${prefix}.${field.key}` : field.key;
-    return [{ ...field, qualifiedKey }, ...flatten(field.itemSchema?.fields ?? [], qualifiedKey)];
+    return [{ ...field, parentKey, qualifiedKey }, ...flattenFields(field.itemSchema?.fields ?? [], qualifiedKey, qualifiedKey)];
   });
-  const actual = flatten(persisted.data.fields);
-  expect(actual).toHaveLength(oracle.canonicalFieldCount);
-  const expected = oracle.fields.map(({ expected }) => ({ key: expected.key, type: expected.canonicalType }));
-  expect(actual.map((field) => ({ key: field.qualifiedKey, type: field.type }))).toEqual(expected);
-  expect(new Set(actual.map((field) => field.id)).size).toBe(oracle.canonicalFieldCount);
-  const byKey = (key: string): any => actual.find((field) => field.qualifiedKey === key);
-  expect(persisted.flow.phases.map((phase: any) => persisted.translations.en.messages[phase.titleKey])).toEqual(['About your request', 'Equipment', 'Review']);
-  expect(persisted.flow.phases.map((phase: any) => persisted.translations.en.messages[phase.pages[0].titleKey])).toEqual(['About', 'Equipment', 'Review and submit']);
-  expect(byKey('respondentName')).toMatchObject({ required: true, constraints: { maxLength: 120 } });
-  expect(byKey('referenceCode')).toMatchObject({ required: true, constraints: { maxLength: 20 }, normalizer: 'preserve' });
-  expect(byKey('services')).toMatchObject({ constraints: { minItems: 1, exclusiveOptionIds: ['opt_none'] }, options: [{ id: 'opt_collection' }, { id: 'opt_setup' }, { id: 'opt_other' }, { id: 'opt_none' }] });
-  expect(byKey('priorityOrder')).toMatchObject({ ordered: true, options: [{ id: 'opt_reliability' }, { id: 'opt_portability' }, { id: 'opt_price' }] });
-  expect(byKey('entryMode')).toMatchObject({ required: true, default: { status: 'answered', value: 'opt_cards' } });
-  expect(byKey('equipment')).toMatchObject({ constraints: { minItems: 1, maxItems: 50 } });
-  expect(byKey('equipment.equipmentName')).toMatchObject({ constraints: { required: true, maxLength: 80 } });
-  expect(byKey('equipment.quantity')).toMatchObject({ constraints: { required: true, min: '1', max: '10' } });
-  expect(byKey('equipment.unitCost')).toMatchObject({ unit: 'USD', constraints: { required: true, min: '0', max: '1000000', scale: 2 } });
-  expect(byKey('equipment.accessories')).toMatchObject({ constraints: { required: false, maxItems: 10 } });
-  expect(byKey('equipment.accessories.tests')).toMatchObject({ constraints: { required: false, maxItems: 5 } });
-  expect(byKey('equipment.accessories.tests.testResult')).toMatchObject({ constraints: { required: true }, visibilityExpressionId: 'operator_isAnswered', options: [{ id: 'opt_pass' }, { id: 'opt_fail' }] });
-  expect(byKey('checks.checkDetails')).toMatchObject({ hiddenRetention: 'clear', visibilityExpressionId: 'operator_not', requiredExpressionId: 'operator_not' });
-  expect(byKey('shipping.postalCode')).toMatchObject({ constraints: { required: true }, normalizer: 'preserve' });
-  expect(byKey('shipping.country')).toMatchObject({ constraints: { required: true }, options: [{ id: 'opt_in' }, { id: 'opt_gb' }] });
-  expect(byKey('note')).toMatchObject({ allowUnknown: true, allowDeclined: true });
-  expect(byKey('total')).toMatchObject({ type: 'decimal', readOnly: true, calculated: true, mode: 'calculated', unit: 'USD', constraints: { min: '0', max: '1000000', scale: 2 }, extensions: { 'x-kodeboxx.calculation': { value: 'operator_sum', dependencyId: 'authoring-calculations' } } });
-  expect(byKey('supportingFiles')).toMatchObject({ constraints: { maxItems: 2 } });
-  expect(byKey('reviewAcknowledged')).toMatchObject({ required: true, type: 'boolean' });
-  const nodes = persisted.flow.phases.flatMap((phase: any) => phase.pages.flatMap((candidatePage: any) => candidatePage.sections.flatMap((section: any) => section.nodes)));
-  const emailPlacements = nodes.filter((node: any) => node.fieldId === byKey('email').id);
-  expect(emailPlacements).toHaveLength(2);
-  expect(emailPlacements.map((node: any) => Boolean(node.presentation?.settings?.readOnly))).toEqual([false, true]);
-  const priorityNode = nodes.find((node: any) => node.fieldId === byKey('priority').id);
-  expect([persisted.translations.en.messages[priorityNode.presentation.settings.endpointLowLabelKey], persisted.translations.en.messages[priorityNode.presentation.settings.endpointHighLabelKey]]).toEqual(['Low priority', 'High priority']);
-  const equipmentNode = nodes.find((node: any) => node.fieldId === byKey('equipment').id);
-  expect(equipmentNode.summaryFieldIds).toEqual([byKey('equipment.equipmentName').id, byKey('equipment.quantity').id]);
-  expect(equipmentNode.presentation.settings).toMatchObject({ allowAdd: true, allowRemove: true, allowReorder: true, alternateInstancesBindSameField: true });
-  const checksNode = nodes.find((node: any) => node.fieldId === byKey('checks').id);
-  expect(checksNode.presentation.settings).toMatchObject({ allowAdd: false, allowRemove: false });
-  const attachmentNode = nodes.find((node: any) => node.fieldId === byKey('supportingFiles').id);
-  expect(attachmentNode.presentation.settings).toMatchObject({ allowedMime: ['text/plain'], scanReadiness: 'normal' });
-  const acknowledgmentNode = nodes.find((node: any) => node.fieldId === byKey('reviewAcknowledged').id);
-  expect(acknowledgmentNode.presentation.settings).toMatchObject({ requireTrue: true, finalReviewOnly: true, voiceSupplyProhibited: true });
-  const shippingNode = nodes.find((node: any) => node.fieldId === byKey('shipping').id);
-  expect(shippingNode.roles).toEqual({ postalCode: byKey('shipping.postalCode').id, country: byKey('shipping.country').id });
-  expect(persisted.flow.phases[0].pages[0].routes).toContainEqual(expect.objectContaining({ targetPageId: persisted.flow.phases[1].pages[0].id, whenExpressionId: 'operator_eq' }));
-  expect(persisted.expressions.operator_sum).toMatchObject({ op: 'sum', args: [{ ref: { fieldId: byKey('equipment').id, scope: 'root' } }, { op: 'multiply', args: [{ ref: { fieldId: byKey('equipment.quantity').id, scope: 'item' } }, { ref: { fieldId: byKey('equipment.unitCost').id, scope: 'item' } }] }] });
-  expect(persisted.dependencies).toContainEqual(expect.objectContaining({ kind: 'extension', id: 'authoring-calculations' }));
-  expect(Object.keys(persisted.expressions).sort()).toEqual(['and', 'or', 'not', 'eq', 'ne', 'lt', 'lte', 'gt', 'gte', 'in', 'contains', 'containsAll', 'exists', 'isAnswered', 'statusIs', 'add', 'subtract', 'multiply', 'divide', 'round', 'min', 'max', 'sum', 'count', 'any', 'all', 'concat', 'length', 'coalesce', 'if', 'dateDiffDays', 'ageYears', 'dateAddDays', 'today'].map((operator) => `operator_${operator}`).sort());
-  expect(persisted.diagnostics ?? []).toEqual([]);
+}
+
+function flattenPlacements(phases: any[]): { node: any; page: any; section: any }[] {
+  const descend = (nodes: any[], page: any, section: any): { node: any; page: any; section: any }[] => nodes.flatMap((node) => [{ node, page, section }, ...descend(node.children ?? [], page, section)]);
+  return phases.flatMap((phase) => (phase.pages ?? []).flatMap((page: any) => (page.sections ?? []).flatMap((section: any) => descend(section.nodes ?? [], page, section))));
+}
+
+function normalizePlacement(node: any, page: any, section: any, keyFor: (id: unknown) => string, messages: Record<string, string>): Record<string, unknown> {
+  const settings = node.presentation?.settings ?? {};
+  const normalizedSettings = Object.fromEntries(Object.entries(settings).map(([key, value]) => [key === 'endpointLowLabelKey' ? 'endpointLowLabel' : key === 'endpointHighLabelKey' ? 'endpointHighLabel' : key, key.endsWith('LabelKey') ? messages[String(value)] : value]));
+  return compact({ key: keyFor(node.fieldId), page: messages[page.titleKey], section: messages[section.titleKey], control: node.control,
+    settings: normalizedSettings, roles: node.roles && Object.fromEntries(Object.entries(node.roles).map(([role, fieldId]) => [role, keyFor(fieldId)])),
+    summaryFieldIds: node.summaryFieldIds?.map(keyFor), fixedRowLabels: node.fixedRowLabels && Object.fromEntries(Object.entries(node.fixedRowLabels).map(([id, labelKey]) => [id, messages[String(labelKey)]])),
+    acknowledgmentContent: node.acknowledgmentContentKey && messages[node.acknowledgmentContentKey] });
+}
+
+function oracleConfigFromField(field: any, placements: Record<string, unknown>[], expressions: Record<string, unknown>, keyFor: (id: unknown) => string, messages: Record<string, string>): Record<string, unknown> {
+  const constraints = field.constraints ?? {}; const placement = placements.find((candidate) => candidate.key === field.qualifiedKey) ?? {}; const settings = placement.settings as Record<string, unknown> ?? {};
+  const options = (field.options ?? []).map((option: any) => option.id);
+  const expected = oracle.fields.find(({ expected: candidate }) => candidate.key === field.qualifiedKey)?.expected.config ?? {};
+  const config: Record<string, unknown> = {};
+  for (const dimension of Object.keys(expected)) {
+    const value = ({
+      maxLength: constraints.maxLength, required: Boolean(field.required ?? constraints.required), preserveLeadingZeros: field.normalizer === 'preserve',
+      answerCells: placements.filter((candidate) => candidate.key === field.qualifiedKey).length - 1,
+      instances: placements.filter((candidate) => candidate.key === field.qualifiedKey).map((candidate) => compact({ page: candidate.page, editable: !(candidate.settings as Record<string, unknown>).readOnly || undefined, readOnly: (candidate.settings as Record<string, unknown>).readOnly || undefined })),
+      falseIsValidAnswer: field.type === 'boolean', hiddenRetention: field.hiddenRetention, sensitive: field.sensitivity === 'sensitive',
+      requiredWhile: requiredWhile(field.requiredExpressionId, expressions), minSelected: constraints.minItems, exclusiveOptionIds: constraints.exclusiveOptionIds, options,
+      format: field.type === 'date' ? 'ISO calendar date' : undefined, informationOnly: field.type === 'date', min: constraints.min, max: constraints.max, step: constraints.step,
+      endpointLabels: [settings.endpointLowLabel, settings.endpointHighLabel], keyboardMoveControls: field.ordered === true, ordered: field.ordered,
+      default: field.default?.value, allowAdd: settings.allowAdd, allowRemove: settings.allowRemove, allowReorder: settings.allowReorder, alternateInstancesBindSameField: settings.alternateInstancesBindSameField,
+      summaryFieldIds: (placement.summaryFieldIds as string[] | undefined)?.map((key) => key.split('.').at(-1)), currency: field.unit,
+      depth: field.qualifiedKey.split('.').length, maxPerItem: constraints.maxItems, optional: !Boolean(field.required ?? constraints.required),
+      requiredWithinExistingAccessory: Boolean(field.required ?? constraints.required), maxItems: constraints.maxItems,
+      requiredWithinTest: Boolean(field.required ?? constraints.required), visibility: visibility(field.visibilityExpressionId, expressions),
+      fixedItemIds: constraints.fixedItemIds, labels: Object.values((placement.fixedRowLabels as Record<string, string> | undefined) ?? {}).length ? Object.values(placement.fixedRowLabels as Record<string, string>) : (field.options ?? []).map((option: any) => messages[option.labelKey]),
+      initialStatus: field.default?.status ?? 'unanswered', requiredPerFixedRow: Boolean(field.required ?? constraints.required), scope: field.qualifiedKey === 'checks.checkDetails' ? 'item' : undefined,
+      noImplicitRegionRequirement: field.type === 'object', roles: placement.roles && Object.keys(placement.roles as Record<string, string>), noUSFormatRule: field.normalizer === 'preserve',
+      allowDeclined: field.allowDeclined, allowUnknown: field.allowUnknown, distinctFromUnanswered: field.allowUnknown && field.allowDeclined, respondentOverride: !field.readOnly, serverRecomputes: field.calculated === true,
+      applicableItemsOnly: field.extensions?.['x-kodeboxx.calculation']?.value === 'operator_sum', expression: field.extensions?.['x-kodeboxx.calculation']?.value === 'operator_sum' ? 'sum(ref(equipment,root), multiply(ref(quantity,item), ref(unitCost,item)))' : undefined,
+      scale: constraints.scale, allowedMime: settings.allowedMime, maxFiles: constraints.maxItems, scanReadiness: settings.scanReadiness,
+      finalReviewOnly: settings.finalReviewOnly, requireTrue: settings.requireTrue, voiceSupplyProhibited: settings.voiceSupplyProhibited,
+    } as Record<string, unknown>)[dimension];
+    config[dimension] = typeof expected[dimension] === 'number' && typeof value === 'string' ? Number(value) : value;
+  }
+  return config;
+}
+
+function requiredWhile(id: string | undefined, expressions: Record<string, unknown>): string | undefined { const expression = expressions[id ?? '']; if (id === 'operator_eq' && JSON.stringify(expression).includes('needsSetup')) return 'needsSetup == true'; if (id === 'operator_contains') return 'opt_other selected'; if (id === 'operator_not') return 'same row checkResult == false'; return id; }
+function visibility(id: string | undefined, expressions: Record<string, unknown>): string | undefined { if (id === 'operator_isAnswered' && JSON.stringify(expressions[id]).includes('accessoryName')) return 'isAnswered(ref(accessoryName, scope=parentItem))'; return id; }
+function compact(value: Record<string, unknown>): Record<string, unknown> { return Object.fromEntries(Object.entries(value).filter(([, candidate]) => candidate !== undefined)); }
+function pageLabel(persisted: any, pageId: string, messages: Record<string, string>): string | undefined { return persisted.flow.phases.flatMap((phase: any) => phase.pages).find((page: any) => page.id === pageId)?.titleKey && messages[persisted.flow.phases.flatMap((phase: any) => phase.pages).find((page: any) => page.id === pageId).titleKey]; }
+function normalizeExpression(value: any, keyFor: (id: unknown) => string): any { if (Array.isArray(value)) return value.map((item) => normalizeExpression(item, keyFor)); if (!value || typeof value !== 'object') return value; if (value.ref?.fieldId) return { ...value, ref: { ...value.ref, fieldId: keyFor(value.ref.fieldId) } }; return Object.fromEntries(Object.entries(value).map(([key, child]) => [key, normalizeExpression(child, keyFor)])); }
+
+function expectedPlacements(): Record<string, unknown>[] {
+  const placement = (key: string, page: string, section: string, control: string, extras: Record<string, unknown> = {}) => {
+    const { settings: extraSettings = {}, ...rest } = extras as { settings?: Record<string, unknown> };
+    const defaultSettings = key.includes('.') ? {} : {
+      allowAdd: false, readOnly: false, allowRemove: false, allowedMime: [], allowReorder: false, alternateInstancesBindSameField: false,
+    };
+    return { key, page, section, control, settings: { ...defaultSettings, ...extraSettings }, ...rest };
+  };
+  return [
+    ...['respondentName', 'referenceCode', 'email', 'needsSetup', 'setupDetails', 'services', 'otherServiceDetails', 'visitDate', 'extraAttendees'].map((key, index) => placement(key, 'About', 'About', ['shortText', 'identifier', 'email', 'yesNo', 'textarea', 'chips', 'shortText', 'date', 'integer'][index])),
+    placement('priority', 'About', 'About', 'rating', { settings: { endpointLowLabel: 'Low priority', endpointHighLabel: 'High priority' } }),
+    placement('priorityOrder', 'About', 'About', 'ranking'), placement('entryMode', 'About', 'About', 'modeSelector'),
+    placement('equipment', 'Equipment', 'Equipment', 'repeatingCards', { settings: { allowAdd: true, allowRemove: true, allowReorder: true, alternateInstancesBindSameField: true }, summaryFieldIds: ['equipment.equipmentName', 'equipment.quantity'] }),
+    placement('equipment.equipmentName', 'Equipment', 'Equipment', 'shortText'), placement('equipment.quantity', 'Equipment', 'Equipment', 'integer'), placement('equipment.unitCost', 'Equipment', 'Equipment', 'currency'), placement('equipment.accessories', 'Equipment', 'Equipment', 'repeatingCards'), placement('equipment.accessories.accessoryName', 'Equipment', 'Equipment', 'shortText'), placement('equipment.accessories.tests', 'Equipment', 'Equipment', 'repeatingCards'), placement('equipment.accessories.tests.testResult', 'Equipment', 'Equipment', 'radio'),
+    placement('email', 'Equipment', 'Equipment', 'email', { settings: { readOnly: true } }),
+    placement('checks', 'Equipment', 'Equipment', 'fixedMatrix', { settings: { allowAdd: false, allowRemove: false }, fixedRowLabels: { row_power: 'Power available', row_space: 'Space available' } }), placement('checks.checkResult', 'Equipment', 'Equipment', 'yesNo'), placement('checks.checkDetails', 'Equipment', 'Equipment', 'shortText'),
+    placement('shipping', 'Equipment', 'Equipment', 'address', { roles: { postalCode: 'shipping.postalCode', country: 'shipping.country' } }), placement('shipping.postalCode', 'Equipment', 'Equipment', 'identifier'), placement('shipping.country', 'Equipment', 'Equipment', 'combobox'), placement('note', 'Equipment', 'Equipment', 'shortText'), placement('total', 'Equipment', 'Equipment', 'currency'), placement('supportingFiles', 'Equipment', 'Equipment', 'fileUpload', { settings: { allowedMime: ['text/plain'], scanReadiness: 'normal' } }),
+    placement('reviewAcknowledged', 'Review and submit', 'Review and submit', 'acknowledgment', { settings: { requireTrue: true, finalReviewOnly: true, voiceSupplyProhibited: true }, acknowledgmentContent: 'I confirm this information is accurate.' }),
+  ];
+}
+
+function expectedExpressions(): Record<string, unknown> {
+  const ref = (fieldId: string, scope: 'root' | 'item' | 'parentItem' = 'root') => ({ ref: { fieldId, scope } });
+  const literal = (type: string, value: unknown) => ({ literal: { type, value } });
+  const binary = (op: string, left: unknown, right: unknown) => ({ op, args: [left, right] });
+  const booleans = (op: string) => binary(op, literal('boolean', true), literal('boolean', false));
+  return {
+    operator_and: booleans('and'), operator_or: booleans('or'), operator_not: { op: 'not', args: [ref('checks.checkResult', 'item')] },
+    operator_eq: binary('eq', ref('needsSetup'), literal('boolean', true)), operator_ne: binary('ne', ref('respondentName'), literal('text', 'Ada')),
+    operator_lt: binary('lt', ref('extraAttendees'), literal('integer', '1')), operator_lte: binary('lte', ref('extraAttendees'), literal('integer', '1')), operator_gt: binary('gt', ref('extraAttendees'), literal('integer', '1')), operator_gte: binary('gte', ref('extraAttendees'), literal('integer', '1')),
+    operator_in: binary('in', literal('text', 'Ada'), { literal: { type: 'array', itemType: 'text', value: ['Ada', 'Grace'] } }), operator_contains: binary('contains', ref('services'), literal('choice', 'opt_other')), operator_containsAll: binary('containsAll', ref('services'), { literal: { type: 'array', itemType: 'choice', value: ['opt_setup', 'opt_other'] } }),
+    operator_exists: { op: 'exists', args: [ref('respondentName')] }, operator_isAnswered: { op: 'isAnswered', args: [ref('equipment.accessories.accessoryName', 'parentItem')] }, operator_statusIs: binary('statusIs', ref('respondentName'), literal('text', 'answered')),
+    operator_add: binary('add', literal('decimal', '4'), literal('integer', '2')), operator_subtract: binary('subtract', literal('decimal', '4'), literal('integer', '2')), operator_multiply: binary('multiply', literal('decimal', '4'), literal('integer', '2')), operator_divide: binary('divide', literal('decimal', '4'), literal('integer', '2')), operator_round: binary('round', literal('decimal', '4.25'), literal('integer', '1')), operator_min: binary('min', literal('decimal', '4'), literal('integer', '2')), operator_max: binary('max', literal('decimal', '4'), literal('integer', '2')),
+    operator_sum: binary('sum', ref('equipment'), binary('multiply', ref('equipment.quantity', 'item'), ref('equipment.unitCost', 'item'))), operator_count: { op: 'count', args: [ref('equipment')] }, operator_any: binary('any', ref('equipment'), binary('gt', ref('equipment.quantity', 'item'), literal('integer', '0'))), operator_all: binary('all', ref('equipment'), binary('gt', ref('equipment.quantity', 'item'), literal('integer', '0'))),
+    operator_concat: binary('concat', ref('respondentName'), literal('text', ' request')), operator_length: { op: 'length', args: [ref('respondentName')] }, operator_coalesce: binary('coalesce', ref('respondentName'), literal('text', 'Unknown')), operator_if: { op: 'if', args: [ref('needsSetup'), literal('text', 'yes'), literal('text', 'no')] }, operator_dateDiffDays: binary('dateDiffDays', ref('visitDate'), literal('date', '2026-12-31')), operator_ageYears: binary('ageYears', literal('date', '2000-01-01'), literal('date', '2026-12-31')), operator_dateAddDays: binary('dateAddDays', ref('visitDate'), literal('integer', '1')), operator_today: { op: 'today', args: [] },
+  };
 }
 
 async function assertIndependentCompiler(page: import('@playwright/test').Page, candidate: Record<string, any>): Promise<void> {

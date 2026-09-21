@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -488,7 +489,8 @@ public class AuthoringApplicationService {
   private JsonNode pinComponent(JsonNode root,String key,Component component){ObjectNode copy=(ObjectNode)root.deepCopy();ArrayNode dependencies=copy.withArray("dependencies");String id=key.replace('-','_');for(int index=dependencies.size()-1;index>=0;index--){JsonNode dependency=dependencies.get(index);if("component".equals(dependency.path("kind").asText())&&id.equals(dependency.path("id").asText())){if(String.valueOf(component.version()).equals(dependency.path("version").asText())&&component.hash().equals(dependency.path("digest").asText()))return copy;dependencies.remove(index);}}dependencies.add(json.valueToTree(map("kind","component","id",id,"version",String.valueOf(component.version()),"digest",component.hash())));return copy;}
 
   private List<Map<String,Object>> diagnostics(JsonNode candidate){ return compiler.compile(candidate).diagnostics().stream().map(d->map("code",d.code(),"pointer",d.pointer(),"message",d.message())).toList(); }
-  private void collectFieldIds(JsonNode node, LinkedHashSet<String> ids) {
+  private void collectFieldIds(JsonNode node, Set<String> ids) {
+    if (node.isArray()) { node.forEach(field -> collectFieldIds(field, ids)); return; }
     if (!node.isObject()) return;
     if (node.path("id").isTextual() && node.path("type").isTextual() && node.path("key").isTextual()) ids.add(node.path("id").asText());
     JsonNode children=node.path("itemSchema").path("fields");
@@ -501,7 +503,11 @@ public class AuthoringApplicationService {
     String expressionId=unescape(pointer.substring("/expressions/".length()));
     if (routeUsesExpression(candidate.path("flow").path("phases"), expressionId)) return false;
     LinkedHashSet<String> references=new LinkedHashSet<>(); collectReferences(at(candidate,pointer),references);
-    return !references.isEmpty() && removedIds.containsAll(references);
+    LinkedHashSet<String> remainingFieldIds=new LinkedHashSet<>(); collectFieldIds(candidate.path("data").path("fields"),remainingFieldIds);
+    LinkedHashSet<String> unknownReferences=new LinkedHashSet<>(references); unknownReferences.removeAll(remainingFieldIds);
+    // A surviving reference is valid context, not a reason to reject repair. Only
+    // the non-empty unknown subset must have been removed by this exact batch.
+    return !unknownReferences.isEmpty() && removedIds.containsAll(unknownReferences);
   }
   private void collectReferences(JsonNode node, LinkedHashSet<String> references) {
     if (node.isObject()) {

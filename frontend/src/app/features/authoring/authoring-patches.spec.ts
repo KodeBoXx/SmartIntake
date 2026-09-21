@@ -38,8 +38,8 @@ describe('canonical authoring patches', () => {
 
   it('renames through translations, preserves dependent expressions as repairable diagnostics, and moves nodes by canonical pointer', () => {
     const renamed = applyCanonicalPatches(definition, canonicalPatches(document, { type: 'rename', targetId: 'node-a', label: 'Legal name' })) as typeof definition;
-    expect(renamed.data.fields[0].labelKey).toBe('authoring.field-a.label');
-    expect((renamed.translations.en.messages as Record<string, string>)['authoring.field-a.label']).toBe('Legal name');
+    expect(renamed.data.fields[0].labelKey).toBe('field-a.label');
+    expect((renamed.translations.en.messages as Record<string, string>)['field-a.label']).toBe('Legal name');
     const removed = applyCanonicalPatches(definition, canonicalPatches(document, { type: 'remove-node', targetId: 'node-a' })) as typeof definition;
     expect(removed.data.fields).toEqual([]);
     expect(removed.expressions).toEqual(definition.expressions);
@@ -52,21 +52,32 @@ describe('canonical authoring patches', () => {
     expect(moved.flow.phases[0].pages[0].sections[1].nodes.map((node) => node.id)).toEqual(['node-b', 'node-a']);
   });
 
-  it('updates only the selected locale and preserves Hindi and Arabic bundles byte-for-byte', () => {
+  it('renames through an existing message key and resolves labels correctly in English, Hindi, and Arabic', () => {
     const localized = structuredClone(definition) as Record<string, any>;
     localized.supportedLocales = ['en', 'hi', 'ar'];
     localized.translations = {
       en: localized.translations.en,
-      hi: { direction: 'ltr', messages: { ...localized.translations.en.messages, 'field-a.label': 'नाम' } },
-      ar: { direction: 'rtl', messages: { ...localized.translations.en.messages, 'field-a.label': 'الاسم' } },
+      hi: { direction: 'ltr', messages: { ...localized.translations.en.messages, 'field-a.label': 'नाम', 'page-a.label': 'विवरण' } },
+      ar: { direction: 'rtl', messages: { ...localized.translations.en.messages, 'field-a.label': 'الاسم', 'page-a.label': 'تفاصيل' } },
     };
     const beforeHindi = structuredClone(localized.translations.hi);
     const beforeArabic = structuredClone(localized.translations.ar);
     const hindi = applyCanonicalPatches(localized, canonicalPatches(authoringDocument({ draftId: 'draft-a', revision: 4, definition: localized }), { type: 'rename', targetId: 'node-a', label: 'नाम बदलें', locale: 'hi' })) as Record<string, any>;
-    expect(hindi.translations.hi.messages['authoring.field-a.label']).toBe('नाम बदलें');
+    expect(hindi.data.fields[0].labelKey).toBe('field-a.label');
+    expect(resolvedLabel(hindi, 'en', hindi.data.fields[0].labelKey)).toBe('Name');
+    expect(resolvedLabel(hindi, 'hi', hindi.data.fields[0].labelKey)).toBe('नाम बदलें');
+    expect(resolvedLabel(hindi, 'ar', hindi.data.fields[0].labelKey)).toBe('الاسم');
     expect(hindi.translations.ar).toEqual(beforeArabic);
-    const english = applyCanonicalPatches(hindi, canonicalPatches(authoringDocument({ draftId: 'draft-a', revision: 4, definition: hindi }), { type: 'rename', targetId: 'node-a', label: 'Renamed', locale: 'en' })) as Record<string, any>;
-    expect(english.translations.hi).toEqual(hindi.translations.hi);
+    const hindiPage = applyCanonicalPatches(hindi, canonicalPatches(authoringDocument({ draftId: 'draft-a', revision: 4, definition: hindi }), { type: 'rename', targetId: 'page-a', label: 'पृष्ठ', locale: 'hi' })) as Record<string, any>;
+    expect(hindiPage.flow.phases[0].pages[0].titleKey).toBe('page-a.label');
+    expect(resolvedLabel(hindiPage, 'en', hindiPage.flow.phases[0].pages[0].titleKey)).toBe('Details');
+    expect(resolvedLabel(hindiPage, 'hi', hindiPage.flow.phases[0].pages[0].titleKey)).toBe('पृष्ठ');
+    expect(resolvedLabel(hindiPage, 'ar', hindiPage.flow.phases[0].pages[0].titleKey)).toBe('تفاصيل');
+    const english = applyCanonicalPatches(hindiPage, canonicalPatches(authoringDocument({ draftId: 'draft-a', revision: 4, definition: hindiPage }), { type: 'rename', targetId: 'node-a', label: 'Renamed', locale: 'en' })) as Record<string, any>;
+    expect(resolvedLabel(english, 'en', english.data.fields[0].labelKey)).toBe('Renamed');
+    expect(resolvedLabel(english, 'hi', english.data.fields[0].labelKey)).toBe('नाम बदलें');
+    expect(resolvedLabel(english, 'ar', english.data.fields[0].labelKey)).toBe('الاسم');
+    expect(english.translations.hi).toEqual(hindiPage.translations.hi);
     expect(english.translations.ar).toEqual(beforeArabic);
     expect(beforeHindi.messages['field-a.label']).toBe('नाम');
   });
@@ -192,3 +203,7 @@ describe('canonical authoring patches', () => {
     expect((cleared.data.fields[0] as unknown as { constraints?: { fixedItemIds?: string[] } }).constraints?.fixedItemIds).toBeUndefined();
   });
 });
+
+function resolvedLabel(definition: Record<string, any>, locale: 'en' | 'hi' | 'ar', messageKey: string): string | undefined {
+  return definition.translations[locale]?.messages?.[messageKey];
+}

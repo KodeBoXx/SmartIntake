@@ -116,6 +116,28 @@ class AuthoringIntegrationTests {
     assertEquals(HttpStatus.UNPROCESSABLE_ENTITY,call("/commands",HttpMethod.POST,"\"1\"",Map.of("acceptInvalidDraft",true,"commands",removal)).getStatusCode(),"pre-existing diagnostics are never bypassed");
   }
 
+  @Test void accepts_a_mixed_expression_when_its_only_unknown_reference_was_removed_in_this_batch() throws Exception {
+    var definition=(com.fasterxml.jackson.databind.node.ObjectNode) json.readTree(fixture());
+    addIndependentField(definition);
+    definition.withObject("expressions").set("mixed_reference", json.readTree("""
+        {"op":"and","args":[
+          {"op":"exists","args":[{"ref":{"fieldId":"fld_name","scope":"root"}}]},
+          {"op":"exists","args":[{"ref":{"fieldId":"fld_other","scope":"root"}}]}
+        ]}
+        """));
+    db.update("update forms set definition=cast(? as jsonb) where id=?", json.writeValueAsString(definition), form);
+
+    ResponseEntity<String> saved=call("/commands",HttpMethod.POST,"\"1\"",Map.of(
+        "acceptInvalidDraft",true,
+        "commands",List.of(
+            Map.of("op","remove","path","/flow/phases/0/pages/0/sections/0/nodes/0"),
+            Map.of("op","remove","path","/data/fields/0"))));
+    assertEquals(HttpStatus.OK,saved.getStatusCode(),saved.getBody());
+    JsonNode body=json.readTree(saved.getBody());
+    assertEquals("INVALID",body.path("draftState").asText());
+    assertEquals("EXPRESSION_UNKNOWN_FIELD",body.path("diagnostics").get(0).path("code").asText());
+  }
+
   @Test void enforces_1000_command_boundary_and_replays_the_successful_batch_without_duplicate_history() {
     List<Map<String,Object>> thousand=new ArrayList<>();
     for (int index=0;index<1_000;index++) thousand.add(Map.of("op","set","path","/translations/en/messages/q.name","value","Boundary "+index));

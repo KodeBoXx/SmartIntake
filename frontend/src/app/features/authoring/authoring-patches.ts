@@ -188,11 +188,21 @@ export function canonicalPatches(authoring: AuthoringDocument, command: Authorin
     if (found.kind === 'node') {
       const locatedField = field(document, found.fieldId ?? '');
       if (!locatedField) return [];
-      const key = labelKey(String(locatedField.value.id));
-      return [{ op: 'add', path: `${locatedField.path}/labelKey`, value: key }, ...translations(document, key, label, command.locale)];
+      // Label keys are shared by every locale.  Keep the existing canonical key so
+      // an active-locale rename cannot strand Hindi/Arabic behind a new English-only
+      // message key.
+      const key = typeof locatedField.value.labelKey === 'string'
+        ? locatedField.value.labelKey : labelKey(String(locatedField.value.id));
+      return [
+        ...(locatedField.value.labelKey === key ? [] : [{ op: 'add' as const, path: `${locatedField.path}/labelKey`, value: key }]),
+        ...translations(document, key, label, command.locale),
+      ];
     }
-    const key = labelKey(String(command.targetId));
-    return [{ op: 'add', path: `${found.path}/titleKey`, value: key }, ...translations(document, key, label, command.locale)];
+    const key = found.key || labelKey(String(command.targetId));
+    return [
+      ...(found.key === key ? [] : [{ op: 'add' as const, path: `${found.path}/titleKey`, value: key }]),
+      ...translations(document, key, label, command.locale),
+    ];
   }
   if (command.type === 'add-phase') {
     const question = firstQuestion(document, id, 'New field', 'shortText', command.locale);
