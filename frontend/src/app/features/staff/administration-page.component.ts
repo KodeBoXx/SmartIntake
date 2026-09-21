@@ -5,6 +5,7 @@ import { StaffSessionStore } from '../../core/m5-session.store';
 import { WORKSPACE_ROLES } from '../../core/workspace-roles';
 import { RetainedMutationKeys } from '../../core/mutation-retry';
 import { AuthorizedDeliveryCopies, SmartIntakeApiService } from '../../smart-intake-api.service';
+import { forkJoin, map } from 'rxjs';
 
 type ViewState = 'loading' | 'ready' | 'empty' | 'invalid' | 'denied' | 'expired' | 'no-email' | 'error';
 
@@ -18,7 +19,7 @@ type ViewState = 'loading' | 'ready' | 'empty' | 'invalid' | 'denied' | 'expired
 @else if (state() !== 'denied' && state() !== 'expired') {
   @if (screen === 'platform-organizations') { <cui-card><div class="flex flex-wrap items-end gap-3"><cui-input label="Organization name" [(value)]="organizationName" /><cui-input label="First owner email" type="email" [(value)]="ownerEmail" /><cui-button [disabled]="!isPlatformAdmin()" (buttonClick)="createOrganization()">Create organization</cui-button></div>@for (organization of organizations(); track organization.id) { <div class="mt-4 flex items-center justify-between"><span class="type-body">{{ organization.name }}</span><cui-tag tone="emerald">{{ organization.status }}</cui-tag></div> }</cui-card> }
   @else if (screen === 'organization-settings') { <cui-card><cui-input label="Organization name" [(value)]="organizationName" /><cui-button class="mt-3" [disabled]="!canManage()" (buttonClick)="saveOrganization()">Save organization</cui-button></cui-card> }
-  @else if (screen === 'user-list' || screen === 'user-detail' || screen === 'add-user' || screen === 'role-assignment') { <cui-card><div class="flex flex-wrap items-end gap-3"><cui-input label="User email" type="email" [(value)]="email" [error]="state() === 'invalid' ? 'Enter a valid email address.' : undefined" /><cui-select label="Organization role" [options]="roleOptions" [(value)]="role" /><cui-select label="Workspace role" [options]="workspaceRoleOptions" [(value)]="workspaceRole" /><cui-button [disabled]="!canManage()" (buttonClick)="addUser()">Add user</cui-button></div>@for (user of users(); track user.id) { <div class="mt-4 flex flex-wrap items-center justify-between gap-2"><div><p class="type-body">{{ user.email }}</p><p class="type-caption">{{ user.roles.join(', ') || 'member' }}</p></div><div class="flex gap-2">@if (canAssignWorkspaceRoles(user.id)) { <cui-button size="sm" variant="secondary" (buttonClick)="assignRoles(user.id, user.revision)">Assign workspace role</cui-button> } @if (canManage()) { <cui-button size="sm" variant="tertiary" (buttonClick)="invite(user.id)">Invite</cui-button> }</div></div> }</cui-card> }
+  @else if (screen === 'user-list' || screen === 'user-detail' || screen === 'add-user' || screen === 'role-assignment') { <cui-card><div class="flex flex-wrap items-end gap-3"><cui-input label="User email" type="email" [(value)]="email" [error]="state() === 'invalid' ? 'Enter a valid email address.' : undefined" /><cui-select label="Organization role" [options]="roleOptions" [(value)]="role" /><cui-select label="Workspace role" [options]="workspaceRoleOptions" [(value)]="workspaceRole" /><cui-button [disabled]="!canManage()" (buttonClick)="addUser()">Add user</cui-button></div>@for (user of users(); track user.id) { <div class="mt-4 flex flex-wrap items-center justify-between gap-2"><div><p class="type-body">{{ user.email }}</p><p class="type-caption">{{ user.roles.join(', ') || 'member' }}</p></div><div class="flex gap-2">@if (canAssignWorkspaceRoles(user.id)) { <cui-button size="sm" variant="secondary" (buttonClick)="assignRoles(user.id, user.workspaceRevision ?? 0)">Assign workspace role</cui-button> } @if (canManage()) { <cui-button size="sm" variant="tertiary" (buttonClick)="invite(user.id)">Invite</cui-button> }</div></div> }</cui-card> }
   @else if (screen === 'invitation-delivery') { <cui-card><p class="type-body">Invitation delivery</p><p class="type-caption">When email is unavailable, provide the copy-link path only after the server creates an invitation.</p>@if (delivery().invitationCopyLink) { <cui-alert class="mt-3" variant="warning" title="No-email delivery">Copy this one-time invitation link: {{ delivery().invitationCopyLink }}</cui-alert> }</cui-card> }
   @else { <cui-card><p class="type-body">Provider and policy controls</p><p class="type-caption">Policies shown here are loaded for the selected server-authorized organization.</p><p class="type-caption mt-3">{{ policies().length }} policy record(s) available.</p></cui-card> }
 }
@@ -34,7 +35,32 @@ export class AdministrationPageComponent {
   canManageWorkspace(): boolean { return this.session.currentRoles().includes('workspace-administrator'); }
   canAssignWorkspaceRoles(userId: string): boolean { return this.canManageWorkspace() || (this.canManage() && userId === this.session.identity()?.accountId); }
   isPlatformAdmin(): boolean { return this.session.isPlatformAdministrator(); }
-  load(): void { const organizationId = this.session.currentOrganizationId(); const workspaceId = this.session.currentWorkspaceId(); if (!organizationId && this.screen !== 'platform-organizations') { this.state.set('empty'); return; } this.state.set('loading'); const request = this.screen === 'role-assignment' && workspaceId ? this.api.workspaceMembers(workspaceId) : this.screen === 'platform-organizations' || this.screen === 'organization-settings' ? this.api.platformOrganizations() : this.screen === 'provider-policy' ? this.api.organizationPolicies(organizationId!) : this.api.organizationUsers(organizationId!); request.subscribe({ next: (result: any) => { if (this.screen === 'platform-organizations' || this.screen === 'organization-settings') this.organizations.set(result); else if (this.screen === 'provider-policy') this.policies.set(result); else this.users.set(result); const current = (result as any[]).find((candidate) => candidate.id === organizationId); this.organizationName = current?.name ?? this.session.currentOrganization()?.name ?? ''; this.state.set(this.screen === 'organization-settings' ? (current ? 'ready' : 'empty') : result.length ? 'ready' : 'empty'); }, error: (error) => this.fail(error.status) }); }
+  load(): void {
+    const organizationId = this.session.currentOrganizationId();
+    const workspaceId = this.session.currentWorkspaceId();
+    if (!organizationId && this.screen !== 'platform-organizations') { this.state.set('empty'); return; }
+    this.state.set('loading');
+    const userScreen = ['user-list', 'user-detail', 'add-user', 'role-assignment'].includes(this.screen);
+    const request = userScreen && workspaceId
+      ? forkJoin({ users: this.api.organizationUsers(organizationId!), members: this.api.workspaceMembers(workspaceId) }).pipe(map(({ users, members }) => users.map((user: any) => {
+          const accountId = String(user.id).replace(/^organizationuser-/, 'account-');
+          const member = (members as any[]).find((candidate) => candidate.accountId === accountId);
+          return { ...user, workspaceRevision: member?.revision ?? 0, workspaceRoles: member?.roles ?? [] };
+        })))
+      : this.screen === 'platform-organizations' || this.screen === 'organization-settings'
+        ? this.api.platformOrganizations()
+        : this.screen === 'provider-policy'
+          ? this.api.organizationPolicies(organizationId!)
+          : this.api.organizationUsers(organizationId!);
+    request.subscribe({ next: (result: any) => {
+      if (this.screen === 'platform-organizations' || this.screen === 'organization-settings') this.organizations.set(result);
+      else if (this.screen === 'provider-policy') this.policies.set(result);
+      else this.users.set(result);
+      const current = (result as any[]).find((candidate) => candidate.id === organizationId);
+      this.organizationName = current?.name ?? this.session.currentOrganization()?.name ?? '';
+      this.state.set(this.screen === 'organization-settings' ? (current ? 'ready' : 'empty') : result.length ? 'ready' : 'empty');
+    }, error: (error) => this.fail(error.status) });
+  }
   createOrganization(): void { if (!this.organizationName.trim() || !/^\S+@\S+\.\S+$/.test(this.ownerEmail)) { this.state.set('invalid'); return; } const body = { name: this.organizationName, ownerEmail: this.ownerEmail }; const action = 'create-organization'; const resource = 'platform/organizations'; this.api.createPlatformOrganization(body, this.retryKey(action, resource, body)).subscribe({ next: (result) => { this.completeAction(action, resource); this.delivery.set(deliveryFor(result)); this.message.set('Organization created with a pending first owner. Deliver the one-time onboarding material securely.'); this.load(); }, error: (error) => this.fail(error.status) }); }
   saveOrganization(): void {
     const organization = this.session.currentOrganization();
