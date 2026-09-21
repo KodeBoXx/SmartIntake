@@ -319,7 +319,7 @@ export class SmartIntakeApiService {
     return this.http.post<PreviewResult>(`${this.authoringBase(workspaceId, formId, draftId)}/preview`, { answers, locale }, this.staff());
   }
   /** The service chooses an approved locale voice; clients supply governed content or a scoped Q&A question. */
-  authoringSpeech(workspaceId: string, formId: string, draftId: string, locale: SupportedAuthoringLocale, request: { text?: string; question?: string; scope?: { pageId?: string; sectionId?: string; fieldId?: string } }): Observable<SpeechResult> {
+  authoringSpeech(workspaceId: string, formId: string, draftId: string, locale: SupportedAuthoringLocale, request: { question?: string; scope?: { pageId?: string; sectionId?: string; fieldId?: string } }): Observable<SpeechResult> {
     return this.http.post<SpeechResult>(`${this.authoringBase(workspaceId, formId, draftId)}/speech`, { locale, ...request }, this.staff());
   }
 

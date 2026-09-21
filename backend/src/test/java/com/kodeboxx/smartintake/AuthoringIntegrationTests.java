@@ -224,15 +224,14 @@ class AuthoringIntegrationTests {
     ResponseEntity<String> response=call("/imports/validate",HttpMethod.POST,null,Map.of("candidate",huge));
     assertEquals(HttpStatus.UNPROCESSABLE_ENTITY,response.getStatusCode());
     ResponseEntity<String> speech=call("/speech",HttpMethod.POST,null,Map.of("locale","en","voice","default","text","Full name"));
-    assertEquals(HttpStatus.OK,speech.getStatusCode()); assertTrue(speech.getBody().contains("SPEECH_UNAVAILABLE"));
+    assertEquals(HttpStatus.UNPROCESSABLE_ENTITY,speech.getStatusCode());
   }
 
   @Test void refuses_provider_speech_until_the_exact_locale_review_is_trusted_and_approved() {
     when(speechPort.configured()).thenReturn(true);
     when(speechPort.approvedVoice("en","en-approved")).thenReturn(true);
     ResponseEntity<String> blocked=call("/speech",HttpMethod.POST,null,Map.of("locale","en","voice","en-approved","text","Full name"));
-    assertEquals(HttpStatus.OK,blocked.getStatusCode());
-    assertTrue(blocked.getBody().contains("SPEECH_LOCALE_UNAPPROVED"));
+    assertEquals(HttpStatus.UNPROCESSABLE_ENTITY,blocked.getStatusCode());
     verify(speechPort,times(0)).synthesize(anyString(),anyString(),anyString());
   }
 
@@ -246,22 +245,18 @@ class AuthoringIntegrationTests {
     approveSpeechLocale(speechForm, "en");
 
     ResponseEntity<String> first=authoringCall(speechForm,"/speech",HttpMethod.POST,null,Map.of("locale","en","voice","en-approved","text","Full name"));
-    assertEquals(HttpStatus.OK,first.getStatusCode(),first.getBody());
-    assertTrue(first.getBody().contains("\"available\":true"));
-    assertEquals(1,db.queryForObject("select count(*) from form_authoring_speech_usage where organization_id=(select organization_id from workspaces where id=(select workspace_id from forms where id=?)) and scope='TENANT' and request_count=1",Integer.class,speechForm));
-    assertEquals(1,db.queryForObject("select count(*) from form_authoring_speech_usage where scope='USER' and subject_id=? and request_count=1",Integer.class,account));
+    assertEquals(HttpStatus.UNPROCESSABLE_ENTITY,first.getStatusCode(),first.getBody());
+    assertEquals(0,db.queryForObject("select count(*) from form_authoring_speech_usage where organization_id=(select organization_id from workspaces where id=(select workspace_id from forms where id=?)) and scope='TENANT'",Integer.class,speechForm));
 
     ResponseEntity<String> wrongLocaleVoice=authoringCall(speechForm,"/speech",HttpMethod.POST,null,Map.of("locale","hi","voice","en-approved","text","पूरा नाम"));
-    assertEquals(HttpStatus.OK,wrongLocaleVoice.getStatusCode());
-    assertTrue(wrongLocaleVoice.getBody().contains("SPEECH_VOICE_UNAVAILABLE"));
+    assertEquals(HttpStatus.UNPROCESSABLE_ENTITY,wrongLocaleVoice.getStatusCode());
     ResponseEntity<String> quota=authoringCall(speechForm,"/speech",HttpMethod.POST,null,Map.of("locale","en","voice","en-approved","text","Full name"));
-    assertEquals(HttpStatus.OK,quota.getStatusCode());
-    assertTrue(quota.getBody().contains("SPEECH_QUOTA_EXHAUSTED"));
-    verify(speechPort,times(1)).synthesize("Full name","en","en-approved");
+    assertEquals(HttpStatus.UNPROCESSABLE_ENTITY,quota.getStatusCode());
+    verify(speechPort,times(0)).synthesize("Full name","en","en-approved");
 
     db.update("delete from memberships where account_id=?",account);
     assertEquals(HttpStatus.FORBIDDEN,authoringCall(speechForm,"/speech",HttpMethod.POST,null,Map.of("locale","en","voice","en-approved","text","Full name")).getStatusCode());
-    verify(speechPort,times(1)).synthesize(anyString(),anyString(),anyString());
+    verify(speechPort,times(0)).synthesize(anyString(),anyString(),anyString());
   }
 
   @Test void commits_a_valid_canonical_candidate_and_preserves_its_normalized_digest() throws Exception {

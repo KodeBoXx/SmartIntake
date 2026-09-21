@@ -59,6 +59,9 @@ describe('canonical authoring patches', () => {
       },
     })) as typeof definition;
     expect(next.data.fields[0]).toMatchObject({ type: 'choice', constraints: { required: true }, options: [{ id: 'yes' }, { id: 'no' }] });
+    expect(next.data.fields[0]).not.toHaveProperty('control');
+    expect(next.data.fields[0]).not.toHaveProperty('help');
+    expect(((next.data.fields[0] as unknown as { options: unknown[] }).options[0])).not.toHaveProperty('label');
     expect(next.flow.phases[0].pages[0].sections[0].nodes[0]).toMatchObject({ control: 'radio', fieldType: 'choice' });
     expect((next.translations.en.messages as Record<string, string>)['field-a.yes']).toBe('Yes');
     const configured = authoringDocument({ draftId: 'draft-a', revision: 4, definition: next });
@@ -67,5 +70,16 @@ describe('canonical authoring patches', () => {
     next = applyCanonicalPatches(next, canonicalPatches(withExpression, { type: 'set-route', targetId: 'page-a', route: { id: 'route-next', targetPageId: 'page-next', whenExpressionId: 'isYes' } })) as typeof definition;
     expect((next.expressions as Record<string, unknown>).isYes).toMatchObject({ op: 'eq' });
     expect((next.flow.phases[0].pages[0] as unknown as { routes?: unknown[] }).routes).toEqual([{ id: 'route-next', targetPageId: 'page-next', whenExpressionId: 'isYes' }]);
+  });
+
+  it('retains a shared field definition until its final visual placement is removed', () => {
+    const shared = structuredClone(definition);
+    shared.flow.phases[0].pages[0].sections[0].nodes.push({ id: 'node-b', kind: 'question', fieldId: 'field-a', control: 'shortText' });
+    const sharedDocument = authoringDocument({ draftId: 'draft-a', revision: 4, definition: shared });
+    const once = applyCanonicalPatches(shared, canonicalPatches(sharedDocument, { type: 'remove-node', targetId: 'node-a' })) as typeof shared;
+    expect(once.data.fields).toHaveLength(1);
+    const afterFirst = authoringDocument({ draftId: 'draft-a', revision: 4, definition: once });
+    const final = applyCanonicalPatches(once, canonicalPatches(afterFirst, { type: 'remove-node', targetId: 'node-b' })) as typeof shared;
+    expect(final.data.fields).toEqual([]);
   });
 });

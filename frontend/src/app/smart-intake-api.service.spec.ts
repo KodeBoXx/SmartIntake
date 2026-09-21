@@ -250,11 +250,11 @@ describe('SmartIntakeApiService', () => {
     refreshed.flush({ revision: 7, guidance: {}, translations: {}, localeReviews: [{ locale: 'hi', sourceRevision: 7, status: 'APPROVED', reviewedAt: '2026-09-21T01:00:00Z' }] });
   });
 
-  it('calls the controlled authoring speech endpoint for governed locale text', () => {
-    api.authoringSpeech('workspace-1', 'form-1', 'draft-1', 'ar', { text: 'Read this narration.' }).subscribe((speech) => expect(speech).toEqual({ available: false, code: 'SPEECH_UNAVAILABLE', locale: 'ar' }));
+  it('calls the controlled authoring speech endpoint with visible canonical scope only', () => {
+    api.authoringSpeech('workspace-1', 'form-1', 'draft-1', 'ar', { scope: { pageId: 'page-a', sectionId: 'section-a', fieldId: 'field-a' } }).subscribe((speech) => expect(speech).toEqual({ available: false, code: 'SPEECH_UNAVAILABLE', locale: 'ar' }));
     const speech = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/speech');
     expect(speech.request.method).toBe('POST');
-    expect(speech.request.body).toEqual({ text: 'Read this narration.', locale: 'ar' });
+    expect(speech.request.body).toEqual({ locale: 'ar', scope: { pageId: 'page-a', sectionId: 'section-a', fieldId: 'field-a' } });
     speech.flush({ available: false, code: 'SPEECH_UNAVAILABLE', locale: 'ar' });
   });
 

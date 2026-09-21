@@ -361,11 +361,15 @@ public class AuthoringApplicationService {
     Row current=row(f);
     JsonNode definition=parse(current.definition());
     boolean questionRequest = request.containsKey("question");
-    String text = questionRequest ? governedAnswer(definition, locale, required(request, "question"), request.get("scope")) : required(request, "text");
-    if (text == null) return unavailable(locale, "SPEECH_QUESTION_NOT_FOUND");
+    Object scope = request.get("scope");
+    if (scope == null) throw bad("SPEECH_SCOPE_REQUIRED", "Speech requires the visible canonical scope.");
+    String text = questionRequest
+        ? governedAnswer(definition, locale, required(request, "question"), scope)
+        : governedNarration(definition, locale, scope);
+    if (text == null) return unavailable(locale, questionRequest ? "SPEECH_QUESTION_NOT_FOUND" : "SPEECH_NARRATION_NOT_FOUND");
     String voice = request.containsKey("voice") ? required(request, "voice") : speech.defaultVoice(locale);
-    if(!List.of("en","hi","ar").contains(locale)||text.length()>4_000||!supportsLocale(definition, locale)||(!questionRequest&&!governedText(definition,locale,text)))
-      throw bad("SPEECH_GOVERNANCE", "Speech text, locale, or voice is not governed by the package.");
+    if(!List.of("en","hi","ar").contains(locale)||text.length()>4_000||!supportsLocale(definition, locale))
+      throw bad("SPEECH_GOVERNANCE", "Speech locale or voice is not governed by the package.");
     if (!speech.configured()) return unavailable(locale, "SPEECH_UNAVAILABLE");
     if (voice == null || !speech.approvedVoice(locale, voice)) return unavailable(locale, "SPEECH_VOICE_UNAVAILABLE");
     // Speech is a governed rendering of the exact approved package revision, never a draft preview.
@@ -496,7 +500,6 @@ public class AuthoringApplicationService {
     ObjectNode effective=json.createObjectNode(); effective.setAll((ObjectNode)parse(String.valueOf(row.get("organization")))); effective.setAll((ObjectNode)parse(String.valueOf(row.get("workspace"))));
     return CanonicalJson.sha256(effective);
   }
-  private boolean governedText(JsonNode definition,String locale,String text){return containsText(definition.path("translations").path(locale),text)||containsText(definition.path("guidance"),text);}
   /** Resolves only a Q&A answer bound to the visible canonical page/section/question guidance ID. */
   private String governedAnswer(JsonNode definition, String locale, String question, Object requestedScope) {
     String key=definition.path("guidance").path("questionsAndAnswers").path("messageKey").asText();
@@ -507,10 +510,29 @@ public class AuthoringApplicationService {
     try {
       JsonNode questions=json.readTree(source.asText());
       if (!questions.isArray()) return null;
-      for (JsonNode entry:questions) if (question.equals(entry.path("question").asText()) && guidanceId.equals(entry.path("guidanceId").asText()) && scopedQuestion(entry.path("scope"), scope) && entry.path("answer").isTextual()) return entry.path("answer").asText();
+      for (JsonNode entry:questions) if (approvedQuestionMatches(entry, question) && guidanceId.equals(entry.path("guidanceId").asText()) && scopedQuestion(entry.path("scope"), scope) && entry.path("answer").isTextual()) return entry.path("answer").asText();
       return null;
     } catch (Exception ignored) { return null; }
   }
+  /** Narration is selected by the authoritative hierarchy binding, never client-provided text. */
+  private String governedNarration(JsonNode definition, String locale, Object requestedScope) {
+    String guidanceId=visibleGuidanceId(definition, json.valueToTree(requestedScope));
+    JsonNode narration=definition.path("guidance").path("narration");
+    if (guidanceId == null || !guidanceId.equals(narration.path("id").asText())) return null;
+    String key=narration.path("messageKey").asText();
+    JsonNode value=definition.path("translations").path(locale).path("messages").path(key);
+    return key.isBlank() || !value.isTextual() ? null : value.asText();
+  }
+  /** Q&A aliases are package text reviewed alongside the answer; client input only selects one. */
+  private boolean approvedQuestionMatches(JsonNode entry, String question) {
+    String normalized=question.trim().replaceAll("\\s+"," ").toLowerCase(java.util.Locale.ROOT);
+    if (normalized.equals(normalizeQuestion(entry.path("question").asText()))) return true;
+    JsonNode aliases=entry.path("aliases");
+    if (!aliases.isArray()) return false;
+    for (JsonNode alias:aliases) if (alias.isTextual() && normalized.equals(normalizeQuestion(alias.asText()))) return true;
+    return false;
+  }
+  private String normalizeQuestion(String value) { return value.trim().replaceAll("\\s+"," ").toLowerCase(java.util.Locale.ROOT); }
   private boolean scopedQuestion(JsonNode questionScope, JsonNode visibleScope) {
     if (!questionScope.isObject() || questionScope.isEmpty()) return false;
     Iterator<Map.Entry<String,JsonNode>> fields=questionScope.fields();
@@ -552,7 +574,6 @@ public class AuthoringApplicationService {
     }
   }
   private boolean supportsLocale(JsonNode definition, String locale) { for (JsonNode supported : definition.path("supportedLocales")) if (locale.equals(supported.asText())) return true; return false; }
-  private boolean containsText(JsonNode node,String text){if(node.isTextual())return text.equals(node.asText());if(node.isContainerNode())for(JsonNode child:node)if(containsText(child,text))return true;return false;}
   private Map<String,Object> unavailable(String locale, String code) { return map("available",false,"code",code,"locale",locale); }
   private boolean reserveSpeechQuota(UUID form, UUID account) {
     if (speechUserDailyQuota < 1 || speechTenantDailyQuota < 1) return false;

@@ -20,6 +20,29 @@ const CONTROL_TYPES: Record<string, string> = {
   fileUpload: 'attachments', drawing: 'drawing', calculated: 'text',
 };
 
+/** Field objects are closed-schema data. Presentation belongs only on question nodes. */
+const FIELD_KEYS = new Set([
+  'id', 'key', 'type', 'labelKey', 'descriptionKey', 'required', 'readOnly', 'calculated',
+  'hiddenRetention', 'allowUnknown', 'allowDeclined', 'allowNotApplicable', 'ordered', 'unit',
+  'options', 'constraints', 'default', 'itemSchema', 'extensions', 'guidanceId',
+  'visibilityExpressionId', 'requiredExpressionId', 'validationExpressionId', 'sensitivity',
+  'mode', 'normalizer',
+]);
+
+function fieldOnly(value: CanonicalObject): CanonicalObject {
+  return Object.fromEntries(Object.entries(value).filter(([key]) => FIELD_KEYS.has(key)));
+}
+
+function canonicalOptions(value: unknown): CanonicalObject[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  return value.filter((option): option is CanonicalObject => !!option && typeof option === 'object')
+    .map((option) => {
+      const result: CanonicalObject = { id: option.id, labelKey: option.labelKey };
+      if (typeof option.disabled === 'boolean') result.disabled = option.disabled;
+      return result;
+    });
+}
+
 function flow(document: CanonicalObject): CanonicalObject[] { return ((document.flow as CanonicalObject | undefined)?.phases as CanonicalObject[] | undefined) ?? []; }
 function children(value: CanonicalObject, name: string): CanonicalObject[] { return value[name] as CanonicalObject[] ?? []; }
 
@@ -117,13 +140,15 @@ export function canonicalPatches(authoring: AuthoringDocument, command: Authorin
   if (command.type === 'update-field' && found?.kind === 'node' && command.field) {
     const current = field(document, found.fieldId ?? '');
     if (!current) return [];
-    const configured = { ...current.value, ...command.field };
+    const supplied = command.field as CanonicalObject;
+    const configured = fieldOnly({ ...fieldOnly(current.value), ...fieldOnly(supplied) });
     const control = String(command.field.control ?? atNode(document, found.path)?.control ?? 'shortText');
     const fieldType = CONTROL_TYPES[control] ?? String(configured.type ?? 'text');
+    const options = canonicalOptions(supplied.options);
+    if (options) configured.options = options;
     const patches: CanonicalPatch[] = [{ op: 'replace', path: `/data/fields/${current.index}`, value: { ...configured, type: fieldType } }, { op: 'replace', path: found.path, value: { ...atNode(document, found.path), control, fieldType } }];
-    if (typeof command.field.help === 'string') patches.push(translation(`${String(configured.labelKey)}.help`, command.field.help));
-    const options = command.field.options;
-    if (Array.isArray(options)) for (const option of options) if (option && typeof option === 'object' && typeof (option as CanonicalObject).label === 'string') patches.push(translation(String((option as CanonicalObject).labelKey), String((option as CanonicalObject).label)));
+    if (typeof supplied.help === 'string' && typeof configured.descriptionKey === 'string') patches.push(translation(configured.descriptionKey, supplied.help));
+    if (Array.isArray(supplied.options)) for (const option of supplied.options) if (option && typeof option === 'object' && typeof (option as CanonicalObject).label === 'string') patches.push(translation(String((option as CanonicalObject).labelKey), String((option as CanonicalObject).label)));
     return patches;
   }
   if (command.type === 'set-expression' && command.expressionId && command.expression) return [{ op: document.expressions && Object.prototype.hasOwnProperty.call(document.expressions, command.expressionId) ? 'replace' : 'add', path: `/expressions/${escape(command.expressionId)}`, value: command.expression }];
@@ -137,7 +162,8 @@ export function canonicalPatches(authoring: AuthoringDocument, command: Authorin
     const fieldId = found.fieldId ?? '';
     const currentField = field(document, fieldId);
     const patches: CanonicalPatch[] = [{ op: 'remove', path: found.path }];
-    if (currentField) {
+    const remainingPlacements = allQuestionNodes(document).filter((node) => node.fieldId === fieldId && node.id !== command.targetId).length;
+    if (currentField && remainingPlacements === 0) {
       patches.push({ op: 'remove', path: `/data/fields/${currentField.index}` });
       const key = currentField.value.labelKey;
       if (typeof key === 'string') patches.push({ op: 'remove', path: `/translations/en/messages/${escape(key)}` });
@@ -153,6 +179,11 @@ export function canonicalPatches(authoring: AuthoringDocument, command: Authorin
     return [{ op: 'move', from: found.path, path: `${arrayPath}/-` }];
   }
   return [];
+}
+
+function allQuestionNodes(document: CanonicalObject): CanonicalObject[] {
+  return flow(document).flatMap((phase) => children(phase, 'pages').flatMap((page) =>
+    children(page, 'sections').flatMap((section) => children(section, 'nodes'))));
 }
 
 function atNode(document: CanonicalObject, pointer: string): CanonicalObject {
