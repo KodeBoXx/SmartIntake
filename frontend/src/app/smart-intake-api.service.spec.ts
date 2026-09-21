@@ -181,14 +181,18 @@ describe('SmartIntakeApiService', () => {
   });
 
   it('reuses one idempotency key when a command batch retries and sends it for pinned component insertion', () => {
-    const document = authoringDocument({ draftId: 'draft-1', revision: 7, packageHash: 'before-hash', definition: { data: { fields: [{ id: 'field-1', labelKey: 'name.label' }] }, flow: { phases: [{ id: 'phase-1', pages: [{ id: 'page-1', sections: [{ id: 'section-1', nodes: [{ id: 'field-1', kind: 'question', fieldId: 'field-1' }] }] }] }] }, translations: { en: { messages: { 'name.label': 'Name' } } } } });
+    const document = authoringDocument({ draftId: 'draft-1', revision: 7, packageHash: 'before-hash', definition: { data: { fields: [{ id: 'field-1', labelKey: 'name.label' }] }, flow: { phases: [{ id: 'phase-1', pages: [{ id: 'page-1', sections: [{ id: 'section-1', nodes: [{ id: 'field-1', kind: 'question', fieldId: 'field-1' }] }] }] }] }, translations: { en: { messages: { 'name.label': 'Name' } }, hi: { messages: {} }, ar: { messages: {} } } } });
     const command = api.authoringCommands('workspace-1', 'form-1', 'draft-1', 7, document, [{ type: 'rename', targetId: 'field-1', label: 'Legal name' }]);
     command.pipe(retry(1)).subscribe((document) => expect(document.revision).toBe(8));
     const first = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/commands');
     const key = first.request.headers.get('Idempotency-Key');
     expect(key).toMatch(/.+/);
     expect(first.request.headers.get('If-Match')).toBe('"7"');
-    expect(first.request.body).toEqual({ commands: [{ op: 'add', path: '/translations/en/messages/name.label', value: 'Legal name' }], definition: document.definition, expectedHash: 'before-hash' });
+    expect(first.request.body).toEqual({ commands: [
+      { op: 'add', path: '/translations/en/messages/name.label', value: 'Legal name' },
+      { op: 'add', path: '/translations/hi/messages/name.label', value: 'Legal name' },
+      { op: 'add', path: '/translations/ar/messages/name.label', value: 'Legal name' },
+    ], definition: document.definition, expectedHash: 'before-hash' });
     first.flush({ code: 'TRANSIENT' }, { status: 503, statusText: 'Service Unavailable' });
     const retried = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/commands');
     expect(retried.request.headers.get('Idempotency-Key')).toBe(key);

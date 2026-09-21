@@ -92,9 +92,11 @@ describe('canonical authoring patches', () => {
     expect(once.data.fields[0].itemSchema).toBeDefined();
     expect(once.expressions).toHaveProperty('whenName');
     const finalDocument = authoringDocument({ draftId: 'draft-a', revision: 4, definition: once });
-    const final = applyCanonicalPatches(once, canonicalPatches(finalDocument, { type: 'remove-node', targetId: 'node-b' })) as typeof recursive;
-    // A final nested deletion removes the enclosing composite instead of leaving
-    // the schema-invalid itemSchema.fields: [] behind.
+    const rejected = applyCanonicalPatches(once, canonicalPatches(finalDocument, { type: 'remove-node', targetId: 'node-b' })) as typeof recursive;
+    // A final nested deletion must not silently cascade to its enclosing composite.
+    expect(rejected.data.fields).toHaveLength(1);
+    expect(rejected.data.fields[0].itemSchema).toBeDefined();
+    const final = applyCanonicalPatches(once, canonicalPatches(finalDocument, { type: 'remove-node', targetId: 'node-b', cascade: true })) as typeof recursive;
     expect(final.data.fields).toEqual([]);
     expect(final.expressions).toEqual({});
   });

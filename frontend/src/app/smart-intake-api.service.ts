@@ -85,7 +85,7 @@ export function authoringDocument(value: unknown): AuthoringDocument {
   const flow = definition['flow'] as { phases?: Record<string, unknown>[] } | undefined;
   if (Array.isArray(flow?.phases)) return {
     id: response.draftId ?? String(definition['id'] ?? 'draft'), revision: response.revision ?? 0, title: String(definition['formKey'] ?? 'Untitled intake form'), definition, packageHash: response.packageHash,
-    phases: flow.phases.map((phase, phaseIndex) => ({ id: String(phase['id'] ?? `phase-${phaseIndex + 1}`), title: translated(definition, String(phase['titleKey'] ?? ''), `Phase ${phaseIndex + 1}`), pages: (Array.isArray(phase['pages']) ? phase['pages'] as Record<string, unknown>[] : []).map((page, pageIndex) => ({ id: String(page['id'] ?? `page-${pageIndex + 1}`), title: translated(definition, String(page['titleKey'] ?? ''), `Page ${pageIndex + 1}`), sections: (Array.isArray(page['sections']) ? page['sections'] as Record<string, unknown>[] : []).map((section, sectionIndex) => ({ id: String(section['id'] ?? `section-${sectionIndex + 1}`), title: translated(definition, String(section['titleKey'] ?? ''), `Section ${sectionIndex + 1}`), nodes: (Array.isArray(section['nodes']) ? section['nodes'] as Record<string, unknown>[] : []).map((node, nodeIndex) => ({ id: String(node['id'] ?? `node-${nodeIndex + 1}`), kind: String(node['kind'] ?? 'field') === 'question' ? 'field' as const : 'display' as const, label: translated(definition, String(fieldLabelKey(definition, String(node['fieldId'] ?? '')) ?? node['labelKey'] ?? ''), String(node['kind'] ?? `Node ${nodeIndex + 1}`)), control: String(node['control'] ?? node['kind'] ?? 'content') })) })) })) })),
+    phases: flow.phases.map((phase, phaseIndex) => ({ id: String(phase['id'] ?? `phase-${phaseIndex + 1}`), title: translated(definition, String(phase['titleKey'] ?? ''), `Phase ${phaseIndex + 1}`), pages: (Array.isArray(phase['pages']) ? phase['pages'] as Record<string, unknown>[] : []).map((page, pageIndex) => ({ id: String(page['id'] ?? `page-${pageIndex + 1}`), title: translated(definition, String(page['titleKey'] ?? ''), `Page ${pageIndex + 1}`), sections: (Array.isArray(page['sections']) ? page['sections'] as Record<string, unknown>[] : []).map((section, sectionIndex) => ({ id: String(section['id'] ?? `section-${sectionIndex + 1}`), title: translated(definition, String(section['titleKey'] ?? ''), `Section ${sectionIndex + 1}`), nodes: (Array.isArray(section['nodes']) ? section['nodes'] as Record<string, unknown>[] : []).map((node, nodeIndex) => projectedNode(definition, node, String(node['id'] ?? `node-${nodeIndex + 1}`))) })) })) })),
   };
   const pages = Array.isArray(definition['pages']) ? definition['pages'] as Record<string, unknown>[] : [];
   return {
@@ -102,6 +102,39 @@ function fieldLabelKey(definition: Record<string, unknown>, fieldId: string): un
   return fields.find((field) => field.id === fieldId)?.labelKey;
 }
 
+function canonicalField(definition: Record<string, unknown>, fieldId: string): Record<string, unknown> | undefined {
+  const visit = (fields: readonly Record<string, unknown>[]): Record<string, unknown> | undefined => {
+    for (const field of fields) {
+      if (field.id === fieldId) return field;
+      const nested = ((field.itemSchema as { fields?: Record<string, unknown>[] } | undefined)?.fields ?? []);
+      const found = visit(nested);
+      if (found) return found;
+    }
+    return undefined;
+  };
+  return visit(((definition.data as { fields?: Record<string, unknown>[] } | undefined)?.fields ?? []));
+}
+
+/** Projects canonical child schemas as selectable visual descendants without mutating the package. */
+function projectedNode(definition: Record<string, unknown>, node: Record<string, unknown>, id: string): AuthoringDocument['phases'][number]['pages'][number]['sections'][number]['nodes'][number] {
+  const fieldId = String(node.fieldId ?? '');
+  const field = canonicalField(definition, fieldId);
+  const children = ((field?.itemSchema as { fields?: Record<string, unknown>[] } | undefined)?.fields ?? []).map((child) => projectedChild(definition, child, id));
+  return {
+    id,
+    kind: String(node.kind ?? 'field') === 'question' ? 'field' : 'display',
+    label: translated(definition, String(field?.labelKey ?? node.labelKey ?? ''), String(node.kind ?? 'content')),
+    control: String(node.control ?? node.kind ?? 'content'), fieldId,
+    ...(children.length ? { children } : {}),
+  };
+}
+
+function projectedChild(definition: Record<string, unknown>, field: Record<string, unknown>, parentNodeId: string): AuthoringDocument['phases'][number]['pages'][number]['sections'][number]['nodes'][number] {
+  const id = `${parentNodeId}__${String(field.id)}`;
+  const nested = ((field.itemSchema as { fields?: Record<string, unknown>[] } | undefined)?.fields ?? []).map((child) => projectedChild(definition, child, id));
+  return { id, kind: 'field', label: translated(definition, String(field.labelKey ?? ''), String(field.key ?? field.id)), control: String(field.type ?? 'text'), fieldId: String(field.id), ...(nested.length ? { children: nested } : {}) };
+}
+
 function translated(definition: Record<string, unknown>, key: string, fallback: string): string {
   const locale = String(definition.defaultLocale ?? 'en');
   const messages = (((definition.translations as Record<string, { messages?: Record<string, unknown> }> | undefined)?.[locale] ?? {}).messages ?? {});
@@ -113,7 +146,21 @@ function authoringPatch(command: AuthoringCommand, document: AuthoringDocument):
   // M7's server persists bounded JSON-pointer commands. The UI's local grouping is
   // presentation-only, so persist its human-readable semantic log in the package's
   // permitted metadata extension rather than invoking any respondent endpoint.
-  return command.patches ?? canonicalPatches(document, command);
+  const patches = command.patches ?? canonicalPatches(document, command);
+  const definition = document.definition as { translations?: Record<string, { messages?: Record<string, string> }> };
+  const translations = definition.translations ?? {};
+  const localePatches: unknown[] = [];
+  for (const patch of patches) {
+    if (!patch || typeof patch !== 'object') continue;
+    const candidate = patch as { op?: string; path?: string; value?: unknown };
+    const key = candidate.path?.match(/^\/translations\/en\/messages\/(.+)$/)?.[1];
+    if (!key || typeof candidate.value !== 'string') continue;
+    for (const [locale, bundle] of Object.entries(translations)) {
+      if (locale !== 'en' && bundle.messages?.[key] === undefined)
+        localePatches.push({ op: 'add', path: `/translations/${locale}/messages/${key}`, value: candidate.value });
+    }
+  }
+  return [...patches, ...localePatches];
 }
 export type PublishedSchema = operations['ON-get-v1-schemas-kind-version-4c108bde88']['responses'][200]['content']['application/schema+json'];
 export type TypedSessionProjection = ServerProjection & {

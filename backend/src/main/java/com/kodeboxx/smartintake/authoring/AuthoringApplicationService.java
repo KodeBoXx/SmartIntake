@@ -547,13 +547,35 @@ public class AuthoringApplicationService {
       if (sectionId==null) return page.path("guidanceId").asText(null);
       for (JsonNode section:page.path("sections")) if (sectionId.equals(section.path("id").asText())) {
         if (fieldId==null) return section.path("guidanceId").asText(page.path("guidanceId").asText(null));
-        for (JsonNode node:section.path("nodes")) if (fieldId.equals(node.path("fieldId").asText())) {
+        JsonNode node=findQuestionNode(section.path("nodes"), fieldId);
+        if (node!=null) {
           String nodeBinding=node.path("guidanceId").asText(null);
           if (nodeBinding!=null) return nodeBinding;
-          for (JsonNode field:definition.path("data").path("fields")) if (fieldId.equals(field.path("id").asText()) && field.path("guidanceId").isTextual()) return field.path("guidanceId").asText();
+          JsonNode field=findCanonicalField(definition.path("data").path("fields"), fieldId);
+          if (field!=null && field.path("guidanceId").isTextual()) return field.path("guidanceId").asText();
           return section.path("guidanceId").asText(page.path("guidanceId").asText(null));
         }
       }
+    }
+    return null;
+  }
+  private JsonNode findQuestionNode(JsonNode nodes, String fieldId) {
+    if (!nodes.isArray()) return null;
+    for (JsonNode node:nodes) {
+      if (fieldId.equals(node.path("fieldId").asText())) return node;
+      JsonNode nested=findQuestionNode(node.path("children"),fieldId);
+      if (nested!=null) return nested;
+      nested=findQuestionNode(node.path("nodes"),fieldId);
+      if (nested!=null) return nested;
+    }
+    return null;
+  }
+  private JsonNode findCanonicalField(JsonNode fields, String fieldId) {
+    if (!fields.isArray()) return null;
+    for (JsonNode field:fields) {
+      if (fieldId.equals(field.path("id").asText())) return field;
+      JsonNode nested=findCanonicalField(field.path("itemSchema").path("fields"),fieldId);
+      if (nested!=null) return nested;
     }
     return null;
   }

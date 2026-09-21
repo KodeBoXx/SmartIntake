@@ -206,7 +206,7 @@ export function canonicalPatches(authoring: AuthoringDocument, command: Authorin
     ];
   }
   if (command.type === 'update-field' && found?.kind === 'node' && command.field) {
-    const current = field(document, found.fieldId ?? '');
+    const current = field(document, command.fieldId ?? found.fieldId ?? '');
     if (!current) return [];
     const supplied = command.field as CanonicalObject;
     const configured = fieldOnly({ ...fieldOnly(current.value), ...fieldOnly(supplied) });
@@ -237,7 +237,14 @@ export function canonicalPatches(authoring: AuthoringDocument, command: Authorin
     if (typeof supplied.acknowledgmentContent === 'string' && typeof nextNode.acknowledgmentContentKey === 'string' && supplied.acknowledgmentContent) patches.push(translation(nextNode.acknowledgmentContentKey, supplied.acknowledgmentContent));
     if (Array.isArray(supplied.options)) for (const option of supplied.options) if (option && typeof option === 'object' && typeof (option as CanonicalObject).label === 'string') patches.push(translation(String((option as CanonicalObject).labelKey), String((option as CanonicalObject).label)));
     const visualChildren = (((supplied.itemSchema as CanonicalObject | undefined)?.fields as CanonicalObject[] | undefined) ?? []);
-    for (const child of visualChildren) if (typeof child.labelKey === 'string' && typeof (child as CanonicalObject).__label === 'string') patches.push(translation(child.labelKey, String((child as CanonicalObject).__label)));
+    const childTranslations = (children: CanonicalObject[]): CanonicalPatch[] => children.flatMap((child) => {
+      const nested = ((child.itemSchema as CanonicalObject | undefined)?.fields as CanonicalObject[] | undefined) ?? [];
+      return [
+        ...(typeof child.labelKey === 'string' && typeof child.__label === 'string' ? [translation(child.labelKey, child.__label)] : []),
+        ...childTranslations(nested),
+      ];
+    });
+    patches.push(...childTranslations(visualChildren));
     const rows = supplied.fixedRows;
     if (Array.isArray(rows)) for (const row of rows) if (row && typeof row === 'object' && typeof (row as CanonicalObject).label === 'string') patches.push(translation(String((row as CanonicalObject).labelKey), String((row as CanonicalObject).label)));
     const calculation = canonical.extensions && typeof canonical.extensions === 'object'
@@ -260,16 +267,23 @@ export function canonicalPatches(authoring: AuthoringDocument, command: Authorin
   if (command.type === 'remove-node' && found?.kind === 'node') {
     const fieldId = found.fieldId ?? '';
     const currentField = field(document, fieldId);
-    const patches: CanonicalPatch[] = [{ op: 'remove', path: found.path }];
+    const patches: CanonicalPatch[] = [];
     const remainingPlacements = allQuestionNodes(document).filter((node) => node.fieldId === fieldId && node.id !== command.targetId).length;
     if (currentField && remainingPlacements === 0) {
       // itemSchema.fields has minItems: 1. Removing its final child must remove the
       // enclosing composite definition (and its placements), never serialize fields: [].
       const removal = currentField.ancestors.length && siblingsAt(document, currentField.path).length === 1
         ? currentField.ancestors.at(-1)! : { value: currentField.value, path: currentField.path };
+      // The only schema-valid outcome for a final composite child is an explicit
+      // cascade/restructure.  Never turn a click on a child into a hidden parent
+      // deletion; the inspector asks for this confirmation before emitting it.
+      if (removal.path !== currentField.path && !command.cascade) return [];
       const removedFields = fieldsIn(removal.value);
       const removedIds = new Set(removedFields.map((candidate) => String(candidate.id)));
-      for (const placement of allQuestionNodeLocations(document).filter((node) => removedIds.has(String(node.value.fieldId)) && node.path !== found.path)) patches.push({ op: 'remove', path: placement.path });
+      const placementRemovals = allQuestionNodeLocations(document)
+        .filter((node) => removedIds.has(String(node.value.fieldId)))
+        .sort((left, right) => right.path.localeCompare(left.path, undefined, { numeric: true }));
+      for (const placement of placementRemovals) patches.push({ op: 'remove', path: placement.path });
       patches.push({ op: 'remove', path: removal.path });
       for (const removed of removedFields) {
         const key = removed.labelKey;
@@ -277,7 +291,7 @@ export function canonicalPatches(authoring: AuthoringDocument, command: Authorin
       }
       const expressions = document.expressions as CanonicalObject | undefined;
       for (const [key, expression] of Object.entries(expressions ?? {})) if ([...removedIds].some((id) => expressionReferences(expression, id))) patches.push({ op: 'remove', path: `/expressions/${escape(key)}` });
-    }
+    } else patches.push({ op: 'remove', path: found.path });
     return patches;
   }
   if (command.type === 'move' && found && command.destinationId) {

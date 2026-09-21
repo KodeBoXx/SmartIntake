@@ -219,6 +219,46 @@ class AuthoringIntegrationTests {
     verify(speechPort,times(1)).synthesize(anyString(),anyString(),anyString());
   }
 
+  @Test void resolves_nested_question_guidance_before_nested_field_section_and_page_bindings() throws Exception {
+    Map<String,Object> guidance=Map.of("questionsAndAnswers",Map.of("id","guidance_questions","messageKey","guidance.questions"));
+    assertEquals(HttpStatus.OK,call("/content",HttpMethod.PUT,"\"1\"",Map.of("guidance",guidance),"nested-guidance-reference").getStatusCode());
+    Map<String,Object> definition=json.readValue(fixture(),new TypeReference<>() {});
+    @SuppressWarnings("unchecked") Map<String,Object> translations=(Map<String,Object>) definition.get("translations");
+    @SuppressWarnings("unchecked") Map<String,Object> english=(Map<String,Object>) translations.get("en");
+    @SuppressWarnings("unchecked") Map<String,Object> messages=(Map<String,Object>) english.get("messages");
+    messages.put("guidance.questions", "[{\"question\":\"What applies?\",\"answer\":\"Nested node guidance\",\"guidanceId\":\"guidance-node\",\"scope\":{\"pageId\":\"page_name\",\"sectionId\":\"section_name\",\"fieldId\":\"fld_nested\"}},{\"question\":\"What applies?\",\"answer\":\"Nested field guidance\",\"guidanceId\":\"guidance-field\",\"scope\":{\"pageId\":\"page_name\",\"sectionId\":\"section_name\",\"fieldId\":\"fld_nested\"}},{\"question\":\"What applies?\",\"answer\":\"Section guidance\",\"guidanceId\":\"guidance-section\",\"scope\":{\"pageId\":\"page_name\",\"sectionId\":\"section_name\",\"fieldId\":\"fld_nested\"}},{\"question\":\"What applies?\",\"answer\":\"Page guidance\",\"guidanceId\":\"guidance-page\",\"scope\":{\"pageId\":\"page_name\",\"sectionId\":\"section_name\",\"fieldId\":\"fld_nested\"}}]");
+    assertEquals(HttpStatus.OK,call("/content",HttpMethod.PUT,"\"2\"",Map.of("translations",translations),"nested-guidance-text").getStatusCode());
+
+    var nested=(com.fasterxml.jackson.databind.node.ObjectNode) json.readTree(db.queryForObject("select definition::text from forms where id=?",String.class,form));
+    var page=(com.fasterxml.jackson.databind.node.ObjectNode) nested.at("/flow/phases/0/pages/0");
+    var section=(com.fasterxml.jackson.databind.node.ObjectNode) page.at("/sections/0");
+    var parentNode=(com.fasterxml.jackson.databind.node.ObjectNode) section.at("/nodes/0");
+    page.put("guidanceId","guidance-page");
+    section.put("guidanceId","guidance-section");
+    parentNode.withArray("children").addObject().put("id","node_nested").put("kind","question").put("fieldId","fld_nested").put("guidanceId","guidance-node");
+    var parentField=(com.fasterxml.jackson.databind.node.ObjectNode) nested.at("/data/fields/0");
+    parentField.withObject("itemSchema").withArray("fields").addObject().put("id","fld_nested").put("key","nested").put("type","text").put("labelKey","q.name").put("guidanceId","guidance-field");
+    db.update("update forms set definition=cast(? as jsonb) where id=?",json.writeValueAsString(nested),form);
+
+    when(speechPort.configured()).thenReturn(true);
+    when(speechPort.defaultVoice("en")).thenReturn("en-approved");
+    when(speechPort.approvedVoice("en","en-approved")).thenReturn(true);
+    Map<String,Object> scope=Map.of("pageId","page_name","sectionId","section_name","fieldId","fld_nested");
+    for (String answer : List.of("Nested node guidance", "Nested field guidance", "Section guidance", "Page guidance"))
+      when(speechPort.synthesize(answer,"en","en-approved")).thenReturn(new SpeechPort.SpeechResult(true,"OK","en","audio/mpeg",new byte[] {1},1));
+
+    assertNestedGuidanceAnswer(scope,"Nested node guidance");
+    ((com.fasterxml.jackson.databind.node.ObjectNode) nested.at("/flow/phases/0/pages/0/sections/0/nodes/0/children/0")).remove("guidanceId");
+    db.update("update forms set definition=cast(? as jsonb) where id=?",json.writeValueAsString(nested),form);
+    assertNestedGuidanceAnswer(scope,"Nested field guidance");
+    ((com.fasterxml.jackson.databind.node.ObjectNode) nested.at("/data/fields/0/itemSchema/fields/0")).remove("guidanceId");
+    db.update("update forms set definition=cast(? as jsonb) where id=?",json.writeValueAsString(nested),form);
+    assertNestedGuidanceAnswer(scope,"Section guidance");
+    section.remove("guidanceId");
+    db.update("update forms set definition=cast(? as jsonb) where id=?",json.writeValueAsString(nested),form);
+    assertNestedGuidanceAnswer(scope,"Page guidance");
+  }
+
   @Test void rejects_hostile_candidate_and_returns_disabled_speech_without_provider_call() throws Exception {
     List<Integer> huge=new ArrayList<>(); for(int i=0;i<100_001;i++) huge.add(i);
     ResponseEntity<String> response=call("/imports/validate",HttpMethod.POST,null,Map.of("candidate",huge));
@@ -438,6 +478,13 @@ class AuthoringIntegrationTests {
     String definition=db.queryForObject("select definition::text from forms where id=?",String.class,targetForm);
     long revision=db.queryForObject("select revision from forms where id=?",Long.class,targetForm);
     assertEquals(1,db.update("update form_authoring_locale_reviews set status='APPROVED',reviewed_by=?,reviewed_at=now(),source_revision=?,source_package_hash=? where form_id=? and draft_id=? and locale=?",account,revision,CanonicalJson.sha256(json.readTree(definition)),targetForm,targetForm,locale));
+  }
+  private void assertNestedGuidanceAnswer(Map<String,Object> scope, String expected) throws Exception {
+    approveSpeechLocale(form, "en");
+    db.update("delete from form_authoring_speech_usage where organization_id=(select w.organization_id from forms f join workspaces w on w.id=f.workspace_id where f.id=?)",form);
+    ResponseEntity<String> response=call("/speech",HttpMethod.POST,null,Map.of("locale","en","question","What applies?","scope",scope));
+    assertEquals(HttpStatus.OK,response.getStatusCode(),response.getBody());
+    verify(speechPort).synthesize(expected,"en","en-approved");
   }
   private void bindVisibleQuestionGuidance(UUID targetForm, String guidanceId) throws Exception {
     com.fasterxml.jackson.databind.node.ObjectNode definition=(com.fasterxml.jackson.databind.node.ObjectNode)json.readTree(db.queryForObject("select definition::text from forms where id=?",String.class,targetForm));

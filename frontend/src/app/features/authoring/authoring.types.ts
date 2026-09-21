@@ -5,8 +5,11 @@ export interface AuthoringNode {
   readonly kind: AuthoringNodeKind;
   readonly label: string;
   readonly control?: string;
+  readonly fieldId?: string;
   readonly expression?: unknown;
   readonly componentVersion?: string;
+  /** Presentation projection of a recursive canonical itemSchema field. */
+  readonly children?: readonly AuthoringNode[];
 }
 
 export interface AuthoringSection {
@@ -138,6 +141,8 @@ export interface AuthoringCommand {
   readonly entityId?: string;
   readonly fieldId?: string;
   readonly destinationId?: string;
+  /** Removing the last child of a composite is destructive and must be explicitly confirmed. */
+  readonly cascade?: boolean;
   readonly label?: string;
   readonly node?: AuthoringNode;
   /** Closed canonical field properties supplied by the visual field inspector. */
