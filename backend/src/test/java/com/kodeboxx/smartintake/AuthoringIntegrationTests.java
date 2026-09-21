@@ -3,6 +3,7 @@ package com.kodeboxx.smartintake;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kodeboxx.smartintake.contract.CanonicalJson;
 import com.kodeboxx.smartintake.security.IdentitySessionResolver;
@@ -159,6 +160,60 @@ class AuthoringIntegrationTests {
     assertEquals("ar",body.at("/projection/locale").asText());
     assertEquals("ar",body.at("/projection/review/reviewGates/0/locale").asText(),body.toPrettyString());
     assertEquals("q.acknowledgment",body.at("/projection/review/reviewGates/0/contentKey").asText());
+  }
+
+  @Test void round_trips_schema_valid_governed_references_and_localized_text() throws Exception {
+    Map<String,Object> definition=json.readValue(fixture(),new TypeReference<>() {});
+    Map<String,Object> guidance=new LinkedHashMap<>();
+    Map<String,Object> messages=new LinkedHashMap<>();
+    for (String scope : List.of("brief", "detailed", "glossary", "questionsAndAnswers", "narration")) {
+      String messageKey="guidance."+scope.toLowerCase();
+      guidance.put(scope,Map.of("id","guidance_"+scope,"messageKey",messageKey));
+      messages.put(messageKey, switch (scope) {
+        case "glossary" -> "{\"term\":\"meaning\"}";
+        case "questionsAndAnswers" -> "[{\"question\":\"What is this?\",\"answer\":\"A governed answer.\"}]";
+        default -> "Localized "+scope;
+      });
+    }
+    assertEquals(HttpStatus.OK,call("/content",HttpMethod.PUT,"\"1\"",Map.of("guidance",guidance),"guidance-refs").getStatusCode());
+    @SuppressWarnings("unchecked") Map<String,Object> translations=(Map<String,Object>) definition.get("translations");
+    @SuppressWarnings("unchecked") Map<String,Object> english=(Map<String,Object>) translations.get("en");
+    @SuppressWarnings("unchecked") Map<String,Object> existingMessages=(Map<String,Object>) english.get("messages");
+    existingMessages.putAll(messages);
+    assertEquals(HttpStatus.OK,call("/content",HttpMethod.PUT,"\"2\"",Map.of("translations",translations),"guidance-text").getStatusCode());
+
+    ResponseEntity<String> exported=call("",HttpMethod.GET,null,null);
+    assertEquals(HttpStatus.OK,exported.getStatusCode());
+    JsonNode packageNode=json.readTree(exported.getBody()).path("definition");
+    assertEquals("guidance_brief",packageNode.at("/guidance/brief/id").asText());
+    assertEquals("guidance.brief",packageNode.at("/guidance/brief/messageKey").asText());
+    assertEquals("Localized narration",packageNode.at("/translations/en/messages/guidance.narration").asText());
+    assertEquals("VALID",json.readTree(call("/imports/validate",HttpMethod.POST,null,Map.of("candidate",packageNode)).getBody()).path("state").asText());
+  }
+
+  @Test void selects_a_server_approved_voice_and_resolves_only_governed_qa_answers() throws Exception {
+    Map<String,Object> guidance=Map.of("questionsAndAnswers",Map.of("id","guidance_questionsAndAnswers","messageKey","guidance.questionsandanswers"));
+    assertEquals(HttpStatus.OK,call("/content",HttpMethod.PUT,"\"1\"",Map.of("guidance",guidance),"qa-reference").getStatusCode());
+    Map<String,Object> definition=json.readValue(fixture(),new TypeReference<>() {});
+    @SuppressWarnings("unchecked") Map<String,Object> translations=(Map<String,Object>) definition.get("translations");
+    @SuppressWarnings("unchecked") Map<String,Object> english=(Map<String,Object>) translations.get("en");
+    @SuppressWarnings("unchecked") Map<String,Object> messages=(Map<String,Object>) english.get("messages");
+    messages.put("guidance.questionsandanswers","[{\"question\":\"What is this?\",\"answer\":\"A governed answer.\"}]");
+    assertEquals(HttpStatus.OK,call("/content",HttpMethod.PUT,"\"2\"",Map.of("translations",translations),"qa-translation").getStatusCode());
+    when(speechPort.configured()).thenReturn(true);
+    when(speechPort.defaultVoice("en")).thenReturn("en-approved");
+    when(speechPort.approvedVoice("en","en-approved")).thenReturn(true);
+    when(speechPort.synthesize("A governed answer.","en","en-approved"))
+        .thenReturn(new SpeechPort.SpeechResult(true,"OK","en","audio/mpeg",new byte[] {1},2));
+
+    ResponseEntity<String> available=call("/speech",HttpMethod.POST,null,Map.of("locale","en","question","What is this?"));
+    assertEquals(HttpStatus.OK,available.getStatusCode());
+    assertTrue(available.getBody().contains("\"available\":true"));
+    verify(speechPort).synthesize("A governed answer.","en","en-approved");
+    ResponseEntity<String> unavailable=call("/speech",HttpMethod.POST,null,Map.of("locale","en","question","Unknown question"));
+    assertEquals(HttpStatus.OK,unavailable.getStatusCode());
+    assertTrue(unavailable.getBody().contains("SPEECH_QUESTION_NOT_FOUND"));
+    verify(speechPort,times(1)).synthesize(anyString(),anyString(),anyString());
   }
 
   @Test void rejects_hostile_candidate_and_returns_disabled_speech_without_provider_call() throws Exception {

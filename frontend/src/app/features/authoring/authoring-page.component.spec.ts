@@ -84,4 +84,39 @@ describe('AuthoringPageComponent backend contract integration', () => {
     expect(fixture.nativeElement.textContent).toContain('Authoring access denied');
     expect(fixture.nativeElement.textContent).not.toContain('Cached secret');
   });
+
+  it('keeps a reviewer-readable draft and locale review content when an author-only optional resource is forbidden', () => {
+    fixture.detectChanges();
+    const base = '/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1';
+    http.expectOne(base).flush({ formId: 'form-1', draftId: 'draft-1', revision: 7, definition: { title: 'Reviewer draft', pages: [] } });
+    http.expectOne(`${base}/history`).flush([]);
+    http.expectOne('/v1/workspaces/workspace-1/reusable-components').flush({}, { status: 403, statusText: 'Forbidden' });
+    http.expectOne(`${base}/theme`).flush({ revision: 7, theme: { preset: 'Certinal', tokens: {} } });
+    http.expectOne(`${base}/content`).flush({ revision: 7, guidance: {}, translations: { en: { direction: 'ltr', messages: {} } }, localeReviews: [{ locale: 'en', sourceRevision: 7, status: 'DRAFT', reviewedAt: null }] });
+    http.expectOne(`${base}/comments`).flush([]);
+    http.expectOne(`${base}/presence`).flush([]);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.resourceState()).toBe('ready');
+    expect(fixture.componentInstance.store.document().title).toBe('Reviewer draft');
+    expect(fixture.componentInstance.content().localeReviews).toEqual([{ locale: 'en', sourceRevision: 7, status: 'DRAFT', reviewedAt: null }]);
+    expect(fixture.nativeElement.textContent).toContain('Reviewer draft');
+  });
+
+  it('refreshes current locale review rows as soon as a revision mutation is accepted', () => {
+    fixture.detectChanges();
+    const base = '/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1';
+    http.expectOne(base).flush({ formId: 'form-1', draftId: 'draft-1', revision: 7, definition: { title: 'Revision refresh', pages: [] } });
+    http.expectOne(`${base}/history`).flush([]);
+    http.expectOne('/v1/workspaces/workspace-1/reusable-components').flush([]);
+    http.expectOne(`${base}/theme`).flush({ revision: 7, theme: { preset: 'Certinal', tokens: {} } });
+    http.expectOne(`${base}/content`).flush({ revision: 7, guidance: {}, translations: {} });
+    http.expectOne(`${base}/comments`).flush([]);
+    http.expectOne(`${base}/presence`).flush([]);
+
+    fixture.componentInstance['acceptRevision']({ id: 'draft-1', revision: 8, title: 'Revision refresh', phases: [], definition: { title: 'Revision refresh', pages: [] } });
+    http.expectOne(`${base}/content`).flush({ revision: 8, guidance: {}, translations: { en: { direction: 'ltr', messages: {} } }, localeReviews: [{ locale: 'en', sourceRevision: 8, status: 'DRAFT', reviewedAt: null }] });
+
+    expect(fixture.componentInstance.content().localeReviews?.[0]).toMatchObject({ locale: 'en', sourceRevision: 8, status: 'DRAFT' });
+  });
 });

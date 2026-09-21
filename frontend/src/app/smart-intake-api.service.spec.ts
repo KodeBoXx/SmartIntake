@@ -146,15 +146,22 @@ describe('SmartIntakeApiService', () => {
   });
 
   it('uses only the dedicated authoring preview endpoint for synthetic author preview', () => {
-    api.authoringPreview('local', 'form-1', 'draft-1', { 'field-name': 'Ada' }).subscribe();
+    api.authoringPreview('local', 'form-1', 'draft-1', { 'field-name': 'Ada' }, 'hi').subscribe();
     const preview = http.expectOne('/v1/workspaces/local/forms/form-1/authoring/draft-1/preview');
     expect(preview.request.method).toBe('POST');
     expect(preview.request.withCredentials).toBe(true);
-    expect(preview.request.body).toEqual({ answers: { 'field-name': 'Ada' } });
+    expect(preview.request.body).toEqual({ answers: { 'field-name': 'Ada' }, locale: 'hi' });
     preview.flush({ mode: 'synthetic', packageHash: 'package-hash', diagnostics: [], syntheticAnswers: { 'field-name': 'Ada' }, effects: { sessions: 0, submissions: 0, email: 0, webhooks: 0, providers: 0 } });
     http.expectNone('/v1/public/forms/form-1/sessions');
     http.expectNone('/v1/sessions');
     http.expectNone('/v1/workspaces/local/forms/form-1/releases');
+  });
+
+  it('sends the selected Arabic locale to the ordinary author preview endpoint', () => {
+    api.authoringPreview('local', 'form-1', 'draft-1', {}, 'ar').subscribe();
+    const preview = http.expectOne('/v1/workspaces/local/forms/form-1/authoring/draft-1/preview');
+    expect(preview.request.body).toEqual({ answers: {}, locale: 'ar' });
+    preview.flush({ mode: 'synthetic', effects: { sessions: 0, submissions: 0, email: 0, webhooks: 0, providers: 0 } });
   });
 
   it('uses the strict backend candidate envelope for authoring import validation and commit', () => {
@@ -244,10 +251,10 @@ describe('SmartIntakeApiService', () => {
   });
 
   it('calls the controlled authoring speech endpoint for governed locale text', () => {
-    api.authoringSpeech('workspace-1', 'form-1', 'draft-1', 'Read this narration.', 'ar').subscribe((speech) => expect(speech).toEqual({ available: false, code: 'SPEECH_UNAVAILABLE', locale: 'ar' }));
+    api.authoringSpeech('workspace-1', 'form-1', 'draft-1', 'ar', { text: 'Read this narration.' }).subscribe((speech) => expect(speech).toEqual({ available: false, code: 'SPEECH_UNAVAILABLE', locale: 'ar' }));
     const speech = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/speech');
     expect(speech.request.method).toBe('POST');
-    expect(speech.request.body).toEqual({ text: 'Read this narration.', locale: 'ar', voice: 'default' });
+    expect(speech.request.body).toEqual({ text: 'Read this narration.', locale: 'ar' });
     speech.flush({ available: false, code: 'SPEECH_UNAVAILABLE', locale: 'ar' });
   });
 

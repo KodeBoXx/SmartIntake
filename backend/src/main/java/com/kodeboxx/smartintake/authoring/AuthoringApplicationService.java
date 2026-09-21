@@ -356,12 +356,16 @@ public class AuthoringApplicationService {
   @Transactional
   public Map<String,Object> speech(String w, UUID f, String d, String t, Map<String,Object> request) {
     authorizeRead(w, f, d, t);
-    String locale = required(request, "locale"); String voice = required(request, "voice"); String text = required(request, "text");
+    String locale = required(request, "locale");
     JsonNode definition=parse(row(f).definition());
-    if(!List.of("en","hi","ar").contains(locale)||text.length()>4_000||!supportsLocale(definition, locale)||!governedText(definition,locale,text))
+    boolean questionRequest = request.containsKey("question");
+    String text = questionRequest ? governedAnswer(definition, locale, required(request, "question")) : required(request, "text");
+    if (text == null) return unavailable(locale, "SPEECH_QUESTION_NOT_FOUND");
+    String voice = request.containsKey("voice") ? required(request, "voice") : speech.defaultVoice(locale);
+    if(!List.of("en","hi","ar").contains(locale)||text.length()>4_000||!supportsLocale(definition, locale)||(!questionRequest&&!governedText(definition,locale,text)))
       throw bad("SPEECH_GOVERNANCE", "Speech text, locale, or voice is not governed by the package.");
     if (!speech.configured()) return unavailable(locale, "SPEECH_UNAVAILABLE");
-    if (!speech.approvedVoice(locale, voice)) return unavailable(locale, "SPEECH_VOICE_UNAVAILABLE");
+    if (voice == null || !speech.approvedVoice(locale, voice)) return unavailable(locale, "SPEECH_VOICE_UNAVAILABLE");
     UUID author = actor(t);
     if (!reserveSpeechQuota(f, author)) return unavailable(locale, "SPEECH_QUOTA_EXHAUSTED");
     SpeechPort.SpeechResult result = speech.synthesize(text, locale, voice);
@@ -489,6 +493,18 @@ public class AuthoringApplicationService {
     return CanonicalJson.sha256(effective);
   }
   private boolean governedText(JsonNode definition,String locale,String text){return containsText(definition.path("translations").path(locale),text)||containsText(definition.path("guidance"),text);}
+  /** Resolves only a translation referenced by the canonical Q&A guidance entry. */
+  private String governedAnswer(JsonNode definition, String locale, String question) {
+    String key=definition.path("guidance").path("questionsAndAnswers").path("messageKey").asText();
+    JsonNode source=definition.path("translations").path(locale).path("messages").path(key);
+    if (key.isBlank() || !source.isTextual()) return null;
+    try {
+      JsonNode questions=json.readTree(source.asText());
+      if (!questions.isArray()) return null;
+      for (JsonNode entry:questions) if (question.equals(entry.path("question").asText()) && entry.path("answer").isTextual()) return entry.path("answer").asText();
+      return null;
+    } catch (Exception ignored) { return null; }
+  }
   private boolean supportsLocale(JsonNode definition, String locale) { for (JsonNode supported : definition.path("supportedLocales")) if (locale.equals(supported.asText())) return true; return false; }
   private boolean containsText(JsonNode node,String text){if(node.isTextual())return text.equals(node.asText());if(node.isContainerNode())for(JsonNode child:node)if(containsText(child,text))return true;return false;}
   private Map<String,Object> unavailable(String locale, String code) { return map("available",false,"code",code,"locale",locale); }

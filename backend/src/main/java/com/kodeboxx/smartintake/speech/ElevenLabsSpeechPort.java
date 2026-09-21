@@ -44,6 +44,10 @@ public class ElevenLabsSpeechPort implements SpeechPort {
     return LOCALES.contains(locale) && voice != null && approvedVoices.get(locale).contains(voice);
   }
 
+  @Override public String defaultVoice(String locale) {
+    return approvedVoices.getOrDefault(locale, Set.of()).stream().sorted().findFirst().orElse(null);
+  }
+
   @Override public SpeechResult synthesize(String text, String locale, String voice) {
     if (apiKey.isBlank()) return new SpeechResult(false, "SPEECH_UNAVAILABLE", locale, null, null, 0);
     if (!LOCALES.contains(locale) || text == null || text.isBlank() || text.length() > 4_000 || !approvedVoice(locale, voice))
