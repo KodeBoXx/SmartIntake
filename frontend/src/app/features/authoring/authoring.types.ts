@@ -152,6 +152,8 @@ export interface AuthoringCommand {
   readonly cascade?: boolean;
   /** Set only after the author explicitly accepts the displayed dependency impact. */
   readonly acceptInvalidDraft?: boolean;
+  /** Required for a destructive page removal after its full prospective impact is shown. */
+  readonly confirmed?: boolean;
   /** The only locale whose authored text may be changed by this visual command. */
   readonly locale?: string;
   readonly label?: string;

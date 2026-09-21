@@ -101,6 +101,7 @@ test.describe('M7 authoritative visual authoring oracle', () => {
     await page.getByLabel('Destination section').selectOption({ label: 'Review / Review and submit / Review and submit' });
     await page.getByRole('button', { name: 'Move node', exact: true }).click();
     await selectNode(page, 'page_review');
+    page.once('dialog', (dialog) => dialog.accept());
     await page.getByRole('button', { name: 'Remove page', exact: true }).click();
     await page.getByRole('treeitem', { name: 'Equipment', exact: true }).nth(1).click();
     await page.getByLabel('Default next page').selectOption({ label: 'Review and submit' });
@@ -110,6 +111,8 @@ test.describe('M7 authoritative visual authoring oracle', () => {
     // exercises its own literal/reference type, variable arity, and aggregate/item scope.
     await authorOperators(page);
     await selectNode(page, 'page_name');
+    await page.getByLabel('Default next page').selectOption({ label: 'Equipment' });
+    await page.getByRole('button', { name: 'Save default route', exact: true }).click();
     await page.getByLabel('Destination page').selectOption({ label: 'Equipment' });
     await page.getByLabel('Route expression ID').fill('operator_eq');
     await page.getByRole('button', { name: 'Save branch route' }).click();
@@ -274,6 +277,7 @@ function normalizeAuthoringPackage(persisted: Record<string, any>): Record<strin
     phases: (persisted.flow?.phases ?? []).map((phase: any) => ({
       label: messages[phase.titleKey], pages: (phase.pages ?? []).map((page: any) => ({
         label: messages[page.titleKey], sections: (page.sections ?? []).map((section: any) => messages[section.titleKey]),
+        defaultNextPage: page.defaultNextPageId ? pageLabel(persisted, page.defaultNextPageId, messages) : undefined,
         routes: (page.routes ?? []).map((route: any) => ({ targetPage: pageLabel(persisted, route.targetPageId, messages), whenExpressionId: route.whenExpressionId })),
       })),
     })),
@@ -290,8 +294,8 @@ function expectedAuthoringPackage(): Record<string, unknown> {
     formKey: activeFormKey,
     title: oracle.formName,
     phases: [
-      { label: 'About your request', pages: [{ label: 'About', sections: ['About'], routes: [{ targetPage: 'Equipment', whenExpressionId: 'operator_eq' }] }] },
-      { label: 'Equipment', pages: [{ label: 'Equipment', sections: ['Equipment'], routes: [] }] },
+      { label: 'About your request', pages: [{ label: 'About', sections: ['About'], defaultNextPage: 'Equipment', routes: [{ targetPage: 'Equipment', whenExpressionId: 'operator_eq' }] }] },
+      { label: 'Equipment', pages: [{ label: 'Equipment', sections: ['Equipment'], defaultNextPage: 'Review and submit', routes: [] }] },
       { label: 'Review', pages: [{ label: 'Review and submit', sections: ['Review and submit'], routes: [] }] },
     ],
     fields: oracle.fields.map(({ expected }) => ({ key: expected.key, canonicalType: expected.canonicalType, parentKey: expected.parentKey, config: expected.config })),

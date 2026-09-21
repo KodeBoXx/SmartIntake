@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { applyCanonicalPatches, canonicalPatches, deletionImpact } from './authoring-patches';
+import { applyCanonicalPatches, canonicalPatches, deletionImpact, pageDeletionImpact } from './authoring-patches';
 import { authoringDocument } from '../../smart-intake-api.service';
 import type { AuthoringDocument } from './authoring.types';
 
@@ -43,11 +43,56 @@ describe('canonical authoring patches', () => {
     withReview.flow.phases[0].pages[0].routes = [{ id: 'route-review', targetPageId: 'page-review', whenExpressionId: 'whenName' }];
     withReview.flow.phases[0].pages.push({ id: 'page-review', titleKey: 'page-review.label', sections: [], routes: [] });
     const projected = authoringDocument({ draftId: 'draft-a', revision: 4, definition: withReview });
-    const next = applyCanonicalPatches(withReview, canonicalPatches(projected, { type: 'remove-page', targetId: 'page-review' })) as Record<string, any>;
+    expect(canonicalPatches(projected, { type: 'remove-page', targetId: 'page-review' })).toEqual([]);
+    const next = applyCanonicalPatches(withReview, canonicalPatches(projected, { type: 'remove-page', targetId: 'page-review', confirmed: true })) as Record<string, any>;
     expect(next.flow.phases[0].pages.map((page: { id: string }) => page.id)).toEqual(['page-a']);
     expect(next.flow.phases[0].pages[0]).not.toHaveProperty('defaultNextPageId');
     expect(next.flow.phases[0].pages[0].routes).toEqual([]);
-    expect(canonicalPatches(projected, { type: 'remove-page', targetId: 'page-a' })).toEqual([]);
+    expect(canonicalPatches(projected, { type: 'remove-page', targetId: 'page-a', confirmed: true })).toEqual([]);
+  });
+
+  it('removes unique recursive page contents and only their now-orphaned translations after confirmation', () => {
+    const unique = structuredClone(definition) as Record<string, any>;
+    unique.flow.startPageId = 'page-a';
+    unique.data.fields.push({ id: 'review-group', key: 'review-group', type: 'object', labelKey: 'review-group.label', itemSchema: { fields: [{ id: 'review-note', key: 'review-note', type: 'text', labelKey: 'review-note.label' }] } });
+    unique.flow.phases[0].pages.push({ id: 'page-review', titleKey: 'page-review.label', sections: [{ id: 'section-review', titleKey: 'section-review.label', nodes: [{ id: 'review-group-node', kind: 'question', fieldId: 'review-group', children: [{ id: 'review-note-node', kind: 'question', fieldId: 'review-note' }] }] }] });
+    Object.assign(unique.translations.en.messages, { 'review-group.label': 'Review group', 'review-note.label': 'Review note', 'page-review.label': 'Review', 'section-review.label': 'Review section' });
+    const projected = authoringDocument({ draftId: 'draft-a', revision: 4, definition: unique });
+    expect(pageDeletionImpact(projected, 'page-review')).toMatchObject({ placements: ['review-group-node', 'review-note-node'], fields: ['review-group', 'review-note'], translations: expect.arrayContaining(['review-group.label', 'review-note.label', 'page-review.label']) });
+    const next = applyCanonicalPatches(unique, canonicalPatches(projected, { type: 'remove-page', targetId: 'page-review', confirmed: true })) as Record<string, any>;
+    expect(next.data.fields.map((field: { id: string }) => field.id)).toEqual(['field-a']);
+    expect(next.translations.en.messages).not.toHaveProperty('review-group.label');
+    expect(next.translations.en.messages).not.toHaveProperty('review-note.label');
+    expect(next.translations.en.messages).not.toHaveProperty('page-review.label');
+  });
+
+  it('preserves shared field definitions and translations when deleting one page placement', () => {
+    const shared = structuredClone(definition) as Record<string, any>;
+    shared.flow.startPageId = 'page-a';
+    shared.flow.phases[0].pages.push({ id: 'page-review', titleKey: 'page-review.label', sections: [{ id: 'section-review', titleKey: 'section-review.label', nodes: [{ id: 'shared-node', kind: 'question', fieldId: 'field-a', control: 'shortText' }] }] });
+    Object.assign(shared.translations.en.messages, { 'page-review.label': 'Review', 'section-review.label': 'Review section' });
+    const projected = authoringDocument({ draftId: 'draft-a', revision: 4, definition: shared });
+    expect(pageDeletionImpact(projected, 'page-review')).toMatchObject({ fields: [], translations: ['page-review.label', 'section-review.label'] });
+    const next = applyCanonicalPatches(shared, canonicalPatches(projected, { type: 'remove-page', targetId: 'page-review', confirmed: true })) as Record<string, any>;
+    expect(next.data.fields).toEqual([definition.data.fields[0]]);
+    expect(next.translations.en.messages['field-a.label']).toBe('Name');
+  });
+
+  it('requires confirmation and retains dependent expressions while atomically deleting a unique page field', () => {
+    const dependent = structuredClone(definition) as Record<string, any>;
+    dependent.flow.startPageId = 'page-a';
+    dependent.data.fields.push({ id: 'review-answer', key: 'review-answer', type: 'text', labelKey: 'review-answer.label' });
+    dependent.expressions = { usesReview: { op: 'exists', args: [{ ref: { fieldId: 'review-answer', scope: 'root' } }] } };
+    dependent.flow.phases[0].pages[0].routes = [{ id: 'route-dependent', targetPageId: 'page-a', whenExpressionId: 'usesReview' }];
+    dependent.flow.phases[0].pages.push({ id: 'page-review', titleKey: 'page-review.label', sections: [{ id: 'section-review', titleKey: 'section-review.label', nodes: [{ id: 'review-answer-node', kind: 'question', fieldId: 'review-answer', control: 'shortText' }] }] });
+    Object.assign(dependent.translations.en.messages, { 'review-answer.label': 'Review answer', 'page-review.label': 'Review', 'section-review.label': 'Review section' });
+    const projected = authoringDocument({ draftId: 'draft-a', revision: 4, definition: dependent });
+    expect(pageDeletionImpact(projected, 'page-review')).toMatchObject({ fields: ['review-answer'], expressions: ['usesReview'], routes: ['route-dependent'] });
+    expect(canonicalPatches(projected, { type: 'remove-page', targetId: 'page-review' })).toEqual([]);
+    const next = applyCanonicalPatches(dependent, canonicalPatches(projected, { type: 'remove-page', targetId: 'page-review', confirmed: true, acceptInvalidDraft: true })) as Record<string, any>;
+    expect(next.data.fields.map((field: { id: string }) => field.id)).toEqual(['field-a']);
+    expect(next.expressions).toHaveProperty('usesReview');
+    expect(next.flow.phases[0].pages[0].routes).toEqual([{ id: 'route-dependent', targetPageId: 'page-a', whenExpressionId: 'usesReview' }]);
   });
 
   it('sets and clears a page default route through canonical pointers', () => {

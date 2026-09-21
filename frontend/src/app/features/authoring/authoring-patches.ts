@@ -177,6 +177,63 @@ export function deletionImpact(authoring: AuthoringDocument, targetId: string): 
   return { placements: allQuestionNodeLocations(document).filter((node) => ids.has(String(node.value.fieldId))).map((node) => String(node.value.id)), routes, calculations, expressions, translations: [...ids].map((id) => String(field(document, id)?.value.labelKey ?? '')).filter(Boolean) };
 }
 
+type PageRemovalPlan = {
+  pagePath: string;
+  placements: { value: CanonicalObject; path: string }[];
+  fields: FieldLocation[];
+  translations: string[];
+};
+
+/**
+ * Computes page removal from the canonical graph, rather than treating a page as
+ * a flat container. A definition is orphaned only when every recursive placement
+ * of its top-level field is contained by the page being removed.
+ */
+function pageRemovalPlan(document: CanonicalObject, targetId: string): PageRemovalPlan | null {
+  const located = locate(document, targetId);
+  if (!located || located.kind !== 'page') return null;
+  const pagePrefix = `${located.path}/sections/`;
+  const placements = allQuestionNodeLocations(document).filter((node) => node.path.startsWith(pagePrefix));
+  const containedIds = new Set(placements.map((node) => String(node.value.fieldId ?? '')).filter(Boolean));
+  const topFields = ((document.data as CanonicalObject | undefined)?.fields as CanonicalObject[] | undefined) ?? [];
+  const fields: FieldLocation[] = [];
+  for (const [index, candidate] of topFields.entries()) {
+    const ids = new Set(fieldsIn(candidate).map((field) => String(field.id)));
+    if (![...ids].some((id) => containedIds.has(id))) continue;
+    const allPlacementsAreOnRemovedPage = allQuestionNodeLocations(document)
+      .filter((node) => ids.has(String(node.value.fieldId)))
+      .every((node) => node.path.startsWith(pagePrefix));
+    if (allPlacementsAreOnRemovedPage) fields.push({ value: candidate, path: `/data/fields/${index}`, ancestors: [] });
+  }
+  const withoutDefinitions = fields.slice().sort((left, right) => right.path.localeCompare(left.path, undefined, { numeric: true }))
+    .map((field) => ({ op: 'remove' as const, path: field.path }));
+  const remaining = applyCanonicalPatches(document, [...withoutDefinitions, { op: 'remove', path: located.path }]) as CanonicalObject;
+  const candidates = new Set<string>();
+  collectTranslationKeys(atNode(document, located.path), candidates);
+  for (const field of fields) collectTranslationKeys(field.value, candidates);
+  const used = new Set<string>();
+  collectTranslationKeys(remaining, used);
+  return { pagePath: located.path, placements, fields, translations: [...candidates].filter((key) => !used.has(key)).sort() };
+}
+
+/** Full prospective page-delete impact used by the confirmation UI and tests. */
+export function pageDeletionImpact(authoring: AuthoringDocument, targetId: string): { placements: string[]; fields: string[]; routes: string[]; calculations: string[]; expressions: string[]; translations: string[] } {
+  const document = (authoring.definition ?? {}) as CanonicalObject;
+  const plan = pageRemovalPlan(document, targetId);
+  if (!plan) return { placements: [], fields: [], routes: [], calculations: [], expressions: [], translations: [] };
+  const removedIds = new Set(plan.fields.flatMap((field) => fieldsIn(field.value).map((candidate) => String(candidate.id))));
+  const expressions = Object.entries(document.expressions as CanonicalObject ?? {})
+    .filter(([, value]) => [...removedIds].some((id) => expressionReferences(value, id))).map(([id]) => id).sort();
+  const routes = flow(document).flatMap((phase) => children(phase, 'pages')).flatMap((page) => children(page, 'routes'))
+    .filter((route) => route.targetPageId === targetId || expressions.includes(String(route.whenExpressionId)))
+    .map((route) => String(route.id)).sort();
+  const calculations = allFields(document).filter((candidate) => {
+    const calculation = (candidate.value.extensions as CanonicalObject | undefined)?.['x-kodeboxx.calculation'] as CanonicalObject | undefined;
+    return removedIds.has(String(candidate.value.id)) || (calculation != null && expressions.includes(String(calculation.value)));
+  }).map((candidate) => String(candidate.value.id)).sort();
+  return { placements: plan.placements.map((node) => String(node.value.id)), fields: [...removedIds].sort(), routes, calculations, expressions, translations: plan.translations };
+}
+
 /** Translate visual authoring actions to closed-package JSON Pointer operations. */
 export function canonicalPatches(authoring: AuthoringDocument, command: AuthoringCommand): CanonicalPatch[] {
   const document = (authoring.definition ?? {}) as CanonicalObject;
@@ -321,7 +378,9 @@ export function canonicalPatches(authoring: AuthoringDocument, command: Authorin
     return [{ op: hasDefault ? 'replace' : 'add', path: `${found.path}/defaultNextPageId`, value: command.destinationId }];
   }
   if (command.type === 'remove-page' && found?.kind === 'page') {
-    if ((document.flow as CanonicalObject | undefined)?.startPageId === command.targetId) return [];
+    if ((document.flow as CanonicalObject | undefined)?.startPageId === command.targetId || !command.confirmed) return [];
+    const plan = pageRemovalPlan(document, command.targetId!);
+    if (!plan) return [];
     const references: CanonicalPatch[] = [];
     for (const [phaseIndex, phase] of flow(document).entries()) {
       for (const [pageIndex, page] of children(phase, 'pages').entries()) {
@@ -332,7 +391,16 @@ export function canonicalPatches(authoring: AuthoringDocument, command: Authorin
         if (page.defaultNextPageId === command.targetId) references.push({ op: 'remove', path: `${pagePath}/defaultNextPageId` });
       }
     }
-    return [...references, { op: 'remove', path: found.path }];
+    const definitions = plan.fields.slice().sort((left, right) => right.path.localeCompare(left.path, undefined, { numeric: true }))
+      .map((field) => ({ op: 'remove' as const, path: field.path }));
+    const translationRemovals: CanonicalPatch[] = [];
+    const locales = document.translations as CanonicalObject | undefined;
+    for (const [locale, bundle] of Object.entries(locales ?? {})) {
+      const messages = (bundle as CanonicalObject).messages as CanonicalObject | undefined;
+      for (const key of plan.translations) if (messages && Object.prototype.hasOwnProperty.call(messages, key))
+        translationRemovals.push({ op: 'remove', path: `/translations/${escape(locale)}/messages/${escape(key)}` });
+    }
+    return [...references, ...definitions, { op: 'remove', path: found.path }, ...translationRemovals];
   }
   if (command.type === 'remove-node' && found?.kind === 'node') {
     const fieldId = found.fieldId ?? '';
@@ -407,6 +475,27 @@ function allQuestionNodeLocations(document: CanonicalObject): { value: Canonical
 function fieldsIn(value: CanonicalObject): CanonicalObject[] {
   const nested = ((value.itemSchema as CanonicalObject | undefined)?.fields as CanonicalObject[] | undefined) ?? [];
   return [value, ...nested.flatMap(fieldsIn)];
+}
+
+function allFields(document: CanonicalObject): FieldLocation[] {
+  const result: FieldLocation[] = [];
+  const visit = (fields: CanonicalObject[], path: string, ancestors: { value: CanonicalObject; path: string }[]) => fields.forEach((candidate, index) => {
+    const candidatePath = `${path}/${index}`;
+    result.push({ value: candidate, path: candidatePath, ancestors });
+    visit(((candidate.itemSchema as CanonicalObject | undefined)?.fields as CanonicalObject[] | undefined) ?? [], `${candidatePath}/itemSchema/fields`, [...ancestors, { value: candidate, path: candidatePath }]);
+  });
+  visit(((document.data as CanonicalObject | undefined)?.fields as CanonicalObject[] | undefined) ?? [], '/data/fields', []);
+  return result;
+}
+
+function collectTranslationKeys(value: unknown, keys: Set<string>): void {
+  if (Array.isArray(value)) { value.forEach((item) => collectTranslationKeys(item, keys)); return; }
+  if (!value || typeof value !== 'object') return;
+  for (const [key, candidate] of Object.entries(value as CanonicalObject)) {
+    if (key !== 'translations' && key.endsWith('Key') && typeof candidate === 'string') keys.add(candidate);
+    if (key === 'fixedRowLabels' && candidate && typeof candidate === 'object') Object.values(candidate as CanonicalObject).forEach((labelKey) => { if (typeof labelKey === 'string') keys.add(labelKey); });
+    if (key !== 'translations') collectTranslationKeys(candidate, keys);
+  }
 }
 
 function siblingsAt(document: CanonicalObject, path: string): CanonicalObject[] {

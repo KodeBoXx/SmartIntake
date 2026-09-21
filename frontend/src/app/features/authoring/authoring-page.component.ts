@@ -10,7 +10,7 @@ import { AuthoringStore } from './authoring.store';
 import { StaffSessionStore } from '../../core/m5-session.store';
 import { authoringStorageKey } from '../../core/authoring-cache';
 import { Subscription } from 'rxjs';
-import { deletionImpact } from './authoring-patches';
+import { deletionImpact, pageDeletionImpact } from './authoring-patches';
 
 type AuthoringTab = 'author' | 'preview' | 'history' | 'import' | 'components' | 'theme' | 'content';
 type AuthoringResourceState = 'loading' | 'ready' | 'denied' | 'expired' | 'offline' | 'error';
@@ -189,7 +189,22 @@ export class AuthoringPageComponent implements OnDestroy {
   addToSelection(): void { const selection = this.selectedItem(); if (!selection) return; if ('pages' in selection) this.localCommand({ type: 'add-page', targetId: selection.id, label: 'New page' }); else if ('sections' in selection) this.localCommand({ type: 'add-section', targetId: selection.id, label: 'New section' }); else { const section = this.containingSection(selection.id); if (section) { const id = this.newCanonicalId(); this.localCommand({ type: 'add-node', targetId: section.id, entityId: id, label: 'New field', node: { id, kind: 'field', label: 'New field', control: 'text' } }); } } }
   rename(): void { const id = this.store.selectedId(); if (id && this.renameValue.trim()) this.localCommand({ type: 'rename', targetId: id, label: this.renameValue }); }
   canRemoveSelectedPage(): boolean { const page = this.selectedPage(); return !!page && page.id !== this.definition().flow?.startPageId; }
-  removeSelectedPage(): void { const page = this.selectedPage(); if (!page || !this.canRemoveSelectedPage()) return; this.localCommand({ type: 'remove-page', targetId: page.id, label: 'Remove page' }); }
+  removeSelectedPage(): void {
+    const page = this.selectedPage();
+    if (!page || !this.canRemoveSelectedPage()) return;
+    const impact = pageDeletionImpact(this.store.document(), page.id);
+    const summary = [`placements: ${impact.placements.join(', ') || 'none'}`, `fields: ${impact.fields.join(', ') || 'none'}`,
+      `routes: ${impact.routes.join(', ') || 'none'}`, `calculations: ${impact.calculations.join(', ') || 'none'}`,
+      `expressions: ${impact.expressions.join(', ') || 'none'}`, `translations: ${impact.translations.join(', ') || 'none'}`].join('\n');
+    if (!window.confirm(`Prospective page deletion impact:\n${summary}\n\nOnly unshared field definitions and translations will be removed. Dependent expressions remain as repairable draft diagnostics. Continue?`)) {
+      this.notice.set('Page deletion cancelled. No page, placement, or dependency changed.');
+      return;
+    }
+    this.lastRemovedFieldIds = impact.fields;
+    this.replacementFieldId = '';
+    this.localCommand({ type: 'remove-page', targetId: page.id, label: 'Remove page', confirmed: true,
+      acceptInvalidDraft: impact.expressions.length > 0 || impact.routes.length > 0 || impact.calculations.length > 0 });
+  }
   canMoveSelectedNode(): boolean { const node = this.selectedNode(); return !!node && node.id === this.store.selectedId(); }
   moveSelectedNode(): void { const node = this.selectedNode(); if (!node || node.id !== this.store.selectedId() || !this.moveTargetSectionId) return; this.localCommand({ type: 'move', targetId: node.id, destinationId: this.moveTargetSectionId, label: 'Move node' }); this.moveTargetSectionId = ''; }
   saveDefaultNext(): void { const page = this.selectedPage(); if (!page) return; this.localCommand({ type: 'set-default-next', targetId: page.id, destinationId: this.defaultNextPageId, label: 'Set default page route' }); }

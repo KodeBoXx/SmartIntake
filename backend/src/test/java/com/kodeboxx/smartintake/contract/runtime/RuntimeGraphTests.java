@@ -67,6 +67,23 @@ class RuntimeGraphTests {
     assertEquals(Status.notApplicable, projection.fields().get("secret").status());
   }
 
+  @Test
+  void conditionalAboutRouteFallsBackToEquipmentAndAlwaysReachesReview() throws Exception {
+    CompiledForm compiled = conditionalRouting();
+    TypedAnswerRuntime runtime = new CompiledRuntimeFactory().create(compiled);
+    RuntimeGraph graph = new RuntimeGraph(compiled, runtime);
+
+    State needsSetup = runtime.apply(runtime.initialize(), List.of(
+        new SetValue(new Address("needsSetup", List.of()), Status.answered, JSON.readTree("true"))), NOW).state();
+    State noSetup = runtime.apply(runtime.initialize(), List.of(
+        new SetValue(new Address("needsSetup", List.of()), Status.answered, JSON.readTree("false"))), NOW).state();
+
+    assertEquals(List.of("page-about", "page-equipment", "page-review"),
+        graph.evaluate(needsSetup, "2026-09-19", "UTC", NOW).reachablePageIds());
+    assertEquals(List.of("page-about", "page-equipment", "page-review"),
+        graph.evaluate(noSetup, "2026-09-19", "UTC", NOW).reachablePageIds());
+  }
+
   private CompiledForm compiled(boolean cycle) throws Exception {
     ObjectNode pkg = (ObjectNode) JSON.readTree("""
         {
@@ -101,5 +118,28 @@ class RuntimeGraphTests {
         List.of(new CompiledPage("page-input", 0, List.of("page-review"), false),
             new CompiledPage("page-review", 1, List.of(), true)),
         expressions, List.of("page-review"));
+  }
+
+  /** Mirrors the authored About -> Equipment branch plus its mandatory fallback. */
+  private CompiledForm conditionalRouting() throws Exception {
+    ObjectNode pkg = (ObjectNode) JSON.readTree("""
+        {
+          "contractVersion":"4.0.0",
+          "data":{"fields":[{"id":"needsSetup","key":"needs_setup","type":"boolean","labelKey":"needsSetup"}]},
+          "flow":{"startPageId":"page-about","phases":[{"id":"phase-about","pages":[
+            {"id":"page-about","sections":[],"defaultNextPageId":"page-equipment","routes":[{"id":"route-setup","targetPageId":"page-equipment","whenExpressionId":"needsSetupTrue"}]},
+            {"id":"page-equipment","sections":[],"defaultNextPageId":"page-review"},
+            {"id":"page-review","sections":[]}
+          ]}]}
+        }
+        """);
+    CompiledField field = new CompiledField("needsSetup", "needs_setup", "boolean", 0, false, List.of(), pkg.at("/data/fields/0"));
+    JsonNode condition = JSON.readTree("""
+        {"op":"eq","args":[{"ref":{"scope":"root","fieldId":"needsSetup"}},{"literal":{"type":"boolean","value":true}}]}
+        """);
+    return new CompiledForm("4.0.0", pkg, Map.of("needsSetup", field), List.of(
+        new CompiledPage("page-about", 0, List.of("page-equipment"), false),
+        new CompiledPage("page-equipment", 1, List.of("page-review"), false),
+        new CompiledPage("page-review", 2, List.of(), true)), Map.of("needsSetupTrue", condition), List.of("page-review"));
   }
 }
