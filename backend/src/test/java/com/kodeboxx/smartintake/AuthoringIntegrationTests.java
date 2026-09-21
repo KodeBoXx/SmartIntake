@@ -63,6 +63,39 @@ class AuthoringIntegrationTests {
     assertEquals(sessions,db.queryForObject("select count(*) from sessions",Integer.class)); assertEquals(submissions,db.queryForObject("select count(*) from submissions",Integer.class));
   }
 
+  @Test void normal_form_creation_persists_a_canonical_template_that_opens_and_accepts_a_numeric_etag_command() throws Exception {
+    String formKey="canonical-"+UUID.randomUUID().toString().substring(0,8);
+    ResponseEntity<String> created=forms(HttpMethod.POST,Map.of("formKey",formKey,"title","Canonical authoring"));
+    assertEquals(HttpStatus.CREATED,created.getStatusCode(),created.getBody());
+    UUID createdForm=UUID.fromString(json.readTree(created.getBody()).path("id").asText());
+    assertEquals("canonical-4.0.0",db.queryForObject("select compatibility_profile_key from forms where id=?",String.class,createdForm));
+
+    ResponseEntity<String> opened=authoringCall(createdForm,"",HttpMethod.GET,null,null);
+    assertEquals(HttpStatus.OK,opened.getStatusCode(),opened.getBody());
+    assertEquals("\"1\"",opened.getHeaders().getETag());
+    assertEquals("smart-form-package",json.readTree(opened.getBody()).at("/definition/kind").asText());
+
+    ResponseEntity<String> saved=authoringCall(createdForm,"/commands",HttpMethod.POST,"\"1\"",Map.of(
+        "commands",List.of(Map.of("op","set","path","/translations/en/messages/q.name","value","Created name"))));
+    assertEquals(HttpStatus.OK,saved.getStatusCode(),saved.getBody());
+    assertEquals("\"2\"",saved.getHeaders().getETag());
+  }
+
+  @Test void preview_converts_plain_synthetic_answers_through_typed_respondent_operations() throws Exception {
+    int sessions=db.queryForObject("select count(*) from sessions",Integer.class);
+    int submissions=db.queryForObject("select count(*) from submissions",Integer.class);
+
+    ResponseEntity<String> preview=call("/preview",HttpMethod.POST,null,Map.of("answers",Map.of("fld_name","Ada Lovelace")));
+    assertEquals(HttpStatus.OK,preview.getStatusCode(),preview.getBody());
+    var body=json.readTree(preview.getBody());
+    assertTrue(body.path("diagnostics").isEmpty(),body.toPrettyString());
+    assertTrue(body.at("/projection/accepted").asBoolean(),body.toPrettyString());
+    assertEquals("answered",body.at("/projection/answers/fld_name/status").asText());
+    assertEquals("Ada Lovelace",body.at("/projection/answers/fld_name/value").asText());
+    assertEquals(sessions,db.queryForObject("select count(*) from sessions",Integer.class));
+    assertEquals(submissions,db.queryForObject("select count(*) from submissions",Integer.class));
+  }
+
   @Test void rejects_hostile_candidate_and_returns_disabled_speech_without_provider_call() throws Exception {
     List<Integer> huge=new ArrayList<>(); for(int i=0;i<100_001;i++) huge.add(i);
     ResponseEntity<String> response=call("/imports/validate",HttpMethod.POST,null,Map.of("candidate",huge));
@@ -162,8 +195,18 @@ class AuthoringIntegrationTests {
   private String fixture() throws Exception { return Files.readString(Path.of("..", "docs", "contracts", "smart-form-builder-lite", "4.0.0", "fixtures", "package-prd-inline-minimal.positive.json")); }
   private ResponseEntity<String> call(String suffix,HttpMethod method,String match,Object body) { return call(suffix,method,match,body,UUID.randomUUID().toString()); }
   private ResponseEntity<String> call(String suffix,HttpMethod method,String match,Object body,String key) {
+    return authoringCall(form,suffix,method,match,body,key);
+  }
+  private ResponseEntity<String> authoringCall(UUID targetForm,String suffix,HttpMethod method,String match,Object body) {
+    return authoringCall(targetForm,suffix,method,match,body,UUID.randomUUID().toString());
+  }
+  private ResponseEntity<String> authoringCall(UUID targetForm,String suffix,HttpMethod method,String match,Object body,String key) {
     HttpHeaders headers=new HttpHeaders(); headers.setContentType(MediaType.APPLICATION_JSON); headers.set("X-Staff-Session",token); if(match!=null)headers.setIfMatch(match); if("/commands".equals(suffix)||"/undo".equals(suffix)||"/redo".equals(suffix)||suffix.contains("/components/")||"/imports/commit".equals(suffix))headers.set("Idempotency-Key",key);
-    return http.exchange("http://localhost:"+port+"/v1/workspaces/"+workspace+"/forms/"+form+"/authoring/"+form+suffix,method,new HttpEntity<>(body,headers),String.class);
+    return http.exchange("http://localhost:"+port+"/v1/workspaces/"+workspace+"/forms/"+targetForm+"/authoring/"+targetForm+suffix,method,new HttpEntity<>(body,headers),String.class);
+  }
+  private ResponseEntity<String> forms(HttpMethod method,Object body) {
+    HttpHeaders headers=new HttpHeaders(); headers.setContentType(MediaType.APPLICATION_JSON); headers.set("X-Staff-Session",token);
+    return http.exchange("http://localhost:"+port+"/v1/workspaces/"+workspace+"/forms",method,new HttpEntity<>(body,headers),String.class);
   }
   private ResponseEntity<String> component(HttpMethod method,String suffix,Object body) {
     HttpHeaders headers=new HttpHeaders(); headers.setContentType(MediaType.APPLICATION_JSON); headers.set("X-Staff-Session",token);

@@ -234,7 +234,7 @@ public class IntakeApplicationService {
     if (in.formKey() == null || !in.formKey().matches("[a-z][a-z0-9-]{2,99}"))
       throw bad("FORM_KEY_INVALID", "Use a lowercase stable key of at least three characters.");
     UUID id = UUID.randomUUID();
-    Map<String, Object> def = sampleDefinition(in.formKey(), in.title());
+    Map<String, Object> def = canonicalAuthoringTemplate(in.formKey(), in.title());
     db.update(
         "insert into forms(id,workspace_id,form_key,title,definition,compatibility_profile_key)"
             + " values(?,?,?,?,cast(? as jsonb),?)",
@@ -243,7 +243,7 @@ public class IntakeApplicationService {
         in.formKey(),
         in.title(),
         stringify(def),
-        CompatibilityProfile.M1_CURRENT_PROTOTYPE.key());
+        CompatibilityProfile.CANONICAL_4_0_0.key());
     audit("FORM_CREATED", id);
     return ResponseEntity.status(201)
         .eTag(etag(1))

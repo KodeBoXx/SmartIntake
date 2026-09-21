@@ -289,7 +289,7 @@ public class AuthoringApplicationService {
       String timezone = boundedTimezone(request.get("timezone"));
       String sessionDate = boundedDate(request.get("sessionDate"), timezone);
       String device = boundedDevice(request.get("device"));
-      var outcome=runtime.mutate(definition, answers, List.of(), sessionDate, timezone, clock.instant());
+      var outcome=runtime.mutate(definition, json.createObjectNode(), previewOperations(answers), sessionDate, timezone, clock.instant());
       errors=outcome.validation(); projection=map("answers",outcome.answers(),"review",outcome.reviewProjection(),
           "reachablePageIds",outcome.reachablePageIds(),"requiredCount",outcome.requiredCount(),
           "completedRequiredCount",outcome.completedRequiredCount(),"accepted",outcome.accepted(),
@@ -297,6 +297,18 @@ public class AuthoringApplicationService {
     }
     return map("mode","synthetic", "packageHash",CanonicalJson.sha256(definition), "diagnostics",errors,
         "projection",projection, "effects",Map.of("sessions",0,"submissions",0,"email",0,"webhooks",0,"providers",0));
+  }
+
+  /** The authoring UI supplies plain field/value JSON, which follows the respondent set-operation path. */
+  private List<Map<String,Object>> previewOperations(JsonNode answers) {
+    if (!answers.isObject()) throw bad("PREVIEW_ANSWERS_INVALID", "Synthetic answers must be a JSON object.");
+    List<Map<String,Object>> operations=new ArrayList<>();
+    answers.fields().forEachRemaining(entry -> {
+      if (operations.size() >= TypedSessionRuntimeService.MAX_OPERATIONS_PER_BATCH)
+        throw bad("PREVIEW_ANSWERS_LIMIT", "Synthetic answers exceed the operation limit.");
+      operations.add(map("op","set","fieldId",entry.getKey(),"value",entry.getValue()));
+    });
+    return operations;
   }
 
   public Map<String,Object> speech(String w, UUID f, String d, String t, Map<String,Object> request) {
