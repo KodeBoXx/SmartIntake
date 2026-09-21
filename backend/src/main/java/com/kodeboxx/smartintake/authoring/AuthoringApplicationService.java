@@ -358,7 +358,8 @@ public class AuthoringApplicationService {
   public Map<String,Object> speech(String w, UUID f, String d, String t, Map<String,Object> request) {
     authorizeRead(w, f, d, t);
     String locale = required(request, "locale");
-    JsonNode definition=parse(row(f).definition());
+    Row current=row(f);
+    JsonNode definition=parse(current.definition());
     boolean questionRequest = request.containsKey("question");
     String text = questionRequest ? governedAnswer(definition, locale, required(request, "question"), request.get("scope")) : required(request, "text");
     if (text == null) return unavailable(locale, "SPEECH_QUESTION_NOT_FOUND");
@@ -367,6 +368,8 @@ public class AuthoringApplicationService {
       throw bad("SPEECH_GOVERNANCE", "Speech text, locale, or voice is not governed by the package.");
     if (!speech.configured()) return unavailable(locale, "SPEECH_UNAVAILABLE");
     if (voice == null || !speech.approvedVoice(locale, voice)) return unavailable(locale, "SPEECH_VOICE_UNAVAILABLE");
+    // Speech is a governed rendering of the exact approved package revision, never a draft preview.
+    if (!trustedLocaleApproved(f, d, locale, current, definition)) return unavailable(locale, "SPEECH_LOCALE_UNAPPROVED");
     UUID author = actor(t);
     if (!reserveSpeechQuota(f, author)) return unavailable(locale, "SPEECH_QUOTA_EXHAUSTED");
     SpeechPort.SpeechResult result = speech.synthesize(text, locale, voice);
@@ -494,24 +497,49 @@ public class AuthoringApplicationService {
     return CanonicalJson.sha256(effective);
   }
   private boolean governedText(JsonNode definition,String locale,String text){return containsText(definition.path("translations").path(locale),text)||containsText(definition.path("guidance"),text);}
-  /** Resolves only a translation referenced by the canonical Q&A guidance entry in the visible guidance scope. */
+  /** Resolves only a Q&A answer bound to the visible canonical page/section/question guidance ID. */
   private String governedAnswer(JsonNode definition, String locale, String question, Object requestedScope) {
     String key=definition.path("guidance").path("questionsAndAnswers").path("messageKey").asText();
     JsonNode source=definition.path("translations").path(locale).path("messages").path(key);
     JsonNode scope=json.valueToTree(requestedScope);
-    if (key.isBlank() || !source.isTextual() || !scope.isObject() || scope.isEmpty()) return null;
+    String guidanceId=visibleGuidanceId(definition, scope);
+    if (key.isBlank() || !source.isTextual() || guidanceId == null) return null;
     try {
       JsonNode questions=json.readTree(source.asText());
       if (!questions.isArray()) return null;
-      for (JsonNode entry:questions) if (question.equals(entry.path("question").asText()) && scopedQuestion(entry.path("scope"), scope) && entry.path("answer").isTextual()) return entry.path("answer").asText();
+      for (JsonNode entry:questions) if (question.equals(entry.path("question").asText()) && guidanceId.equals(entry.path("guidanceId").asText()) && scopedQuestion(entry.path("scope"), scope) && entry.path("answer").isTextual()) return entry.path("answer").asText();
       return null;
     } catch (Exception ignored) { return null; }
   }
   private boolean scopedQuestion(JsonNode questionScope, JsonNode visibleScope) {
-    if (!questionScope.isObject() || questionScope.isEmpty() || questionScope.size()!=visibleScope.size()) return false;
+    if (!questionScope.isObject() || questionScope.isEmpty()) return false;
     Iterator<Map.Entry<String,JsonNode>> fields=questionScope.fields();
     while(fields.hasNext()) { Map.Entry<String,JsonNode> field=fields.next(); if (!List.of("pageId","sectionId","fieldId").contains(field.getKey()) || !field.getValue().isTextual() || !field.getValue().asText().equals(visibleScope.path(field.getKey()).asText())) return false; }
     return true;
+  }
+  /** Finds the binding from the visible hierarchy rather than trusting a client-supplied guidance ID. */
+  private String visibleGuidanceId(JsonNode definition, JsonNode scope) {
+    if (!scope.isObject() || !scope.path("pageId").isTextual()) return null;
+    String pageId=scope.path("pageId").asText(); String sectionId=scope.path("sectionId").asText(null); String fieldId=scope.path("fieldId").asText(null);
+    for (JsonNode phase:definition.path("flow").path("phases")) for (JsonNode page:phase.path("pages")) if (pageId.equals(page.path("id").asText())) {
+      if (sectionId==null) return page.path("guidanceId").asText(null);
+      for (JsonNode section:page.path("sections")) if (sectionId.equals(section.path("id").asText())) {
+        if (fieldId==null) return section.path("guidanceId").asText(page.path("guidanceId").asText(null));
+        for (JsonNode node:section.path("nodes")) if (fieldId.equals(node.path("fieldId").asText())) {
+          String nodeBinding=node.path("guidanceId").asText(null);
+          if (nodeBinding!=null) return nodeBinding;
+          for (JsonNode field:definition.path("data").path("fields")) if (fieldId.equals(field.path("id").asText()) && field.path("guidanceId").isTextual()) return field.path("guidanceId").asText();
+          return section.path("guidanceId").asText(page.path("guidanceId").asText(null));
+        }
+      }
+    }
+    return null;
+  }
+  private boolean trustedLocaleApproved(UUID form, String draft, String locale, Row current, JsonNode definition) {
+    if (!supportsLocale(definition, locale)) return false;
+    String hash=CanonicalJson.sha256(definition);
+    Integer count=db.queryForObject("select count(*) from form_authoring_locale_reviews where form_id=? and draft_id=? and locale=? and source_revision=? and source_package_hash=? and status='APPROVED' and reviewed_by is not null",Integer.class,form,UUID.fromString(draft),locale,current.revision(),hash);
+    return count != null && count == 1;
   }
   private void validateGuidanceReferences(JsonNode guidance) {
     if (!guidance.isObject()) throw bad("GUIDANCE_REFERENCE_INVALID", "Guidance references must be an object.");

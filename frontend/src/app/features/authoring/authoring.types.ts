@@ -132,7 +132,7 @@ export interface ReusableComponent {
 }
 
 export interface AuthoringCommand {
-  readonly type: 'rename' | 'add-phase' | 'add-page' | 'add-section' | 'add-node' | 'remove-node' | 'move' | 'insert-component';
+  readonly type: 'rename' | 'add-phase' | 'add-page' | 'add-section' | 'add-node' | 'remove-node' | 'move' | 'insert-component' | 'update-field' | 'set-expression' | 'set-route';
   readonly targetId?: string;
   /** Stable ID allocated before both visual and canonical projections are applied. */
   readonly entityId?: string;
@@ -140,6 +140,11 @@ export interface AuthoringCommand {
   readonly destinationId?: string;
   readonly label?: string;
   readonly node?: AuthoringNode;
+  /** Closed canonical field properties supplied by the visual field inspector. */
+  readonly field?: Record<string, unknown>;
+  readonly expressionId?: string;
+  readonly expression?: unknown;
+  readonly route?: { id: string; targetPageId: string; whenExpressionId: string };
   readonly component?: ReusableComponent;
   readonly patches?: readonly import('./authoring-patches').CanonicalPatch[];
 }

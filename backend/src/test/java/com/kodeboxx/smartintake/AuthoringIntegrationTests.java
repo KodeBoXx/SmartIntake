@@ -198,15 +198,17 @@ class AuthoringIntegrationTests {
     @SuppressWarnings("unchecked") Map<String,Object> translations=(Map<String,Object>) definition.get("translations");
     @SuppressWarnings("unchecked") Map<String,Object> english=(Map<String,Object>) translations.get("en");
     @SuppressWarnings("unchecked") Map<String,Object> messages=(Map<String,Object>) english.get("messages");
-    messages.put("guidance.questionsandanswers","[{\"question\":\"What is this?\",\"answer\":\"A governed answer.\",\"scope\":{\"pageId\":\"pg_main\",\"sectionId\":\"sec_main\",\"fieldId\":\"fld_name\"}}]");
+    messages.put("guidance.questionsandanswers","[{\"question\":\"What is this?\",\"answer\":\"A governed answer.\",\"guidanceId\":\"guidance_name\",\"scope\":{\"pageId\":\"page_name\",\"sectionId\":\"section_name\",\"fieldId\":\"fld_name\"}}]");
     assertEquals(HttpStatus.OK,call("/content",HttpMethod.PUT,"\"2\"",Map.of("translations",translations),"qa-translation").getStatusCode());
+    bindVisibleQuestionGuidance(form, "guidance_name");
+    approveSpeechLocale(form, "en");
     when(speechPort.configured()).thenReturn(true);
     when(speechPort.defaultVoice("en")).thenReturn("en-approved");
     when(speechPort.approvedVoice("en","en-approved")).thenReturn(true);
     when(speechPort.synthesize("A governed answer.","en","en-approved"))
         .thenReturn(new SpeechPort.SpeechResult(true,"OK","en","audio/mpeg",new byte[] {1},2));
 
-    Map<String,Object> scope=Map.of("pageId","pg_main","sectionId","sec_main","fieldId","fld_name");
+    Map<String,Object> scope=Map.of("pageId","page_name","sectionId","section_name","fieldId","fld_name");
     ResponseEntity<String> available=call("/speech",HttpMethod.POST,null,Map.of("locale","en","question","What is this?","scope",scope));
     assertEquals(HttpStatus.OK,available.getStatusCode());
     assertTrue(available.getBody().contains("\"available\":true"));
@@ -225,6 +227,15 @@ class AuthoringIntegrationTests {
     assertEquals(HttpStatus.OK,speech.getStatusCode()); assertTrue(speech.getBody().contains("SPEECH_UNAVAILABLE"));
   }
 
+  @Test void refuses_provider_speech_until_the_exact_locale_review_is_trusted_and_approved() {
+    when(speechPort.configured()).thenReturn(true);
+    when(speechPort.approvedVoice("en","en-approved")).thenReturn(true);
+    ResponseEntity<String> blocked=call("/speech",HttpMethod.POST,null,Map.of("locale","en","voice","en-approved","text","Full name"));
+    assertEquals(HttpStatus.OK,blocked.getStatusCode());
+    assertTrue(blocked.getBody().contains("SPEECH_LOCALE_UNAPPROVED"));
+    verify(speechPort,times(0)).synthesize(anyString(),anyString(),anyString());
+  }
+
   @Test void authorizes_speech_and_enforces_configured_locale_voice_and_durable_quotas_before_invocation() throws Exception {
     ResponseEntity<String> created=forms(HttpMethod.POST,Map.of("formKey","speech-"+UUID.randomUUID().toString().substring(0,8),"title","Speech","profile","canonical-4.0.0"));
     UUID speechForm=UUID.fromString(json.readTree(created.getBody()).path("id").asText());
@@ -232,6 +243,7 @@ class AuthoringIntegrationTests {
     when(speechPort.approvedVoice("en","en-approved")).thenReturn(true);
     when(speechPort.synthesize("Full name","en","en-approved"))
         .thenReturn(new SpeechPort.SpeechResult(true,"OK","en","audio/mpeg",new byte[] {1,2,3},7));
+    approveSpeechLocale(speechForm, "en");
 
     ResponseEntity<String> first=authoringCall(speechForm,"/speech",HttpMethod.POST,null,Map.of("locale","en","voice","en-approved","text","Full name"));
     assertEquals(HttpStatus.OK,first.getStatusCode(),first.getBody());
@@ -426,5 +438,16 @@ class AuthoringIntegrationTests {
   private ResponseEntity<String> component(HttpMethod method,String suffix,Object body) {
     HttpHeaders headers=new HttpHeaders(); headers.setContentType(MediaType.APPLICATION_JSON); headers.set("X-Staff-Session",token);
     return http.exchange("http://localhost:"+port+"/v1/workspaces/"+workspace+"/reusable-components"+suffix,method,new HttpEntity<>(body,headers),String.class);
+  }
+  private void approveSpeechLocale(UUID targetForm, String locale) throws Exception {
+    String definition=db.queryForObject("select definition::text from forms where id=?",String.class,targetForm);
+    long revision=db.queryForObject("select revision from forms where id=?",Long.class,targetForm);
+    assertEquals(1,db.update("update form_authoring_locale_reviews set status='APPROVED',reviewed_by=?,reviewed_at=now(),source_revision=?,source_package_hash=? where form_id=? and draft_id=? and locale=?",account,revision,CanonicalJson.sha256(json.readTree(definition)),targetForm,targetForm,locale));
+  }
+  private void bindVisibleQuestionGuidance(UUID targetForm, String guidanceId) throws Exception {
+    com.fasterxml.jackson.databind.node.ObjectNode definition=(com.fasterxml.jackson.databind.node.ObjectNode)json.readTree(db.queryForObject("select definition::text from forms where id=?",String.class,targetForm));
+    definition.at("/flow/phases/0/pages/0/sections/0/nodes/0").deepCopy();
+    ((com.fasterxml.jackson.databind.node.ObjectNode)definition.at("/flow/phases/0/pages/0/sections/0/nodes/0")).put("guidanceId",guidanceId);
+    db.update("update forms set definition=cast(? as jsonb) where id=?",json.writeValueAsString(definition),targetForm);
   }
 }

@@ -9,6 +9,17 @@ const escape = (segment: string) => segment.replaceAll('~', '~0').replaceAll('/'
 const generatedId = () => `id_${crypto.randomUUID().replaceAll('-', '')}`;
 const labelKey = (id: string) => `authoring.${id}.label`;
 
+const CONTROL_TYPES: Record<string, string> = {
+  text: 'text', shortText: 'text', textarea: 'text', email: 'text', phone: 'text', url: 'text', identifier: 'text',
+  integer: 'integer', rating: 'integer', scale: 'integer', integerSlider: 'integer',
+  decimal: 'decimal', amount: 'decimal', currency: 'decimal', fractionalSlider: 'decimal',
+  date: 'date', time: 'time', dateTime: 'dateTime', yesNo: 'boolean', checkbox: 'boolean', acknowledgment: 'boolean',
+  radio: 'choice', dropdown: 'choice', combobox: 'choice', imageChoice: 'choice', modeSelector: 'choice',
+  chips: 'multiChoice', checkboxGroup: 'multiChoice', multipleImageChoice: 'multiChoice', ranking: 'multiChoice',
+  address: 'object', contact: 'object', person: 'object', repeatingCards: 'list', dynamicMatrix: 'list', fixedMatrix: 'list',
+  fileUpload: 'attachments', drawing: 'drawing', calculated: 'text',
+};
+
 function flow(document: CanonicalObject): CanonicalObject[] { return ((document.flow as CanonicalObject | undefined)?.phases as CanonicalObject[] | undefined) ?? []; }
 function children(value: CanonicalObject, name: string): CanonicalObject[] { return value[name] as CanonicalObject[] ?? []; }
 
@@ -38,16 +49,18 @@ function translation(path: string, value: string): CanonicalPatch {
   return { op: 'add', path: `/translations/en/messages/${escape(path)}`, value };
 }
 
-function firstQuestion(seed: string, label: string): { field: CanonicalObject; node: CanonicalObject; message: CanonicalPatch } {
+function firstQuestion(seed: string, label: string, control = 'shortText'): { field: CanonicalObject; node: CanonicalObject; message: CanonicalPatch } {
   const fieldId = `${seed}_field`;
   const nodeId = `${seed}_node`;
   const key = labelKey(fieldId);
   return {
-    field: { id: fieldId, key: fieldId, type: 'text', labelKey: key },
-    node: { id: nodeId, kind: 'question', fieldId, control: 'shortText' },
+    field: { id: fieldId, key: fieldId, type: CONTROL_TYPES[control] ?? 'text', labelKey: key, constraints: { required: false }, ...(choiceControl(control) ? { options: [] } : {}) },
+    node: { id: nodeId, kind: 'question', fieldId, fieldType: CONTROL_TYPES[control] ?? 'text', control },
     message: translation(key, label),
   };
 }
+
+function choiceControl(control: string): boolean { return (CONTROL_TYPES[control] ?? '') === 'choice' || (CONTROL_TYPES[control] ?? '') === 'multiChoice'; }
 
 function expressionReferences(node: unknown, fieldId: string): boolean {
   if (node === fieldId) return true;
@@ -93,11 +106,32 @@ export function canonicalPatches(authoring: AuthoringDocument, command: Authorin
   if (command.type === 'add-node' && found?.kind === 'section') {
     const fieldId = command.fieldId ?? `${id}_field`;
     const key = labelKey(fieldId);
+    const control = command.node?.control ?? 'shortText';
+    const fieldType = CONTROL_TYPES[control] ?? 'text';
     return [
-      { op: 'add', path: '/data/fields/-', value: { id: fieldId, key: fieldId, type: 'text', labelKey: key } },
-      { op: 'add', path: `${found.path}/nodes/-`, value: { id, kind: 'question', fieldId, control: command.node?.control === 'text' ? 'shortText' : command.node?.control ?? 'shortText' } },
+      { op: 'add', path: '/data/fields/-', value: { id: fieldId, key: fieldId, type: fieldType, labelKey: key, constraints: { required: false }, ...(choiceControl(control) ? { options: [] } : {}) } },
+      { op: 'add', path: `${found.path}/nodes/-`, value: { id, kind: 'question', fieldId, fieldType, control } },
       translation(key, command.node?.label || label || 'New field'),
     ];
+  }
+  if (command.type === 'update-field' && found?.kind === 'node' && command.field) {
+    const current = field(document, found.fieldId ?? '');
+    if (!current) return [];
+    const configured = { ...current.value, ...command.field };
+    const control = String(command.field.control ?? atNode(document, found.path)?.control ?? 'shortText');
+    const fieldType = CONTROL_TYPES[control] ?? String(configured.type ?? 'text');
+    const patches: CanonicalPatch[] = [{ op: 'replace', path: `/data/fields/${current.index}`, value: { ...configured, type: fieldType } }, { op: 'replace', path: found.path, value: { ...atNode(document, found.path), control, fieldType } }];
+    if (typeof command.field.help === 'string') patches.push(translation(`${String(configured.labelKey)}.help`, command.field.help));
+    const options = command.field.options;
+    if (Array.isArray(options)) for (const option of options) if (option && typeof option === 'object' && typeof (option as CanonicalObject).label === 'string') patches.push(translation(String((option as CanonicalObject).labelKey), String((option as CanonicalObject).label)));
+    return patches;
+  }
+  if (command.type === 'set-expression' && command.expressionId && command.expression) return [{ op: document.expressions && Object.prototype.hasOwnProperty.call(document.expressions, command.expressionId) ? 'replace' : 'add', path: `/expressions/${escape(command.expressionId)}`, value: command.expression }];
+  if (command.type === 'set-route' && found?.kind === 'page' && command.route) {
+    const page = atNode(document, found.path) as CanonicalObject;
+    const routes = Array.isArray(page.routes) ? page.routes as CanonicalObject[] : [];
+    const existing = routes.findIndex((route) => route.id === command.route!.id);
+    return [{ op: existing < 0 ? 'add' : 'replace', path: existing < 0 ? Array.isArray(page.routes) ? `${found.path}/routes/-` : `${found.path}/routes` : `${found.path}/routes/${existing}`, value: existing < 0 && !Array.isArray(page.routes) ? [command.route] : command.route }];
   }
   if (command.type === 'remove-node' && found?.kind === 'node') {
     const fieldId = found.fieldId ?? '';
@@ -119,6 +153,12 @@ export function canonicalPatches(authoring: AuthoringDocument, command: Authorin
     return [{ op: 'move', from: found.path, path: `${arrayPath}/-` }];
   }
   return [];
+}
+
+function atNode(document: CanonicalObject, pointer: string): CanonicalObject {
+  let node: unknown = document;
+  for (const part of pointer.slice(1).split('/')) node = (node as CanonicalObject)[part];
+  return (node ?? {}) as CanonicalObject;
 }
 
 /** Apply the same RFC-6902 subset used by the authoring endpoint for immediate local projection. */

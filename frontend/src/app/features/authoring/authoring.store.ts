@@ -205,6 +205,7 @@ function applyCommand(document: AuthoringDocument, command: AuthoringCommand): A
   if ((command.type === 'add-node' || command.type === 'insert-component') && command.targetId && command.node) return { ...document, phases: document.phases.map((phase) => ({ ...phase, pages: phase.pages.map((page) => ({ ...page, sections: page.sections.map((section) => section.id === command.targetId ? { ...section, nodes: [...section.nodes, command.node!] } : section) })) })) };
   if (command.type === 'remove-node' && command.targetId) return { ...document, phases: document.phases.map((phase) => ({ ...phase, pages: phase.pages.map((page) => ({ ...page, sections: page.sections.map((section) => ({ ...section, nodes: section.nodes.filter((node) => node.id !== command.targetId) })) })) })) };
   if (command.type === 'move' && command.targetId && command.destinationId) return moveDocumentNode(document, command.targetId, command.destinationId);
+  if (command.type === 'update-field' && command.targetId && command.field) return mapDocument(document, command.targetId, (value) => value, (value) => ({ ...value, label: typeof command.field?.label === 'string' ? command.field.label : value.label, ...(typeof command.field?.control === 'string' ? { control: command.field.control } : {}) }));
   return document;
 }
 

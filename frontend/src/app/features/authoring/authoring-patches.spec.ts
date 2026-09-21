@@ -50,4 +50,22 @@ describe('canonical authoring patches', () => {
     expect(moved.flow.phases[0].pages[0].sections[0].nodes).toEqual([]);
     expect(moved.flow.phases[0].pages[0].sections[1].nodes.map((node) => node.id)).toEqual(['node-b', 'node-a']);
   });
+
+  it('writes typed field settings, canonical expressions, and branch routes without a JSON editor', () => {
+    let next = applyCanonicalPatches(definition, canonicalPatches(document, {
+      type: 'update-field', targetId: 'node-a', field: {
+        control: 'radio', constraints: { required: true }, descriptionKey: 'field-a.label.help', help: 'Choose one option',
+        options: [{ id: 'yes', labelKey: 'field-a.yes', label: 'Yes' }, { id: 'no', labelKey: 'field-a.no', label: 'No' }],
+      },
+    })) as typeof definition;
+    expect(next.data.fields[0]).toMatchObject({ type: 'choice', constraints: { required: true }, options: [{ id: 'yes' }, { id: 'no' }] });
+    expect(next.flow.phases[0].pages[0].sections[0].nodes[0]).toMatchObject({ control: 'radio', fieldType: 'choice' });
+    expect((next.translations.en.messages as Record<string, string>)['field-a.yes']).toBe('Yes');
+    const configured = authoringDocument({ draftId: 'draft-a', revision: 4, definition: next });
+    next = applyCanonicalPatches(next, canonicalPatches(configured, { type: 'set-expression', expressionId: 'isYes', expression: { op: 'eq', args: [{ ref: { fieldId: 'field-a', scope: 'root' } }, { literal: { type: 'choice', value: 'yes' } }] } })) as typeof definition;
+    const withExpression = authoringDocument({ draftId: 'draft-a', revision: 4, definition: next });
+    next = applyCanonicalPatches(next, canonicalPatches(withExpression, { type: 'set-route', targetId: 'page-a', route: { id: 'route-next', targetPageId: 'page-next', whenExpressionId: 'isYes' } })) as typeof definition;
+    expect((next.expressions as Record<string, unknown>).isYes).toMatchObject({ op: 'eq' });
+    expect((next.flow.phases[0].pages[0] as unknown as { routes?: unknown[] }).routes).toEqual([{ id: 'route-next', targetPageId: 'page-next', whenExpressionId: 'isYes' }]);
+  });
 });
