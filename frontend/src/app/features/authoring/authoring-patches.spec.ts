@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { applyCanonicalPatches, canonicalPatches } from './authoring-patches';
+import { applyCanonicalPatches, canonicalPatches, deletionImpact } from './authoring-patches';
 import { authoringDocument } from '../../smart-intake-api.service';
 import type { AuthoringDocument } from './authoring.types';
 
@@ -36,12 +36,12 @@ describe('canonical authoring patches', () => {
     expect((next.translations.en.messages as Record<string, string>)['authoring.field-new.label']).toBe('Legal name');
   });
 
-  it('renames through translations, removes data and dependent expressions, and moves nodes by canonical pointer', () => {
+  it('renames through translations, preserves dependent expressions as repairable diagnostics, and moves nodes by canonical pointer', () => {
     const renamed = applyCanonicalPatches(definition, canonicalPatches(document, { type: 'rename', targetId: 'node-a', label: 'Legal name' })) as typeof definition;
     expect(renamed.translations.en.messages['field-a.label']).toBe('Legal name');
     const removed = applyCanonicalPatches(definition, canonicalPatches(document, { type: 'remove-node', targetId: 'node-a' })) as typeof definition;
     expect(removed.data.fields).toEqual([]);
-    expect(removed.expressions).toEqual({});
+    expect(removed.expressions).toEqual(definition.expressions);
 
     const withSecondSection = structuredClone(definition);
     withSecondSection.flow.phases[0].pages[0].sections.push({ id: 'section-b', titleKey: 'section-b.label', nodes: [{ id: 'node-b', kind: 'question', fieldId: 'field-a', control: 'shortText' }] });
@@ -98,7 +98,27 @@ describe('canonical authoring patches', () => {
     expect(rejected.data.fields[0].itemSchema).toBeDefined();
     const final = applyCanonicalPatches(once, canonicalPatches(finalDocument, { type: 'remove-node', targetId: 'node-b', cascade: true })) as typeof recursive;
     expect(final.data.fields).toEqual([]);
-    expect(final.expressions).toEqual({});
+    expect(final.expressions).toEqual(definition.expressions);
+  });
+
+  it('projects each recursive placement separately and reports all destructive dependencies before deletion', () => {
+    const recursive = structuredClone(definition) as typeof definition & { data: { fields: Array<Record<string, unknown>> }; flow: { phases: Array<Record<string, unknown>> } };
+    recursive.data.fields = [{ id: 'group', key: 'group', type: 'object', labelKey: 'group.label', itemSchema: { fields: [{ id: 'shared-child', key: 'shared-child', type: 'text', labelKey: 'child.label' }] } }];
+    (recursive.flow.phases[0].pages[0].sections[0].nodes as unknown) = [
+      { id: 'placement-one', kind: 'question', fieldId: 'group', children: [{ id: 'placement-one-child', kind: 'question', fieldId: 'shared-child' }] },
+      { id: 'placement-two', kind: 'question', fieldId: 'group', children: [{ id: 'placement-two-child', kind: 'question', fieldId: 'shared-child' }] },
+    ];
+    (recursive as unknown as { expressions: Record<string, unknown> }).expressions = { usesChild: { op: 'exists', args: [{ ref: { fieldId: 'shared-child', scope: 'root' } }] } };
+    const projected = authoringDocument({ draftId: 'draft-a', revision: 4, definition: recursive });
+    const children = projected.phases[0].pages[0].sections[0].nodes.flatMap((node) => node.children ?? []);
+    expect(children.map((node) => [node.id, node.fieldId, node.placementId, node.placementPath])).toEqual([
+      ['placement-one-child', 'shared-child', 'placement-one-child', '/flow/phases/0/pages/0/sections/0/nodes/0/children/0'],
+      ['placement-two-child', 'shared-child', 'placement-two-child', '/flow/phases/0/pages/0/sections/0/nodes/1/children/0'],
+    ]);
+    expect(deletionImpact(projected, 'placement-one-child').placements).toEqual(['placement-one-child']);
+    const afterOne = applyCanonicalPatches(recursive, canonicalPatches(projected, { type: 'remove-node', targetId: 'placement-one-child' }));
+    const finalProjection = authoringDocument({ draftId: 'draft-a', revision: 4, definition: afterOne });
+    expect(deletionImpact(finalProjection, 'placement-two-child')).toMatchObject({ placements: ['placement-two-child'], expressions: ['usesChild'], translations: ['child.label'] });
   });
 
   it('canonicalizes stale control-specific settings when an author changes destination', () => {
@@ -122,6 +142,17 @@ describe('canonical authoring patches', () => {
     })) as typeof definition & { dependencies: unknown[] };
     expect(next.data.fields[0]).not.toHaveProperty('control');
     expect(next.dependencies).toEqual([{ kind: 'extension', id: 'calculation_runtime', version: '1.0.0', digest: `sha256:${'a'.repeat(64)}` }]);
+  });
+
+  it('persists recursive question placements alongside composite fields', () => {
+    const next = applyCanonicalPatches(definition, canonicalPatches(document, {
+      type: 'update-field', targetId: 'node-a', field: {
+        control: 'contact', itemSchema: { fields: [{ id: 'child-email', key: 'email', type: 'text', labelKey: 'authoring.field-a.child.email', __label: 'Email' }] },
+      },
+    })) as typeof definition;
+    expect((next.data.fields[0] as unknown as { itemSchema: { fields: Array<Record<string, unknown>> } }).itemSchema.fields[0]).toMatchObject({ id: 'child-email', key: 'email', type: 'text' });
+    expect(next.flow.phases[0].pages[0].sections[0].nodes[0]).toMatchObject({ children: [{ id: 'node-a__child-email', kind: 'question', fieldId: 'child-email' }] });
+    expect((next.translations.en.messages as Record<string, string>)['authoring.field-a.child.email']).toBe('Email');
   });
 
   it('serializes fixed matrix labels and clears optional destination settings', () => {

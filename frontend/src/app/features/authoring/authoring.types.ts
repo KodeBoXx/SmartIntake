@@ -1,11 +1,16 @@
 export type AuthoringNodeKind = 'field' | 'group' | 'display' | 'reusable-component';
 
 export interface AuthoringNode {
+  /** UI identity. It is never used as a canonical field or placement identifier. */
   readonly id: string;
   readonly kind: AuthoringNodeKind;
   readonly label: string;
   readonly control?: string;
   readonly fieldId?: string;
+  /** Canonical question-node ID for this exact visual placement. */
+  readonly placementId?: string;
+  /** Canonical JSON-pointer path for this placement, including its ancestry. */
+  readonly placementPath?: string;
   readonly expression?: unknown;
   readonly componentVersion?: string;
   /** Presentation projection of a recursive canonical itemSchema field. */

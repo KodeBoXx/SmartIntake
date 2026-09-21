@@ -85,7 +85,7 @@ export function authoringDocument(value: unknown): AuthoringDocument {
   const flow = definition['flow'] as { phases?: Record<string, unknown>[] } | undefined;
   if (Array.isArray(flow?.phases)) return {
     id: response.draftId ?? String(definition['id'] ?? 'draft'), revision: response.revision ?? 0, title: String(definition['formKey'] ?? 'Untitled intake form'), definition, packageHash: response.packageHash,
-    phases: flow.phases.map((phase, phaseIndex) => ({ id: String(phase['id'] ?? `phase-${phaseIndex + 1}`), title: translated(definition, String(phase['titleKey'] ?? ''), `Phase ${phaseIndex + 1}`), pages: (Array.isArray(phase['pages']) ? phase['pages'] as Record<string, unknown>[] : []).map((page, pageIndex) => ({ id: String(page['id'] ?? `page-${pageIndex + 1}`), title: translated(definition, String(page['titleKey'] ?? ''), `Page ${pageIndex + 1}`), sections: (Array.isArray(page['sections']) ? page['sections'] as Record<string, unknown>[] : []).map((section, sectionIndex) => ({ id: String(section['id'] ?? `section-${sectionIndex + 1}`), title: translated(definition, String(section['titleKey'] ?? ''), `Section ${sectionIndex + 1}`), nodes: (Array.isArray(section['nodes']) ? section['nodes'] as Record<string, unknown>[] : []).map((node, nodeIndex) => projectedNode(definition, node, String(node['id'] ?? `node-${nodeIndex + 1}`))) })) })) })),
+    phases: flow.phases.map((phase, phaseIndex) => ({ id: String(phase['id'] ?? `phase-${phaseIndex + 1}`), title: translated(definition, String(phase['titleKey'] ?? ''), `Phase ${phaseIndex + 1}`), pages: (Array.isArray(phase['pages']) ? phase['pages'] as Record<string, unknown>[] : []).map((page, pageIndex) => ({ id: String(page['id'] ?? `page-${pageIndex + 1}`), title: translated(definition, String(page['titleKey'] ?? ''), `Page ${pageIndex + 1}`), sections: (Array.isArray(page['sections']) ? page['sections'] as Record<string, unknown>[] : []).map((section, sectionIndex) => ({ id: String(section['id'] ?? `section-${sectionIndex + 1}`), title: translated(definition, String(section['titleKey'] ?? ''), `Section ${sectionIndex + 1}`), nodes: (Array.isArray(section['nodes']) ? section['nodes'] as Record<string, unknown>[] : []).map((node, nodeIndex) => projectedNode(definition, node, String(node['id'] ?? `node-${nodeIndex + 1}`), `/flow/phases/${phaseIndex}/pages/${pageIndex}/sections/${sectionIndex}/nodes/${nodeIndex}`)) })) })) })),
   };
   const pages = Array.isArray(definition['pages']) ? definition['pages'] as Record<string, unknown>[] : [];
   return {
@@ -116,23 +116,31 @@ function canonicalField(definition: Record<string, unknown>, fieldId: string): R
 }
 
 /** Projects canonical child schemas as selectable visual descendants without mutating the package. */
-function projectedNode(definition: Record<string, unknown>, node: Record<string, unknown>, id: string): AuthoringDocument['phases'][number]['pages'][number]['sections'][number]['nodes'][number] {
+function projectedNode(definition: Record<string, unknown>, node: Record<string, unknown>, id: string, path: string): AuthoringDocument['phases'][number]['pages'][number]['sections'][number]['nodes'][number] {
   const fieldId = String(node.fieldId ?? '');
   const field = canonicalField(definition, fieldId);
-  const children = ((field?.itemSchema as { fields?: Record<string, unknown>[] } | undefined)?.fields ?? []).map((child) => projectedChild(definition, child, id));
+  const placements = Array.isArray(node.children) ? node.children as Record<string, unknown>[] : [];
+  const children = ((field?.itemSchema as { fields?: Record<string, unknown>[] } | undefined)?.fields ?? []).map((child, index) => {
+    const placement = placements.find((candidate) => candidate.fieldId === child.id);
+    return projectedChild(definition, child, id, placement, `${path}/children/${placement ? placements.indexOf(placement) : index}`);
+  });
   return {
     id,
     kind: String(node.kind ?? 'field') === 'question' ? 'field' : 'display',
     label: translated(definition, String(field?.labelKey ?? node.labelKey ?? ''), String(node.kind ?? 'content')),
-    control: String(node.control ?? node.kind ?? 'content'), fieldId,
+    control: String(node.control ?? node.kind ?? 'content'), fieldId, placementId: String(node.id ?? id), placementPath: path,
     ...(children.length ? { children } : {}),
   };
 }
 
-function projectedChild(definition: Record<string, unknown>, field: Record<string, unknown>, parentNodeId: string): AuthoringDocument['phases'][number]['pages'][number]['sections'][number]['nodes'][number] {
-  const id = `${parentNodeId}__${String(field.id)}`;
-  const nested = ((field.itemSchema as { fields?: Record<string, unknown>[] } | undefined)?.fields ?? []).map((child) => projectedChild(definition, child, id));
-  return { id, kind: 'field', label: translated(definition, String(field.labelKey ?? ''), String(field.key ?? field.id)), control: String(field.type ?? 'text'), fieldId: String(field.id), ...(nested.length ? { children: nested } : {}) };
+function projectedChild(definition: Record<string, unknown>, field: Record<string, unknown>, parentNodeId: string, placement: Record<string, unknown> | undefined, path: string): AuthoringDocument['phases'][number]['pages'][number]['sections'][number]['nodes'][number] {
+  const id = placement ? String(placement.id) : `${parentNodeId}__${String(field.id)}`;
+  const placements = Array.isArray(placement?.children) ? placement.children as Record<string, unknown>[] : [];
+  const nested = ((field.itemSchema as { fields?: Record<string, unknown>[] } | undefined)?.fields ?? []).map((child, index) => {
+    const childPlacement = placements.find((candidate) => candidate.fieldId === child.id);
+    return projectedChild(definition, child, id, childPlacement, `${path}/children/${childPlacement ? placements.indexOf(childPlacement) : index}`);
+  });
+  return { id, kind: 'field', label: translated(definition, String(field.labelKey ?? ''), String(field.key ?? field.id)), control: String(placement?.control ?? field.type ?? 'text'), fieldId: String(field.id), ...(placement ? { placementId: String(placement.id), placementPath: path } : {}), ...(nested.length ? { children: nested } : {}) };
 }
 
 function translated(definition: Record<string, unknown>, key: string, fallback: string): string {

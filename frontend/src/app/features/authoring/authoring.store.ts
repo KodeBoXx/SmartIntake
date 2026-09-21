@@ -203,7 +203,7 @@ function applyCommand(document: AuthoringDocument, command: AuthoringCommand): A
   if (command.type === 'add-page' && command.targetId) return { ...document, phases: document.phases.map((phase) => phase.id === command.targetId ? { ...phase, pages: [...phase.pages, { id: command.entityId!, title: label || 'New page', sections: [{ id: `${command.entityId}_section`, title: 'New section', nodes: [{ id: `${command.entityId}_node`, kind: 'field', label: 'New field', control: 'shortText' }] }] }] } : phase) };
   if (command.type === 'add-section' && command.targetId) return { ...document, phases: document.phases.map((phase) => ({ ...phase, pages: phase.pages.map((page) => page.id === command.targetId ? { ...page, sections: [...page.sections, { id: command.entityId!, title: label || 'New section', nodes: [{ id: `${command.entityId}_node`, kind: 'field', label: 'New field', control: 'shortText' }] }] } : page) })) };
   if ((command.type === 'add-node' || command.type === 'insert-component') && command.targetId && command.node) return { ...document, phases: document.phases.map((phase) => ({ ...phase, pages: phase.pages.map((page) => ({ ...page, sections: page.sections.map((section) => section.id === command.targetId ? { ...section, nodes: [...section.nodes, command.node!] } : section) })) })) };
-  if (command.type === 'remove-node' && command.targetId) return { ...document, phases: document.phases.map((phase) => ({ ...phase, pages: phase.pages.map((page) => ({ ...page, sections: page.sections.map((section) => ({ ...section, nodes: section.nodes.filter((node) => node.id !== command.targetId) })) })) })) };
+  if (command.type === 'remove-node' && command.targetId) return { ...document, phases: document.phases.map((phase) => ({ ...phase, pages: phase.pages.map((page) => ({ ...page, sections: page.sections.map((section) => ({ ...section, nodes: removeNode(section.nodes, command.targetId!) })) })) })) };
   if (command.type === 'move' && command.targetId && command.destinationId) return moveDocumentNode(document, command.targetId, command.destinationId);
   if (command.type === 'update-field' && command.targetId && command.field) return mapDocument(document, command.targetId, (value) => value, (value) => ({ ...value, label: typeof command.field?.label === 'string' ? command.field.label : value.label, ...(typeof command.field?.control === 'string' ? { control: command.field.control } : {}) }));
   return document;
@@ -224,7 +224,12 @@ function moveDocumentNode(document: AuthoringDocument, targetId: string, destina
 }
 
 function mapDocument(document: AuthoringDocument, id: string, sectionMapper: (value: { id: string; title: string }) => { id: string; title: string }, nodeMapper: (value: { id: string; label: string }) => { id: string; label: string }): AuthoringDocument {
-  return { ...document, phases: document.phases.map((phase) => ({ ...sectionMapper(phase), pages: phase.pages.map((page) => ({ ...sectionMapper(page), sections: page.sections.map((section) => ({ ...sectionMapper(section), nodes: section.nodes.map((node) => node.id === id ? { ...node, ...nodeMapper(node) } : node) })) })) })) };
+  const mapNodes = (nodes: readonly AuthoringNode[]): readonly AuthoringNode[] => nodes.map((node) => ({ ...node, ...(node.id === id ? nodeMapper(node) : {}), ...(node.children ? { children: mapNodes(node.children) } : {}) }));
+  return { ...document, phases: document.phases.map((phase) => ({ ...sectionMapper(phase), pages: phase.pages.map((page) => ({ ...sectionMapper(page), sections: page.sections.map((section) => ({ ...sectionMapper(section), nodes: mapNodes(section.nodes) })) })) })) };
+}
+
+function removeNode(nodes: readonly AuthoringNode[], id: string): readonly AuthoringNode[] {
+  return nodes.filter((node) => node.id !== id).map((node) => ({ ...node, ...(node.children ? { children: removeNode(node.children, id) } : {}) }));
 }
 
 function impactFor(command: AuthoringCommand): readonly string[] {

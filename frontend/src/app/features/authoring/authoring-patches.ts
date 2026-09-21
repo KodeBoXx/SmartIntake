@@ -156,6 +156,25 @@ function expressionReferences(node: unknown, fieldId: string): boolean {
   return !!node && typeof node === 'object' && Object.values(node as CanonicalObject).some((value) => expressionReferences(value, fieldId));
 }
 
+/** Exact prospective consequences shown before a destructive visual command. */
+export function deletionImpact(authoring: AuthoringDocument, targetId: string): { placements: string[]; routes: string[]; calculations: string[]; expressions: string[]; translations: string[] } {
+  const document = (authoring.definition ?? {}) as CanonicalObject;
+  const located = locate(document, targetId);
+  const fieldId = located?.fieldId ?? '';
+  if (!fieldId) return { placements: [], routes: [], calculations: [], expressions: [], translations: [] };
+  const fieldLocation = field(document, fieldId);
+  const finalPlacement = allQuestionNodes(document).filter((node) => node.fieldId === fieldId && node.id !== targetId).length === 0;
+  if (!finalPlacement || !fieldLocation) return { placements: [targetId], routes: [], calculations: [], expressions: [], translations: [] };
+  const ids = new Set(fieldsIn(fieldLocation.value).map((candidate) => String(candidate.id)));
+  const expressions = Object.entries(document.expressions as CanonicalObject ?? {}).filter(([, value]) => [...ids].some((id) => expressionReferences(value, id))).map(([id]) => id);
+  const routes = flow(document).flatMap((phase) => children(phase, 'pages')).flatMap((page) => children(page, 'routes')).filter((route) => expressions.includes(String(route.whenExpressionId))).map((route) => String(route.id));
+  const calculations = [...ids].filter((id) => {
+    const candidate = field(document, id)?.value;
+    return !!(candidate?.extensions as CanonicalObject | undefined)?.['x-kodeboxx.calculation'];
+  });
+  return { placements: allQuestionNodeLocations(document).filter((node) => ids.has(String(node.value.fieldId))).map((node) => String(node.value.id)), routes, calculations, expressions, translations: [...ids].map((id) => String(field(document, id)?.value.labelKey ?? '')).filter(Boolean) };
+}
+
 /** Translate visual authoring actions to closed-package JSON Pointer operations. */
 export function canonicalPatches(authoring: AuthoringDocument, command: AuthoringCommand): CanonicalPatch[] {
   const document = (authoring.definition ?? {}) as CanonicalObject;
@@ -225,6 +244,9 @@ export function canonicalPatches(authoring: AuthoringDocument, command: Authorin
     const canonical = canonicalFieldForControl({ ...configured, type: fieldType }, control);
     const existingNode = atNode(document, found.path);
     const nextNode: CanonicalObject = { ...existingNode, control, fieldType };
+    const childFields = ((canonical.itemSchema as CanonicalObject | undefined)?.fields as CanonicalObject[] | undefined) ?? [];
+    if (childFields.length) nextNode.children = questionPlacements(childFields, String(existingNode.id ?? found.path), children(existingNode, 'children'));
+    else delete nextNode.children;
     for (const key of ['roles', 'summaryFieldIds', 'children', 'fixedRowLabels', 'acknowledgmentContentKey']) {
       if (Object.prototype.hasOwnProperty.call(supplied, key)) {
         const value = supplied[key];
@@ -289,8 +311,8 @@ export function canonicalPatches(authoring: AuthoringDocument, command: Authorin
         const key = removed.labelKey;
         if (typeof key === 'string') patches.push({ op: 'remove', path: `/translations/en/messages/${escape(key)}` });
       }
-      const expressions = document.expressions as CanonicalObject | undefined;
-      for (const [key, expression] of Object.entries(expressions ?? {})) if ([...removedIds].some((id) => expressionReferences(expression, id))) patches.push({ op: 'remove', path: `/expressions/${escape(key)}` });
+      // Dependents are deliberately retained. The compiler reports the invalid draft
+      // until the author repairs/removes each dependency after accepting its impact.
     } else patches.push({ op: 'remove', path: found.path });
     return patches;
   }
@@ -302,6 +324,17 @@ export function canonicalPatches(authoring: AuthoringDocument, command: Authorin
   }
   return [];
 }
+
+function questionPlacements(fields: readonly CanonicalObject[], parentNodeId: string, existing: readonly CanonicalObject[]): CanonicalObject[] {
+  return fields.map((field) => {
+    const present = existing.find((node) => node.fieldId === field.id);
+    const id = String(present?.id ?? `${parentNodeId}__${String(field.id)}`);
+    const nested = ((field.itemSchema as CanonicalObject | undefined)?.fields as CanonicalObject[] | undefined) ?? [];
+    return { id, kind: 'question', fieldId: field.id, fieldType: field.type, control: present?.control ?? controlForFieldType(String(field.type ?? 'text')), ...(nested.length ? { children: questionPlacements(nested, id, children(present ?? {}, 'children')) } : {}) };
+  });
+}
+
+function controlForFieldType(type: string): string { return ({ text: 'shortText', integer: 'integer', decimal: 'decimal', boolean: 'checkbox', date: 'date', time: 'time', dateTime: 'dateTime', choice: 'radio', multiChoice: 'checkboxGroup', attachments: 'fileUpload', drawing: 'drawing', object: 'contact', list: 'repeatingCards' } as Record<string, string>)[type] ?? 'shortText'; }
 
 function allQuestionNodes(document: CanonicalObject): CanonicalObject[] {
   const visit = (nodes: CanonicalObject[]): CanonicalObject[] => nodes.flatMap((node) => [node, ...visit(children(node, 'nodes')), ...visit(children(node, 'children'))]);
