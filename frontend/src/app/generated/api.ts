@@ -2035,6 +2035,8 @@ export interface components {
         FormCreateRequest: {
             formKey: string;
             title?: string;
+            /** @enum {string} */
+            profile?: "canonical-4.0.0";
         };
         FormResponse: {
             requestId: components["schemas"]["OpaqueId"];

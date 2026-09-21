@@ -250,6 +250,34 @@ describe('SmartIntakeApiService', () => {
     resolve.flush({ revision: 9, definition: { title: 'Resolved package', pages: [] } });
   });
 
+  it('uses caller-owned keys for replayable comment, conflict, theme, and content mutations', () => {
+    api.addAuthoringComment('workspace-1', 'form-1', 'draft-1', 'Review this', '/flow', 'comment-key').subscribe();
+    const comment = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/comments');
+    expect(comment.request.headers.get('Idempotency-Key')).toBe('comment-key');
+    expect(comment.request.body).toEqual({ body: 'Review this', pointer: '/flow' });
+    comment.flush({ id: 'comment-1', pointer: '/flow', body: 'Review this', authorId: 'author-1', createdAt: '2026-09-21T00:00:00Z' });
+
+    const definition = { title: 'Resolved package', pages: [] };
+    api.resolveAuthoringConflict('workspace-1', 'form-1', 'draft-1', 8, 'conflict-1', definition, 'resolve-key').subscribe();
+    const resolve = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/resolve');
+    expect(resolve.request.headers.get('Idempotency-Key')).toBe('resolve-key');
+    resolve.flush({ revision: 9, definition });
+
+    const theme = { preset: 'accessible-default', themeKey: 'accessible-default', version: '3', tokens: { accent: '#175CD3' }, locks: [], preflight: [] };
+    api.updateAuthoringTheme('workspace-1', 'form-1', 'draft-1', 9, theme, 'theme-key').subscribe();
+    const savedTheme = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/theme');
+    expect(savedTheme.request.headers.get('Idempotency-Key')).toBe('theme-key');
+    savedTheme.flush({ revision: 10, definition });
+    http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/theme').flush({ revision: 10, theme: { themeKey: 'accessible-default', version: '3', tokens: { accent: '#175CD3' } }, locks: [], preflight: [] });
+
+    const content = { locale: 'en' as const, translations: { en: { direction: 'ltr' as const, messages: {} } }, guidance: { welcome: { id: 'guidance-welcome', messageKey: 'guidance.welcome' } } };
+    api.updateAuthoringContent('workspace-1', 'form-1', 'draft-1', 10, content, 'translations', 'content-key').subscribe();
+    const savedContent = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/content');
+    expect(savedContent.request.headers.get('Idempotency-Key')).toBe('content-key');
+    savedContent.flush({ revision: 11, definition });
+    http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/content').flush({ revision: 11, guidance: content.guidance, translations: content.translations, localeCompleteness: {} });
+  });
+
   it('maps backend pointer comments and cursor presence without inventing fields', () => {
     api.authoringComments('workspace-1', 'form-1', 'draft-1').subscribe((comments) => expect(comments[0]).toMatchObject({ targetId: '/pages/0', author: 'author-1' }));
     const comments = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/comments');

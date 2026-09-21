@@ -9786,6 +9786,10 @@ components:
           type: string
           minLength: 1
           maxLength: 200
+        profile:
+          type: string
+          enum:
+          - canonical-4.0.0
     FormUpdateRequest:
       type: object
       additionalProperties: false

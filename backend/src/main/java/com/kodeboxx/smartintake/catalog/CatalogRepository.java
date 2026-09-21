@@ -2,6 +2,7 @@ package com.kodeboxx.smartintake.catalog;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kodeboxx.smartintake.contract.CanonicalJson;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.Instant;
@@ -150,11 +151,27 @@ public class CatalogRepository {
     UUID copyId = UUID.randomUUID(); String key = duplicateKey(workspaceId, (String) source.get("form_key"));
     db.update("insert into forms(id,workspace_id,form_key,title,status,revision,definition,compatibility_profile_key) values(?,?,?,?, 'DRAFT',1,cast(? as jsonb),?)",
         copyId, workspaceId, key, source.get("title") + " (copy)", source.get("definition"), source.get("compatibility_profile_key"));
+    persistLocaleReviewDrafts(copyId, String.valueOf(source.get("definition")), String.valueOf(source.get("compatibility_profile_key")), ownerId);
     db.update("insert into form_catalog_metadata(form_id,folder_id,owner_account_id) select ?,folder_id,? from form_catalog_metadata where form_id=? on conflict(form_id) do nothing",
         copyId, ownerId, sourceId);
     db.update("insert into form_catalog_metadata(form_id,owner_account_id) values(?,?) on conflict(form_id) do nothing", copyId, ownerId);
     db.update("insert into form_catalog_tags(form_id,tag_id) select ?,tag_id from form_catalog_tags where form_id=?", copyId, sourceId);
     return form(copyId);
+  }
+
+  private void persistLocaleReviewDrafts(UUID formId, String definition, String profile, UUID actor) {
+    if (!"canonical-4.0.0".equals(profile)) return;
+    try {
+      var packageNode = json.readTree(definition);
+      String packageHash = CanonicalJson.sha256(packageNode);
+      for (var locale : packageNode.path("supportedLocales")) {
+        if (!locale.isTextual() || locale.asText().isBlank()) continue;
+        db.update("insert into form_authoring_locale_reviews(form_id,draft_id,locale,source_revision,source_package_hash,status,reviewed_by,reviewed_at) values(?,?,?,?,?,?,?,now()) on conflict(form_id,draft_id,locale) do update set source_revision=excluded.source_revision,source_package_hash=excluded.source_package_hash,status='DRAFT',reviewed_by=excluded.reviewed_by,reviewed_at=excluded.reviewed_at",
+            formId, formId, locale.asText(), 1, packageHash, "DRAFT", actor);
+      }
+    } catch (Exception e) {
+      throw new IllegalStateException("Canonical form copy has invalid persisted JSON", e);
+    }
   }
 
   public Map<String, Object> archive(UUID workspaceId, UUID formId, UUID actor) { return archive(workspaceId, formId, actor, true); }

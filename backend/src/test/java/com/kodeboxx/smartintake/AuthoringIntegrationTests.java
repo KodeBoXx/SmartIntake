@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kodeboxx.smartintake.contract.CanonicalJson;
 import com.kodeboxx.smartintake.security.IdentitySessionResolver;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -80,6 +81,34 @@ class AuthoringIntegrationTests {
         "commands",List.of(Map.of("op","set","path","/translations/en/messages/q.name","value","Created name"))));
     assertEquals(HttpStatus.OK,saved.getStatusCode(),saved.getBody());
     assertEquals("\"2\"",saved.getHeaders().getETag());
+  }
+
+  @Test void canonical_locale_reviews_are_repeatable_after_nontranslation_edits_and_new_forms() throws Exception {
+    String formKey="reviewable-"+UUID.randomUUID().toString().substring(0,8);
+    ResponseEntity<String> created=forms(HttpMethod.POST,Map.of("formKey",formKey,"title","Reviewable canonical form","profile","canonical-4.0.0"));
+    assertEquals(HttpStatus.CREATED,created.getStatusCode(),created.getBody());
+    UUID createdForm=UUID.fromString(json.readTree(created.getBody()).path("id").asText());
+    String initialHash=CanonicalJson.sha256(json.readTree(created.getBody()).path("definition"));
+    assertEquals(1,db.queryForObject("select count(*) from form_authoring_locale_reviews where form_id=? and draft_id=? and locale='en' and source_revision=1 and source_package_hash=? and status='DRAFT'",Integer.class,createdForm,createdForm,initialHash));
+
+    assertEquals(HttpStatus.OK,authoringCall(createdForm,"/content",HttpMethod.PUT,"\"1\"",Map.of("approveLocales",List.of("en")),"approve-v1").getStatusCode());
+    ResponseEntity<String> edit=authoringCall(createdForm,"/commands",HttpMethod.POST,"\"1\"",Map.of("commands",List.of(Map.of("op","set","path","/theme/tokens/accent","value","#0055AA"))),"theme-edit-v2");
+    assertEquals(HttpStatus.OK,edit.getStatusCode(),edit.getBody());
+    String revisedHash=json.readTree(edit.getBody()).path("packageHash").asText();
+    assertEquals(1,db.queryForObject("select count(*) from form_authoring_locale_reviews where form_id=? and draft_id=? and locale='en' and source_revision=2 and source_package_hash=? and status='DRAFT'",Integer.class,createdForm,createdForm,revisedHash));
+    assertEquals(HttpStatus.OK,authoringCall(createdForm,"/content",HttpMethod.PUT,"\"2\"",Map.of("approveLocales",List.of("en")),"approve-v2").getStatusCode());
+    assertEquals(HttpStatus.CREATED,publish(createdForm).getStatusCode());
+  }
+
+  @Test void treats_omitted_profile_as_legacy_and_rejects_unknown_explicit_profiles() throws Exception {
+    String legacyKey="legacy-"+UUID.randomUUID().toString().substring(0,8);
+    ResponseEntity<String> omitted=forms(HttpMethod.POST,Map.of("formKey",legacyKey,"title","Legacy default"));
+    assertEquals(HttpStatus.CREATED,omitted.getStatusCode(),omitted.getBody());
+    UUID legacyForm=UUID.fromString(json.readTree(omitted.getBody()).path("id").asText());
+    assertEquals("m1-current-prototype",db.queryForObject("select compatibility_profile_key from forms where id=?",String.class,legacyForm));
+
+    ResponseEntity<String> rejected=forms(HttpMethod.POST,Map.of("formKey","unknown-"+UUID.randomUUID().toString().substring(0,8),"title","Unknown profile","profile","legacy-prototype"));
+    assertEquals(HttpStatus.UNPROCESSABLE_ENTITY,rejected.getStatusCode());
   }
 
   @Test void preview_converts_plain_synthetic_answers_through_typed_respondent_operations() throws Exception {
@@ -265,8 +294,11 @@ class AuthoringIntegrationTests {
     return http.exchange("http://localhost:"+port+"/v1/workspaces/"+workspace+"/forms",method,new HttpEntity<>(body,headers),String.class);
   }
   private ResponseEntity<String> publish() {
+    return publish(form);
+  }
+  private ResponseEntity<String> publish(UUID targetForm) {
     HttpHeaders headers=new HttpHeaders(); headers.set("X-Staff-Session",token);
-    return http.exchange("http://localhost:"+port+"/v1/workspaces/"+workspace+"/forms/"+form+"/releases",HttpMethod.POST,new HttpEntity<>(headers),String.class);
+    return http.exchange("http://localhost:"+port+"/v1/workspaces/"+workspace+"/forms/"+targetForm+"/releases",HttpMethod.POST,new HttpEntity<>(headers),String.class);
   }
   private ResponseEntity<String> component(HttpMethod method,String suffix,Object body) {
     HttpHeaders headers=new HttpHeaders(); headers.setContentType(MediaType.APPLICATION_JSON); headers.set("X-Staff-Session",token);

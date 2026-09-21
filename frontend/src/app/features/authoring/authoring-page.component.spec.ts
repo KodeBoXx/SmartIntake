@@ -40,4 +40,28 @@ describe('AuthoringPageComponent backend contract integration', () => {
     expect(fixture.componentInstance.commentsForSelection()).toHaveLength(1);
     expect(fixture.componentInstance.presence()[0].selectedId).toBe('name');
   });
+
+  it('reuses its persisted logical comment key on a manual retry', () => {
+    fixture.detectChanges();
+    const base = '/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1';
+    http.expectOne(base).flush({ formId: 'form-1', draftId: 'draft-1', revision: 7, definition: { title: 'Backend intake', pages: [{ id: 'page-1', title: 'Details', fields: [{ id: 'name', label: 'Legal name', type: 'text' }] }] }, packageHash: 'hash', diagnostics: [], history: [] });
+    http.expectOne(`${base}/history`).flush([]);
+    http.expectOne('/v1/workspaces/workspace-1/reusable-components').flush([]);
+    http.expectOne(`${base}/theme`).flush({ revision: 7, theme: { preset: 'Certinal', tokens: {}, locks: [], preflight: [] } });
+    http.expectOne(`${base}/content`).flush({ revision: 7, guidance: {}, translations: { en: {}, hi: {}, ar: {} } });
+    http.expectOne(`${base}/comments`).flush([]);
+    http.expectOne(`${base}/presence`).flush([]);
+
+    fixture.componentInstance.commentText = 'Review the legal name question';
+    fixture.componentInstance.sendComment();
+    const first = http.expectOne(`${base}/comments`);
+    const key = first.request.headers.get('Idempotency-Key');
+    expect(key).toMatch(/.+/);
+    first.flush({}, { status: 503, statusText: 'Unavailable' });
+
+    fixture.componentInstance.sendComment();
+    const retry = http.expectOne(`${base}/comments`);
+    expect(retry.request.headers.get('Idempotency-Key')).toBe(key);
+    retry.flush({ id: 'comment-1', pointer: 'name', body: 'Review the legal name question', authorId: 'author-1', createdAt: '2026-09-21T00:00:00Z' });
+  });
 });

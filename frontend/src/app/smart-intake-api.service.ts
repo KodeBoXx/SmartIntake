@@ -260,9 +260,9 @@ export class SmartIntakeApiService {
     return this.authoringAction(workspaceId, formId, draftId, revision, 'redo', idempotencyKey);
   }
 
-  resolveAuthoringConflict(workspaceId: string, formId: string, draftId: string, revision: number, conflictId: string, definition: unknown): Observable<AuthoringDocument> {
+  resolveAuthoringConflict(workspaceId: string, formId: string, draftId: string, revision: number, conflictId: string, definition: unknown, idempotencyKey = this.createMutationAction()): Observable<AuthoringDocument> {
     const url = `${this.authoringBase(workspaceId, formId, draftId)}/resolve`;
-    return this.http.post<unknown>(url, { conflictId, definition }, { withCredentials: true, headers: new HttpHeaders({ 'If-Match': this.formRevisionEtag(revision), 'Idempotency-Key': this.createMutationAction() }) }).pipe(map(authoringDocument));
+    return this.http.post<unknown>(url, { conflictId, definition }, { withCredentials: true, headers: new HttpHeaders({ 'If-Match': this.formRevisionEtag(revision), 'Idempotency-Key': idempotencyKey }) }).pipe(map(authoringDocument));
   }
 
   validateAuthoringImport(workspaceId: string, formId: string, draftId: string, candidate: unknown): Observable<AuthoringImportCandidate> {
@@ -284,23 +284,25 @@ export class SmartIntakeApiService {
   }
 
   authoringTheme(workspaceId: string, formId: string, draftId: string): Observable<ThemeSettings> { return this.http.get<BackendTheme>(`${this.authoringBase(workspaceId, formId, draftId)}/theme`, this.staff()).pipe(map(authoringTheme)); }
-  updateAuthoringTheme(workspaceId: string, formId: string, draftId: string, revision: number, theme: ThemeSettings): Observable<ThemeSettings> {
+  updateAuthoringTheme(workspaceId: string, formId: string, draftId: string, revision: number, theme: ThemeSettings, idempotencyKey = this.createMutationAction()): Observable<ThemeSettings> {
     const wireTheme = { themeKey: theme.themeKey ?? theme.preset, version: theme.version ?? '1', tokens: theme.tokens };
-    return this.http.put<unknown>(`${this.authoringBase(workspaceId, formId, draftId)}/theme`, { theme: wireTheme }, { withCredentials: true, headers: new HttpHeaders({ 'If-Match': this.formRevisionEtag(revision), 'Idempotency-Key': this.createMutationAction() }) }).pipe(
+    return this.http.put<unknown>(`${this.authoringBase(workspaceId, formId, draftId)}/theme`, { theme: wireTheme }, { withCredentials: true, headers: new HttpHeaders({ 'If-Match': this.formRevisionEtag(revision), 'Idempotency-Key': idempotencyKey }) }).pipe(
       map(authoringDocument),
       switchMap((document) => this.authoringTheme(workspaceId, formId, draftId).pipe(map((returned) => ({ ...returned, document })))),
     );
   }
   authoringContent(workspaceId: string, formId: string, draftId: string): Observable<ContentSettings> { return this.http.get<BackendContent>(`${this.authoringBase(workspaceId, formId, draftId)}/content`, this.staff()).pipe(map(authoringContent)); }
-  updateAuthoringContent(workspaceId: string, formId: string, draftId: string, revision: number, content: ContentSettings, scope: 'guidance' | 'translations'): Observable<ContentSettings> {
+  updateAuthoringContent(workspaceId: string, formId: string, draftId: string, revision: number, content: ContentSettings, scope: 'guidance' | 'translations', idempotencyKey = this.createMutationAction()): Observable<ContentSettings> {
     const body = scope === 'guidance' ? { guidance: content.guidance } : { translations: content.translations };
-    return this.http.put<unknown>(`${this.authoringBase(workspaceId, formId, draftId)}/content`, body, { withCredentials: true, headers: new HttpHeaders({ 'If-Match': this.formRevisionEtag(revision), 'Idempotency-Key': this.createMutationAction() }) }).pipe(
+    return this.http.put<unknown>(`${this.authoringBase(workspaceId, formId, draftId)}/content`, body, { withCredentials: true, headers: new HttpHeaders({ 'If-Match': this.formRevisionEtag(revision), 'Idempotency-Key': idempotencyKey }) }).pipe(
       map(authoringDocument),
       switchMap((document) => this.authoringContent(workspaceId, formId, draftId).pipe(map((returned) => ({ ...returned, document })))),
     );
   }
   authoringComments(workspaceId: string, formId: string, draftId: string): Observable<AuthoringComment[]> { return this.http.get<BackendComment[]>(`${this.authoringBase(workspaceId, formId, draftId)}/comments`, this.staff()).pipe(map((comments) => comments.map(authoringComment))); }
-  addAuthoringComment(workspaceId: string, formId: string, draftId: string, body: string, targetId: string): Observable<AuthoringComment> { return this.http.post<BackendComment>(`${this.authoringBase(workspaceId, formId, draftId)}/comments`, { body, pointer: targetId }, this.staff()).pipe(map(authoringComment)); }
+  addAuthoringComment(workspaceId: string, formId: string, draftId: string, body: string, targetId: string, idempotencyKey = this.createMutationAction()): Observable<AuthoringComment> {
+    return this.http.post<BackendComment>(`${this.authoringBase(workspaceId, formId, draftId)}/comments`, { body, pointer: targetId }, { withCredentials: true, headers: new HttpHeaders({ 'Idempotency-Key': idempotencyKey }) }).pipe(map(authoringComment));
+  }
   authoringPresence(workspaceId: string, formId: string, draftId: string): Observable<PresenceMember[]> { return this.http.get<BackendPresence[]>(`${this.authoringBase(workspaceId, formId, draftId)}/presence`, this.staff()).pipe(map((members) => members.map((member) => ({ accountId: member.accountId, displayName: member.displayName, selectedId: member.cursor, expiresAt: member.expiresAt })))); }
   updateAuthoringPresence(workspaceId: string, formId: string, draftId: string, selectedId: string | null): Observable<void> { return this.http.patch<void>(`${this.authoringBase(workspaceId, formId, draftId)}/presence`, { cursor: selectedId ?? '' }, this.staff()); }
 

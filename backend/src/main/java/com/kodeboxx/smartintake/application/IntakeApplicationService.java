@@ -15,7 +15,9 @@ import com.kodeboxx.smartintake.contract.TimeZoneRegistry;
 import com.kodeboxx.smartintake.contract.compiler.FormCompiler;
 import com.kodeboxx.smartintake.contract.runtime.TypedSessionRuntimeService;
 import com.kodeboxx.smartintake.persistence.AuditEventRepository;
+import com.kodeboxx.smartintake.security.IdentitySessionResolver;
 import com.kodeboxx.smartintake.security.StaffAuthorization;
+import jakarta.servlet.http.HttpServletRequest;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -33,6 +35,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -40,6 +44,7 @@ public class IntakeApplicationService {
   private final JdbcTemplate db;
   private final ObjectMapper json;
   private final StaffAuthorization authorization;
+  private final IdentitySessionResolver sessions;
   private final AuditEventRepository audits;
   private final RespondentSecretVerifier respondentSecrets;
   private final CompatibilityProfileRegistry profiles;
@@ -53,6 +58,7 @@ public class IntakeApplicationService {
       JdbcTemplate db,
       ObjectMapper json,
       StaffAuthorization authorization,
+      IdentitySessionResolver sessions,
       AuditEventRepository audits,
       RespondentSecretVerifier respondentSecrets,
       CompatibilityProfileRegistry profiles,
@@ -64,6 +70,7 @@ public class IntakeApplicationService {
     this.db = db;
     this.json = json;
     this.authorization = authorization;
+    this.sessions = sessions;
     this.audits = audits;
     this.respondentSecrets = respondentSecrets;
     this.profiles = profiles;
@@ -229,10 +236,13 @@ public class IntakeApplicationService {
         ws);
   }
 
+  @Transactional
   public ResponseEntity<?> create(String workspace, String token, CreateForm in) {
     UUID ws = authorization.authorizeAuthoring(workspace, token);
     if (in.formKey() == null || !in.formKey().matches("[a-z][a-z0-9-]{2,99}"))
       throw bad("FORM_KEY_INVALID", "Use a lowercase stable key of at least three characters.");
+    if (in.profile() != null && !CompatibilityProfile.CANONICAL_4_0_0.key().equals(in.profile()))
+      throw bad("PROFILE_UNSUPPORTED", "profile must be canonical-4.0.0 when supplied.");
     UUID id = UUID.randomUUID();
     boolean canonical = CompatibilityProfile.CANONICAL_4_0_0.key().equals(in.profile());
     Map<String, Object> def = canonical ? canonicalAuthoringTemplate(in.formKey(), in.title()) : sampleDefinition(in.formKey(), in.title());
@@ -245,6 +255,7 @@ public class IntakeApplicationService {
         in.title(),
         stringify(def),
         canonical ? CompatibilityProfile.CANONICAL_4_0_0.key() : CompatibilityProfile.M1_CURRENT_PROTOTYPE.key());
+    if (canonical) persistLocaleReviewDrafts(id, def, currentAccount(token), 1);
     audit("FORM_CREATED", id);
     return ResponseEntity.status(201)
         .eTag(etag(1))
@@ -270,6 +281,7 @@ public class IntakeApplicationService {
                 List.of()));
   }
 
+  @Transactional
   public ResponseEntity<?> save(String workspace, UUID form, String draft, String token, String match, Draft in) {
     requireCanonicalDraftId(form, draft);
     authorization.requireOwnedForm(workspace, token, form);
@@ -290,6 +302,8 @@ public class IntakeApplicationService {
         profile,
         next,
         form);
+    if (CompatibilityProfile.CANONICAL_4_0_0.key().equals(profile))
+      persistLocaleReviewDrafts(form, in.definition(), currentAccount(token), next);
     audit("DRAFT_SAVED", form);
     return ResponseEntity.ok()
         .eTag(etag(next))
@@ -311,6 +325,7 @@ public class IntakeApplicationService {
         Map.class);
   }
 
+  @Transactional
   public ResponseEntity<?> definitionImport(
       String workspace, UUID form, String token, String match, Map<String, Object> candidate) {
     authorization.requireOwnedForm(workspace, token, form);
@@ -333,13 +348,16 @@ public class IntakeApplicationService {
                   "diagnostics",
                   List.of(Map.of("message", e.getMessage()))));
     }
+    String profile = profileForDefinition(candidate);
     long revision = row.revision() + 1;
     db.update(
         "update forms set definition=cast(? as jsonb),compatibility_profile_key=?,revision=?,updated_at=now() where id=?",
         stringify(candidate),
-        profileForDefinition(candidate),
+        profile,
         revision,
         form);
+    if (CompatibilityProfile.CANONICAL_4_0_0.key().equals(profile))
+      persistLocaleReviewDrafts(form, candidate, currentAccount(token), revision);
     audit("DEFINITION_IMPORTED", form);
     return ResponseEntity.ok()
         .eTag(etag(revision))
@@ -1244,6 +1262,26 @@ public class IntakeApplicationService {
     return typedRuntime.canonical(json.valueToTree(definition))
         ? CompatibilityProfile.CANONICAL_4_0_0.key()
         : CompatibilityProfile.M1_CURRENT_PROTOTYPE.key();
+  }
+
+  private UUID currentAccount(String token) {
+    try {
+      HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+      String session = sessions.session(request, token).orElseThrow();
+      return db.queryForObject("select account_id from staff_sessions where token::text=?", UUID.class, session);
+    } catch (Exception e) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Valid staff workspace session required");
+    }
+  }
+
+  private void persistLocaleReviewDrafts(UUID form, Map<String, Object> definition, UUID actor, long revision) {
+    JsonNode packageNode = json.valueToTree(definition);
+    String packageHash = CanonicalJson.sha256(packageNode);
+    for (JsonNode locale : packageNode.path("supportedLocales")) {
+      if (!locale.isTextual() || locale.asText().isBlank()) continue;
+      db.update("insert into form_authoring_locale_reviews(form_id,draft_id,locale,source_revision,source_package_hash,status,reviewed_by,reviewed_at) values(?,?,?,?,?,?,?,now()) on conflict(form_id,draft_id,locale) do update set source_revision=excluded.source_revision,source_package_hash=excluded.source_package_hash,status='DRAFT',reviewed_by=excluded.reviewed_by,reviewed_at=excluded.reviewed_at",
+          form, form, locale.asText(), revision, packageHash, "DRAFT", actor);
+    }
   }
 
   private void requireCanonicalRuntimeState(S session, JsonNode definition) {
