@@ -63,5 +63,25 @@ describe('AuthoringPageComponent backend contract integration', () => {
     const retry = http.expectOne(`${base}/comments`);
     expect(retry.request.headers.get('Idempotency-Key')).toBe(key);
     retry.flush({ id: 'comment-1', pointer: 'name', body: 'Review the legal name question', authorId: 'author-1', createdAt: '2026-09-21T00:00:00Z' });
+
+    fixture.componentInstance.commentText = 'Review the legal name question';
+    fixture.componentInstance.sendComment();
+    const laterComment = http.expectOne(`${base}/comments`);
+    expect(laterComment.request.headers.get('Idempotency-Key')).not.toBe(key);
+    laterComment.flush({ id: 'comment-2', pointer: 'name', body: 'Review the legal name question', authorId: 'author-1', createdAt: '2026-09-21T00:01:00Z' });
+  });
+
+  it('clears cached authoring resources and renders denied instead of a stale draft', () => {
+    const key = 'smart-intake.authoring.unidentified.workspace-1.form-1.draft-1';
+    localStorage.setItem(key, JSON.stringify({ document: { id: 'draft-1', revision: 99, title: 'Cached secret', phases: [] }, undo: [], redo: [], history: [], selectedId: null, pending: [], redoPending: [], pendingMutationKey: null, componentInsertionKeys: {}, operationKeys: {}, conflict: null }));
+
+    fixture.detectChanges();
+    http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1').flush({}, { status: 403, statusText: 'Forbidden' });
+    fixture.detectChanges();
+
+    expect(localStorage.getItem(key)).toBeNull();
+    expect(fixture.componentInstance.resourceState()).toBe('denied');
+    expect(fixture.nativeElement.textContent).toContain('Authoring access denied');
+    expect(fixture.nativeElement.textContent).not.toContain('Cached secret');
   });
 });

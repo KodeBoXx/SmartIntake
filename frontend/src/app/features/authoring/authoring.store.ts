@@ -155,6 +155,33 @@ export class AuthoringStore {
     return next;
   }
 
+  /** A completed operation must not turn a later identical user action into a replay. */
+  completeOperation(storageKey: string, operation: string, identity: string): void {
+    const key = `${operation}:${identity}`;
+    if (!(key in this.operationKeys())) return;
+    this.operationKeys.update((keys) => {
+      const { [key]: _completed, ...remaining } = keys;
+      return remaining;
+    });
+    this.persist(storageKey);
+  }
+
+  /** Authorization and expiry responses must never leave a prior account's cached draft visible. */
+  clearCachedState(key: string): void {
+    try { localStorage.removeItem(key); } catch { /* storage can be unavailable in private contexts */ }
+    this.document.set(DEFAULT_AUTHORING_DOCUMENT);
+    this.selectedId.set(firstSelectable(DEFAULT_AUTHORING_DOCUMENT));
+    this.undoStack.set([]);
+    this.redoStack.set([]);
+    this.history.set([]);
+    this.pendingCommands.set([]);
+    this.redoPendingCommands.set([]);
+    this.pendingMutationKey.set(null);
+    this.componentInsertionKeys.set({});
+    this.operationKeys.set({});
+    this.conflict.set(null);
+  }
+
   setConflict(client: AuthoringDocument, server: AuthoringDocument, id = '', message = 'This draft changed on the server. Choose a version to continue.', storageKey?: string): void {
     this.conflict.set({ id, client, server, message });
     if (storageKey) this.persist(storageKey);

@@ -4,7 +4,7 @@ import { EMPTY, Observable, expand, map, reduce, switchMap, tap } from 'rxjs';
 import { FormDefinition, ResponseSummary } from './models/form-definition.models';
 import type { components, operations } from './generated/api-4.1.0';
 import type { RuntimeOperation, ServerProjection } from './runtime/runtime-types';
-import type { AuthoringComment, AuthoringCommand, AuthoringDocument, AuthoringHistoryEntry, AuthoringImportCandidate, ContentSettings, LocaleBundle, PresenceMember, PreviewResult, ReusableComponent, ThemeSettings } from './features/authoring/authoring.types';
+import type { AuthoringComment, AuthoringCommand, AuthoringDocument, AuthoringHistoryEntry, AuthoringImportCandidate, ContentSettings, GovernedContentScope, LocaleBundle, LocaleReview, PresenceMember, PreviewResult, ReusableComponent, SpeechResult, SupportedAuthoringLocale, ThemeSettings } from './features/authoring/authoring.types';
 import { canonicalPatches } from './features/authoring/authoring-patches';
 
 export { AjvContractValidationAdapter } from './ajv-contract-validation.adapter';
@@ -44,7 +44,7 @@ type BackendPresence = { accountId: string; cursor?: string; displayName: string
 type BackendHistory = { id: string; revision: number; operation: string; createdAt: string; beforeHash?: string; afterHash?: string; undone?: boolean };
 type BackendComponent = { id: string; key: string; name: string; version: number; status: string; hash: string; updatedAt: string };
 type BackendTheme = { revision: number; theme?: { themeKey?: string; preset?: string; version?: string; tokens?: Record<string, string> }; locks?: string[]; preflight?: ThemeSettings['preflight'] };
-type BackendContent = { revision: number; guidance?: ContentSettings['guidance']; translations?: ContentSettings['translations']; localeCompleteness?: Record<string, { present: boolean; complete: boolean }> };
+type BackendContent = { revision: number; guidance?: ContentSettings['guidance']; translations?: ContentSettings['translations']; localeCompleteness?: Record<string, { present: boolean; complete: boolean }>; localeReviews?: LocaleReview[] };
 
 function authoringComment(comment: BackendComment): AuthoringComment {
   return { id: comment.id, targetId: comment.pointer, body: comment.body, author: comment.authorId ?? 'Current collaborator', createdAt: comment.createdAt ?? '' };
@@ -62,9 +62,12 @@ function authoringTheme(value: BackendTheme): ThemeSettings {
 
 function authoringContent(value: BackendContent): ContentSettings {
   const translations = value.translations ?? {};
-  const canonicalBundles = Object.fromEntries(Object.entries(translations).map(([locale, bundle]) => [locale, canonicalBundle(bundle)])) as Record<string, LocaleBundle>;
-  for (const locale of ['en', 'hi', 'ar'] as const) canonicalBundles[locale] ??= { direction: locale === 'ar' ? 'rtl' : 'ltr', messages: {} };
-  return { locale: 'en', translations: canonicalBundles, guidance: value.guidance ?? {}, revision: value.revision, localeCompleteness: value.localeCompleteness };
+  const canonicalBundles = Object.fromEntries(
+    (['en', 'hi', 'ar'] as const)
+      .filter((locale) => translations[locale] !== undefined)
+      .map((locale) => [locale, canonicalBundle(translations[locale])]),
+  ) as Partial<Record<SupportedAuthoringLocale, LocaleBundle>>;
+  return { locale: 'en', translations: canonicalBundles, guidance: value.guidance ?? {}, revision: value.revision, localeCompleteness: value.localeCompleteness, localeReviews: value.localeReviews ?? [] };
 }
 
 function canonicalBundle(value: unknown): LocaleBundle {
@@ -292,11 +295,16 @@ export class SmartIntakeApiService {
     );
   }
   authoringContent(workspaceId: string, formId: string, draftId: string): Observable<ContentSettings> { return this.http.get<BackendContent>(`${this.authoringBase(workspaceId, formId, draftId)}/content`, this.staff()).pipe(map(authoringContent)); }
-  updateAuthoringContent(workspaceId: string, formId: string, draftId: string, revision: number, content: ContentSettings, scope: 'guidance' | 'translations', idempotencyKey = this.createMutationAction()): Observable<ContentSettings> {
+  updateAuthoringContent(workspaceId: string, formId: string, draftId: string, revision: number, content: ContentSettings, scope: Exclude<GovernedContentScope, 'review'>, idempotencyKey = this.createMutationAction()): Observable<ContentSettings> {
     const body = scope === 'guidance' ? { guidance: content.guidance } : { translations: content.translations };
     return this.http.put<unknown>(`${this.authoringBase(workspaceId, formId, draftId)}/content`, body, { withCredentials: true, headers: new HttpHeaders({ 'If-Match': this.formRevisionEtag(revision), 'Idempotency-Key': idempotencyKey }) }).pipe(
       map(authoringDocument),
       switchMap((document) => this.authoringContent(workspaceId, formId, draftId).pipe(map((returned) => ({ ...returned, document })))),
+    );
+  }
+  approveAuthoringLocales(workspaceId: string, formId: string, draftId: string, revision: number, locales: readonly SupportedAuthoringLocale[], idempotencyKey = this.createMutationAction()): Observable<ContentSettings> {
+    return this.http.put<unknown>(`${this.authoringBase(workspaceId, formId, draftId)}/content`, { approveLocales: locales }, { withCredentials: true, headers: new HttpHeaders({ 'If-Match': this.formRevisionEtag(revision), 'Idempotency-Key': idempotencyKey }) }).pipe(
+      switchMap(() => this.authoringContent(workspaceId, formId, draftId)),
     );
   }
   authoringComments(workspaceId: string, formId: string, draftId: string): Observable<AuthoringComment[]> { return this.http.get<BackendComment[]>(`${this.authoringBase(workspaceId, formId, draftId)}/comments`, this.staff()).pipe(map((comments) => comments.map(authoringComment))); }
@@ -309,6 +317,9 @@ export class SmartIntakeApiService {
   /** Never call startSession, patchSession, submitSession, publish or providers for ordinary author preview. */
   authoringPreview(workspaceId: string, formId: string, draftId: string, answers: Record<string, unknown>): Observable<PreviewResult> {
     return this.http.post<PreviewResult>(`${this.authoringBase(workspaceId, formId, draftId)}/preview`, { answers }, this.staff());
+  }
+  authoringSpeech(workspaceId: string, formId: string, draftId: string, text: string, locale: SupportedAuthoringLocale, voice = 'default'): Observable<SpeechResult> {
+    return this.http.post<SpeechResult>(`${this.authoringBase(workspaceId, formId, draftId)}/speech`, { text, locale, voice }, this.staff());
   }
 
   listResponses(workspaceId: string): Observable<ResponseSummary[]> {

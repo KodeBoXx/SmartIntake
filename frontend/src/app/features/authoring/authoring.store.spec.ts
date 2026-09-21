@@ -83,4 +83,18 @@ describe('AuthoringStore', () => {
     expect(store.componentInsertionKey(key, 2, 'address', '/flow/phases/0/pages/0/sections/0/nodes/-')).toBe(insertionKey);
     expect(store.componentInsertionKey(key, 3, 'address', '/flow/phases/0/pages/0/sections/0/nodes/-')).not.toBe(insertionKey);
   });
+
+  it('retires completed comment keys and clears denied-resource cache state', () => {
+    const key = 'authoring.completed-comment';
+    const store = new AuthoringStore();
+    store.hydrate(key, { ...DEFAULT_AUTHORING_DOCUMENT, id: 'draft-7' });
+    const first = store.operationKey(key, 'comment', 'same-body');
+    store.completeOperation(key, 'comment', 'same-body');
+    expect(store.operationKey(key, 'comment', 'same-body')).not.toBe(first);
+
+    store.clearCachedState(key);
+    expect(localStorage.getItem(key)).toBeNull();
+    expect(store.operationKeys()).toEqual({});
+    expect(store.document()).toEqual(DEFAULT_AUTHORING_DOCUMENT);
+  });
 });

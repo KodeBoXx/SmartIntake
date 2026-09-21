@@ -222,6 +222,35 @@ describe('SmartIntakeApiService', () => {
     content.flush({ revision: 7, guidance: { welcome: { id: 'guidance-welcome', messageKey: 'guidance.welcome' } }, translations: { en: { direction: 'ltr', messages: { 'guidance.welcome': 'Complete this.' }, pronunciations: [], reviewState: 'approved' } }, localeCompleteness: { en: { present: true, complete: true }, hi: { present: false, complete: false }, ar: { present: false, complete: false } } });
   });
 
+  it('preserves only server-supplied locale bundles and uses a reviewer key for current-revision approval', () => {
+    api.authoringContent('workspace-1', 'form-1', 'draft-1').subscribe((content) => {
+      expect(content.translations).toEqual({ en: { direction: 'ltr', messages: { 'guidance.brief': 'Complete this.' } } });
+      expect(content.translations.hi).toBeUndefined();
+      expect(content.translations.ar).toBeUndefined();
+      expect(content.localeReviews).toEqual([{ locale: 'hi', sourceRevision: 7, status: 'DRAFT', reviewedAt: null }]);
+    });
+    const content = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/content');
+    content.flush({ revision: 7, guidance: {}, translations: { en: { direction: 'ltr', messages: { 'guidance.brief': 'Complete this.' } } }, localeReviews: [{ locale: 'hi', sourceRevision: 7, status: 'DRAFT', reviewedAt: null }] });
+
+    api.approveAuthoringLocales('workspace-1', 'form-1', 'draft-1', 7, ['hi'], 'review-key').subscribe((content) => expect(content.localeReviews?.[0].status).toBe('APPROVED'));
+    const approve = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/content');
+    expect(approve.request.method).toBe('PUT');
+    expect(approve.request.headers.get('If-Match')).toBe('"7"');
+    expect(approve.request.headers.get('Idempotency-Key')).toBe('review-key');
+    expect(approve.request.body).toEqual({ approveLocales: ['hi'] });
+    approve.flush({ revision: 7, approved: ['hi'] });
+    const refreshed = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/content');
+    refreshed.flush({ revision: 7, guidance: {}, translations: {}, localeReviews: [{ locale: 'hi', sourceRevision: 7, status: 'APPROVED', reviewedAt: '2026-09-21T01:00:00Z' }] });
+  });
+
+  it('calls the controlled authoring speech endpoint for governed locale text', () => {
+    api.authoringSpeech('workspace-1', 'form-1', 'draft-1', 'Read this narration.', 'ar').subscribe((speech) => expect(speech).toEqual({ available: false, code: 'SPEECH_UNAVAILABLE', locale: 'ar' }));
+    const speech = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/speech');
+    expect(speech.request.method).toBe('POST');
+    expect(speech.request.body).toEqual({ text: 'Read this narration.', locale: 'ar', voice: 'default' });
+    speech.flush({ available: false, code: 'SPEECH_UNAVAILABLE', locale: 'ar' });
+  });
+
   it('preserves required theme version and sends one closed content scope at a time', () => {
     const theme = { preset: 'accessible-default', themeKey: 'accessible-default', version: '3', tokens: { accent: '#175CD3' }, locks: [], preflight: [] };
     api.updateAuthoringTheme('workspace-1', 'form-1', 'draft-1', 7, theme).subscribe((result) => expect(result.document?.revision).toBe(8));

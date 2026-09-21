@@ -86,17 +86,40 @@ export interface LocaleBundle {
   readonly reviewState?: 'approved-prd-fixed-values' | 'approved';
 }
 
-export interface GuidanceEntry {
-  readonly id: string;
-  readonly messageKey: string;
+export type SupportedAuthoringLocale = 'en' | 'hi' | 'ar';
+
+export interface LocaleReview {
+  readonly locale: SupportedAuthoringLocale;
+  readonly sourceRevision: number;
+  readonly status: 'DRAFT' | 'APPROVED';
+  readonly reviewedAt?: string | null;
+}
+
+/**
+ * Guidance is an authored canonical package subtree. Keep its values opaque here
+ * so this client preserves governed extensions instead of silently reshaping them.
+ */
+export type GovernedGuidance = Record<string, unknown>;
+
+export type GovernedContentScope = 'guidance' | 'translations' | 'review';
+
+export interface SpeechResult {
+  readonly available: boolean;
+  readonly code?: string;
+  readonly locale: SupportedAuthoringLocale;
+  readonly contentType?: string;
+  readonly audioBase64?: string;
+  readonly latencyMillis?: number;
 }
 
 export interface ContentSettings {
-  readonly locale: 'en' | 'hi' | 'ar';
-  readonly translations: Record<string, LocaleBundle>;
-  readonly guidance: Record<string, GuidanceEntry>;
+  readonly locale: SupportedAuthoringLocale;
+  /** Missing keys are meaningful: the server has not supplied that locale bundle. */
+  readonly translations: Partial<Record<SupportedAuthoringLocale, LocaleBundle>>;
+  readonly guidance: GovernedGuidance;
   readonly revision?: number;
-  readonly localeCompleteness?: Partial<Record<'en' | 'hi' | 'ar', { present: boolean; complete: boolean }>>;
+  readonly localeCompleteness?: Partial<Record<SupportedAuthoringLocale, { present: boolean; complete: boolean }>>;
+  readonly localeReviews?: readonly LocaleReview[];
   readonly document?: AuthoringDocument;
 }
 
