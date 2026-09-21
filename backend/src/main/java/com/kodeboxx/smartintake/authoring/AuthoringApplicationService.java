@@ -44,7 +44,7 @@ import org.springframework.web.server.ResponseStatusException;
  */
 @Service
 public class AuthoringApplicationService {
-  private static final int MAX_COMMANDS = 100;
+  private static final int MAX_COMMANDS = 1_000;
   private static final int MAX_POINTER = 1000;
   private static final int MAX_JSON_NODES = 100_000;
   private static final int MAX_JSON_DEPTH = 64;
@@ -117,7 +117,7 @@ public class AuthoringApplicationService {
     JsonNode client = request.containsKey("definition") ? json.valueToTree(request.get("definition")) : parse(current.definition());
     if (!matches(match, current.revision())) return stale(form, draft, current, clientFor(request, current), match);
     List<Map<String, Object>> commands = maps(request.get("commands"));
-    if (commands.isEmpty() || commands.size() > MAX_COMMANDS) throw bad("COMMAND_LIMIT", "A batch must contain 1-100 commands.");
+    if (commands.isEmpty() || commands.size() > MAX_COMMANDS) throw bad("COMMAND_LIMIT", "A batch must contain 1-1000 commands.");
     JsonNode next = parse(current.definition());
     List<Map<String, Object>> inverses = new ArrayList<>();
     for (Map<String, Object> command : commands) {

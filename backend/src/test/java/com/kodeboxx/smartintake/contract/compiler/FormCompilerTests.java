@@ -146,6 +146,15 @@ class FormCompilerTests {
   }
 
   @Test
+  void compilesTypedRootFieldReferencesAgainstThePackageRegistry() throws Exception {
+    ObjectNode form = canonical();
+    ((ObjectNode) form.path("expressions")).set("amountPositive", json.readTree("""
+        {"op":"gt","args":[{"ref":{"scope":"root","fieldId":"amount"}},{"literal":{"type":"integer","value":"0"}}]}"""));
+    CompilationResult result = compiler.compile(form);
+    assertThat(result.valid()).as(result.diagnostics().toString()).isTrue();
+  }
+
+  @Test
   void compilesParentItemExpressionAtNestedRecursiveConsumer() throws Exception {
     ObjectNode form = canonical();
     ((ObjectNode) form.path("expressions")).set("parentVisible", json.readTree("""

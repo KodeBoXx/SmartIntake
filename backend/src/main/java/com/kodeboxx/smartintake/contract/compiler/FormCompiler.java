@@ -197,12 +197,8 @@ public final class FormCompiler {
 
   private void checkExpressions(JsonNode expressionNodes, State state) {
     if (!expressionNodes.isObject()) return;
-    expressionNodes.fields().forEachRemaining(entry -> {
-      state.expressionNodes.put(entry.getKey(), entry.getValue().deepCopy());
-      ExpressionEngine.Result result = expressions.compile(entry.getValue());
-      if (!"available".equals(result.state())) state.error("EXPRESSION_" + result.code(),
-          CompilationDiagnostic.child("/expressions", entry.getKey()), "Expression does not compile against the declared fields and scopes.");
-    });
+    expressionNodes.fields().forEachRemaining(entry ->
+        state.expressionNodes.put(entry.getKey(), entry.getValue().deepCopy()));
   }
 
   private void checkExpressionConsumers(JsonNode candidate, State state) {
@@ -246,7 +242,11 @@ public final class FormCompiler {
   private static ObjectNode expressionDefinition(JsonNode field) {
     ObjectNode result = JsonNodeFactory.instance.objectNode();
     result.put("id", field.path("id").asText());
-    result.put("type", field.path("type").asText());
+    String canonicalType = field.path("type").asText();
+    if ("multiChoice".equals(canonicalType)) {
+      result.put("type", "array");
+      result.put("itemType", "choice");
+    } else result.put("type", canonicalType);
     JsonNode children = field.path("itemSchema").path("fields");
     if (children.isArray()) {
       ArrayNode itemFields = result.putArray("itemFields");

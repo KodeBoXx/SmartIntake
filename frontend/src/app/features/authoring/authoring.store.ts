@@ -199,9 +199,9 @@ export class AuthoringStore {
 function applyCommand(document: AuthoringDocument, command: AuthoringCommand): AuthoringDocument {
   const label = command.label?.trim();
   if (command.type === 'rename' && command.targetId && label) return mapDocument(document, command.targetId, (value) => ({ ...value, title: label }), (value) => ({ ...value, label }));
-  if (command.type === 'add-phase') return { ...document, phases: [...document.phases, { id: command.entityId!, title: label || 'New phase', pages: [{ id: `${command.entityId}_page`, title: 'New page', sections: [{ id: `${command.entityId}_section`, title: 'New section', nodes: [{ id: `${command.entityId}_node`, kind: 'field', label: 'New field', control: 'shortText' }] }] }] }] };
-  if (command.type === 'add-page' && command.targetId) return { ...document, phases: document.phases.map((phase) => phase.id === command.targetId ? { ...phase, pages: [...phase.pages, { id: command.entityId!, title: label || 'New page', sections: [{ id: `${command.entityId}_section`, title: 'New section', nodes: [{ id: `${command.entityId}_node`, kind: 'field', label: 'New field', control: 'shortText' }] }] }] } : phase) };
-  if (command.type === 'add-section' && command.targetId) return { ...document, phases: document.phases.map((phase) => ({ ...phase, pages: phase.pages.map((page) => page.id === command.targetId ? { ...page, sections: [...page.sections, { id: command.entityId!, title: label || 'New section', nodes: [{ id: `${command.entityId}_node`, kind: 'field', label: 'New field', control: 'shortText' }] }] } : page) })) };
+  if (command.type === 'add-phase') return { ...document, phases: [...document.phases, { id: command.entityId!, title: label || 'New phase', pages: [{ id: `${command.entityId}_page`, title: 'New page', sections: [{ id: `${command.entityId}_section`, title: 'New section', nodes: [starterQuestion(command.entityId!)] }] }] }] };
+  if (command.type === 'add-page' && command.targetId) return { ...document, phases: document.phases.map((phase) => phase.id === command.targetId ? { ...phase, pages: [...phase.pages, { id: command.entityId!, title: label || 'New page', sections: [{ id: `${command.entityId}_section`, title: 'New section', nodes: [starterQuestion(command.entityId!)] }] }] } : phase) };
+  if (command.type === 'add-section' && command.targetId) return { ...document, phases: document.phases.map((phase) => ({ ...phase, pages: phase.pages.map((page) => page.id === command.targetId ? { ...page, sections: [...page.sections, { id: command.entityId!, title: label || 'New section', nodes: [starterQuestion(command.entityId!)] }] } : page) })) };
   if ((command.type === 'add-node' || command.type === 'insert-component') && command.targetId && command.node) return { ...document, phases: document.phases.map((phase) => ({ ...phase, pages: phase.pages.map((page) => ({ ...page, sections: page.sections.map((section) => section.id === command.targetId ? { ...section, nodes: [...section.nodes, command.node!] } : section) })) })) };
   if (command.type === 'remove-node' && command.targetId) return { ...document, phases: document.phases.map((phase) => ({ ...phase, pages: phase.pages.map((page) => ({ ...page, sections: page.sections.map((section) => ({ ...section, nodes: removeNode(section.nodes, command.targetId!) })) })) })) };
   if (command.type === 'move' && command.targetId && command.destinationId) return moveDocumentNode(document, command.targetId, command.destinationId);
@@ -210,10 +210,18 @@ function applyCommand(document: AuthoringDocument, command: AuthoringCommand): A
 }
 
 function materializeIds(command: AuthoringCommand): AuthoringCommand {
-  if (!['add-phase', 'add-page', 'add-section', 'add-node'].includes(command.type) || command.entityId) return command;
-  const entityId = command.node?.id ?? `id_${crypto.randomUUID().replaceAll('-', '')}`;
-  const node = command.type === 'add-node' ? { ...command.node!, id: entityId } : command.node;
-  return { ...command, entityId, node, fieldId: command.fieldId ?? (command.type === 'add-node' ? `${entityId}_field` : undefined) };
+  if (!['add-phase', 'add-page', 'add-section', 'add-node'].includes(command.type)) return command;
+  const entityId = command.entityId ?? command.node?.id ?? `id_${crypto.randomUUID().replaceAll('-', '')}`;
+  if (command.type !== 'add-node') return { ...command, entityId };
+  const fieldId = command.fieldId ?? command.node?.fieldId ?? `${entityId}_field`;
+  const node = { ...command.node!, id: entityId, fieldId, placementId: command.node?.placementId ?? entityId };
+  return { ...command, entityId, node, fieldId };
+}
+
+/** Keep the immediate visual projection linked to the canonical question created by the same command. */
+function starterQuestion(seed: string): AuthoringNode {
+  const id = `${seed}_node`;
+  return { id, kind: 'field', label: 'New field', control: 'shortText', fieldId: `${seed}_field`, placementId: id };
 }
 
 function moveDocumentNode(document: AuthoringDocument, targetId: string, destinationId: string): AuthoringDocument {
@@ -225,7 +233,7 @@ function moveDocumentNode(document: AuthoringDocument, targetId: string, destina
 
 function mapDocument(document: AuthoringDocument, id: string, sectionMapper: (value: { id: string; title: string }) => { id: string; title: string }, nodeMapper: (value: { id: string; label: string }) => { id: string; label: string }): AuthoringDocument {
   const mapNodes = (nodes: readonly AuthoringNode[]): readonly AuthoringNode[] => nodes.map((node) => ({ ...node, ...(node.id === id ? nodeMapper(node) : {}), ...(node.children ? { children: mapNodes(node.children) } : {}) }));
-  return { ...document, phases: document.phases.map((phase) => ({ ...sectionMapper(phase), pages: phase.pages.map((page) => ({ ...sectionMapper(page), sections: page.sections.map((section) => ({ ...sectionMapper(section), nodes: mapNodes(section.nodes) })) })) })) };
+  return { ...document, phases: document.phases.map((phase) => ({ ...(phase.id === id ? sectionMapper(phase) : phase), pages: phase.pages.map((page) => ({ ...(page.id === id ? sectionMapper(page) : page), sections: page.sections.map((section) => ({ ...(section.id === id ? sectionMapper(section) : section), nodes: mapNodes(section.nodes) })) })) })) };
 }
 
 function removeNode(nodes: readonly AuthoringNode[], id: string): readonly AuthoringNode[] {

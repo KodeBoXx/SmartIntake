@@ -33,12 +33,13 @@ const FIELD_KEYS = new Set([
 const CONSTRAINT_KEYS = new Set(['min', 'max', 'step', 'scale', 'minItems', 'maxItems', 'fixedItemIds', 'exclusiveOptionIds', 'required', 'minLength', 'maxLength']);
 
 function fieldOnly(value: CanonicalObject): CanonicalObject {
-  const field = Object.fromEntries(Object.entries(value).filter(([key]) => FIELD_KEYS.has(key))) as CanonicalObject;
+  const field = Object.fromEntries(Object.entries(value).filter(([key, candidate]) => FIELD_KEYS.has(key) && candidate !== null && candidate !== undefined)) as CanonicalObject;
   if (field.itemSchema && typeof field.itemSchema === 'object' && !Array.isArray(field.itemSchema)) {
     const itemSchema = field.itemSchema as CanonicalObject;
     const nested = Array.isArray(itemSchema.fields) ? itemSchema.fields : [];
     field.itemSchema = { fields: nested.filter((child): child is CanonicalObject => !!child && typeof child === 'object' && !Array.isArray(child)).map(fieldOnly) };
   }
+  if (Array.isArray(field.options)) field.options = canonicalOptions(field.options);
   return field;
 }
 
@@ -53,7 +54,7 @@ function canonicalOptions(value: unknown): CanonicalObject[] | undefined {
 }
 
 /** The schema is closed, so a control switch must remove settings that belong to its old destination. */
-function canonicalFieldForControl(value: CanonicalObject, control: string): CanonicalObject {
+function canonicalFieldForControl(value: CanonicalObject, control: string, preserveCalculated = false): CanonicalObject {
   const type = CONTROL_TYPES[control] ?? String(value.type ?? 'text');
   const result = fieldOnly(value);
   const constraints = result.constraints && typeof result.constraints === 'object' && !Array.isArray(result.constraints)
@@ -76,7 +77,7 @@ function canonicalFieldForControl(value: CanonicalObject, control: string): Cano
   }
   if (!['amount', 'currency'].includes(control)) delete result.unit;
   if (!['ranking', 'fixedMatrix'].includes(control)) delete result.ordered;
-  if (control !== 'calculated') {
+  if (control !== 'calculated' && !preserveCalculated) {
     delete result.calculated;
     if (result.mode === 'calculated') result.mode = 'input';
   }
@@ -133,18 +134,19 @@ function field(document: CanonicalObject, fieldId: string): FieldLocation | null
   return visit((((document.data as CanonicalObject | undefined)?.fields as CanonicalObject[] | undefined) ?? []), '/data/fields', []);
 }
 
-function translation(path: string, value: string): CanonicalPatch {
-  return { op: 'add', path: `/translations/en/messages/${escape(path)}`, value };
+function translations(document: CanonicalObject, path: string, value: string): CanonicalPatch[] {
+  const locales = Array.isArray(document.supportedLocales) && document.supportedLocales.length ? document.supportedLocales : ['en'];
+  return locales.filter((locale): locale is string => typeof locale === 'string').map((locale) => ({ op: 'add', path: `/translations/${escape(locale)}/messages/${escape(path)}`, value }));
 }
 
-function firstQuestion(seed: string, label: string, control = 'shortText'): { field: CanonicalObject; node: CanonicalObject; message: CanonicalPatch } {
+function firstQuestion(document: CanonicalObject, seed: string, label: string, control = 'shortText'): { field: CanonicalObject; node: CanonicalObject; messages: CanonicalPatch[] } {
   const fieldId = `${seed}_field`;
   const nodeId = `${seed}_node`;
   const key = labelKey(fieldId);
   return {
     field: { id: fieldId, key: fieldId, type: CONTROL_TYPES[control] ?? 'text', labelKey: key, constraints: { required: false }, ...(choiceControl(control) ? { options: [] } : {}) },
     node: { id: nodeId, kind: 'question', fieldId, fieldType: CONTROL_TYPES[control] ?? 'text', control },
-    message: translation(key, label),
+    messages: translations(document, key, label),
   };
 }
 
@@ -183,31 +185,37 @@ export function canonicalPatches(authoring: AuthoringDocument, command: Authorin
   const id = command.entityId ?? command.node?.id ?? generatedId();
 
   if (command.type === 'rename' && found && label) {
-    const key = found.kind === 'node' ? field(document, found.fieldId ?? '')?.value.labelKey : found.key;
-    return typeof key === 'string' && key ? [translation(key, label)] : [];
+    if (found.kind === 'node') {
+      const locatedField = field(document, found.fieldId ?? '');
+      if (!locatedField) return [];
+      const key = labelKey(String(locatedField.value.id));
+      return [{ op: 'add', path: `${locatedField.path}/labelKey`, value: key }, ...translations(document, key, label)];
+    }
+    const key = labelKey(String(command.targetId));
+    return [{ op: 'add', path: `${found.path}/titleKey`, value: key }, ...translations(document, key, label)];
   }
   if (command.type === 'add-phase') {
-    const question = firstQuestion(id, 'New field');
+    const question = firstQuestion(document, id, 'New field');
     return [
       { op: 'add', path: '/data/fields/-', value: question.field },
       { op: 'add', path: '/flow/phases/-', value: { id, titleKey: labelKey(id), pages: [{ id: `${id}_page`, titleKey: labelKey(`${id}_page`), sections: [{ id: `${id}_section`, titleKey: labelKey(`${id}_section`), nodes: [question.node] }] }] } },
-      translation(labelKey(id), label || 'New phase'), translation(labelKey(`${id}_page`), 'New page'), translation(labelKey(`${id}_section`), 'New section'), question.message,
+      ...translations(document, labelKey(id), label || 'New phase'), ...translations(document, labelKey(`${id}_page`), 'New page'), ...translations(document, labelKey(`${id}_section`), 'New section'), ...question.messages,
     ];
   }
   if (command.type === 'add-page' && found?.kind === 'phase') {
-    const question = firstQuestion(id, 'New field');
+    const question = firstQuestion(document, id, 'New field');
     return [
       { op: 'add', path: '/data/fields/-', value: question.field },
       { op: 'add', path: `${found.path}/pages/-`, value: { id, titleKey: labelKey(id), sections: [{ id: `${id}_section`, titleKey: labelKey(`${id}_section`), nodes: [question.node] }] } },
-      translation(labelKey(id), label || 'New page'), translation(labelKey(`${id}_section`), 'New section'), question.message,
+      ...translations(document, labelKey(id), label || 'New page'), ...translations(document, labelKey(`${id}_section`), 'New section'), ...question.messages,
     ];
   }
   if (command.type === 'add-section' && found?.kind === 'page') {
-    const question = firstQuestion(id, 'New field');
+    const question = firstQuestion(document, id, 'New field');
     return [
       { op: 'add', path: '/data/fields/-', value: question.field },
       { op: 'add', path: `${found.path}/sections/-`, value: { id, titleKey: labelKey(id), nodes: [question.node] } },
-      translation(labelKey(id), label || 'New section'), question.message,
+      ...translations(document, labelKey(id), label || 'New section'), ...question.messages,
     ];
   }
   if (command.type === 'add-node' && found?.kind === 'section') {
@@ -221,7 +229,7 @@ export function canonicalPatches(authoring: AuthoringDocument, command: Authorin
     return [
       { op: 'add', path: '/data/fields/-', value: { id: fieldId, key: fieldId, type: fieldType, labelKey: key, constraints: { required: false }, ...(choiceControl(control) ? { options: [] } : {}) } },
       { op: 'add', path: `${found.path}/nodes/-`, value: node },
-      translation(key, command.node?.label || label || 'New field'),
+      ...translations(document, key, command.node?.label || label || 'New field'),
     ];
   }
   if (command.type === 'update-field' && found?.kind === 'node' && command.field) {
@@ -241,11 +249,12 @@ export function canonicalPatches(authoring: AuthoringDocument, command: Authorin
     const fieldType = CONTROL_TYPES[control] ?? String(configured.type ?? 'text');
     const options = canonicalOptions(supplied.options);
     if (options) configured.options = options;
-    const canonical = canonicalFieldForControl({ ...configured, type: fieldType }, control);
+    const canonical = canonicalFieldForControl({ ...configured, type: fieldType }, control, supplied.calculated === true);
     const existingNode = atNode(document, found.path);
     const nextNode: CanonicalObject = { ...existingNode, control, fieldType };
     const childFields = ((canonical.itemSchema as CanonicalObject | undefined)?.fields as CanonicalObject[] | undefined) ?? [];
-    if (childFields.length) nextNode.children = questionPlacements(childFields, String(existingNode.id ?? found.path), children(existingNode, 'children'));
+    const visualChildren = (((supplied.itemSchema as CanonicalObject | undefined)?.fields as CanonicalObject[] | undefined) ?? []);
+    if (childFields.length) nextNode.children = questionPlacements(childFields, children(existingNode, 'children'), visualChildren);
     else delete nextNode.children;
     for (const key of ['roles', 'summaryFieldIds', 'children', 'fixedRowLabels', 'acknowledgmentContentKey']) {
       if (Object.prototype.hasOwnProperty.call(supplied, key)) {
@@ -255,20 +264,20 @@ export function canonicalPatches(authoring: AuthoringDocument, command: Authorin
       }
     }
     const patches: CanonicalPatch[] = [{ op: 'replace', path: current.path, value: canonical }, { op: 'replace', path: found.path, value: nextNode }];
-    if (typeof supplied.help === 'string' && typeof configured.descriptionKey === 'string') patches.push(translation(configured.descriptionKey, supplied.help));
-    if (typeof supplied.acknowledgmentContent === 'string' && typeof nextNode.acknowledgmentContentKey === 'string' && supplied.acknowledgmentContent) patches.push(translation(nextNode.acknowledgmentContentKey, supplied.acknowledgmentContent));
-    if (Array.isArray(supplied.options)) for (const option of supplied.options) if (option && typeof option === 'object' && typeof (option as CanonicalObject).label === 'string') patches.push(translation(String((option as CanonicalObject).labelKey), String((option as CanonicalObject).label)));
-    const visualChildren = (((supplied.itemSchema as CanonicalObject | undefined)?.fields as CanonicalObject[] | undefined) ?? []);
+    if (typeof supplied.help === 'string' && typeof configured.descriptionKey === 'string') patches.push(...translations(document, configured.descriptionKey, supplied.help));
+    if (typeof supplied.acknowledgmentContent === 'string' && typeof nextNode.acknowledgmentContentKey === 'string' && supplied.acknowledgmentContent) patches.push(...translations(document, nextNode.acknowledgmentContentKey, supplied.acknowledgmentContent));
+    if (Array.isArray(supplied.options)) for (const option of supplied.options) if (option && typeof option === 'object' && typeof (option as CanonicalObject).label === 'string') patches.push(...translations(document, String((option as CanonicalObject).labelKey), String((option as CanonicalObject).label)));
     const childTranslations = (children: CanonicalObject[]): CanonicalPatch[] => children.flatMap((child) => {
       const nested = ((child.itemSchema as CanonicalObject | undefined)?.fields as CanonicalObject[] | undefined) ?? [];
       return [
-        ...(typeof child.labelKey === 'string' && typeof child.__label === 'string' ? [translation(child.labelKey, child.__label)] : []),
+        ...(typeof child.labelKey === 'string' && typeof child.__label === 'string' ? translations(document, child.labelKey, child.__label) : []),
+        ...(Array.isArray(child.options) ? child.options.flatMap((option) => option && typeof option === 'object' && typeof (option as CanonicalObject).label === 'string' ? translations(document, String((option as CanonicalObject).labelKey), String((option as CanonicalObject).label)) : []) : []),
         ...childTranslations(nested),
       ];
     });
     patches.push(...childTranslations(visualChildren));
     const rows = supplied.fixedRows;
-    if (Array.isArray(rows)) for (const row of rows) if (row && typeof row === 'object' && typeof (row as CanonicalObject).label === 'string') patches.push(translation(String((row as CanonicalObject).labelKey), String((row as CanonicalObject).label)));
+    if (Array.isArray(rows)) for (const row of rows) if (row && typeof row === 'object' && typeof (row as CanonicalObject).label === 'string') patches.push(...translations(document, String((row as CanonicalObject).labelKey), String((row as CanonicalObject).label)));
     const calculation = canonical.extensions && typeof canonical.extensions === 'object'
       ? (canonical.extensions as CanonicalObject)['x-kodeboxx.calculation'] as CanonicalObject | undefined : undefined;
     if (calculation?.dependencyId && calculation.version && calculation.digest) {
@@ -325,12 +334,14 @@ export function canonicalPatches(authoring: AuthoringDocument, command: Authorin
   return [];
 }
 
-function questionPlacements(fields: readonly CanonicalObject[], parentNodeId: string, existing: readonly CanonicalObject[]): CanonicalObject[] {
+function questionPlacements(fields: readonly CanonicalObject[], existing: readonly CanonicalObject[], visualFields: readonly CanonicalObject[]): CanonicalObject[] {
   return fields.map((field) => {
     const present = existing.find((node) => node.fieldId === field.id);
-    const id = String(present?.id ?? `${parentNodeId}__${String(field.id)}`);
+    const visual = visualFields.find((candidate) => candidate.id === field.id);
+    const id = String(present?.id ?? `placement_${String(field.id)}`);
     const nested = ((field.itemSchema as CanonicalObject | undefined)?.fields as CanonicalObject[] | undefined) ?? [];
-    return { id, kind: 'question', fieldId: field.id, fieldType: field.type, control: present?.control ?? controlForFieldType(String(field.type ?? 'text')), ...(nested.length ? { children: questionPlacements(nested, id, children(present ?? {}, 'children')) } : {}) };
+    const visualNested = ((visual?.itemSchema as CanonicalObject | undefined)?.fields as CanonicalObject[] | undefined) ?? [];
+    return { id, kind: 'question', fieldId: field.id, fieldType: field.type, control: present?.control ?? visual?.__control ?? controlForFieldType(String(field.type ?? 'text')), ...(nested.length ? { children: questionPlacements(nested, children(present ?? {}, 'children'), visualNested) } : {}) };
   });
 }
 

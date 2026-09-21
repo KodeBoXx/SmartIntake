@@ -22,6 +22,69 @@ describe('AuthoringStore', () => {
     expect(reloaded.document().phases[0].pages[0].sections[0].nodes[0].id).toBe(nodeId);
   });
 
+  it('links newly added visual nodes to their canonical fields immediately', () => {
+    const key = 'authoring.new-field-selection';
+    const store = new AuthoringStore();
+    const server = {
+      ...DEFAULT_AUTHORING_DOCUMENT,
+      id: 'draft-new-field',
+      definition: {
+        contractVersion: '4.0.0',
+        data: { fields: [] },
+        flow: { phases: [{ id: 'phase-intake', pages: [{ id: 'page-details', sections: [{ id: 'section-main', nodes: [] }] }] }] },
+        translations: { en: { messages: {} } },
+      },
+    };
+    store.hydrate(key, server);
+
+    store.apply({ type: 'add-node', targetId: 'section-main', entityId: 'node-new', label: 'New field', node: { id: 'node-new', kind: 'field', label: 'New field', control: 'shortText' } }, key);
+
+    expect(store.document().phases[0].pages[0].sections[0].nodes.at(-1)).toMatchObject({
+      id: 'node-new',
+      fieldId: 'node-new_field',
+      placementId: 'node-new',
+    });
+    expect((store.document().definition as { data: { fields: { id: string }[] } }).data.fields.at(-1)?.id).toBe('node-new_field');
+  });
+
+  it('links starter questions created with new structural containers', () => {
+    const key = 'authoring.new-structure-selection';
+    const store = new AuthoringStore();
+    const server = {
+      ...DEFAULT_AUTHORING_DOCUMENT,
+      id: 'draft-new-structure',
+      definition: {
+        contractVersion: '4.0.0',
+        data: { fields: [] },
+        flow: { phases: [] },
+        translations: { en: { messages: {} } },
+      },
+    };
+    store.hydrate(key, server);
+
+    store.apply({ type: 'add-phase', entityId: 'phase-new', label: 'New phase' }, key);
+
+    expect(store.document().phases.at(-1)?.pages[0].sections[0].nodes[0]).toMatchObject({
+      id: 'phase-new_node',
+      fieldId: 'phase-new_field',
+      placementId: 'phase-new_node',
+    });
+  });
+
+  it('renames only the selected structural container', () => {
+    const key = 'authoring.structure-rename';
+    const store = new AuthoringStore();
+    store.hydrate(key, { ...DEFAULT_AUTHORING_DOCUMENT, id: 'draft-structure-rename' });
+    const original = store.document().phases[0];
+
+    store.apply({ type: 'rename', targetId: original.id, label: 'Request' }, key);
+
+    const renamed = store.document().phases[0];
+    expect(renamed.title).toBe('Request');
+    expect(renamed.pages[0].title).toBe(original.pages[0].title);
+    expect(renamed.pages[0].sections[0].title).toBe(original.pages[0].sections[0].title);
+  });
+
   it('retains both documents when a revision conflict occurs', () => {
     const store = new AuthoringStore();
     const client = { ...DEFAULT_AUTHORING_DOCUMENT, id: 'draft-2', title: 'Client' };

@@ -38,7 +38,8 @@ describe('canonical authoring patches', () => {
 
   it('renames through translations, preserves dependent expressions as repairable diagnostics, and moves nodes by canonical pointer', () => {
     const renamed = applyCanonicalPatches(definition, canonicalPatches(document, { type: 'rename', targetId: 'node-a', label: 'Legal name' })) as typeof definition;
-    expect(renamed.translations.en.messages['field-a.label']).toBe('Legal name');
+    expect(renamed.data.fields[0].labelKey).toBe('authoring.field-a.label');
+    expect((renamed.translations.en.messages as Record<string, string>)['authoring.field-a.label']).toBe('Legal name');
     const removed = applyCanonicalPatches(definition, canonicalPatches(document, { type: 'remove-node', targetId: 'node-a' })) as typeof definition;
     expect(removed.data.fields).toEqual([]);
     expect(removed.expressions).toEqual(definition.expressions);
@@ -151,7 +152,7 @@ describe('canonical authoring patches', () => {
       },
     })) as typeof definition;
     expect((next.data.fields[0] as unknown as { itemSchema: { fields: Array<Record<string, unknown>> } }).itemSchema.fields[0]).toMatchObject({ id: 'child-email', key: 'email', type: 'text' });
-    expect(next.flow.phases[0].pages[0].sections[0].nodes[0]).toMatchObject({ children: [{ id: 'node-a__child-email', kind: 'question', fieldId: 'child-email' }] });
+    expect(next.flow.phases[0].pages[0].sections[0].nodes[0]).toMatchObject({ children: [{ id: 'placement_child-email', kind: 'question', fieldId: 'child-email' }] });
     expect((next.translations.en.messages as Record<string, string>)['authoring.field-a.child.email']).toBe('Email');
   });
 
