@@ -176,14 +176,25 @@ public class AuthoringApplicationService {
   }
 
   @Transactional
-  public ResponseEntity<?> resolve(String workspace, UUID form, String draft, String token, String match, Map<String, Object> request) {
+  public ResponseEntity<?> resolve(String workspace, UUID form, String draft, String token, String match,
+      String idempotencyKey, Map<String, Object> request) {
     authorizeWrite(workspace, form, draft, token); Row current = row(form);
+    UUID author = actor(token);
+    if (replays != null) return replays.execute(author, "authoring:" + form + ":" + draft,
+        "authoring-conflict-resolve", idempotencyKey, map("ifMatch", match, "request", request),
+        () -> resolveInternal(form, draft, match, request, author));
+    return resolveInternal(form, draft, match, request, author);
+  }
+
+  private ResponseEntity<?> resolveInternal(UUID form, String draft, String match, Map<String, Object> request,
+      UUID author) {
+    Row current = row(form);
     UUID conflictId = UUID.fromString(required(request, "conflictId"));
     JsonNode chosen = json.valueToTree(request.get("definition")); requireBounded(chosen);
     if (!matches(match, current.revision())) return stale(form, draft, current, chosen, match);
     Integer found = db.queryForObject("select count(*) from form_authoring_conflicts where id=? and form_id=? and resolved_at is null", Integer.class, conflictId, form);
     if (found == null || found != 1) throw bad("CONFLICT_NOT_FOUND", "Conflict is unavailable.");
-    ResponseEntity<?> result = persist(form, draft, current, chosen, actor(token), "CONFLICT_RESOLVE", Map.of("definition", stringify(chosen)), Map.of("definition", current.definition()));
+    ResponseEntity<?> result = persist(form, draft, current, chosen, author, "CONFLICT_RESOLVE", Map.of("definition", stringify(chosen)), Map.of("definition", current.definition()));
     if (result.getStatusCode().is2xxSuccessful()) db.update("update form_authoring_conflicts set resolved_at=now() where id=?", conflictId);
     return result;
   }
@@ -233,9 +244,19 @@ public class AuthoringApplicationService {
     content.put("localeReviews", db.query("select locale,source_revision,status,reviewed_at from form_authoring_locale_reviews where form_id=? and draft_id=? order by locale",(rs,n)->map("locale",rs.getString(1),"sourceRevision",rs.getLong(2),"status",rs.getString(3),"reviewedAt",rs.getObject(4).toString()),form,UUID.fromString(draft)));
     return ResponseEntity.ok(content);
   }
-  @Transactional public ResponseEntity<?> updateTheme(String w, UUID f, String d, String t, String m, Map<String, Object> body) {
+  @Transactional public ResponseEntity<?> updateTheme(String w, UUID f, String d, String t, String m,
+      String idempotencyKey, Map<String, Object> body) {
     boolean administratorLocks = body.containsKey("locks");
-    if (administratorLocks) authorization.authorizeWorkspaceAdministration(w,t);
+    if (administratorLocks) authorization.authorizeWorkspaceAdministration(w,t); else authorizeWrite(w,f,d,t);
+    UUID author = actor(t);
+    if (replays != null) return replays.execute(author, "authoring:" + f + ":" + d,
+        "authoring-theme-update", idempotencyKey, map("ifMatch", m, "request", body),
+        () -> updateThemeInternal(w, f, d, t, m, body, administratorLocks, author));
+    return updateThemeInternal(w, f, d, t, m, body, administratorLocks, author);
+  }
+
+  private ResponseEntity<?> updateThemeInternal(String w, UUID f, String d, String t, String m,
+      Map<String, Object> body, boolean administratorLocks, UUID author) {
     JsonNode before = at(parse(row(f).definition()), "/theme"); JsonNode next = json.valueToTree(body.get("theme"));
     for (String lock : themeLocks(f, d)) if (!at(before, lock).equals(at(next, lock)))
       throw bad("THEME_LOCKED", "Theme token is locked: " + lock);
@@ -243,35 +264,52 @@ public class AuthoringApplicationService {
     if (administratorLocks) {
       Row current = row(f);
       if (!matches(m, current.revision())) return stale(f, d, current, parse(current.definition()), m);
-      saved = persist(f, d, current, apply(parse(current.definition()), map("op", "set", "path", "/theme", "value", next)).document(), actor(t), "THEME_UPDATE", Map.of("theme", next), Map.of("theme", before));
+      saved = persist(f, d, current, apply(parse(current.definition()), map("op", "set", "path", "/theme", "value", next)).document(), author, "THEME_UPDATE", Map.of("theme", next), Map.of("theme", before));
     } else saved = updateSubdocument(w, f, d, t, m, "/theme", next);
     if (saved.getStatusCode().is2xxSuccessful() && administratorLocks) replaceThemeLocks(f, d, t, body.get("locks"));
     return saved;
   }
-  @Transactional public ResponseEntity<?> updateContent(String w, UUID f, String d, String t, String m, Map<String, Object> body) {
+  @Transactional public ResponseEntity<?> updateContent(String w, UUID f, String d, String t, String m,
+      String idempotencyKey, Map<String, Object> body) {
+    boolean approval = body.containsKey("approveLocales");
+    if (approval) authorization.requireReviewForm(w, t, f); else if (body.containsKey("guidance")) authorization.requireGuidanceForm(w,t,f); else authorization.requireTranslationForm(w,t,f);
+    requireAuthoringWritable(f);
+    UUID author = actor(t);
+    if (replays != null) return replays.execute(author, "authoring:" + f + ":" + d,
+        "authoring-content-update", idempotencyKey, map("ifMatch", m, "request", body),
+        () -> updateContentInternal(w, f, d, t, m, body, author));
+    return updateContentInternal(w, f, d, t, m, body, author);
+  }
+
+  private ResponseEntity<?> updateContentInternal(String w, UUID f, String d, String t, String m,
+      Map<String, Object> body, UUID author) {
     boolean guidance = body.containsKey("guidance"); boolean translations = body.containsKey("translations"); boolean approval = body.containsKey("approveLocales");
     if (approval) {
-      authorization.requireReviewForm(w, t, f); requireAuthoringWritable(f);
       Row current=row(f); if(!matches(m,current.revision()))return stale(f,d,current,parse(current.definition()),m);
       JsonNode locales=json.valueToTree(body.get("approveLocales")); if(!locales.isArray())throw bad("LOCALE_APPROVAL_INVALID","approveLocales must be an array.");
-      UUID reviewer=actor(t); for(JsonNode locale:locales){if(!locale.isTextual())throw bad("LOCALE_APPROVAL_INVALID","Locale must be textual.");int changed=db.update("update form_authoring_locale_reviews set status='APPROVED',reviewed_by=?,reviewed_at=now() where form_id=? and draft_id=? and locale=? and source_revision=? and status='DRAFT'",reviewer,f,UUID.fromString(d),locale.asText(),current.revision());if(changed!=1)throw bad("LOCALE_APPROVAL_STALE","Locale is not an unreviewed current translation.");}
+      String packageHash=CanonicalJson.sha256(parse(current.definition()));
+      for(JsonNode locale:locales){if(!locale.isTextual())throw bad("LOCALE_APPROVAL_INVALID","Locale must be textual.");int changed=db.update("update form_authoring_locale_reviews set status='APPROVED',reviewed_by=?,reviewed_at=now(),source_package_hash=? where form_id=? and draft_id=? and locale=? and source_revision=? and source_package_hash=? and status='DRAFT'",author,packageHash,f,UUID.fromString(d),locale.asText(),current.revision(),packageHash);if(changed!=1)throw bad("LOCALE_APPROVAL_STALE","Locale is not an unreviewed current translation.");}
       return ResponseEntity.ok().eTag(etag(current.revision())).body(map("revision",current.revision(),"approved",locales));
     }
     if (guidance == translations || !guidance && !translations) throw bad("CONTENT_SCOPE_INVALID","Update guidance or translations in separate requests.");
-    if (guidance) authorization.requireGuidanceForm(w,t,f); else authorization.requireTranslationForm(w,t,f);
-    requireAuthoringWritable(f);
     Map<String,Object> patch = new LinkedHashMap<>(); patch.put("commands", List.of(
         map("op", "set", "path", guidance?"/guidance":"/translations", "value", guidance?body.get("guidance"):body.get("translations"))));
-    ResponseEntity<?> result=commandsInternal(f, d, m, patch, actor(t));
-    if(result.getStatusCode().is2xxSuccessful() && translations) persistLocaleReview(f,d,parse(row(f).definition()),actor(t));
+    ResponseEntity<?> result=commandsInternal(f, d, m, patch, author);
     return result;
   }
 
   public List<Map<String, Object>> comments(String w, UUID f, String d, String t) {
     authorizeRead(w, f, d, t); return db.query("select id,pointer,body,author_account_id,created_at from form_authoring_comments where form_id=? and draft_id=? order by created_at", (rs,n) -> map("id",rs.getObject(1).toString(),"pointer",rs.getString(2),"body",rs.getString(3),"authorId",rs.getObject(4).toString(),"createdAt",rs.getObject(5).toString()), f, UUID.fromString(d));
   }
-  public Map<String,Object> comment(String w, UUID f, String d, String t, Map<String,Object> body) {
-    authorizeRead(w,f,d,t); String pointer=required(body,"pointer"); String text=required(body,"body"); if(pointer.length()>MAX_POINTER || text.length()>4000) throw bad("COMMENT_LIMIT","Comment exceeds a limit."); UUID id=UUID.randomUUID(); db.update("insert into form_authoring_comments(id,form_id,draft_id,pointer,body,author_account_id) values(?,?,?,?,?,?)",id,f,UUID.fromString(d),pointer,text,actor(t)); return map("id",id.toString(),"pointer",pointer,"body",text);
+  @Transactional public ResponseEntity<?> comment(String w, UUID f, String d, String t, String idempotencyKey,
+      Map<String,Object> body) {
+    authorizeRead(w,f,d,t); UUID author=actor(t);
+    if(replays != null) return replays.execute(author,"authoring:"+f+":"+d,"authoring-comment-create",idempotencyKey,
+        body,()->commentInternal(f,d,body,author));
+    return commentInternal(f,d,body,author);
+  }
+  private ResponseEntity<?> commentInternal(UUID f, String d, Map<String,Object> body, UUID author) {
+    String pointer=required(body,"pointer"); String text=required(body,"body"); if(pointer.length()>MAX_POINTER || text.length()>4000) throw bad("COMMENT_LIMIT","Comment exceeds a limit."); UUID id=UUID.randomUUID(); db.update("insert into form_authoring_comments(id,form_id,draft_id,pointer,body,author_account_id) values(?,?,?,?,?,?)",id,f,UUID.fromString(d),pointer,text,author); return ResponseEntity.status(HttpStatus.CREATED).body(map("id",id.toString(),"pointer",pointer,"body",text));
   }
   public List<Map<String,Object>> presence(String w, UUID f, String d, String t) {
     authorizeRead(w,f,d,t); db.update("delete from form_authoring_presence where expires_at<=now()"); return db.query("select p.account_id,p.cursor_pointer,coalesce(a.display_name,a.email),p.expires_at from form_authoring_presence p join accounts a on a.id=p.account_id where p.form_id=? and p.draft_id=? order by p.updated_at",(rs,n)->map("accountId",rs.getObject(1).toString(),"cursor",rs.getString(2),"displayName",rs.getString(3),"expiresAt",rs.getObject(4).toString()),f,UUID.fromString(d));
@@ -375,6 +413,8 @@ public class AuthoringApplicationService {
     if (!"UNDO".equals(operation) && !"REDO".equals(operation))
       db.update("delete from form_authoring_history where form_id=? and draft_id=? and undone_at is not null",form,UUID.fromString(draft));
     db.update("insert into form_authoring_history(id,form_id,draft_id,revision,command_id,actor_account_id,operation,command,inverse_command,before_hash,after_hash) values(?,?,?,?,?,?,?,cast(? as jsonb),cast(? as jsonb),?,?)",UUID.randomUUID(),form,UUID.fromString(draft),revision,UUID.randomUUID().toString(),actor,operation,stringify(json.valueToTree(command)),stringify(json.valueToTree(inverse)),before,after);
+    if (!parse(current.definition()).path("translations").equals(next.path("translations")))
+      persistLocaleReview(form, draft, next, actor, revision);
     return ResponseEntity.ok().eTag(etag(revision)).body(map("revision",revision,"etag",etag(revision),"definition",next,"packageHash",after,"diagnostics",diagnostics(next),"impact",impact(parse(current.definition()),next)));
   }
 
@@ -446,7 +486,7 @@ public class AuthoringApplicationService {
   private String boundedTimezone(Object value){String timezone=value==null?"UTC":String.valueOf(value);try{ZoneId.of(timezone);}catch(Exception e){throw bad("PREVIEW_CONTEXT_INVALID","Invalid timezone.");}if(timezone.length()>64)throw bad("PREVIEW_CONTEXT_INVALID","Timezone is too long.");return timezone;}
   private String boundedDate(Object value,String timezone){String date=value==null?LocalDate.now(clock.withZone(ZoneId.of(timezone))).toString():String.valueOf(value);try{LocalDate.parse(date);}catch(Exception e){throw bad("PREVIEW_CONTEXT_INVALID","Invalid session date.");}return date;}
   private String boundedDevice(Object value){String device=value==null?"author-preview":String.valueOf(value);if(!device.matches("[A-Za-z0-9 _.-]{1,80}"))throw bad("PREVIEW_CONTEXT_INVALID","Invalid device.");return device;}
-  private void persistLocaleReview(UUID form,String draft,JsonNode definition,UUID actor){JsonNode translations=definition.path("translations");long revision=row(form).revision();translations.fields().forEachRemaining(entry->db.update("insert into form_authoring_locale_reviews(form_id,draft_id,locale,source_revision,status,reviewed_by,reviewed_at) values(?,?,?,?,?,?,now()) on conflict(form_id,draft_id,locale) do update set source_revision=excluded.source_revision,status='DRAFT',reviewed_by=excluded.reviewed_by,reviewed_at=excluded.reviewed_at",form,UUID.fromString(draft),entry.getKey(),revision,"DRAFT",actor));}
+  private void persistLocaleReview(UUID form,String draft,JsonNode definition,UUID actor,long revision){JsonNode translations=definition.path("translations");String packageHash=CanonicalJson.sha256(definition);translations.fields().forEachRemaining(entry->db.update("insert into form_authoring_locale_reviews(form_id,draft_id,locale,source_revision,source_package_hash,status,reviewed_by,reviewed_at) values(?,?,?,?,?,?,?,now()) on conflict(form_id,draft_id,locale) do update set source_revision=excluded.source_revision,source_package_hash=excluded.source_package_hash,status='DRAFT',reviewed_by=excluded.reviewed_by,reviewed_at=excluded.reviewed_at",form,UUID.fromString(draft),entry.getKey(),revision,packageHash,"DRAFT",actor));}
   private long expectedRevision(String match){try{if(match!=null&&match.matches("\"[0-9]+\""))return Long.parseLong(match.substring(1,match.length()-1));}catch(RuntimeException ignored){}return -1;}
   private String etag(long revision){return "\""+revision+"\"";}
   private ResponseStatusException bad(String code,String message){return new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,code+": "+message);}

@@ -350,14 +350,16 @@ public class IntakeApplicationService {
     requireCatalogActive(form);
     requireNewWriteAllowed("FORM", form);
     var row = formRow(form);
-    validateDefinition(parse(row.definition()));
+    Map<String, Object> definitionMap = parse(row.definition());
+    validateDefinition(definitionMap);
+    JsonNode definition = json.valueToTree(definitionMap);
+    requireTrustedLocaleApprovals(form, row.revision(), definition);
     int version =
         db.queryForObject(
             "select coalesce(max(version),0)+1 from form_releases where form_id=?",
             Integer.class,
             form);
     UUID release = UUID.randomUUID();
-    JsonNode definition = json.valueToTree(parse(row.definition()));
     String pinnedManifest = typedRuntime.canonical(definition) ? stringify(runtimeManifest(definition)) : null;
     db.update(
         "insert into form_releases(id,form_id,version,package,compatibility_profile_key,runtime_manifest)"
@@ -381,6 +383,25 @@ public class IntakeApplicationService {
                 form.toString(),
                 "status",
                 "PUBLISHED"));
+  }
+
+  /** Canonical package reviewState values are author-controlled content, never publication authority. */
+  private void requireTrustedLocaleApprovals(UUID form, long revision, JsonNode definition) {
+    if (!typedRuntime.canonical(definition)) return;
+    String packageHash = CanonicalJson.sha256(definition);
+    LinkedHashMap<String, Boolean> locales = new LinkedHashMap<>();
+    for (JsonNode locale : definition.path("supportedLocales")) {
+      if (locale.isTextual() && !locale.asText().isBlank()) locales.put(locale.asText(), Boolean.TRUE);
+    }
+    for (String locale : locales.keySet()) {
+      Integer approved = db.queryForObject(
+          "select count(*) from form_authoring_locale_reviews where form_id=? and draft_id=? and locale=? "
+              + "and source_revision=? and source_package_hash=? and status='APPROVED' and reviewed_by is not null",
+          Integer.class, form, form, locale, revision, packageHash);
+      if (approved == null || approved != 1)
+        throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+            "LOCALE_REVIEW_REQUIRED: " + locale + " lacks a trusted approval for this exact package revision");
+    }
   }
 
   // Respondent session lifecycle

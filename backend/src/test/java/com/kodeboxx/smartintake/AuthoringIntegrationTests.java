@@ -38,7 +38,8 @@ class AuthoringIntegrationTests {
     db.update("insert into organizations(id,name) values(?,?)",org,"M7");
     db.update("insert into workspaces(id,organization_id,workspace_key,name) values(?,?,?,?)",ws,org,workspace,"M7");
     db.update("insert into organization_memberships(account_id,organization_id,roles,membership_status) values(?,?,array['member'],'active')",account,org);
-    db.update("insert into memberships(account_id,workspace_id,role) values(?,?,?)",account,ws,"AUTHOR");
+    for (String role : List.of("AUTHOR", "TRANSLATOR", "REVIEWER", "PUBLISHER"))
+      db.update("insert into memberships(account_id,workspace_id,role) values(?,?,?)",account,ws,role);
     db.update("insert into staff_sessions(token,account_id,expires_at) values(?,?,now()+interval '1 hour')",UUID.fromString(token),account);
     db.update("insert into forms(id,workspace_id,form_key,title,definition,revision,compatibility_profile_key) values(?,?,?,?,cast(? as jsonb),1,?)",form,ws,"m7-"+form.toString().substring(0,8),"M7",fixture(),"canonical-4.0.0");
   }
@@ -192,6 +193,61 @@ class AuthoringIntegrationTests {
     assertEquals(2L,db.queryForObject("select revision from forms where id=?",Long.class,form));
   }
 
+  @Test void rejects_forged_package_review_state_without_a_trusted_approval_record() throws Exception {
+    Object candidate=json.readValue(Files.readString(Path.of("..", "docs", "contracts", "smart-form-builder-lite", "4.0.0", "fixtures", "package-prd-inline-minimal.positive.json")), new TypeReference<>() {});
+    ResponseEntity<String> validated=call("/imports/validate",HttpMethod.POST,null,Map.of("candidate",candidate));
+    Map<String,Object> validation=json.readValue(validated.getBody(),new TypeReference<>() {});
+    assertEquals(HttpStatus.OK,call("/imports/commit",HttpMethod.POST,"\"1\"",Map.of("candidateId",validation.get("candidateId"),"digest",validation.get("digest"),"mode","UPDATE")).getStatusCode());
+
+    ResponseEntity<String> published=publish();
+    assertEquals(HttpStatus.UNPROCESSABLE_ENTITY,published.getStatusCode());
+    assertEquals(0,db.queryForObject("select count(*) from form_authoring_locale_reviews where form_id=? and status='APPROVED'",Integer.class,form));
+  }
+
+  @Test void rejects_publication_when_a_prior_revision_approval_is_stale() throws Exception {
+    Map<String,Object> fixture=json.readValue(fixture(),new TypeReference<>() {});
+    @SuppressWarnings("unchecked") Map<String,Object> translations=(Map<String,Object>) fixture.get("translations");
+    @SuppressWarnings("unchecked") Map<String,Object> english=(Map<String,Object>) translations.get("en");
+    @SuppressWarnings("unchecked") Map<String,Object> messages=(Map<String,Object>) english.get("messages");
+    messages.put("q.name", "Updated name");
+    assertEquals(HttpStatus.OK,call("/content",HttpMethod.PUT,"\"1\"",Map.of("translations",translations),"translations-v2").getStatusCode());
+    assertEquals(HttpStatus.OK,call("/content",HttpMethod.PUT,"\"2\"",Map.of("approveLocales",List.of("en")),"approval-v2").getStatusCode());
+    assertEquals(1,db.queryForObject("select count(*) from form_authoring_locale_reviews where form_id=? and source_revision=2 and status='APPROVED'",Integer.class,form));
+
+    @SuppressWarnings("unchecked") Map<String,Object> guidance=(Map<String,Object>) fixture.get("guidance");
+    assertEquals(HttpStatus.OK,call("/content",HttpMethod.PUT,"\"2\"",Map.of("guidance",guidance),"guidance-v3").getStatusCode());
+    ResponseEntity<String> published=publish();
+    assertEquals(HttpStatus.UNPROCESSABLE_ENTITY,published.getStatusCode());
+  }
+
+  @Test void replays_other_authoring_mutations_and_rejects_changed_key_bodies() throws Exception {
+    Map<String,Object> definition=json.readValue(fixture(),new TypeReference<>() {});
+    Map<String,Object> theme=Map.of("theme",definition.get("theme"));
+    ResponseEntity<String> firstTheme=call("/theme",HttpMethod.PUT,"\"1\"",theme,"theme-key");
+    ResponseEntity<String> replayTheme=call("/theme",HttpMethod.PUT,"\"1\"",theme,"theme-key");
+    assertEquals(HttpStatus.OK,firstTheme.getStatusCode()); assertEquals(firstTheme.getBody(),replayTheme.getBody());
+    assertEquals(HttpStatus.CONFLICT,call("/theme",HttpMethod.PUT,"\"1\"",Map.of("theme",Map.of()),"theme-key").getStatusCode());
+
+    Map<String,Object> content=Map.of("guidance",definition.get("guidance"));
+    ResponseEntity<String> firstContent=call("/content",HttpMethod.PUT,"\"2\"",content,"content-key");
+    assertEquals(firstContent.getBody(),call("/content",HttpMethod.PUT,"\"2\"",content,"content-key").getBody());
+    assertEquals(HttpStatus.CONFLICT,call("/content",HttpMethod.PUT,"\"2\"",Map.of("guidance",Map.of("brief","Changed")),"content-key").getStatusCode());
+
+    Map<String,Object> comment=Map.of("pointer","/flow","body","Review this section");
+    ResponseEntity<String> firstComment=call("/comments",HttpMethod.POST,null,comment,"comment-key");
+    assertEquals(HttpStatus.CREATED,firstComment.getStatusCode());
+    assertEquals(firstComment.getBody(),call("/comments",HttpMethod.POST,null,comment,"comment-key").getBody());
+    assertEquals(HttpStatus.CONFLICT,call("/comments",HttpMethod.POST,null,Map.of("pointer","/flow","body","Changed"),"comment-key").getStatusCode());
+
+    ResponseEntity<String> stale=call("/commands",HttpMethod.POST,"\"1\"",Map.of("commands",List.of(Map.of("op","set","path","/translations/en/messages/q.name","value","Stale"))),"stale-for-resolve");
+    Map<String,Object> conflict=json.readValue(stale.getBody(),new TypeReference<>() {});
+    Map<String,Object> resolution=Map.of("conflictId",conflict.get("conflictId"),"definition",definition);
+    ResponseEntity<String> firstResolve=call("/resolve",HttpMethod.POST,"\"3\"",resolution,"resolve-key");
+    assertEquals(HttpStatus.OK,firstResolve.getStatusCode());
+    assertEquals(firstResolve.getBody(),call("/resolve",HttpMethod.POST,"\"3\"",resolution,"resolve-key").getBody());
+    assertEquals(HttpStatus.CONFLICT,call("/resolve",HttpMethod.POST,"\"3\"",Map.of("conflictId",conflict.get("conflictId"),"definition",Map.of()),"resolve-key").getStatusCode());
+  }
+
   private String fixture() throws Exception { return Files.readString(Path.of("..", "docs", "contracts", "smart-form-builder-lite", "4.0.0", "fixtures", "package-prd-inline-minimal.positive.json")); }
   private ResponseEntity<String> call(String suffix,HttpMethod method,String match,Object body) { return call(suffix,method,match,body,UUID.randomUUID().toString()); }
   private ResponseEntity<String> call(String suffix,HttpMethod method,String match,Object body,String key) {
@@ -201,12 +257,16 @@ class AuthoringIntegrationTests {
     return authoringCall(targetForm,suffix,method,match,body,UUID.randomUUID().toString());
   }
   private ResponseEntity<String> authoringCall(UUID targetForm,String suffix,HttpMethod method,String match,Object body,String key) {
-    HttpHeaders headers=new HttpHeaders(); headers.setContentType(MediaType.APPLICATION_JSON); headers.set("X-Staff-Session",token); if(match!=null)headers.setIfMatch(match); if("/commands".equals(suffix)||"/undo".equals(suffix)||"/redo".equals(suffix)||suffix.contains("/components/")||"/imports/commit".equals(suffix))headers.set("Idempotency-Key",key);
+    HttpHeaders headers=new HttpHeaders(); headers.setContentType(MediaType.APPLICATION_JSON); headers.set("X-Staff-Session",token); if(match!=null)headers.setIfMatch(match); if("/commands".equals(suffix)||"/undo".equals(suffix)||"/redo".equals(suffix)||"/resolve".equals(suffix)||"/theme".equals(suffix)||"/content".equals(suffix)||"/comments".equals(suffix)||suffix.contains("/components/")||"/imports/commit".equals(suffix))headers.set("Idempotency-Key",key);
     return http.exchange("http://localhost:"+port+"/v1/workspaces/"+workspace+"/forms/"+targetForm+"/authoring/"+targetForm+suffix,method,new HttpEntity<>(body,headers),String.class);
   }
   private ResponseEntity<String> forms(HttpMethod method,Object body) {
     HttpHeaders headers=new HttpHeaders(); headers.setContentType(MediaType.APPLICATION_JSON); headers.set("X-Staff-Session",token);
     return http.exchange("http://localhost:"+port+"/v1/workspaces/"+workspace+"/forms",method,new HttpEntity<>(body,headers),String.class);
+  }
+  private ResponseEntity<String> publish() {
+    HttpHeaders headers=new HttpHeaders(); headers.set("X-Staff-Session",token);
+    return http.exchange("http://localhost:"+port+"/v1/workspaces/"+workspace+"/forms/"+form+"/releases",HttpMethod.POST,new HttpEntity<>(headers),String.class);
   }
   private ResponseEntity<String> component(HttpMethod method,String suffix,Object body) {
     HttpHeaders headers=new HttpHeaders(); headers.setContentType(MediaType.APPLICATION_JSON); headers.set("X-Staff-Session",token);
