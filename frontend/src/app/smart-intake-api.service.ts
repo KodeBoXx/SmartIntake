@@ -305,7 +305,8 @@ export class SmartIntakeApiService {
 
   authoringCommands(workspaceId: string, formId: string, draftId: string, revision: number, document: AuthoringDocument, commands: readonly AuthoringCommand[], idempotencyKey = this.createMutationAction()): Observable<AuthoringDocument> {
     const url = `${this.authoringBase(workspaceId, formId, draftId)}/commands`;
-    const acceptedDependencyBreak = commands.some((command) => command.type === 'remove-node' && command.acceptInvalidDraft === true);
+    const acceptedDependencyBreak = commands.some((command) =>
+      (command.type === 'remove-node' || command.type === 'remove-page') && command.acceptInvalidDraft === true);
     return this.http.post<unknown>(url, {
       commands: commands.flatMap((command) => authoringPatch(command, document)), definition: document.definition,
       expectedHash: document.packageHash, ...(acceptedDependencyBreak ? { acceptInvalidDraft: true } : {}),

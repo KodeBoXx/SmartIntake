@@ -196,7 +196,7 @@ export class AuthoringPageComponent implements OnDestroy {
     const summary = [`placements: ${impact.placements.join(', ') || 'none'}`, `fields: ${impact.fields.join(', ') || 'none'}`,
       `routes: ${impact.routes.join(', ') || 'none'}`, `calculations: ${impact.calculations.join(', ') || 'none'}`,
       `expressions: ${impact.expressions.join(', ') || 'none'}`, `translations: ${impact.translations.join(', ') || 'none'}`].join('\n');
-    if (!window.confirm(`Prospective page deletion impact:\n${summary}\n\nOnly unshared field definitions and translations will be removed. Dependent expressions remain as repairable draft diagnostics. Continue?`)) {
+    if (!window.confirm(`Prospective page deletion impact:\n${summary}\n\nOnly unshared field definitions and translations will be removed. Affected routes will be removed atomically. Remaining dependent expressions become repairable draft diagnostics. Continue?`)) {
       this.notice.set('Page deletion cancelled. No page, placement, or dependency changed.');
       return;
     }

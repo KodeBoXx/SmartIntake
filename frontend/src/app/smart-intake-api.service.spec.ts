@@ -206,6 +206,18 @@ describe('SmartIntakeApiService', () => {
     insert.flush({ revision: 9, definition: { title: 'Saved', pages: [] } });
   });
 
+  it('forwards explicit invalid-draft acceptance for a confirmed page deletion', () => {
+    const document = authoringDocument({ draftId: 'draft-1', revision: 7, packageHash: 'before-hash', definition: {
+      data: { fields: [{ id: 'field-1', key: 'field-1', type: 'text', labelKey: 'name.label' }] },
+      flow: { startPageId: 'page-1', phases: [{ id: 'phase-1', pages: [{ id: 'page-1', sections: [] }, { id: 'page-2', sections: [] }] }] },
+      translations: { en: { messages: { 'name.label': 'Name' } }, hi: { messages: {} }, ar: { messages: {} } },
+    } });
+    api.authoringCommands('workspace-1', 'form-1', 'draft-1', 7, document, [{ type: 'remove-page', targetId: 'page-2', confirmed: true, acceptInvalidDraft: true }]).subscribe();
+    const request = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/commands');
+    expect(request.request.body.acceptInvalidDraft).toBe(true);
+    request.flush({ revision: 8, definition: { title: 'Saved', pages: [] } });
+  });
+
   it('sends stable caller-owned keys on server undo and redo with the numeric authoring ETag', () => {
     api.authoringUndo('workspace-1', 'form-1', 'draft-1', 8, 'undo-key').pipe(retry(1)).subscribe();
     const undo = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/undo');

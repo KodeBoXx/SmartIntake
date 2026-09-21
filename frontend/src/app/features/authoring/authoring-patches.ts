@@ -224,9 +224,16 @@ export function pageDeletionImpact(authoring: AuthoringDocument, targetId: strin
   const removedIds = new Set(plan.fields.flatMap((field) => fieldsIn(field.value).map((candidate) => String(candidate.id))));
   const expressions = Object.entries(document.expressions as CanonicalObject ?? {})
     .filter(([, value]) => [...removedIds].some((id) => expressionReferences(value, id))).map(([id]) => id).sort();
-  const routes = flow(document).flatMap((phase) => children(phase, 'pages')).flatMap((page) => children(page, 'routes'))
-    .filter((route) => route.targetPageId === targetId || expressions.includes(String(route.whenExpressionId)))
-    .map((route) => String(route.id)).sort();
+  const routes = flow(document).flatMap((phase) => children(phase, 'pages')).flatMap((page) => {
+    const outgoing = page.id === targetId;
+    const affectedRoutes = children(page, 'routes')
+      .filter((route) => outgoing || route.targetPageId === targetId || expressions.includes(String(route.whenExpressionId)))
+      .map((route) => `${String(page.id)}.${String(route.id)}`);
+    return [
+      ...(outgoing || page.defaultNextPageId === targetId ? [`${String(page.id)}.defaultNextPageId`] : []),
+      ...affectedRoutes,
+    ];
+  }).sort();
   const calculations = allFields(document).filter((candidate) => {
     const calculation = (candidate.value.extensions as CanonicalObject | undefined)?.['x-kodeboxx.calculation'] as CanonicalObject | undefined;
     return removedIds.has(String(candidate.value.id)) || (calculation != null && expressions.includes(String(calculation.value)));
@@ -381,13 +388,18 @@ export function canonicalPatches(authoring: AuthoringDocument, command: Authorin
     if ((document.flow as CanonicalObject | undefined)?.startPageId === command.targetId || !command.confirmed) return [];
     const plan = pageRemovalPlan(document, command.targetId!);
     if (!plan) return [];
+    const removedIds = new Set(plan.fields.flatMap((field) => fieldsIn(field.value).map((candidate) => String(candidate.id))));
+    const dependentExpressions = new Set(Object.entries(document.expressions as CanonicalObject ?? {})
+      .filter(([, value]) => [...removedIds].some((id) => expressionReferences(value, id))).map(([id]) => id));
     const references: CanonicalPatch[] = [];
     for (const [phaseIndex, phase] of flow(document).entries()) {
       for (const [pageIndex, page] of children(phase, 'pages').entries()) {
+        if (page.id === command.targetId) continue;
         const pagePath = `/flow/phases/${phaseIndex}/pages/${pageIndex}`;
         const routes = children(page, 'routes');
         for (let routeIndex = routes.length - 1; routeIndex >= 0; routeIndex--)
-          if (routes[routeIndex].targetPageId === command.targetId) references.push({ op: 'remove', path: `${pagePath}/routes/${routeIndex}` });
+          if (routes[routeIndex].targetPageId === command.targetId || dependentExpressions.has(String(routes[routeIndex].whenExpressionId)))
+            references.push({ op: 'remove', path: `${pagePath}/routes/${routeIndex}` });
         if (page.defaultNextPageId === command.targetId) references.push({ op: 'remove', path: `${pagePath}/defaultNextPageId` });
       }
     }

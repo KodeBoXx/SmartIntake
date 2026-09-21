@@ -138,6 +138,49 @@ class AuthoringIntegrationTests {
     assertEquals("EXPRESSION_UNKNOWN_FIELD",body.path("diagnostics").get(0).path("code").asText());
   }
 
+  @Test void persists_confirmed_page_deletion_with_atomic_route_cleanup_and_allows_expression_repair() throws Exception {
+    var definition=(com.fasterxml.jackson.databind.node.ObjectNode) json.readTree(fixture());
+    var pages=(com.fasterxml.jackson.databind.node.ArrayNode) definition.at("/flow/phases/0/pages");
+    var source=(com.fasterxml.jackson.databind.node.ObjectNode) pages.get(0);
+    String sourceId=source.path("id").asText();
+    var removedField=(com.fasterxml.jackson.databind.node.ObjectNode) definition.at("/data/fields/0").deepCopy();
+    removedField.put("id","fld_removed_page"); removedField.put("key","removed-page");
+    ((com.fasterxml.jackson.databind.node.ArrayNode) definition.at("/data/fields")).add(removedField);
+    var removedNode=(com.fasterxml.jackson.databind.node.ObjectNode) definition.at("/flow/phases/0/pages/0/sections/0/nodes/0").deepCopy();
+    removedNode.put("id","node_removed_page"); removedNode.put("fieldId","fld_removed_page");
+    var removedPage=(com.fasterxml.jackson.databind.node.ObjectNode) source.deepCopy();
+    removedPage.put("id","page-remove"); removedPage.put("defaultNextPageId","page_review");
+    removedPage.withArray("sections").removeAll();
+    removedPage.withArray("sections").addObject().put("id","section-remove").put("titleKey",source.path("sections").get(0).path("titleKey").asText()).withArray("nodes").add(removedNode);
+    removedPage.withArray("routes").removeAll();
+    removedPage.withArray("routes").addObject().put("id","route-outgoing").put("targetPageId","page_review").put("whenExpressionId","when_removed");
+    pages.insert(1,removedPage);
+    source.withArray("routes").removeAll();
+    source.withArray("routes").addObject().put("id","route-incoming").put("targetPageId","page-remove").put("whenExpressionId","when_removed");
+    source.withArray("routes").addObject().put("id","route-consumer").put("targetPageId","page_review").put("whenExpressionId","when_removed");
+    definition.withObject("expressions").set("when_removed",json.readTree("{\"op\":\"exists\",\"args\":[{\"ref\":{\"fieldId\":\"fld_removed_page\",\"scope\":\"root\"}}]}"));
+    db.update("update forms set definition=cast(? as jsonb) where id=?", json.writeValueAsString(definition), form);
+
+    ResponseEntity<String> deleted=call("/commands",HttpMethod.POST,"\"1\"",Map.of(
+        "acceptInvalidDraft",true,
+        "commands",List.of(
+            Map.of("op","remove","path","/flow/phases/0/pages/0/routes/1"),
+            Map.of("op","remove","path","/flow/phases/0/pages/0/routes/0"),
+            Map.of("op","remove","path","/data/fields/1"),
+            Map.of("op","remove","path","/flow/phases/0/pages/1"))));
+    assertEquals(HttpStatus.OK,deleted.getStatusCode(),deleted.getBody());
+    JsonNode deletedBody=json.readTree(deleted.getBody());
+    assertEquals("INVALID",deletedBody.path("draftState").asText());
+    assertTrue(deletedBody.path("definition").at("/flow/phases/0/pages/0/routes").isEmpty(),deletedBody.toPrettyString());
+    assertFalse(deletedBody.path("definition").toString().contains("page-remove"),deletedBody.toPrettyString());
+    assertEquals(2L,db.queryForObject("select revision from forms where id=?",Long.class,form));
+
+    ResponseEntity<String> repaired=call("/commands",HttpMethod.POST,"\"2\"",Map.of("commands",List.of(
+        Map.of("op","set","path","/expressions/when_removed","value",json.readTree("{\"op\":\"exists\",\"args\":[{\"ref\":{\"fieldId\":\"fld_name\",\"scope\":\"root\"}}]}")))));
+    assertEquals(HttpStatus.OK,repaired.getStatusCode(),repaired.getBody());
+    assertEquals("VALID",json.readTree(repaired.getBody()).path("draftState").asText());
+  }
+
   @Test void enforces_1000_command_boundary_and_replays_the_successful_batch_without_duplicate_history() {
     List<Map<String,Object>> thousand=new ArrayList<>();
     for (int index=0;index<1_000;index++) thousand.add(Map.of("op","set","path","/translations/en/messages/q.name","value","Boundary "+index));

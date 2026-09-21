@@ -36,14 +36,17 @@ describe('canonical authoring patches', () => {
     expect((next.translations.en.messages as Record<string, string>)['authoring.field-new.label']).toBe('Legal name');
   });
 
-  it('removes a non-start page and its incoming default and branch routes', () => {
+  it('discloses and removes every incoming and outgoing page route', () => {
     const withReview = structuredClone(definition) as Record<string, any>;
     withReview.flow.startPageId = 'page-a';
     withReview.flow.phases[0].pages[0].defaultNextPageId = 'page-review';
     withReview.flow.phases[0].pages[0].routes = [{ id: 'route-review', targetPageId: 'page-review', whenExpressionId: 'whenName' }];
-    withReview.flow.phases[0].pages.push({ id: 'page-review', titleKey: 'page-review.label', sections: [], routes: [] });
+    withReview.flow.phases[0].pages.push({ id: 'page-review', titleKey: 'page-review.label', defaultNextPageId: 'page-a', sections: [], routes: [{ id: 'route-return', targetPageId: 'page-a', whenExpressionId: 'whenName' }] });
     const projected = authoringDocument({ draftId: 'draft-a', revision: 4, definition: withReview });
     expect(canonicalPatches(projected, { type: 'remove-page', targetId: 'page-review' })).toEqual([]);
+    expect(pageDeletionImpact(projected, 'page-review').routes).toEqual([
+      'page-a.defaultNextPageId', 'page-a.route-review', 'page-review.defaultNextPageId', 'page-review.route-return',
+    ]);
     const next = applyCanonicalPatches(withReview, canonicalPatches(projected, { type: 'remove-page', targetId: 'page-review', confirmed: true })) as Record<string, any>;
     expect(next.flow.phases[0].pages.map((page: { id: string }) => page.id)).toEqual(['page-a']);
     expect(next.flow.phases[0].pages[0]).not.toHaveProperty('defaultNextPageId');
@@ -78,7 +81,7 @@ describe('canonical authoring patches', () => {
     expect(next.translations.en.messages['field-a.label']).toBe('Name');
   });
 
-  it('requires confirmation and retains dependent expressions while atomically deleting a unique page field', () => {
+  it('requires confirmation, removes route consumers atomically, and retains other dependent expressions for repair', () => {
     const dependent = structuredClone(definition) as Record<string, any>;
     dependent.flow.startPageId = 'page-a';
     dependent.data.fields.push({ id: 'review-answer', key: 'review-answer', type: 'text', labelKey: 'review-answer.label' });
@@ -87,12 +90,12 @@ describe('canonical authoring patches', () => {
     dependent.flow.phases[0].pages.push({ id: 'page-review', titleKey: 'page-review.label', sections: [{ id: 'section-review', titleKey: 'section-review.label', nodes: [{ id: 'review-answer-node', kind: 'question', fieldId: 'review-answer', control: 'shortText' }] }] });
     Object.assign(dependent.translations.en.messages, { 'review-answer.label': 'Review answer', 'page-review.label': 'Review', 'section-review.label': 'Review section' });
     const projected = authoringDocument({ draftId: 'draft-a', revision: 4, definition: dependent });
-    expect(pageDeletionImpact(projected, 'page-review')).toMatchObject({ fields: ['review-answer'], expressions: ['usesReview'], routes: ['route-dependent'] });
+    expect(pageDeletionImpact(projected, 'page-review')).toMatchObject({ fields: ['review-answer'], expressions: ['usesReview'], routes: expect.arrayContaining(['page-a.route-dependent']) });
     expect(canonicalPatches(projected, { type: 'remove-page', targetId: 'page-review' })).toEqual([]);
     const next = applyCanonicalPatches(dependent, canonicalPatches(projected, { type: 'remove-page', targetId: 'page-review', confirmed: true, acceptInvalidDraft: true })) as Record<string, any>;
     expect(next.data.fields.map((field: { id: string }) => field.id)).toEqual(['field-a']);
     expect(next.expressions).toHaveProperty('usesReview');
-    expect(next.flow.phases[0].pages[0].routes).toEqual([{ id: 'route-dependent', targetPageId: 'page-a', whenExpressionId: 'usesReview' }]);
+    expect(next.flow.phases[0].pages[0].routes).toEqual([]);
   });
 
   it('sets and clears a page default route through canonical pointers', () => {
