@@ -1,0 +1,124 @@
+export type AuthoringNodeKind = 'field' | 'group' | 'display' | 'reusable-component';
+
+export interface AuthoringNode {
+  readonly id: string;
+  readonly kind: AuthoringNodeKind;
+  readonly label: string;
+  readonly control?: string;
+  readonly expression?: unknown;
+  readonly componentVersion?: string;
+}
+
+export interface AuthoringSection {
+  readonly id: string;
+  readonly title: string;
+  readonly nodes: readonly AuthoringNode[];
+}
+
+export interface AuthoringPage {
+  readonly id: string;
+  readonly title: string;
+  readonly sections: readonly AuthoringSection[];
+}
+
+export interface AuthoringPhase {
+  readonly id: string;
+  readonly title: string;
+  readonly pages: readonly AuthoringPage[];
+}
+
+export interface AuthoringDocument {
+  readonly id: string;
+  readonly revision: number;
+  readonly title: string;
+  readonly phases: readonly AuthoringPhase[];
+  readonly definition?: unknown;
+}
+
+export interface AuthoringHistoryEntry {
+  readonly id: string;
+  readonly label: string;
+  readonly at: string;
+  readonly revision?: number;
+  readonly impact?: readonly string[];
+}
+
+export interface AuthoringConflict {
+  readonly id: string;
+  readonly client: AuthoringDocument;
+  readonly server: AuthoringDocument;
+  readonly message: string;
+}
+
+export interface AuthoringComment {
+  readonly id: string;
+  readonly targetId: string;
+  readonly body: string;
+  readonly author: string;
+  readonly createdAt: string;
+}
+
+export interface PresenceMember {
+  readonly accountId: string;
+  readonly displayName: string;
+  readonly selectedId?: string;
+  readonly expiresAt?: string;
+}
+
+export interface ThemeSettings {
+  readonly preset: string;
+  readonly tokens: Record<string, string>;
+  readonly locks: readonly string[];
+  readonly preflight: readonly { code: string; severity: 'error' | 'warning'; message: string }[];
+}
+
+export interface ContentSettings {
+  readonly locale: 'en' | 'hi' | 'ar';
+  readonly translations: Record<string, Record<string, string>>;
+  readonly glossary: readonly { term: string; definition: string }[];
+  readonly questions: readonly { question: string; answer: string }[];
+  readonly narration?: string;
+  readonly localeCompleteness?: Partial<Record<'en' | 'hi' | 'ar', { present: boolean; complete: boolean }>>;
+}
+
+export interface ReusableComponent {
+  readonly id: string;
+  readonly key: string;
+  readonly version: string;
+  readonly name: string;
+  readonly description?: string;
+}
+
+export interface AuthoringCommand {
+  readonly type: 'rename' | 'add-phase' | 'add-page' | 'add-section' | 'add-node' | 'remove-node' | 'insert-component';
+  readonly targetId?: string;
+  readonly label?: string;
+  readonly node?: AuthoringNode;
+  readonly component?: ReusableComponent;
+}
+
+export interface PreviewResult {
+  readonly mode?: 'synthetic';
+  readonly packageHash?: string;
+  readonly diagnostics?: readonly { code: string; message: string }[];
+  readonly syntheticAnswers?: Record<string, unknown>;
+  readonly effects: { sessions: 0; submissions: 0; email: 0; webhooks: 0; providers: 0 };
+}
+
+export interface AuthoringImportCandidate {
+  readonly candidateId: string;
+  readonly digest: string;
+  readonly baseRevision: number;
+  readonly state: 'VALID' | 'INVALID';
+  readonly diagnostics: readonly { code: string; pointer: string; message: string }[];
+}
+
+export const DEFAULT_AUTHORING_DOCUMENT: AuthoringDocument = {
+  id: 'draft', revision: 0, title: 'Untitled intake form', phases: [{
+    id: 'phase-intake', title: 'Intake', pages: [{
+      id: 'page-details', title: 'Details', sections: [{
+        id: 'section-main', title: 'Main questions', nodes: [{ id: 'field-name', kind: 'field', label: 'Full name', control: 'text' }],
+      }],
+    }],
+  }],
+};

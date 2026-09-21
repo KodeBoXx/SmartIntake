@@ -4,6 +4,7 @@ import { EMPTY, Observable, expand, map, reduce, tap } from 'rxjs';
 import { FormDefinition, ResponseSummary } from './models/form-definition.models';
 import type { components, operations } from './generated/api-4.1.0';
 import type { RuntimeOperation, ServerProjection } from './runtime/runtime-types';
+import type { AuthoringComment, AuthoringCommand, AuthoringDocument, AuthoringHistoryEntry, AuthoringImportCandidate, ContentSettings, PresenceMember, PreviewResult, ReusableComponent, ThemeSettings } from './features/authoring/authoring.types';
 
 export { AjvContractValidationAdapter } from './ajv-contract-validation.adapter';
 export type { ContractDiagnostic, ContractValidationResult } from './ajv-contract-validation.adapter';
@@ -36,6 +37,60 @@ export type AuthorizedDeliveryCopies = {
   recoveryCopyLink?: string;
   temporaryPasswordCopy?: string;
 };
+
+type BackendComment = { id: string; pointer: string; body: string; authorId?: string; createdAt?: string };
+type BackendPresence = { accountId: string; cursor?: string; displayName: string; expiresAt?: string };
+type BackendHistory = { id: string; revision: number; operation: string; createdAt: string; beforeHash?: string; afterHash?: string; undone?: boolean };
+type BackendComponent = { id: string; key: string; name: string; version: number; status: string; hash: string; updatedAt: string };
+type BackendTheme = { revision: number; theme?: { themeKey?: string; preset?: string; tokens?: Record<string, string> }; locks?: string[]; preflight?: ThemeSettings['preflight'] };
+type BackendContent = { revision: number; guidance?: Record<string, unknown>; translations?: ContentSettings['translations']; localeCompleteness?: Record<string, { present: boolean; complete: boolean }> };
+
+function authoringComment(comment: BackendComment): AuthoringComment {
+  return { id: comment.id, targetId: comment.pointer, body: comment.body, author: comment.authorId ?? 'Current collaborator', createdAt: comment.createdAt ?? '' };
+}
+
+function authoringHistory(entry: BackendHistory): AuthoringHistoryEntry {
+  return { id: entry.id, revision: entry.revision, label: entry.operation.replaceAll('_', ' '), at: entry.createdAt, impact: entry.beforeHash === entry.afterHash ? [] : ['Canonical package changed.'] };
+}
+
+function authoringTheme(value: BackendTheme): ThemeSettings {
+  const theme = value.theme ?? {};
+  const legacy = theme as { locks?: string[]; preflight?: ThemeSettings['preflight'] };
+  return { preset: theme.preset ?? theme.themeKey ?? 'Certinal', tokens: theme.tokens ?? {}, locks: value.locks ?? legacy.locks ?? [], preflight: value.preflight ?? legacy.preflight ?? [] };
+}
+
+function authoringContent(value: BackendContent): ContentSettings {
+  return { locale: 'en', translations: value.translations ?? { en: {}, hi: {}, ar: {} }, glossary: [], questions: [], narration: String(value.guidance?.['narration'] ?? ''), localeCompleteness: value.localeCompleteness };
+}
+
+export function authoringDocument(value: unknown): AuthoringDocument {
+  const response = value as { formId?: string; draftId?: string; revision?: number; definition?: unknown };
+  const definition = (response.definition ?? value) as Record<string, unknown>;
+  if (Array.isArray(definition['phases'])) return {
+    id: response.draftId ?? String(definition['id'] ?? 'draft'), revision: response.revision ?? Number(definition['revision'] ?? 0), title: String(definition['title'] ?? 'Untitled intake form'),
+    phases: definition['phases'] as AuthoringDocument['phases'], definition,
+  };
+  const flow = definition['flow'] as { phases?: Record<string, unknown>[] } | undefined;
+  if (Array.isArray(flow?.phases)) return {
+    id: response.draftId ?? String(definition['id'] ?? 'draft'), revision: response.revision ?? 0, title: String(definition['formKey'] ?? 'Untitled intake form'), definition,
+    phases: flow.phases.map((phase, phaseIndex) => ({ id: String(phase['id'] ?? `phase-${phaseIndex + 1}`), title: String(phase['title'] ?? phase['titleKey'] ?? `Phase ${phaseIndex + 1}`), pages: (Array.isArray(phase['pages']) ? phase['pages'] as Record<string, unknown>[] : []).map((page, pageIndex) => ({ id: String(page['id'] ?? `page-${pageIndex + 1}`), title: String(page['title'] ?? page['titleKey'] ?? `Page ${pageIndex + 1}`), sections: (Array.isArray(page['sections']) ? page['sections'] as Record<string, unknown>[] : []).map((section, sectionIndex) => ({ id: String(section['id'] ?? `section-${sectionIndex + 1}`), title: String(section['title'] ?? section['titleKey'] ?? `Section ${sectionIndex + 1}`), nodes: (Array.isArray(section['nodes']) ? section['nodes'] as Record<string, unknown>[] : []).map((node, nodeIndex) => ({ id: String(node['id'] ?? `node-${nodeIndex + 1}`), kind: String(node['kind'] ?? 'field') === 'question' ? 'field' as const : 'display' as const, label: String(node['label'] ?? node['fieldId'] ?? node['kind'] ?? `Node ${nodeIndex + 1}`), control: String(node['control'] ?? node['kind'] ?? 'content') })) })) })) })),
+  };
+  const pages = Array.isArray(definition['pages']) ? definition['pages'] as Record<string, unknown>[] : [];
+  return {
+    id: response.draftId ?? String(definition['id'] ?? 'draft'), revision: response.revision ?? 0, title: String(definition['title'] ?? definition['formKey'] ?? 'Untitled intake form'), definition,
+    phases: [{ id: 'phase-intake', title: 'Intake', pages: pages.map((page, pageIndex) => {
+      const pageId = String(page['id'] ?? `page-${pageIndex + 1}`); const fields = Array.isArray(page['fields']) ? page['fields'] as Record<string, unknown>[] : [];
+      return { id: pageId, title: String(page['title'] ?? `Page ${pageIndex + 1}`), sections: [{ id: `section-${pageId}`, title: 'Questions', nodes: fields.map((field, fieldIndex) => ({ id: String(field['id'] ?? `field-${fieldIndex + 1}`), kind: 'field' as const, label: String(field['label'] ?? field['title'] ?? field['key'] ?? `Field ${fieldIndex + 1}`), control: String(field['control'] ?? field['type'] ?? 'field') })) }] };
+    }) }],
+  };
+}
+
+function authoringPatch(command: AuthoringCommand): { op: 'set'; path: string; value: string } {
+  // M7's server persists bounded JSON-pointer commands. The UI's local grouping is
+  // presentation-only, so persist its human-readable semantic log in the package's
+  // permitted metadata extension rather than invoking any respondent endpoint.
+  return { op: 'set', path: '/x-kodeboxx-authoring-last-command', value: command.label ?? command.type };
+}
 export type PublishedSchema = operations['ON-get-v1-schemas-kind-version-4c108bde88']['responses'][200]['content']['application/schema+json'];
 export type TypedSessionProjection = ServerProjection & {
   readonly acceptedRevision: number;
@@ -162,6 +217,65 @@ export class SmartIntakeApiService {
     return this.http.get<CurrentDraft>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/forms/${formId}/drafts/${draftId}`, this.staff());
   }
 
+  /** M7 authoring API: deliberately separate from public/respondent session APIs. */
+  authoringDocument(workspaceId: string, formId: string, draftId: string): Observable<AuthoringDocument> {
+    return this.http.get<unknown>(this.authoringBase(workspaceId, formId, draftId), this.staff()).pipe(map(authoringDocument));
+  }
+
+  authoringCommands(workspaceId: string, formId: string, draftId: string, revision: number, commands: readonly AuthoringCommand[], idempotencyKey = this.createMutationAction()): Observable<AuthoringDocument> {
+    const url = `${this.authoringBase(workspaceId, formId, draftId)}/commands`;
+    return this.http.post<unknown>(url, { commands: commands.map(authoringPatch) }, { withCredentials: true, headers: new HttpHeaders({ 'If-Match': this.formRevisionEtag(revision), 'Idempotency-Key': idempotencyKey }) }).pipe(map(authoringDocument));
+  }
+
+  authoringHistory(workspaceId: string, formId: string, draftId: string): Observable<AuthoringHistoryEntry[]> {
+    return this.http.get<BackendHistory[]>(`${this.authoringBase(workspaceId, formId, draftId)}/history`, this.staff()).pipe(map((history) => history.map(authoringHistory)));
+  }
+
+  authoringUndo(workspaceId: string, formId: string, draftId: string, revision: number): Observable<AuthoringDocument> {
+    return this.authoringAction(workspaceId, formId, draftId, revision, 'undo');
+  }
+
+  authoringRedo(workspaceId: string, formId: string, draftId: string, revision: number): Observable<AuthoringDocument> {
+    return this.authoringAction(workspaceId, formId, draftId, revision, 'redo');
+  }
+
+  resolveAuthoringConflict(workspaceId: string, formId: string, draftId: string, revision: number, conflictId: string, definition: unknown): Observable<AuthoringDocument> {
+    const url = `${this.authoringBase(workspaceId, formId, draftId)}/resolve`;
+    return this.http.post<unknown>(url, { conflictId, definition }, { withCredentials: true, headers: new HttpHeaders({ 'If-Match': this.formRevisionEtag(revision), 'Idempotency-Key': this.createMutationAction() }) }).pipe(map(authoringDocument));
+  }
+
+  validateAuthoringImport(workspaceId: string, formId: string, draftId: string, candidate: unknown): Observable<AuthoringImportCandidate> {
+    return this.http.post<AuthoringImportCandidate>(`${this.authoringBase(workspaceId, formId, draftId)}/imports/validate`, { candidate }, this.staff());
+  }
+
+  commitAuthoringImport(workspaceId: string, formId: string, draftId: string, revision: number, candidate: Pick<AuthoringImportCandidate, 'candidateId' | 'digest'>, mode: 'UPDATE' | 'COPY' = 'UPDATE'): Observable<AuthoringDocument> {
+    return this.http.post<unknown>(`${this.authoringBase(workspaceId, formId, draftId)}/imports/commit`, { candidateId: candidate.candidateId, digest: candidate.digest, mode }, { withCredentials: true, headers: new HttpHeaders({ 'If-Match': this.formRevisionEtag(revision), 'Idempotency-Key': this.createMutationAction() }) }).pipe(map(authoringDocument));
+  }
+
+  reusableComponents(workspaceId: string): Observable<ReusableComponent[]> {
+    return this.http.get<BackendComponent[]>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/reusable-components`, this.staff()).pipe(map((components) => components.map((component) => ({ id: component.id, key: component.key, version: String(component.version), name: component.name, description: `${component.key} · ${component.status}` }))));
+  }
+
+  insertAuthoringComponent(workspaceId: string, formId: string, draftId: string, revision: number, component: ReusableComponent, path: string, idempotencyKey = this.createMutationAction()): Observable<AuthoringDocument> {
+    const url = `${this.authoringBase(workspaceId, formId, draftId)}/components/${encodeURIComponent(component.key)}/insert`;
+    const body = { path, operation: 'add' as const, version: Number(component.version) };
+    return this.http.post<unknown>(url, body, { withCredentials: true, headers: new HttpHeaders({ 'If-Match': this.formRevisionEtag(revision), 'Idempotency-Key': idempotencyKey }) }).pipe(map(authoringDocument));
+  }
+
+  authoringTheme(workspaceId: string, formId: string, draftId: string): Observable<ThemeSettings> { return this.http.get<BackendTheme>(`${this.authoringBase(workspaceId, formId, draftId)}/theme`, this.staff()).pipe(map(authoringTheme)); }
+  updateAuthoringTheme(workspaceId: string, formId: string, draftId: string, revision: number, theme: ThemeSettings): Observable<ThemeSettings> { return this.http.put<unknown>(`${this.authoringBase(workspaceId, formId, draftId)}/theme`, { theme }, { withCredentials: true, headers: new HttpHeaders({ 'If-Match': this.formRevisionEtag(revision), 'Idempotency-Key': this.createMutationAction() }) }).pipe(map(() => theme)); }
+  authoringContent(workspaceId: string, formId: string, draftId: string): Observable<ContentSettings> { return this.http.get<BackendContent>(`${this.authoringBase(workspaceId, formId, draftId)}/content`, this.staff()).pipe(map(authoringContent)); }
+  updateAuthoringContent(workspaceId: string, formId: string, draftId: string, revision: number, content: ContentSettings): Observable<ContentSettings> { return this.http.put<unknown>(`${this.authoringBase(workspaceId, formId, draftId)}/content`, { guidance: { narration: content.narration ?? '' }, translations: content.translations }, { withCredentials: true, headers: new HttpHeaders({ 'If-Match': this.formRevisionEtag(revision), 'Idempotency-Key': this.createMutationAction() }) }).pipe(map(() => content)); }
+  authoringComments(workspaceId: string, formId: string, draftId: string): Observable<AuthoringComment[]> { return this.http.get<BackendComment[]>(`${this.authoringBase(workspaceId, formId, draftId)}/comments`, this.staff()).pipe(map((comments) => comments.map(authoringComment))); }
+  addAuthoringComment(workspaceId: string, formId: string, draftId: string, body: string, targetId: string): Observable<AuthoringComment> { return this.http.post<BackendComment>(`${this.authoringBase(workspaceId, formId, draftId)}/comments`, { body, pointer: targetId }, this.staff()).pipe(map(authoringComment)); }
+  authoringPresence(workspaceId: string, formId: string, draftId: string): Observable<PresenceMember[]> { return this.http.get<BackendPresence[]>(`${this.authoringBase(workspaceId, formId, draftId)}/presence`, this.staff()).pipe(map((members) => members.map((member) => ({ accountId: member.accountId, displayName: member.displayName, selectedId: member.cursor, expiresAt: member.expiresAt })))); }
+  updateAuthoringPresence(workspaceId: string, formId: string, draftId: string, selectedId: string | null): Observable<void> { return this.http.patch<void>(`${this.authoringBase(workspaceId, formId, draftId)}/presence`, { cursor: selectedId ?? '' }, this.staff()); }
+
+  /** Never call startSession, patchSession, submitSession, publish or providers for ordinary author preview. */
+  authoringPreview(workspaceId: string, formId: string, draftId: string, answers: Record<string, unknown>): Observable<PreviewResult> {
+    return this.http.post<PreviewResult>(`${this.authoringBase(workspaceId, formId, draftId)}/preview`, { answers }, this.staff());
+  }
+
   listResponses(workspaceId: string): Observable<ResponseSummary[]> {
     return this.http.get<ResponseSummary[]>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/submissions`, this.staff());
   }
@@ -245,6 +359,14 @@ export class SmartIntakeApiService {
 
   private staff() {
     return { withCredentials: true };
+  }
+
+  private authoringBase(workspaceId: string, formId: string, draftId: string): string {
+    return `/v1/workspaces/${encodeURIComponent(workspaceId)}/forms/${encodeURIComponent(formId)}/authoring/${encodeURIComponent(draftId)}`;
+  }
+
+  private authoringAction(workspaceId: string, formId: string, draftId: string, revision: number, action: 'undo' | 'redo'): Observable<AuthoringDocument> {
+    return this.http.post<unknown>(`${this.authoringBase(workspaceId, formId, draftId)}/${action}`, {}, { withCredentials: true, headers: new HttpHeaders({ 'If-Match': this.formRevisionEtag(revision), 'Idempotency-Key': this.createMutationAction() }) }).pipe(map(authoringDocument));
   }
 
   private respondent(respondentToken: string) {

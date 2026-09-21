@@ -13,7 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-/** Rejects oversized respondent mutation bodies before JSON decoding or canonical hashing. */
+/** Rejects oversized respondent and authoring mutation bodies before JSON decoding or canonical hashing. */
 @Component
 public final class RequestBodyLimitFilter extends OncePerRequestFilter {
   static final int MAX_MUTATION_BYTES = 1_048_576;
@@ -25,7 +25,9 @@ public final class RequestBodyLimitFilter extends OncePerRequestFilter {
     boolean mutation = ("PATCH".equals(request.getMethod())
         && request.getRequestURI().matches(".*/v1/sessions/[0-9a-fA-F-]+$"))
         || ("POST".equals(request.getMethod())
-        && request.getRequestURI().matches(".*/v1/sessions/[0-9a-fA-F-]+/(validate|submissions)$"));
+        && request.getRequestURI().matches(".*/v1/sessions/[0-9a-fA-F-]+/(validate|submissions)$"))
+        || (request.getRequestURI().matches(".*/v1/workspaces/[^/]+/forms/[0-9a-fA-F-]+/authoring/[0-9a-fA-F-]+/.*")
+        && ("POST".equals(request.getMethod()) || "PUT".equals(request.getMethod()) || "PATCH".equals(request.getMethod())));
     if (!mutation) {
       chain.doFilter(request, response);
       return;
