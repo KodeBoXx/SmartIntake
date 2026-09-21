@@ -50,7 +50,7 @@ test.describe('M7 authoritative visual authoring oracle', () => {
     await addAndConfigure(page, { key: 'otherServiceDetails', control: 'shortText', hiddenRetention: 'clear', visibility: 'operator_contains', requiredExpression: 'operator_contains' });
     await addAndConfigure(page, { key: 'visitDate', control: 'date', required: true });
     await addAndConfigure(page, { key: 'extraAttendees', control: 'integer', required: true, min: '0', max: '10', step: '1' });
-    await addAndConfigure(page, { key: 'priority', control: 'rating', required: true, min: '1', max: '5' });
+    await addAndConfigure(page, { key: 'priority', control: 'rating', required: true, min: '1', max: '5', endpointLow: 'Low priority', endpointHigh: 'High priority' });
     await addAndConfigure(page, { key: 'priorityOrder', control: 'ranking', options: 'opt_reliability: Reliability\nopt_portability: Portability\nopt_price: Price', ordered: true });
     await addAndConfigure(page, { key: 'entryMode', control: 'modeSelector', required: true, options: 'opt_cards: Cards\nopt_table: Table', defaultValue: 'opt_cards' });
 
@@ -63,7 +63,7 @@ test.describe('M7 authoritative visual authoring oracle', () => {
     await page.getByRole('treeitem', { name: 'New section', exact: true }).last().click(); await rename(page, 'Equipment');
     await page.getByRole('treeitem', { name: 'New field', exact: true }).last().click();
     await rename(page, 'equipment');
-    await configure(page, { key: 'equipment', control: 'repeatingCards', minItems: 1, maxItems: 50, summary: 'equipmentName, quantity' });
+    await configure(page, { key: 'equipment', control: 'repeatingCards', minItems: 1, maxItems: 50, summary: 'equipmentName, quantity', allowAdd: true, allowRemove: true, allowReorder: true, alternateInstancesBindSameField: true });
     await configureCompositeChildren(page, [
       { key: 'equipmentName', control: 'shortText', required: true, maxLength: 80 },
       { key: 'quantity', control: 'integer', required: true, min: '1', max: '10' },
@@ -73,8 +73,10 @@ test.describe('M7 authoritative visual authoring oracle', () => {
     await page.getByRole('button', { name: 'Apply field settings' }).click();
     await page.getByLabel('Place existing field').selectOption({ label: 'email' });
     await page.getByRole('button', { name: 'Place in selected section' }).click();
+    await page.getByRole('treeitem', { name: 'email', exact: true }).last().click();
+    await configure(page, { key: 'email', control: 'email', required: true, placementReadOnly: true });
 
-    await addAndConfigure(page, { key: 'checks', control: 'fixedMatrix', fixedRows: 'row_power: Power available\nrow_space: Space available' });
+    await addAndConfigure(page, { key: 'checks', control: 'fixedMatrix', fixedRows: 'row_power: Power available\nrow_space: Space available', allowAdd: false, allowRemove: false });
     await configureCompositeChildren(page, [{ key: 'checkResult', control: 'yesNo', required: true }, { key: 'checkDetails', control: 'shortText', hiddenRetention: 'clear', visibility: 'operator_not', requiredExpression: 'operator_not' }]);
     await page.getByRole('button', { name: 'Apply field settings' }).click();
     await addAndConfigure(page, { key: 'shipping', control: 'address', roles: 'postalCode: postalCode, country: country' });
@@ -83,7 +85,7 @@ test.describe('M7 authoritative visual authoring oracle', () => {
     await page.getByRole('button', { name: 'Apply field settings' }).click();
     await addAndConfigure(page, { key: 'note', control: 'shortText', statuses: 'unknown, declined' });
     await addAndConfigure(page, { key: 'total', control: 'currency', readOnly: true, calculated: true, min: '0', max: '1000000', scale: 2, unit: 'USD', calculationExpressionId: 'operator_sum', calculationDependencyId: 'authoring-calculations' });
-    await addAndConfigure(page, { key: 'supportingFiles', control: 'fileUpload', maxItems: 2 });
+    await addAndConfigure(page, { key: 'supportingFiles', control: 'fileUpload', maxItems: 2, allowedMime: 'text/plain', scanReadiness: 'normal' });
 
     // The final acknowledgement uses the existing canonical answer definition,
     // placed in the separately authored Review phase. This is a shared placement,
@@ -94,7 +96,7 @@ test.describe('M7 authoritative visual authoring oracle', () => {
     await page.getByRole('treeitem', { name: 'New section', exact: true }).last().click(); await rename(page, 'Review and submit');
     await page.getByRole('treeitem', { name: 'New field', exact: true }).last().click();
     await rename(page, 'reviewAcknowledged');
-    await configure(page, { key: 'reviewAcknowledged', control: 'acknowledgment', required: true, acknowledgmentContent: 'I confirm this information is accurate.' });
+    await configure(page, { key: 'reviewAcknowledged', control: 'acknowledgment', required: true, acknowledgmentContent: 'I confirm this information is accurate.', requireTrue: true, finalReviewOnly: true, voiceSupplyProhibited: true });
 
     // Operator-specific trees use the actual nested operand controls. Each shape
     // exercises its own literal/reference type, variable arity, and aggregate/item scope.
@@ -113,7 +115,7 @@ test.describe('M7 authoritative visual authoring oracle', () => {
   });
 });
 
-type FieldConfig = { key: string; control: string; required?: boolean; readOnly?: boolean; calculated?: boolean; maxLength?: string; min?: string; max?: string; step?: string; scale?: number; minItems?: number; maxItems?: number; options?: string; fixedRows?: string; exclusive?: string; sensitivity?: string; hiddenRetention?: 'clear' | 'memory' | 'draft'; statuses?: string; summary?: string; roles?: string; ordered?: boolean; unit?: string; defaultValue?: string; visibility?: string; requiredExpression?: string; acknowledgmentContent?: string; calculationExpressionId?: string; calculationDependencyId?: string };
+type FieldConfig = { key: string; control: string; required?: boolean; readOnly?: boolean; calculated?: boolean; maxLength?: string; min?: string; max?: string; step?: string; scale?: number; minItems?: number; maxItems?: number; options?: string; fixedRows?: string; exclusive?: string; sensitivity?: string; hiddenRetention?: 'clear' | 'memory' | 'draft'; statuses?: string; summary?: string; roles?: string; ordered?: boolean; unit?: string; defaultValue?: string; visibility?: string; requiredExpression?: string; acknowledgmentContent?: string; calculationExpressionId?: string; calculationDependencyId?: string; placementReadOnly?: boolean; allowAdd?: boolean; allowRemove?: boolean; allowReorder?: boolean; alternateInstancesBindSameField?: boolean; endpointLow?: string; endpointHigh?: string; allowedMime?: string; scanReadiness?: 'normal' | 'required'; requireTrue?: boolean; finalReviewOnly?: boolean; voiceSupplyProhibited?: boolean };
 type CompositeConfig = { key: string; control: string; required?: boolean; options?: string; min?: string; max?: string; scale?: number; maxItems?: number; maxLength?: number; unit?: string; hiddenRetention?: 'clear' | 'memory' | 'draft'; visibility?: string; requiredExpression?: string; children?: CompositeConfig[] };
 const controlLabel = (control: string): string => ({ shortText: 'Short text', textarea: 'Long text', email: 'Email', identifier: 'Identifier', yesNo: 'Yes / no', chips: 'Chips', date: 'Date', integer: 'Integer', rating: 'Rating', ranking: 'Ranking', modeSelector: 'Mode selector', repeatingCards: 'Repeating cards', currency: 'Currency', fixedMatrix: 'Fixed matrix', address: 'Address', combobox: 'Combobox', acknowledgment: 'Acknowledgment', decimal: 'Decimal', fileUpload: 'File upload', radio: 'Radio choice' }[control] ?? control);
 
@@ -123,7 +125,7 @@ async function addAndConfigure(page: import('@playwright/test').Page, config: Fi
 async function configure(page: import('@playwright/test').Page, config: FieldConfig): Promise<void> {
   await page.getByLabel('Control').selectOption({ label: controlLabel(config.control) }); await page.getByLabel('Stable integration key').fill(config.key);
   if (config.required) await page.getByLabel('Required answer').check();
-  if (config.readOnly) await page.getByLabel('Read only').check();
+  if (config.readOnly) await page.getByLabel('Read only', { exact: true }).check();
   if (config.calculated) await page.getByLabel('Calculated value').check();
   if (config.maxLength) await page.getByLabel('Maximum length').fill(config.maxLength);
   if (config.min) await page.getByLabel('Minimum constraint').fill(config.min);
@@ -142,6 +144,13 @@ async function configure(page: import('@playwright/test').Page, config: FieldCon
   if (config.roles) await page.getByLabel('Composite roles').fill(config.roles);
   if (config.ordered) await page.getByLabel('Preserve ordering').check();
   if (config.unit) await page.getByLabel('Field unit').fill(config.unit);
+  if (config.placementReadOnly) await page.getByRole('checkbox', { name: 'Placement read only' }).check();
+  for (const [label, selected] of [['Allow add', config.allowAdd], ['Allow remove', config.allowRemove], ['Allow reorder', config.allowReorder], ['Alternate instances bind same field', config.alternateInstancesBindSameField]] as const) if (selected !== undefined) { const box = page.getByRole('checkbox', { name: label }); if (selected) await box.check(); else await box.uncheck(); }
+  if (config.endpointLow) await page.getByLabel('Low endpoint label').fill(config.endpointLow);
+  if (config.endpointHigh) await page.getByLabel('High endpoint label').fill(config.endpointHigh);
+  if (config.allowedMime) await page.getByLabel('Allowed MIME types').fill(config.allowedMime);
+  if (config.scanReadiness) await page.getByLabel('Scan readiness').selectOption(config.scanReadiness);
+  for (const [label, selected] of [['Require true', config.requireTrue], ['Final review only', config.finalReviewOnly], ['Prohibit voice supply', config.voiceSupplyProhibited]] as const) if (selected) await page.getByRole('checkbox', { name: label }).check();
   if (config.defaultValue) await page.getByLabel('Default value').fill(config.defaultValue);
   if (config.visibility) await page.getByLabel('Visibility expression ID').fill(config.visibility);
   if (config.requiredExpression) await page.getByLabel('Required expression ID').fill(config.requiredExpression);
@@ -272,8 +281,18 @@ function assertAuthoritativeShape(persisted: Record<string, any>): void {
   const nodes = persisted.flow.phases.flatMap((phase: any) => phase.pages.flatMap((candidatePage: any) => candidatePage.sections.flatMap((section: any) => section.nodes)));
   const emailPlacements = nodes.filter((node: any) => node.fieldId === byKey('email').id);
   expect(emailPlacements).toHaveLength(2);
+  expect(emailPlacements.map((node: any) => Boolean(node.presentation?.settings?.readOnly))).toEqual([false, true]);
+  const priorityNode = nodes.find((node: any) => node.fieldId === byKey('priority').id);
+  expect([persisted.translations.en.messages[priorityNode.presentation.settings.endpointLowLabelKey], persisted.translations.en.messages[priorityNode.presentation.settings.endpointHighLabelKey]]).toEqual(['Low priority', 'High priority']);
   const equipmentNode = nodes.find((node: any) => node.fieldId === byKey('equipment').id);
   expect(equipmentNode.summaryFieldIds).toEqual([byKey('equipment.equipmentName').id, byKey('equipment.quantity').id]);
+  expect(equipmentNode.presentation.settings).toMatchObject({ allowAdd: true, allowRemove: true, allowReorder: true, alternateInstancesBindSameField: true });
+  const checksNode = nodes.find((node: any) => node.fieldId === byKey('checks').id);
+  expect(checksNode.presentation.settings).toMatchObject({ allowAdd: false, allowRemove: false });
+  const attachmentNode = nodes.find((node: any) => node.fieldId === byKey('supportingFiles').id);
+  expect(attachmentNode.presentation.settings).toMatchObject({ allowedMime: ['text/plain'], scanReadiness: 'normal' });
+  const acknowledgmentNode = nodes.find((node: any) => node.fieldId === byKey('reviewAcknowledged').id);
+  expect(acknowledgmentNode.presentation.settings).toMatchObject({ requireTrue: true, finalReviewOnly: true, voiceSupplyProhibited: true });
   const shippingNode = nodes.find((node: any) => node.fieldId === byKey('shipping').id);
   expect(shippingNode.roles).toEqual({ postalCode: byKey('shipping.postalCode').id, country: byKey('shipping.country').id });
   expect(persisted.flow.phases[0].pages[0].routes).toContainEqual(expect.objectContaining({ targetPageId: persisted.flow.phases[1].pages[0].id, whenExpressionId: 'operator_eq' }));

@@ -134,19 +134,19 @@ function field(document: CanonicalObject, fieldId: string): FieldLocation | null
   return visit((((document.data as CanonicalObject | undefined)?.fields as CanonicalObject[] | undefined) ?? []), '/data/fields', []);
 }
 
-function translations(document: CanonicalObject, path: string, value: string): CanonicalPatch[] {
-  const locales = Array.isArray(document.supportedLocales) && document.supportedLocales.length ? document.supportedLocales : ['en'];
-  return locales.filter((locale): locale is string => typeof locale === 'string').map((locale) => ({ op: 'add', path: `/translations/${escape(locale)}/messages/${escape(path)}`, value }));
+function translations(document: CanonicalObject, path: string, value: string, activeLocale?: string): CanonicalPatch[] {
+  const locale = activeLocale ?? (typeof document.defaultLocale === 'string' ? document.defaultLocale : 'en');
+  return [{ op: 'add', path: `/translations/${escape(locale)}/messages/${escape(path)}`, value }];
 }
 
-function firstQuestion(document: CanonicalObject, seed: string, label: string, control = 'shortText'): { field: CanonicalObject; node: CanonicalObject; messages: CanonicalPatch[] } {
+function firstQuestion(document: CanonicalObject, seed: string, label: string, control = 'shortText', locale?: string): { field: CanonicalObject; node: CanonicalObject; messages: CanonicalPatch[] } {
   const fieldId = `${seed}_field`;
   const nodeId = `${seed}_node`;
   const key = labelKey(fieldId);
   return {
     field: { id: fieldId, key: fieldId, type: CONTROL_TYPES[control] ?? 'text', labelKey: key, constraints: { required: false }, ...(choiceControl(control) ? { options: [] } : {}) },
     node: { id: nodeId, kind: 'question', fieldId, fieldType: CONTROL_TYPES[control] ?? 'text', control },
-    messages: translations(document, key, label),
+    messages: translations(document, key, label, locale),
   };
 }
 
@@ -189,33 +189,33 @@ export function canonicalPatches(authoring: AuthoringDocument, command: Authorin
       const locatedField = field(document, found.fieldId ?? '');
       if (!locatedField) return [];
       const key = labelKey(String(locatedField.value.id));
-      return [{ op: 'add', path: `${locatedField.path}/labelKey`, value: key }, ...translations(document, key, label)];
+      return [{ op: 'add', path: `${locatedField.path}/labelKey`, value: key }, ...translations(document, key, label, command.locale)];
     }
     const key = labelKey(String(command.targetId));
-    return [{ op: 'add', path: `${found.path}/titleKey`, value: key }, ...translations(document, key, label)];
+    return [{ op: 'add', path: `${found.path}/titleKey`, value: key }, ...translations(document, key, label, command.locale)];
   }
   if (command.type === 'add-phase') {
-    const question = firstQuestion(document, id, 'New field');
+    const question = firstQuestion(document, id, 'New field', 'shortText', command.locale);
     return [
       { op: 'add', path: '/data/fields/-', value: question.field },
       { op: 'add', path: '/flow/phases/-', value: { id, titleKey: labelKey(id), pages: [{ id: `${id}_page`, titleKey: labelKey(`${id}_page`), sections: [{ id: `${id}_section`, titleKey: labelKey(`${id}_section`), nodes: [question.node] }] }] } },
-      ...translations(document, labelKey(id), label || 'New phase'), ...translations(document, labelKey(`${id}_page`), 'New page'), ...translations(document, labelKey(`${id}_section`), 'New section'), ...question.messages,
+      ...translations(document, labelKey(id), label || 'New phase', command.locale), ...translations(document, labelKey(`${id}_page`), 'New page', command.locale), ...translations(document, labelKey(`${id}_section`), 'New section', command.locale), ...question.messages,
     ];
   }
   if (command.type === 'add-page' && found?.kind === 'phase') {
-    const question = firstQuestion(document, id, 'New field');
+    const question = firstQuestion(document, id, 'New field', 'shortText', command.locale);
     return [
       { op: 'add', path: '/data/fields/-', value: question.field },
       { op: 'add', path: `${found.path}/pages/-`, value: { id, titleKey: labelKey(id), sections: [{ id: `${id}_section`, titleKey: labelKey(`${id}_section`), nodes: [question.node] }] } },
-      ...translations(document, labelKey(id), label || 'New page'), ...translations(document, labelKey(`${id}_section`), 'New section'), ...question.messages,
+      ...translations(document, labelKey(id), label || 'New page', command.locale), ...translations(document, labelKey(`${id}_section`), 'New section', command.locale), ...question.messages,
     ];
   }
   if (command.type === 'add-section' && found?.kind === 'page') {
-    const question = firstQuestion(document, id, 'New field');
+    const question = firstQuestion(document, id, 'New field', 'shortText', command.locale);
     return [
       { op: 'add', path: '/data/fields/-', value: question.field },
       { op: 'add', path: `${found.path}/sections/-`, value: { id, titleKey: labelKey(id), nodes: [question.node] } },
-      ...translations(document, labelKey(id), label || 'New section'), ...question.messages,
+      ...translations(document, labelKey(id), label || 'New section', command.locale), ...question.messages,
     ];
   }
   if (command.type === 'add-node' && found?.kind === 'section') {
@@ -229,7 +229,7 @@ export function canonicalPatches(authoring: AuthoringDocument, command: Authorin
     return [
       { op: 'add', path: '/data/fields/-', value: { id: fieldId, key: fieldId, type: fieldType, labelKey: key, constraints: { required: false }, ...(choiceControl(control) ? { options: [] } : {}) } },
       { op: 'add', path: `${found.path}/nodes/-`, value: node },
-      ...translations(document, key, command.node?.label || label || 'New field'),
+      ...translations(document, key, command.node?.label || label || 'New field', command.locale),
     ];
   }
   if (command.type === 'update-field' && found?.kind === 'node' && command.field) {
@@ -263,21 +263,30 @@ export function canonicalPatches(authoring: AuthoringDocument, command: Authorin
         else nextNode[key] = value;
       }
     }
+    if (supplied.presentationSettings && typeof supplied.presentationSettings === 'object' && !Array.isArray(supplied.presentationSettings)) {
+      const settings = Object.fromEntries(Object.entries(supplied.presentationSettings as CanonicalObject).filter(([, value]) => value !== null && value !== undefined && value !== ''));
+      if (Object.keys(settings).length) nextNode.presentation = { settings };
+      else delete nextNode.presentation;
+    }
     const patches: CanonicalPatch[] = [{ op: 'replace', path: current.path, value: canonical }, { op: 'replace', path: found.path, value: nextNode }];
-    if (typeof supplied.help === 'string' && typeof configured.descriptionKey === 'string') patches.push(...translations(document, configured.descriptionKey, supplied.help));
-    if (typeof supplied.acknowledgmentContent === 'string' && typeof nextNode.acknowledgmentContentKey === 'string' && supplied.acknowledgmentContent) patches.push(...translations(document, nextNode.acknowledgmentContentKey, supplied.acknowledgmentContent));
-    if (Array.isArray(supplied.options)) for (const option of supplied.options) if (option && typeof option === 'object' && typeof (option as CanonicalObject).label === 'string') patches.push(...translations(document, String((option as CanonicalObject).labelKey), String((option as CanonicalObject).label)));
+    if (typeof supplied.help === 'string' && typeof configured.descriptionKey === 'string') patches.push(...translations(document, configured.descriptionKey, supplied.help, command.locale));
+    if (typeof supplied.acknowledgmentContent === 'string' && typeof nextNode.acknowledgmentContentKey === 'string' && supplied.acknowledgmentContent) patches.push(...translations(document, nextNode.acknowledgmentContentKey, supplied.acknowledgmentContent, command.locale));
+    const presentation = nextNode.presentation as CanonicalObject | undefined;
+    const presentationSettings = presentation?.settings as CanonicalObject | undefined;
+    if (typeof supplied.endpointLowLabel === 'string' && typeof presentationSettings?.endpointLowLabelKey === 'string') patches.push(...translations(document, presentationSettings.endpointLowLabelKey, supplied.endpointLowLabel, command.locale));
+    if (typeof supplied.endpointHighLabel === 'string' && typeof presentationSettings?.endpointHighLabelKey === 'string') patches.push(...translations(document, presentationSettings.endpointHighLabelKey, supplied.endpointHighLabel, command.locale));
+    if (Array.isArray(supplied.options)) for (const option of supplied.options) if (option && typeof option === 'object' && typeof (option as CanonicalObject).label === 'string') patches.push(...translations(document, String((option as CanonicalObject).labelKey), String((option as CanonicalObject).label), command.locale));
     const childTranslations = (children: CanonicalObject[]): CanonicalPatch[] => children.flatMap((child) => {
       const nested = ((child.itemSchema as CanonicalObject | undefined)?.fields as CanonicalObject[] | undefined) ?? [];
       return [
-        ...(typeof child.labelKey === 'string' && typeof child.__label === 'string' ? translations(document, child.labelKey, child.__label) : []),
-        ...(Array.isArray(child.options) ? child.options.flatMap((option) => option && typeof option === 'object' && typeof (option as CanonicalObject).label === 'string' ? translations(document, String((option as CanonicalObject).labelKey), String((option as CanonicalObject).label)) : []) : []),
+        ...(typeof child.labelKey === 'string' && typeof child.__label === 'string' ? translations(document, child.labelKey, child.__label, command.locale) : []),
+        ...(Array.isArray(child.options) ? child.options.flatMap((option) => option && typeof option === 'object' && typeof (option as CanonicalObject).label === 'string' ? translations(document, String((option as CanonicalObject).labelKey), String((option as CanonicalObject).label), command.locale) : []) : []),
         ...childTranslations(nested),
       ];
     });
     patches.push(...childTranslations(visualChildren));
     const rows = supplied.fixedRows;
-    if (Array.isArray(rows)) for (const row of rows) if (row && typeof row === 'object' && typeof (row as CanonicalObject).label === 'string') patches.push(...translations(document, String((row as CanonicalObject).labelKey), String((row as CanonicalObject).label)));
+    if (Array.isArray(rows)) for (const row of rows) if (row && typeof row === 'object' && typeof (row as CanonicalObject).label === 'string') patches.push(...translations(document, String((row as CanonicalObject).labelKey), String((row as CanonicalObject).label), command.locale));
     const calculation = canonical.extensions && typeof canonical.extensions === 'object'
       ? (canonical.extensions as CanonicalObject)['x-kodeboxx.calculation'] as CanonicalObject | undefined : undefined;
     if (calculation?.dependencyId && calculation.version && calculation.digest) {
@@ -318,7 +327,10 @@ export function canonicalPatches(authoring: AuthoringDocument, command: Authorin
       patches.push({ op: 'remove', path: removal.path });
       for (const removed of removedFields) {
         const key = removed.labelKey;
-        if (typeof key === 'string') patches.push({ op: 'remove', path: `/translations/en/messages/${escape(key)}` });
+        const locale = command.locale ?? (typeof document.defaultLocale === 'string' ? document.defaultLocale : 'en');
+        const messages = ((document.translations as CanonicalObject | undefined)?.[locale] as CanonicalObject | undefined)?.messages as CanonicalObject | undefined;
+        if (typeof key === 'string' && messages && Object.prototype.hasOwnProperty.call(messages, key))
+          patches.push({ op: 'remove', path: `/translations/${escape(locale)}/messages/${escape(key)}` });
       }
       // Dependents are deliberately retained. The compiler reports the invalid draft
       // until the author repairs/removes each dependency after accepting its impact.

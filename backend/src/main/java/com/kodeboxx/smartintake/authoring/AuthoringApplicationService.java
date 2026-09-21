@@ -118,10 +118,14 @@ public class AuthoringApplicationService {
     if (!matches(match, current.revision())) return stale(form, draft, current, clientFor(request, current), match);
     List<Map<String, Object>> commands = maps(request.get("commands"));
     if (commands.isEmpty() || commands.size() > MAX_COMMANDS) throw bad("COMMAND_LIMIT", "A batch must contain 1-1000 commands.");
+    List<Map<String,Object>> previousProblems=diagnostics(parse(current.definition()));
     JsonNode next = parse(current.definition());
     List<Map<String, Object>> inverses = new ArrayList<>();
+    LinkedHashSet<String> removedFieldIds = new LinkedHashSet<>();
     for (Map<String, Object> command : commands) {
       checkCommand(command);
+      if ("remove".equals(String.valueOf(command.get("op"))) && String.valueOf(command.get("path")).startsWith("/data/fields/"))
+        collectFieldIds(at(next, String.valueOf(command.get("path"))), removedFieldIds);
       Applied applied = apply(next, command);
       next = applied.document();
       inverses.add(0, applied.inverse());
@@ -129,12 +133,16 @@ public class AuthoringApplicationService {
     requireBounded(next);
     if (request.containsKey("expectedHash") && !CanonicalJson.sha256(parse(current.definition())).equals(request.get("expectedHash")))
       return stale(form, draft, current, clientFor(request, current), match);
-    // A destructive visual removal may intentionally leave references behind.  That is
-    // an authoring draft state, never a publishable package: the caller has to opt in
-    // and the batch must actually remove a package node.  All other invalid writes
-    // remain rejected at the compiler boundary.
+    // The repair escape hatch is deliberately narrower than a compiler bypass: only a
+    // clean draft whose exact batch removed declared fields may retain the newly broken
+    // expression references to those fields. Schema, route, locale, duplicate-ID and
+    // pre-existing failures all remain hard errors.
+    List<Map<String,Object>> nextProblems=diagnostics(next);
+    JsonNode candidate=next;
     boolean acceptedBrokenReferenceDraft = Boolean.TRUE.equals(request.get("acceptInvalidDraft"))
-        && commands.stream().anyMatch(command -> "remove".equals(String.valueOf(command.get("op"))));
+        && previousProblems.isEmpty() && !removedFieldIds.isEmpty() && !nextProblems.isEmpty()
+        && nextProblems.stream().allMatch(problem -> repairableRemovedFieldReference(candidate, problem, removedFieldIds));
+    if (!nextProblems.isEmpty() && !acceptedBrokenReferenceDraft) requireCompilable(next);
     return persist(form, draft, current, next, author, "COMMAND_BATCH",
         Map.of("commands", commands), Map.of("commands", inverses), acceptedBrokenReferenceDraft);
   }
@@ -480,6 +488,32 @@ public class AuthoringApplicationService {
   private JsonNode pinComponent(JsonNode root,String key,Component component){ObjectNode copy=(ObjectNode)root.deepCopy();ArrayNode dependencies=copy.withArray("dependencies");String id=key.replace('-','_');for(int index=dependencies.size()-1;index>=0;index--){JsonNode dependency=dependencies.get(index);if("component".equals(dependency.path("kind").asText())&&id.equals(dependency.path("id").asText())){if(String.valueOf(component.version()).equals(dependency.path("version").asText())&&component.hash().equals(dependency.path("digest").asText()))return copy;dependencies.remove(index);}}dependencies.add(json.valueToTree(map("kind","component","id",id,"version",String.valueOf(component.version()),"digest",component.hash())));return copy;}
 
   private List<Map<String,Object>> diagnostics(JsonNode candidate){ return compiler.compile(candidate).diagnostics().stream().map(d->map("code",d.code(),"pointer",d.pointer(),"message",d.message())).toList(); }
+  private void collectFieldIds(JsonNode node, LinkedHashSet<String> ids) {
+    if (!node.isObject()) return;
+    if (node.path("id").isTextual() && node.path("type").isTextual() && node.path("key").isTextual()) ids.add(node.path("id").asText());
+    JsonNode children=node.path("itemSchema").path("fields");
+    if (children.isArray()) children.forEach(child -> collectFieldIds(child, ids));
+  }
+  private boolean repairableRemovedFieldReference(JsonNode candidate, Map<String,Object> problem, LinkedHashSet<String> removedIds) {
+    if (!"EXPRESSION_UNKNOWN_FIELD".equals(String.valueOf(problem.get("code")))) return false;
+    String pointer=String.valueOf(problem.get("pointer"));
+    if (!pointer.startsWith("/expressions/")) return false;
+    String expressionId=unescape(pointer.substring("/expressions/".length()));
+    if (routeUsesExpression(candidate.path("flow").path("phases"), expressionId)) return false;
+    LinkedHashSet<String> references=new LinkedHashSet<>(); collectReferences(at(candidate,pointer),references);
+    return !references.isEmpty() && removedIds.containsAll(references);
+  }
+  private void collectReferences(JsonNode node, LinkedHashSet<String> references) {
+    if (node.isObject()) {
+      JsonNode reference=node.path("ref"); if (reference.path("fieldId").isTextual()) references.add(reference.path("fieldId").asText());
+      node.elements().forEachRemaining(child -> collectReferences(child,references));
+    } else if (node.isArray()) node.forEach(child -> collectReferences(child,references));
+  }
+  private boolean routeUsesExpression(JsonNode phases,String expressionId) {
+    for (JsonNode phase:phases) for (JsonNode page:phase.path("pages")) for (JsonNode route:page.path("routes"))
+      if (expressionId.equals(route.path("whenExpressionId").asText())) return true;
+    return false;
+  }
   private Map<String,Object> impact(JsonNode before,JsonNode after){LinkedHashSet<String> changed=new LinkedHashSet<>(); compare(before,after,"",changed); return map("changedPointers",changed.stream().limit(200).toList(),"changedCount",changed.size(),"semantic",changed.isEmpty()?"NONE":"PACKAGE_CHANGED"); }
   private void compare(JsonNode a,JsonNode b,String pointer,LinkedHashSet<String> out){if(out.size()>=200)return;if(a.equals(b))return;if(a.isObject()&&b.isObject()){LinkedHashSet<String> names=new LinkedHashSet<>();a.fieldNames().forEachRemaining(names::add);b.fieldNames().forEachRemaining(names::add);for(String n:names)compare(a.path(n),b.path(n),pointer+"/"+n.replace("~","~0").replace("/","~1"),out);return;}out.add(pointer);}
   private List<Map<String,Object>> historySummary(UUID form,String draft){return db.query("select operation,revision from form_authoring_history where form_id=? and draft_id=? order by created_at desc limit 100",(rs,n)->map("operation",rs.getString(1),"revision",rs.getLong(2)),form,UUID.fromString(draft));}

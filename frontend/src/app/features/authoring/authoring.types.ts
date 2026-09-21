@@ -152,6 +152,8 @@ export interface AuthoringCommand {
   readonly cascade?: boolean;
   /** Set only after the author explicitly accepts the displayed dependency impact. */
   readonly acceptInvalidDraft?: boolean;
+  /** The only locale whose authored text may be changed by this visual command. */
+  readonly locale?: string;
   readonly label?: string;
   readonly node?: AuthoringNode;
   /** Closed canonical field properties supplied by the visual field inspector. */

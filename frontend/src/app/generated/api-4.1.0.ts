@@ -3397,6 +3397,16 @@ export interface components {
             showRowNumbers?: boolean;
             /** @enum {unknown} */
             orientation?: "vertical" | "horizontal" | "table" | "cards";
+            readOnly?: boolean;
+            alternateInstancesBindSameField?: boolean;
+            endpointLowLabelKey?: components["schemas"]["key"];
+            endpointHighLabelKey?: components["schemas"]["key"];
+            allowedMime?: string[];
+            /** @enum {unknown} */
+            scanReadiness?: "normal" | "required";
+            requireTrue?: boolean;
+            finalReviewOnly?: boolean;
+            voiceSupplyProhibited?: boolean;
         };
         question: {
             id: components["schemas"]["id"];
@@ -3688,6 +3698,16 @@ export interface components {
                     showRowNumbers?: boolean;
                     /** @enum {unknown} */
                     orientation?: "vertical" | "horizontal" | "table" | "cards";
+                    readOnly?: boolean;
+                    alternateInstancesBindSameField?: boolean;
+                    endpointLowLabelKey?: components["schemas"]["key"];
+                    endpointHighLabelKey?: components["schemas"]["key"];
+                    allowedMime?: string[];
+                    /** @enum {unknown} */
+                    scanReadiness?: "normal" | "required";
+                    requireTrue?: boolean;
+                    finalReviewOnly?: boolean;
+                    voiceSupplyProhibited?: boolean;
                 };
                 question: {
                     id: components["schemas"]["id"];

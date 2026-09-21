@@ -20,6 +20,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -31,7 +34,16 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
   PackageDocumentSettings.JSON_PROPERTY_ALLOW_REMOVE,
   PackageDocumentSettings.JSON_PROPERTY_ALLOW_REORDER,
   PackageDocumentSettings.JSON_PROPERTY_SHOW_ROW_NUMBERS,
-  PackageDocumentSettings.JSON_PROPERTY_ORIENTATION
+  PackageDocumentSettings.JSON_PROPERTY_ORIENTATION,
+  PackageDocumentSettings.JSON_PROPERTY_READ_ONLY,
+  PackageDocumentSettings.JSON_PROPERTY_ALTERNATE_INSTANCES_BIND_SAME_FIELD,
+  PackageDocumentSettings.JSON_PROPERTY_ENDPOINT_LOW_LABEL_KEY,
+  PackageDocumentSettings.JSON_PROPERTY_ENDPOINT_HIGH_LABEL_KEY,
+  PackageDocumentSettings.JSON_PROPERTY_ALLOWED_MIME,
+  PackageDocumentSettings.JSON_PROPERTY_SCAN_READINESS,
+  PackageDocumentSettings.JSON_PROPERTY_REQUIRE_TRUE,
+  PackageDocumentSettings.JSON_PROPERTY_FINAL_REVIEW_ONLY,
+  PackageDocumentSettings.JSON_PROPERTY_VOICE_SUPPLY_PROHIBITED
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
 public class PackageDocumentSettings {
@@ -93,6 +105,77 @@ public class PackageDocumentSettings {
   public static final String JSON_PROPERTY_ORIENTATION = "orientation";
   @jakarta.annotation.Nullable
   private OrientationEnum orientation;
+
+  public static final String JSON_PROPERTY_READ_ONLY = "readOnly";
+  @jakarta.annotation.Nullable
+  private Boolean readOnly;
+
+  public static final String JSON_PROPERTY_ALTERNATE_INSTANCES_BIND_SAME_FIELD = "alternateInstancesBindSameField";
+  @jakarta.annotation.Nullable
+  private Boolean alternateInstancesBindSameField;
+
+  public static final String JSON_PROPERTY_ENDPOINT_LOW_LABEL_KEY = "endpointLowLabelKey";
+  @jakarta.annotation.Nullable
+  private String endpointLowLabelKey;
+
+  public static final String JSON_PROPERTY_ENDPOINT_HIGH_LABEL_KEY = "endpointHighLabelKey";
+  @jakarta.annotation.Nullable
+  private String endpointHighLabelKey;
+
+  public static final String JSON_PROPERTY_ALLOWED_MIME = "allowedMime";
+  @jakarta.annotation.Nullable
+  private Set<String> allowedMime = new LinkedHashSet<>();
+
+  /**
+   * Gets or Sets scanReadiness
+   */
+  public enum ScanReadinessEnum {
+    NORMAL(String.valueOf("normal")),
+    
+    REQUIRED(String.valueOf("required"));
+
+    private String value;
+
+    ScanReadinessEnum(String value) {
+      this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    @JsonCreator
+    public static ScanReadinessEnum fromValue(String value) {
+      for (ScanReadinessEnum b : ScanReadinessEnum.values()) {
+        if (b.value.equals(value)) {
+          return b;
+        }
+      }
+      throw new IllegalArgumentException("Unexpected value '" + value + "'");
+    }
+  }
+
+  public static final String JSON_PROPERTY_SCAN_READINESS = "scanReadiness";
+  @jakarta.annotation.Nullable
+  private ScanReadinessEnum scanReadiness;
+
+  public static final String JSON_PROPERTY_REQUIRE_TRUE = "requireTrue";
+  @jakarta.annotation.Nullable
+  private Boolean requireTrue;
+
+  public static final String JSON_PROPERTY_FINAL_REVIEW_ONLY = "finalReviewOnly";
+  @jakarta.annotation.Nullable
+  private Boolean finalReviewOnly;
+
+  public static final String JSON_PROPERTY_VOICE_SUPPLY_PROHIBITED = "voiceSupplyProhibited";
+  @jakarta.annotation.Nullable
+  private Boolean voiceSupplyProhibited;
 
   public PackageDocumentSettings() {
   }
@@ -222,6 +305,240 @@ public class PackageDocumentSettings {
     this.orientation = orientation;
   }
 
+  public PackageDocumentSettings readOnly(@jakarta.annotation.Nullable Boolean readOnly) {
+    
+    this.readOnly = readOnly;
+    return this;
+  }
+
+  /**
+   * Get readOnly
+   * @return readOnly
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_READ_ONLY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public Boolean getReadOnly() {
+    return readOnly;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_READ_ONLY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setReadOnly(@jakarta.annotation.Nullable Boolean readOnly) {
+    this.readOnly = readOnly;
+  }
+
+  public PackageDocumentSettings alternateInstancesBindSameField(@jakarta.annotation.Nullable Boolean alternateInstancesBindSameField) {
+    
+    this.alternateInstancesBindSameField = alternateInstancesBindSameField;
+    return this;
+  }
+
+  /**
+   * Get alternateInstancesBindSameField
+   * @return alternateInstancesBindSameField
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_ALTERNATE_INSTANCES_BIND_SAME_FIELD)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public Boolean getAlternateInstancesBindSameField() {
+    return alternateInstancesBindSameField;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_ALTERNATE_INSTANCES_BIND_SAME_FIELD)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setAlternateInstancesBindSameField(@jakarta.annotation.Nullable Boolean alternateInstancesBindSameField) {
+    this.alternateInstancesBindSameField = alternateInstancesBindSameField;
+  }
+
+  public PackageDocumentSettings endpointLowLabelKey(@jakarta.annotation.Nullable String endpointLowLabelKey) {
+    
+    this.endpointLowLabelKey = endpointLowLabelKey;
+    return this;
+  }
+
+  /**
+   * Get endpointLowLabelKey
+   * @return endpointLowLabelKey
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_ENDPOINT_LOW_LABEL_KEY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public String getEndpointLowLabelKey() {
+    return endpointLowLabelKey;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_ENDPOINT_LOW_LABEL_KEY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setEndpointLowLabelKey(@jakarta.annotation.Nullable String endpointLowLabelKey) {
+    this.endpointLowLabelKey = endpointLowLabelKey;
+  }
+
+  public PackageDocumentSettings endpointHighLabelKey(@jakarta.annotation.Nullable String endpointHighLabelKey) {
+    
+    this.endpointHighLabelKey = endpointHighLabelKey;
+    return this;
+  }
+
+  /**
+   * Get endpointHighLabelKey
+   * @return endpointHighLabelKey
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_ENDPOINT_HIGH_LABEL_KEY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public String getEndpointHighLabelKey() {
+    return endpointHighLabelKey;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_ENDPOINT_HIGH_LABEL_KEY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setEndpointHighLabelKey(@jakarta.annotation.Nullable String endpointHighLabelKey) {
+    this.endpointHighLabelKey = endpointHighLabelKey;
+  }
+
+  public PackageDocumentSettings allowedMime(@jakarta.annotation.Nullable Set<String> allowedMime) {
+    
+    this.allowedMime = allowedMime;
+    return this;
+  }
+
+  public PackageDocumentSettings addAllowedMimeItem(String allowedMimeItem) {
+    if (this.allowedMime == null) {
+      this.allowedMime = new LinkedHashSet<>();
+    }
+    this.allowedMime.add(allowedMimeItem);
+    return this;
+  }
+
+  /**
+   * Get allowedMime
+   * @return allowedMime
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_ALLOWED_MIME)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public Set<String> getAllowedMime() {
+    return allowedMime;
+  }
+
+
+  @JsonDeserialize(as = LinkedHashSet.class)
+  @JsonProperty(JSON_PROPERTY_ALLOWED_MIME)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setAllowedMime(@jakarta.annotation.Nullable Set<String> allowedMime) {
+    this.allowedMime = allowedMime;
+  }
+
+  public PackageDocumentSettings scanReadiness(@jakarta.annotation.Nullable ScanReadinessEnum scanReadiness) {
+    
+    this.scanReadiness = scanReadiness;
+    return this;
+  }
+
+  /**
+   * Get scanReadiness
+   * @return scanReadiness
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_SCAN_READINESS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public ScanReadinessEnum getScanReadiness() {
+    return scanReadiness;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_SCAN_READINESS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setScanReadiness(@jakarta.annotation.Nullable ScanReadinessEnum scanReadiness) {
+    this.scanReadiness = scanReadiness;
+  }
+
+  public PackageDocumentSettings requireTrue(@jakarta.annotation.Nullable Boolean requireTrue) {
+    
+    this.requireTrue = requireTrue;
+    return this;
+  }
+
+  /**
+   * Get requireTrue
+   * @return requireTrue
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_REQUIRE_TRUE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public Boolean getRequireTrue() {
+    return requireTrue;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_REQUIRE_TRUE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setRequireTrue(@jakarta.annotation.Nullable Boolean requireTrue) {
+    this.requireTrue = requireTrue;
+  }
+
+  public PackageDocumentSettings finalReviewOnly(@jakarta.annotation.Nullable Boolean finalReviewOnly) {
+    
+    this.finalReviewOnly = finalReviewOnly;
+    return this;
+  }
+
+  /**
+   * Get finalReviewOnly
+   * @return finalReviewOnly
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_FINAL_REVIEW_ONLY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public Boolean getFinalReviewOnly() {
+    return finalReviewOnly;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_FINAL_REVIEW_ONLY)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setFinalReviewOnly(@jakarta.annotation.Nullable Boolean finalReviewOnly) {
+    this.finalReviewOnly = finalReviewOnly;
+  }
+
+  public PackageDocumentSettings voiceSupplyProhibited(@jakarta.annotation.Nullable Boolean voiceSupplyProhibited) {
+    
+    this.voiceSupplyProhibited = voiceSupplyProhibited;
+    return this;
+  }
+
+  /**
+   * Get voiceSupplyProhibited
+   * @return voiceSupplyProhibited
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_VOICE_SUPPLY_PROHIBITED)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public Boolean getVoiceSupplyProhibited() {
+    return voiceSupplyProhibited;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_VOICE_SUPPLY_PROHIBITED)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setVoiceSupplyProhibited(@jakarta.annotation.Nullable Boolean voiceSupplyProhibited) {
+    this.voiceSupplyProhibited = voiceSupplyProhibited;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -235,12 +552,21 @@ public class PackageDocumentSettings {
         Objects.equals(this.allowRemove, packageDocumentSettings.allowRemove) &&
         Objects.equals(this.allowReorder, packageDocumentSettings.allowReorder) &&
         Objects.equals(this.showRowNumbers, packageDocumentSettings.showRowNumbers) &&
-        Objects.equals(this.orientation, packageDocumentSettings.orientation);
+        Objects.equals(this.orientation, packageDocumentSettings.orientation) &&
+        Objects.equals(this.readOnly, packageDocumentSettings.readOnly) &&
+        Objects.equals(this.alternateInstancesBindSameField, packageDocumentSettings.alternateInstancesBindSameField) &&
+        Objects.equals(this.endpointLowLabelKey, packageDocumentSettings.endpointLowLabelKey) &&
+        Objects.equals(this.endpointHighLabelKey, packageDocumentSettings.endpointHighLabelKey) &&
+        Objects.equals(this.allowedMime, packageDocumentSettings.allowedMime) &&
+        Objects.equals(this.scanReadiness, packageDocumentSettings.scanReadiness) &&
+        Objects.equals(this.requireTrue, packageDocumentSettings.requireTrue) &&
+        Objects.equals(this.finalReviewOnly, packageDocumentSettings.finalReviewOnly) &&
+        Objects.equals(this.voiceSupplyProhibited, packageDocumentSettings.voiceSupplyProhibited);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(allowAdd, allowRemove, allowReorder, showRowNumbers, orientation);
+    return Objects.hash(allowAdd, allowRemove, allowReorder, showRowNumbers, orientation, readOnly, alternateInstancesBindSameField, endpointLowLabelKey, endpointHighLabelKey, allowedMime, scanReadiness, requireTrue, finalReviewOnly, voiceSupplyProhibited);
   }
 
   @Override
@@ -252,6 +578,15 @@ public class PackageDocumentSettings {
     sb.append("    allowReorder: ").append(toIndentedString(allowReorder)).append("\n");
     sb.append("    showRowNumbers: ").append(toIndentedString(showRowNumbers)).append("\n");
     sb.append("    orientation: ").append(toIndentedString(orientation)).append("\n");
+    sb.append("    readOnly: ").append(toIndentedString(readOnly)).append("\n");
+    sb.append("    alternateInstancesBindSameField: ").append(toIndentedString(alternateInstancesBindSameField)).append("\n");
+    sb.append("    endpointLowLabelKey: ").append(toIndentedString(endpointLowLabelKey)).append("\n");
+    sb.append("    endpointHighLabelKey: ").append(toIndentedString(endpointHighLabelKey)).append("\n");
+    sb.append("    allowedMime: ").append(toIndentedString(allowedMime)).append("\n");
+    sb.append("    scanReadiness: ").append(toIndentedString(scanReadiness)).append("\n");
+    sb.append("    requireTrue: ").append(toIndentedString(requireTrue)).append("\n");
+    sb.append("    finalReviewOnly: ").append(toIndentedString(finalReviewOnly)).append("\n");
+    sb.append("    voiceSupplyProhibited: ").append(toIndentedString(voiceSupplyProhibited)).append("\n");
     sb.append("}");
     return sb.toString();
   }

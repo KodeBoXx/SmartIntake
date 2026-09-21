@@ -52,6 +52,25 @@ describe('canonical authoring patches', () => {
     expect(moved.flow.phases[0].pages[0].sections[1].nodes.map((node) => node.id)).toEqual(['node-b', 'node-a']);
   });
 
+  it('updates only the selected locale and preserves Hindi and Arabic bundles byte-for-byte', () => {
+    const localized = structuredClone(definition) as Record<string, any>;
+    localized.supportedLocales = ['en', 'hi', 'ar'];
+    localized.translations = {
+      en: localized.translations.en,
+      hi: { direction: 'ltr', messages: { ...localized.translations.en.messages, 'field-a.label': 'नाम' } },
+      ar: { direction: 'rtl', messages: { ...localized.translations.en.messages, 'field-a.label': 'الاسم' } },
+    };
+    const beforeHindi = structuredClone(localized.translations.hi);
+    const beforeArabic = structuredClone(localized.translations.ar);
+    const hindi = applyCanonicalPatches(localized, canonicalPatches(authoringDocument({ draftId: 'draft-a', revision: 4, definition: localized }), { type: 'rename', targetId: 'node-a', label: 'नाम बदलें', locale: 'hi' })) as Record<string, any>;
+    expect(hindi.translations.hi.messages['authoring.field-a.label']).toBe('नाम बदलें');
+    expect(hindi.translations.ar).toEqual(beforeArabic);
+    const english = applyCanonicalPatches(hindi, canonicalPatches(authoringDocument({ draftId: 'draft-a', revision: 4, definition: hindi }), { type: 'rename', targetId: 'node-a', label: 'Renamed', locale: 'en' })) as Record<string, any>;
+    expect(english.translations.hi).toEqual(hindi.translations.hi);
+    expect(english.translations.ar).toEqual(beforeArabic);
+    expect(beforeHindi.messages['field-a.label']).toBe('नाम');
+  });
+
   it('writes typed field settings, canonical expressions, and branch routes without a JSON editor', () => {
     let next = applyCanonicalPatches(definition, canonicalPatches(document, {
       type: 'update-field', targetId: 'node-a', field: {

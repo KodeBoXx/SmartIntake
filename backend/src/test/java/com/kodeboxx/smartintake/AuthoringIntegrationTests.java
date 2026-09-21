@@ -77,6 +77,7 @@ class AuthoringIntegrationTests {
 
   @Test void persists_an_explicitly_accepted_dependency_break_as_an_invalid_repairable_draft() throws Exception {
     var definition=(com.fasterxml.jackson.databind.node.ObjectNode) json.readTree(fixture());
+    addIndependentField(definition);
     definition.withObject("expressions").set("depends_on_name", json.readTree("{\"op\":\"exists\",\"args\":[{\"ref\":{\"fieldId\":\"fld_name\",\"scope\":\"root\"}}]}"));
     db.update("update forms set definition=cast(? as jsonb) where id=?", json.writeValueAsString(definition), form);
 
@@ -84,8 +85,7 @@ class AuthoringIntegrationTests {
         "acceptInvalidDraft",true,
         "commands",List.of(
             Map.of("op","remove","path","/flow/phases/0/pages/0/sections/0/nodes/0"),
-            Map.of("op","remove","path","/data/fields/0"),
-            Map.of("op","remove","path","/translations/en/messages/q.name"))));
+            Map.of("op","remove","path","/data/fields/0"))));
     assertEquals(HttpStatus.OK,saved.getStatusCode(),saved.getBody());
     JsonNode body=json.readTree(saved.getBody());
     assertEquals("INVALID",body.path("draftState").asText());
@@ -96,10 +96,39 @@ class AuthoringIntegrationTests {
 
     ResponseEntity<String> repaired=call("/commands",HttpMethod.POST,"\"2\"",Map.of("commands",List.of(
         Map.of("op","add","path","/data/fields/-","value",definition.at("/data/fields/0")),
-        Map.of("op","add","path","/flow/phases/0/pages/0/sections/0/nodes/-","value",definition.at("/flow/phases/0/pages/0/sections/0/nodes/0")),
-        Map.of("op","add","path","/translations/en/messages/q.name","value",definition.at("/translations/en/messages/q.name")))));
+        Map.of("op","add","path","/flow/phases/0/pages/0/sections/0/nodes/-","value",definition.at("/flow/phases/0/pages/0/sections/0/nodes/0")))));
     assertEquals(HttpStatus.OK,repaired.getStatusCode(),repaired.getBody());
     assertEquals("VALID",json.readTree(repaired.getBody()).path("draftState").asText());
+  }
+
+  @Test void accepts_only_new_removed_field_expression_references_and_rejects_adversarial_invalid_drafts() throws Exception {
+    var definition=(com.fasterxml.jackson.databind.node.ObjectNode) json.readTree(fixture());
+    addIndependentField(definition);
+    definition.withObject("expressions").set("depends_on_name", json.readTree("{\"op\":\"exists\",\"args\":[{\"ref\":{\"fieldId\":\"fld_name\",\"scope\":\"root\"}}]}"));
+    db.update("update forms set definition=cast(? as jsonb) where id=?", json.writeValueAsString(definition), form);
+    List<Map<String,Object>> removal=List.of(Map.of("op","remove","path","/flow/phases/0/pages/0/sections/0/nodes/0"),Map.of("op","remove","path","/data/fields/0"));
+    assertEquals(HttpStatus.UNPROCESSABLE_ENTITY,call("/commands",HttpMethod.POST,"\"1\"",Map.of("acceptInvalidDraft",true,"commands",List.of(
+        removal.get(0), removal.get(1), Map.of("op","add","path","/unrelated","value",true)))).getStatusCode(),"schema failures are never repairable");
+    assertEquals(HttpStatus.UNPROCESSABLE_ENTITY,call("/commands",HttpMethod.POST,"\"1\"",Map.of("acceptInvalidDraft",true,"commands",List.of(
+        removal.get(0), removal.get(1), Map.of("op","remove","path","/translations/en/messages/q.other")))).getStatusCode(),"locale failures are never repairable");
+    definition.withObject("expressions").set("preexisting",json.readTree("{\"op\":\"exists\",\"args\":[{\"ref\":{\"fieldId\":\"not_a_field\",\"scope\":\"root\"}}]}"));
+    db.update("update forms set definition=cast(? as jsonb) where id=?", json.writeValueAsString(definition), form);
+    assertEquals(HttpStatus.UNPROCESSABLE_ENTITY,call("/commands",HttpMethod.POST,"\"1\"",Map.of("acceptInvalidDraft",true,"commands",removal)).getStatusCode(),"pre-existing diagnostics are never bypassed");
+  }
+
+  @Test void enforces_1000_command_boundary_and_replays_the_successful_batch_without_duplicate_history() {
+    List<Map<String,Object>> thousand=new ArrayList<>();
+    for (int index=0;index<1_000;index++) thousand.add(Map.of("op","set","path","/translations/en/messages/q.name","value","Boundary "+index));
+    ResponseEntity<String> accepted=call("/commands",HttpMethod.POST,"\"1\"",Map.of("commands",thousand),"boundary-1000");
+    assertEquals(HttpStatus.OK,accepted.getStatusCode(),accepted.getBody());
+    assertEquals("\"2\"",accepted.getHeaders().getETag());
+    assertEquals(accepted.getBody(),call("/commands",HttpMethod.POST,"\"1\"",Map.of("commands",thousand),"boundary-1000").getBody(),"a replay must not add history");
+    assertEquals(1,db.queryForObject("select count(*) from form_authoring_history where form_id=? and operation='COMMAND_BATCH'",Integer.class,form));
+    List<Map<String,Object>> thousandOne=new ArrayList<>(thousand); thousandOne.add(Map.of("op","set","path","/translations/en/messages/q.name","value","Too many"));
+    assertEquals(HttpStatus.UNPROCESSABLE_ENTITY,call("/commands",HttpMethod.POST,"\"2\"",Map.of("commands",thousandOne),"boundary-1001").getStatusCode());
+    ResponseEntity<String> undone=call("/undo",HttpMethod.POST,"\"2\"",Map.of(),"boundary-undo");
+    assertEquals(HttpStatus.OK,undone.getStatusCode(),undone.getBody());
+    assertEquals(HttpStatus.OK,call("/redo",HttpMethod.POST,"\"3\"",Map.of(),"boundary-redo").getStatusCode());
   }
 
   @Test void normal_form_creation_persists_a_canonical_template_that_opens_and_accepts_a_numeric_etag_command() throws Exception {
@@ -475,6 +504,11 @@ class AuthoringIntegrationTests {
   }
 
   private String fixture() throws Exception { return Files.readString(Path.of("..", "docs", "contracts", "smart-form-builder-lite", "4.0.0", "fixtures", "package-prd-inline-minimal.positive.json")); }
+  private void addIndependentField(com.fasterxml.jackson.databind.node.ObjectNode definition) {
+    var field=((com.fasterxml.jackson.databind.node.ObjectNode)definition.at("/data/fields/0").deepCopy()); field.put("id","fld_other"); field.put("key","other"); field.put("labelKey","q.other"); ((com.fasterxml.jackson.databind.node.ArrayNode)definition.at("/data/fields")).add(field);
+    var node=((com.fasterxml.jackson.databind.node.ObjectNode)definition.at("/flow/phases/0/pages/0/sections/0/nodes/0").deepCopy()); node.put("id","node_other"); node.put("fieldId","fld_other"); ((com.fasterxml.jackson.databind.node.ArrayNode)definition.at("/flow/phases/0/pages/0/sections/0/nodes")).add(node);
+    ((com.fasterxml.jackson.databind.node.ObjectNode)definition.at("/translations/en/messages")).put("q.other","Other");
+  }
   private ResponseEntity<String> call(String suffix,HttpMethod method,String match,Object body) { return call(suffix,method,match,body,UUID.randomUUID().toString()); }
   private ResponseEntity<String> call(String suffix,HttpMethod method,String match,Object body,String key) {
     return authoringCall(form,suffix,method,match,body,key);
