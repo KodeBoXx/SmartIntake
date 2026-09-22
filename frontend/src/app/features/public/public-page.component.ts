@@ -5,12 +5,13 @@ import { ActivatedRoute } from '@angular/router';
 import { CuiAlertComponent, CuiCardComponent, CuiEmptyStateComponent, CuiInputComponent } from '@certinal/ui';
 import { type M5StubState } from '../../core/m5-session.store';
 import { m5RouteState, titleCase } from '../../shared/m5-route-state';
-import type { RuntimeFieldDefinition } from '../../runtime/runtime-types';
+import type { InputAnswerCell, RuntimeFieldDefinition, ServerAnswerCell } from '../../runtime/runtime-types';
 import { PublicSessionStore } from './public-session.store';
+import { RespondentControlComponent } from './respondent-control.component';
 
 @Component({
   standalone: true,
-  imports: [CommonModule, FormsModule, CuiAlertComponent, CuiCardComponent, CuiEmptyStateComponent, CuiInputComponent],
+  imports: [CommonModule, FormsModule, CuiAlertComponent, CuiCardComponent, CuiEmptyStateComponent, CuiInputComponent, RespondentControlComponent],
   template: `
     <section data-testid="public-page" [attr.data-state]="testState || store.phase()" data-public-runtime>
       @if (testState) {
@@ -67,33 +68,7 @@ import { PublicSessionStore } from './public-session.store';
             @if (store.phase() === 'saving') { <span class="type-caption" aria-live="polite">Saving…</span> } @else { <span class="type-caption">Saved</span> }
           </div>
           @for (field of currentFields(); track field.id) {
-            <div class="mb-5" [attr.data-field-id]="field.id">
-              <label class="type-label mb-1 block" [for]="field.id">{{ label(field) }}</label>
-              @if (field.type === 'object') {
-                <div class="ml-3 border-l pl-4" data-testid="object-control">@for (child of field.fields || []; track child.id) { <label class="type-label block" [for]="field.id + '-' + child.id">{{ label(child) }}<input [id]="field.id + '-' + child.id" class="mt-1 w-full" [type]="inputType(child)" [ngModel]="nestedValue(field, child)" (ngModelChange)="store.setAnswer(child, $event)" /></label> }</div>
-              } @else if (field.type === 'list') {
-                <div data-testid="list-control">@for (item of listItems(field); track item.itemId; let index = $index) { <div class="mb-3 border p-3" [attr.data-item-id]="item.itemId"><div class="type-caption">Item {{ index + 1 }}</div>@for (child of field.itemFields || []; track child.id) { <label class="type-label block" [for]="field.id + '-' + item.itemId + '-' + child.id">{{ label(child) }}<input [id]="field.id + '-' + item.itemId + '-' + child.id" class="mt-1 w-full" [type]="inputType(child)" [ngModel]="itemValue(item, child)" (ngModelChange)="store.setAnswer(child, $event, [{ listFieldId: field.id, itemId: item.itemId }])" /></label> } @if (!field.fixedRows) { <button cui-button size="sm" type="button" (click)="store.removeItem(field, item.itemId)">Remove</button> }</div> } @if (!field.fixedRows && listItems(field).length < 50) { <button cui-button variant="secondary" type="button" (click)="store.addItem(field)" data-testid="add-list-item">Add item</button> }</div>
-              } @else if (field.type === 'attachments' || field.type === 'drawing') {
-                <cui-alert variant="info" title="Secure {{ field.type }}">This response type is captured by the secure service.</cui-alert>
-              } @else if (field.type === 'boolean') {
-                <select #focusTarget [id]="field.id" class="w-full" [disabled]="isProtected(field)" [ngModel]="booleanValue(field)" (ngModelChange)="store.setAnswer(field, $event === 'true')">
-                  <option [ngValue]="null">Select an answer</option><option [ngValue]="true">Yes</option><option [ngValue]="false">No</option>
-                </select>
-              } @else if (field.type === 'choice') {
-                <select #focusTarget [id]="field.id" class="w-full" [disabled]="isProtected(field)" [ngModel]="textValue(field)" (ngModelChange)="store.setAnswer(field, $event)">
-                  <option value="">Select an answer</option>@for (option of field.options || []; track option) { <option [value]="option">{{ option }}</option> }
-                </select>
-              } @else if (field.type === 'multiChoice') {
-                @for (option of field.options || []; track option) { <label class="mr-4 inline-flex gap-2"><input type="checkbox" [checked]="multiValue(field).includes(option)" [disabled]="isProtected(field)" (change)="toggleChoice(field, option, $any($event.target).checked)" />{{ option }}</label> }
-              } @else if (field.type === 'text' && (field.maxLength || 0) > 120) {
-                <textarea #focusTarget [id]="field.id" class="w-full" rows="4" [disabled]="isProtected(field)" [ngModel]="textValue(field)" (ngModelChange)="store.setAnswer(field, $event)"></textarea>
-              } @else {
-                <input #focusTarget [id]="field.id" class="w-full" [type]="inputType(field)" [disabled]="isProtected(field)" [attr.min]="field.min" [attr.max]="field.max" [attr.step]="field.step" [ngModel]="textValue(field)" (ngModelChange)="store.setAnswer(field, $event)" />
-              }
-              @if (field.allowUnknown || field.allowDeclined || field.allowNotApplicable) {
-                <div class="mt-2 flex flex-wrap gap-2"><button cui-button size="sm" variant="secondary" type="button" (click)="store.clear(field)">Clear</button>@if (field.allowUnknown) { <button cui-button size="sm" variant="secondary" type="button" (click)="store.setStatus(field, 'unknown')">Unknown</button> } @if (field.allowDeclined) { <button cui-button size="sm" variant="secondary" type="button" (click)="store.setStatus(field, 'declined')">Decline</button> } @if (field.allowNotApplicable) { <button cui-button size="sm" variant="secondary" type="button" (click)="store.setStatus(field, 'respondentNotApplicable')">Not applicable</button> }</div>
-              }
-            </div>
+            <si-respondent-control [field]="field" [cell]="answerForControl(field)" (operation)="store.apply($event)" />
           }
           <div class="mt-8 flex justify-between gap-3">
             <button cui-button variant="secondary" type="button" (click)="store.navigate(-1)" [disabled]="!store.canMovePrevious()">Previous</button>
@@ -145,7 +120,7 @@ export class PublicPageComponent implements OnInit {
 
   start(): void { if (this.entryShareId) { const channel = this.route.snapshot.queryParamMap.get('channel'); channel ? this.store.startFromChannel(this.entryShareId, channel) : this.store.start(this.entryShareId); } }
   currentPage() { return this.store.pages().find((page) => page.id === this.store.currentPageId()); }
-  currentFields(): readonly RuntimeFieldDefinition[] { const ids = this.currentPage()?.fieldIds ?? []; return this.store.definition().fields.filter((field) => ids.includes(field.id)); }
+  currentFields(): readonly RuntimeFieldDefinition[] { const ids = this.currentPage()?.fieldIds ?? []; return this.store.definition().fields.filter((field) => ids.includes(field.id) && !field.hidden); }
   label(field: RuntimeFieldDefinition): string { return field.id.replace(/([A-Z])/g, ' $1').replace(/^./, (letter) => letter.toUpperCase()); }
   isProtected(field: RuntimeFieldDefinition): boolean { return Boolean(field.readOnly || field.calculated); }
   inputType(field: RuntimeFieldDefinition): string { return field.type === 'integer' || field.type === 'decimal' ? 'number' : field.type === 'date' || field.type === 'time' || field.type === 'dateTime' ? field.type === 'dateTime' ? 'datetime-local' : field.type : 'text'; }
@@ -161,7 +136,8 @@ export class PublicPageComponent implements OnInit {
   submit(): void { this.store.submit(this.acknowledgmentFields().filter((ack) => ack.accepted).map(({ fieldId, rowPath, contentHash }) => ({ fieldId, rowPath, expectedContentHash: contentHash, accepted: true }))); }
   acksAccepted(): boolean { return this.acknowledgmentFields().every((ack) => ack.accepted); }
 
-  private answer(field: RuntimeFieldDefinition): { status: string; value?: unknown } | undefined { return this.store.state().answers[field.id] ?? this.store.state().server?.answers[field.id]; }
+  answer(field: RuntimeFieldDefinition): { status: string; value?: unknown } | undefined { return this.store.state().answers[field.id] ?? this.store.state().server?.answers[field.id]; }
+  answerForControl(field: RuntimeFieldDefinition): InputAnswerCell | ServerAnswerCell | undefined { return this.store.state().answers[field.id] ?? this.store.state().server?.answers[field.id]; }
   private acknowledgmentFields(): { fieldId: string; label: string; rowPath: { listFieldId: string; itemId: string }[]; contentHash: string; accepted: boolean }[] {
     const state = this.acknowledge;
     const gates = this.store.review()?.review?.['reviewGates'];

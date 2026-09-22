@@ -103,6 +103,9 @@ export class PublicSessionStore implements OnDestroy {
     this.mutate({ kind: 'set', target: { fieldId: field.id, rowPath }, answer });
   }
 
+  /** Allows recursive controls to submit a fully addressed typed operation. */
+  apply(operation: RuntimeOperation): void { this.mutate(operation); }
+
   setStatus(field: RuntimeFieldDefinition, status: 'unknown' | 'declined' | 'respondentNotApplicable'): void {
     this.mutate({ kind: 'set', target: { fieldId: field.id }, answer: { status } });
   }
@@ -283,7 +286,7 @@ function runtimeField(field: CanonicalField): RuntimeFieldDefinition {
   const fields = ((field['fields'] as CanonicalField[] | undefined) ?? []).map(runtimeField);
   return {
     id: String(field['id']), type, readOnly: Boolean(field['readOnly']), calculated: Boolean(field['calculated']), allowUnknown: Boolean(field['allowUnknown']), allowDeclined: Boolean(field['allowDeclined']), allowNotApplicable: Boolean(field['allowNotApplicable']), options,
-    min: stringValue(constraints?.['min']), max: stringValue(constraints?.['max']), step: stringValue(constraints?.['step']), scale: numberValue(constraints?.['scale']), minItems: numberValue(constraints?.['minItems']), maxItems: numberValue(constraints?.['maxItems']), minLength: numberValue(constraints?.['minLength']), maxLength: numberValue(constraints?.['maxLength']), exclusiveOptionIds: stringArray(constraints?.['exclusiveOptionIds']), normalizer: field['normalizer'] as RuntimeFieldDefinition['normalizer'], hiddenRetention: field['hiddenRetention'] as RuntimeFieldDefinition['hiddenRetention'], fixedRows: Boolean(field['fixedRows'] ?? field['matrix']), fixedItemIds: stringArray(field['fixedItemIds']), fields: fields.length ? fields : undefined, itemFields: itemFields.length ? itemFields : undefined,
+    min: stringValue(constraints?.['min']), max: stringValue(constraints?.['max']), step: stringValue(constraints?.['step']), scale: numberValue(constraints?.['scale']), minItems: numberValue(constraints?.['minItems']), maxItems: numberValue(constraints?.['maxItems']), minLength: numberValue(constraints?.['minLength']), maxLength: numberValue(constraints?.['maxLength']), exclusiveOptionIds: stringArray(constraints?.['exclusiveOptionIds']), normalizer: field['normalizer'] as RuntimeFieldDefinition['normalizer'], hiddenRetention: field['hiddenRetention'] as RuntimeFieldDefinition['hiddenRetention'], hidden: Boolean(field['hidden'] ?? field['visible'] === false), fixedRows: Boolean(field['fixedRows'] ?? field['matrix']), fixedItemIds: stringArray(field['fixedItemIds']), fields: fields.length ? fields : undefined, itemFields: itemFields.length ? itemFields : undefined,
   };
 }
 function canonicalPages(definition: Record<string, unknown> | undefined): { id: string; title: string; fieldIds: readonly string[] }[] {

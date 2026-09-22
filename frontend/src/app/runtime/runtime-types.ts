@@ -107,6 +107,8 @@ export interface RuntimeFieldDefinition {
   readonly exclusiveOptionIds?: readonly string[];
   readonly normalizer?: 'preserve' | 'trim' | 'lowercase' | 'uppercase';
   readonly hiddenRetention?: 'clear' | 'memory' | 'draft';
+  /** Server-projected visibility; hidden fields are omitted from the accessibility tree. */
+  readonly hidden?: boolean;
   readonly default?: InputAnswerCell;
   /** A fixed matrix/list may only be supplied by the server projection. */
   readonly fixedRows?: boolean;
