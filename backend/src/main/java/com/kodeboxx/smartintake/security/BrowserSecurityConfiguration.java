@@ -20,6 +20,8 @@ public class BrowserSecurityConfiguration implements WebMvcConfigurer {
   public BrowserSecurityConfiguration(@Value("${smartintake.security.allowed-origins:http://localhost:4200,http://127.0.0.1:4200}") String origins) {
     allowedOrigins = Arrays.stream(origins.split(",")).map(String::trim).filter(value -> !value.isEmpty()).toArray(String[]::new);
   }
+  /** Shared trust boundary for persisted iframe channel origins and CORS. */
+  public boolean allowsOrigin(String origin) { return Arrays.asList(allowedOrigins).contains(origin); }
 
   @Override
   public void addCorsMappings(CorsRegistry registry) {

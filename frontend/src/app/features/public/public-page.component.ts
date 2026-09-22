@@ -13,7 +13,7 @@ import { RespondentControlComponent } from './respondent-control.component';
   standalone: true,
   imports: [CommonModule, FormsModule, CuiAlertComponent, CuiCardComponent, CuiEmptyStateComponent, CuiInputComponent, RespondentControlComponent],
   template: `
-    <section data-testid="public-page" [attr.data-state]="testState || store.phase()" data-public-runtime>
+    <section data-testid="public-page" [attr.data-state]="testState || store.phase()" [attr.dir]="direction()" data-public-runtime>
       @if (testState) {
         <!-- Immutable M5 shell-state coverage remains independent from live APIs. -->
         <cui-card padding="lg"><p class="type-caption">PUBLIC FORM</p><h1 class="type-h3">{{ testTitle }}</h1><p class="type-caption" data-testid="state-evidence">State: {{ testState }}</p>
@@ -53,7 +53,7 @@ import { RespondentControlComponent } from './respondent-control.component';
               <button cui-button variant="secondary" size="sm" type="button" (click)="store.edit(item.fieldId, item.path, item.instanceId)">Edit</button>
             </div>
           }
-          @for (ack of acknowledgments(); track ack.fieldId) {
+          @for (ack of acknowledgments(); track ack.key) {
             <label class="mt-4 flex gap-2 type-body"><input type="checkbox" [(ngModel)]="ack.accepted" /> {{ ack.label }}</label>
           }
           <div class="mt-6 flex gap-3">
@@ -70,7 +70,7 @@ import { RespondentControlComponent } from './respondent-control.component';
             @else { <span class="type-caption">Saved</span> }
           </div>
           @for (field of currentFields(); track field.id) {
-            <si-respondent-control [field]="field" [cell]="answerForControl(field)" [serverCell]="store.state().server?.answers?.[field.id]" (operation)="store.apply($event)" />
+            <si-respondent-control [field]="field" [cell]="answerForControl(field)" [serverCell]="store.state().server?.answers?.[field.id]" [invalid]="store.state().invalid" (operation)="store.apply($event)" />
           }
           <div class="mt-8 flex justify-between gap-3">
             <button cui-button variant="secondary" type="button" (click)="store.navigate(-1)" [disabled]="!store.canMovePrevious()">Previous</button>
@@ -114,7 +114,7 @@ export class PublicPageComponent implements OnInit {
     this.reviewRoute = this.route.snapshot.url.some((segment) => segment.path === 'review');
     this.receiptRoute = this.route.snapshot.url.some((segment) => segment.path === 'receipt');
     if (this.receiptRoute && sessionId) this.store.restoreReceipt(sessionId);
-    if (sessionId && !this.store.session() && !this.testState && !this.receiptRoute) this.store.hydrate(sessionId);
+    if (sessionId && !this.store.session() && !this.testState && !this.receiptRoute) this.store.hydrate(sessionId, this.reviewRoute);
     if (!this.testState && this.entryShareId && window.parent !== window) {
       addEventListener('message', (event) => {
         const message = event.data as { protocol?: string; type?: string; bootstrap?: string };
@@ -128,7 +128,7 @@ export class PublicPageComponent implements OnInit {
 
   get testMessage(): string { return `${this.testTitle} is ${this.testState}; real respondent session behavior is active without a test state.`; }
 
-  start(): void { if (this.entryShareId) { const channel = this.route.snapshot.queryParamMap.get('channel'); if (channel) { if (!this.iframeOrigin || !this.iframeBootstrap) { this.store.error.set('Waiting for the approved embedding site to connect.'); return; } this.store.startFromChannel(this.entryShareId, channel, this.iframeBootstrap); } else this.store.start(this.entryShareId); } }
+  start(): void { if (this.entryShareId) { const channel = this.route.snapshot.queryParamMap.get('channel'); if (channel) { if (!this.iframeOrigin || !this.iframeBootstrap) { this.store.error.set('Waiting for the approved embedding site to connect.'); return; } this.store.startFromChannel(this.entryShareId, channel, this.iframeBootstrap, this.iframeOrigin); } else this.store.start(this.entryShareId); } }
   currentPage() { return this.store.pages().find((page) => page.id === this.store.currentPageId()); }
   currentFields(): readonly RuntimeFieldDefinition[] { const ids = this.currentPage()?.fieldIds ?? []; return this.store.definition().fields.filter((field) => ids.includes(field.id) && !field.hidden); }
   label(field: RuntimeFieldDefinition): string { return field.id.replace(/([A-Z])/g, ' $1').replace(/^./, (letter) => letter.toUpperCase()); }
@@ -148,13 +148,14 @@ export class PublicPageComponent implements OnInit {
   backToForm(): void { const sessionId = this.store.session()?.sessionId; if (sessionId) void this.store.edit(this.currentFields()[0]?.id ?? ''); }
   submit(): void { this.store.submit(this.acknowledgmentFields().filter((ack) => ack.accepted).map(({ fieldId, rowPath, contentHash }) => ({ fieldId, rowPath, expectedContentHash: contentHash, accepted: true }))); }
   acksAccepted(): boolean { return this.acknowledgmentFields().every((ack) => ack.accepted); }
+  direction(): 'ltr' | 'rtl' { const session = this.store.session(); const locale = session?.locale ?? String(session?.definition?.['defaultLocale'] ?? 'en'); return locale === 'ar' ? 'rtl' : 'ltr'; }
 
   answer(field: RuntimeFieldDefinition): { status: string; value?: unknown } | undefined { return this.store.state().answers[field.id] ?? this.store.state().server?.answers[field.id]; }
   answerForControl(field: RuntimeFieldDefinition): InputAnswerCell | ServerAnswerCell | undefined {
     const server = this.store.state().server?.answers[field.id];
     return server?.status === 'notApplicable' ? server : this.store.state().answers[field.id] ?? server;
   }
-  private acknowledgmentFields(): { fieldId: string; label: string; rowPath: { listFieldId: string; itemId: string }[]; contentHash: string; accepted: boolean }[] {
+  private acknowledgmentFields(): { key: string; fieldId: string; label: string; rowPath: { listFieldId: string; itemId: string }[]; contentHash: string; accepted: boolean }[] {
     const state = this.acknowledge;
     const gates = this.store.review()?.review?.['reviewGates'];
     if (!Array.isArray(gates)) return [];
@@ -167,7 +168,7 @@ export class PublicPageComponent implements OnInit {
       if (!fieldId || !contentHash) return [];
       const key = `${this.store.review()?.reviewDigest ?? ''}:${contentHash}:${fieldId}:${JSON.stringify(rowPath)}`;
       return [{
-        fieldId, rowPath, contentHash,
+        key, fieldId, rowPath, contentHash,
         label: typeof value['content'] === 'string' ? value['content'] : this.label(this.store.definition().fields.find((field) => field.id === fieldId) ?? { id: fieldId, type: 'text' }),
         get accepted() { return state.get(key) ?? false; },
         set accepted(accepted: boolean) { state.set(key, accepted); },

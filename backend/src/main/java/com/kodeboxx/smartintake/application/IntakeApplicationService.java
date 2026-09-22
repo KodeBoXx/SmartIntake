@@ -88,7 +88,9 @@ public class IntakeApplicationService {
 
   public record Draft(Map<String, Object> definition) {}
 
-  public record StartSession(String locale, String timeZone) {}
+  public record StartSession(String locale, String timeZone, String parentOrigin) {
+    public StartSession(String locale, String timeZone) { this(locale, timeZone, null); }
+  }
 
   public record PatchSession(
       Long baseRevision,
@@ -480,7 +482,7 @@ public class IntakeApplicationService {
       throw new ResponseStatusException(HttpStatus.GONE, "Share channel is unavailable");
     }
     if ("IFRAME".equals(channel.get("channel_type"))) {
-      if (!consumeBootstrap(channelId,(UUID)channel.get("release_id"),bootstrap)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "IFRAME_BOOTSTRAP_INVALID");
+      if (!consumeBootstrap(channelId,(UUID)channel.get("release_id"),bootstrap,in == null ? null : in.parentOrigin())) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "IFRAME_BOOTSTRAP_INVALID");
     }
     R release = release((UUID) channel.get("release_id"));
     if (!"ACTIVE".equals(releaseState(release.id())))
@@ -491,9 +493,9 @@ public class IntakeApplicationService {
     return started;
   }
 
-  private boolean consumeBootstrap(UUID channel, UUID release, String token) {
-    if(token==null)return false; String[] p=token.split("\\.",2); if(p.length!=2)return false;
-    try{return db.update("update form_share_channel_bootstraps set consumed_at=now() where id=? and channel_id=? and release_id=? and nonce=? and consumed_at is null and expires_at>now()",UUID.fromString(p[0]),channel,release,p[1])==1;}catch(IllegalArgumentException e){return false;}
+  private boolean consumeBootstrap(UUID channel, UUID release, String token, String parentOrigin) {
+    if(token==null||parentOrigin==null)return false; String[] p=token.split("\\.",2); if(p.length!=2)return false;
+    try{return db.update("update form_share_channel_bootstraps set consumed_at=now() where id=? and channel_id=? and release_id=? and nonce=? and parent_origin=? and consumed_at is null and expires_at>now()",UUID.fromString(p[0]),channel,release,p[1],parentOrigin)==1;}catch(IllegalArgumentException e){return false;}
   }
 
   private ResponseEntity<?> startForRelease(UUID share, R release, StartSession in) {
@@ -588,8 +590,9 @@ public class IntakeApplicationService {
   /** Receipt capability is intentionally distinct from the respondent bearer and exposes no answers. */
   public ResponseEntity<?> receiptCapability(UUID capability) {
     try {
-      UUID submission = db.queryForObject("select submission_id from receipt_capabilities where token=? and expires_at>now()", UUID.class, capability);
-      return receipt(submission);
+      Map<String,Object> row = db.queryForMap("select submission_id,expires_at>now() as active from receipt_capabilities where token=?", capability);
+      if (!Boolean.TRUE.equals(row.get("active"))) throw new ResponseStatusException(HttpStatus.GONE, "RECEIPT_EXPIRED");
+      return minimalReceipt((UUID) row.get("submission_id"), HttpStatus.OK);
     } catch (EmptyResultDataAccessException missing) { throw new ResponseStatusException(HttpStatus.NOT_FOUND, "RECEIPT_NOT_FOUND"); }
   }
 
@@ -986,8 +989,7 @@ public class IntakeApplicationService {
   private Map<String, Object> effectivePolicy(UUID form) {
     // Publication callers hold the form first; locking both policy sources makes the manifest
     // snapshot and a concurrent policy mutation mutually exclusive.
-    UUID workspace = db.queryForObject("select workspace_id from forms where id=?", UUID.class, form);
-    db.query("select pg_advisory_xact_lock(hashtext(?))", rs -> null, workspace.toString());
+    lockWorkspacePolicy(form);
     db.query("select ws.workspace_id from catalog_workspace_settings ws join forms f on f.workspace_id=ws.workspace_id where f.id=? for update", rs -> null, form);
     db.query("select os.organization_id from catalog_organization_settings os join workspaces w on w.organization_id=os.organization_id join forms f on f.workspace_id=w.id where f.id=? for update", rs -> null, form);
     return db.query("""
@@ -996,6 +998,10 @@ public class IntakeApplicationService {
         left join catalog_organization_settings os on os.organization_id=w.organization_id
         left join catalog_workspace_settings ws on ws.workspace_id=w.id where f.id=?
         """, rs -> rs.next() ? Map.of("organization", parse(rs.getString(1)), "workspace", parse(rs.getString(2))) : Map.of(), form);
+  }
+  public void lockWorkspacePolicy(UUID form) {
+    UUID workspace = db.queryForObject("select workspace_id from forms where id=?", UUID.class, form);
+    db.query("select pg_advisory_xact_lock(hashtext(?))", rs -> null, workspace.toString());
   }
 
   private static String canonicalId(String kind, UUID id) {
@@ -1284,6 +1290,7 @@ public class IntakeApplicationService {
         "definition",
         definition));
     response.put("invalidInputs", invalidInputs);
+    response.put("locale", s.locale());
     if (typedRuntime.canonical(definitionNode)) {
       var outcome = typedRuntime.mutate(definitionNode, json.valueToTree(parse(s.answers())), parseNode(s.runtimeState()), List.of(), null, s.sessionDate().toString(), s.timeZone(), s.locale(), Instant.now());
       response.put("reachablePageIds", outcome.reachablePageIds());
@@ -1518,13 +1525,14 @@ public class IntakeApplicationService {
   }
 
   private ResponseEntity<?> receipt(UUID submissionId) {
-    UUID capability;
-    try { capability = db.queryForObject("select token from receipt_capabilities where submission_id=? and expires_at>now()", UUID.class, submissionId); }
+    Map<String,Object> capabilityRow;
+    try { capabilityRow = db.queryForMap("select token,expires_at>now() as active from receipt_capabilities where submission_id=?", submissionId); }
     catch (EmptyResultDataAccessException absent) {
-      capability = UUID.randomUUID();
-      db.update("insert into receipt_capabilities(token,submission_id,expires_at) values(?,?,now()+interval '30 days') on conflict(submission_id) do nothing", capability, submissionId);
-      capability = db.queryForObject("select token from receipt_capabilities where submission_id=?", UUID.class, submissionId);
+      UUID token = UUID.randomUUID(); db.update("insert into receipt_capabilities(token,submission_id,expires_at) values(?,?,now()+interval '30 days')", token, submissionId);
+      capabilityRow = Map.of("token", token, "active", true);
     }
+    if (!Boolean.TRUE.equals(capabilityRow.get("active"))) return minimalReceipt(submissionId, HttpStatus.CREATED);
+    UUID capability=(UUID)capabilityRow.get("token");
     Map<String,Object> submitted = db.queryForMap("select session_id,attempt_id,submitted_at from submissions where id=?", submissionId);
     return ResponseEntity.status(201)
         .body(
@@ -1541,5 +1549,9 @@ public class IntakeApplicationService {
                 "attemptId", String.valueOf(submitted.get("attempt_id")),
                 "message",
                 "Your response has been received."));
+  }
+  private ResponseEntity<?> minimalReceipt(UUID submissionId, HttpStatus status) {
+    Map<String,Object> submitted = db.queryForMap("select submitted_at from submissions where id=?", submissionId);
+    return ResponseEntity.status(status).body(Map.of("receiptId",submissionId,"submittedAt",submitted.get("submitted_at").toString(),"status","SUBMITTED","message","Your response has been received."));
   }
 }

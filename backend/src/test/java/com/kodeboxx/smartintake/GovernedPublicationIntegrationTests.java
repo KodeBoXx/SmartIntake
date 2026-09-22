@@ -115,6 +115,8 @@ class GovernedPublicationIntegrationTests {
 
   @Test void channelsEnforceAllHalfOpenBoundariesOriginsAndConcurrentCaps() throws Exception {
     UUID release = publishGoverned();
+    assertStatus(HttpStatus.UNPROCESSABLE_ENTITY,
+        () -> channel(release, "IFRAME", null, null, null, List.of("https://not-configured.example.test")));
     UUID future = channel(release, "LINK", Instant.now().plusSeconds(3600), null, null, List.of());
     UUID expired = channel(release, "LINK", null, Instant.now().minusSeconds(1), null, List.of());
     assertGone(future, null); assertGone(expired, null);
@@ -122,7 +124,7 @@ class GovernedPublicationIntegrationTests {
     assertStatus(HttpStatus.FORBIDDEN, () -> intake.startChannel(iframe, null, null));
     assertStatus(HttpStatus.FORBIDDEN, () -> intake.bootstrapChannel(iframe, "https://denied.example.test"));
     String bootstrap = intake.bootstrapChannel(iframe, "https://embed.example.test").get("bootstrap").toString();
-    assertTrue(intake.startChannel(iframe, bootstrap, null).getStatusCode().is2xxSuccessful());
+    assertTrue(intake.startChannel(iframe, bootstrap, new IntakeApplicationService.StartSession("en", "UTC", "https://embed.example.test")).getStatusCode().is2xxSuccessful());
 
     UUID capped = channel(release, "LINK", null, null, 1L, List.of());
     var pool = Executors.newFixedThreadPool(2); List<Future<Boolean>> starts = new ArrayList<>();

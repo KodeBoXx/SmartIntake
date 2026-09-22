@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kodeboxx.smartintake.application.IntakeApplicationService;
 import com.kodeboxx.smartintake.contract.CanonicalJson;
 import com.kodeboxx.smartintake.security.StaffAuthorization;
+import com.kodeboxx.smartintake.security.BrowserSecurityConfiguration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,15 +24,17 @@ public class GovernedPublicationService {
   private final ObjectMapper json;
   private final StaffAuthorization authorization;
   private final IntakeApplicationService intake;
+  private final BrowserSecurityConfiguration browserSecurity;
 
   public GovernedPublicationService(JdbcTemplate db, ObjectMapper json, StaffAuthorization authorization,
-      IntakeApplicationService intake) {
-    this.db = db; this.json = json; this.authorization = authorization; this.intake = intake;
+      IntakeApplicationService intake, BrowserSecurityConfiguration browserSecurity) {
+    this.db = db; this.json = json; this.authorization = authorization; this.intake = intake; this.browserSecurity = browserSecurity;
   }
 
   @Transactional
   public Map<String, Object> requestReview(String workspace, UUID form, String token) {
     authorization.requireOwnedForm(workspace, token, form);
+    intake.lockWorkspacePolicy(form);
     db.queryForObject("select id from forms where id=? for update", UUID.class, form);
     Snapshot snapshot = snapshot(form);
     invalidateChangedRequests(form, snapshot);
@@ -67,6 +70,7 @@ public class GovernedPublicationService {
   @Transactional(noRollbackFor = ResponseStatusException.class)
   public Map<String, Object> approve(String workspace, UUID form, UUID request, String token) {
     authorization.requireReviewForm(workspace, token, form);
+    intake.lockWorkspacePolicy(form);
     db.queryForObject("select id from forms where id=? for update", UUID.class, form);
     Map<String, Object> row = db.queryForMap("select form_id,source_revision,package_hash,manifest_hash,state from form_review_requests where id=? for update", request);
     if (!form.equals(row.get("form_id")) || !"OPEN".equals(row.get("state")))
@@ -89,6 +93,7 @@ public class GovernedPublicationService {
   @Transactional
   public ResponseEntity<?> publish(String workspace, UUID form, UUID request, String token) {
     authorization.requirePublishForm(workspace, token, form);
+    intake.lockWorkspacePolicy(form);
     db.queryForObject("select id from forms where id=? for update", UUID.class, form);
     Snapshot snapshot = snapshot(form);
     Map<String, Object> requestRow;
@@ -169,6 +174,8 @@ public class GovernedPublicationService {
     List<?> origins = in.get("allowedOrigins") instanceof List<?> values ? values : List.of();
     if (origins.stream().anyMatch(value -> !(value instanceof String origin) || !origin.matches("https://[^/]+(:[0-9]+)?")))
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Origins must be HTTPS origins");
+    if (origins.stream().map(String::valueOf).anyMatch(origin -> !browserSecurity.allowsOrigin(origin)))
+      throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "CHANNEL_ORIGIN_NOT_CORS_ALLOWED");
     UUID id = UUID.randomUUID();
     db.update("""
         insert into form_share_channels(id,form_id,release_id,channel_type,opens_at,closes_at,response_cap,allowed_origins,created_by)
@@ -181,19 +188,38 @@ public class GovernedPublicationService {
   private Snapshot snapshot(UUID form) {
     Map<String, Object> value = intake.publicationSnapshot(form);
     JsonNode packageNode = read(value.get("package").toString());
-    if (hasRequiredUnsupportedCapture(packageNode.path("data").path("fields")))
+    if (hasRequiredUnsupportedCapture(packageNode))
       throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "UNSUPPORTED_REQUIRED_CAPTURE");
     return new Snapshot(((Number) value.get("revision")).longValue(), value.get("package").toString(),
         value.get("packageHash").toString(), value.get("manifestHash").toString(), value.get("manifest").toString());
   }
-  private boolean hasRequiredUnsupportedCapture(JsonNode fields) {
-    if (!fields.isArray()) return false;
+  private boolean hasRequiredUnsupportedCapture(JsonNode packageNode) {
+    java.util.Set<String> captureIds = new java.util.HashSet<>();
+    collectRequiredCaptures(packageNode.path("data").path("fields"), captureIds);
+    return hasStaticRequiredCapture(packageNode.path("data").path("fields")) || hasRequiredCapturePlacement(packageNode.path("flow"), captureIds);
+  }
+  private void collectRequiredCaptures(JsonNode fields, java.util.Set<String> captureIds) {
+    if (!fields.isArray()) return;
     for (JsonNode field : fields) {
       String type = field.path("type").asText();
-      boolean required = field.path("required").asBoolean(false) || field.path("constraints").path("required").asBoolean(false);
-      if (required && ("attachments".equals(type) || "drawing".equals(type))) return true;
-      if (hasRequiredUnsupportedCapture(field.path("fields")) || hasRequiredUnsupportedCapture(field.path("itemSchema").path("fields"))) return true;
+      if ("attachments".equals(type) || "drawing".equals(type)) {
+        captureIds.add(field.path("id").asText());
+      }
+      collectRequiredCaptures(field.path("fields"), captureIds); collectRequiredCaptures(field.path("itemSchema").path("fields"), captureIds);
     }
+  }
+  private boolean hasStaticRequiredCapture(JsonNode fields) {
+    if(!fields.isArray()) return false; for(JsonNode field:fields) {
+      if (("attachments".equals(field.path("type").asText()) || "drawing".equals(field.path("type").asText()))
+          && (field.path("required").asBoolean(false) || field.path("constraints").path("required").asBoolean(false) || field.hasNonNull("requiredExpressionId"))) return true;
+      if(hasStaticRequiredCapture(field.path("fields")) || hasStaticRequiredCapture(field.path("itemSchema").path("fields"))) return true;
+    } return false;
+  }
+  private boolean hasRequiredCapturePlacement(JsonNode node, java.util.Set<String> captures) {
+    if (node.isObject()) {
+      if (captures.contains(node.path("fieldId").asText()) && node.hasNonNull("requiredExpressionId")) return true;
+      java.util.Iterator<JsonNode> values=node.elements(); while(values.hasNext()) if(hasRequiredCapturePlacement(values.next(),captures)) return true;
+    } else if(node.isArray()) for(JsonNode child:node) if(hasRequiredCapturePlacement(child,captures)) return true;
     return false;
   }
   private void invalidateChangedRequests(UUID form, Snapshot snapshot) {

@@ -54,8 +54,8 @@ export class PublicSessionStore implements OnDestroy {
   readonly error = signal<string | null>(null);
   readonly receipt = signal<StoredReceipt | null>(null);
   readonly queueSize = signal(0);
-  readonly definition = computed<RuntimeDefinition>(() => runtimeDefinition(this.session()?.definition));
-  readonly pages = computed(() => canonicalPages(this.session()?.definition));
+  readonly definition = computed<RuntimeDefinition>(() => runtimeDefinition(this.session()?.definition, this.session()?.locale));
+  readonly pages = computed(() => canonicalPages(this.session()?.definition, this.session()?.locale));
   readonly currentPageIndex = computed(() => Math.max(0, this.reachablePageIds().indexOf(this.currentPageId() ?? '')));
   readonly progressLabel = computed(() => `${this.completedRequiredCount()} of ${this.requiredCount()} required answers complete`);
   readonly canMovePrevious = computed(() => this.currentPageIndex() > 0);
@@ -63,6 +63,7 @@ export class PublicSessionStore implements OnDestroy {
 
   private queue: QueuedMutation[] = [];
   private inFlight: string | null = null;
+  private navigationInFlight = false;
   private readonly channel = typeof BroadcastChannel === 'undefined' ? null : new BroadcastChannel('smart-intake.respondent.v1');
   constructor(private readonly api: SmartIntakeApiService, private readonly router: Router) {
     this.channel?.addEventListener('message', ({ data }) => {
@@ -84,18 +85,23 @@ export class PublicSessionStore implements OnDestroy {
       error: (failure) => this.fail(startFailure(failure)),
     });
   }
-  startFromChannel(shareId: string, channelId: string, bootstrap: string): void {
+  startFromChannel(shareId: string, channelId: string, bootstrap: string, parentOrigin: string): void {
     this.reset(true); this.phase.set('loading'); this.shareId.set(shareId);
-    this.api.startChannel(channelId, bootstrap, browserLocale(), Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC').subscribe({ next: (started) => { this.acceptStarted(shareId, started); void this.router.navigate(['/sessions', started.sessionId]); }, error: (failure) => this.fail(startFailure(failure)) });
+    this.api.startChannel(channelId, bootstrap, parentOrigin, browserLocale(), Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC').subscribe({ next: (started) => { this.acceptStarted(shareId, started); void this.router.navigate(['/sessions', started.sessionId]); }, error: (failure) => this.fail(startFailure(failure)) });
   }
 
-  hydrate(sessionId: string): void {
+  hydrate(sessionId: string, reviewAfter = false): void {
     const stored = this.secret(sessionId);
     if (!stored) { this.fail('This response is not available on this device. Start a new response from the public link.'); return; }
     this.phase.set('loading'); this.shareId.set(stored.shareId); this.token.set(stored.token); this.queue = stored.queue ?? []; this.queueSize.set(this.queue.length); this.currentPageId.set(stored.currentPageId ?? null); this.attemptId.set(stored.attemptId ?? null);
     this.api.respondentSession(sessionId, stored.token).subscribe({
-      next: (session) => { this.acceptSession(session); if (stored.attemptId && session.status === 'DRAFT') this.reconcileAttempt(stored.attemptId); else this.flushQueue(); },
-      error: (failure) => this.fail(sessionFailure(failure)),
+      next: (session) => {
+        this.acceptSession(session);
+        if (session.status === 'SUBMITTED') { this.recoverAuthenticatedReceipt(sessionId, stored); return; }
+        if (stored.attemptId) { this.phase.set('submitting'); this.reconcileAttempt(stored.attemptId); return; }
+        if (reviewAfter) this.openReview(); else this.flushQueue();
+      },
+      error: (failure) => { if (failure.status === 401 || failure.status === 403) sessionStorage.removeItem(secretKey(sessionId)); this.fail(sessionFailure(failure)); },
     });
   }
 
@@ -117,18 +123,18 @@ export class PublicSessionStore implements OnDestroy {
   moveItem(field: RuntimeFieldDefinition, itemId: string, beforeItemId?: string, rowPath?: RowPath): void { this.mutate({ kind: 'moveItem', target: { fieldId: field.id, rowPath }, itemId, beforeItemId }); }
 
   navigate(delta: -1 | 1): void {
-    if (this.queue.length || this.inFlight) { this.error.set('Wait for all changes to save before changing pages.'); return; }
+    if (this.queue.length || this.inFlight || this.navigationInFlight) { this.error.set('Wait for the current change to finish before changing pages.'); return; }
     const pages = this.reachablePageIds();
     const next = pages[this.currentPageIndex() + delta];
     if (!next) return;
     const session = this.session(); const token = this.token();
-    if (session && token) { this.phase.set('saving'); this.api.navigateRespondentSession(session.sessionId, token, session.revision, next).subscribe({ next: (projection) => this.acceptProjection(projection), error: () => { this.phase.set('ready'); this.error.set('We could not save your current page. Your answers remain available.'); } }); }
+    if (session && token) { this.navigationInFlight = true; this.phase.set('saving'); this.api.navigateRespondentSession(session.sessionId, token, session.revision, next).subscribe({ next: (projection) => { this.navigationInFlight = false; this.acceptProjection(projection); }, error: () => { this.navigationInFlight = false; this.phase.set('ready'); this.error.set('We could not save your current page. Your answers remain available.'); } }); }
   }
 
   openReview(): void {
     const current = this.session(); const token = this.token();
     if (!current || !token) return;
-    if (this.queue.length || this.inFlight) { this.error.set('Wait for all changes to save before reviewing your response.'); return; }
+    if (this.queue.length || this.inFlight || this.navigationInFlight) { this.error.set('Wait for the current change to finish before reviewing your response.'); return; }
     this.phase.set('loading');
     this.api.validateRespondentSession(current.sessionId, token).subscribe({
       next: (review) => {
@@ -142,10 +148,8 @@ export class PublicSessionStore implements OnDestroy {
 
   edit(fieldId: string, rowPath: RowPath = [], instanceId?: string): void {
     const current = this.session(); if (!current) return;
-    this.phase.set('ready');
     const page = pageForPlacement(current.definition, instanceId, fieldId) ?? this.reachablePageIds()[0] ?? null;
-    this.currentPageId.set(page);
-    void this.router.navigate(['/sessions', current.sessionId], { queryParams: { focus: controlId(fieldId, rowPath) } });
+    this.persistReviewEdit(page, () => { this.phase.set('ready'); void this.router.navigate(['/sessions', current.sessionId], { queryParams: { focus: controlId(fieldId, rowPath, instanceId) } }); });
   }
 
   submit(acknowledgments: readonly { fieldId: string; rowPath: { listFieldId: string; itemId: string }[]; expectedContentHash: string; accepted: true }[] = []): void {
@@ -177,12 +181,13 @@ export class PublicSessionStore implements OnDestroy {
     if (clearSecret && current) sessionStorage.removeItem(secretKey(current.sessionId));
     this.phase.set('idle'); this.session.set(null); this.token.set(null); this.state.set(createRuntimeAnswerState());
     this.currentPageId.set(null); this.reachablePageIds.set([]); this.requiredCount.set(0); this.completedRequiredCount.set(0);
-    this.review.set(null); this.receiptId.set(null); this.attemptId.set(null); this.queue = []; this.inFlight = null; this.queueSize.set(0); this.error.set(null);
+    this.review.set(null); this.receiptId.set(null); this.attemptId.set(null); this.queue = []; this.inFlight = null; this.navigationInFlight = false; this.queueSize.set(0); this.error.set(null);
   }
 
   private mutate(operation: RuntimeOperation): void {
     const session = this.session(); const token = this.token();
     if (!session || !token) return;
+    if (this.navigationInFlight) { this.error.set('Wait for the page change to finish before editing an answer.'); return; }
     const local = applyRuntimeOperation(this.definition(), this.state(), operation);
     if (!local.accepted) { this.error.set('That answer is not valid for this field.'); return; }
     this.state.set(local.state); this.review.set(null); this.error.set(null);
@@ -213,13 +218,31 @@ export class PublicSessionStore implements OnDestroy {
   private acceptSession(session: RespondentSession): void {
     this.session.set(session);
     this.state.set(reconcileServerProjection(this.state(), { answers: session.answers, invalidInputs: session.invalidInputs }));
-    const pages = canonicalPages(session.definition).map((page) => page.id);
+    const pages = canonicalPages(session.definition, session.locale).map((page) => page.id);
     const reachable = session.reachablePageIds?.length ? session.reachablePageIds : pages;
     this.reachablePageIds.set(reachable);
     const authoritativePage = session.currentPageId;
     this.currentPageId.set(authoritativePage && reachable.includes(authoritativePage) ? authoritativePage : reachable.includes(this.currentPageId() ?? '') ? this.currentPageId() : reachable[0] ?? null);
     this.requiredCount.set(session.requiredCount ?? 0); this.completedRequiredCount.set(session.completedRequiredCount ?? 0);
     this.phase.set(session.status === 'SUBMITTED' ? 'receipt' : 'ready');
+  }
+
+  private recoverAuthenticatedReceipt(sessionId: string, stored: StoredSecret): void {
+    this.phase.set('loading');
+    this.api.respondentReceipt(sessionId, stored.token, stored.attemptId).subscribe({ next: (receipt) => this.acceptReceipt(receipt), error: () => this.fail('This receipt is not available on this device.') });
+  }
+
+  private persistReviewEdit(page: string | null, done: () => void): void {
+    const current = this.session(); const token = this.token(); const reachable = this.reachablePageIds();
+    if (!current || !token || !page || this.currentPageId() === page) { if (page) this.currentPageId.set(page); done(); return; }
+    const from = reachable.indexOf(this.currentPageId() ?? ''); const to = reachable.indexOf(page);
+    if (from < 0 || to < 0) { this.error.set('We could not locate that answer.'); return; }
+    const adjacent = reachable[from + Math.sign(to - from)];
+    this.navigationInFlight = true; this.phase.set('saving');
+    this.api.navigateRespondentSession(current.sessionId, token, current.revision, adjacent).subscribe({
+      next: (projection) => { this.navigationInFlight = false; this.acceptProjection(projection); this.persistReviewEdit(page, done); },
+      error: () => { this.navigationInFlight = false; this.phase.set('review'); this.error.set('We could not return to that answer.'); },
+    });
   }
 
   private acceptProjection(projection: TypedSessionProjection): void {
@@ -300,18 +323,19 @@ export class PublicSessionStore implements OnDestroy {
 function secretKey(sessionId: string): string { return `smart-intake.respondent.${sessionId}`; }
 function receiptKey(sessionId: string): string { return `smart-intake.receipt.${sessionId}`; }
 function mutationId(prefix: string): string { return `${prefix}-${crypto.randomUUID()}`; }
-function controlId(fieldId: string, rowPath: RowPath): string {
+function controlId(fieldId: string, rowPath: RowPath, instanceId?: string): string {
   const path = rowPath.map((segment) => `${segment.listFieldId}:${segment.itemId}`).join('/');
-  return path ? `${fieldId}-${path.replaceAll(/[^A-Za-z0-9_-]/g, '-')}` : fieldId;
+  const value = `${fieldId}${path ? `-${path}` : ''}`;
+  return value.replaceAll(/[^A-Za-z0-9_-]/g, '-');
 }
 function browserLocale(): string { return navigator.language.split('-')[0] || 'en'; }
 function startFailure(error: HttpErrorResponse): string { return error.status === 410 ? 'This form is no longer accepting new responses.' : error.status === 404 ? 'This public form is unavailable.' : 'We could not start this form. Please try again.'; }
 function sessionFailure(error: HttpErrorResponse): string { return error.status === 401 || error.status === 403 ? 'This response is no longer available on this device.' : 'We could not restore this response.'; }
 function submissionFailure(error: HttpErrorResponse): string { return error.status === 409 ? 'Your review is out of date. Review the response again before submitting.' : error.status === 422 ? 'The response still needs attention before it can be submitted.' : 'Submission could not be completed.'; }
 
-function runtimeDefinition(definition: Record<string, unknown> | undefined): RuntimeDefinition {
+function runtimeDefinition(definition: Record<string, unknown> | undefined, pinnedLocale?: string): RuntimeDefinition {
   const fields = ((definition?.['data'] as { fields?: CanonicalField[] } | undefined)?.fields ?? []);
-  const locale = String(definition?.['defaultLocale'] ?? 'en');
+  const locale = pinnedLocale ?? String(definition?.['defaultLocale'] ?? 'en');
   const messages = ((definition?.['translations'] as Record<string, { messages?: Record<string, string> }> | undefined)?.[locale]?.messages ?? {});
   return { fields: fields.map((field) => runtimeField(field, messages)) };
 }
@@ -328,8 +352,8 @@ function runtimeField(field: CanonicalField, messages: Record<string, string>): 
     min: stringValue(constraints?.['min']), max: stringValue(constraints?.['max']), step: stringValue(constraints?.['step']), scale: numberValue(constraints?.['scale']), minItems: numberValue(constraints?.['minItems']), maxItems: numberValue(constraints?.['maxItems']), minLength: numberValue(constraints?.['minLength']), maxLength: numberValue(constraints?.['maxLength']), exclusiveOptionIds: stringArray(constraints?.['exclusiveOptionIds']), normalizer: field['normalizer'] as RuntimeFieldDefinition['normalizer'], hiddenRetention: field['hiddenRetention'] as RuntimeFieldDefinition['hiddenRetention'], hidden: Boolean(field['hidden'] ?? field['visible'] === false), fixedRows: Boolean(field['fixedRows'] ?? field['matrix']), fixedItemIds: stringArray(field['fixedItemIds']), fields: fields.length ? fields : undefined, itemFields: itemFields.length ? itemFields : undefined,
   };
 }
-function canonicalPages(definition: Record<string, unknown> | undefined): { id: string; title: string; fieldIds: readonly string[] }[] {
-  const messages = (((definition?.['translations'] as Record<string, { messages?: Record<string, string> }> | undefined)?.[String(definition?.['defaultLocale'] ?? 'en')] ?? {}).messages ?? {});
+function canonicalPages(definition: Record<string, unknown> | undefined, pinnedLocale?: string): { id: string; title: string; fieldIds: readonly string[] }[] {
+  const messages = (((definition?.['translations'] as Record<string, { messages?: Record<string, string> }> | undefined)?.[pinnedLocale ?? String(definition?.['defaultLocale'] ?? 'en')] ?? {}).messages ?? {});
   const phases = ((definition?.['flow'] as { phases?: Record<string, unknown>[] } | undefined)?.phases ?? []);
   return phases.flatMap((phase) => (Array.isArray(phase['pages']) ? phase['pages'] as Record<string, unknown>[] : []).map((page) => ({ id: String(page['id']), title: messages[String(page['titleKey'])] ?? String(page['id']), fieldIds: (Array.isArray(page['sections']) ? page['sections'] as Record<string, unknown>[] : []).flatMap((section) => (Array.isArray(section['nodes']) ? section['nodes'] as Record<string, unknown>[] : []).map((node) => String(node['fieldId'] ?? ''))).filter(Boolean) })));
 }

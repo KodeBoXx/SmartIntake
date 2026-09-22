@@ -30,7 +30,7 @@ type Cell = InputAnswerCell | ServerAnswerCell | undefined;
         @if (field().type === 'object') {
           <div class="ml-3 border-l pl-4" data-testid="object-control">
             @for (child of field().fields || []; track child.id) {
-              <si-respondent-control [field]="child" [cell]="objectCell(child.id)" [serverCell]="objectServerCell(child.id)" [rowPath]="rowPath()" (operation)="operation.emit($event)" />
+              <si-respondent-control [field]="child" [cell]="objectCell(child.id)" [serverCell]="objectServerCell(child.id)" [invalid]="invalid()" [rowPath]="rowPath()" (operation)="operation.emit($event)" />
             }
           </div>
         } @else if (field().type === 'list') {
@@ -39,7 +39,7 @@ type Cell = InputAnswerCell | ServerAnswerCell | undefined;
               <fieldset class="mb-3 border p-3" [attr.data-item-id]="item.itemId">
                 <legend class="type-caption">{{ field().fixedRows ? 'Row' : 'Item' }} {{ index + 1 }}</legend>
                 @for (child of field().itemFields || []; track child.id) {
-                  <si-respondent-control [field]="child" [cell]="item.fields[child.id]" [serverCell]="itemServerCell(item.itemId, child.id)" [rowPath]="childPath(item.itemId)" (operation)="operation.emit($event)" />
+                  <si-respondent-control [field]="child" [cell]="item.fields[child.id]" [serverCell]="itemServerCell(item.itemId, child.id)" [invalid]="invalid()" [rowPath]="childPath(item.itemId)" (operation)="operation.emit($event)" />
                 }
                 @if (!field().fixedRows) {
                   <div class="flex flex-wrap gap-2">
@@ -57,20 +57,21 @@ type Cell = InputAnswerCell | ServerAnswerCell | undefined;
         } @else if (field().type === 'attachments' || field().type === 'drawing') {
           <div #control [id]="controlId()" tabindex="-1"><cui-alert variant="info" title="Secure {{ field().type }}">{{ cell()?.status === 'answered' ? 'Ready' : 'Secure capture is unavailable in this channel.' }}</cui-alert></div>
         } @else if (field().type === 'boolean') {
-          <select #control [id]="controlId()" class="w-full" [disabled]="protected()" [ngModel]="booleanValue()" (ngModelChange)="setBoolean($event)">
+          <select #control [id]="controlId()" class="w-full" [disabled]="protected()" [attr.aria-invalid]="invalidReason() ? 'true' : null" [attr.aria-describedby]="invalidReason() ? errorId() : null" [ngModel]="booleanValue()" (ngModelChange)="setBoolean($event)">
             <option [ngValue]="null">Select an answer</option><option [ngValue]="true">Yes</option><option [ngValue]="false">No</option>
           </select>
         } @else if (field().type === 'choice') {
-          <select #control [id]="controlId()" class="w-full" [disabled]="protected()" [ngModel]="textValue()" (ngModelChange)="set($event)">
+          <select #control [id]="controlId()" class="w-full" [disabled]="protected()" [attr.aria-invalid]="invalidReason() ? 'true' : null" [attr.aria-describedby]="invalidReason() ? errorId() : null" [ngModel]="textValue()" (ngModelChange)="set($event)">
             <option value="">Select an answer</option>@for (option of field().options || []; track option) { <option [value]="option">{{ field().optionLabels?.[option] || option }}</option> }
           </select>
         } @else if (field().type === 'multiChoice') {
           <fieldset><legend class="type-label mb-1">{{ label(field()) }}</legend>@for (option of field().options || []; track option) { <label class="mr-4 inline-flex gap-2"><input #control type="checkbox" [checked]="multiValue().includes(option)" [disabled]="protected()" (change)="toggleChoice(option, $any($event.target).checked)" />{{ field().optionLabels?.[option] || option }}</label> }</fieldset>
         } @else if (field().type === 'text' && (field().maxLength || 0) > 120) {
-          <textarea #control [id]="controlId()" class="w-full" rows="4" [disabled]="protected()" [ngModel]="textValue()" (ngModelChange)="set($event)"></textarea>
+          <textarea #control [id]="controlId()" class="w-full" rows="4" [disabled]="protected()" [attr.aria-invalid]="invalidReason() ? 'true' : null" [attr.aria-describedby]="invalidReason() ? errorId() : null" [ngModel]="textValue()" (ngModelChange)="set($event)"></textarea>
         } @else {
-          <input #control [id]="controlId()" class="w-full" [type]="inputType()" [disabled]="protected()" [attr.min]="field().min" [attr.max]="field().max" [attr.step]="field().step" [ngModel]="textValue()" (ngModelChange)="set($event)" />
+          <input #control [id]="controlId()" class="w-full" [type]="inputType()" [disabled]="protected()" [attr.aria-invalid]="invalidReason() ? 'true' : null" [attr.aria-describedby]="invalidReason() ? errorId() : null" [attr.min]="field().min" [attr.max]="field().max" [attr.step]="field().step" [ngModel]="textValue()" (ngModelChange)="set($event)" />
         }
+        @if (invalidReason()) { <p [id]="errorId()" class="type-caption text-error" role="alert">This answer has an invalid value.</p> }
         @if (!protected() && (field().allowUnknown || field().allowDeclined || field().allowNotApplicable)) {
           <div class="mt-2 flex flex-wrap gap-2"><button cui-button size="sm" variant="secondary" type="button" (click)="clear()">Clear</button>@if (field().allowUnknown) { <button cui-button size="sm" variant="secondary" type="button" (click)="status('unknown')">Unknown</button> } @if (field().allowDeclined) { <button cui-button size="sm" variant="secondary" type="button" (click)="status('declined')">Decline</button> } @if (field().allowNotApplicable) { <button cui-button size="sm" variant="secondary" type="button" (click)="status('respondentNotApplicable')">Not applicable</button> }</div>
         }
@@ -84,6 +85,7 @@ export class RespondentControlComponent implements AfterViewInit {
   readonly field = input.required<RuntimeFieldDefinition>();
   readonly cell = input<Cell>();
   readonly serverCell = input<ServerAnswerCell>();
+  readonly invalid = input<Readonly<Record<string, string>>>({});
   readonly rowPath = input<RowPath>([]);
   readonly operation = output<RuntimeOperation>();
 
@@ -112,6 +114,8 @@ export class RespondentControlComponent implements AfterViewInit {
   itemServerCell(itemId: string, id: string): ServerAnswerCell | undefined { const value = cellValue(this.serverCell()); return value && typeof value === 'object' && 'items' in value ? (value as { items: readonly ListItem<ServerAnswerCell>[] }).items.find((item) => item.itemId === itemId)?.fields[id] : undefined; }
   rowPathKey(): string { return this.rowPath().map((segment) => `${segment.listFieldId}:${segment.itemId}`).join('/'); }
   controlId(): string { return this.rowPathKey() ? `${this.field().id}-${this.rowPathKey().replaceAll(/[^A-Za-z0-9_-]/g, '-')}` : this.field().id; }
+  errorId(): string { return `${this.controlId()}-error`; }
+  invalidReason(): string | undefined { const path = this.rowPathKey(); return this.invalid()[`${path ? `${path}/` : '/'}${this.field().id}`]; }
   childPath(itemId: string): RowPath { return [...this.rowPath(), { listFieldId: this.field().id, itemId }]; }
   set(raw: string): void {
     const type = this.field().type;

@@ -277,6 +277,7 @@ public final class TypedSessionRuntimeService {
       String content = localized.asText();
       row.put("locale", locale);
       row.put("contentKey", contentKey);
+      row.put("content", content);
       row.put("contentHash", CanonicalJson.sha256(json.valueToTree(Map.of(
           "locale", locale, "contentKey", contentKey, "text", content))));
     }

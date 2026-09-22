@@ -259,8 +259,8 @@ class M4CanonicalRuntimeIntegrationTests {
     assertEquals(HttpStatus.FORBIDDEN, denied.getStatusCode());
     String first = intake.bootstrapChannel(channel, "https://embed.example.test").get("bootstrap").toString();
     String second = intake.bootstrapChannel(channel, "https://embed.example.test").get("bootstrap").toString();
-    assertTrue(intake.startChannel(channel, first, null).getStatusCode().is2xxSuccessful());
-    assertTrue(intake.startChannel(channel, second, null).getStatusCode().is2xxSuccessful());
+    assertTrue(intake.startChannel(channel, first, new IntakeApplicationService.StartSession("en", "UTC", "https://embed.example.test")).getStatusCode().is2xxSuccessful());
+    assertTrue(intake.startChannel(channel, second, new IntakeApplicationService.StartSession("en", "UTC", "https://embed.example.test")).getStatusCode().is2xxSuccessful());
     assertEquals(0L, db.queryForObject("select accepted_count from form_share_channels where id=?", Long.class, channel));
   }
 

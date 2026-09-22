@@ -187,6 +187,7 @@ export type RespondentSession = TypedSessionProjection & {
   readonly sessionId: string;
   readonly revision: number;
   readonly status: 'DRAFT' | 'SUBMITTED' | string;
+  readonly locale?: string;
   readonly definition: Record<string, unknown>;
   readonly runtimeManifest?: { readonly sessionDate: string; readonly timeZone: string; readonly timeZoneDatabaseVersion: string };
 };
@@ -473,10 +474,11 @@ export class SmartIntakeApiService {
     return this.http.post<ChannelBootstrap>(`/v1/public/channels/${encodeURIComponent(channelId)}/bootstrap`, { parentOrigin }, { withCredentials: false });
   }
 
-  startChannel(channelId: string, bootstrap: string, locale?: string, timeZone?: string): Observable<StartedRespondentSession> {
+  startChannel(channelId: string, bootstrap: string, parentOrigin: string, locale?: string, timeZone?: string): Observable<StartedRespondentSession> {
     return this.http.post<StartedRespondentSession>(`/v1/public/channels/${encodeURIComponent(channelId)}/sessions`, {
       ...(locale ? { locale } : {}),
       ...(timeZone ? { timeZone } : {}),
+      parentOrigin,
     }, { withCredentials: false, headers: new HttpHeaders({ 'X-Channel-Bootstrap': bootstrap }) });
   }
 
