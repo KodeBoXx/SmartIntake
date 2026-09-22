@@ -91,7 +91,7 @@ public class GovernedPublicationService {
       review.computeIfPresent("dependencyDiff", (key, value) -> read(value.toString()));
     }
     if (!reviews.isEmpty()) {
-      Snapshot current = snapshot(form); Map<String,Object> review = reviews.get(0);
+      Snapshot current = snapshotUnchecked(form); Map<String,Object> review = reviews.get(0);
       review.put("matchesCurrentSnapshot", ((Number) review.get("revision")).longValue() == current.revision()
           && current.packageHash().equals(review.get("packageHash")) && current.manifestHash().equals(review.get("manifestHash")));
     }
@@ -243,10 +243,13 @@ public class GovernedPublicationService {
   }
 
   private Snapshot snapshot(UUID form) {
-    Map<String, Object> value = intake.publicationSnapshot(form);
-    JsonNode packageNode = read(value.get("package").toString());
-    if (hasRequiredUnsupportedCapture(packageNode))
+    Snapshot snapshot = snapshotUnchecked(form);
+    if (hasRequiredUnsupportedCapture(read(snapshot.packageJson())))
       throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "UNSUPPORTED_REQUIRED_CAPTURE");
+    return snapshot;
+  }
+  private Snapshot snapshotUnchecked(UUID form) {
+    Map<String, Object> value = intake.publicationSnapshot(form);
     return new Snapshot(((Number) value.get("revision")).longValue(), value.get("package").toString(),
         value.get("packageHash").toString(), value.get("manifestHash").toString(), value.get("manifest").toString());
   }

@@ -113,6 +113,14 @@ class GovernedPublicationIntegrationTests {
         .andExpect(jsonPath("$.review.dependencyDiff.changedPaths").isArray())
         .andExpect(jsonPath("$.channels[0].allowedOrigins").isArray())
         .andExpect(jsonPath("$.channels[0].publicPath").value(org.hamcrest.Matchers.startsWith("/f/")));
+    ObjectNode firstField = (ObjectNode) definition.at("/data/fields/0");
+    firstField.put("type", "attachments").put("required", true);
+    db.update("update forms set definition=cast(? as jsonb),revision=2 where id=?", json.writeValueAsString(definition), form);
+    approveLocales(2, definition);
+    assertFalse(((List<?>) governed.state(workspace, form, token).get("channels")).isEmpty());
+    assertEquals("UNSUPPORTED_REQUIRED_CAPTURE", assertThrows(ResponseStatusException.class,
+        () -> governed.requestReview(workspace, form, token)).getReason());
+    firstField.put("type", "text").remove("required");
     var old = intake.startChannel(firstChannel, null, null); assertTrue(old.getStatusCode().is2xxSuccessful());
     Map<?,?> initial=(Map<?,?>)old.getBody(); assertNotNull(initial.get("answers")); assertNotNull(initial.get("currentPageId"));
     assertNotNull(initial.get("reachablePageIds")); assertNotNull(initial.get("activePlacementKeys"));
