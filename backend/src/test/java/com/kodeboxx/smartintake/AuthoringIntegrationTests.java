@@ -91,7 +91,7 @@ class AuthoringIntegrationTests {
     assertEquals("INVALID",body.path("draftState").asText());
     assertFalse(body.path("diagnostics").isEmpty(),body.toPrettyString());
     assertEquals(2L,db.queryForObject("select revision from forms where id=?",Long.class,form));
-    assertEquals("[\"fld_name\"]",db.queryForObject("select (invalid_draft_acceptance->'removedFieldIds')::text from form_authoring_history where form_id=? and operation='COMMAND_BATCH'",String.class,form));
+    assertEquals("[\"fld_name\"]",db.queryForObject("select (invalid_draft_acceptance->'command'->'removedFieldIds')::text from form_authoring_history where form_id=? and operation='COMMAND_BATCH'",String.class,form));
     JsonNode reopened=json.readTree(call("",HttpMethod.GET,null,null).getBody());
     assertFalse(reopened.path("diagnostics").isEmpty(),reopened.toPrettyString());
 
@@ -112,6 +112,47 @@ class AuthoringIntegrationTests {
     assertEquals(HttpStatus.OK,undoneRepair.getStatusCode(),undoneRepair.getBody());
     assertEquals("INVALID",json.readTree(undoneRepair.getBody()).path("draftState").asText());
     assertEquals(HttpStatus.OK,call("/redo",HttpMethod.POST,"\"6\"",Map.of(),"repair-redo").getStatusCode());
+    ResponseEntity<String> ordinaryRemoval=call("/commands",HttpMethod.POST,"\"7\"",Map.of("commands",List.of(
+        Map.of("op","remove","path","/flow/phases/0/pages/0/sections/0/nodes/1"),
+        Map.of("op","remove","path","/data/fields/1"))),"ordinary-invalid-after-repair");
+    assertEquals(HttpStatus.UNPROCESSABLE_ENTITY,ordinaryRemoval.getStatusCode(),"a valid package cannot reuse an earlier removal allowlist");
+    assertEquals(7L,db.queryForObject("select revision from forms where id=?",Long.class,form));
+  }
+
+  @Test void replays_an_accepted_break_through_import_repair_undo_and_redo() throws Exception {
+    var repaired=(com.fasterxml.jackson.databind.node.ObjectNode) json.readTree(fixture());
+    addIndependentField(repaired);
+    repaired.withObject("expressions").set("depends_on_name", json.readTree("{\"op\":\"exists\",\"args\":[{\"ref\":{\"fieldId\":\"fld_name\",\"scope\":\"root\"}}]}"));
+    db.update("update forms set definition=cast(? as jsonb) where id=?",json.writeValueAsString(repaired),form);
+    assertEquals(HttpStatus.OK,acceptedDependencyDeletion().getStatusCode());
+
+    ResponseEntity<String> validated=call("/imports/validate",HttpMethod.POST,null,Map.of("candidate",repaired));
+    Map<String,Object> candidate=json.readValue(validated.getBody(),new TypeReference<>() {});
+    ResponseEntity<String> imported=call("/imports/commit",HttpMethod.POST,"\"2\"",Map.of("candidateId",candidate.get("candidateId"),"digest",candidate.get("digest"),"mode","UPDATE"),"repair-import");
+    assertEquals(HttpStatus.OK,imported.getStatusCode(),imported.getBody());
+    assertEquals("VALID",json.readTree(imported.getBody()).path("draftState").asText());
+    assertEquals("[\"fld_name\"]",db.queryForObject("select (invalid_draft_acceptance->'inverse'->'removedFieldIds')::text from form_authoring_history where form_id=? and operation='IMPORT_UPDATE'",String.class,form));
+
+    assertEquals("INVALID",json.readTree(call("/undo",HttpMethod.POST,"\"3\"",Map.of(),"repair-import-undo").getBody()).path("draftState").asText());
+    assertEquals("VALID",json.readTree(call("/redo",HttpMethod.POST,"\"4\"",Map.of(),"repair-import-redo").getBody()).path("draftState").asText());
+  }
+
+  @Test void replays_an_accepted_break_through_conflict_resolution_repair_undo_and_redo() throws Exception {
+    var repaired=(com.fasterxml.jackson.databind.node.ObjectNode) json.readTree(fixture());
+    addIndependentField(repaired);
+    repaired.withObject("expressions").set("depends_on_name", json.readTree("{\"op\":\"exists\",\"args\":[{\"ref\":{\"fieldId\":\"fld_name\",\"scope\":\"root\"}}]}"));
+    db.update("update forms set definition=cast(? as jsonb) where id=?",json.writeValueAsString(repaired),form);
+    assertEquals(HttpStatus.OK,acceptedDependencyDeletion().getStatusCode());
+
+    ResponseEntity<String> stale=call("/commands",HttpMethod.POST,"\"1\"",Map.of("definition",repaired,"commands",List.of(Map.of("op","set","path","/translations/en/messages/q.name","value","Stale"))),"repair-conflict-source");
+    assertEquals(HttpStatus.PRECONDITION_FAILED,stale.getStatusCode(),stale.getBody());
+    String conflictId=json.readTree(stale.getBody()).path("conflictId").asText();
+    ResponseEntity<String> resolved=call("/resolve",HttpMethod.POST,"\"2\"",Map.of("conflictId",conflictId,"definition",repaired),"repair-conflict");
+    assertEquals(HttpStatus.OK,resolved.getStatusCode(),resolved.getBody());
+    assertEquals("[\"fld_name\"]",db.queryForObject("select (invalid_draft_acceptance->'inverse'->'removedFieldIds')::text from form_authoring_history where form_id=? and operation='CONFLICT_RESOLVE'",String.class,form));
+
+    assertEquals("INVALID",json.readTree(call("/undo",HttpMethod.POST,"\"3\"",Map.of(),"repair-conflict-undo").getBody()).path("draftState").asText());
+    assertEquals("VALID",json.readTree(call("/redo",HttpMethod.POST,"\"4\"",Map.of(),"repair-conflict-redo").getBody()).path("draftState").asText());
   }
 
   @Test void rejects_invalid_history_replay_without_accepted_removed_field_metadata() throws Exception {
@@ -544,6 +585,27 @@ class AuthoringIntegrationTests {
     assertEquals(2L,db.queryForObject("select revision from forms where id=?",Long.class,form));
   }
 
+  @Test void rejects_cross_workspace_and_forged_draft_theme_or_content_mutations_without_side_effects() throws Exception {
+    UUID ownWorkspace=db.queryForObject("select workspace_id from forms where id=?",UUID.class,form);
+    UUID organization=db.queryForObject("select organization_id from workspaces where id=?",UUID.class,ownWorkspace);
+    db.update("insert into memberships(account_id,workspace_id,role) values(?,?,?)",account,ownWorkspace,"WORKSPACE_ADMINISTRATOR");
+    UUID foreignWorkspace=UUID.randomUUID();
+    db.update("insert into workspaces(id,organization_id,workspace_key,name) values(?,?,?,?)",foreignWorkspace,organization,"foreign-"+foreignWorkspace.toString().substring(0,8),"Foreign");
+    db.update("update forms set workspace_id=? where id=?",foreignWorkspace,form);
+    Map<String,Object> theme=Map.of("theme",json.readValue(fixture(),new TypeReference<Map<String,Object>>() {}).get("theme"),"locks",List.of("/tokens/accent"));
+    assertEquals(HttpStatus.NOT_FOUND,authoringCall(workspace,form,form,"/theme",HttpMethod.PUT,"\"1\"",theme,"cross-workspace-theme").getStatusCode());
+    assertEquals(1L,db.queryForObject("select revision from forms where id=?",Long.class,form));
+    assertEquals(0,db.queryForObject("select count(*) from form_authoring_history where form_id=?",Integer.class,form));
+
+    db.update("update forms set workspace_id=? where id=?",ownWorkspace,form);
+    UUID forgedDraft=UUID.randomUUID(); int reviews=db.queryForObject("select count(*) from form_authoring_locale_reviews where form_id=?",Integer.class,form);
+    assertEquals(HttpStatus.NOT_FOUND,authoringCall(workspace,form,forgedDraft,"/theme",HttpMethod.PUT,"\"1\"",theme,"forged-theme").getStatusCode());
+    assertEquals(HttpStatus.NOT_FOUND,authoringCall(workspace,form,forgedDraft,"/content",HttpMethod.PUT,"\"1\"",Map.of("guidance",Map.of()),"forged-content").getStatusCode());
+    assertEquals(1L,db.queryForObject("select revision from forms where id=?",Long.class,form));
+    assertEquals(0,db.queryForObject("select count(*) from form_authoring_history where form_id=?",Integer.class,form));
+    assertEquals(reviews,db.queryForObject("select count(*) from form_authoring_locale_reviews where form_id=?",Integer.class,form));
+  }
+
   @Test void rejects_forged_package_review_state_without_a_trusted_approval_record() throws Exception {
     Object candidate=json.readValue(Files.readString(Path.of("..", "docs", "contracts", "smart-form-builder-lite", "4.0.0", "fixtures", "package-prd-inline-minimal.positive.json")), new TypeReference<>() {});
     ResponseEntity<String> validated=call("/imports/validate",HttpMethod.POST,null,Map.of("candidate",candidate));
@@ -610,6 +672,11 @@ class AuthoringIntegrationTests {
     var node=((com.fasterxml.jackson.databind.node.ObjectNode)definition.at("/flow/phases/0/pages/0/sections/0/nodes/0").deepCopy()); node.put("id","node_other"); node.put("fieldId","fld_other"); ((com.fasterxml.jackson.databind.node.ArrayNode)definition.at("/flow/phases/0/pages/0/sections/0/nodes")).add(node);
     ((com.fasterxml.jackson.databind.node.ObjectNode)definition.at("/translations/en/messages")).put("q.other","Other");
   }
+  private ResponseEntity<String> acceptedDependencyDeletion() {
+    return call("/commands",HttpMethod.POST,"\"1\"",Map.of("acceptInvalidDraft",true,"commands",List.of(
+        Map.of("op","remove","path","/flow/phases/0/pages/0/sections/0/nodes/0"),
+        Map.of("op","remove","path","/data/fields/0"))),"accepted-dependency-delete");
+  }
   private ResponseEntity<String> call(String suffix,HttpMethod method,String match,Object body) { return call(suffix,method,match,body,UUID.randomUUID().toString()); }
   private ResponseEntity<String> call(String suffix,HttpMethod method,String match,Object body,String key) {
     return authoringCall(form,suffix,method,match,body,key);
@@ -618,8 +685,11 @@ class AuthoringIntegrationTests {
     return authoringCall(targetForm,suffix,method,match,body,UUID.randomUUID().toString());
   }
   private ResponseEntity<String> authoringCall(UUID targetForm,String suffix,HttpMethod method,String match,Object body,String key) {
+    return authoringCall(workspace,targetForm,targetForm,suffix,method,match,body,key);
+  }
+  private ResponseEntity<String> authoringCall(String targetWorkspace,UUID targetForm,UUID targetDraft,String suffix,HttpMethod method,String match,Object body,String key) {
     HttpHeaders headers=new HttpHeaders(); headers.setContentType(MediaType.APPLICATION_JSON); headers.set("X-Staff-Session",token); if(match!=null)headers.setIfMatch(match); if("/commands".equals(suffix)||"/undo".equals(suffix)||"/redo".equals(suffix)||"/resolve".equals(suffix)||"/theme".equals(suffix)||"/content".equals(suffix)||"/comments".equals(suffix)||suffix.contains("/components/")||"/imports/commit".equals(suffix))headers.set("Idempotency-Key",key);
-    return http.exchange("http://localhost:"+port+"/v1/workspaces/"+workspace+"/forms/"+targetForm+"/authoring/"+targetForm+suffix,method,new HttpEntity<>(body,headers),String.class);
+    return http.exchange("http://localhost:"+port+"/v1/workspaces/"+targetWorkspace+"/forms/"+targetForm+"/authoring/"+targetDraft+suffix,method,new HttpEntity<>(body,headers),String.class);
   }
   private ResponseEntity<String> forms(HttpMethod method,Object body) {
     HttpHeaders headers=new HttpHeaders(); headers.setContentType(MediaType.APPLICATION_JSON); headers.set("X-Staff-Session",token);
