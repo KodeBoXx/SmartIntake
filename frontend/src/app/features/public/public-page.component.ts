@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, OnInit, QueryList, ViewChildren, effect, signal } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChildren, effect, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { CuiAlertComponent, CuiCardComponent, CuiEmptyStateComponent, CuiInputComponent } from '@certinal/ui';
@@ -88,7 +88,7 @@ import { RespondentControlComponent } from './respondent-control.component';
     </section>
   `,
 })
-export class PublicPageComponent implements OnInit {
+export class PublicPageComponent implements OnInit, OnDestroy {
   entryShareId: string | null = null;
   private readonly iframeBootstrap = signal<string | null>(null);
   private readonly iframeApprovedOrigin = signal<string | null>(null);
@@ -100,6 +100,8 @@ export class PublicPageComponent implements OnInit {
   readonly screen: string;
   readonly testState: M5StubState | null;
   readonly testTitle: string;
+  private readonly originalDocumentLanguage = document.documentElement.lang;
+  private readonly originalDocumentDirection = document.documentElement.dir;
 
   constructor(readonly store: PublicSessionStore, private readonly route: ActivatedRoute) {
     this.screen = route.snapshot.data['screen'] as string;
@@ -152,6 +154,11 @@ export class PublicPageComponent implements OnInit {
       });
       window.parent.postMessage({ protocol: 'smart-intake.v1', type: 'listener-ready' }, window.location.origin);
     }
+  }
+
+  ngOnDestroy(): void {
+    document.documentElement.lang = this.originalDocumentLanguage;
+    document.documentElement.dir = this.originalDocumentDirection;
   }
 
   get testMessage(): string { return `${this.testTitle} is ${this.testState}; real respondent session behavior is active without a test state.`; }
