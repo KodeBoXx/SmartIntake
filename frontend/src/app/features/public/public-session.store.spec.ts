@@ -24,9 +24,11 @@ describe('PublicSessionStore respondent privacy and initial projection', () => {
     store.session.set(session); store.token.set('secret'); store.shareId.set('share');
     sessionStorage.setItem('smart-intake.respondent.session-1', 'secret');
     sessionStorage.setItem('smart-intake.receipt.session-1', 'receipt-secret');
+    sessionStorage.setItem('smart-intake.respondent.older-session', 'older-secret');
     store.setSharedDevice(true);
     expect(sessionStorage.getItem('smart-intake.respondent.session-1')).toBeNull();
     expect(sessionStorage.getItem('smart-intake.receipt.session-1')).toBeNull();
+    expect(sessionStorage.getItem('smart-intake.respondent.older-session')).toBeNull();
     store.ngOnDestroy();
   });
 
@@ -34,6 +36,16 @@ describe('PublicSessionStore respondent privacy and initial projection', () => {
     const store = new PublicSessionStore({} as any, {} as any);
     store.setIframeOrigin('https://embed.example.test');
     expect(store.iframeOrigin()).toBe('https://embed.example.test');
+    store.ngOnDestroy();
+  });
+
+  it('keeps an accepted shared-device receipt in memory across the receipt route', () => {
+    const store = new PublicSessionStore({} as any, {} as any);
+    store.session.set(session); store.sharedDevice.set(true);
+    store.receipt.set({receiptId:'submission-1',receiptCapability:'capability',shareId:'share',submittedAt:'2026-09-22T00:00:00Z'});
+    store.restoreReceipt('session-1');
+    expect(store.phase()).toBe('receipt');
+    expect(store.receipt()?.receiptId).toBe('submission-1');
     store.ngOnDestroy();
   });
 });

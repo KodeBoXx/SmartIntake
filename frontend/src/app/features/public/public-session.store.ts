@@ -177,7 +177,7 @@ export class PublicSessionStore implements OnDestroy {
 
   returnToReview(): void { this.openReview(); }
   completeReviewReturn(found: boolean): void { const now={required:this.requiredCount(),completed:this.completedRequiredCount(),errors:Object.keys(this.state().invalid).length}; const changed=this.reviewBaseline && (this.reviewBaseline.required!==now.required||this.reviewBaseline.completed!==now.completed||this.reviewBaseline.errors!==now.errors); this.reviewAnnouncement.set(!found ? this.message('reviewMissing') : changed ? this.message('reviewChanged') : this.message('reviewReturned')); this.reviewReturnKey.set(null); this.reviewBaseline=null; }
-  setSharedDevice(enabled: boolean): void { this.sharedDevice.set(enabled); const current=this.session(); if (enabled && current) { sessionStorage.removeItem(secretKey(current.sessionId)); sessionStorage.removeItem(receiptKey(current.sessionId)); } else this.persist(); }
+  setSharedDevice(enabled: boolean): void { this.sharedDevice.set(enabled); if (enabled) clearRespondentStorage(); else this.persist(); }
   changeLocale(locale: string): void { const current=this.session(),token=this.token(); if(!current||!token||this.isBusy())return; this.phase.set('loading'); this.api.changeRespondentLocale(current.sessionId,token,locale).subscribe({next:(session)=>this.acceptSession(session),error:()=>this.fail(this.message('localeFailure'))}); }
 
   submit(acknowledgments: readonly { fieldId: string; rowPath: { listFieldId: string; itemId: string }[]; expectedContentHash: string; accepted: true }[] = []): void {
@@ -255,7 +255,7 @@ export class PublicSessionStore implements OnDestroy {
     if ((session.requiredCount ?? 0) === 0) this.progressAnnouncement.set(this.message('noSteps'));
     else if (session.completedRequiredCount === session.requiredCount) this.progressAnnouncement.set(this.message('stepsComplete'));
     else this.progressAnnouncement.set('');
-    if (routeUnresolved(session.definition, this.currentPageId(), session.answers)) this.progressAnnouncement.set('Remaining steps may change.');
+    if (routeUnresolved(session.definition, this.currentPageId(), session.answers)) this.progressAnnouncement.set(this.message('stepsMayChange'));
     this.activePlacementKeys.set(session.activePlacementKeys ?? []);
     this.placementProjectionKnown.set(session.activePlacementKeys !== undefined);
     this.phase.set(session.status === 'SUBMITTED' ? 'receipt' : (session.requiredCount ?? 0) === 0 ? 'review' : 'ready');
@@ -360,6 +360,7 @@ export class PublicSessionStore implements OnDestroy {
   }
 
   restoreReceipt(sessionId: string): void {
+    if (this.receipt() && this.session()?.sessionId === sessionId) { this.phase.set('receipt'); return; }
     const accepted = storedReceipt(sessionId);
     if (accepted) { this.phase.set('loading'); this.api.publicReceipt(accepted.receiptCapability).subscribe({ next: (verified) => { if ((verified.submissionId ?? verified.receiptId) !== accepted.receiptId || verified.status !== 'accepted') { this.fail('This receipt is not available on this device.'); return; } this.receipt.set(accepted); this.receiptId.set(accepted.receiptId); this.shareId.set(accepted.shareId); this.channelId.set(accepted.channelId ?? null); this.phase.set('receipt'); }, error: () => this.fail('This receipt is not available on this device.') }); return; }
     const stored = this.secret(sessionId);
@@ -385,6 +386,7 @@ const STORE_MESSAGES: Record<string,Record<string,string>>={en:{localeFailure:'W
 
 function secretKey(sessionId: string): string { return `smart-intake.respondent.${sessionId}`; }
 function receiptKey(sessionId: string): string { return `smart-intake.receipt.${sessionId}`; }
+function clearRespondentStorage(): void { for(let index=sessionStorage.length-1;index>=0;index--){const key=sessionStorage.key(index);if(key?.startsWith('smart-intake.respondent.')||key?.startsWith('smart-intake.receipt.'))sessionStorage.removeItem(key);} }
 function mutationId(prefix: string): string { return `${prefix}-${crypto.randomUUID()}`; }
 function controlId(fieldId: string, rowPath: RowPath, instanceId?: string): string {
   const path = rowPath.map((segment) => `${segment.listFieldId}:${segment.itemId}`).join('/');
