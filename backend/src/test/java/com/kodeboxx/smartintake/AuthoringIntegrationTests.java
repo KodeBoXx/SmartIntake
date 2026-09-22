@@ -617,7 +617,7 @@ class AuthoringIntegrationTests {
 
     db.update("delete from memberships where account_id=? and workspace_id=?",account,workspaceId);
     db.update("insert into memberships(account_id,workspace_id,role) values(?,?,?)",account,workspaceId,"WORKSPACE_ADMINISTRATOR");
-    ResponseEntity<String> locked=call("/theme",HttpMethod.PUT,"\"1\"",Map.of("theme",theme,"locks",List.of("/tokens/accent")),"administrator-locks");
+    ResponseEntity<String> locked=authoringCall("workspace-"+workspaceId,form,form,"/theme",HttpMethod.PUT,"\"1\"",Map.of("theme",theme,"locks",List.of("/tokens/accent")),"administrator-locks");
     assertEquals(HttpStatus.OK,locked.getStatusCode(),locked.getBody());
     assertEquals(1,db.queryForObject("select count(*) from form_authoring_theme_locks where form_id=? and token_path='/tokens/accent'",Integer.class,form));
   }
