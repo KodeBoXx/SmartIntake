@@ -25,6 +25,7 @@ public final class TypedSessionRuntimeService {
       Map<String, Object> reviewProjection,
       String reviewDigest,
       List<String> reachablePageIds,
+      Set<String> activePlacementKeys,
       int requiredCount,
       int completedRequiredCount,
       boolean accepted) {
@@ -34,6 +35,7 @@ public final class TypedSessionRuntimeService {
       validation = List.copyOf(validation);
       reviewProjection = Map.copyOf(reviewProjection);
       reachablePageIds = List.copyOf(reachablePageIds);
+      activePlacementKeys = Set.copyOf(activePlacementKeys);
     }
   }
 
@@ -122,7 +124,7 @@ public final class TypedSessionRuntimeService {
     if (!compilation.valid()) {
       return new Outcome(Map.of(), Map.of(), compilation.diagnostics().stream().map(diagnostic -> Map.<String, Object>of(
           "code", diagnostic.code(), "pointer", diagnostic.pointer())).toList(), Map.of(), null,
-          List.of(), 0, 0, false);
+          List.of(), Set.of(), 0, 0, false);
     }
     String packageDigest = CanonicalJson.sha256(packageNode);
     var compiled = compiledCache.computeIfAbsent(packageDigest, ignored -> compilation.compiled().orElseThrow());
@@ -157,7 +159,7 @@ public final class TypedSessionRuntimeService {
         return Map.copyOf(item);
       }).toList();
       return new Outcome(asMap(runtime.projection(state)), asMap(runtime.storage(state)), validation,
-          Map.of(), null, List.of(), 0, 0, false);
+          Map.of(), null, List.of(), Set.of(), 0, 0, false);
     }
     RuntimeGraph.Projection projection = new RuntimeGraph(compiled, runtime)
         .evaluate(mutation.state(), sessionDate, timeZone, changedAt);
@@ -199,10 +201,13 @@ public final class TypedSessionRuntimeService {
     var review = reviews.project(compiled, projection.state(), sessionDate, timeZone);
     Map<String, Object> reviewMap = json.convertValue(review, Map.class);
     enrichAcknowledgmentRows(reviewMap, compiled.canonicalPackage(), locale);
+    localizeReviewRows(reviewMap, compiled.canonicalPackage(), locale);
     String reviewDigest = validation.isEmpty()
         ? CanonicalJson.sha256(json.valueToTree(reviewMap)) : null;
     return new Outcome(asMap(runtime.projection(projection.state())), asMap(stored), validation,
-        reviewMap, reviewDigest, projection.reachablePageIds(), projection.requiredCount(), completedPages, true);
+        reviewMap, reviewDigest, projection.reachablePageIds(),
+        new RuntimeGraph(compiled, runtime).activePlacementKeys(projection.state(), sessionDate, timeZone),
+        projection.requiredCount(), completedPages, true);
   }
 
   private static Set<String> completedPages(
@@ -263,6 +268,60 @@ public final class TypedSessionRuntimeService {
   }
 
   @SuppressWarnings("unchecked")
+  private void localizeReviewRows(Map<String, Object> review, JsonNode packageNode, String locale) {
+    if (locale == null || locale.isBlank()) locale = packageNode.path("defaultLocale").asText("en");
+    JsonNode messages = packageNode.path("translations").path(locale).path("messages");
+    Map<String, JsonNode> fields = new LinkedHashMap<>();
+    collectFieldDefinitions(packageNode.path("data").path("fields"), fields);
+    localizeRows(review.get("answers"), messages, fields, locale);
+    localizeRows(review.get("reviewGates"), messages, fields, locale);
+  }
+
+  @SuppressWarnings("unchecked")
+  private void localizeRows(Object raw, JsonNode messages, Map<String, JsonNode> fields, String locale) {
+    if (!(raw instanceof List<?> rows)) return;
+    for (Object item : rows) {
+      if (!(item instanceof Map<?, ?> source)) continue;
+      Map<String, Object> row = (Map<String, Object>) source;
+      String key = Objects.toString(row.get("label"), "");
+      if (messages.path(key).isTextual()) row.put("label", messages.path(key).asText());
+      String status=Objects.toString(row.get("status"), "unanswered"); row.put("statusLabel", localizedStatus(status,locale));
+      JsonNode field = fields.get(Objects.toString(row.get("fieldId"), ""));
+      if (field != null && "answered".equals(Objects.toString(row.get("status"), ""))) {
+        String type = field.path("type").asText();
+        if ("attachments".equals(type) || "drawing".equals(type)) row.put("value", localizedStatus("ready",locale));
+        else if (("choice".equals(type) || "multiChoice".equals(type)) && row.get("value") != null) {
+          Map<String, String> options = new LinkedHashMap<>();
+          for (JsonNode option : field.path("options")) {
+            String id = option.path("id").asText(); String labelKey = option.path("labelKey").asText();
+            options.put(id, messages.path(labelKey).isTextual() ? messages.path(labelKey).asText() : id);
+          }
+          if (row.get("value") instanceof List<?> values) row.put("value", values.stream().map(value -> options.getOrDefault(value.toString(), value.toString())).toList());
+          else row.put("value", options.getOrDefault(row.get("value").toString(), row.get("value").toString()));
+        }
+      }
+      localizeRows(row.get("children"), messages, fields, locale);
+    }
+  }
+
+  private String localizedStatus(String status,String locale){
+    Map<String,Map<String,String>> labels=Map.of(
+      "en",Map.of("answered","Answered","unanswered","Not answered","unknown","Unknown","declined","Prefer not to answer","respondentNotApplicable","Not applicable","notApplicable","System not applicable","ready","Ready"),
+      "hi",Map.of("answered","उत्तर दिया","unanswered","उत्तर नहीं दिया","unknown","अज्ञात","declined","उत्तर देने से मना किया","respondentNotApplicable","लागू नहीं","notApplicable","सिस्टम लागू नहीं","ready","तैयार"),
+      "ar",Map.of("answered","تمت الإجابة","unanswered","لم تتم الإجابة","unknown","غير معروف","declined","تم رفض الإجابة","respondentNotApplicable","غير منطبق","notApplicable","غير منطبق بواسطة النظام","ready","جاهز"));
+    return labels.getOrDefault(locale,labels.get("en")).getOrDefault(status,status);
+  }
+
+  private void collectFieldDefinitions(JsonNode source, Map<String, JsonNode> fields) {
+    if (!source.isArray()) return;
+    for (JsonNode field : source) {
+      fields.put(field.path("id").asText(), field);
+      collectFieldDefinitions(field.path("fields"), fields);
+      collectFieldDefinitions(field.path("itemSchema").path("fields"), fields);
+    }
+  }
+
+  @SuppressWarnings("unchecked")
   private void enrichAcknowledgmentRows(Map<String, Object> review, JsonNode packageNode, String locale) {
     if (locale == null || locale.isBlank()) locale = packageNode.path("defaultLocale").asText("en");
     JsonNode messages = packageNode.path("translations").path(locale).path("messages");
@@ -277,6 +336,7 @@ public final class TypedSessionRuntimeService {
       String content = localized.asText();
       row.put("locale", locale);
       row.put("contentKey", contentKey);
+      row.put("content", content);
       row.put("contentHash", CanonicalJson.sha256(json.valueToTree(Map.of(
           "locale", locale, "contentKey", contentKey, "text", content))));
     }
@@ -288,7 +348,7 @@ public final class TypedSessionRuntimeService {
     if (fieldId != null) validation.put("fieldId", fieldId);
     return new Outcome(answers == null || !answers.isObject() ? Map.of() : asMap(answers),
         runtimeState == null || !runtimeState.isObject() ? Map.of() : asMap(runtimeState),
-        List.of(validation), Map.of(), null, List.of(), 0, 0, false);
+        List.of(validation), Map.of(), null, List.of(), Set.of(), 0, 0, false);
   }
 
   private Operation operation(Map<String, Object> raw) {

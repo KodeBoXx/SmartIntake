@@ -78,7 +78,13 @@ class DatabaseCompatibilityIntegrationTests {
           new FlywayHistory("23", "SQL", "V23__m7_locale_review_package_binding.sql", -1415859726),
           new FlywayHistory("24", "SQL", "V24__m7_locale_review_package_hash_length.sql", -31656550),
           new FlywayHistory("25", "SQL", "V25__m7_speech_quota_controls.sql", -1822548525),
-          new FlywayHistory("26", "SQL", "V26__m7_history_invalid_draft_acceptance.sql", 517151081));
+          new FlywayHistory("26", "SQL", "V26__m7_history_invalid_draft_acceptance.sql", 517151081),
+          new FlywayHistory("27", "SQL", "V27__m8_governed_publication_sharing_outbox.sql", 1150234132),
+          new FlywayHistory("28", "SQL", "V28__m8_governed_publication_idempotency.sql", -1451223491),
+          new FlywayHistory("29", "SQL", "V29__m8_channel_submission_caps_and_selection.sql", 1794656124),
+          new FlywayHistory("30", "SQL", "V30__m8_iframe_bootstrap.sql", 1373360594),
+          new FlywayHistory("31", "SQL", "V31__m8_receipt_capabilities.sql", 1418682170),
+          new FlywayHistory("32", "SQL", "V32__m8_single_active_release.sql", 1148623386));
 
   @Autowired JdbcTemplate db;
   @Autowired CompatibilityReconciliationService reconciliation;

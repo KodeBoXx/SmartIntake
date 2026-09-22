@@ -19,6 +19,26 @@ describe('SmartIntakeApiService', () => {
 
   afterEach(() => http?.verify());
 
+  it('uses the respondent bearer only for canonical public session lifecycle calls', () => {
+    api.startSession('public-share', 'en', 'UTC').subscribe();
+    const start = http.expectOne('/v1/public/forms/public-share/sessions');
+    expect(start.request.method).toBe('POST');
+    expect(start.request.withCredentials).toBe(false);
+    expect(start.request.body).toEqual({ locale: 'en', timeZone: 'UTC' });
+    start.flush({ sessionId: 'session-1', respondentSession: 'bearer-1', revision: 0, release: {} });
+
+    api.respondentSession('session-1', 'bearer-1').subscribe();
+    const hydrate = http.expectOne('/v1/sessions/session-1');
+    expect(hydrate.request.headers.get('X-Respondent-Session')).toBe('bearer-1');
+    expect(hydrate.request.withCredentials).toBe(false);
+    hydrate.flush({ sessionId: 'session-1', revision: 0, status: 'DRAFT', answers: {}, definition: {} });
+
+    api.submissionOperation('session-1', 'bearer-1', 'attempt-12345678').subscribe();
+    const operation = http.expectOne('/v1/sessions/session-1/submission-operation?attemptId=attempt-12345678');
+    expect(operation.request.headers.get('X-Respondent-Session')).toBe('bearer-1');
+    operation.flush({ attemptId: 'attempt-12345678', state: 'started' });
+  });
+
   it('bootstraps only a cookie-backed safe server session', () => {
     api.session().subscribe(session => expect(session.identity.username).toBe('owner'));
     const session = http.expectOne('/v1/auth/session');
@@ -76,8 +96,18 @@ describe('SmartIntakeApiService', () => {
     expect(save.request.body).toEqual({ definition });
     save.flush({ revision: 4, definition, diagnostics: [] });
 
-    api.publish('local', 'form-1').subscribe();
-    const publish = http.expectOne('/v1/workspaces/local/forms/form-1/releases');
+    api.requestPublicationReview('local', 'form-1').subscribe();
+    const review = http.expectOne('/v1/workspaces/local/forms/form-1/review-requests');
+    expect(review.request.method).toBe('POST');
+    review.flush({ reviewRequestId: 'review-1', revision: 4, packageHash: 'package', manifestHash: 'manifest', state: 'OPEN' });
+
+    api.approvePublicationReview('local', 'form-1', 'review-1').subscribe();
+    const approval = http.expectOne('/v1/workspaces/local/forms/form-1/review-requests/review-1/approvals');
+    expect(approval.request.method).toBe('POST');
+    approval.flush({ reviewRequestId: 'review-1', revision: 4, packageHash: 'package', manifestHash: 'manifest', state: 'APPROVED' });
+
+    api.publish('local', 'form-1', 'review-1').subscribe();
+    const publish = http.expectOne('/v1/workspaces/local/forms/form-1/governed-releases?reviewRequestId=review-1');
     expect(publish.request.method).toBe('POST');
     expect(publish.request.withCredentials).toBe(true);
     expect(publish.request.headers.has('X-Staff-Session')).toBe(false);

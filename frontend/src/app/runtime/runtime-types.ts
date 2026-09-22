@@ -88,6 +88,7 @@ export type ServerAnswerCell =
 
 export interface RuntimeFieldDefinition {
   readonly id: string;
+  readonly label?: string;
   readonly type: FieldType;
   readonly readOnly?: boolean;
   readonly calculated?: boolean;
@@ -97,6 +98,7 @@ export interface RuntimeFieldDefinition {
   /** Stored decimals must have precisely this many fractional digits. */
   readonly scale?: number;
   readonly options?: readonly string[];
+  readonly optionLabels?: Readonly<Record<string, string>>;
   readonly minItems?: number;
   readonly maxItems?: number;
   readonly min?: string;
@@ -107,6 +109,8 @@ export interface RuntimeFieldDefinition {
   readonly exclusiveOptionIds?: readonly string[];
   readonly normalizer?: 'preserve' | 'trim' | 'lowercase' | 'uppercase';
   readonly hiddenRetention?: 'clear' | 'memory' | 'draft';
+  /** Server-projected visibility; hidden fields are omitted from the accessibility tree. */
+  readonly hidden?: boolean;
   readonly default?: InputAnswerCell;
   /** A fixed matrix/list may only be supplied by the server projection. */
   readonly fixedRows?: boolean;

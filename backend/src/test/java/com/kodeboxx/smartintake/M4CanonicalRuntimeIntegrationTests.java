@@ -14,6 +14,7 @@ import com.kodeboxx.smartintake.compatibility.RespondentSecretVerifier;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.Executors;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -74,15 +75,22 @@ class M4CanonicalRuntimeIntegrationTests {
     assertEquals(review.get("review"), repeatedReview.get("review"));
     var submissionRequest = new IntakeApplicationService.Submit(
         1L, review.get("reviewDigest").toString(), List.of(), "submission-attempt-01");
-    assertTrue(intake.submit(fixture.session, fixture.bearer.toString(), submissionRequest)
-        .getStatusCode().is2xxSuccessful());
-    assertTrue(intake.submit(fixture.session, fixture.bearer.toString(), submissionRequest)
-        .getStatusCode().is2xxSuccessful());
+    var duplicateAttempts = Executors.newFixedThreadPool(2);
+    try {
+      var first = duplicateAttempts.submit(() -> intake.submit(fixture.session, fixture.bearer.toString(), submissionRequest));
+      var retry = duplicateAttempts.submit(() -> intake.submit(fixture.session, fixture.bearer.toString(), submissionRequest));
+      assertTrue(first.get().getStatusCode().is2xxSuccessful());
+      assertTrue(retry.get().getStatusCode().is2xxSuccessful());
+    } finally { duplicateAttempts.shutdown(); }
     assertThrows(ResponseStatusException.class, () -> intake.submit(
         fixture.session, fixture.bearer.toString(), new IntakeApplicationService.Submit(
             1L, review.get("reviewDigest").toString(), List.of(), "submission-attempt-other")));
     assertEquals(1, db.queryForObject(
         "select count(*) from submissions where session_id=?", Integer.class, fixture.session));
+    assertEquals(1, db.queryForObject("""
+        select count(*) from submission_outbox_events o join submissions s on s.id=o.submission_id
+        where s.session_id=? and o.event_type='submission.accepted'
+        """, Integer.class, fixture.session));
     JsonNode sealed = json.readTree(db.queryForObject(
         "select envelope::text from submissions where session_id=?", String.class, fixture.session));
     JsonNode sealedReview = json.readTree(db.queryForObject(
@@ -232,6 +240,28 @@ class M4CanonicalRuntimeIntegrationTests {
     assertThrows(ResponseStatusException.class, () -> intake.submit(
         fixture.session, fixture.bearer.toString(), new IntakeApplicationService.Submit(
             1L, validation.get("reviewDigest").toString(), List.of(), "attempt-consent-missing")));
+  }
+
+  @Test
+  void iframeChannelRejectsOriginsAndAtomicallyEnforcesItsCap() throws Exception {
+    Fixture fixture = fixture();
+    UUID form = db.queryForObject("select form_id from sessions where id=?", UUID.class, fixture.session);
+    UUID release = db.queryForObject("select release_id from sessions where id=?", UUID.class, fixture.session);
+    UUID account = UUID.randomUUID(), channel = UUID.randomUUID();
+    db.update("insert into accounts(id,email,password_hash) values(?,?,?)", account, "channel-" + account + "@example.test", "unused");
+    db.update("update form_releases set release_state='ACTIVE' where id=?", release);
+    db.update("""
+        insert into form_share_channels(id,form_id,release_id,channel_type,response_cap,allowed_origins,created_by)
+        values(?,?,?,'IFRAME',1,cast('["https://embed.example.test"]' as jsonb),?)
+        """, channel, form, release, account);
+    ResponseStatusException denied = assertThrows(ResponseStatusException.class,
+        () -> intake.bootstrapChannel(channel, "https://denied.example.test"));
+    assertEquals(HttpStatus.FORBIDDEN, denied.getStatusCode());
+    String first = intake.bootstrapChannel(channel, "https://embed.example.test").get("bootstrap").toString();
+    String second = intake.bootstrapChannel(channel, "https://embed.example.test").get("bootstrap").toString();
+    assertTrue(intake.startChannel(channel, first, new IntakeApplicationService.StartSession("en", "UTC", "https://embed.example.test")).getStatusCode().is2xxSuccessful());
+    assertTrue(intake.startChannel(channel, second, new IntakeApplicationService.StartSession("en", "UTC", "https://embed.example.test")).getStatusCode().is2xxSuccessful());
+    assertEquals(0L, db.queryForObject("select accepted_count from form_share_channels where id=?", Long.class, channel));
   }
 
   @Test

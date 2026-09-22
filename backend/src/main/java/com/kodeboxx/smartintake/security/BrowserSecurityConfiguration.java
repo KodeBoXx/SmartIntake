@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponseWrapper;
 import java.io.IOException;
 import java.util.Arrays;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,12 +21,14 @@ public class BrowserSecurityConfiguration implements WebMvcConfigurer {
   public BrowserSecurityConfiguration(@Value("${smartintake.security.allowed-origins:http://localhost:4200,http://127.0.0.1:4200}") String origins) {
     allowedOrigins = Arrays.stream(origins.split(",")).map(String::trim).filter(value -> !value.isEmpty()).toArray(String[]::new);
   }
+  /** Shared trust boundary for persisted iframe channel origins and CORS. */
+  public boolean allowsOrigin(String origin) { return Arrays.asList(allowedOrigins).contains(origin); }
 
   @Override
   public void addCorsMappings(CorsRegistry registry) {
     registry.addMapping("/v1/**").allowedOrigins(allowedOrigins).allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE")
-        .allowedHeaders("Content-Type", "X-CSRF-Token", "X-Login-CSRF-Token", "X-Bootstrap-Token", "Idempotency-Key", "If-Match")
-        .exposedHeaders("X-Login-CSRF-Token", "X-CSRF-Token", "ETag", "X-Activation-Copy-Link",
+        .allowedHeaders("Content-Type", "Origin", "X-CSRF-Token", "X-Login-CSRF-Token", "X-Bootstrap-Token", "X-Channel-Bootstrap", "X-Respondent-Session", "Idempotency-Key", "If-Match")
+        .exposedHeaders("X-Receipt-Capability", "X-Login-CSRF-Token", "X-CSRF-Token", "ETag", "X-Activation-Copy-Link",
             "X-Temporary-Password-Copy", "X-Invitation-Copy-Link", "X-Recovery-Copy-Link")
         .allowCredentials(true);
   }
@@ -35,11 +38,16 @@ public class BrowserSecurityConfiguration implements WebMvcConfigurer {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
         throws ServletException, IOException {
-      response.setHeader("Content-Security-Policy", "default-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'");
+      boolean iframeEmbed = request.getRequestURI().matches(".*/v1/public/channels/[0-9a-fA-F-]+/embed");
+      if (!iframeEmbed) response.setHeader("Content-Security-Policy", "default-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'");
       response.setHeader("X-Content-Type-Options", "nosniff");
       response.setHeader("Referrer-Policy", "same-origin");
-      response.setHeader("X-Frame-Options", "DENY");
-      chain.doFilter(request, response);
+      if (!iframeEmbed) response.setHeader("X-Frame-Options", "DENY");
+      HttpServletResponse target = iframeEmbed ? new HttpServletResponseWrapper(response) {
+        @Override public void setHeader(String name,String value) { if (!"X-Frame-Options".equalsIgnoreCase(name)) super.setHeader(name,value); }
+        @Override public void addHeader(String name,String value) { if (!"X-Frame-Options".equalsIgnoreCase(name)) super.addHeader(name,value); }
+      } : response;
+      chain.doFilter(request, target);
     }
   }
 }

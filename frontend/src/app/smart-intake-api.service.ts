@@ -22,6 +22,8 @@ export type StaffSession = { identity: StaffIdentity; platformRoles: ('administr
 export type CreatedForm = { id: string; draftId: string; revision: number; definition: FormDefinition };
 export type SavedDraft = { revision: number; definition: FormDefinition; diagnostics: unknown[] };
 export type PublishedForm = { releaseId: string; version: number; shareId: string; status: string };
+export type GovernanceReview = { reviewRequestId: string; revision: number; packageHash: string; manifestHash: string; state: 'OPEN' | 'APPROVED' | 'PUBLISHED' | 'INVALIDATED'; matchesCurrentSnapshot?: boolean; semanticDiff?: unknown; dependencyDiff?: unknown };
+export type GovernanceState = { review?: GovernanceReview & { publishedReleaseId?: string }; releases: Array<{ releaseId: string; version: number; state: string }>; channels: Array<{ channelId: string; releaseId: string; type: string; state: string; publicPath: string; opensAt?: string; closesAt?: string; responseCap?: number; acceptedCount: number; allowedOrigins: string[] }> };
 export type FormSummary = { id: string; formKey: string; title: string; status: string; revision: number; updatedAt: string };
 export type CurrentDraft = { id: string; revision: number; definition: FormDefinition; diagnostics: unknown[] };
 export type CatalogForm = components['schemas']['CatalogForm'];
@@ -177,8 +179,44 @@ export type TypedSessionProjection = ServerProjection & {
   readonly acceptedRevision: number;
   readonly validation: readonly unknown[];
   readonly reachablePageIds: readonly string[];
+  readonly activePlacementKeys?: readonly string[];
   readonly requiredCount: number;
   readonly completedRequiredCount: number;
+  readonly currentPageId?: string;
+};
+
+/** Public respondent data is always hydrated from the pinned release/session response. */
+export type RespondentSession = TypedSessionProjection & {
+  readonly sessionId: string;
+  readonly revision: number;
+  readonly status: 'DRAFT' | 'SUBMITTED' | string;
+  readonly locale?: string;
+  readonly definition: Record<string, unknown>;
+  readonly runtimeManifest?: { readonly sessionDate: string; readonly timeZone: string; readonly timeZoneDatabaseVersion: string };
+};
+
+export type StartedRespondentSession = RespondentSession & {
+  readonly respondentSession: string;
+  readonly locale?: string;
+  readonly expiresAt?: string;
+  readonly release?: Record<string, unknown>;
+};
+
+export type PublicReceipt = { readonly receiptId?: string; readonly submissionId?: string; readonly requestId?: string; readonly submittedAt?: string; readonly status?: string; readonly shareId?: string; readonly receiptCapability?: string };
+export type ChannelBootstrap = { readonly bootstrap: string; readonly channelId: string; readonly releaseId: string; readonly expiresInSeconds: number };
+
+export type RespondentReview = {
+  readonly errors: readonly unknown[];
+  readonly review?: Record<string, unknown>;
+  readonly reviewDigest?: string;
+};
+
+export type SubmissionOperation = {
+  readonly attemptId: string;
+  readonly state: 'notStarted' | 'started' | 'succeeded' | 'failed' | string;
+  readonly submissionId?: string;
+  readonly receiptId?: string;
+  readonly errorCode?: string;
 };
 
 @Injectable({ providedIn: 'root' })
@@ -422,14 +460,73 @@ export class SmartIntakeApiService {
     });
   }
 
-  publish(workspaceId: string, formId: string): Observable<PublishedForm> {
-    return this.http.post<PublishedForm>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/forms/${formId}/releases`, {}, this.staff());
+  requestPublicationReview(workspaceId: string, formId: string): Observable<GovernanceReview> {
+    return this.http.post<GovernanceReview>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/forms/${formId}/review-requests`, {}, this.staff());
   }
 
-  startSession(shareId: string): Observable<{ sessionId: string; respondentSession: string; revision: number }> {
-    return this.http.post<{ sessionId: string; respondentSession: string; revision: number }>(`/v1/public/forms/${encodeURIComponent(shareId)}/sessions`, {}, {
+  publicationGovernance(workspaceId: string, formId: string): Observable<GovernanceState> {
+    return this.http.get<GovernanceState>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/forms/${formId}/governance`, this.staff());
+  }
+
+  approvePublicationReview(workspaceId: string, formId: string, reviewRequestId: string): Observable<GovernanceReview> {
+    return this.http.post<GovernanceReview>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/forms/${formId}/review-requests/${reviewRequestId}/approvals`, {}, this.staff());
+  }
+
+  publish(workspaceId: string, formId: string, reviewRequestId: string): Observable<PublishedForm> {
+    return this.http.post<PublishedForm>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/forms/${formId}/governed-releases?reviewRequestId=${encodeURIComponent(reviewRequestId)}`, {}, this.staff());
+  }
+
+  transitionRelease(workspaceId: string, formId: string, releaseId: string, action: 'activate' | 'rollback' | 'retire' | 'emergency-close'): Observable<unknown> {
+    return this.http.post(`/v1/workspaces/${encodeURIComponent(workspaceId)}/forms/${formId}/releases/${releaseId}/${action}`, {}, this.staff());
+  }
+
+  createShareChannel(workspaceId: string, formId: string, releaseId: string, request: { type: 'LINK' | 'QR' | 'IFRAME'; allowedOrigins: string[]; opensAt?: string; closesAt?: string; responseCap?: number }): Observable<{ channelId: string; type: string; publicPath: string }> {
+    return this.http.post<{ channelId: string; type: string; publicPath: string }>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/forms/${formId}/share-channels?releaseId=${releaseId}`, request, this.staff());
+  }
+
+  revokeShareChannel(workspaceId: string, formId: string, channelId: string): Observable<unknown> {
+    return this.http.post(`/v1/workspaces/${encodeURIComponent(workspaceId)}/forms/${formId}/share-channels/${channelId}/revoke`, {}, this.staff());
+  }
+
+  startSession(shareId: string, locale?: string, timeZone?: string): Observable<StartedRespondentSession> {
+    return this.http.post<StartedRespondentSession>(`/v1/public/forms/${encodeURIComponent(shareId)}/sessions`, {
+      ...(locale ? { locale } : {}),
+      ...(timeZone ? { timeZone } : {}),
+    }, {
       withCredentials: false,
     });
+  }
+
+  channelBootstrap(channelId: string, parentOrigin: string): Observable<ChannelBootstrap> {
+    return this.http.post<ChannelBootstrap>(`/v1/public/channels/${encodeURIComponent(channelId)}/bootstrap`, { parentOrigin }, { withCredentials: false });
+  }
+
+  startChannel(channelId: string, bootstrap: string, parentOrigin: string, locale?: string, timeZone?: string): Observable<StartedRespondentSession> {
+    return this.http.post<StartedRespondentSession>(`/v1/public/channels/${encodeURIComponent(channelId)}/sessions`, {
+      ...(locale ? { locale } : {}),
+      ...(timeZone ? { timeZone } : {}),
+      parentOrigin,
+    }, { withCredentials: false, headers: new HttpHeaders({ 'X-Channel-Bootstrap': bootstrap }) });
+  }
+
+  respondentSession(sessionId: string, respondentToken: string): Observable<RespondentSession> {
+    return this.http.get<RespondentSession>(`/v1/sessions/${encodeURIComponent(sessionId)}`, this.respondent(respondentToken));
+  }
+
+  changeRespondentLocale(sessionId: string, respondentToken: string, locale: string): Observable<RespondentSession> {
+    return this.http.post<RespondentSession>(`/v1/sessions/${encodeURIComponent(sessionId)}/locale`, { locale }, this.respondent(respondentToken));
+  }
+
+  navigateRespondentSession(sessionId: string, respondentToken: string, baseRevision: number, currentPageId: string): Observable<TypedSessionProjection> {
+    return this.http.post<TypedSessionProjection>(`/v1/sessions/${encodeURIComponent(sessionId)}/navigation`, { baseRevision, currentPageId }, this.respondent(respondentToken));
+  }
+
+  respondentReceipt(sessionId: string, respondentToken: string, attemptId?: string): Observable<PublicReceipt> {
+    return this.http.get<PublicReceipt>(`/v1/sessions/${encodeURIComponent(sessionId)}/receipt`, { ...this.respondent(respondentToken), params: attemptId ? new HttpParams().set('attemptId', attemptId) : undefined, observe: 'response' }).pipe(map((response) => ({ ...response.body!, receiptCapability: response.headers.get('X-Receipt-Capability') ?? undefined })));
+  }
+
+  publicReceipt(receiptCapability: string): Observable<PublicReceipt> {
+    return this.http.get<PublicReceipt>(`/v1/public/receipts/${encodeURIComponent(receiptCapability)}`, { withCredentials: false });
   }
 
   patchSession(sessionId: string, respondentToken: string, body: unknown): Observable<{ acceptedRevision: number }> {
@@ -452,6 +549,16 @@ export class SmartIntakeApiService {
     }, this.respondent(respondentToken));
   }
 
+  validateRespondentSession(sessionId: string, respondentToken: string): Observable<RespondentReview> {
+    return this.http.post<RespondentReview>(`/v1/sessions/${encodeURIComponent(sessionId)}/validate`, {}, this.respondent(respondentToken));
+  }
+
+  submissionOperation(sessionId: string, respondentToken: string, attemptId: string): Observable<SubmissionOperation> {
+    return this.http.get<SubmissionOperation>(`/v1/sessions/${encodeURIComponent(sessionId)}/submission-operation`, {
+      ...this.respondent(respondentToken), params: new HttpParams().set('attemptId', attemptId),
+    });
+  }
+
   submitSession(
     sessionId: string,
     respondentToken: string,
@@ -459,11 +566,11 @@ export class SmartIntakeApiService {
     reviewDigest?: string,
     attemptId?: string,
     acknowledgments: readonly GeneratedAcknowledgment[] = [],
-  ): Observable<{ receiptId: string }> {
-    return this.http.post<{ receiptId: string }>(`/v1/sessions/${sessionId}/submissions`, {
+  ): Observable<PublicReceipt> {
+    return this.http.post<PublicReceipt>(`/v1/sessions/${sessionId}/submissions`, {
       sessionRevision,
       ...(reviewDigest === undefined ? {} : { reviewDigest, attemptId, acknowledgments }),
-    }, this.respondent(respondentToken));
+    }, { ...this.respondent(respondentToken), observe: 'response' }).pipe(map((response) => ({ ...response.body!, receiptCapability: response.headers.get('X-Receipt-Capability') ?? undefined })));
   }
 
   private staff() {

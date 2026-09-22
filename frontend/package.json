@@ -8,6 +8,7 @@
     "prebuild": "npm run styles:build && npm run contracts:check && npm run certinal:check",
     "pretest": "npm run styles:build && npm run contracts:check && npm run certinal:check",
     "start": "npm run styles:build && ng serve --host 0.0.0.0 --proxy-config proxy.conf.json",
+    "serve:production": "node tools/serve-production.mjs",
     "build": "ng build && node ../tools/frontend/check_frontend_csp.mjs",
     "test": "ng test --watch=false",
     "certinal:check": "python3 ../tools/certinal/verify_certinal_snapshot.py && python3 ../tools/certinal/verify_intent_mapping.py",
