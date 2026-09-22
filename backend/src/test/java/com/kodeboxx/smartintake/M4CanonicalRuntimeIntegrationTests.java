@@ -14,6 +14,7 @@ import com.kodeboxx.smartintake.compatibility.RespondentSecretVerifier;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.Executors;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -74,10 +75,13 @@ class M4CanonicalRuntimeIntegrationTests {
     assertEquals(review.get("review"), repeatedReview.get("review"));
     var submissionRequest = new IntakeApplicationService.Submit(
         1L, review.get("reviewDigest").toString(), List.of(), "submission-attempt-01");
-    assertTrue(intake.submit(fixture.session, fixture.bearer.toString(), submissionRequest)
-        .getStatusCode().is2xxSuccessful());
-    assertTrue(intake.submit(fixture.session, fixture.bearer.toString(), submissionRequest)
-        .getStatusCode().is2xxSuccessful());
+    var duplicateAttempts = Executors.newFixedThreadPool(2);
+    try {
+      var first = duplicateAttempts.submit(() -> intake.submit(fixture.session, fixture.bearer.toString(), submissionRequest));
+      var retry = duplicateAttempts.submit(() -> intake.submit(fixture.session, fixture.bearer.toString(), submissionRequest));
+      assertTrue(first.get().getStatusCode().is2xxSuccessful());
+      assertTrue(retry.get().getStatusCode().is2xxSuccessful());
+    } finally { duplicateAttempts.shutdown(); }
     assertThrows(ResponseStatusException.class, () -> intake.submit(
         fixture.session, fixture.bearer.toString(), new IntakeApplicationService.Submit(
             1L, review.get("reviewDigest").toString(), List.of(), "submission-attempt-other")));

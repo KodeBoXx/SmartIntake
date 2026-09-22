@@ -38,10 +38,18 @@ public class GovernedPublicationService {
     String actor = account(token).toString();
     String prior = db.query("select package::text from form_releases where form_id=? order by version desc limit 1",
         rs -> rs.next() ? rs.getString(1) : null, form);
+    JsonNode previous = prior == null ? json.nullNode() : read(prior);
     Map<String, Object> semantic = new LinkedHashMap<>();
     semantic.put("changed", !snapshot.packageJson().equals(prior));
-    semantic.put("fromPackageHash", prior == null ? null : CanonicalJson.sha256(read(prior)));
-    Map<String, Object> dependencies = Map.of("current", read(snapshot.packageJson()).path("dependencies"));
+    semantic.put("fromPackageHash", prior == null ? null : CanonicalJson.sha256(previous));
+    semantic.put("toPackageHash", snapshot.packageHash());
+    semantic.put("fromRevision", prior == null ? null : db.query("select max(version) from form_releases where form_id=?",
+        rs -> rs.next() ? rs.getObject(1) : null, form));
+    semantic.put("toRevision", snapshot.revision());
+    Map<String, Object> dependencies = new LinkedHashMap<>();
+    dependencies.put("from", previous.path("dependencies"));
+    dependencies.put("to", read(snapshot.packageJson()).path("dependencies"));
+    dependencies.put("changed", !previous.path("dependencies").equals(read(snapshot.packageJson()).path("dependencies")));
     db.update("""
         insert into form_review_requests(id,form_id,draft_id,source_revision,package_hash,manifest_hash,
           semantic_diff,dependency_diff,state,requested_by)
@@ -55,7 +63,7 @@ public class GovernedPublicationService {
         "manifestHash", snapshot.manifestHash(), "state", "OPEN");
   }
 
-  @Transactional
+  @Transactional(noRollbackFor = ResponseStatusException.class)
   public Map<String, Object> approve(String workspace, UUID form, UUID request, String token) {
     authorization.requireReviewForm(workspace, token, form);
     Snapshot snapshot = snapshot(form);
@@ -80,6 +88,18 @@ public class GovernedPublicationService {
   public ResponseEntity<?> publish(String workspace, UUID form, UUID request, String token) {
     authorization.requirePublishForm(workspace, token, form);
     Snapshot snapshot = snapshot(form);
+    Map<String, Object> requestRow;
+    try {
+      requestRow = db.queryForMap("select state,published_release_id from form_review_requests where id=? and form_id=? for update", request, form);
+    } catch (org.springframework.dao.EmptyResultDataAccessException missing) {
+      throw conflict("GOVERNED_APPROVAL_REQUIRED");
+    }
+    if (requestRow.get("published_release_id") != null) {
+      UUID release = (UUID) requestRow.get("published_release_id");
+      Map<String, Object> releaseRow = db.queryForMap("select version,package_hash,manifest_hash,release_state from form_releases where id=?", release);
+      return ResponseEntity.ok(Map.of("releaseId", release, "version", releaseRow.get("version"), "shareId", form.toString(),
+          "status", releaseRow.get("release_state"), "packageHash", releaseRow.get("package_hash"), "manifestHash", releaseRow.get("manifest_hash")));
+    }
     Integer approvals = db.queryForObject("""
         select count(*) from form_review_requests r join form_review_approvals a on a.review_request_id=r.id
         where r.id=? and r.form_id=? and r.state='APPROVED' and r.source_revision=?
@@ -98,6 +118,7 @@ public class GovernedPublicationService {
         on conflict(form_id) do update set active_release_id=excluded.active_release_id,
           selected_by=excluded.selected_by,selected_at=now()
         """, form, release, account(token));
+    db.update("update form_review_requests set state='PUBLISHED',published_release_id=? where id=?", release, request);
     return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
         "releaseId", release, "version", body.get("version"), "shareId", form.toString(), "status", "ACTIVE",
         "packageHash", snapshot.packageHash(), "manifestHash", snapshot.manifestHash()));
