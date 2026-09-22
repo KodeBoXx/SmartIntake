@@ -338,7 +338,14 @@ export class AppComponent {
 
   openAuthoring() {
     if (!this.canAuthor()) { this.message.set('Author access is required in this workspace.'); return; }
-    if (this.formId) { this.navigateToAuthoring(); return; }
+    if (this.formId) {
+      if (Array.isArray((this.definition() as FormDefinition & { pages?: unknown[] }).pages)) {
+        this.message.set('This draft uses the legacy package format and cannot be edited in canonical authoring. Create a canonical form or migrate this draft before continuing.');
+        return;
+      }
+      this.navigateToAuthoring();
+      return;
+    }
     if (!/^[a-z][a-z0-9-]{2,99}$/.test(this.definition().formKey)) {
       this.message.set('Enter a lowercase form key using letters, numbers, and hyphens.');
       return;

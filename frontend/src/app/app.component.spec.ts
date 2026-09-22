@@ -195,6 +195,24 @@ describe('AppComponent journeys', () => {
     expect(router.navigate).toHaveBeenCalledWith(['/workspaces', 'local', 'forms', 'form-1', 'drafts', 'draft-1', 'author']);
   });
 
+  it('reports migration required instead of routing a saved legacy draft into canonical authoring', () => {
+    const api = createApi();
+    const router = { navigate: vi.fn(() => Promise.resolve(true)) };
+    TestBed.configureTestingModule({ imports: [AppComponent], providers: [
+      { provide: SmartIntakeApiService, useValue: api }, staffSessionProvider,
+      { provide: Router, useValue: router },
+      { provide: ActivatedRoute, useValue: { snapshot: { data: { screen: 'builder' }, paramMap: { get: (name: string) => name === 'workspaceId' ? 'local' : null } } } },
+    ] });
+    const component = TestBed.createComponent(AppComponent).componentInstance;
+    component.formId = 'legacy-form';
+    component.draftId = 'legacy-draft';
+
+    component.openAuthoring();
+
+    expect(router.navigate).not.toHaveBeenCalled();
+    expect(component.message()).toContain('legacy package format');
+  });
+
   it('denies a workspace new-form route without author access before creating a draft', () => {
     const api = createApi();
     const reviewerSession = { provide: StaffSessionStore, useValue: {

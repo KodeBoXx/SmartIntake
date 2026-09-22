@@ -1,4 +1,4 @@
-import { provideHttpClient } from '@angular/common/http';
+import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
@@ -21,6 +21,18 @@ describe('AuthoringPageComponent backend contract integration', () => {
   });
 
   afterEach(() => http.verify());
+
+  function flushInitial(definition: unknown): void {
+    fixture.detectChanges();
+    const base = '/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1';
+    http.expectOne(base).flush({ formId: 'form-1', draftId: 'draft-1', revision: 3, definition });
+    http.expectOne(`${base}/history`).flush([]);
+    http.expectOne('/v1/workspaces/workspace-1/reusable-components').flush([]);
+    http.expectOne(`${base}/theme`).flush({ revision: 3, theme: { preset: 'Certinal', tokens: {} } });
+    http.expectOne(`${base}/content`).flush({ revision: 3, guidance: {}, translations: { en: { direction: 'ltr', messages: {} } } });
+    http.expectOne(`${base}/comments`).flush([]);
+    http.expectOne(`${base}/presence`).flush([]);
+  }
 
   it('hydrates the three-pane store from actual document, theme, content, comment, and presence envelopes', () => {
     fixture.detectChanges();
@@ -167,5 +179,59 @@ describe('AuthoringPageComponent backend contract integration', () => {
 
     expect(fixture.componentInstance.content().localeReviews?.[0]).toMatchObject({ locale: 'hi', sourceRevision: 8, status: 'DRAFT' });
     expect(fixture.componentInstance.content().locale).toBe('hi');
+  });
+
+  it('does not post an empty canonical command batch for a legacy projected draft', () => {
+    flushInitial({
+      formId: 'form-1',
+      title: 'Legacy draft',
+      pages: [{ id: 'legacy-page', title: 'Page', fields: [{ id: 'legacy-field', label: 'Legacy field', type: 'text' }] }],
+    });
+
+    fixture.componentInstance.addPhase();
+    expect(fixture.componentInstance.store.pendingCommands()).toEqual([]);
+
+    // Defense in depth: even a restored/pre-existing empty legacy command must
+    // never cross the API boundary as an invalid zero-command batch.
+    fixture.componentInstance.store.apply({ type: 'rename', targetId: 'legacy-field', label: 'Renamed legacy field' }, 'legacy-empty-batch-test');
+    expect(fixture.componentInstance.store.pendingCommands()[0]?.patches).toEqual([]);
+    fixture.componentInstance.save();
+
+    http.expectNone('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/commands');
+    expect(fixture.componentInstance.store.conflict()).toBeNull();
+    expect(fixture.componentInstance.notice()).toContain('legacy package format');
+  });
+
+  it('does not misrepresent migration-required rejections as revision conflicts', () => {
+    flushInitial({ formId: 'form-1', title: 'Legacy draft', pages: [{ id: 'legacy-page', title: 'Page', fields: [] }] });
+
+    (fixture.componentInstance as unknown as { handleError(error: unknown): void }).handleError(new HttpErrorResponse({
+      status: 409,
+      error: { code: 'CANONICAL_MIGRATION_REQUIRED' },
+    }));
+
+    expect(fixture.componentInstance.store.conflict()).toBeNull();
+    expect(fixture.componentInstance.notice()).toContain('legacy package format');
+  });
+
+  it('retains both versions only for a real authoring conflict response', () => {
+    flushInitial({
+      contractVersion: '4.0.0',
+      formId: 'form-1',
+      title: 'Canonical draft',
+      locales: ['en'],
+      data: { fields: [] },
+      flow: { phases: [] },
+      expressions: [],
+      translations: { en: { title: 'Canonical draft', messages: {} } },
+    });
+
+    (fixture.componentInstance as unknown as { handleError(error: unknown): void }).handleError(new HttpErrorResponse({
+      status: 412,
+      error: { code: 'AUTHORING_CONFLICT', conflictId: 'conflict-1', revision: 4 },
+    }));
+
+    expect(fixture.componentInstance.store.conflict()?.id).toBe('conflict-1');
+    expect(fixture.componentInstance.notice()).not.toContain('legacy package format');
   });
 });
