@@ -75,7 +75,10 @@ class GovernedPublicationIntegrationTests {
     JsonNode dependencies = json.readTree(db.queryForObject("select dependency_diff::text from form_review_requests where id=?", String.class, request));
     assertEquals(CanonicalJson.sha256(definition), semantic.path("toPackageHash").asText());
     assertTrue(semantic.has("fromPackageHash"));
+    assertTrue(semantic.path("changedPaths").isArray());
     assertTrue(dependencies.has("from") && dependencies.has("to") && dependencies.has("changed"));
+    Map<String,Object> governance = governed.state(workspace, form, token);
+    assertFalse(((Map<?,?>) governance.get("review")).isEmpty());
 
     definition.put("title", "changed after request");
     db.update("update forms set definition=cast(? as jsonb),revision=2 where id=?", json.writeValueAsString(definition), form);

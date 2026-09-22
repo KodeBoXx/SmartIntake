@@ -17,7 +17,7 @@ import {
   visibilityRule,
 } from './editor-state.helpers';
 import { FIELD_TYPES, Field, FormDefinition, RepeaterItem, ResponseSummary, createDefaultDefinition } from './models/form-definition.models';
-import { CurrentDraft, FormSummary, SmartIntakeApiService } from './smart-intake-api.service';
+import { CurrentDraft, FormSummary, GovernanceReview, SmartIntakeApiService } from './smart-intake-api.service';
 import { StaffSessionStore } from './core/m5-session.store';
 import { hasWorkspaceRole, workspaceRoleContext } from './core/workspace-roles';
 
@@ -34,7 +34,7 @@ type DraftFailureState = Exclude<DraftViewState, 'loading' | 'ready'>;
 <nav appToolbar class="mb-5 flex w-full flex-wrap gap-2" [authorAllowed]="canAuthor()" [responseViewerAllowed]="canViewResponses()" [responseExporterAllowed]="canExportResponses()" [saveDisabled]="editorLocked()" [publishDisabled]="publishLocked()" [publishLabel]="governanceActionLabel()" [importDisabled]="editorLocked()" (author)="openAuthoring()" (preview)="startPreview()" (save)="save()" (publish)="publish()" (definitionExport)="exportDefinition()" (definitionImport)="importDefinition($event)" (responsesExport)="exportResponses()" (responseAdmin)="loadResponses()"></nav>
 <p *ngIf="message()" class="notice" role="status">{{message()}}</p>
 <section *ngIf="reviewSnapshot()" class="card mb-5" aria-labelledby="review-diff-title"><h2 id="review-diff-title" class="type-h4">Publication review changes</h2><pre class="mt-2 overflow-auto text-xs">{{reviewSnapshot()|json}}</pre></section>
-<section *ngIf="activeReleaseId() && canPublish()" class="card mb-5" aria-labelledby="release-governance-title"><h2 id="release-governance-title" class="type-h4">Release governance</h2><p class="type-caption">Release {{activeReleaseId()}}</p><div class="mt-3 flex flex-wrap gap-2"><button class="pill" (click)="transitionRelease('activate')">Activate</button><button class="pill" (click)="transitionRelease('rollback')">Rollback</button><button class="pill" (click)="transitionRelease('retire')">Retire</button><button class="pill danger" (click)="transitionRelease('emergency-close')">Emergency close</button></div><div class="mt-4 flex flex-wrap items-end gap-2"><label class="label">Channel type<select [(ngModel)]="shareChannelType"><option value="LINK">Link</option><option value="QR">QR</option><option value="IFRAME">Iframe</option></select></label><label *ngIf="shareChannelType==='IFRAME'" class="label">Allowed HTTPS parent origin<input [(ngModel)]="shareParentOrigin" placeholder="https://forms.example.com"></label><button class="pill" (click)="createShareChannel()">Create channel</button><button *ngIf="activeChannelId()" class="pill danger" (click)="revokeShareChannel()">Revoke current channel</button></div><p *ngIf="activeChannelId()" class="type-caption mt-2">{{activeChannelType()}} channel {{activeChannelId()}}</p></section>
+<section *ngIf="releases().length && canPublish()" class="card mb-5" aria-labelledby="release-governance-title"><h2 id="release-governance-title" class="type-h4">Release governance</h2><label class="label">Release<select [(ngModel)]="selectedReleaseId"><option *ngFor="let release of releases()" [value]="release.releaseId">v{{release.version}} · {{release.state}} · {{release.releaseId}}</option></select></label><div class="mt-3 flex flex-wrap gap-2"><button class="pill" (click)="transitionRelease('activate')">Activate</button><button class="pill" (click)="transitionRelease('rollback')">Rollback</button><button class="pill" (click)="confirmTransition('retire')">Retire</button><button class="pill danger" (click)="confirmTransition('emergency-close')">Emergency close</button></div><div class="mt-4 grid gap-2 md:grid-cols-3"><label class="label">Channel type<select [(ngModel)]="shareChannelType"><option value="LINK">Link</option><option value="QR">QR</option><option value="IFRAME">Iframe</option></select></label><label class="label">Opens at<input type="datetime-local" [(ngModel)]="shareOpensAt"></label><label class="label">Closes at<input type="datetime-local" [(ngModel)]="shareClosesAt"></label><label class="label">Response cap<input type="number" min="1" [(ngModel)]="shareResponseCap"></label><label *ngIf="shareChannelType==='IFRAME'" class="label">Allowed HTTPS parent origin<input [(ngModel)]="shareParentOrigin" placeholder="https://forms.example.com"></label></div><button class="pill mt-3" (click)="createShareChannel()">Create channel</button><div *ngIf="channels().length" class="mt-4"><label class="label">Existing channel<select [(ngModel)]="selectedChannelId"><option *ngFor="let channel of channels()" [value]="channel.channelId">{{channel.type}} · {{channel.state}} · {{channel.channelId}}</option></select></label><p class="type-caption break-all">{{selectedChannelOutput()}}</p><button class="pill danger mt-2" (click)="confirmRevokeChannel()">Revoke selected channel</button></div></section>
 <section *ngIf="draftState() !== 'ready'" class="card" data-testid="draft-state" [attr.data-state]="draftState()" role="status"><p *ngIf="draftState() === 'loading'">Loading saved draft…</p><ng-container *ngIf="draftState() !== 'loading'"><h2 class="type-h4">{{draftStateTitle()}}</h2><p>{{draftStateMessage()}}</p><button class="pill mt-3" (click)="retryDraftRehydration()">Retry saved draft</button></ng-container></section>
 <section *ngIf="draftState() === 'ready' && mode()==='editor'" class="grid gap-5 lg:grid-cols-[15rem_1fr_19rem]"><aside class="card"><p class="type-label">PAGES</p><button *ngFor="let page of definition().pages;let i=index" class="outline" [class.active]="pageIndex()===i" (click)="selectPage(i)">{{i+1}}. {{page.title}}</button><button *ngIf="canAuthor()" class="pill" [disabled]="editorLocked()" (click)="addPage()">+ Page</button><hr><p class="type-label">FIELDS</p><button *ngFor="let f of page().fields;let i=index" class="outline" [class.active]="fieldIndex()===i" (click)="fieldIndex.set(i)">{{f.label}}</button><button *ngIf="canAuthor()" class="pill" [disabled]="editorLocked()" (click)="addField('text')">+ Field</button></aside>
 <div class="card"><div class="flex items-center justify-between"><div><p class="type-caption text-emerald-700">MULTI-PAGE DRAFT</p><label *ngIf="isNewForm()" class="label">Form key<input data-testid="form-key" [disabled]="editorLocked()" [(ngModel)]="definition().formKey" (ngModelChange)="touch()" aria-describedby="form-key-help"></label><p *ngIf="isNewForm()" id="form-key-help" class="type-caption">Lowercase letters, numbers, and hyphens; this suggested key is unique.</p><input class="title-input" [disabled]="editorLocked()" [(ngModel)]="definition().title" (ngModelChange)="touch()"></div><button *ngIf="canAuthor()" class="pill" [disabled]="editorLocked()" (click)="addPage()">Add page</button></div><label class="label">Page title<input [disabled]="editorLocked()" [(ngModel)]="page().title" (ngModelChange)="touch()"></label><div class="mt-5 space-y-3"><article *ngFor="let f of page().fields;let i=index" class="field-card" [class.selected]="fieldIndex()===i" (click)="fieldIndex.set(i)"><div><b>{{f.label}}</b><p class="type-caption">{{f.type}} · {{f.id}}</p></div><div *ngIf="canAuthor()" class="flex gap-2"><button class="icon" [disabled]="editorLocked()" (click)="moveField(i,-1);$event.stopPropagation()">↑</button><button class="icon" [disabled]="editorLocked()" (click)="moveField(i,1);$event.stopPropagation()">↓</button></div></article></div></div>
@@ -88,11 +88,16 @@ export class AppComponent {
   saving = signal(false);
   publishing = signal(false);
   reviewSnapshot = signal<unknown>(null);
-  activeReleaseId = signal('');
-  activeChannelId = signal('');
-  activeChannelType = signal('');
+  governanceReview = signal<GovernanceReview | null>(null);
+  releases = signal<Array<{ releaseId: string; version: number; state: string }>>([]);
+  channels = signal<Array<{ channelId: string; releaseId: string; type: string; state: string; publicPath: string }>>([]);
+  selectedReleaseId = '';
+  selectedChannelId = '';
   shareChannelType: 'LINK' | 'QR' | 'IFRAME' = 'LINK';
   shareParentOrigin = '';
+  shareOpensAt = '';
+  shareClosesAt = '';
+  shareResponseCap: number | null = null;
   draftReloadRequired = signal(false);
   rehydrating = signal(true);
   rehydrationFailed = signal(false);
@@ -281,6 +286,26 @@ export class AppComponent {
     this.dirty.set(false);
     this.draftReloadRequired.set(false);
     this.completeRehydration();
+    this.loadGovernance();
+  }
+
+  private loadGovernance() {
+    if (!this.formId || !this.canGovernPublication()) return;
+    this.api.publicationGovernance(this.workspaceId(), this.formId).subscribe({
+      next: (state) => {
+        const review = state.review?.reviewRequestId ? state.review : null;
+        this.governanceReview.set(review);
+        if (review) this.applyGovernanceReview(review); else this.reviewSnapshot.set(null);
+        this.releases.set(state.releases); this.channels.set(state.channels);
+        if (!state.releases.some((release) => release.releaseId === this.selectedReleaseId)) this.selectedReleaseId = state.releases.find((release) => release.state === 'ACTIVE')?.releaseId ?? state.releases[0]?.releaseId ?? '';
+        if (!state.channels.some((channel) => channel.channelId === this.selectedChannelId)) this.selectedChannelId = state.channels[0]?.channelId ?? '';
+      },
+      error: () => this.message.set('Publication governance state is unavailable.'),
+    });
+  }
+  private applyGovernanceReview(review: GovernanceReview) {
+    this.governanceReview.set(review);
+    this.reviewSnapshot.set({ reviewRequestId: review.reviewRequestId, revision: review.revision, state: review.state, semantic: review.semanticDiff, dependencies: review.dependencyDiff });
   }
 
   loadResponses() {
@@ -414,7 +439,8 @@ export class AppComponent {
         this.definition.set(saved.definition);
         this.dirty.set(false);
         this.saving.set(false);
-        this.message.set('Draft saved. Publish this form through the release API before public sharing.');
+        this.message.set('Draft saved. Request a new governed review before public sharing.');
+        this.loadGovernance();
         afterSave?.();
       },
       error: () => { this.saving.set(false); this.message.set('Save failed: draft changed or is unavailable.'); },
@@ -438,27 +464,30 @@ export class AppComponent {
       this.save(() => this.publish());
       return;
     }
-    this.publishing.set(true);
-    this.api.requestPublicationReview(this.workspaceId(), this.formId).subscribe({
-      next: (review) => { this.reviewSnapshot.set({ semantic: review.semanticDiff, dependencies: review.dependencyDiff }); this.continueGovernedPublication(review.reviewRequestId, review.state); },
-      error: () => { this.publishing.set(false); this.message.set('Review request failed.'); },
-    });
-  }
-
-  private continueGovernedPublication(reviewRequestId: string, state: string) {
-    if (state === 'PUBLISHED') { this.publishing.set(false); this.message.set('This exact draft is already published.'); return; }
-    if (state === 'OPEN' && this.canReview()) {
-      this.api.approvePublicationReview(this.workspaceId(), this.formId, reviewRequestId).subscribe({
-        next: () => this.publishApprovedReview(reviewRequestId),
+    const review = this.governanceReview();
+    if (!review || review.state === 'INVALIDATED') { this.requestReview(); return; }
+    if (review.state === 'OPEN') {
+      if (!this.canReview()) { this.message.set(`Review ${review.reviewRequestId} awaits an authorized reviewer.`); return; }
+      this.publishing.set(true);
+      this.api.approvePublicationReview(this.workspaceId(), this.formId, review.reviewRequestId).subscribe({
+        next: (approved) => { this.publishing.set(false); this.governanceReview.set({ ...review, ...approved, state: 'APPROVED' }); this.message.set(`Review ${review.reviewRequestId} approved. A publisher can now publish it.`); },
         error: () => { this.publishing.set(false); this.message.set('Review approval failed.'); },
       });
       return;
     }
-    if (state === 'APPROVED') { this.publishApprovedReview(reviewRequestId); return; }
-    this.publishing.set(false);
-    this.message.set(this.canPublish()
-      ? `Review ${reviewRequestId} awaits an authorized reviewer.`
-      : `Review ${reviewRequestId} requested. An authorized reviewer must approve it.`);
+    if (review.state === 'APPROVED') { this.publishApprovedReview(review.reviewRequestId); return; }
+    this.message.set('This exact draft is already published.');
+  }
+
+  private requestReview() {
+    this.publishing.set(true);
+    this.api.requestPublicationReview(this.workspaceId(), this.formId).subscribe({
+      next: (review) => {
+        this.publishing.set(false); this.applyGovernanceReview(review);
+        this.message.set(`Review ${review.reviewRequestId} is ready for inspection. Approval requires a separate action.`);
+      },
+      error: () => { this.publishing.set(false); this.message.set('Review request failed.'); },
+    });
   }
 
   private publishApprovedReview(reviewRequestId: string) {
@@ -467,41 +496,50 @@ export class AppComponent {
       this.message.set(`Review ${reviewRequestId} approved. An authorized publisher can now publish it.`);
       return;
     }
+    this.publishing.set(true);
     this.api.publish(this.workspaceId(), this.formId, reviewRequestId).subscribe({
       next: (release) => {
         this.publishing.set(false);
         this.publishedShareId = release.shareId;
-        this.activeReleaseId.set(release.releaseId);
+        this.selectedReleaseId = release.releaseId;
         this.message.set(`Form published. Release ${release.releaseId}`);
+        this.loadGovernance();
       },
       error: () => { this.publishing.set(false); this.message.set('Governed publish failed. Refresh the review state and try again.'); },
     });
   }
 
   transitionRelease(action: 'activate' | 'rollback' | 'retire' | 'emergency-close') {
-    const release = this.activeReleaseId(); if (!release) return;
+    const release = this.selectedReleaseId; if (!release) return;
     this.api.transitionRelease(this.workspaceId(), this.formId, release, action).subscribe({
-      next: () => this.message.set(`Release ${action} completed.`),
+      next: () => { this.message.set(`Release ${action} completed.`); this.loadGovernance(); },
       error: () => this.message.set(`Release ${action} failed.`),
     });
   }
+  confirmTransition(action: 'retire' | 'emergency-close') { if (window.confirm(`Confirm ${action} for the selected release?`)) this.transitionRelease(action); }
 
   createShareChannel() {
-    const release = this.activeReleaseId(); if (!release) return;
+    const release = this.selectedReleaseId; if (!release) return;
     const origins = this.shareChannelType === 'IFRAME' && this.shareParentOrigin ? [this.shareParentOrigin] : [];
-    this.api.createShareChannel(this.workspaceId(), this.formId, release, this.shareChannelType, origins).subscribe({
-      next: (channel) => { this.activeChannelId.set(channel.channelId); this.activeChannelType.set(channel.type); this.message.set(`${channel.type} channel created.`); },
+    const request = { type: this.shareChannelType, allowedOrigins: origins,
+      ...(this.shareOpensAt ? { opensAt: new Date(this.shareOpensAt).toISOString() } : {}),
+      ...(this.shareClosesAt ? { closesAt: new Date(this.shareClosesAt).toISOString() } : {}),
+      ...(this.shareResponseCap ? { responseCap: this.shareResponseCap } : {}) };
+    this.api.createShareChannel(this.workspaceId(), this.formId, release, request).subscribe({
+      next: (channel) => { this.selectedChannelId = channel.channelId; this.message.set(`${channel.type} channel created: ${channel.publicPath}`); this.loadGovernance(); },
       error: () => this.message.set('Share channel creation failed. Check dates, limits, and allowed origins.'),
     });
   }
 
   revokeShareChannel() {
-    const channel = this.activeChannelId(); if (!channel) return;
+    const channel = this.selectedChannelId; if (!channel) return;
     this.api.revokeShareChannel(this.workspaceId(), this.formId, channel).subscribe({
-      next: () => { this.activeChannelId.set(''); this.activeChannelType.set(''); this.message.set('Share channel revoked.'); },
+      next: () => { this.message.set('Share channel revoked.'); this.loadGovernance(); },
       error: () => this.message.set('Share channel revocation failed.'),
     });
   }
+  confirmRevokeChannel() { if (window.confirm('Revoke the selected share channel?')) this.revokeShareChannel(); }
+  selectedChannelOutput() { const channel=this.channels().find(value=>value.channelId===this.selectedChannelId); return channel ? `${channel.type}: ${channel.publicPath}` : ''; }
 
   startPreview() {
     this.mode.set('preview');

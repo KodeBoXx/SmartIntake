@@ -13,6 +13,10 @@ public class GovernedPublicationController {
   private final GovernedPublicationService publications;
   public GovernedPublicationController(GovernedPublicationService publications) { this.publications = publications; }
 
+  @GetMapping("/governance")
+  public Map<String,Object> state(@PathVariable String workspace,@PathVariable UUID form,
+      @RequestHeader(value="X-Staff-Session",required=false) String token) { return publications.state(workspace,form,token); }
+
   @PostMapping("/review-requests")
   public Map<String, Object> request(@PathVariable String workspace, @PathVariable UUID form,
       @RequestHeader(value = "X-Staff-Session", required = false) String token) {

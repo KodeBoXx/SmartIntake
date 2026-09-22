@@ -50,15 +50,17 @@ public class GovernedPublicationService {
     JsonNode previous = prior == null ? json.nullNode() : read(prior);
     Map<String, Object> semantic = new LinkedHashMap<>();
     semantic.put("changed", !snapshot.packageJson().equals(prior));
+    semantic.put("changedPaths", changedPaths(previous, read(snapshot.packageJson()), ""));
     semantic.put("fromPackageHash", prior == null ? null : CanonicalJson.sha256(previous));
     semantic.put("toPackageHash", snapshot.packageHash());
-    semantic.put("fromRevision", prior == null ? null : db.query("select max(version) from form_releases where form_id=?",
+    semantic.put("fromReleaseVersion", prior == null ? null : db.query("select max(version) from form_releases where form_id=?",
         rs -> rs.next() ? rs.getObject(1) : null, form));
     semantic.put("toRevision", snapshot.revision());
     Map<String, Object> dependencies = new LinkedHashMap<>();
     dependencies.put("from", previous.path("dependencies"));
     dependencies.put("to", read(snapshot.packageJson()).path("dependencies"));
     dependencies.put("changed", !previous.path("dependencies").equals(read(snapshot.packageJson()).path("dependencies")));
+    dependencies.put("changedPaths", changedPaths(previous.path("dependencies"), read(snapshot.packageJson()).path("dependencies"), "/dependencies"));
     db.update("""
         insert into form_review_requests(id,form_id,draft_id,source_revision,package_hash,manifest_hash,
           semantic_diff,dependency_diff,state,requested_by)
@@ -74,6 +76,29 @@ public class GovernedPublicationService {
     String state = db.queryForObject("select state from form_review_requests where id=?", String.class, resolved);
     return Map.of("reviewRequestId", resolved, "revision", snapshot.revision(), "packageHash", snapshot.packageHash(),
         "manifestHash", snapshot.manifestHash(), "state", state, "semanticDiff", semantic, "dependencyDiff", dependencies);
+  }
+
+  public Map<String,Object> state(String workspace, UUID form, String token) {
+    authorization.requireReadableForm(workspace, token, form);
+    List<Map<String,Object>> reviews = db.queryForList("""
+        select id as "reviewRequestId",source_revision as revision,package_hash as "packageHash",
+          manifest_hash as "manifestHash",state,semantic_diff as "semanticDiff",dependency_diff as "dependencyDiff",
+          published_release_id as "publishedReleaseId",requested_at as "requestedAt"
+        from form_review_requests where form_id=? order by requested_at desc limit 1
+        """, form);
+    List<Map<String,Object>> releases = db.queryForList("""
+        select id as "releaseId",version,release_state as state,activated_at as "activatedAt",
+          retired_at as "retiredAt",emergency_closed_at as "emergencyClosedAt"
+        from form_releases where form_id=? order by version desc
+        """, form);
+    List<Map<String,Object>> channels = db.queryForList("""
+        select id as "channelId",release_id as "releaseId",channel_type as type,state,opens_at as "opensAt",
+          closes_at as "closesAt",response_cap as "responseCap",accepted_count as "acceptedCount",
+          allowed_origins as "allowedOrigins"
+        from form_share_channels where form_id=? order by created_at desc
+        """, form);
+    for (Map<String,Object> channel : channels) channel.put("publicPath", "/v1/public/channels/" + channel.get("channelId") + "/sessions");
+    return Map.of("review", reviews.isEmpty() ? Map.of() : reviews.get(0), "releases", releases, "channels", channels);
   }
 
   @Transactional(noRollbackFor = ResponseStatusException.class)
@@ -210,6 +235,21 @@ public class GovernedPublicationService {
       throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "UNSUPPORTED_REQUIRED_CAPTURE");
     return new Snapshot(((Number) value.get("revision")).longValue(), value.get("package").toString(),
         value.get("packageHash").toString(), value.get("manifestHash").toString(), value.get("manifest").toString());
+  }
+  private List<String> changedPaths(JsonNode before, JsonNode after, String path) {
+    if (before.equals(after)) return List.of();
+    if (before.isObject() && after.isObject()) {
+      java.util.Set<String> names = new java.util.TreeSet<>(); before.fieldNames().forEachRemaining(names::add); after.fieldNames().forEachRemaining(names::add);
+      List<String> changed = new java.util.ArrayList<>();
+      for (String name : names) changed.addAll(changedPaths(before.path(name), after.path(name), path + "/" + name.replace("~", "~0").replace("/", "~1")));
+      return changed;
+    }
+    if (before.isArray() && after.isArray()) {
+      List<String> changed = new java.util.ArrayList<>(); int length = Math.max(before.size(), after.size());
+      for (int index=0; index<length; index++) changed.addAll(changedPaths(before.path(index), after.path(index), path + "/" + index));
+      return changed;
+    }
+    return List.of(path.isEmpty() ? "/" : path);
   }
   private boolean hasRequiredUnsupportedCapture(JsonNode packageNode) {
     java.util.Set<String> captureIds = new java.util.HashSet<>();

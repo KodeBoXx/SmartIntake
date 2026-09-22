@@ -21,6 +21,7 @@ describe('AppComponent journeys', () => {
       currentDraft: vi.fn(() => of({ id: 'form-1', revision: 2, definition, diagnostics: [] })),
       createForm: vi.fn(() => of({ id: 'form-1', draftId: 'draft-1', revision: 1, definition })),
       updateDraft: vi.fn(() => of({ revision: 2, definition, diagnostics: [] })),
+      publicationGovernance: vi.fn(() => of({ review: {}, releases: [], channels: [] })),
       requestPublicationReview: vi.fn(() => of({ reviewRequestId: 'review-1', revision: 2, packageHash: 'package', manifestHash: 'manifest', state: 'OPEN' })),
       approvePublicationReview: vi.fn(() => of({ reviewRequestId: 'review-1', state: 'APPROVED', packageHash: 'package' })),
       publish: vi.fn(() => of({ releaseId: 'release-1', version: 1, shareId: 'form-1', status: 'PUBLISHED' })),
@@ -168,7 +169,7 @@ describe('AppComponent journeys', () => {
     expect(api.updateDraft).not.toHaveBeenCalled();
     expect(api.requestPublicationReview).toHaveBeenCalledWith('local', 'form-1');
     expect(api.publish).not.toHaveBeenCalled();
-    expect(component.message()).toContain('awaits an authorized reviewer');
+    expect(component.message()).toContain('ready for inspection');
   });
 
   it('uses the server-selected workspace for the legacy builder route', () => {
@@ -263,6 +264,8 @@ describe('AppComponent journeys', () => {
     expect(api.updateDraft).toHaveBeenLastCalledWith('local', 'form-1', 'draft-1', 2, component.definition());
 
     toolbarButton(fixture, 'Publish').click();
+    toolbarButton(fixture, 'Publish').click();
+    toolbarButton(fixture, 'Publish').click();
     expect(api.publish).toHaveBeenCalledWith('local', 'form-1', 'review-1');
     expect(component.message()).toBe('Form published. Release release-1');
     expect(component.publishedShareId).toBe('form-1');
@@ -301,6 +304,8 @@ describe('AppComponent journeys', () => {
     const component = TestBed.createComponent(AppComponent).componentInstance;
     component.formId = 'form-1';
 
+    component.publish();
+    component.publish();
     component.publish();
     component.startPreview();
 
@@ -341,9 +346,9 @@ describe('AppComponent journeys', () => {
     component.publish();
     expect(api.updateDraft).toHaveBeenCalledOnce();
     saved.next({ revision: 2, definition: savedDefinition, diagnostics: [] });
+    component.publish();
+    component.publish();
     expect(api.publish).toHaveBeenCalledWith('local', 'form-1', 'review-1');
-    expect(component.publishing()).toBe(true);
-
     component.publish();
     expect(api.publish).toHaveBeenCalledOnce();
     published.next({ releaseId: 'release-1', version: 1, shareId: 'form-1', status: 'PUBLISHED' });
@@ -530,6 +535,8 @@ describe('AppComponent journeys', () => {
     component.publish();
     expect(component.message()).toBe('Save a form before publishing.');
     component.formId = 'form-1';
+    component.publish();
+    component.publish();
     component.publish();
     expect(component.message()).toBe('Governed publish failed. Refresh the review state and try again.');
     component.startPreview();
