@@ -535,12 +535,14 @@ public class IntakeApplicationService {
     java.time.LocalDate sessionDate = sessionInstant.atZone(java.time.ZoneId.of(timeZone)).toLocalDate();
     Map<String, Object> initialAnswers = Map.of();
     Map<String, Object> initialRuntimeState = null;
+    TypedSessionRuntimeService.Outcome initialOutcome = null;
     if (typedRuntime.canonical(releaseNode)) {
       var initial = typedRuntime.mutate(releaseNode, json.createObjectNode(), null, List.of(),
           null, sessionDate.toString(), timeZone, locale, sessionInstant);
       if (!initial.accepted()) throw bad("RUNTIME_INITIALIZATION_FAILED", "Canonical runtime rejected");
       initialAnswers = initial.answers();
       initialRuntimeState = initial.runtimeState();
+      initialOutcome = initial;
     }
     db.update(
         "insert into"
@@ -558,24 +560,11 @@ public class IntakeApplicationService {
         sessionDate,
         timeZone,
         TimeZoneRegistry.VERSION);
-    return ResponseEntity.status(201)
-        .body(
-            Map.of(
-                "sessionId",
-                id,
-                "respondentSession",
-                bearer,
-                "revision",
-                0,
-                "locale",
-                locale,
-                "runtimeManifest",
-                Map.of("sessionDate", sessionDate.toString(), "timeZone", timeZone,
-                    "timeZoneDatabaseVersion", TimeZoneRegistry.VERSION),
-                "release",
-                parse(release.pkg()),
-                "expiresAt",
-                Instant.now().plus(Duration.ofDays(7)).toString()));
+    Map<String,Object> body=new LinkedHashMap<>(); body.put("sessionId",id); body.put("respondentSession",bearer);
+    body.put("revision",0); body.put("locale",locale); body.put("runtimeManifest",Map.of("sessionDate",sessionDate.toString(),"timeZone",timeZone,"timeZoneDatabaseVersion",TimeZoneRegistry.VERSION));
+    body.put("release",parse(release.pkg())); body.put("expiresAt",Instant.now().plus(Duration.ofDays(7)).toString());
+    if(initialOutcome!=null){body.put("answers",initialOutcome.answers());body.put("currentPageId",initialOutcome.reachablePageIds().isEmpty()?null:initialOutcome.reachablePageIds().get(0));body.put("reachablePageIds",initialOutcome.reachablePageIds());body.put("activePlacementKeys",initialOutcome.activePlacementKeys());body.put("requiredCount",initialOutcome.requiredCount());body.put("completedRequiredCount",initialOutcome.completedRequiredCount());}
+    return ResponseEntity.status(201).body(body);
   }
 
   public Map<String, Object> session(UUID id, String token) {

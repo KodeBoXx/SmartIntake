@@ -52,6 +52,7 @@ export class PublicSessionStore implements OnDestroy {
   readonly progressAnnouncement = signal('');
   readonly structureAnnouncement = signal('');
   readonly reviewReturnKey = signal<string | null>(null);
+  readonly reviewAnnouncement = signal('');
   readonly sharedDevice = signal(false);
   readonly review = signal<RespondentReview | null>(null);
   readonly receiptId = signal<string | null>(null);
@@ -172,6 +173,7 @@ export class PublicSessionStore implements OnDestroy {
   }
 
   returnToReview(): void { this.openReview(); }
+  announceReviewChange(message: string): void { this.reviewAnnouncement.set(message); }
   setSharedDevice(enabled: boolean): void { this.sharedDevice.set(enabled); if (enabled) this.persist(); }
   changeLocale(locale: string): void { const current=this.session(),token=this.token(); if(!current||!token||this.isBusy())return; this.phase.set('loading'); this.api.changeRespondentLocale(current.sessionId,token,locale).subscribe({next:(session)=>this.acceptSession(session),error:()=>this.fail('We could not change the language.')}); }
 
@@ -250,6 +252,7 @@ export class PublicSessionStore implements OnDestroy {
     if ((session.requiredCount ?? 0) === 0) this.progressAnnouncement.set('No answer steps. Review and submit remain.');
     else if (session.completedRequiredCount === session.requiredCount) this.progressAnnouncement.set('Answer steps complete. Review and submit remain.');
     else this.progressAnnouncement.set('');
+    if (routeUnresolved(session.definition, this.currentPageId(), session.answers)) this.progressAnnouncement.set('Remaining steps may change.');
     this.activePlacementKeys.set(session.activePlacementKeys ?? []);
     this.phase.set(session.status === 'SUBMITTED' ? 'receipt' : 'ready');
   }
@@ -288,6 +291,7 @@ export class PublicSessionStore implements OnDestroy {
     else if (projection.requiredCount < priorRequired) this.progressAnnouncement.set('An answer removed a step.');
     else if (projection.completedRequiredCount < priorComplete) this.progressAnnouncement.set('A completed answer step needs attention.');
     else if (projection.requiredCount > 0 && projection.completedRequiredCount === projection.requiredCount) this.progressAnnouncement.set('Answer steps complete. Review and submit remain.');
+    else if (routeUnresolved(this.session()?.definition, this.currentPageId(), projection.answers)) this.progressAnnouncement.set('Remaining steps may change.');
     if (this.queue[0]?.id === this.inFlight) this.queue.shift();
     this.inFlight = null; this.queueSize.set(this.queue.length); this.persist(); this.channel?.postMessage({ sessionId: current.sessionId, revision: projection.acceptedRevision });
     this.phase.set('ready'); this.flushQueue();
@@ -411,6 +415,18 @@ function canonicalPages(definition: Record<string, unknown> | undefined, pinnedL
   }));
 }
 function topPlacement(node: Record<string, unknown>): { instanceId: string; fieldId: string }[] { const fieldId = String(node['fieldId'] ?? ''); return fieldId ? [{ instanceId: String(node['id'] ?? fieldId), fieldId }] : (Array.isArray(node['children']) ? node['children'] as Record<string, unknown>[] : []).flatMap(topPlacement); }
+function routeUnresolved(definition: Record<string, unknown> | undefined, pageId: string | null, answers: Record<string, unknown>): boolean {
+  if (!definition || !pageId) return false;
+  const expressionRows = definition['expressions'];
+  const expression = (id: string): unknown => Array.isArray(expressionRows) ? expressionRows.find((row) => row && typeof row === 'object' && String((row as Record<string,unknown>)['id'] ?? '') === id) : expressionRows && typeof expressionRows === 'object' ? (expressionRows as Record<string,unknown>)[id] : undefined;
+  const refs = (value: unknown, result = new Set<string>()): Set<string> => { if (Array.isArray(value)) value.forEach((item) => refs(item,result)); else if (value && typeof value === 'object') { const row=value as Record<string,unknown>; const ref=row['ref']; if(ref && typeof ref==='object' && typeof (ref as Record<string,unknown>)['fieldId']==='string') result.add(String((ref as Record<string,unknown>)['fieldId'])); Object.values(row).forEach((item)=>refs(item,result)); } return result; };
+  const phases = ((definition['flow'] as { phases?: Record<string, unknown>[] } | undefined)?.phases ?? []);
+  for (const phase of phases) for (const page of (Array.isArray(phase['pages']) ? phase['pages'] as Record<string,unknown>[] : [])) if (String(page['id'])===pageId)
+    for (const route of (Array.isArray(page['routes']) ? page['routes'] as Record<string,unknown>[] : [])) for (const fieldId of refs(expression(String(route['whenExpressionId'] ?? '')))) {
+      const answer=answers[fieldId] as Record<string,unknown>|undefined; if(!answer || answer['value']===null || answer['value']===undefined || answer['status']==='unanswered') return true;
+    }
+  return false;
+}
 function pageForPlacement(definition: Record<string, unknown>, instanceId: string | undefined, fieldId: string): string | undefined {
   const phases = ((definition?.['flow'] as { phases?: Record<string, unknown>[] } | undefined)?.phases ?? []);
   for (const phase of phases) for (const page of (Array.isArray(phase['pages']) ? phase['pages'] as Record<string, unknown>[] : [])) {

@@ -31,54 +31,54 @@ import { RespondentControlComponent } from './respondent-control.component';
 
       @if (entryShareId) {
         <cui-card padding="lg" data-testid="public-entry">
-          <h1 class="type-h2 mb-2">Start your response</h1>
-          <p class="type-body mb-6">Your progress is saved securely as you go.</p>
-          <label class="mb-4 flex gap-2 type-body"><input type="checkbox" [ngModel]="store.sharedDevice()" (ngModelChange)="store.setSharedDevice($event)" /> Shared device</label>
-          <button cui-button variant="primary" type="button" (click)="start()" [disabled]="store.phase() === 'loading'">Start form</button>
+          <h1 class="type-h2 mb-2">{{ t('startTitle') }}</h1>
+          <p class="type-body mb-6">{{ t('savedSecurely') }}</p>
+          <label class="mb-4 flex gap-2 type-body"><input type="checkbox" [ngModel]="store.sharedDevice()" (ngModelChange)="store.setSharedDevice($event)" /> {{ t('sharedDevice') }}</label>
+          <button cui-button variant="primary" type="button" (click)="start()" [disabled]="store.phase() === 'loading'">{{ t('start') }}</button>
         </cui-card>
       } @else if (store.phase() === 'loading' || store.phase() === 'idle') {
         <p class="type-body" aria-live="polite">Loading your response…</p>
       } @else if (store.phase() === 'receipt' && store.receipt()) {
         <cui-card padding="lg" data-testid="public-receipt">
-          <h1 class="type-h2 mb-2">Response received</h1>
-          <p class="type-body mb-6">Thank you. Your response has been submitted successfully.</p>
-          <button cui-button variant="primary" type="button" (click)="store.startAnother()" data-testid="start-another-response">Start another response</button>
+          <h1 class="type-h2 mb-2">{{ t('received') }}</h1>
+          <p class="type-body mb-6">{{ t('thankYou') }}</p>
+          <button cui-button variant="primary" type="button" (click)="store.startAnother()" data-testid="start-another-response">{{ t('startAnother') }}</button>
         </cui-card>
       } @else if (reviewRoute || store.phase() === 'review' || store.phase() === 'submitting') {
         <cui-card padding="lg" data-testid="public-review">
-          <h1 class="type-h2 mb-2">Review your response</h1>
-          <p class="type-body mb-5">Check your answers before submitting.</p>
+          <h1 id="review-heading" tabindex="-1" class="type-h2 mb-2">{{ t('reviewTitle') }}</h1><p class="sr-only" aria-live="assertive">{{ store.reviewAnnouncement() }}</p>
+          <p class="type-body mb-5">{{ t('checkAnswers') }}</p>
           @for (item of reviewItems(); track item.key) {
             <div class="border-b py-3" tabindex="-1" data-testid="review-item" [id]="'review-'+safeId(item.key)" [attr.data-row-path]="item.rowPath">
               <div class="type-label">{{ item.label }}</div>
               <div class="type-body">{{ item.value }}</div>
-              <button cui-button variant="secondary" size="sm" type="button" [disabled]="store.isBusy()" (click)="store.edit(item.fieldId, item.path, item.instanceId, item.key)">Edit</button>
+              <button cui-button variant="secondary" size="sm" type="button" [disabled]="store.isBusy()" (click)="store.edit(item.fieldId, item.path, item.instanceId, item.key)">{{ t('edit') }}</button>
             </div>
           }
           @for (ack of acknowledgments(); track ack.key) {
             <label class="mt-4 flex gap-2 type-body"><input type="checkbox" [(ngModel)]="ack.accepted" /> {{ ack.label }}</label>
           }
           <div class="mt-6 flex gap-3">
-            <button cui-button variant="secondary" type="button" (click)="backToForm()" [disabled]="store.phase() === 'submitting'">Back to form</button>
-            <button cui-button variant="primary" type="button" (click)="submit()" [disabled]="store.isBusy() || !acksAccepted()" data-testid="submit-response">{{ store.phase() === 'submitting' ? 'Submitting…' : 'Submit response' }}</button>
+            <button cui-button variant="secondary" type="button" (click)="backToForm()" [disabled]="store.phase() === 'submitting'">{{ t('back') }}</button>
+            <button cui-button variant="primary" type="button" (click)="submit()" [disabled]="store.isBusy() || !acksAccepted()" data-testid="submit-response">{{ t(store.phase() === 'submitting' ? 'submitting' : 'submit') }}</button>
           </div>
         </cui-card>
       } @else if (store.session(); as session) {
         <cui-card padding="lg" data-testid="public-form">
           <div class="mb-5 flex items-baseline justify-between gap-4">
             <div><h1 id="respondent-page-heading" tabindex="-1" class="type-h2">{{ currentPage()?.title || 'Your response' }}</h1><p class="type-caption">{{ store.progressLabel() }}</p><p class="type-caption" aria-live="polite">{{ store.progressAnnouncement() }}</p></div>
-            @if (supportedLocales().length > 1) { <label class="type-caption">Language <select [ngModel]="language()" (ngModelChange)="store.changeLocale($event)">@for (locale of supportedLocales(); track locale) { <option [value]="locale">{{ locale }}</option> }</select></label> }
-            @if (store.phase() === 'saving') { <span class="type-caption" aria-live="polite">Saving…</span> }
-            @else if (store.queueSize()) { <span class="type-caption" aria-live="assertive">Not saved <button type="button" (click)="store.retrySave()">Retry</button></span> }
-            @else { <span class="type-caption">Saved</span> }
+            @if (supportedLocales().length > 1) { <label class="type-caption">{{ t('language') }} <select [ngModel]="language()" (ngModelChange)="store.changeLocale($event)">@for (locale of supportedLocales(); track locale) { <option [value]="locale">{{ locale }}</option> }</select></label> }
+            @if (store.phase() === 'saving') { <span class="type-caption" aria-live="polite">{{ t('saving') }}</span> }
+            @else if (store.queueSize()) { <span class="type-caption" aria-live="assertive">{{ t('notSaved') }} <button type="button" (click)="store.retrySave()">{{ t('retry') }}</button></span> }
+            @else { <span class="type-caption">{{ t('saved') }}</span> }
           </div>
           @for (placement of currentPlacements(); track placement.key) {
-            <si-respondent-control [field]="placement.field" [instanceId]="placement.instanceId" [cell]="answerForControl(placement.field)" [serverCell]="store.state().server?.answers?.[placement.field.id]" [invalid]="store.state().invalid" (operation)="store.apply($event)" />
+            <si-respondent-control [field]="placement.field" [locale]="language()" [instanceId]="placement.instanceId" [cell]="answerForControl(placement.field)" [serverCell]="store.state().server?.answers?.[placement.field.id]" [invalid]="store.state().invalid" (operation)="store.apply($event)" />
           }
           <p class="sr-only" aria-live="polite">{{ store.structureAnnouncement() }}</p>
           <div class="mt-8 flex justify-between gap-3">
-            <button cui-button variant="secondary" type="button" (click)="store.navigate(-1)" [disabled]="!store.canMovePrevious()">Previous</button>
-            @if (store.canMoveNext()) { <button cui-button variant="primary" type="button" (click)="store.navigate(1)">Next</button> } @else { <button cui-button variant="primary" type="button" (click)="store.openReview()" data-testid="review-response">Review response</button> }
+            <button cui-button variant="secondary" type="button" (click)="store.navigate(-1)" [disabled]="!store.canMovePrevious()">{{ t('previous') }}</button>
+            @if (store.canMoveNext()) { <button cui-button variant="primary" type="button" (click)="store.navigate(1)">{{ t('next') }}</button> } @else { <button cui-button variant="primary" type="button" (click)="store.openReview()" data-testid="review-response">{{ t('review') }}</button> }
           </div>
           @if (store.reviewReturnKey()) { <button class="mt-4" cui-button variant="secondary" type="button" (click)="store.returnToReview()">Return to review</button> }
           <button class="mt-5 type-caption" type="button" (click)="store.clearAndExit()">Clear this device and exit</button>
@@ -122,11 +122,11 @@ export class PublicPageComponent implements OnInit {
     effect(() => {
       const key = this.store.reviewReturnKey();
       if (this.store.phase() !== 'review' || !key) return;
-      queueMicrotask(() => document.getElementById(`review-${this.safeId(key)}`)?.focus());
+      queueMicrotask(() => { const row=document.getElementById(`review-${this.safeId(key)}`); if(row)row.focus(); else {document.getElementById('review-heading')?.focus();this.store.announceReviewChange('The original review item is no longer available. Review totals and errors were updated.');} });
     });
     effect(() => {
-      this.store.activePlacementKeys();
-      queueMicrotask(() => { const active=document.activeElement as HTMLElement | null; if (active && !active.isConnected) document.getElementById('respondent-page-heading')?.focus(); });
+      this.store.activePlacementKeys(); const active=document.activeElement as HTMLElement | null; const fieldRoot=active?.closest('[data-field-id]');
+      queueMicrotask(() => { if (fieldRoot && !fieldRoot.isConnected) document.getElementById('respondent-page-heading')?.focus(); });
     });
   }
 
@@ -168,13 +168,14 @@ export class PublicPageComponent implements OnInit {
   toggleChoice(field: RuntimeFieldDefinition, option: string, checked: boolean): void { const selected = new Set(this.multiValue(field)); checked ? selected.add(option) : selected.delete(option); this.store.setAnswer(field, [...selected]); }
   reviewItems(): ReviewItem[] {
     const rows = this.store.review()?.review?.['answers'];
-    return Array.isArray(rows) ? flattenAuthoritativeReview(rows) : [];
+    return Array.isArray(rows) ? flattenAuthoritativeReview(rows, this.language()) : [];
   }
   backToForm(): void { const sessionId = this.store.session()?.sessionId; if (sessionId) void this.store.edit(this.currentFields()[0]?.id ?? ''); }
   submit(): void { this.store.submit(this.acknowledgmentFields().filter((ack) => ack.accepted).map(({ fieldId, rowPath, contentHash }) => ({ fieldId, rowPath, expectedContentHash: contentHash, accepted: true }))); }
   acksAccepted(): boolean { return this.acknowledgmentFields().every((ack) => ack.accepted); }
   direction(): 'ltr' | 'rtl' { const session = this.store.session(); const locale = session?.locale ?? String(session?.definition?.['defaultLocale'] ?? 'en'); return locale === 'ar' ? 'rtl' : 'ltr'; }
   language(): string { return this.store.session()?.locale ?? String(this.store.session()?.definition?.['defaultLocale'] ?? 'en'); }
+  t(key: string): string { return PAGE_MESSAGES[this.language()]?.[key] ?? PAGE_MESSAGES['en'][key] ?? key; }
   supportedLocales(): string[] { const value=this.store.session()?.definition?.['supportedLocales']; return Array.isArray(value) ? value.filter((locale): locale is string => typeof locale === 'string') : [this.language()]; }
   invalidItems(): { key: string; fieldId: string; rowPath: { listFieldId: string; itemId: string }[] }[] { return Object.keys(this.store.state().invalid).map((key) => { const parts=key.replace(/^\//,'').split('/'); const fieldId=parts.pop() ?? ''; const rowPath=parts.flatMap((part) => { const split=part.indexOf(':'); return split > 0 ? [{listFieldId:part.slice(0,split),itemId:part.slice(split+1)}] : []; }); return {key,fieldId,rowPath}; }).filter((item)=>item.fieldId); }
   safeId(value: string): string { return value.replaceAll(/[^A-Za-z0-9_-]/g, '-'); }
@@ -205,13 +206,14 @@ export class PublicPageComponent implements OnInit {
     });
   }
 }
+const PAGE_MESSAGES: Record<string,Record<string,string>>={en:{startTitle:'Start your response',savedSecurely:'Your progress is saved securely as you go.',sharedDevice:'Shared device',start:'Start form',received:'Response received',thankYou:'Thank you. Your response has been submitted successfully.',startAnother:'Start another response',reviewTitle:'Review your response',checkAnswers:'Check your answers before submitting.',edit:'Edit',back:'Back to form',submitting:'Submitting…',submit:'Submit response',language:'Language',saving:'Saving…',notSaved:'Not saved',retry:'Retry',saved:'Saved',previous:'Previous',next:'Next',review:'Review response'},hi:{startTitle:'अपना उत्तर शुरू करें',savedSecurely:'आपकी प्रगति सुरक्षित रूप से सहेजी जाती है।',sharedDevice:'साझा डिवाइस',start:'फ़ॉर्म शुरू करें',received:'उत्तर प्राप्त हुआ',thankYou:'धन्यवाद। आपका उत्तर सफलतापूर्वक जमा हो गया है।',startAnother:'एक और उत्तर शुरू करें',reviewTitle:'अपने उत्तर की समीक्षा करें',checkAnswers:'जमा करने से पहले अपने उत्तर जाँचें।',edit:'संपादित करें',back:'फ़ॉर्म पर वापस जाएँ',submitting:'जमा हो रहा है…',submit:'उत्तर जमा करें',language:'भाषा',saving:'सहेजा जा रहा है…',notSaved:'सहेजा नहीं गया',retry:'फिर प्रयास करें',saved:'सहेजा गया',previous:'पिछला',next:'अगला',review:'उत्तर की समीक्षा करें'},ar:{startTitle:'ابدأ إجابتك',savedSecurely:'يتم حفظ تقدمك بأمان.',sharedDevice:'جهاز مشترك',start:'ابدأ النموذج',received:'تم استلام الرد',thankYou:'شكرًا لك. تم إرسال ردك بنجاح.',startAnother:'ابدأ ردًا آخر',reviewTitle:'راجع ردك',checkAnswers:'تحقق من إجاباتك قبل الإرسال.',edit:'تعديل',back:'العودة إلى النموذج',submitting:'جارٍ الإرسال…',submit:'إرسال الرد',language:'اللغة',saving:'جارٍ الحفظ…',notSaved:'غير محفوظ',retry:'إعادة المحاولة',saved:'تم الحفظ',previous:'السابق',next:'التالي',review:'مراجعة الرد'}};
 
 function isRowPath(value: unknown): value is { listFieldId: string; itemId: string } {
   return Boolean(value && typeof value === 'object' && typeof (value as Record<string, unknown>)['listFieldId'] === 'string' && typeof (value as Record<string, unknown>)['itemId'] === 'string');
 }
-function display(answer: { status: string; value?: unknown } | undefined): string { if (!answer || answer.status === 'unanswered') return 'Not answered'; if (answer.status !== 'answered') return answer.status; if (Array.isArray(answer.value)) return answer.value.join(', '); if (typeof answer.value === 'boolean') return answer.value ? 'Yes' : 'No'; return String(answer.value ?? 'Not answered'); }
+function display(answer: { status: string; value?: unknown } | undefined, locale: string): string { const labels=VALUE_MESSAGES[locale] ?? VALUE_MESSAGES['en']; if (!answer || answer.status === 'unanswered') return labels['unanswered']; if (answer.status !== 'answered') return labels[answer.status] ?? answer.status; if (Array.isArray(answer.value)) return answer.value.join(', '); if (typeof answer.value === 'boolean') return answer.value ? labels['yes'] : labels['no']; return String(answer.value ?? labels['unanswered']); }
 type ReviewItem = { key: string; instanceId: string; fieldId: string; path: readonly { listFieldId: string; itemId: string }[]; rowPath: string; label: string; value: string };
-function flattenAuthoritativeReview(rows: readonly unknown[]): ReviewItem[] {
+function flattenAuthoritativeReview(rows: readonly unknown[], locale: string): ReviewItem[] {
   return rows.flatMap((candidate): ReviewItem[] => {
     if (!candidate || typeof candidate !== 'object') return [];
     const row = candidate as Record<string, unknown>;
@@ -219,12 +221,13 @@ function flattenAuthoritativeReview(rows: readonly unknown[]): ReviewItem[] {
     const instanceId = typeof row['instanceId'] === 'string' ? row['instanceId'] : fieldId;
     const path = Array.isArray(row['rowPath']) ? row['rowPath'].filter(isRowPath) : [];
     const itemPath = typeof row['itemId'] === 'string' ? [...path, { listFieldId: fieldId, itemId: row['itemId'] }] : path;
-    const children = Array.isArray(row['children']) ? flattenAuthoritativeReview(row['children']) : [];
+    const children = Array.isArray(row['children']) ? flattenAuthoritativeReview(row['children'], locale) : [];
     if (children.length) return children;
     if (!fieldId) return [];
     const serialized = JSON.stringify(path);
     return [{ key: `${instanceId}:${serialized}:${String(row['itemId'] ?? '')}`, instanceId, fieldId, path, rowPath: serialized,
       label: typeof row['label'] === 'string' ? row['label'] : fieldId,
-      value: row['status'] === 'answered' ? display({ status: 'answered', value: row['value'] }) : typeof row['statusLabel'] === 'string' ? row['statusLabel'] : String(row['status'] ?? 'Not answered') }];
+      value: row['status'] === 'answered' ? display({ status: 'answered', value: row['value'] }, locale) : typeof row['statusLabel'] === 'string' ? row['statusLabel'] : display({status:String(row['status'] ?? 'unanswered')},locale) }];
   });
 }
+const VALUE_MESSAGES: Record<string,Record<string,string>>={en:{unanswered:'Not answered',yes:'Yes',no:'No',unknown:'Unknown',declined:'Declined',respondentNotApplicable:'Not applicable'},hi:{unanswered:'उत्तर नहीं दिया',yes:'हाँ',no:'नहीं',unknown:'अज्ञात',declined:'उत्तर देने से मना किया',respondentNotApplicable:'लागू नहीं'},ar:{unanswered:'لم تتم الإجابة',yes:'نعم',no:'لا',unknown:'غير معروف',declined:'تم الرفض',respondentNotApplicable:'غير منطبق'}};

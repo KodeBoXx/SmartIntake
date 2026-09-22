@@ -96,6 +96,9 @@ class GovernedPublicationIntegrationTests {
 
     UUID firstChannel = channel(first, "LINK", null, null, null, List.of());
     var old = intake.startChannel(firstChannel, null, null); assertTrue(old.getStatusCode().is2xxSuccessful());
+    Map<?,?> initial=(Map<?,?>)old.getBody(); assertNotNull(initial.get("answers")); assertNotNull(initial.get("currentPageId"));
+    assertNotNull(initial.get("reachablePageIds")); assertNotNull(initial.get("activePlacementKeys"));
+    assertNotNull(initial.get("requiredCount")); assertNotNull(initial.get("completedRequiredCount"));
     UUID oldSession = UUID.fromString(((Map<?, ?>) old.getBody()).get("sessionId").toString());
     definition.withObject("translations").withObject("en").withObject("messages").put("title", "release two");
     db.update("update forms set definition=cast(? as jsonb),revision=2 where id=?", json.writeValueAsString(definition), form);

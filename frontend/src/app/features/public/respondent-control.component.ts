@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, ViewChild, inject, input, output } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, Component, ElementRef, ViewChild, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { CuiAlertComponent } from '@certinal/ui';
@@ -30,39 +30,39 @@ type Cell = InputAnswerCell | ServerAnswerCell | undefined;
         @if (field().type === 'object') {
           <div #control [id]="controlId()" tabindex="-1" role="group" [attr.aria-labelledby]="labelId()" class="ml-3 border-l pl-4" data-testid="object-control" [attr.aria-invalid]="invalidReason() ? 'true' : null" [attr.aria-describedby]="invalidReason() ? errorId() : null">
             @for (child of field().fields || []; track child.id) {
-              <si-respondent-control [field]="child" [instanceId]="instanceId()" [cell]="objectCell(child.id)" [serverCell]="objectServerCell(child.id)" [invalid]="invalid()" [rowPath]="rowPath()" (operation)="operation.emit($event)" />
+              <si-respondent-control [field]="child" [locale]="locale()" [instanceId]="instanceId()" [cell]="objectCell(child.id)" [serverCell]="objectServerCell(child.id)" [invalid]="invalid()" [rowPath]="rowPath()" (operation)="operation.emit($event)" />
             }
           </div>
         } @else if (field().type === 'list') {
           <div #control [id]="controlId()" tabindex="-1" role="group" [attr.aria-labelledby]="labelId()" [attr.data-testid]="field().fixedRows ? 'fixed-matrix-control' : 'dynamic-matrix-control'" [attr.aria-invalid]="invalidReason() ? 'true' : null" [attr.aria-describedby]="invalidReason() ? errorId() : null">
             @for (item of items(); track item.itemId; let index = $index) {
-              <fieldset class="mb-3 border p-3" [attr.data-item-id]="item.itemId">
-                <legend class="type-caption">{{ field().fixedRows ? 'Row' : 'Item' }} {{ index + 1 }}</legend>
+              <fieldset tabindex="-1" class="mb-3 border p-3" [attr.data-item-id]="item.itemId">
+                <legend class="type-caption">{{ t(field().fixedRows ? 'row' : 'item') }} {{ index + 1 }}</legend>
                 @for (child of field().itemFields || []; track child.id) {
-                  <si-respondent-control [field]="child" [instanceId]="instanceId()" [cell]="item.fields[child.id]" [serverCell]="itemServerCell(item.itemId, child.id)" [invalid]="invalid()" [rowPath]="childPath(item.itemId)" (operation)="operation.emit($event)" />
+                  <si-respondent-control [field]="child" [locale]="locale()" [instanceId]="instanceId()" [cell]="item.fields[child.id]" [serverCell]="itemServerCell(item.itemId, child.id)" [invalid]="invalid()" [rowPath]="childPath(item.itemId)" (operation)="operation.emit($event)" />
                 }
                 @if (!field().fixedRows) {
                   <div class="flex flex-wrap gap-2">
-                    <button cui-button size="sm" type="button" [disabled]="index === 0" (click)="move(item.itemId, items()[index - 1]?.itemId)">Move up</button>
-                    <button cui-button size="sm" type="button" [disabled]="index === items().length - 1" (click)="move(item.itemId, items()[index + 2]?.itemId)">Move down</button>
-                    <button cui-button size="sm" type="button" (click)="remove(item.itemId)">Remove</button>
+                    <button cui-button size="sm" type="button" [disabled]="index === 0" (click)="move(item.itemId, items()[index - 1]?.itemId)">{{ t('moveUp') }}</button>
+                    <button cui-button size="sm" type="button" [disabled]="index === items().length - 1" (click)="move(item.itemId, items()[index + 2]?.itemId)">{{ t('moveDown') }}</button>
+                    <button cui-button size="sm" type="button" (click)="remove(item.itemId)">{{ t('remove') }}</button>
                   </div>
                 }
               </fieldset>
             }
             @if (!field().fixedRows && items().length < 50 && rowPath().length < 3) {
-              <button cui-button variant="secondary" type="button" (click)="add()" data-testid="add-list-item">Add item</button>
+              <button cui-button variant="secondary" type="button" (click)="add()" data-testid="add-list-item">{{ t('addItem') }}</button>
             }
           </div>
         } @else if (field().type === 'attachments' || field().type === 'drawing') {
           <div #control [id]="controlId()" tabindex="-1"><cui-alert variant="info" title="Secure {{ field().type }}">{{ cell()?.status === 'answered' ? 'Ready' : 'Secure capture is unavailable in this channel.' }}</cui-alert></div>
         } @else if (field().type === 'boolean') {
           <select #control [id]="controlId()" class="w-full" [disabled]="protected()" [attr.aria-invalid]="invalidReason() ? 'true' : null" [attr.aria-describedby]="invalidReason() ? errorId() : null" [ngModel]="booleanValue()" (ngModelChange)="setBoolean($event)">
-            <option [ngValue]="null">Select an answer</option><option [ngValue]="true">Yes</option><option [ngValue]="false">No</option>
+            <option [ngValue]="null">{{ t('select') }}</option><option [ngValue]="true">{{ t('yes') }}</option><option [ngValue]="false">{{ t('no') }}</option>
           </select>
         } @else if (field().type === 'choice') {
           <select #control [id]="controlId()" class="w-full" [disabled]="protected()" [attr.aria-invalid]="invalidReason() ? 'true' : null" [attr.aria-describedby]="invalidReason() ? errorId() : null" [ngModel]="textValue()" (ngModelChange)="set($event)">
-            <option value="">Select an answer</option>@for (option of field().options || []; track option) { <option [value]="option">{{ field().optionLabels?.[option] || option }}</option> }
+            <option value="">{{ t('select') }}</option>@for (option of field().options || []; track option) { <option [value]="option">{{ field().optionLabels?.[option] || option }}</option> }
           </select>
         } @else if (field().type === 'multiChoice') {
           <fieldset #control [id]="controlId()" tabindex="-1" [attr.aria-invalid]="invalidReason() ? 'true' : null" [attr.aria-describedby]="invalidReason() ? errorId() : null"><legend class="type-label mb-1">{{ label(field()) }}</legend>@for (option of field().options || []; track option) { <label class="mr-4 inline-flex gap-2"><input type="checkbox" [checked]="multiValue().includes(option)" [disabled]="protected()" (change)="toggleChoice(option, $any($event.target).checked)" />{{ field().optionLabels?.[option] || option }}</label> }</fieldset>
@@ -71,7 +71,7 @@ type Cell = InputAnswerCell | ServerAnswerCell | undefined;
         } @else {
           <input #control [id]="controlId()" class="w-full" [type]="inputType()" [disabled]="protected()" [attr.aria-invalid]="invalidReason() ? 'true' : null" [attr.aria-describedby]="invalidReason() ? errorId() : null" [attr.min]="field().min" [attr.max]="field().max" [attr.step]="field().step" [ngModel]="textValue()" (ngModelChange)="set($event)" />
         }
-        @if (invalidReason()) { <p [id]="errorId()" class="type-caption text-error" role="alert">This answer has an invalid value.</p> }
+        @if (invalidReason()) { <p [id]="errorId()" class="type-caption text-error" role="alert">{{ t('invalid') }}</p> }
         @if (!protected() && (field().allowUnknown || field().allowDeclined || field().allowNotApplicable)) {
           <div class="mt-2 flex flex-wrap gap-2"><button cui-button size="sm" variant="secondary" type="button" (click)="clear()">Clear</button>@if (field().allowUnknown) { <button cui-button size="sm" variant="secondary" type="button" (click)="status('unknown')">Unknown</button> } @if (field().allowDeclined) { <button cui-button size="sm" variant="secondary" type="button" (click)="status('declined')">Decline</button> } @if (field().allowNotApplicable) { <button cui-button size="sm" variant="secondary" type="button" (click)="status('respondentNotApplicable')">Not applicable</button> }</div>
         }
@@ -79,22 +79,26 @@ type Cell = InputAnswerCell | ServerAnswerCell | undefined;
     }
   `,
 })
-export class RespondentControlComponent implements AfterViewInit {
+export class RespondentControlComponent implements AfterViewInit, AfterViewChecked {
   private readonly route = inject(ActivatedRoute, { optional: true });
   @ViewChild('control') private readonly control?: ElementRef<HTMLElement>;
   readonly field = input.required<RuntimeFieldDefinition>();
+  readonly locale = input('en');
   readonly instanceId = input<string>();
   readonly cell = input<Cell>();
   readonly serverCell = input<ServerAnswerCell>();
   readonly invalid = input<Readonly<Record<string, string>>>({});
   readonly rowPath = input<RowPath>([]);
   readonly operation = output<RuntimeOperation>();
+  private pendingFocus: string | null = null;
 
   ngAfterViewInit(): void {
     if (this.route?.snapshot.queryParamMap.get('focus') === this.controlId()) queueMicrotask(() => this.control?.nativeElement.focus());
   }
+  ngAfterViewChecked(): void { if (!this.pendingFocus) return; const selector=this.pendingFocus==='add'?'[data-testid="add-list-item"]':`[data-item-id="${CSS.escape(this.pendingFocus)}"]`; const target=this.control?.nativeElement.querySelector<HTMLElement>(selector); if(target){this.pendingFocus=null;queueMicrotask(()=>target.focus());} }
 
   label(field: RuntimeFieldDefinition): string { return field.label ?? field.id.replace(/([A-Z])/g, ' $1').replace(/^./, (letter) => letter.toUpperCase()); }
+  t(key: string): string { return CONTROL_MESSAGES[this.locale()]?.[key] ?? CONTROL_MESSAGES['en'][key] ?? key; }
   protected(): boolean { return Boolean(this.field().readOnly || this.field().calculated); }
   inputType(): string { const type = this.field().type; return type === 'integer' || type === 'decimal' ? 'number' : type === 'dateTime' ? 'datetime-local' : ['date', 'time'].includes(type) ? type : 'text'; }
   textValue(): string {
@@ -131,12 +135,13 @@ export class RespondentControlComponent implements AfterViewInit {
   setBoolean(raw: boolean | null): void { if (raw !== null) this.operation.emit({ kind: 'set', target: this.target(), answer: { status: 'answered', value: raw } }); }
   clear(): void { this.operation.emit({ kind: 'clear', target: this.target() }); }
   status(status: 'unknown' | 'declined' | 'respondentNotApplicable'): void { this.operation.emit({ kind: 'set', target: this.target(), answer: { status } }); }
-  add(): void { this.operation.emit({ kind: 'addItem', target: this.target(), itemId: `item_${crypto.randomUUID().replaceAll('-', '')}` }); }
-  remove(itemId: string): void { this.operation.emit({ kind: 'removeItem', target: this.target(), itemId }); }
-  move(itemId: string, beforeItemId?: string): void { this.operation.emit({ kind: 'moveItem', target: this.target(), itemId, beforeItemId }); }
+  add(): void { const itemId=`item_${crypto.randomUUID().replaceAll('-', '')}`; this.pendingFocus=itemId; this.operation.emit({ kind: 'addItem', target: this.target(), itemId }); }
+  remove(itemId: string): void { const rows=this.items(); const index=rows.findIndex((item)=>item.itemId===itemId); this.pendingFocus=rows[index+1]?.itemId ?? rows[index-1]?.itemId ?? 'add'; this.operation.emit({ kind: 'removeItem', target: this.target(), itemId }); }
+  move(itemId: string, beforeItemId?: string): void { this.pendingFocus=itemId; this.operation.emit({ kind: 'moveItem', target: this.target(), itemId, beforeItemId }); }
   toggleChoice(option: string, checked: boolean): void { const values = new Set(this.multiValue()); checked ? values.add(option) : values.delete(option); this.operation.emit({ kind: 'set', target: this.target(), answer: { status: 'answered', value: [...values] } }); }
   private target() { return { fieldId: this.field().id, rowPath: this.rowPath().length ? this.rowPath() : undefined }; }
 }
 
 function cellValue(cell: Cell): unknown { return cell?.status === 'answered' ? cell.value : undefined; }
 function normalizeTime(value: string): string { return /^\d{2}:\d{2}$/.test(value) ? `${value}:00` : value; }
+const CONTROL_MESSAGES: Record<string,Record<string,string>> = { en:{row:'Row',item:'Item',moveUp:'Move up',moveDown:'Move down',remove:'Remove',addItem:'Add item',select:'Select an answer',yes:'Yes',no:'No',invalid:'This answer has an invalid value.'}, hi:{row:'पंक्ति',item:'आइटम',moveUp:'ऊपर ले जाएँ',moveDown:'नीचे ले जाएँ',remove:'हटाएँ',addItem:'आइटम जोड़ें',select:'उत्तर चुनें',yes:'हाँ',no:'नहीं',invalid:'इस उत्तर का मान अमान्य है।'}, ar:{row:'صف',item:'عنصر',moveUp:'نقل لأعلى',moveDown:'نقل لأسفل',remove:'إزالة',addItem:'إضافة عنصر',select:'اختر إجابة',yes:'نعم',no:'لا',invalid:'قيمة هذه الإجابة غير صالحة.'} };
