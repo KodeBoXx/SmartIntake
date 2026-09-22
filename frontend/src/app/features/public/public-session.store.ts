@@ -246,7 +246,7 @@ export class PublicSessionStore implements OnDestroy {
   private acceptSession(session: RespondentSession): void {
     this.session.set(session);
     this.state.set(reconcileServerProjection(this.state(), { answers: session.answers, invalidInputs: session.invalidInputs }));
-    const pages = canonicalPages(session.definition, session.locale).map((page) => page.id);
+    const canonical = canonicalPages(session.definition, session.locale); const pages = canonical.map((page) => page.id); const hasAnswerPages=canonical.some((page)=>page.fieldIds.length>0);
     const reachable = session.reachablePageIds?.length ? session.reachablePageIds : pages;
     this.reachablePageIds.set(reachable);
     const authoritativePage = session.currentPageId;
@@ -258,8 +258,8 @@ export class PublicSessionStore implements OnDestroy {
     if (routeUnresolved(session.definition, this.currentPageId(), session.answers)) this.progressAnnouncement.set(this.message('stepsMayChange'));
     this.activePlacementKeys.set(session.activePlacementKeys ?? []);
     this.placementProjectionKnown.set(session.activePlacementKeys !== undefined);
-    this.phase.set(session.status === 'SUBMITTED' ? 'receipt' : (session.requiredCount ?? 0) === 0 ? 'review' : 'ready');
-    if (session.status !== 'SUBMITTED' && (session.requiredCount ?? 0) === 0) queueMicrotask(()=>this.ensureReview());
+    this.phase.set(session.status === 'SUBMITTED' ? 'receipt' : !hasAnswerPages ? 'review' : 'ready');
+    if (session.status !== 'SUBMITTED' && !hasAnswerPages) queueMicrotask(()=>this.ensureReview());
   }
 
   private recoverAuthenticatedReceipt(sessionId: string, stored: StoredSecret): void {
