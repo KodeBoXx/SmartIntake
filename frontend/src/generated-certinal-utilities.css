@@ -292,6 +292,12 @@ body {
 .mt-6 {
   margin-top: var(--spacing-6);
 }
+.mt-8 {
+  margin-top: var(--spacing-8);
+}
+.mr-4 {
+  margin-right: var(--spacing-4);
+}
 .-mb-px {
   margin-bottom: -1px;
 }
@@ -630,6 +636,9 @@ body {
 }
 .flex-wrap {
   flex-wrap: wrap;
+}
+.items-baseline {
+  align-items: baseline;
 }
 .items-center {
   align-items: center;

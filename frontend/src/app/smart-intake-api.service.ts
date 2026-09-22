@@ -181,6 +181,36 @@ export type TypedSessionProjection = ServerProjection & {
   readonly completedRequiredCount: number;
 };
 
+/** Public respondent data is always hydrated from the pinned release/session response. */
+export type RespondentSession = TypedSessionProjection & {
+  readonly sessionId: string;
+  readonly revision: number;
+  readonly status: 'DRAFT' | 'SUBMITTED' | string;
+  readonly definition: Record<string, unknown>;
+  readonly runtimeManifest?: { readonly sessionDate: string; readonly timeZone: string; readonly timeZoneDatabaseVersion: string };
+};
+
+export type StartedRespondentSession = RespondentSession & {
+  readonly respondentSession: string;
+  readonly locale?: string;
+  readonly expiresAt?: string;
+  readonly release?: Record<string, unknown>;
+};
+
+export type RespondentReview = {
+  readonly errors: readonly unknown[];
+  readonly review?: Record<string, unknown>;
+  readonly reviewDigest?: string;
+};
+
+export type SubmissionOperation = {
+  readonly attemptId: string;
+  readonly state: 'notStarted' | 'started' | 'succeeded' | 'failed' | string;
+  readonly submissionId?: string;
+  readonly receiptId?: string;
+  readonly errorCode?: string;
+};
+
 @Injectable({ providedIn: 'root' })
 export class SmartIntakeApiService {
   private readonly revisionEtags = new Map<string, string>();
@@ -426,10 +456,17 @@ export class SmartIntakeApiService {
     return this.http.post<PublishedForm>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/forms/${formId}/releases`, {}, this.staff());
   }
 
-  startSession(shareId: string): Observable<{ sessionId: string; respondentSession: string; revision: number }> {
-    return this.http.post<{ sessionId: string; respondentSession: string; revision: number }>(`/v1/public/forms/${encodeURIComponent(shareId)}/sessions`, {}, {
+  startSession(shareId: string, locale?: string, timeZone?: string): Observable<StartedRespondentSession> {
+    return this.http.post<StartedRespondentSession>(`/v1/public/forms/${encodeURIComponent(shareId)}/sessions`, {
+      ...(locale ? { locale } : {}),
+      ...(timeZone ? { timeZone } : {}),
+    }, {
       withCredentials: false,
     });
+  }
+
+  respondentSession(sessionId: string, respondentToken: string): Observable<RespondentSession> {
+    return this.http.get<RespondentSession>(`/v1/sessions/${encodeURIComponent(sessionId)}`, this.respondent(respondentToken));
   }
 
   patchSession(sessionId: string, respondentToken: string, body: unknown): Observable<{ acceptedRevision: number }> {
@@ -450,6 +487,16 @@ export class SmartIntakeApiService {
       operations: operations.map((operation) => this.wireOperation(operation)),
       ...(currentPageId === undefined ? {} : { currentPageId }),
     }, this.respondent(respondentToken));
+  }
+
+  validateRespondentSession(sessionId: string, respondentToken: string): Observable<RespondentReview> {
+    return this.http.post<RespondentReview>(`/v1/sessions/${encodeURIComponent(sessionId)}/validate`, {}, this.respondent(respondentToken));
+  }
+
+  submissionOperation(sessionId: string, respondentToken: string, attemptId: string): Observable<SubmissionOperation> {
+    return this.http.get<SubmissionOperation>(`/v1/sessions/${encodeURIComponent(sessionId)}/submission-operation`, {
+      ...this.respondent(respondentToken), params: new HttpParams().set('attemptId', attemptId),
+    });
   }
 
   submitSession(
