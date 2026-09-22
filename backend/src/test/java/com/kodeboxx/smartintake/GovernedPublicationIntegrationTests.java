@@ -3,6 +3,7 @@ package com.kodeboxx.smartintake;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -104,6 +105,11 @@ class GovernedPublicationIntegrationTests {
     assertEquals(1, db.queryForObject("select count(*) from form_releases where form_id=?", Integer.class, form));
 
     UUID firstChannel = channel(first, "LINK", null, null, null, List.of());
+    mockMvc.perform(get("/v1/workspaces/{workspace}/forms/{form}/governance", workspace, form).header("X-Staff-Session", token))
+        .andExpect(jsonPath("$.review.semanticDiff.changedPaths").isArray())
+        .andExpect(jsonPath("$.review.dependencyDiff.changedPaths").isArray())
+        .andExpect(jsonPath("$.channels[0].allowedOrigins").isArray())
+        .andExpect(jsonPath("$.channels[0].publicPath").value(org.hamcrest.Matchers.startsWith("/f/")));
     var old = intake.startChannel(firstChannel, null, null); assertTrue(old.getStatusCode().is2xxSuccessful());
     Map<?,?> initial=(Map<?,?>)old.getBody(); assertNotNull(initial.get("answers")); assertNotNull(initial.get("currentPageId"));
     assertNotNull(initial.get("reachablePageIds")); assertNotNull(initial.get("activePlacementKeys"));

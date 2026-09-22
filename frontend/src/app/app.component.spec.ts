@@ -170,6 +170,16 @@ describe('AppComponent journeys', () => {
     expect(api.publish).not.toHaveBeenCalled();
   });
 
+  it('offers a new review after a published draft receives a later revision', () => {
+    const api = createApi();
+    TestBed.configureTestingModule({ imports: [AppComponent], providers: [{ provide: SmartIntakeApiService, useValue: api }, staffSessionProvider] });
+    const fixture = TestBed.createComponent(AppComponent); const component = fixture.componentInstance;
+    component.formId='form-1'; component.draftRevision.set(3);
+    component.governanceReview.set({ reviewRequestId:'review-1',revision:2,packageHash:'p',manifestHash:'m',state:'PUBLISHED' });
+    fixture.detectChanges();
+    expect([...fixture.nativeElement.querySelectorAll('button')].some((button: HTMLButtonElement)=>button.textContent?.trim()==='Request review')).toBe(true);
+  });
+
   it('uses the server-selected workspace for the legacy builder route', () => {
     const api = createApi();
     const selectedWorkspaceSession = { provide: StaffSessionStore, useValue: {

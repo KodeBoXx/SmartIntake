@@ -86,6 +86,10 @@ public class GovernedPublicationService {
           published_release_id as "publishedReleaseId",requested_at as "requestedAt"
         from form_review_requests where form_id=? order by requested_at desc limit 1
         """, form);
+    for (Map<String,Object> review : reviews) {
+      review.computeIfPresent("semanticDiff", (key, value) -> read(value.toString()));
+      review.computeIfPresent("dependencyDiff", (key, value) -> read(value.toString()));
+    }
     List<Map<String,Object>> releases = db.queryForList("""
         select id as "releaseId",version,release_state as state,activated_at as "activatedAt",
           retired_at as "retiredAt",emergency_closed_at as "emergencyClosedAt"
@@ -99,6 +103,7 @@ public class GovernedPublicationService {
             else '/f/'||form_id::text||'?channel='||id::text end as "publicPath"
         from form_share_channels where form_id=? order by created_at desc
         """, form);
+    for (Map<String,Object> channel : channels) channel.computeIfPresent("allowedOrigins", (key, value) -> read(value.toString()));
     return Map.of("review", reviews.isEmpty() ? Map.of() : reviews.get(0), "releases", releases, "channels", channels);
   }
 
