@@ -141,11 +141,11 @@ public class AuthoringApplicationService {
     List<Map<String,Object>> nextProblems=diagnostics(next);
     JsonNode candidate=next;
     boolean acceptedBrokenReferenceDraft = Boolean.TRUE.equals(request.get("acceptInvalidDraft"))
-        && previousProblems.isEmpty() && !removedFieldIds.isEmpty() && !nextProblems.isEmpty()
-        && nextProblems.stream().allMatch(problem -> repairableRemovedFieldReference(candidate, problem, removedFieldIds));
+        && previousProblems.isEmpty() && acceptsOnlyRemovedFieldReferences(candidate, nextProblems, removedFieldIds);
     if (!nextProblems.isEmpty() && !acceptedBrokenReferenceDraft) requireCompilable(next);
     return persist(form, draft, current, next, author, "COMMAND_BATCH",
-        Map.of("commands", commands), Map.of("commands", inverses), acceptedBrokenReferenceDraft);
+        Map.of("commands", commands), Map.of("commands", inverses),
+        acceptedBrokenReferenceDraft ? removedFieldIds : inheritedInvalidDraftAcceptance(form, draft, current.definition()));
   }
 
   public List<Map<String, Object>> history(String workspace, UUID form, String draft, String token) {
@@ -166,11 +166,11 @@ public class AuthoringApplicationService {
   private ResponseEntity<?> undoInternal(UUID form, String draft, String match, UUID author) {
     Row current = row(form);
     if (!matches(match, current.revision())) return stale(form, draft, current, parse(current.definition()), match);
-    History history = db.query("select id,inverse_command::text,command::text from form_authoring_history where form_id=? and draft_id=? and undone_at is null and operation not in ('UNDO','REDO') order by created_at desc limit 1",
-        rs -> rs.next() ? new History((UUID) rs.getObject(1), rs.getString(2), rs.getString(3)) : null, form, UUID.fromString(draft));
+    History history = db.query("select id,inverse_command::text,command::text,invalid_draft_acceptance::text from form_authoring_history where form_id=? and draft_id=? and undone_at is null and operation not in ('UNDO','REDO') order by created_at desc limit 1",
+        rs -> rs.next() ? new History((UUID) rs.getObject(1), rs.getString(2), rs.getString(3), rs.getString(4)) : null, form, UUID.fromString(draft));
     if (history == null) throw bad("UNDO_EMPTY", "Nothing to undo.");
     JsonNode next = applyBatch(parse(current.definition()), parse(history.inverse()));
-    ResponseEntity<?> result = persist(form, draft, current, next, author, "UNDO", parse(history.inverse()), parse(history.command()));
+    ResponseEntity<?> result = persist(form, draft, current, next, author, "UNDO", parse(history.inverse()), parse(history.command()), acceptedRemovedFieldIds(history.acceptance()));
     if (result.getStatusCode().is2xxSuccessful()) db.update("update form_authoring_history set undone_at=now() where id=?", history.id());
     return result;
   }
@@ -184,11 +184,11 @@ public class AuthoringApplicationService {
   private ResponseEntity<?> redoInternal(UUID form, String draft, String match, UUID author) {
     Row current = row(form);
     if (!matches(match, current.revision())) return stale(form, draft, current, parse(current.definition()), match);
-    History history = db.query("select id,inverse_command::text,command::text from form_authoring_history where form_id=? and draft_id=? and undone_at is not null and operation not in ('UNDO','REDO') order by undone_at desc limit 1",
-        rs -> rs.next() ? new History((UUID) rs.getObject(1), rs.getString(2), rs.getString(3)) : null, form, UUID.fromString(draft));
+    History history = db.query("select id,inverse_command::text,command::text,invalid_draft_acceptance::text from form_authoring_history where form_id=? and draft_id=? and undone_at is not null and operation not in ('UNDO','REDO') order by undone_at desc limit 1",
+        rs -> rs.next() ? new History((UUID) rs.getObject(1), rs.getString(2), rs.getString(3), rs.getString(4)) : null, form, UUID.fromString(draft));
     if (history == null) throw bad("REDO_EMPTY", "Nothing to redo.");
     JsonNode next = applyBatch(parse(current.definition()), parse(history.command()));
-    ResponseEntity<?> result = persist(form, draft, current, next, author, "REDO", parse(history.command()), parse(history.inverse()));
+    ResponseEntity<?> result = persist(form, draft, current, next, author, "REDO", parse(history.command()), parse(history.inverse()), acceptedRemovedFieldIds(history.acceptance()));
     if (result.getStatusCode().is2xxSuccessful()) db.update("update form_authoring_history set undone_at=null where id=?", history.id());
     return result;
   }
@@ -443,18 +443,19 @@ public class AuthoringApplicationService {
   private ResponseEntity<?> updateSubdocument(String w,UUID f,String d,String t,String match,String pointer,Object value) { authorizeWrite(w,f,d,t); return commandsInternal(f,d,match,map("commands",List.of(map("op","set","path",pointer,"value",value))),actor(t)); }
 
   private ResponseEntity<?> persist(UUID form,String draft,Row current,JsonNode next,UUID actor,String operation,Object command,Object inverse) {
-    return persist(form, draft, current, next, actor, operation, command, inverse, false);
+    return persist(form, draft, current, next, actor, operation, command, inverse, Set.of());
   }
   /** Persists an explicitly accepted, repairable dependency break as a draft only. */
-  private ResponseEntity<?> persist(UUID form,String draft,Row current,JsonNode next,UUID actor,String operation,Object command,Object inverse,boolean acceptInvalidDraft) {
+  private ResponseEntity<?> persist(UUID form,String draft,Row current,JsonNode next,UUID actor,String operation,Object command,Object inverse,Set<String> acceptedRemovedFieldIds) {
     requireBounded(next); List<Map<String,Object>> problems=diagnostics(next);
-    if (!problems.isEmpty() && !acceptInvalidDraft) requireCompilable(next);
+    if (!problems.isEmpty() && !acceptsOnlyRemovedFieldReferences(next, problems, acceptedRemovedFieldIds)) requireCompilable(next);
     long revision=current.revision()+1; String before=CanonicalJson.sha256(parse(current.definition())); String after=CanonicalJson.sha256(next);
     int updated=db.update("update forms set definition=cast(? as jsonb),revision=?,updated_at=now() where id=? and revision=?",stringify(next),revision,form,current.revision());
     if(updated!=1) return stale(form,draft,row(form),next,etag(current.revision()));
     if (!"UNDO".equals(operation) && !"REDO".equals(operation))
       db.update("delete from form_authoring_history where form_id=? and draft_id=? and undone_at is not null",form,UUID.fromString(draft));
-    db.update("insert into form_authoring_history(id,form_id,draft_id,revision,command_id,actor_account_id,operation,command,inverse_command,before_hash,after_hash) values(?,?,?,?,?,?,?,cast(? as jsonb),cast(? as jsonb),?,?)",UUID.randomUUID(),form,UUID.fromString(draft),revision,UUID.randomUUID().toString(),actor,operation,stringify(json.valueToTree(command)),stringify(json.valueToTree(inverse)),before,after);
+    String acceptance=acceptedRemovedFieldIds.isEmpty() ? null : stringify(json.valueToTree(map("removedFieldIds", acceptedRemovedFieldIds.stream().sorted().toList())));
+    db.update("insert into form_authoring_history(id,form_id,draft_id,revision,command_id,actor_account_id,operation,command,inverse_command,before_hash,after_hash,invalid_draft_acceptance) values(?,?,?,?,?,?,?,cast(? as jsonb),cast(? as jsonb),?,?,cast(? as jsonb))",UUID.randomUUID(),form,UUID.fromString(draft),revision,UUID.randomUUID().toString(),actor,operation,stringify(json.valueToTree(command)),stringify(json.valueToTree(inverse)),before,after,acceptance);
     persistLocaleReview(form, draft, next, actor, revision);
     return ResponseEntity.ok().eTag(etag(revision)).body(map("revision",revision,"etag",etag(revision),"definition",next,"packageHash",after,"diagnostics",problems,"draftState",problems.isEmpty()?"VALID":"INVALID","impact",impact(parse(current.definition()),next)));
   }
@@ -508,6 +509,30 @@ public class AuthoringApplicationService {
     // A surviving reference is valid context, not a reason to reject repair. Only
     // the non-empty unknown subset must have been removed by this exact batch.
     return !unknownReferences.isEmpty() && removedIds.containsAll(unknownReferences);
+  }
+  private boolean acceptsOnlyRemovedFieldReferences(JsonNode candidate, List<Map<String,Object>> problems, Set<String> removedFieldIds) {
+    return !removedFieldIds.isEmpty() && !problems.isEmpty()
+        && problems.stream().allMatch(problem -> repairableRemovedFieldReference(candidate, problem, new LinkedHashSet<>(removedFieldIds)));
+  }
+  /** Carries only a validated removal allowlist so a subsequent repair can be undone safely. */
+  private Set<String> inheritedInvalidDraftAcceptance(UUID form, String draft, String currentDefinition) {
+    String metadata=db.query("select invalid_draft_acceptance::text from form_authoring_history where form_id=? and draft_id=? and undone_at is null and operation not in ('UNDO','REDO') and invalid_draft_acceptance is not null order by created_at desc limit 1",
+        rs -> rs.next() ? rs.getString(1) : null, form, UUID.fromString(draft));
+    Set<String> removedFieldIds=acceptedRemovedFieldIds(metadata);
+    List<Map<String,Object>> currentProblems=diagnostics(parse(currentDefinition));
+    return currentProblems.isEmpty() || acceptsOnlyRemovedFieldReferences(parse(currentDefinition), currentProblems, removedFieldIds)
+        ? removedFieldIds : Set.of();
+  }
+  private Set<String> acceptedRemovedFieldIds(String metadata) {
+    if (metadata == null) return Set.of();
+    JsonNode ids=parse(metadata).path("removedFieldIds");
+    if (!ids.isArray() || ids.isEmpty()) return Set.of();
+    LinkedHashSet<String> result=new LinkedHashSet<>();
+    for (JsonNode id:ids) {
+      if (!id.isTextual() || id.asText().isBlank() || id.asText().length()>MAX_STRING_LENGTH) return Set.of();
+      result.add(id.asText());
+    }
+    return Set.copyOf(result);
   }
   private void collectReferences(JsonNode node, LinkedHashSet<String> references) {
     if (node.isObject()) {
@@ -685,5 +710,5 @@ public class AuthoringApplicationService {
   private String etag(long revision){return "\""+revision+"\"";}
   private ResponseStatusException bad(String code,String message){return new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,code+": "+message);}
   private Map<String,Object> map(Object... entries){Map<String,Object> out=new LinkedHashMap<>();for(int i=0;i<entries.length;i+=2)out.put(String.valueOf(entries[i]),entries[i+1]);return out;}
-  private record Row(long revision,String definition){} private record Parent(JsonNode node,String token){} private record Applied(JsonNode document,Map<String,Object> inverse){} private record History(UUID id,String inverse,String command){} private record Candidate(long baseRevision,String digest,String json,String state,String policyHash){} private record Component(int version,String fragment,String hash){} private record Remapped(JsonNode document,Map<String,String> ids){}
+  private record Row(long revision,String definition){} private record Parent(JsonNode node,String token){} private record Applied(JsonNode document,Map<String,Object> inverse){} private record History(UUID id,String inverse,String command,String acceptance){} private record Candidate(long baseRevision,String digest,String json,String state,String policyHash){} private record Component(int version,String fragment,String hash){} private record Remapped(JsonNode document,Map<String,String> ids){}
 }

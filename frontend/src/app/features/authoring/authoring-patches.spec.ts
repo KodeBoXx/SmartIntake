@@ -98,6 +98,24 @@ describe('canonical authoring patches', () => {
     expect(next.flow.phases[0].pages[0].routes).toEqual([]);
   });
 
+  it('does not treat choice or text literals as removed-field dependencies', () => {
+    const literal = structuredClone(definition) as Record<string, any>;
+    literal.flow.startPageId = 'page-a';
+    literal.data.fields.push({ id: 'review-answer', key: 'review-answer', type: 'choice', labelKey: 'review-answer.label', options: [{ id: 'field-a', labelKey: 'choice.field-a' }] });
+    literal.expressions = { literalMatchesRemovedId: { op: 'and', args: [
+      { op: 'eq', args: [{ ref: { fieldId: 'field-a', scope: 'root' } }, { literal: { type: 'choice', value: 'review-answer' } }] },
+      { op: 'eq', args: [{ ref: { fieldId: 'field-a', scope: 'root' } }, { literal: { type: 'text', value: 'review-answer' } }] },
+    ] } };
+    literal.flow.phases[0].pages[0].routes = [{ id: 'literal-route', targetPageId: 'page-a', whenExpressionId: 'literalMatchesRemovedId' }];
+    literal.flow.phases[0].pages.push({ id: 'page-review', titleKey: 'page-review.label', sections: [{ id: 'section-review', titleKey: 'section-review.label', nodes: [{ id: 'review-answer-node', kind: 'question', fieldId: 'review-answer', control: 'radio' }] }] });
+    Object.assign(literal.translations.en.messages, { 'review-answer.label': 'Review answer', 'choice.field-a': 'Field A', 'page-review.label': 'Review', 'section-review.label': 'Review section' });
+    const projected = authoringDocument({ draftId: 'draft-a', revision: 4, definition: literal });
+
+    expect(pageDeletionImpact(projected, 'page-review')).toMatchObject({ expressions: [], routes: [] });
+    const next = applyCanonicalPatches(literal, canonicalPatches(projected, { type: 'remove-page', targetId: 'page-review', confirmed: true })) as Record<string, any>;
+    expect(next.flow.phases[0].pages[0].routes).toEqual(literal.flow.phases[0].pages[0].routes);
+  });
+
   it('sets and clears a page default route through canonical pointers', () => {
     const projected = authoringDocument({ draftId: 'draft-a', revision: 4, definition });
     const added = applyCanonicalPatches(definition, canonicalPatches(projected, { type: 'set-default-next', targetId: 'page-a', destinationId: 'page-b' })) as Record<string, any>;

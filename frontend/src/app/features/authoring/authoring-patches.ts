@@ -153,7 +153,11 @@ function firstQuestion(document: CanonicalObject, seed: string, label: string, c
 function choiceControl(control: string): boolean { return (CONTROL_TYPES[control] ?? '') === 'choice' || (CONTROL_TYPES[control] ?? '') === 'multiChoice'; }
 
 function expressionReferences(node: unknown, fieldId: string): boolean {
-  if (node === fieldId) return true;
+  if (node && typeof node === 'object' && !Array.isArray(node)) {
+    const reference = (node as CanonicalObject).ref;
+    if (reference && typeof reference === 'object' && !Array.isArray(reference)
+      && (reference as CanonicalObject).fieldId === fieldId) return true;
+  }
   if (Array.isArray(node)) return node.some((value) => expressionReferences(value, fieldId));
   return !!node && typeof node === 'object' && Object.values(node as CanonicalObject).some((value) => expressionReferences(value, fieldId));
 }

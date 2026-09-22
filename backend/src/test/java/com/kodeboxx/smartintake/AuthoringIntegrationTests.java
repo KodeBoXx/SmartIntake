@@ -91,14 +91,42 @@ class AuthoringIntegrationTests {
     assertEquals("INVALID",body.path("draftState").asText());
     assertFalse(body.path("diagnostics").isEmpty(),body.toPrettyString());
     assertEquals(2L,db.queryForObject("select revision from forms where id=?",Long.class,form));
+    assertEquals("[\"fld_name\"]",db.queryForObject("select (invalid_draft_acceptance->'removedFieldIds')::text from form_authoring_history where form_id=? and operation='COMMAND_BATCH'",String.class,form));
     JsonNode reopened=json.readTree(call("",HttpMethod.GET,null,null).getBody());
     assertFalse(reopened.path("diagnostics").isEmpty(),reopened.toPrettyString());
 
-    ResponseEntity<String> repaired=call("/commands",HttpMethod.POST,"\"2\"",Map.of("commands",List.of(
+    ResponseEntity<String> undoneDeletion=call("/undo",HttpMethod.POST,"\"2\"",Map.of(),"accepted-delete-undo");
+    assertEquals(HttpStatus.OK,undoneDeletion.getStatusCode(),undoneDeletion.getBody());
+    assertEquals("VALID",json.readTree(undoneDeletion.getBody()).path("draftState").asText());
+    ResponseEntity<String> redoneDeletion=call("/redo",HttpMethod.POST,"\"3\"",Map.of(),"accepted-delete-redo");
+    assertEquals(HttpStatus.OK,redoneDeletion.getStatusCode(),redoneDeletion.getBody());
+    assertEquals("INVALID",json.readTree(redoneDeletion.getBody()).path("draftState").asText());
+    assertEquals(redoneDeletion.getBody(),call("/redo",HttpMethod.POST,"\"3\"",Map.of(),"accepted-delete-redo").getBody(),"redo replays without duplicating history");
+
+    ResponseEntity<String> repaired=call("/commands",HttpMethod.POST,"\"4\"",Map.of("commands",List.of(
         Map.of("op","add","path","/data/fields/-","value",definition.at("/data/fields/0")),
         Map.of("op","add","path","/flow/phases/0/pages/0/sections/0/nodes/-","value",definition.at("/flow/phases/0/pages/0/sections/0/nodes/0")))));
     assertEquals(HttpStatus.OK,repaired.getStatusCode(),repaired.getBody());
     assertEquals("VALID",json.readTree(repaired.getBody()).path("draftState").asText());
+    ResponseEntity<String> undoneRepair=call("/undo",HttpMethod.POST,"\"5\"",Map.of(),"repair-undo");
+    assertEquals(HttpStatus.OK,undoneRepair.getStatusCode(),undoneRepair.getBody());
+    assertEquals("INVALID",json.readTree(undoneRepair.getBody()).path("draftState").asText());
+    assertEquals(HttpStatus.OK,call("/redo",HttpMethod.POST,"\"6\"",Map.of(),"repair-redo").getStatusCode());
+  }
+
+  @Test void rejects_invalid_history_replay_without_accepted_removed_field_metadata() throws Exception {
+    var definition=(com.fasterxml.jackson.databind.node.ObjectNode) json.readTree(fixture());
+    definition.withObject("expressions").set("depends_on_name", json.readTree("{\"op\":\"exists\",\"args\":[{\"ref\":{\"fieldId\":\"fld_name\",\"scope\":\"root\"}}]}"));
+    db.update("update forms set definition=cast(? as jsonb) where id=?",json.writeValueAsString(definition),form);
+    UUID history=UUID.randomUUID();
+    db.update("insert into form_authoring_history(id,form_id,draft_id,revision,command_id,actor_account_id,operation,command,inverse_command,before_hash,after_hash) values(?,?,?,?,?,?,?,cast(? as jsonb),cast(? as jsonb),?,?)",
+        history,form,form,1,UUID.randomUUID().toString(),account,"COMMAND_BATCH",
+        "{\"commands\":[]}","{\"commands\":[{\"op\":\"remove\",\"path\":\"/data/fields/0\"}]}","before","after");
+
+    ResponseEntity<String> undone=call("/undo",HttpMethod.POST,"\"1\"",Map.of(),"ordinary-invalid-history");
+    assertEquals(HttpStatus.UNPROCESSABLE_ENTITY,undone.getStatusCode(),undone.getBody());
+    assertEquals(0,db.queryForObject("select count(*) from form_authoring_history where form_id=? and operation='UNDO'",Integer.class,form));
+    assertEquals(0,db.queryForObject("select count(*) from form_authoring_history where id=? and undone_at is not null",Integer.class,history));
   }
 
   @Test void accepts_only_new_removed_field_expression_references_and_rejects_adversarial_invalid_drafts() throws Exception {
