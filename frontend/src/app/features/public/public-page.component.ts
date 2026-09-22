@@ -82,6 +82,7 @@ import { RespondentControlComponent } from './respondent-control.component';
 })
 export class PublicPageComponent implements OnInit {
   entryShareId: string | null = null;
+  private iframeOrigin: string | null = null;
   reviewRoute = false;
   receiptRoute = false;
   acknowledgments = () => this.acknowledgmentFields();
@@ -111,14 +112,18 @@ export class PublicPageComponent implements OnInit {
     if (this.receiptRoute && sessionId) this.store.restoreReceipt(sessionId);
     if (sessionId && !this.store.session() && !this.testState && !this.receiptRoute) this.store.hydrate(sessionId);
     if (!this.testState && this.entryShareId && window.parent !== window) {
-      const origin = this.route.snapshot.queryParamMap.get('origin') ?? '*';
-      window.parent.postMessage({ protocol: 'smart-intake.v1', type: 'ready', shareId: this.entryShareId }, origin);
+      addEventListener('message', (event) => {
+        const message = event.data as { protocol?: string; type?: string };
+        if (event.source !== window.parent || message?.protocol !== 'smart-intake.v1' || message.type !== 'bootstrap') return;
+        this.iframeOrigin = event.origin;
+        window.parent.postMessage({ protocol: 'smart-intake.v1', type: 'ready', shareId: this.entryShareId }, event.origin);
+      });
     }
   }
 
   get testMessage(): string { return `${this.testTitle} is ${this.testState}; real respondent session behavior is active without a test state.`; }
 
-  start(): void { if (this.entryShareId) { const channel = this.route.snapshot.queryParamMap.get('channel'); channel ? this.store.startFromChannel(this.entryShareId, channel) : this.store.start(this.entryShareId); } }
+  start(): void { if (this.entryShareId) { const channel = this.route.snapshot.queryParamMap.get('channel'); if (channel) { if (!this.iframeOrigin) { this.store.error.set('Waiting for the approved embedding site to connect.'); return; } this.store.startFromChannel(this.entryShareId, channel, this.iframeOrigin); } else this.store.start(this.entryShareId); } }
   currentPage() { return this.store.pages().find((page) => page.id === this.store.currentPageId()); }
   currentFields(): readonly RuntimeFieldDefinition[] { const ids = this.currentPage()?.fieldIds ?? []; return this.store.definition().fields.filter((field) => ids.includes(field.id) && !field.hidden); }
   label(field: RuntimeFieldDefinition): string { return field.id.replace(/([A-Z])/g, ' $1').replace(/^./, (letter) => letter.toUpperCase()); }

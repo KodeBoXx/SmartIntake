@@ -93,7 +93,12 @@ export class RespondentControlComponent {
   rowPathKey(): string { return this.rowPath().map((segment) => `${segment.listFieldId}:${segment.itemId}`).join('/'); }
   controlId(): string { return this.rowPathKey() ? `${this.field().id}-${this.rowPathKey().replaceAll(/[^A-Za-z0-9_-]/g, '-')}` : this.field().id; }
   childPath(itemId: string): RowPath { return [...this.rowPath(), { listFieldId: this.field().id, itemId }]; }
-  set(raw: string): void { this.operation.emit({ kind: 'set', target: this.target(), answer: { status: 'answered', value: raw } }); }
+  set(raw: string): void {
+    const type = this.field().type;
+    const value = type === 'dateTime' ? { instant: new Date(raw).toISOString(), timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC' }
+      : type === 'time' ? normalizeTime(raw) : raw;
+    this.operation.emit({ kind: 'set', target: this.target(), answer: { status: 'answered', value } });
+  }
   setBoolean(raw: boolean | null): void { if (raw !== null) this.operation.emit({ kind: 'set', target: this.target(), answer: { status: 'answered', value: raw } }); }
   clear(): void { this.operation.emit({ kind: 'clear', target: this.target() }); }
   status(status: 'unknown' | 'declined' | 'respondentNotApplicable'): void { this.operation.emit({ kind: 'set', target: this.target(), answer: { status } }); }
@@ -105,3 +110,4 @@ export class RespondentControlComponent {
 }
 
 function cellValue(cell: Cell): unknown { return cell?.status === 'answered' ? cell.value : undefined; }
+function normalizeTime(value: string): string { return /^\d{2}:\d{2}$/.test(value) ? `${value}:00` : value; }

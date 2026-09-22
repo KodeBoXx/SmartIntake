@@ -27,7 +27,7 @@ import type {
 export type RespondentPhase = 'idle' | 'loading' | 'ready' | 'saving' | 'review' | 'submitting' | 'receipt' | 'error';
 
 type QueuedMutation = { id: string; operation: RuntimeOperation };
-type StoredSecret = { token: string; shareId: string; queue?: QueuedMutation[]; currentPageId?: string };
+type StoredSecret = { token: string; shareId: string; queue?: QueuedMutation[]; currentPageId?: string; attemptId?: string };
 export type StoredReceipt = { receiptId: string; shareId: string; submittedAt: string };
 type CanonicalField = Record<string, unknown>;
 
@@ -83,15 +83,15 @@ export class PublicSessionStore implements OnDestroy {
       error: (failure) => this.fail(startFailure(failure)),
     });
   }
-  startFromChannel(shareId: string, channelId: string): void {
+  startFromChannel(shareId: string, channelId: string, parentOrigin: string): void {
     this.reset(false); this.phase.set('loading'); this.shareId.set(shareId);
-    this.api.startChannel(channelId, browserLocale(), Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC').subscribe({ next: (started) => { this.acceptStarted(shareId, started); void this.router.navigate(['/sessions', started.sessionId]); }, error: (failure) => this.fail(startFailure(failure)) });
+    this.api.channelBootstrap(channelId, parentOrigin).pipe(switchMap((bootstrap) => this.api.startChannel(channelId, bootstrap.bootstrap, browserLocale(), Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'))).subscribe({ next: (started) => { this.acceptStarted(shareId, started); void this.router.navigate(['/sessions', started.sessionId]); }, error: (failure) => this.fail(startFailure(failure)) });
   }
 
   hydrate(sessionId: string): void {
     const stored = this.secret(sessionId);
     if (!stored) { this.fail('This response is not available on this device. Start a new response from the public link.'); return; }
-    this.phase.set('loading'); this.shareId.set(stored.shareId); this.token.set(stored.token); this.queue = stored.queue ?? []; this.queueSize.set(this.queue.length); this.currentPageId.set(stored.currentPageId ?? null);
+    this.phase.set('loading'); this.shareId.set(stored.shareId); this.token.set(stored.token); this.queue = stored.queue ?? []; this.queueSize.set(this.queue.length); this.currentPageId.set(stored.currentPageId ?? null); this.attemptId.set(stored.attemptId ?? null);
     this.api.respondentSession(sessionId, stored.token).subscribe({
       next: (session) => { this.acceptSession(session); this.flushQueue(); },
       error: (failure) => this.fail(sessionFailure(failure)),
@@ -118,12 +118,16 @@ export class PublicSessionStore implements OnDestroy {
   navigate(delta: -1 | 1): void {
     const pages = this.reachablePageIds();
     const next = pages[this.currentPageIndex() + delta];
-    if (next) this.currentPageId.set(next);
+    if (!next) return;
+    this.currentPageId.set(next); this.persist();
+    const session = this.session(); const token = this.token();
+    if (session && token) this.api.navigateRespondentSession(session.sessionId, token, session.revision, next).subscribe({ next: (projection) => this.acceptProjection(projection), error: () => this.error.set('We could not save your current page. Your answers remain available.') });
   }
 
   openReview(): void {
     const current = this.session(); const token = this.token();
     if (!current || !token) return;
+    if (this.queue.length || this.inFlight) { this.error.set('Wait for all changes to save before reviewing your response.'); return; }
     this.phase.set('loading');
     this.api.validateRespondentSession(current.sessionId, token).subscribe({
       next: (review) => {
@@ -146,8 +150,9 @@ export class PublicSessionStore implements OnDestroy {
   submit(acknowledgments: readonly { fieldId: string; rowPath: { listFieldId: string; itemId: string }[]; expectedContentHash: string; accepted: true }[] = []): void {
     const current = this.session(); const token = this.token(); const review = this.review();
     if (!current || !token || !review?.reviewDigest) { this.fail('Review the current response before submitting it.'); return; }
+    if (this.queue.length || this.inFlight) { this.phase.set('review'); this.error.set('Your latest changes have not been saved. Wait for saving to finish before submitting.'); return; }
     const attemptId = this.attemptId() ?? mutationId('submit');
-    this.attemptId.set(attemptId); this.phase.set('submitting');
+    this.attemptId.set(attemptId); this.persist(); this.phase.set('submitting');
     this.api.submitSession(current.sessionId, token, current.revision, review.reviewDigest, attemptId, acknowledgments).subscribe({
       next: (receipt) => this.acceptReceipt(receipt.receiptId),
       error: (failure) => {
@@ -168,7 +173,7 @@ export class PublicSessionStore implements OnDestroy {
     if (clearSecret && current) sessionStorage.removeItem(secretKey(current.sessionId));
     this.phase.set('idle'); this.session.set(null); this.token.set(null); this.state.set(createRuntimeAnswerState());
     this.currentPageId.set(null); this.reachablePageIds.set([]); this.requiredCount.set(0); this.completedRequiredCount.set(0);
-    this.review.set(null); this.receiptId.set(null); this.attemptId.set(null); this.error.set(null);
+    this.review.set(null); this.receiptId.set(null); this.attemptId.set(null); this.queue = []; this.inFlight = null; this.queueSize.set(0); this.error.set(null);
   }
 
   private mutate(operation: RuntimeOperation): void {
@@ -176,7 +181,7 @@ export class PublicSessionStore implements OnDestroy {
     if (!session || !token) return;
     const local = applyRuntimeOperation(this.definition(), this.state(), operation);
     if (!local.accepted) { this.error.set('That answer is not valid for this field.'); return; }
-    this.state.set(local.state); this.error.set(null);
+    this.state.set(local.state); this.review.set(null); this.error.set(null);
     this.queue.push({ id: mutationId('save'), operation }); this.queueSize.set(this.queue.length); this.persist(); this.flushQueue();
   }
 
@@ -213,7 +218,9 @@ export class PublicSessionStore implements OnDestroy {
 
   private acceptProjection(projection: TypedSessionProjection): void {
     const current = this.session(); if (!current) return;
-    if (projection.acceptedRevision <= current.revision) return;
+    if (projection.acceptedRevision < current.revision) return;
+    // The server can replay an already accepted idempotency key after transport loss.
+    if (projection.acceptedRevision === current.revision && this.queue[0]?.id !== this.inFlight) return;
     this.session.set({ ...current, revision: projection.acceptedRevision, answers: projection.answers });
     this.state.set(reconcileServerProjection(this.state(), { answers: projection.answers, invalidInputs: projection.invalidInputs }));
     this.reachablePageIds.set(projection.reachablePageIds);
@@ -238,7 +245,7 @@ export class PublicSessionStore implements OnDestroy {
 
   private acceptOperation(operation: SubmissionOperation): void {
     if (operation.state === 'succeeded' && (operation.receiptId ?? operation.submissionId)) this.acceptReceipt(operation.receiptId ?? operation.submissionId!);
-    else if (operation.state === 'failed') { this.phase.set('review'); this.error.set('Submission was not completed. Please review and try again.'); }
+    else if (operation.state === 'failed' || operation.state === 'notStarted') { this.phase.set('review'); this.error.set('Submission was not completed. Please review and try again.'); }
   }
 
   private acceptReceipt(receiptId: string): void {
@@ -256,14 +263,20 @@ export class PublicSessionStore implements OnDestroy {
   }
 
   restoreReceipt(sessionId: string): void {
-    try { this.receipt.set(JSON.parse(sessionStorage.getItem(receiptKey(sessionId)) ?? 'null')); } catch { this.receipt.set(null); }
+    const stored = this.secret(sessionId);
+    if (!stored) { this.fail('This receipt is not available on this device.'); return; }
+    this.api.respondentReceipt(sessionId, stored.token, stored.attemptId).subscribe({ next: (receipt) => {
+      if (!receipt.receiptId) { this.fail('This receipt is not available on this device.'); return; }
+      const verified: StoredReceipt = { receiptId: receipt.receiptId, shareId: receipt.shareId ?? stored.shareId, submittedAt: receipt.submittedAt ?? new Date().toISOString() };
+      sessionStorage.setItem(receiptKey(sessionId), JSON.stringify(verified)); this.receipt.set(verified); this.receiptId.set(verified.receiptId); this.phase.set('receipt');
+    }, error: () => this.fail('This receipt is not available on this device.') });
   }
   private persist(): void {
     const current = this.session(); const token = this.token(); const shareId = this.shareId();
-    if (current && token && shareId) sessionStorage.setItem(secretKey(current.sessionId), JSON.stringify({ token, shareId, queue: this.queue, currentPageId: this.currentPageId() ?? undefined } satisfies StoredSecret));
+    if (current && token && shareId) sessionStorage.setItem(secretKey(current.sessionId), JSON.stringify({ token, shareId, queue: this.queue, currentPageId: this.currentPageId() ?? undefined, attemptId: this.attemptId() ?? undefined } satisfies StoredSecret));
   }
 
-  private fail(message: string): void { this.phase.set('error'); this.error.set(message); }
+  private fail(message: string): void { if (message === 'This response is no longer available on this device.') this.reset(true); this.phase.set('error'); this.error.set(message); }
 }
 
 function secretKey(sessionId: string): string { return `smart-intake.respondent.${sessionId}`; }

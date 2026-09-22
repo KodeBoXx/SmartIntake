@@ -198,6 +198,7 @@ export type StartedRespondentSession = RespondentSession & {
 };
 
 export type PublicReceipt = { readonly receiptId: string; readonly submittedAt?: string; readonly sessionId?: string; readonly shareId?: string };
+export type ChannelBootstrap = { readonly bootstrap: string; readonly channelId: string; readonly releaseId: string; readonly expiresInSeconds: number };
 
 export type RespondentReview = {
   readonly errors: readonly unknown[];
@@ -467,15 +468,27 @@ export class SmartIntakeApiService {
     });
   }
 
-  startChannel(channelId: string, locale?: string, timeZone?: string): Observable<StartedRespondentSession> {
+  channelBootstrap(channelId: string, parentOrigin: string): Observable<ChannelBootstrap> {
+    return this.http.post<ChannelBootstrap>(`/v1/public/channels/${encodeURIComponent(channelId)}/bootstrap`, { parentOrigin }, { withCredentials: false });
+  }
+
+  startChannel(channelId: string, bootstrap: string, locale?: string, timeZone?: string): Observable<StartedRespondentSession> {
     return this.http.post<StartedRespondentSession>(`/v1/public/channels/${encodeURIComponent(channelId)}/sessions`, {
       ...(locale ? { locale } : {}),
       ...(timeZone ? { timeZone } : {}),
-    }, { withCredentials: false });
+    }, { withCredentials: false, headers: new HttpHeaders({ 'X-Channel-Bootstrap': bootstrap }) });
   }
 
   respondentSession(sessionId: string, respondentToken: string): Observable<RespondentSession> {
     return this.http.get<RespondentSession>(`/v1/sessions/${encodeURIComponent(sessionId)}`, this.respondent(respondentToken));
+  }
+
+  navigateRespondentSession(sessionId: string, respondentToken: string, baseRevision: number, currentPageId: string): Observable<TypedSessionProjection> {
+    return this.http.post<TypedSessionProjection>(`/v1/sessions/${encodeURIComponent(sessionId)}/navigation`, { baseRevision, currentPageId }, this.respondent(respondentToken));
+  }
+
+  respondentReceipt(sessionId: string, respondentToken: string, attemptId?: string): Observable<PublicReceipt> {
+    return this.http.get<PublicReceipt>(`/v1/sessions/${encodeURIComponent(sessionId)}/receipt`, { ...this.respondent(respondentToken), params: attemptId ? new HttpParams().set('attemptId', attemptId) : undefined });
   }
 
   patchSession(sessionId: string, respondentToken: string, body: unknown): Observable<{ acceptedRevision: number }> {
