@@ -84,7 +84,7 @@ class DatabaseCompatibilityIntegrationTests {
           new FlywayHistory("29", "SQL", "V29__m8_channel_submission_caps_and_selection.sql", 1794656124),
           new FlywayHistory("30", "SQL", "V30__m8_iframe_bootstrap.sql", 1373360594),
           new FlywayHistory("31", "SQL", "V31__m8_receipt_capabilities.sql", 1418682170),
-          new FlywayHistory("32", "SQL", "V32__m8_single_active_release.sql", 1894983600));
+          new FlywayHistory("32", "SQL", "V32__m8_single_active_release.sql", 1148623386));
 
   @Autowired JdbcTemplate db;
   @Autowired CompatibilityReconciliationService reconciliation;

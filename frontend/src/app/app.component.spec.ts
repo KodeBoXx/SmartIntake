@@ -85,7 +85,7 @@ describe('AppComponent journeys', () => {
 
     expect(component.rehydrating()).toBe(true);
     expect(toolbarButton(fixture, 'Save draft').disabled).toBe(true);
-    expect(toolbarButton(fixture, 'Publish').disabled).toBe(true);
+    expect(toolbarButton(fixture, 'Publish')).toBeUndefined();
     expect(fixture.nativeElement.querySelector('input[type="file"]').disabled).toBe(true);
     const fieldsBefore = component.page().fields.length;
     component.addField('text');
@@ -142,7 +142,7 @@ describe('AppComponent journeys', () => {
     expect(fixture.nativeElement.textContent).toContain(title);
   });
 
-  it('lets a publisher request review without exposing author operations', () => {
+  it('does not expose author or review actions to a publisher', () => {
     const api = createApi();
     const publisherSession = { provide: StaffSessionStore, useValue: {
       currentWorkspaceId: signal('local'), currentRoles: signal(['publisher']),
@@ -161,15 +161,13 @@ describe('AppComponent journeys', () => {
 
     expect(toolbarButton(fixture, 'Author')).toBeUndefined();
     expect(toolbarButton(fixture, 'Save draft')).toBeUndefined();
-    expect(toolbarButton(fixture, 'Publish').disabled).toBe(false);
+    expect(toolbarButton(fixture, 'Publish')).toBeUndefined();
     const fieldsBefore = component.page().fields.length;
     component.addField('text');
     expect(component.page().fields).toHaveLength(fieldsBefore);
-    component.publish();
     expect(api.updateDraft).not.toHaveBeenCalled();
-    expect(api.requestPublicationReview).toHaveBeenCalledWith('local', 'form-1');
+    expect(api.requestPublicationReview).not.toHaveBeenCalled();
     expect(api.publish).not.toHaveBeenCalled();
-    expect(component.message()).toContain('ready for inspection');
   });
 
   it('uses the server-selected workspace for the legacy builder route', () => {
@@ -263,9 +261,9 @@ describe('AppComponent journeys', () => {
     expect(api.createForm).toHaveBeenCalledOnce();
     expect(api.updateDraft).toHaveBeenLastCalledWith('local', 'form-1', 'draft-1', 2, component.definition());
 
-    toolbarButton(fixture, 'Publish').click();
-    toolbarButton(fixture, 'Publish').click();
-    toolbarButton(fixture, 'Publish').click();
+    component.requestReviewAction();
+    component.approveReviewAction();
+    component.publishReviewAction();
     expect(api.publish).toHaveBeenCalledWith('local', 'form-1', 'review-1');
     expect(component.message()).toBe('Form published. Release release-1');
     expect(component.publishedShareId).toBe('form-1');
@@ -304,9 +302,9 @@ describe('AppComponent journeys', () => {
     const component = TestBed.createComponent(AppComponent).componentInstance;
     component.formId = 'form-1';
 
-    component.publish();
-    component.publish();
-    component.publish();
+    component.requestReviewAction();
+    component.approveReviewAction();
+    component.publishReviewAction();
     component.startPreview();
 
     expect(api.startSession).toHaveBeenCalledWith('public-share-1');
@@ -326,7 +324,7 @@ describe('AppComponent journeys', () => {
     component.draftId = 'draft-1';
     component.touch();
 
-    component.publish();
+    component.requestReviewAction();
     expect(api.updateDraft).toHaveBeenCalledOnce();
     expect(api.publish).not.toHaveBeenCalled();
     expect(component.saving()).toBe(true);
@@ -341,15 +339,15 @@ describe('AppComponent journeys', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('input[type="file"]').disabled).toBe(true);
     expect(toolbarButton(fixture, 'Save draft').disabled).toBe(true);
-    expect(toolbarButton(fixture, 'Publish').disabled).toBe(true);
+    expect(toolbarButton(fixture, 'Publish')).toBeUndefined();
 
-    component.publish();
+    component.requestReviewAction();
     expect(api.updateDraft).toHaveBeenCalledOnce();
     saved.next({ revision: 2, definition: savedDefinition, diagnostics: [] });
-    component.publish();
-    component.publish();
+    component.approveReviewAction();
+    component.publishReviewAction();
     expect(api.publish).toHaveBeenCalledWith('local', 'form-1', 'review-1');
-    component.publish();
+    component.publishReviewAction();
     expect(api.publish).toHaveBeenCalledOnce();
     published.next({ releaseId: 'release-1', version: 1, shareId: 'form-1', status: 'PUBLISHED' });
     expect(component.publishing()).toBe(false);
@@ -532,12 +530,12 @@ describe('AppComponent journeys', () => {
 
     component.save();
     expect(component.message()).toBe('Save failed: form key may already exist.');
-    component.publish();
+    component.requestReviewAction();
     expect(component.message()).toBe('Save a form before publishing.');
     component.formId = 'form-1';
-    component.publish();
-    component.publish();
-    component.publish();
+    component.requestReviewAction();
+    component.approveReviewAction();
+    component.publishReviewAction();
     expect(component.message()).toBe('Governed publish failed. Refresh the review state and try again.');
     component.startPreview();
     expect(component.message()).toBe('Publish the saved form before starting a public session.');

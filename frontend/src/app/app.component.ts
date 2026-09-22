@@ -31,10 +31,11 @@ type DraftFailureState = Exclude<DraftViewState, 'loading' | 'ready'>;
   template: `
 <header class="border-b border-stone-200 bg-white"><div class="mx-auto flex max-w-7xl items-center justify-between px-5 py-4"><div><p class="type-caption-bold text-emerald-700">SMART INTAKE</p><h1 class="type-h3">Form Builder Lite</h1></div><span class="type-caption">Cookie-authenticated staff session</span></div></header>
 <main class="mx-auto max-w-7xl px-5 py-6">
-<nav appToolbar class="mb-5 flex w-full flex-wrap gap-2" [authorAllowed]="canAuthor()" [responseViewerAllowed]="canViewResponses()" [responseExporterAllowed]="canExportResponses()" [saveDisabled]="editorLocked()" [publishDisabled]="publishLocked()" [publishLabel]="governanceActionLabel()" [importDisabled]="editorLocked()" (author)="openAuthoring()" (preview)="startPreview()" (save)="save()" (publish)="publish()" (definitionExport)="exportDefinition()" (definitionImport)="importDefinition($event)" (responsesExport)="exportResponses()" (responseAdmin)="loadResponses()"></nav>
+<nav appToolbar class="mb-5 flex w-full flex-wrap gap-2" [authorAllowed]="canAuthor()" [publicationAllowed]="false" [responseViewerAllowed]="canViewResponses()" [responseExporterAllowed]="canExportResponses()" [saveDisabled]="editorLocked()" [publishDisabled]="publishLocked()" [publishLabel]="governanceActionLabel()" [importDisabled]="editorLocked()" (author)="openAuthoring()" (preview)="startPreview()" (save)="save()" (publish)="publish()" (definitionExport)="exportDefinition()" (definitionImport)="importDefinition($event)" (responsesExport)="exportResponses()" (responseAdmin)="loadResponses()"></nav>
 <p *ngIf="message()" class="notice" role="status">{{message()}}</p>
 <section *ngIf="reviewSnapshot()" class="card mb-5" aria-labelledby="review-diff-title"><h2 id="review-diff-title" class="type-h4">Publication review changes</h2><pre class="mt-2 overflow-auto text-xs">{{reviewSnapshot()|json}}</pre></section>
-<section *ngIf="releases().length && canPublish()" class="card mb-5" aria-labelledby="release-governance-title"><h2 id="release-governance-title" class="type-h4">Release governance</h2><label class="label">Release<select [(ngModel)]="selectedReleaseId"><option *ngFor="let release of releases()" [value]="release.releaseId">v{{release.version}} · {{release.state}} · {{release.releaseId}}</option></select></label><div class="mt-3 flex flex-wrap gap-2"><button class="pill" (click)="transitionRelease('activate')">Activate</button><button class="pill" (click)="transitionRelease('rollback')">Rollback</button><button class="pill" (click)="confirmTransition('retire')">Retire</button><button class="pill danger" (click)="confirmTransition('emergency-close')">Emergency close</button></div><div class="mt-4 grid gap-2 md:grid-cols-3"><label class="label">Channel type<select [(ngModel)]="shareChannelType"><option value="LINK">Link</option><option value="QR">QR</option><option value="IFRAME">Iframe</option></select></label><label class="label">Opens at<input type="datetime-local" [(ngModel)]="shareOpensAt"></label><label class="label">Closes at<input type="datetime-local" [(ngModel)]="shareClosesAt"></label><label class="label">Response cap<input type="number" min="1" [(ngModel)]="shareResponseCap"></label><label *ngIf="shareChannelType==='IFRAME'" class="label">Allowed HTTPS parent origin<input [(ngModel)]="shareParentOrigin" placeholder="https://forms.example.com"></label></div><button class="pill mt-3" (click)="createShareChannel()">Create channel</button><div *ngIf="channels().length" class="mt-4"><label class="label">Existing channel<select [(ngModel)]="selectedChannelId"><option *ngFor="let channel of channels()" [value]="channel.channelId">{{channel.type}} · {{channel.state}} · {{channel.channelId}}</option></select></label><p class="type-caption break-all">{{selectedChannelOutput()}}</p><button class="pill danger mt-2" (click)="confirmRevokeChannel()">Revoke selected channel</button></div></section>
+<section *ngIf="formId && canGovernPublication()" class="card mb-5" aria-labelledby="publication-actions-title"><h2 id="publication-actions-title" class="type-h4">Publication actions</h2><p class="type-caption">Each governed step requires a separate explicit action.</p><div class="mt-3 flex flex-wrap gap-2"><button *ngIf="canAuthor() && (!governanceReview() || governanceReview()?.state==='INVALIDATED')" class="pill" [disabled]="publishLocked()" (click)="requestReviewAction()">Request review</button><button *ngIf="canReview() && governanceReview()?.state==='OPEN'" class="pill" [disabled]="!reviewSnapshot() || publishLocked()" (click)="approveReviewAction()">Approve inspected review</button><button *ngIf="canPublish() && governanceReview()?.state==='APPROVED'" class="pill primary" [disabled]="publishLocked()" (click)="publishReviewAction()">Publish approved review</button></div></section>
+<section *ngIf="releases().length && canPublish()" class="card mb-5" aria-labelledby="release-governance-title"><h2 id="release-governance-title" class="type-h4">Release governance</h2><label class="label">Release<select [(ngModel)]="selectedReleaseId"><option *ngFor="let release of releases()" [value]="release.releaseId">v{{release.version}} · {{release.state}} · {{release.releaseId}}</option></select></label><div class="mt-3 flex flex-wrap gap-2"><button class="pill" (click)="confirmTransition('activate')">Activate</button><button class="pill" (click)="confirmTransition('rollback')">Rollback</button><button class="pill" (click)="confirmTransition('retire')">Retire</button><button class="pill danger" (click)="confirmTransition('emergency-close')">Emergency close</button></div><div class="mt-4 grid gap-2 md:grid-cols-3"><label class="label">Channel type<select [(ngModel)]="shareChannelType"><option value="LINK">Link</option><option value="QR">QR</option><option value="IFRAME">Iframe</option></select></label><label class="label">Opens at<input type="datetime-local" [(ngModel)]="shareOpensAt"></label><label class="label">Closes at<input type="datetime-local" [(ngModel)]="shareClosesAt"></label><label class="label">Response cap<input type="number" min="1" [(ngModel)]="shareResponseCap"></label><label *ngIf="shareChannelType==='IFRAME'" class="label">Allowed HTTPS parent origin<input [(ngModel)]="shareParentOrigin" placeholder="https://forms.example.com"></label></div><button class="pill mt-3" (click)="createShareChannel()">Create channel</button><div *ngIf="channels().length" class="mt-4"><label class="label">Existing channel<select [(ngModel)]="selectedChannelId"><option *ngFor="let channel of channels()" [value]="channel.channelId">{{channel.type}} · {{channel.state}} · {{channel.channelId}}</option></select></label><p class="type-caption break-all">{{selectedChannelOutput()}}</p><button class="pill danger mt-2" (click)="confirmRevokeChannel()">Revoke selected channel</button></div></section>
 <section *ngIf="draftState() !== 'ready'" class="card" data-testid="draft-state" [attr.data-state]="draftState()" role="status"><p *ngIf="draftState() === 'loading'">Loading saved draft…</p><ng-container *ngIf="draftState() !== 'loading'"><h2 class="type-h4">{{draftStateTitle()}}</h2><p>{{draftStateMessage()}}</p><button class="pill mt-3" (click)="retryDraftRehydration()">Retry saved draft</button></ng-container></section>
 <section *ngIf="draftState() === 'ready' && mode()==='editor'" class="grid gap-5 lg:grid-cols-[15rem_1fr_19rem]"><aside class="card"><p class="type-label">PAGES</p><button *ngFor="let page of definition().pages;let i=index" class="outline" [class.active]="pageIndex()===i" (click)="selectPage(i)">{{i+1}}. {{page.title}}</button><button *ngIf="canAuthor()" class="pill" [disabled]="editorLocked()" (click)="addPage()">+ Page</button><hr><p class="type-label">FIELDS</p><button *ngFor="let f of page().fields;let i=index" class="outline" [class.active]="fieldIndex()===i" (click)="fieldIndex.set(i)">{{f.label}}</button><button *ngIf="canAuthor()" class="pill" [disabled]="editorLocked()" (click)="addField('text')">+ Field</button></aside>
 <div class="card"><div class="flex items-center justify-between"><div><p class="type-caption text-emerald-700">MULTI-PAGE DRAFT</p><label *ngIf="isNewForm()" class="label">Form key<input data-testid="form-key" [disabled]="editorLocked()" [(ngModel)]="definition().formKey" (ngModelChange)="touch()" aria-describedby="form-key-help"></label><p *ngIf="isNewForm()" id="form-key-help" class="type-caption">Lowercase letters, numbers, and hyphens; this suggested key is unique.</p><input class="title-input" [disabled]="editorLocked()" [(ngModel)]="definition().title" (ngModelChange)="touch()"></div><button *ngIf="canAuthor()" class="pill" [disabled]="editorLocked()" (click)="addPage()">Add page</button></div><label class="label">Page title<input [disabled]="editorLocked()" [(ngModel)]="page().title" (ngModelChange)="touch()"></label><div class="mt-5 space-y-3"><article *ngFor="let f of page().fields;let i=index" class="field-card" [class.selected]="fieldIndex()===i" (click)="fieldIndex.set(i)"><div><b>{{f.label}}</b><p class="type-caption">{{f.type}} · {{f.id}}</p></div><div *ngIf="canAuthor()" class="flex gap-2"><button class="icon" [disabled]="editorLocked()" (click)="moveField(i,-1);$event.stopPropagation()">↑</button><button class="icon" [disabled]="editorLocked()" (click)="moveField(i,1);$event.stopPropagation()">↓</button></div></article></div></div>
@@ -90,7 +91,7 @@ export class AppComponent {
   reviewSnapshot = signal<unknown>(null);
   governanceReview = signal<GovernanceReview | null>(null);
   releases = signal<Array<{ releaseId: string; version: number; state: string }>>([]);
-  channels = signal<Array<{ channelId: string; releaseId: string; type: string; state: string; publicPath: string }>>([]);
+  channels = signal<Array<{ channelId: string; releaseId: string; type: string; state: string; publicPath: string; opensAt?: string; closesAt?: string; responseCap?: number; acceptedCount: number; allowedOrigins: string[] }>>([]);
   selectedReleaseId = '';
   selectedChannelId = '';
   shareChannelType: 'LINK' | 'QR' | 'IFRAME' = 'LINK';
@@ -447,7 +448,8 @@ export class AppComponent {
     });
   }
 
-  publish() {
+  publish() { this.requestReviewAction(); }
+  requestReviewAction() {
     if (!this.canGovernPublication()) { this.message.set('Author, reviewer, or publisher access is required in this workspace.'); return; }
     if (this.rehydrating()) { this.message.set('Loading saved draft. Please wait.'); return; }
     if (this.rehydrationFailed()) { this.message.set('Saved draft must be reloaded before publishing.'); return; }
@@ -461,23 +463,22 @@ export class AppComponent {
         this.message.set('This draft has unsaved changes and requires an author before publishing.');
         return;
       }
-      this.save(() => this.publish());
+      this.save(() => this.requestReviewAction());
       return;
     }
-    const review = this.governanceReview();
-    if (!review || review.state === 'INVALIDATED') { this.requestReview(); return; }
-    if (review.state === 'OPEN') {
-      if (!this.canReview()) { this.message.set(`Review ${review.reviewRequestId} awaits an authorized reviewer.`); return; }
-      this.publishing.set(true);
-      this.api.approvePublicationReview(this.workspaceId(), this.formId, review.reviewRequestId).subscribe({
-        next: (approved) => { this.publishing.set(false); this.governanceReview.set({ ...review, ...approved, state: 'APPROVED' }); this.message.set(`Review ${review.reviewRequestId} approved. A publisher can now publish it.`); },
-        error: () => { this.publishing.set(false); this.message.set('Review approval failed.'); },
-      });
-      return;
-    }
-    if (review.state === 'APPROVED') { this.publishApprovedReview(review.reviewRequestId); return; }
-    this.message.set('This exact draft is already published.');
+    this.requestReview();
   }
+
+  approveReviewAction() {
+    const review=this.governanceReview(); if (!review || review.state!=='OPEN' || !this.reviewSnapshot() || !this.canReview()) return;
+    this.publishing.set(true);
+    this.api.approvePublicationReview(this.workspaceId(),this.formId,review.reviewRequestId).subscribe({
+      next:(approved)=>{this.publishing.set(false);this.governanceReview.set({...review,...approved,state:'APPROVED'});this.message.set(`Review ${review.reviewRequestId} approved. A publisher can now publish it.`);},
+      error:()=>{this.publishing.set(false);this.message.set('Review approval failed.');},
+    });
+  }
+
+  publishReviewAction() { const review=this.governanceReview(); if (!this.publishing() && review?.state==='APPROVED') this.publishApprovedReview(review.reviewRequestId); }
 
   private requestReview() {
     this.publishing.set(true);
@@ -516,7 +517,7 @@ export class AppComponent {
       error: () => this.message.set(`Release ${action} failed.`),
     });
   }
-  confirmTransition(action: 'retire' | 'emergency-close') { if (window.confirm(`Confirm ${action} for the selected release?`)) this.transitionRelease(action); }
+  confirmTransition(action: 'activate' | 'rollback' | 'retire' | 'emergency-close') { if (window.confirm(`Confirm ${action} for release ${this.selectedReleaseId}? Active channels will follow the selected active release.`)) this.transitionRelease(action); }
 
   createShareChannel() {
     const release = this.selectedReleaseId; if (!release) return;
@@ -539,7 +540,7 @@ export class AppComponent {
     });
   }
   confirmRevokeChannel() { if (window.confirm('Revoke the selected share channel?')) this.revokeShareChannel(); }
-  selectedChannelOutput() { const channel=this.channels().find(value=>value.channelId===this.selectedChannelId); return channel ? `${channel.type}: ${channel.publicPath}` : ''; }
+  selectedChannelOutput() { const channel=this.channels().find(value=>value.channelId===this.selectedChannelId); return channel ? `${channel.type}: ${channel.publicPath} · window ${channel.opensAt ?? 'now'} to ${channel.closesAt ?? 'open'} · ${channel.acceptedCount}/${channel.responseCap ?? 'unlimited'} accepted · origins ${(channel.allowedOrigins ?? []).join(', ') || 'not applicable'}` : ''; }
 
   startPreview() {
     this.mode.set('preview');

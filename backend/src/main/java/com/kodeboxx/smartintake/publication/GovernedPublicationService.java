@@ -94,10 +94,11 @@ public class GovernedPublicationService {
     List<Map<String,Object>> channels = db.queryForList("""
         select id as "channelId",release_id as "releaseId",channel_type as type,state,opens_at as "opensAt",
           closes_at as "closesAt",response_cap as "responseCap",accepted_count as "acceptedCount",
-          allowed_origins as "allowedOrigins"
+          allowed_origins as "allowedOrigins",
+          case when channel_type='IFRAME' then '/v1/public/channels/'||id::text||'/embed?parentOrigin='||coalesce(allowed_origins->>0,'')
+            else '/f/'||form_id::text||'?channel='||id::text end as "publicPath"
         from form_share_channels where form_id=? order by created_at desc
         """, form);
-    for (Map<String,Object> channel : channels) channel.put("publicPath", "/v1/public/channels/" + channel.get("channelId") + "/sessions");
     return Map.of("review", reviews.isEmpty() ? Map.of() : reviews.get(0), "releases", releases, "channels", channels);
   }
 
@@ -208,6 +209,7 @@ public class GovernedPublicationService {
     String type = String.valueOf(in.getOrDefault("type", "LINK")).toUpperCase();
     if (!List.of("LINK", "QR", "IFRAME").contains(type)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid channel type");
     List<?> origins = in.get("allowedOrigins") instanceof List<?> values ? values : List.of();
+    if ("IFRAME".equals(type) && origins.isEmpty()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Iframe channels require an allowed parent origin");
     if (origins.stream().anyMatch(value -> !(value instanceof String origin) || !origin.matches("https://[^/]+(:[0-9]+)?")))
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Origins must be HTTPS origins");
     if (origins.stream().map(String::valueOf).anyMatch(origin -> !browserSecurity.allowsOrigin(origin)))
@@ -217,8 +219,10 @@ public class GovernedPublicationService {
         insert into form_share_channels(id,form_id,release_id,channel_type,opens_at,closes_at,response_cap,allowed_origins,created_by)
         values(?,?,?, ?,cast(? as timestamptz),cast(? as timestamptz),?,cast(? as jsonb),?)
         """, id, form, release, type, in.get("opensAt"), in.get("closesAt"), in.get("responseCap"), write(origins), account(token));
-    return Map.of("channelId", id, "shareId", form.toString(), "type", type, "releaseId", release,
-        "publicPath", "/v1/public/channels/" + id + "/sessions");
+    String publicPath = "IFRAME".equals(type)
+        ? "/v1/public/channels/" + id + "/embed?parentOrigin=" + (origins.isEmpty() ? "" : origins.get(0))
+        : "/f/" + form + "?channel=" + id;
+    return Map.of("channelId", id, "shareId", form.toString(), "type", type, "releaseId", release, "publicPath", publicPath);
   }
   @Transactional
   public Map<String,Object> revokeChannel(String workspace, UUID form, UUID channel, String token) {
