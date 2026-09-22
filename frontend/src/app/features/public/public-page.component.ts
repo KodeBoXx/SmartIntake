@@ -111,7 +111,7 @@ export class PublicPageComponent implements OnInit {
       const origin = this.iframeOrigin(); if (!origin) return;
       const phase = this.store.phase(); const error = this.store.error();
       const type = error ? 'error' : phase === 'receipt' ? 'completed' : 'progress';
-      window.parent.postMessage({ protocol: 'smart-intake.v1', type, currentPageId: this.store.currentPageId(), requiredCount: this.store.requiredCount(), completedRequiredCount: this.store.completedRequiredCount(), ...(error ? { code: 'RESPONDENT_ERROR' } : {}) }, origin);
+      window.parent.postMessage({ protocol: 'smart-intake.v1', type, currentPageId: this.store.currentPageId(), requiredCount: this.store.requiredCount(), completedRequiredCount: this.store.completedRequiredCount(), ...(type === 'completed' && this.store.receiptId() ? { receiptId: this.store.receiptId() } : {}), ...(error ? { code: 'RESPONDENT_ERROR' } : {}) }, origin);
       queueMicrotask(() => window.parent.postMessage({ protocol: 'smart-intake.v1', type: 'resize', height: document.documentElement.scrollHeight }, origin));
     });
   }

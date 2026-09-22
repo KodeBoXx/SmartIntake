@@ -6,6 +6,8 @@ import com.kodeboxx.smartintake.application.IntakeApplicationService;
 import com.kodeboxx.smartintake.contract.CanonicalJson;
 import com.kodeboxx.smartintake.security.StaffAuthorization;
 import com.kodeboxx.smartintake.security.BrowserSecurityConfiguration;
+import com.kodeboxx.smartintake.security.IdentitySessionResolver;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +18,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /** M8 release governance is deliberately separate from the immutable release package. */
 @Service
@@ -25,10 +29,11 @@ public class GovernedPublicationService {
   private final StaffAuthorization authorization;
   private final IntakeApplicationService intake;
   private final BrowserSecurityConfiguration browserSecurity;
+  private final IdentitySessionResolver sessions;
 
   public GovernedPublicationService(JdbcTemplate db, ObjectMapper json, StaffAuthorization authorization,
-      IntakeApplicationService intake, BrowserSecurityConfiguration browserSecurity) {
-    this.db = db; this.json = json; this.authorization = authorization; this.intake = intake; this.browserSecurity = browserSecurity;
+      IntakeApplicationService intake, BrowserSecurityConfiguration browserSecurity, IdentitySessionResolver sessions) {
+    this.db = db; this.json = json; this.authorization = authorization; this.intake = intake; this.browserSecurity = browserSecurity; this.sessions = sessions;
   }
 
   @Transactional
@@ -247,7 +252,15 @@ public class GovernedPublicationService {
         where form_id=? and state in ('OPEN','APPROVED') and (source_revision<>? or package_hash<>? or manifest_hash<>?)
         """, form, snapshot.revision(), snapshot.packageHash(), snapshot.manifestHash());
   }
-  private UUID account(String token) { return db.queryForObject("select account_id from staff_sessions where token=?::uuid", UUID.class, token); }
+  private UUID account(String token) {
+    try {
+      HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+      String session = sessions.session(request, token).orElseThrow();
+      return db.queryForObject("select account_id from staff_sessions where token::text=?", UUID.class, session);
+    } catch (Exception e) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Valid staff workspace session required");
+    }
+  }
   private JsonNode read(String value) { try { return json.readTree(value); } catch (Exception e) { throw new IllegalArgumentException(e); } }
   private String write(Object value) { try { return json.writeValueAsString(value); } catch (Exception e) { throw new IllegalArgumentException(e); } }
   private ResponseStatusException conflict(String code) { return new ResponseStatusException(HttpStatus.CONFLICT, code); }
