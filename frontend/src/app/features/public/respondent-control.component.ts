@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, output } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { CuiAlertComponent } from '@certinal/ui';
 import type {
   InputAnswerCell,
@@ -22,9 +23,10 @@ type Cell = InputAnswerCell | ServerAnswerCell | undefined;
   standalone: true,
   imports: [CommonModule, FormsModule, CuiAlertComponent],
   template: `
-    @if (!field().hidden) {
+    @if (!field().hidden && cell()?.status !== 'notApplicable') {
       <div class="mb-5" [attr.data-field-id]="field().id" [attr.data-row-path]="rowPathKey()">
-        <label class="type-label mb-1 block">{{ label(field()) }}</label>
+        @if (!['object', 'list', 'multiChoice', 'attachments', 'drawing'].includes(field().type)) { <label class="type-label mb-1 block" [for]="controlId()">{{ label(field()) }}</label> }
+        @else if (field().type !== 'multiChoice') { <div class="type-label mb-1">{{ label(field()) }}</div> }
         @if (field().type === 'object') {
           <div class="ml-3 border-l pl-4" data-testid="object-control">
             @for (child of field().fields || []; track child.id) {
@@ -53,21 +55,21 @@ type Cell = InputAnswerCell | ServerAnswerCell | undefined;
             }
           </div>
         } @else if (field().type === 'attachments' || field().type === 'drawing') {
-          <cui-alert variant="info" title="Secure {{ field().type }}">This response type is captured by the secure service.</cui-alert>
+          <cui-alert variant="info" title="Secure {{ field().type }}">{{ cell()?.status === 'answered' ? 'Ready' : 'Secure capture is unavailable in this channel.' }}</cui-alert>
         } @else if (field().type === 'boolean') {
-          <select [id]="controlId()" class="w-full" [disabled]="protected()" [ngModel]="booleanValue()" (ngModelChange)="setBoolean($event)">
+          <select #control [id]="controlId()" class="w-full" [disabled]="protected()" [ngModel]="booleanValue()" (ngModelChange)="setBoolean($event)">
             <option [ngValue]="null">Select an answer</option><option [ngValue]="true">Yes</option><option [ngValue]="false">No</option>
           </select>
         } @else if (field().type === 'choice') {
-          <select [id]="controlId()" class="w-full" [disabled]="protected()" [ngModel]="textValue()" (ngModelChange)="set($event)">
+          <select #control [id]="controlId()" class="w-full" [disabled]="protected()" [ngModel]="textValue()" (ngModelChange)="set($event)">
             <option value="">Select an answer</option>@for (option of field().options || []; track option) { <option [value]="option">{{ option }}</option> }
           </select>
         } @else if (field().type === 'multiChoice') {
-          @for (option of field().options || []; track option) { <label class="mr-4 inline-flex gap-2"><input type="checkbox" [checked]="multiValue().includes(option)" [disabled]="protected()" (change)="toggleChoice(option, $any($event.target).checked)" />{{ option }}</label> }
+          <fieldset><legend class="type-label mb-1">{{ label(field()) }}</legend>@for (option of field().options || []; track option) { <label class="mr-4 inline-flex gap-2"><input #control type="checkbox" [checked]="multiValue().includes(option)" [disabled]="protected()" (change)="toggleChoice(option, $any($event.target).checked)" />{{ option }}</label> }</fieldset>
         } @else if (field().type === 'text' && (field().maxLength || 0) > 120) {
-          <textarea [id]="controlId()" class="w-full" rows="4" [disabled]="protected()" [ngModel]="textValue()" (ngModelChange)="set($event)"></textarea>
+          <textarea #control [id]="controlId()" class="w-full" rows="4" [disabled]="protected()" [ngModel]="textValue()" (ngModelChange)="set($event)"></textarea>
         } @else {
-          <input [id]="controlId()" class="w-full" [type]="inputType()" [disabled]="protected()" [attr.min]="field().min" [attr.max]="field().max" [attr.step]="field().step" [ngModel]="textValue()" (ngModelChange)="set($event)" />
+          <input #control [id]="controlId()" class="w-full" [type]="inputType()" [disabled]="protected()" [attr.min]="field().min" [attr.max]="field().max" [attr.step]="field().step" [ngModel]="textValue()" (ngModelChange)="set($event)" />
         }
         @if (!protected() && (field().allowUnknown || field().allowDeclined || field().allowNotApplicable)) {
           <div class="mt-2 flex flex-wrap gap-2"><button cui-button size="sm" variant="secondary" type="button" (click)="clear()">Clear</button>@if (field().allowUnknown) { <button cui-button size="sm" variant="secondary" type="button" (click)="status('unknown')">Unknown</button> } @if (field().allowDeclined) { <button cui-button size="sm" variant="secondary" type="button" (click)="status('declined')">Decline</button> } @if (field().allowNotApplicable) { <button cui-button size="sm" variant="secondary" type="button" (click)="status('respondentNotApplicable')">Not applicable</button> }</div>
@@ -76,16 +78,31 @@ type Cell = InputAnswerCell | ServerAnswerCell | undefined;
     }
   `,
 })
-export class RespondentControlComponent {
+export class RespondentControlComponent implements AfterViewInit {
+  private readonly route = inject(ActivatedRoute, { optional: true });
+  @ViewChild('control') private readonly control?: ElementRef<HTMLElement>;
   readonly field = input.required<RuntimeFieldDefinition>();
   readonly cell = input<Cell>();
   readonly rowPath = input<RowPath>([]);
   readonly operation = output<RuntimeOperation>();
 
+  ngAfterViewInit(): void {
+    if (this.route?.snapshot.queryParamMap.get('focus') === this.controlId()) queueMicrotask(() => this.control?.nativeElement.focus());
+  }
+
   label(field: RuntimeFieldDefinition): string { return field.id.replace(/([A-Z])/g, ' $1').replace(/^./, (letter) => letter.toUpperCase()); }
   protected(): boolean { return Boolean(this.field().readOnly || this.field().calculated); }
   inputType(): string { const type = this.field().type; return type === 'integer' || type === 'decimal' ? 'number' : type === 'dateTime' ? 'datetime-local' : ['date', 'time'].includes(type) ? type : 'text'; }
-  textValue(): string { const value = cellValue(this.cell()); return typeof value === 'string' ? value : ''; }
+  textValue(): string {
+    const value = cellValue(this.cell());
+    if (typeof value === 'string') return value;
+    if (this.field().type === 'dateTime' && value && typeof value === 'object' && 'instant' in value) {
+      const date = new Date(String(value.instant));
+      const local = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
+      return Number.isNaN(local.getTime()) ? '' : local.toISOString().slice(0, 16);
+    }
+    return '';
+  }
   booleanValue(): boolean | null { const value = cellValue(this.cell()); return typeof value === 'boolean' ? value : null; }
   multiValue(): readonly string[] { const value = cellValue(this.cell()); return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []; }
   items(): readonly ListItem<InputAnswerCell | ServerAnswerCell>[] { const value = cellValue(this.cell()); return value && typeof value === 'object' && 'items' in value ? (value as { items: readonly ListItem<InputAnswerCell | ServerAnswerCell>[] }).items : []; }

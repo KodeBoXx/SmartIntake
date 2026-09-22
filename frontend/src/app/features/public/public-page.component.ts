@@ -46,11 +46,11 @@ import { RespondentControlComponent } from './respondent-control.component';
         <cui-card padding="lg" data-testid="public-review">
           <h1 class="type-h2 mb-2">Review your response</h1>
           <p class="type-body mb-5">Check your answers before submitting.</p>
-          @for (item of reviewItems(); track item.fieldId) {
-            <div class="border-b py-3" data-testid="review-item">
+          @for (item of reviewItems(); track item.key) {
+            <div class="border-b py-3" data-testid="review-item" [attr.data-row-path]="item.rowPath">
               <div class="type-label">{{ item.label }}</div>
               <div class="type-body">{{ item.value }}</div>
-              <button cui-button variant="secondary" size="sm" type="button" (click)="store.edit(item.fieldId)">Edit</button>
+              <button cui-button variant="secondary" size="sm" type="button" (click)="store.edit(item.fieldId, item.path)">Edit</button>
             </div>
           }
           @for (ack of acknowledgments(); track ack.fieldId) {
@@ -136,13 +136,18 @@ export class PublicPageComponent implements OnInit {
   listItems(field: RuntimeFieldDefinition): readonly { itemId: string; fields: Record<string, { value?: unknown }> }[] { const value = this.answer(field)?.value; return value && typeof value === 'object' && 'items' in value ? (value as { items: { itemId: string; fields: Record<string, { value?: unknown }> }[] }).items : []; }
   itemValue(item: { fields: Record<string, { value?: unknown }> }, child: RuntimeFieldDefinition): string { return String(item.fields[child.id]?.value ?? ''); }
   toggleChoice(field: RuntimeFieldDefinition, option: string, checked: boolean): void { const selected = new Set(this.multiValue(field)); checked ? selected.add(option) : selected.delete(option); this.store.setAnswer(field, [...selected]); }
-  reviewItems(): { fieldId: string; label: string; value: string }[] { return this.store.definition().fields.filter((field) => !['object', 'list', 'attachments', 'drawing'].includes(field.type)).map((field) => ({ fieldId: field.id, label: this.label(field), value: display(this.answer(field)) })); }
+  reviewItems(): { key: string; fieldId: string; path: readonly { listFieldId: string; itemId: string }[]; rowPath: string; label: string; value: string }[] {
+    return flattenReview(this.store.definition().fields, this.store.state().server?.answers ?? this.store.state().answers);
+  }
   backToForm(): void { const sessionId = this.store.session()?.sessionId; if (sessionId) void this.store.edit(this.currentFields()[0]?.id ?? ''); }
   submit(): void { this.store.submit(this.acknowledgmentFields().filter((ack) => ack.accepted).map(({ fieldId, rowPath, contentHash }) => ({ fieldId, rowPath, expectedContentHash: contentHash, accepted: true }))); }
   acksAccepted(): boolean { return this.acknowledgmentFields().every((ack) => ack.accepted); }
 
   answer(field: RuntimeFieldDefinition): { status: string; value?: unknown } | undefined { return this.store.state().answers[field.id] ?? this.store.state().server?.answers[field.id]; }
-  answerForControl(field: RuntimeFieldDefinition): InputAnswerCell | ServerAnswerCell | undefined { return this.store.state().answers[field.id] ?? this.store.state().server?.answers[field.id]; }
+  answerForControl(field: RuntimeFieldDefinition): InputAnswerCell | ServerAnswerCell | undefined {
+    const server = this.store.state().server?.answers[field.id];
+    return server?.status === 'notApplicable' ? server : this.store.state().answers[field.id] ?? server;
+  }
   private acknowledgmentFields(): { fieldId: string; label: string; rowPath: { listFieldId: string; itemId: string }[]; contentHash: string; accepted: boolean }[] {
     const state = this.acknowledge;
     const gates = this.store.review()?.review?.['reviewGates'];
@@ -154,7 +159,7 @@ export class PublicPageComponent implements OnInit {
       const contentHash = typeof value['contentHash'] === 'string' ? value['contentHash'] : '';
       const rowPath = Array.isArray(value['rowPath']) ? value['rowPath'].filter(isRowPath) : [];
       if (!fieldId || !contentHash) return [];
-      const key = `${fieldId}:${JSON.stringify(rowPath)}`;
+      const key = `${this.store.review()?.reviewDigest ?? ''}:${contentHash}:${fieldId}:${JSON.stringify(rowPath)}`;
       return [{
         fieldId, rowPath, contentHash,
         label: typeof value['content'] === 'string' ? value['content'] : this.label(this.store.definition().fields.find((field) => field.id === fieldId) ?? { id: fieldId, type: 'text' }),
@@ -169,3 +174,18 @@ function isRowPath(value: unknown): value is { listFieldId: string; itemId: stri
   return Boolean(value && typeof value === 'object' && typeof (value as Record<string, unknown>)['listFieldId'] === 'string' && typeof (value as Record<string, unknown>)['itemId'] === 'string');
 }
 function display(answer: { status: string; value?: unknown } | undefined): string { if (!answer || answer.status === 'unanswered') return 'Not answered'; if (answer.status !== 'answered') return answer.status; if (Array.isArray(answer.value)) return answer.value.join(', '); if (typeof answer.value === 'boolean') return answer.value ? 'Yes' : 'No'; return String(answer.value ?? 'Not answered'); }
+function flattenReview(fields: readonly RuntimeFieldDefinition[], answers: Record<string, InputAnswerCell | ServerAnswerCell>, rowPath: readonly { listFieldId: string; itemId: string }[] = []): { key: string; fieldId: string; path: readonly { listFieldId: string; itemId: string }[]; rowPath: string; label: string; value: string }[] {
+  return fields.flatMap((field) => {
+    if (field.hidden) return [];
+    const answer = answers[field.id]; const path = JSON.stringify(rowPath);
+    if (field.type === 'object') {
+      const nested = answer?.status === 'answered' && answer.value && typeof answer.value === 'object' && 'fields' in answer.value ? (answer.value as { fields: Record<string, InputAnswerCell | ServerAnswerCell> }).fields : {};
+      return flattenReview(field.fields ?? [], nested, rowPath);
+    }
+    if (field.type === 'list') {
+      const items = answer?.status === 'answered' && answer.value && typeof answer.value === 'object' && 'items' in answer.value ? (answer.value as { items: readonly { itemId: string; fields: Record<string, InputAnswerCell | ServerAnswerCell> }[] }).items : [];
+      return items.flatMap((item) => flattenReview(field.itemFields ?? [], item.fields, [...rowPath, { listFieldId: field.id, itemId: item.itemId }]));
+    }
+    return [{ key: `${field.id}:${path}`, fieldId: field.id, path: rowPath, rowPath: path, label: field.id.replace(/([A-Z])/g, ' $1').replace(/^./, (letter) => letter.toUpperCase()), value: display(answer) }];
+  });
+}

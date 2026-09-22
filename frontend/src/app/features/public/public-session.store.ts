@@ -139,12 +139,12 @@ export class PublicSessionStore implements OnDestroy {
     });
   }
 
-  edit(fieldId: string): void {
+  edit(fieldId: string, rowPath: RowPath = []): void {
     const current = this.session(); if (!current) return;
     this.phase.set('ready');
     const page = pageForField(current.definition, fieldId) ?? this.reachablePageIds()[0] ?? null;
     this.currentPageId.set(page);
-    void this.router.navigate(['/sessions', current.sessionId], { queryParams: { focus: fieldId } });
+    void this.router.navigate(['/sessions', current.sessionId], { queryParams: { focus: controlId(fieldId, rowPath) } });
   }
 
   submit(acknowledgments: readonly { fieldId: string; rowPath: { listFieldId: string; itemId: string }[]; expectedContentHash: string; accepted: true }[] = []): void {
@@ -282,6 +282,10 @@ export class PublicSessionStore implements OnDestroy {
 function secretKey(sessionId: string): string { return `smart-intake.respondent.${sessionId}`; }
 function receiptKey(sessionId: string): string { return `smart-intake.receipt.${sessionId}`; }
 function mutationId(prefix: string): string { return `${prefix}-${crypto.randomUUID()}`; }
+function controlId(fieldId: string, rowPath: RowPath): string {
+  const path = rowPath.map((segment) => `${segment.listFieldId}:${segment.itemId}`).join('/');
+  return path ? `${fieldId}-${path.replaceAll(/[^A-Za-z0-9_-]/g, '-')}` : fieldId;
+}
 function browserLocale(): string { return navigator.language.split('-')[0] || 'en'; }
 function startFailure(error: HttpErrorResponse): string { return error.status === 410 ? 'This form is no longer accepting new responses.' : error.status === 404 ? 'This public form is unavailable.' : 'We could not start this form. Please try again.'; }
 function sessionFailure(error: HttpErrorResponse): string { return error.status === 401 || error.status === 403 ? 'This response is no longer available on this device.' : 'We could not restore this response.'; }
