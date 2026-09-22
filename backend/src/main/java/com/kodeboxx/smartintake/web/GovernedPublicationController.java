@@ -40,4 +40,7 @@ public class GovernedPublicationController {
       @RequestHeader(value = "X-Staff-Session", required = false) String token) {
     return publications.createChannel(workspace, form, releaseId, request, token);
   }
+  @PostMapping("/share-channels/{channel}/revoke")
+  public Map<String,Object> revokeChannel(@PathVariable String workspace,@PathVariable UUID form,@PathVariable UUID channel,
+      @RequestHeader(value="X-Staff-Session",required=false) String token) { return publications.revokeChannel(workspace,form,channel,token); }
 }

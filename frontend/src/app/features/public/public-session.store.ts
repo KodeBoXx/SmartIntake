@@ -53,6 +53,7 @@ export class PublicSessionStore implements OnDestroy {
   readonly attemptId = signal<string | null>(null);
   readonly error = signal<string | null>(null);
   readonly receipt = signal<StoredReceipt | null>(null);
+  readonly channelId = signal<string | null>(null);
   readonly queueSize = signal(0);
   readonly definition = computed<RuntimeDefinition>(() => runtimeDefinition(this.session()?.definition, this.session()?.locale));
   readonly pages = computed(() => canonicalPages(this.session()?.definition, this.session()?.locale));
@@ -87,7 +88,7 @@ export class PublicSessionStore implements OnDestroy {
     });
   }
   startFromChannel(shareId: string, channelId: string, bootstrap: string, parentOrigin: string): void {
-    this.reset(true); this.phase.set('loading'); this.shareId.set(shareId);
+    this.reset(true); this.phase.set('loading'); this.shareId.set(shareId); this.channelId.set(channelId);
     this.api.startChannel(channelId, bootstrap, parentOrigin, browserLocale(), Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC').subscribe({ next: (started) => { this.acceptStarted(shareId, started); void this.router.navigate(['/sessions', started.sessionId]); }, error: (failure) => this.fail(startFailure(failure)) });
   }
 
@@ -152,8 +153,10 @@ export class PublicSessionStore implements OnDestroy {
 
   edit(fieldId: string, rowPath: RowPath = [], instanceId?: string): void {
     const current = this.session(); if (!current) return;
+    this.review.set(null);
     const page = pageForPlacement(current.definition, instanceId, fieldId) ?? this.reachablePageIds()[0] ?? null;
-    this.persistReviewEdit(page, () => { this.phase.set('ready'); void this.router.navigate(['/sessions', current.sessionId], { queryParams: { focus: controlId(fieldId, rowPath, instanceId) } }); });
+    const focusInstance = repeatedRootInstanceForPlacement(current.definition, instanceId);
+    this.persistReviewEdit(page, () => { this.phase.set('ready'); void this.router.navigate(['/sessions', current.sessionId], { queryParams: { focus: controlId(fieldId, rowPath, focusInstance) } }); });
   }
 
   submit(acknowledgments: readonly { fieldId: string; rowPath: { listFieldId: string; itemId: string }[]; expectedContentHash: string; accepted: true }[] = []): void {
@@ -172,18 +175,18 @@ export class PublicSessionStore implements OnDestroy {
   }
 
   startAnother(): void {
-    const shareId = this.shareId();
+    const shareId = this.shareId(); const channelId = this.channelId();
     this.reset(true);
-    if (shareId) void this.router.navigate(['/f', shareId]);
+    if (shareId) void this.router.navigate(['/f', shareId], { queryParams: channelId ? { channel: channelId } : undefined });
   }
 
   retrySave(): void { this.error.set(null); this.flushQueue(); }
-  clearAndExit(): void { const share = this.shareId(); this.reset(true); void this.router.navigate(share ? ['/f', share] : ['/']); }
+  clearAndExit(): void { const share = this.shareId(); const channel = this.channelId(); this.reset(true); void this.router.navigate(share ? ['/f', share] : ['/'], { queryParams: channel ? { channel } : undefined }); }
 
   reset(clearSecret: boolean): void {
     const current = this.session();
     if (clearSecret && current) sessionStorage.removeItem(secretKey(current.sessionId));
-    this.phase.set('idle'); this.session.set(null); this.token.set(null); this.state.set(createRuntimeAnswerState());
+    this.phase.set('idle'); this.session.set(null); this.shareId.set(null); this.channelId.set(null); this.token.set(null); this.state.set(createRuntimeAnswerState()); this.receipt.set(null);
     this.currentPageId.set(null); this.reachablePageIds.set([]); this.requiredCount.set(0); this.completedRequiredCount.set(0);
     this.review.set(null); this.receiptId.set(null); this.attemptId.set(null); this.queue = []; this.inFlight = null; this.navigationInFlight = false; this.reviewAfterSave = false; this.queueSize.set(0); this.error.set(null);
   }
@@ -307,12 +310,13 @@ export class PublicSessionStore implements OnDestroy {
 
   private acceptReceipt(response: PublicReceipt): void {
     const current = this.session(); if (!current) return;
-    if (!response.receiptId || !response.receiptCapability) { this.phase.set('review'); this.error.set('Submission succeeded, but secure receipt recovery is unavailable. Try again safely.'); return; }
+    const receiptId = response.submissionId ?? response.receiptId;
+    if (!receiptId || !response.receiptCapability) { this.phase.set('review'); this.error.set('Submission succeeded, but secure receipt recovery is unavailable. Try again safely.'); return; }
     // A submitted response cannot be resumed from a shared device after receipt.
     sessionStorage.removeItem(secretKey(current.sessionId));
-    const receipt: StoredReceipt = { receiptId: response.receiptId, receiptCapability: response.receiptCapability, shareId: response.shareId ?? this.shareId() ?? '', submittedAt: response.submittedAt ?? new Date().toISOString() };
-    sessionStorage.setItem(receiptKey(current.sessionId), JSON.stringify(receipt)); this.receipt.set(receipt);
-    this.receiptId.set(response.receiptId); this.phase.set('receipt'); this.error.set(null);
+    const receipt: StoredReceipt = { receiptId, receiptCapability: response.receiptCapability, shareId: response.shareId ?? this.shareId() ?? '', submittedAt: response.submittedAt ?? new Date().toISOString() };
+    sessionStorage.setItem(receiptKey(current.sessionId), JSON.stringify(receipt)); this.receipt.set(receipt); this.review.set(null);
+    this.receiptId.set(receiptId); this.phase.set('receipt'); this.error.set(null);
     void this.router.navigate(['/sessions', current.sessionId, 'receipt']);
   }
 
@@ -326,9 +330,10 @@ export class PublicSessionStore implements OnDestroy {
     const stored = this.secret(sessionId);
     if (!stored) { this.fail('This receipt is not available on this device.'); return; }
     this.api.respondentReceipt(sessionId, stored.token, stored.attemptId).subscribe({ next: (receipt) => {
-      if (!receipt.receiptId) { this.fail('This receipt is not available on this device.'); return; }
+      const receiptId = receipt.submissionId ?? receipt.receiptId;
+      if (!receiptId) { this.fail('This receipt is not available on this device.'); return; }
       if (!receipt.receiptCapability) { this.fail('This receipt is not available on this device.'); return; }
-      const verified: StoredReceipt = { receiptId: receipt.receiptId, receiptCapability: receipt.receiptCapability, shareId: receipt.shareId ?? stored.shareId, submittedAt: receipt.submittedAt ?? new Date().toISOString() };
+      const verified: StoredReceipt = { receiptId, receiptCapability: receipt.receiptCapability, shareId: receipt.shareId ?? stored.shareId, submittedAt: receipt.submittedAt ?? new Date().toISOString() };
       sessionStorage.setItem(receiptKey(sessionId), JSON.stringify(verified)); this.receipt.set(verified); this.receiptId.set(verified.receiptId); this.phase.set('receipt');
     }, error: () => this.fail('This receipt is not available on this device.') });
   }
@@ -345,7 +350,7 @@ function receiptKey(sessionId: string): string { return `smart-intake.receipt.${
 function mutationId(prefix: string): string { return `${prefix}-${crypto.randomUUID()}`; }
 function controlId(fieldId: string, rowPath: RowPath, instanceId?: string): string {
   const path = rowPath.map((segment) => `${segment.listFieldId}:${segment.itemId}`).join('/');
-  const value = `${fieldId}${path ? `-${path}` : ''}`;
+  const value = `${instanceId ? `${instanceId}-` : ''}${fieldId}${path ? `-${path}` : ''}`;
   return value.replaceAll(/[^A-Za-z0-9_-]/g, '-');
 }
 function browserLocale(): string { return navigator.language.split('-')[0] || 'en'; }
@@ -393,6 +398,15 @@ function nodeMatches(node: Record<string, unknown>, instanceId: string | undefin
   if ((instanceId && node['id'] === instanceId) || (!instanceId && node['fieldId'] === fieldId)) return true;
   return (Array.isArray(node['children']) ? node['children'] as Record<string, unknown>[] : []).some((child) => nodeMatches(child, instanceId, fieldId));
 }
+function repeatedRootInstanceForPlacement(definition: Record<string, unknown>, instanceId?: string): string | undefined {
+  if (!instanceId) return undefined;
+  const phases = ((definition?.['flow'] as { phases?: Record<string, unknown>[] } | undefined)?.phases ?? []);
+  for (const phase of phases) for (const page of (Array.isArray(phase['pages']) ? phase['pages'] as Record<string, unknown>[] : []))
+    for (const section of (Array.isArray(page['sections']) ? page['sections'] as Record<string, unknown>[] : []))
+      { const roots = (Array.isArray(section['nodes']) ? section['nodes'] as Record<string, unknown>[] : []); for (const node of roots) if (nodeContainsInstance(node, instanceId)) { const fieldId = String(node['fieldId'] ?? ''); return roots.filter((candidate) => candidate['fieldId'] === fieldId).length > 1 ? String(node['id']) : undefined; } }
+  return undefined;
+}
+function nodeContainsInstance(node: Record<string, unknown>, instanceId: string): boolean { return node['id'] === instanceId || (Array.isArray(node['children']) ? node['children'] as Record<string, unknown>[] : []).some((child) => nodeContainsInstance(child, instanceId)); }
 function storedReceipt(sessionId: string): StoredReceipt | null { try { const value = JSON.parse(sessionStorage.getItem(receiptKey(sessionId)) ?? 'null'); return typeof value?.receiptId === 'string' && typeof value?.shareId === 'string' && typeof value?.submittedAt === 'string' && typeof value?.receiptCapability === 'string' ? value : null; } catch { return null; } }
 function isRowSegment(value: unknown): value is { listFieldId: string; itemId: string } { return Boolean(value && typeof value === 'object' && typeof (value as Record<string, unknown>)['listFieldId'] === 'string' && typeof (value as Record<string, unknown>)['itemId'] === 'string'); }
 function stringValue(value: unknown): string | undefined { return typeof value === 'string' ? value : undefined; }

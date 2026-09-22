@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, OnInit, QueryList, ViewChildren, effect } from '@angular/core';
+import { Component, ElementRef, OnInit, QueryList, ViewChildren, effect, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { CuiAlertComponent, CuiCardComponent, CuiEmptyStateComponent, CuiInputComponent } from '@certinal/ui';
@@ -69,7 +69,7 @@ import { RespondentControlComponent } from './respondent-control.component';
             @else if (store.queueSize()) { <span class="type-caption" aria-live="assertive">Not saved <button type="button" (click)="store.retrySave()">Retry</button></span> }
             @else { <span class="type-caption">Saved</span> }
           </div>
-          @for (placement of currentPlacements(); track placement.instanceId) {
+          @for (placement of currentPlacements(); track placement.key) {
             <si-respondent-control [field]="placement.field" [instanceId]="placement.instanceId" [cell]="answerForControl(placement.field)" [serverCell]="store.state().server?.answers?.[placement.field.id]" [invalid]="store.state().invalid" (operation)="store.apply($event)" />
           }
           <div class="mt-8 flex justify-between gap-3">
@@ -85,9 +85,9 @@ import { RespondentControlComponent } from './respondent-control.component';
 })
 export class PublicPageComponent implements OnInit {
   entryShareId: string | null = null;
-  private iframeOrigin: string | null = null;
-  private iframeBootstrap: string | null = null;
-  private iframeApprovedOrigin: string | null = null;
+  private readonly iframeOrigin = signal<string | null>(null);
+  private readonly iframeBootstrap = signal<string | null>(null);
+  private readonly iframeApprovedOrigin = signal<string | null>(null);
   reviewRoute = false;
   receiptRoute = false;
   acknowledgments = () => this.acknowledgmentFields();
@@ -107,6 +107,13 @@ export class PublicPageComponent implements OnInit {
       if (!target || !this.store.session()) return;
       queueMicrotask(() => this.focusTargets.find((node) => node.nativeElement.id === target)?.nativeElement.focus());
     });
+    effect(() => {
+      const origin = this.iframeOrigin(); if (!origin) return;
+      const phase = this.store.phase(); const error = this.store.error();
+      const type = error ? 'error' : phase === 'receipt' ? 'completed' : 'progress';
+      window.parent.postMessage({ protocol: 'smart-intake.v1', type, currentPageId: this.store.currentPageId(), requiredCount: this.store.requiredCount(), completedRequiredCount: this.store.completedRequiredCount(), ...(error ? { code: 'RESPONDENT_ERROR' } : {}) }, origin);
+      queueMicrotask(() => window.parent.postMessage({ protocol: 'smart-intake.v1', type: 'resize', height: document.documentElement.scrollHeight }, origin));
+    });
   }
 
   ngOnInit(): void {
@@ -121,9 +128,9 @@ export class PublicPageComponent implements OnInit {
       addEventListener('message', (event) => {
         const message = event.data as { protocol?: string; type?: string; bootstrap?: string; parentOrigin?: string };
         if (event.source !== window.parent || message?.protocol !== 'smart-intake.v1' || message.type !== 'bootstrap' || typeof message.bootstrap !== 'string' || !message.bootstrap) return;
-        this.iframeOrigin = event.origin;
-        this.iframeBootstrap = message.bootstrap;
-        this.iframeApprovedOrigin = typeof message.parentOrigin === 'string' ? message.parentOrigin : event.origin;
+        this.iframeOrigin.set(event.origin);
+        this.iframeBootstrap.set(message.bootstrap);
+        this.iframeApprovedOrigin.set(typeof message.parentOrigin === 'string' ? message.parentOrigin : event.origin);
         window.parent.postMessage({ protocol: 'smart-intake.v1', type: 'ready', shareId: this.entryShareId }, event.origin);
       });
     }
@@ -131,10 +138,10 @@ export class PublicPageComponent implements OnInit {
 
   get testMessage(): string { return `${this.testTitle} is ${this.testState}; real respondent session behavior is active without a test state.`; }
 
-  start(): void { if (this.entryShareId) { const channel = this.route.snapshot.queryParamMap.get('channel'); if (channel) { if (!this.iframeOrigin || !this.iframeBootstrap || !this.iframeApprovedOrigin) { this.store.error.set('Waiting for the approved embedding site to connect.'); return; } this.store.startFromChannel(this.entryShareId, channel, this.iframeBootstrap, this.iframeApprovedOrigin); } else this.store.start(this.entryShareId); } }
+  start(): void { if (this.entryShareId) { const channel = this.route.snapshot.queryParamMap.get('channel'); if (channel) { if (!this.iframeOrigin() || !this.iframeBootstrap() || !this.iframeApprovedOrigin()) { this.store.error.set('Waiting for the approved embedding site to connect.'); return; } this.store.startFromChannel(this.entryShareId, channel, this.iframeBootstrap()!, this.iframeApprovedOrigin()!); } else this.store.start(this.entryShareId); } }
   currentPage() { return this.store.pages().find((page) => page.id === this.store.currentPageId()); }
   currentFields(): readonly RuntimeFieldDefinition[] { const ids = this.currentPage()?.fieldIds ?? []; return this.store.definition().fields.filter((field) => ids.includes(field.id) && !field.hidden); }
-  currentPlacements(): readonly { instanceId: string; field: RuntimeFieldDefinition }[] { const fields = new Map(this.store.definition().fields.map((field) => [field.id, field])); return (this.currentPage()?.placements ?? []).flatMap((placement) => { const field = fields.get(placement.fieldId); return field && !field.hidden ? [{ instanceId: placement.instanceId, field }] : []; }); }
+  currentPlacements(): readonly { key: string; instanceId?: string; field: RuntimeFieldDefinition }[] { const fields = new Map(this.store.definition().fields.map((field) => [field.id, field])); const placements = this.currentPage()?.placements ?? []; return placements.flatMap((placement) => { const field = fields.get(placement.fieldId); const repeated = placements.filter((candidate) => candidate.fieldId === placement.fieldId).length > 1; return field && !field.hidden ? [{ key: placement.instanceId, instanceId: repeated ? placement.instanceId : undefined, field }] : []; }); }
   label(field: RuntimeFieldDefinition): string { return field.id.replace(/([A-Z])/g, ' $1').replace(/^./, (letter) => letter.toUpperCase()); }
   isProtected(field: RuntimeFieldDefinition): boolean { return Boolean(field.readOnly || field.calculated); }
   inputType(field: RuntimeFieldDefinition): string { return field.type === 'integer' || field.type === 'decimal' ? 'number' : field.type === 'date' || field.type === 'time' || field.type === 'dateTime' ? field.type === 'dateTime' ? 'datetime-local' : field.type : 'text'; }

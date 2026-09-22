@@ -63,6 +63,9 @@ public class GovernedPublicationService {
         write(semantic), write(dependencies), UUID.fromString(actor));
     UUID resolved = db.queryForObject("select id from form_review_requests where form_id=? and draft_id=? and source_revision=? and package_hash=? and manifest_hash=?",
         UUID.class, form, form, snapshot.revision(), snapshot.packageHash(), snapshot.manifestHash());
+    int reopened = db.update("update form_review_requests set state='OPEN',requested_by=?,requested_at=now(),invalidated_at=null,semantic_diff=cast(? as jsonb),dependency_diff=cast(? as jsonb) where id=? and state='INVALIDATED'",
+        UUID.fromString(actor), write(semantic), write(dependencies), resolved);
+    if (reopened == 1) db.update("delete from form_review_approvals where review_request_id=?", resolved);
     return Map.of("reviewRequestId", resolved, "revision", snapshot.revision(), "packageHash", snapshot.packageHash(),
         "manifestHash", snapshot.manifestHash(), "state", "OPEN");
   }
@@ -183,6 +186,13 @@ public class GovernedPublicationService {
         """, id, form, release, type, in.get("opensAt"), in.get("closesAt"), in.get("responseCap"), write(origins), account(token));
     return Map.of("channelId", id, "shareId", form.toString(), "type", type, "releaseId", release,
         "publicPath", "/v1/public/channels/" + id + "/sessions");
+  }
+  @Transactional
+  public Map<String,Object> revokeChannel(String workspace, UUID form, UUID channel, String token) {
+    authorization.requirePublishForm(workspace, token, form);
+    if (db.update("update form_share_channels set state='CLOSED' where id=? and form_id=? and state='ACTIVE'", channel, form) != 1)
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Share channel not active");
+    return Map.of("channelId",channel,"state","CLOSED");
   }
 
   private Snapshot snapshot(UUID form) {

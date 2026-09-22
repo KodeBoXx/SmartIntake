@@ -30,7 +30,7 @@ type Cell = InputAnswerCell | ServerAnswerCell | undefined;
         @if (field().type === 'object') {
           <div class="ml-3 border-l pl-4" data-testid="object-control">
             @for (child of field().fields || []; track child.id) {
-              <si-respondent-control [field]="child" [cell]="objectCell(child.id)" [serverCell]="objectServerCell(child.id)" [invalid]="invalid()" [rowPath]="rowPath()" (operation)="operation.emit($event)" />
+              <si-respondent-control [field]="child" [instanceId]="instanceId()" [cell]="objectCell(child.id)" [serverCell]="objectServerCell(child.id)" [invalid]="invalid()" [rowPath]="rowPath()" (operation)="operation.emit($event)" />
             }
           </div>
         } @else if (field().type === 'list') {
@@ -39,7 +39,7 @@ type Cell = InputAnswerCell | ServerAnswerCell | undefined;
               <fieldset class="mb-3 border p-3" [attr.data-item-id]="item.itemId">
                 <legend class="type-caption">{{ field().fixedRows ? 'Row' : 'Item' }} {{ index + 1 }}</legend>
                 @for (child of field().itemFields || []; track child.id) {
-                  <si-respondent-control [field]="child" [cell]="item.fields[child.id]" [serverCell]="itemServerCell(item.itemId, child.id)" [invalid]="invalid()" [rowPath]="childPath(item.itemId)" (operation)="operation.emit($event)" />
+                  <si-respondent-control [field]="child" [instanceId]="instanceId()" [cell]="item.fields[child.id]" [serverCell]="itemServerCell(item.itemId, child.id)" [invalid]="invalid()" [rowPath]="childPath(item.itemId)" (operation)="operation.emit($event)" />
                 }
                 @if (!field().fixedRows) {
                   <div class="flex flex-wrap gap-2">

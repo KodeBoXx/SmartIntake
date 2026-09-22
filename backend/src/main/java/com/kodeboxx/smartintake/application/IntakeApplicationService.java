@@ -474,9 +474,10 @@ public class IntakeApplicationService {
     Map<String,Object> c=db.queryForMap("select allowed_origins::text from form_share_channels where id=? and channel_type='IFRAME' and state='ACTIVE'",channelId);
     List<?> origins=json.convertValue(parseNode((String)c.get("allowed_origins")),List.class);
     if(!origins.contains(parentOrigin)) throw new ResponseStatusException(HttpStatus.FORBIDDEN,"IFRAME_PARENT_ORIGIN_DENIED");
-    String src=publicAppBaseUrl.replaceAll("/$","")+"/f/"+channelId+"?channelId="+channelId;
+    String src=publicAppBaseUrl.replaceAll("/$","")+"/f/"+channelId+"?channel="+channelId;
     String escaped=parentOrigin.replace("\\","\\\\").replace("'","\\'");
-    return "<!doctype html><meta charset=\"utf-8\"><iframe id=\"smart-intake\" src=\""+src+"\" sandbox=\"allow-scripts allow-forms allow-same-origin\"></iframe><script>const parentOrigin='"+escaped+"',frame=document.getElementById('smart-intake');window.addEventListener('message',e=>{if(e.origin!==parentOrigin||e.source!==parent)return;frame.contentWindow.postMessage({type:'smart-intake.v1',parentOrigin,...e.data},'*')});window.addEventListener('message',e=>{if(e.source!==frame.contentWindow)return;parent.postMessage(e.data,parentOrigin)});</script>";
+    java.net.URI app=java.net.URI.create(publicAppBaseUrl); String childOrigin=app.getScheme()+"://"+app.getAuthority();
+    return "<!doctype html><meta charset=\"utf-8\"><iframe id=\"smart-intake\" src=\""+src+"\" sandbox=\"allow-scripts allow-forms allow-same-origin\"></iframe><script>const parentOrigin='"+escaped+"',childOrigin='"+childOrigin+"',frame=document.getElementById('smart-intake'),childTypes=new Set(['ready','resize','progress','completed','error']),answer=/answer|value|field|response|submission|token/i;function safe(x){return x&&typeof x==='object'&&!Object.keys(x).some(k=>answer.test(k))}window.addEventListener('message',e=>{let d=e.data;if(e.source===parent&&e.origin===parentOrigin&&safe(d)&&d.type==='smart-intake.v1'&&typeof d.bootstrap==='string')frame.contentWindow.postMessage({type:'smart-intake.v1',bootstrap:d.bootstrap,parentOrigin},childOrigin);else if(e.source===frame.contentWindow&&e.origin===childOrigin&&safe(d)&&childTypes.has(d&&d.type))parent.postMessage(d,parentOrigin)});</script>";
   }
 
   @Transactional
@@ -484,13 +485,15 @@ public class IntakeApplicationService {
     Map<String, Object> channel;
     try {
       channel = db.queryForMap("""
-          select id,form_id,release_id,channel_type,allowed_origins::text from form_share_channels
+          select id,form_id,release_id,channel_type,allowed_origins::text,response_cap,accepted_count from form_share_channels
           where id=? and state='ACTIVE' and (opens_at is null or opens_at <= now())
             and (closes_at is null or now() < closes_at) for update
           """, channelId);
     } catch (EmptyResultDataAccessException missing) {
       throw new ResponseStatusException(HttpStatus.GONE, "Share channel is unavailable");
     }
+    if (channel.get("response_cap") != null && ((Number)channel.get("accepted_count")).longValue() >= ((Number)channel.get("response_cap")).longValue())
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "RESPONSE_CAP_REACHED");
     if ("IFRAME".equals(channel.get("channel_type"))) {
       if (!consumeBootstrap(channelId,(UUID)channel.get("release_id"),bootstrap,in == null ? null : in.parentOrigin())) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "IFRAME_BOOTSTRAP_INVALID");
     }
@@ -509,6 +512,7 @@ public class IntakeApplicationService {
   }
 
   private ResponseEntity<?> startForRelease(UUID share, R release, StartSession in) {
+    requireCatalogActive(share);
     requireNewWriteAllowed("RELEASE", release.id());
     UUID id = UUID.randomUUID(), bearer = UUID.randomUUID(), legacyPlaceholder = UUID.randomUUID();
     JsonNode releaseNode = json.valueToTree(parse(release.pkg()));
@@ -1256,8 +1260,12 @@ public class IntakeApplicationService {
         where id=? and state='ACTIVE' and (opens_at is null or opens_at <= now())
           and (closes_at is null or now() < closes_at)
           and (response_cap is null or accepted_count < response_cap)
+          and exists(select 1 from form_catalog_metadata metadata where metadata.form_id=form_share_channels.form_id and metadata.archived_at is null)
         """, session.shareChannelId());
-    if (claimed != 1) throw new ResponseStatusException(HttpStatus.GONE, "SHARE_CHANNEL_CLOSED_OR_CAP_REACHED");
+    if (claimed != 1) {
+      Integer cap = db.queryForObject("select count(*) from form_share_channels where id=? and response_cap is not null and accepted_count>=response_cap", Integer.class, session.shareChannelId());
+      throw new ResponseStatusException(cap != null && cap == 1 ? HttpStatus.CONFLICT : HttpStatus.GONE, cap != null && cap == 1 ? "RESPONSE_CAP_REACHED" : "SHARE_CHANNEL_CLOSED");
+    }
   }
 
   private String releaseState(UUID release) {
@@ -1538,30 +1546,16 @@ public class IntakeApplicationService {
     Map<String,Object> capabilityRow;
     try { capabilityRow = db.queryForMap("select token,expires_at>now() as active from receipt_capabilities where submission_id=?", submissionId); }
     catch (EmptyResultDataAccessException absent) {
-      UUID token = UUID.randomUUID(); db.update("insert into receipt_capabilities(token,submission_id,expires_at) values(?,?,now()+interval '30 days')", token, submissionId);
+      UUID token = UUID.randomUUID(); db.update("insert into receipt_capabilities(token,submission_id,expires_at) select ?,s.id,se.expires_at+interval '7 days' from submissions s join sessions se on se.id=s.session_id where s.id=?", token, submissionId);
       capabilityRow = Map.of("token", token, "active", true);
     }
     if (!Boolean.TRUE.equals(capabilityRow.get("active"))) return minimalReceipt(submissionId, HttpStatus.CREATED);
     UUID capability=(UUID)capabilityRow.get("token");
-    Map<String,Object> submitted = db.queryForMap("select session_id,attempt_id,submitted_at from submissions where id=?", submissionId);
-    return ResponseEntity.status(201)
-        .body(
-            Map.of(
-                "receiptId",
-                submissionId,
-                "submissionId",
-                submissionId,
-                "receiptCapability",
-                capability,
-                "status", "SUBMITTED",
-                "submittedAt", submitted.get("submitted_at").toString(),
-                "sessionId", submitted.get("session_id").toString(),
-                "attemptId", String.valueOf(submitted.get("attempt_id")),
-                "message",
-                "Your response has been received."));
+    ResponseEntity<?> minimal = minimalReceipt(submissionId, HttpStatus.CREATED);
+    return ResponseEntity.status(201).header("X-Receipt-Capability", capability.toString()).body(minimal.getBody());
   }
   private ResponseEntity<?> minimalReceipt(UUID submissionId, HttpStatus status) {
-    Map<String,Object> submitted = db.queryForMap("select submitted_at from submissions where id=?", submissionId);
-    return ResponseEntity.status(status).body(Map.of("submissionId",submissionId,"submittedAt",submitted.get("submitted_at").toString(),"status","accepted","requestId",submissionId.toString()));
+    Map<String,Object> submitted = db.queryForMap("select submitted_at,attempt_id from submissions where id=?", submissionId);
+    return ResponseEntity.status(status).body(Map.of("submissionId",submissionId,"submittedAt",submitted.get("submitted_at").toString(),"status","accepted","requestId",String.valueOf(submitted.get("attempt_id"))));
   }
 }

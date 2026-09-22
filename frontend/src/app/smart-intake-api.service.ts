@@ -199,7 +199,7 @@ export type StartedRespondentSession = RespondentSession & {
   readonly release?: Record<string, unknown>;
 };
 
-export type PublicReceipt = { readonly receiptId: string; readonly submissionId?: string; readonly requestId?: string; readonly submittedAt?: string; readonly status?: string; readonly sessionId?: string; readonly attemptId?: string; readonly shareId?: string; readonly receiptCapability?: string };
+export type PublicReceipt = { readonly receiptId?: string; readonly submissionId?: string; readonly requestId?: string; readonly submittedAt?: string; readonly status?: string; readonly shareId?: string; readonly receiptCapability?: string };
 export type ChannelBootstrap = { readonly bootstrap: string; readonly channelId: string; readonly releaseId: string; readonly expiresInSeconds: number };
 
 export type RespondentReview = {
@@ -491,7 +491,7 @@ export class SmartIntakeApiService {
   }
 
   respondentReceipt(sessionId: string, respondentToken: string, attemptId?: string): Observable<PublicReceipt> {
-    return this.http.get<PublicReceipt>(`/v1/sessions/${encodeURIComponent(sessionId)}/receipt`, { ...this.respondent(respondentToken), params: attemptId ? new HttpParams().set('attemptId', attemptId) : undefined });
+    return this.http.get<PublicReceipt>(`/v1/sessions/${encodeURIComponent(sessionId)}/receipt`, { ...this.respondent(respondentToken), params: attemptId ? new HttpParams().set('attemptId', attemptId) : undefined, observe: 'response' }).pipe(map((response) => ({ ...response.body!, receiptCapability: response.headers.get('X-Receipt-Capability') ?? undefined })));
   }
 
   publicReceipt(receiptCapability: string): Observable<PublicReceipt> {
@@ -539,7 +539,7 @@ export class SmartIntakeApiService {
     return this.http.post<PublicReceipt>(`/v1/sessions/${sessionId}/submissions`, {
       sessionRevision,
       ...(reviewDigest === undefined ? {} : { reviewDigest, attemptId, acknowledgments }),
-    }, this.respondent(respondentToken));
+    }, { ...this.respondent(respondentToken), observe: 'response' }).pipe(map((response) => ({ ...response.body!, receiptCapability: response.headers.get('X-Receipt-Capability') ?? undefined })));
   }
 
   private staff() {
