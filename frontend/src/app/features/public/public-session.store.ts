@@ -422,7 +422,7 @@ function canonicalPages(definition: Record<string, unknown> | undefined, pinnedL
   const phases = ((definition?.['flow'] as { phases?: Record<string, unknown>[] } | undefined)?.phases ?? []);
   return phases.flatMap((phase) => (Array.isArray(phase['pages']) ? phase['pages'] as Record<string, unknown>[] : []).map((page) => {
     const placements = (Array.isArray(page['sections']) ? page['sections'] as Record<string, unknown>[] : []).flatMap((section) => (Array.isArray(section['nodes']) ? section['nodes'] as Record<string, unknown>[] : []).flatMap(topPlacement));
-    return { id: String(page['id']), title: messages[String(page['titleKey'])] ?? String(page['id']), fieldIds: placements.map((placement) => placement.fieldId), placements };
+    return { id: String(page['id']), title: messages[String(page['titleKey'] ?? page['labelKey'] ?? '')] ?? String(page['id']), fieldIds: placements.map((placement) => placement.fieldId), placements };
   }));
 }
 function topPlacement(node: Record<string, unknown>): { instanceId: string; fieldId: string }[] { const fieldId = String(node['fieldId'] ?? ''); return fieldId ? [{ instanceId: String(node['id'] ?? fieldId), fieldId }] : (Array.isArray(node['children']) ? node['children'] as Record<string, unknown>[] : []).flatMap(topPlacement); }

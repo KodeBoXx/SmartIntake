@@ -138,6 +138,8 @@ class GovernedPublicationIntegrationTests {
     assertTrue(embed.contains("nonce=\"testnonce\""));
     assertTrue(embed.contains("typeof d.receiptId==='string'"));
     assertTrue(embed.contains("x.receiptId=d.receiptId"));
+    assertTrue(embed.contains("frame.addEventListener('load'"));
+    assertTrue(embed.contains("pendingBootstrap=d.bootstrap"));
     assertStatus(HttpStatus.FORBIDDEN, () -> intake.startChannel(iframe, null, null));
     assertStatus(HttpStatus.FORBIDDEN, () -> intake.bootstrapChannel(iframe, "https://denied.example.test"));
     String bootstrap = intake.bootstrapChannel(iframe, "https://embed.example.test").get("bootstrap").toString();
