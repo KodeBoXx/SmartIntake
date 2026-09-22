@@ -1262,7 +1262,7 @@ public class IntakeApplicationService {
         where id=? and state='ACTIVE' and (opens_at is null or opens_at <= now())
           and (closes_at is null or now() < closes_at)
           and (response_cap is null or accepted_count < response_cap)
-          and exists(select 1 from form_catalog_metadata metadata where metadata.form_id=form_share_channels.form_id and metadata.archived_at is null)
+          and not exists(select 1 from form_catalog_metadata metadata where metadata.form_id=form_share_channels.form_id and metadata.archived_at is not null)
         """, session.shareChannelId());
     if (claimed != 1) {
       Integer cap = db.queryForObject("select count(*) from form_share_channels where id=? and response_cap is not null and accepted_count>=response_cap", Integer.class, session.shareChannelId());

@@ -148,6 +148,16 @@ class GovernedPublicationIntegrationTests {
     for (int i = 0; i < 2; i++) starts.add(pool.submit(() -> { try { return intake.startChannel(capped, null, null).getStatusCode().is2xxSuccessful(); } catch (ResponseStatusException gone) { return false; } }));
     int accepted = 0; for (Future<Boolean> start : starts) if (start.get()) accepted++; pool.shutdown();
     assertEquals(2, accepted); assertEquals(0L, db.queryForObject("select accepted_count from form_share_channels where id=?", Long.class, capped));
+
+    UUID live = channel(release, "LINK", null, null, null, List.of());
+    @SuppressWarnings("unchecked") Map<String,Object> started=(Map<String,Object>)intake.startChannel(live,null,null).getBody();
+    UUID session=UUID.fromString(started.get("sessionId").toString());String bearer=started.get("respondentSession").toString();
+    intake.patch(session,bearer,new IntakeApplicationService.PatchSession(0L,"live-name-01",null,List.of(Map.of("op","set","fieldId","name","value",Map.of("status","answered","value","Ada"))),"page1"));
+    intake.patch(session,bearer,new IntakeApplicationService.PatchSession(1L,"live-amount-01",null,List.of(Map.of("op","set","fieldId","amount","value",Map.of("status","answered","value","7"))),"page1"));
+    Map<String,Object> review=intake.validate(session,bearer);String digest=review.get("reviewDigest").toString();
+    assertEquals(HttpStatus.CREATED,intake.submit(session,bearer,new IntakeApplicationService.Submit(2L,digest,List.of(),"live-submit-01")).getStatusCode());
+    assertEquals(1L,db.queryForObject("select accepted_count from form_share_channels where id=?",Long.class,live));
+    assertEquals(1,db.queryForObject("select count(*) from submission_outbox_events events join submissions submissions on submissions.id=events.submission_id where submissions.session_id=?",Integer.class,session));
   }
 
   private UUID publishGoverned() {
