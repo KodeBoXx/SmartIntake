@@ -127,6 +127,10 @@ export class PublicPageComponent implements OnInit {
       this.store.activePlacementKeys(); const active=document.activeElement as HTMLElement | null; const fieldRoot=active?.closest('[data-field-id]');
       queueMicrotask(() => { if (fieldRoot && !fieldRoot.isConnected) document.getElementById('respondent-page-heading')?.focus(); });
     });
+    effect(() => {
+      document.documentElement.lang = this.language();
+      document.documentElement.dir = this.direction();
+    });
   }
 
   ngOnInit(): void {

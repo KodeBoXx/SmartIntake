@@ -147,9 +147,13 @@ class GovernedPublicationIntegrationTests {
     assertTrue(embed.contains("d.type==='listener-ready'"));
     assertTrue(embed.contains("childReady=true;deliver()"));
     assertTrue(embed.contains("pendingBootstrap=d.bootstrap"));
+    assertTrue(embed.contains("<style nonce=\"testnonce\">"));
+    assertTrue(embed.contains("frame.setAttribute('height'"));
     mockMvc.perform(get("/v1/public/channels/{channel}/embed",iframe).param("parentOrigin","https://embed.example.test"))
         .andExpect(header().doesNotExist("X-Frame-Options"))
-        .andExpect(header().string("Content-Security-Policy",org.hamcrest.Matchers.containsString("frame-ancestors https://embed.example.test")));
+        .andExpect(header().string("Content-Security-Policy",org.hamcrest.Matchers.allOf(
+            org.hamcrest.Matchers.containsString("frame-ancestors https://embed.example.test"),
+            org.hamcrest.Matchers.containsString("style-src 'nonce-"))));
     assertStatus(HttpStatus.FORBIDDEN, () -> intake.startChannel(iframe, null, null));
     assertStatus(HttpStatus.FORBIDDEN, () -> intake.bootstrapChannel(iframe, "https://denied.example.test"));
     String bootstrap = intake.bootstrapChannel(iframe, "https://embed.example.test").get("bootstrap").toString();
