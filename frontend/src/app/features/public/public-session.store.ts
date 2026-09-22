@@ -48,6 +48,11 @@ export class PublicSessionStore implements OnDestroy {
   readonly reachablePageIds = signal<readonly string[]>([]);
   readonly requiredCount = signal(0);
   readonly completedRequiredCount = signal(0);
+  readonly activePlacementKeys = signal<readonly string[]>([]);
+  readonly progressAnnouncement = signal('');
+  readonly structureAnnouncement = signal('');
+  readonly reviewReturnKey = signal<string | null>(null);
+  readonly sharedDevice = signal(false);
   readonly review = signal<RespondentReview | null>(null);
   readonly receiptId = signal<string | null>(null);
   readonly attemptId = signal<string | null>(null);
@@ -58,7 +63,7 @@ export class PublicSessionStore implements OnDestroy {
   readonly definition = computed<RuntimeDefinition>(() => runtimeDefinition(this.session()?.definition, this.session()?.locale));
   readonly pages = computed(() => canonicalPages(this.session()?.definition, this.session()?.locale));
   readonly currentPageIndex = computed(() => Math.max(0, this.reachablePageIds().indexOf(this.currentPageId() ?? '')));
-  readonly progressLabel = computed(() => `${this.completedRequiredCount()} of ${this.requiredCount()} required answers complete`);
+  readonly progressLabel = computed(() => this.requiredCount() ? `${this.completedRequiredCount()}/${this.requiredCount()}` : '');
   readonly canMovePrevious = computed(() => this.currentPageIndex() > 0);
   readonly canMoveNext = computed(() => this.currentPageIndex() >= 0 && this.currentPageIndex() < this.reachablePageIds().length - 1);
 
@@ -114,7 +119,12 @@ export class PublicSessionStore implements OnDestroy {
   }
 
   /** Allows recursive controls to submit a fully addressed typed operation. */
-  apply(operation: RuntimeOperation): void { this.mutate(operation); }
+  apply(operation: RuntimeOperation): void {
+    if (operation.kind === 'addItem') this.structureAnnouncement.set('Item added.');
+    if (operation.kind === 'removeItem') this.structureAnnouncement.set('Item removed.');
+    if (operation.kind === 'moveItem') this.structureAnnouncement.set('Item moved.');
+    this.mutate(operation);
+  }
 
   setStatus(field: RuntimeFieldDefinition, status: 'unknown' | 'declined' | 'respondentNotApplicable'): void {
     this.mutate({ kind: 'set', target: { fieldId: field.id }, answer: { status } });
@@ -152,13 +162,18 @@ export class PublicSessionStore implements OnDestroy {
   ensureReview(): void { if (!this.review()?.reviewDigest) this.openReview(); }
   isBusy(): boolean { return Boolean(this.inFlight || this.navigationInFlight || this.phase() === 'saving' || this.phase() === 'submitting' || this.phase() === 'loading'); }
 
-  edit(fieldId: string, rowPath: RowPath = [], instanceId?: string): void {
+  edit(fieldId: string, rowPath: RowPath = [], instanceId?: string, reviewKey?: string): void {
     const current = this.session(); if (!current) return;
+    this.reviewReturnKey.set(reviewKey ?? null);
     this.review.set(null);
     const page = pageForPlacement(current.definition, instanceId, fieldId) ?? this.reachablePageIds()[0] ?? null;
     const focusInstance = repeatedRootInstanceForPlacement(current.definition, instanceId);
     this.persistReviewEdit(page, () => { this.phase.set('ready'); void this.router.navigate(['/sessions', current.sessionId], { queryParams: { focus: controlId(fieldId, rowPath, focusInstance) } }); });
   }
+
+  returnToReview(): void { this.openReview(); }
+  setSharedDevice(enabled: boolean): void { this.sharedDevice.set(enabled); if (enabled) this.persist(); }
+  changeLocale(locale: string): void { const current=this.session(),token=this.token(); if(!current||!token||this.isBusy())return; this.phase.set('loading'); this.api.changeRespondentLocale(current.sessionId,token,locale).subscribe({next:(session)=>this.acceptSession(session),error:()=>this.fail('We could not change the language.')}); }
 
   submit(acknowledgments: readonly { fieldId: string; rowPath: { listFieldId: string; itemId: string }[]; expectedContentHash: string; accepted: true }[] = []): void {
     const current = this.session(); const token = this.token(); const review = this.review();
@@ -188,7 +203,7 @@ export class PublicSessionStore implements OnDestroy {
     const current = this.session();
     if (clearSecret && current) sessionStorage.removeItem(secretKey(current.sessionId));
     this.phase.set('idle'); this.session.set(null); this.shareId.set(null); this.channelId.set(null); this.token.set(null); this.state.set(createRuntimeAnswerState()); this.receipt.set(null);
-    this.currentPageId.set(null); this.reachablePageIds.set([]); this.requiredCount.set(0); this.completedRequiredCount.set(0);
+    this.currentPageId.set(null); this.reachablePageIds.set([]); this.activePlacementKeys.set([]); this.requiredCount.set(0); this.completedRequiredCount.set(0);
     this.review.set(null); this.receiptId.set(null); this.attemptId.set(null); this.queue = []; this.inFlight = null; this.navigationInFlight = false; this.reviewAfterSave = false; this.queueSize.set(0); this.error.set(null);
   }
 
@@ -232,6 +247,10 @@ export class PublicSessionStore implements OnDestroy {
     const authoritativePage = session.currentPageId;
     this.currentPageId.set(authoritativePage && reachable.includes(authoritativePage) ? authoritativePage : reachable.includes(this.currentPageId() ?? '') ? this.currentPageId() : reachable[0] ?? null);
     this.requiredCount.set(session.requiredCount ?? 0); this.completedRequiredCount.set(session.completedRequiredCount ?? 0);
+    if ((session.requiredCount ?? 0) === 0) this.progressAnnouncement.set('No answer steps. Review and submit remain.');
+    else if (session.completedRequiredCount === session.requiredCount) this.progressAnnouncement.set('Answer steps complete. Review and submit remain.');
+    else this.progressAnnouncement.set('');
+    this.activePlacementKeys.set(session.activePlacementKeys ?? []);
     this.phase.set(session.status === 'SUBMITTED' ? 'receipt' : 'ready');
   }
 
@@ -263,7 +282,12 @@ export class PublicSessionStore implements OnDestroy {
     this.reachablePageIds.set(projection.reachablePageIds);
     if (projection.currentPageId && projection.reachablePageIds.includes(projection.currentPageId)) this.currentPageId.set(projection.currentPageId);
     else if (!projection.reachablePageIds.includes(this.currentPageId() ?? '')) this.currentPageId.set(projection.reachablePageIds[0] ?? null);
-    this.requiredCount.set(projection.requiredCount); this.completedRequiredCount.set(projection.completedRequiredCount);
+    const priorRequired = this.requiredCount(); const priorComplete = this.completedRequiredCount();
+    this.requiredCount.set(projection.requiredCount); this.completedRequiredCount.set(projection.completedRequiredCount); this.activePlacementKeys.set(projection.activePlacementKeys ?? []);
+    if (projection.requiredCount > priorRequired) this.progressAnnouncement.set('An answer added a step.');
+    else if (projection.requiredCount < priorRequired) this.progressAnnouncement.set('An answer removed a step.');
+    else if (projection.completedRequiredCount < priorComplete) this.progressAnnouncement.set('A completed answer step needs attention.');
+    else if (projection.requiredCount > 0 && projection.completedRequiredCount === projection.requiredCount) this.progressAnnouncement.set('Answer steps complete. Review and submit remain.');
     if (this.queue[0]?.id === this.inFlight) this.queue.shift();
     this.inFlight = null; this.queueSize.set(this.queue.length); this.persist(); this.channel?.postMessage({ sessionId: current.sessionId, revision: projection.acceptedRevision });
     this.phase.set('ready'); this.flushQueue();
@@ -340,7 +364,7 @@ export class PublicSessionStore implements OnDestroy {
   }
   private persist(): void {
     const current = this.session(); const token = this.token(); const shareId = this.shareId();
-    if (current && token && shareId) sessionStorage.setItem(secretKey(current.sessionId), JSON.stringify({ token, shareId, channelId: this.channelId() ?? undefined, queue: this.queue, currentPageId: this.currentPageId() ?? undefined, attemptId: this.attemptId() ?? undefined } satisfies StoredSecret));
+    if (current && token && shareId) sessionStorage.setItem(secretKey(current.sessionId), JSON.stringify({ token, shareId, channelId: this.channelId() ?? undefined, queue: this.sharedDevice() ? [] : this.queue, currentPageId: this.currentPageId() ?? undefined, attemptId: this.attemptId() ?? undefined } satisfies StoredSecret));
   }
 
   private fail(message: string): void { if (message === 'This response is no longer available on this device.') this.reset(true); this.phase.set('error'); this.error.set(message); }

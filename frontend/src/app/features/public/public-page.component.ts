@@ -13,7 +13,7 @@ import { RespondentControlComponent } from './respondent-control.component';
   standalone: true,
   imports: [CommonModule, FormsModule, CuiAlertComponent, CuiCardComponent, CuiEmptyStateComponent, CuiInputComponent, RespondentControlComponent],
   template: `
-    <section data-testid="public-page" [attr.data-state]="testState || store.phase()" [attr.dir]="direction()" data-public-runtime>
+    <section data-testid="public-page" [attr.data-state]="testState || store.phase()" [attr.dir]="direction()" [attr.lang]="language()" data-public-runtime>
       @if (testState) {
         <!-- Immutable M5 shell-state coverage remains independent from live APIs. -->
         <cui-card padding="lg"><p class="type-caption">PUBLIC FORM</p><h1 class="type-h3">{{ testTitle }}</h1><p class="type-caption" data-testid="state-evidence">State: {{ testState }}</p>
@@ -27,11 +27,13 @@ import { RespondentControlComponent } from './respondent-control.component';
         </cui-card>
       } @else {
       @if (store.error(); as error) { <cui-alert variant="error" class="mb-4" data-testid="public-error">{{ error }}</cui-alert> }
+      @if (invalidItems().length) { <nav aria-label="Answer errors" class="mb-4" aria-live="assertive"><p class="type-label">Review {{ invalidItems().length }} answer errors.</p><ul>@for (item of invalidItems(); track item.key) { <li><button type="button" (click)="store.edit(item.fieldId, item.rowPath)">Go to {{ item.fieldId }}</button></li> }</ul></nav> }
 
       @if (entryShareId) {
         <cui-card padding="lg" data-testid="public-entry">
           <h1 class="type-h2 mb-2">Start your response</h1>
           <p class="type-body mb-6">Your progress is saved securely as you go.</p>
+          <label class="mb-4 flex gap-2 type-body"><input type="checkbox" [ngModel]="store.sharedDevice()" (ngModelChange)="store.setSharedDevice($event)" /> Shared device</label>
           <button cui-button variant="primary" type="button" (click)="start()" [disabled]="store.phase() === 'loading'">Start form</button>
         </cui-card>
       } @else if (store.phase() === 'loading' || store.phase() === 'idle') {
@@ -47,10 +49,10 @@ import { RespondentControlComponent } from './respondent-control.component';
           <h1 class="type-h2 mb-2">Review your response</h1>
           <p class="type-body mb-5">Check your answers before submitting.</p>
           @for (item of reviewItems(); track item.key) {
-            <div class="border-b py-3" data-testid="review-item" [attr.data-row-path]="item.rowPath">
+            <div class="border-b py-3" tabindex="-1" data-testid="review-item" [id]="'review-'+safeId(item.key)" [attr.data-row-path]="item.rowPath">
               <div class="type-label">{{ item.label }}</div>
               <div class="type-body">{{ item.value }}</div>
-              <button cui-button variant="secondary" size="sm" type="button" [disabled]="store.isBusy()" (click)="store.edit(item.fieldId, item.path, item.instanceId)">Edit</button>
+              <button cui-button variant="secondary" size="sm" type="button" [disabled]="store.isBusy()" (click)="store.edit(item.fieldId, item.path, item.instanceId, item.key)">Edit</button>
             </div>
           }
           @for (ack of acknowledgments(); track ack.key) {
@@ -64,7 +66,8 @@ import { RespondentControlComponent } from './respondent-control.component';
       } @else if (store.session(); as session) {
         <cui-card padding="lg" data-testid="public-form">
           <div class="mb-5 flex items-baseline justify-between gap-4">
-            <div><h1 class="type-h2">{{ currentPage()?.title || 'Your response' }}</h1><p class="type-caption">{{ store.progressLabel() }}</p></div>
+            <div><h1 id="respondent-page-heading" tabindex="-1" class="type-h2">{{ currentPage()?.title || 'Your response' }}</h1><p class="type-caption">{{ store.progressLabel() }}</p><p class="type-caption" aria-live="polite">{{ store.progressAnnouncement() }}</p></div>
+            @if (supportedLocales().length > 1) { <label class="type-caption">Language <select [ngModel]="language()" (ngModelChange)="store.changeLocale($event)">@for (locale of supportedLocales(); track locale) { <option [value]="locale">{{ locale }}</option> }</select></label> }
             @if (store.phase() === 'saving') { <span class="type-caption" aria-live="polite">Saving…</span> }
             @else if (store.queueSize()) { <span class="type-caption" aria-live="assertive">Not saved <button type="button" (click)="store.retrySave()">Retry</button></span> }
             @else { <span class="type-caption">Saved</span> }
@@ -72,10 +75,12 @@ import { RespondentControlComponent } from './respondent-control.component';
           @for (placement of currentPlacements(); track placement.key) {
             <si-respondent-control [field]="placement.field" [instanceId]="placement.instanceId" [cell]="answerForControl(placement.field)" [serverCell]="store.state().server?.answers?.[placement.field.id]" [invalid]="store.state().invalid" (operation)="store.apply($event)" />
           }
+          <p class="sr-only" aria-live="polite">{{ store.structureAnnouncement() }}</p>
           <div class="mt-8 flex justify-between gap-3">
             <button cui-button variant="secondary" type="button" (click)="store.navigate(-1)" [disabled]="!store.canMovePrevious()">Previous</button>
             @if (store.canMoveNext()) { <button cui-button variant="primary" type="button" (click)="store.navigate(1)">Next</button> } @else { <button cui-button variant="primary" type="button" (click)="store.openReview()" data-testid="review-response">Review response</button> }
           </div>
+          @if (store.reviewReturnKey()) { <button class="mt-4" cui-button variant="secondary" type="button" (click)="store.returnToReview()">Return to review</button> }
           <button class="mt-5 type-caption" type="button" (click)="store.clearAndExit()">Clear this device and exit</button>
         </cui-card>
       }
@@ -114,6 +119,15 @@ export class PublicPageComponent implements OnInit {
       window.parent.postMessage({ protocol: 'smart-intake.v1', type, currentPageId: this.store.currentPageId(), requiredCount: this.store.requiredCount(), completedRequiredCount: this.store.completedRequiredCount(), ...(type === 'completed' && this.store.receiptId() ? { receiptId: this.store.receiptId() } : {}), ...(error ? { code: 'RESPONDENT_ERROR' } : {}) }, origin);
       queueMicrotask(() => window.parent.postMessage({ protocol: 'smart-intake.v1', type: 'resize', height: document.documentElement.scrollHeight }, origin));
     });
+    effect(() => {
+      const key = this.store.reviewReturnKey();
+      if (this.store.phase() !== 'review' || !key) return;
+      queueMicrotask(() => document.getElementById(`review-${this.safeId(key)}`)?.focus());
+    });
+    effect(() => {
+      this.store.activePlacementKeys();
+      queueMicrotask(() => { const active=document.activeElement as HTMLElement | null; if (active && !active.isConnected) document.getElementById('respondent-page-heading')?.focus(); });
+    });
   }
 
   ngOnInit(): void {
@@ -141,7 +155,7 @@ export class PublicPageComponent implements OnInit {
   start(): void { if (this.entryShareId) { const channel = this.route.snapshot.queryParamMap.get('channel'); if (channel) { if (window.parent === window) this.store.startFromTopLevelChannel(this.entryShareId, channel); else if (!this.iframeOrigin() || !this.iframeBootstrap() || !this.iframeApprovedOrigin()) this.store.error.set('Waiting for the approved embedding site to connect.'); else this.store.startFromChannel(this.entryShareId, channel, this.iframeBootstrap()!, this.iframeApprovedOrigin()!); } else this.store.start(this.entryShareId); } }
   currentPage() { return this.store.pages().find((page) => page.id === this.store.currentPageId()); }
   currentFields(): readonly RuntimeFieldDefinition[] { const ids = this.currentPage()?.fieldIds ?? []; return this.store.definition().fields.filter((field) => ids.includes(field.id) && !field.hidden); }
-  currentPlacements(): readonly { key: string; instanceId?: string; field: RuntimeFieldDefinition }[] { const fields = new Map(this.store.definition().fields.map((field) => [field.id, field])); const placements = this.currentPage()?.placements ?? []; return placements.flatMap((placement) => { const field = fields.get(placement.fieldId); const repeated = placements.filter((candidate) => candidate.fieldId === placement.fieldId).length > 1; return field && !field.hidden ? [{ key: placement.instanceId, instanceId: repeated ? placement.instanceId : undefined, field }] : []; }); }
+  currentPlacements(): readonly { key: string; instanceId?: string; field: RuntimeFieldDefinition }[] { const fields = new Map(this.store.definition().fields.map((field) => [field.id, field])); const placements = this.currentPage()?.placements ?? []; const active = new Set(this.store.activePlacementKeys()); return placements.flatMap((placement) => { const field = fields.get(placement.fieldId); const repeated = placements.filter((candidate) => candidate.fieldId === placement.fieldId).length > 1; const visible = !active.size || [...active].some((key) => key.startsWith(`${placement.instanceId}|`)); return field && !field.hidden && visible ? [{ key: placement.instanceId, instanceId: repeated ? placement.instanceId : undefined, field }] : []; }); }
   label(field: RuntimeFieldDefinition): string { return field.id.replace(/([A-Z])/g, ' $1').replace(/^./, (letter) => letter.toUpperCase()); }
   isProtected(field: RuntimeFieldDefinition): boolean { return Boolean(field.readOnly || field.calculated); }
   inputType(field: RuntimeFieldDefinition): string { return field.type === 'integer' || field.type === 'decimal' ? 'number' : field.type === 'date' || field.type === 'time' || field.type === 'dateTime' ? field.type === 'dateTime' ? 'datetime-local' : field.type : 'text'; }
@@ -160,6 +174,10 @@ export class PublicPageComponent implements OnInit {
   submit(): void { this.store.submit(this.acknowledgmentFields().filter((ack) => ack.accepted).map(({ fieldId, rowPath, contentHash }) => ({ fieldId, rowPath, expectedContentHash: contentHash, accepted: true }))); }
   acksAccepted(): boolean { return this.acknowledgmentFields().every((ack) => ack.accepted); }
   direction(): 'ltr' | 'rtl' { const session = this.store.session(); const locale = session?.locale ?? String(session?.definition?.['defaultLocale'] ?? 'en'); return locale === 'ar' ? 'rtl' : 'ltr'; }
+  language(): string { return this.store.session()?.locale ?? String(this.store.session()?.definition?.['defaultLocale'] ?? 'en'); }
+  supportedLocales(): string[] { const value=this.store.session()?.definition?.['supportedLocales']; return Array.isArray(value) ? value.filter((locale): locale is string => typeof locale === 'string') : [this.language()]; }
+  invalidItems(): { key: string; fieldId: string; rowPath: { listFieldId: string; itemId: string }[] }[] { return Object.keys(this.store.state().invalid).map((key) => { const parts=key.replace(/^\//,'').split('/'); const fieldId=parts.pop() ?? ''; const rowPath=parts.flatMap((part) => { const split=part.indexOf(':'); return split > 0 ? [{listFieldId:part.slice(0,split),itemId:part.slice(split+1)}] : []; }); return {key,fieldId,rowPath}; }).filter((item)=>item.fieldId); }
+  safeId(value: string): string { return value.replaceAll(/[^A-Za-z0-9_-]/g, '-'); }
 
   answer(field: RuntimeFieldDefinition): { status: string; value?: unknown } | undefined { return this.store.state().answers[field.id] ?? this.store.state().server?.answers[field.id]; }
   answerForControl(field: RuntimeFieldDefinition): InputAnswerCell | ServerAnswerCell | undefined {

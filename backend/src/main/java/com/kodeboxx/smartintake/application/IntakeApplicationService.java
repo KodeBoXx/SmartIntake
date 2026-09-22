@@ -583,6 +583,16 @@ public class IntakeApplicationService {
   }
 
   @Transactional
+  public Map<String,Object> locale(UUID id,String token,String locale){
+    S s=respondent(id,token,true); if(!"DRAFT".equals(s.status()))throw new ResponseStatusException(HttpStatus.CONFLICT,"SESSION_CLOSED");
+    JsonNode definition=json.valueToTree(parse(release(s.releaseId()).pkg())); boolean supported=false;
+    for(JsonNode candidate:definition.path("supportedLocales")) if(locale.equals(candidate.asText())) { supported=true; break; }
+    if(!supported)throw bad("LOCALE_UNSUPPORTED","Locale is not supported");
+    db.update("update sessions set locale=?,revision=revision+1 where id=?",locale,id);
+    Map<String,Object> response=sessionView(respondent(id,token)); response.put("acceptedRevision",((Number)response.get("revision")).longValue()); return response;
+  }
+
+  @Transactional
   public Map<String,Object> navigate(UUID id,String token,Navigate in){
     S s=respondent(id,token,true); if(!"DRAFT".equals(s.status()))throw new ResponseStatusException(HttpStatus.CONFLICT,"SESSION_CLOSED");
     if(in.baseRevision()!=s.revision())throw new ResponseStatusException(HttpStatus.CONFLICT,"SESSION_REVISION_CONFLICT");
@@ -666,6 +676,7 @@ public class IntakeApplicationService {
       validation = bindInvalidMarkerRevisions(
           persistedRuntimeState, parseNode(s.runtimeState()), outcome.validation(), next);
       runtimeProjection.put("reachablePageIds", outcome.reachablePageIds());
+      runtimeProjection.put("activePlacementKeys", outcome.activePlacementKeys());
       runtimeProjection.put("requiredCount", outcome.requiredCount());
       runtimeProjection.put("completedRequiredCount", outcome.completedRequiredCount());
       runtimeProjection.put("invalidInputs", validation.stream()
@@ -1314,6 +1325,7 @@ public class IntakeApplicationService {
     if (typedRuntime.canonical(definitionNode)) {
       var outcome = typedRuntime.mutate(definitionNode, json.valueToTree(parse(s.answers())), parseNode(s.runtimeState()), List.of(), null, s.sessionDate().toString(), s.timeZone(), s.locale(), Instant.now());
       response.put("reachablePageIds", outcome.reachablePageIds());
+      response.put("activePlacementKeys", outcome.activePlacementKeys());
       response.put("requiredCount", outcome.requiredCount());
       response.put("completedRequiredCount", outcome.completedRequiredCount());
       response.put("currentPageId", outcome.runtimeState().get("currentPageId"));

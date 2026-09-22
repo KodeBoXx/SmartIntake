@@ -177,6 +177,7 @@ export type TypedSessionProjection = ServerProjection & {
   readonly acceptedRevision: number;
   readonly validation: readonly unknown[];
   readonly reachablePageIds: readonly string[];
+  readonly activePlacementKeys?: readonly string[];
   readonly requiredCount: number;
   readonly completedRequiredCount: number;
   readonly currentPageId?: string;
@@ -484,6 +485,10 @@ export class SmartIntakeApiService {
 
   respondentSession(sessionId: string, respondentToken: string): Observable<RespondentSession> {
     return this.http.get<RespondentSession>(`/v1/sessions/${encodeURIComponent(sessionId)}`, this.respondent(respondentToken));
+  }
+
+  changeRespondentLocale(sessionId: string, respondentToken: string, locale: string): Observable<RespondentSession> {
+    return this.http.post<RespondentSession>(`/v1/sessions/${encodeURIComponent(sessionId)}/locale`, { locale }, this.respondent(respondentToken));
   }
 
   navigateRespondentSession(sessionId: string, respondentToken: string, baseRevision: number, currentPageId: string): Observable<TypedSessionProjection> {

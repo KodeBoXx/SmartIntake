@@ -25,6 +25,7 @@ public final class TypedSessionRuntimeService {
       Map<String, Object> reviewProjection,
       String reviewDigest,
       List<String> reachablePageIds,
+      Set<String> activePlacementKeys,
       int requiredCount,
       int completedRequiredCount,
       boolean accepted) {
@@ -34,6 +35,7 @@ public final class TypedSessionRuntimeService {
       validation = List.copyOf(validation);
       reviewProjection = Map.copyOf(reviewProjection);
       reachablePageIds = List.copyOf(reachablePageIds);
+      activePlacementKeys = Set.copyOf(activePlacementKeys);
     }
   }
 
@@ -122,7 +124,7 @@ public final class TypedSessionRuntimeService {
     if (!compilation.valid()) {
       return new Outcome(Map.of(), Map.of(), compilation.diagnostics().stream().map(diagnostic -> Map.<String, Object>of(
           "code", diagnostic.code(), "pointer", diagnostic.pointer())).toList(), Map.of(), null,
-          List.of(), 0, 0, false);
+          List.of(), Set.of(), 0, 0, false);
     }
     String packageDigest = CanonicalJson.sha256(packageNode);
     var compiled = compiledCache.computeIfAbsent(packageDigest, ignored -> compilation.compiled().orElseThrow());
@@ -157,7 +159,7 @@ public final class TypedSessionRuntimeService {
         return Map.copyOf(item);
       }).toList();
       return new Outcome(asMap(runtime.projection(state)), asMap(runtime.storage(state)), validation,
-          Map.of(), null, List.of(), 0, 0, false);
+          Map.of(), null, List.of(), Set.of(), 0, 0, false);
     }
     RuntimeGraph.Projection projection = new RuntimeGraph(compiled, runtime)
         .evaluate(mutation.state(), sessionDate, timeZone, changedAt);
@@ -203,7 +205,9 @@ public final class TypedSessionRuntimeService {
     String reviewDigest = validation.isEmpty()
         ? CanonicalJson.sha256(json.valueToTree(reviewMap)) : null;
     return new Outcome(asMap(runtime.projection(projection.state())), asMap(stored), validation,
-        reviewMap, reviewDigest, projection.reachablePageIds(), projection.requiredCount(), completedPages, true);
+        reviewMap, reviewDigest, projection.reachablePageIds(),
+        new RuntimeGraph(compiled, runtime).activePlacementKeys(projection.state(), sessionDate, timeZone),
+        projection.requiredCount(), completedPages, true);
   }
 
   private static Set<String> completedPages(
@@ -335,7 +339,7 @@ public final class TypedSessionRuntimeService {
     if (fieldId != null) validation.put("fieldId", fieldId);
     return new Outcome(answers == null || !answers.isObject() ? Map.of() : asMap(answers),
         runtimeState == null || !runtimeState.isObject() ? Map.of() : asMap(runtimeState),
-        List.of(validation), Map.of(), null, List.of(), 0, 0, false);
+        List.of(validation), Map.of(), null, List.of(), Set.of(), 0, 0, false);
   }
 
   private Operation operation(Map<String, Object> raw) {
