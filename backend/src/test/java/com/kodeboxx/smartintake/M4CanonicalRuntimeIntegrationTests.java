@@ -255,10 +255,12 @@ class M4CanonicalRuntimeIntegrationTests {
         values(?,?,?,'IFRAME',1,cast('["https://embed.example.test"]' as jsonb),?)
         """, channel, form, release, account);
     ResponseStatusException denied = assertThrows(ResponseStatusException.class,
-        () -> intake.startChannel(channel, "https://denied.example.test", null));
+        () -> intake.bootstrapChannel(channel, "https://denied.example.test"));
     assertEquals(HttpStatus.FORBIDDEN, denied.getStatusCode());
-    assertTrue(intake.startChannel(channel, "https://embed.example.test", null).getStatusCode().is2xxSuccessful());
-    assertTrue(intake.startChannel(channel, "https://embed.example.test", null).getStatusCode().is2xxSuccessful());
+    String first = intake.bootstrapChannel(channel, "https://embed.example.test").get("bootstrap").toString();
+    String second = intake.bootstrapChannel(channel, "https://embed.example.test").get("bootstrap").toString();
+    assertTrue(intake.startChannel(channel, first, null).getStatusCode().is2xxSuccessful());
+    assertTrue(intake.startChannel(channel, second, null).getStatusCode().is2xxSuccessful());
     assertEquals(0L, db.queryForObject("select accepted_count from form_share_channels where id=?", Long.class, channel));
   }
 

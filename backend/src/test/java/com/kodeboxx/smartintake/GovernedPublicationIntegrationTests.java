@@ -120,8 +120,9 @@ class GovernedPublicationIntegrationTests {
     assertGone(future, null); assertGone(expired, null);
     UUID iframe = channel(release, "IFRAME", null, null, null, List.of("https://embed.example.test"));
     assertStatus(HttpStatus.FORBIDDEN, () -> intake.startChannel(iframe, null, null));
-    assertStatus(HttpStatus.FORBIDDEN, () -> intake.startChannel(iframe, "https://denied.example.test", null));
-    assertTrue(intake.startChannel(iframe, "https://embed.example.test", null).getStatusCode().is2xxSuccessful());
+    assertStatus(HttpStatus.FORBIDDEN, () -> intake.bootstrapChannel(iframe, "https://denied.example.test"));
+    String bootstrap = intake.bootstrapChannel(iframe, "https://embed.example.test").get("bootstrap").toString();
+    assertTrue(intake.startChannel(iframe, bootstrap, null).getStatusCode().is2xxSuccessful());
 
     UUID capped = channel(release, "LINK", null, null, 1L, List.of());
     var pool = Executors.newFixedThreadPool(2); List<Future<Boolean>> starts = new ArrayList<>();

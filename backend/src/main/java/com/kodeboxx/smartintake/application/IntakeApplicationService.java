@@ -110,6 +110,7 @@ public class IntakeApplicationService {
           operations, currentPageId);
     }
   }
+  public record Navigate(long baseRevision, String currentPageId) {}
 
   public record Submit(
       Long sessionRevision,
@@ -437,7 +438,16 @@ public class IntakeApplicationService {
 
   /** Channel starts supply an immutable release binding; form UUID starts retain legacy compatibility. */
   @Transactional
-  public ResponseEntity<?> startChannel(UUID channelId, String origin, StartSession in) {
+  public Map<String,Object> bootstrapChannel(UUID channelId, String parentOrigin) {
+    Map<String,Object> c=db.queryForMap("select release_id,channel_type,allowed_origins::text from form_share_channels where id=? and state='ACTIVE'",channelId);
+    List<?> origins=json.convertValue(parseNode((String)c.get("allowed_origins")),List.class);
+    if(!"IFRAME".equals(c.get("channel_type"))||parentOrigin==null||!origins.contains(parentOrigin)) throw new ResponseStatusException(HttpStatus.FORBIDDEN,"IFRAME_PARENT_ORIGIN_DENIED");
+    UUID id=UUID.randomUUID(); String nonce=UUID.randomUUID().toString();
+    db.update("insert into form_share_channel_bootstraps(id,channel_id,release_id,parent_origin,nonce,expires_at) values(?,?,?,?,?,now()+interval '5 minutes')",id,channelId,c.get("release_id"),parentOrigin,nonce);
+    return Map.of("bootstrap",id+"."+nonce,"channelId",channelId,"releaseId",c.get("release_id"),"expiresInSeconds",300);
+  }
+
+  public ResponseEntity<?> startChannel(UUID channelId, String bootstrap, StartSession in) {
     Map<String, Object> channel;
     try {
       channel = db.queryForMap("""
@@ -449,9 +459,7 @@ public class IntakeApplicationService {
       throw new ResponseStatusException(HttpStatus.GONE, "Share channel is unavailable");
     }
     if ("IFRAME".equals(channel.get("channel_type"))) {
-      List<?> origins = json.convertValue(parseNode((String) channel.get("allowed_origins")), List.class);
-      if (origin == null || !origins.contains(origin))
-        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "SHARE_ORIGIN_DENIED");
+      if (!consumeBootstrap(channelId,(UUID)channel.get("release_id"),bootstrap)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "IFRAME_BOOTSTRAP_INVALID");
     }
     R release = release((UUID) channel.get("release_id"));
     if (!"ACTIVE".equals(releaseState(release.id())))
@@ -460,6 +468,11 @@ public class IntakeApplicationService {
     @SuppressWarnings("unchecked") Map<String, Object> body = (Map<String, Object>) started.getBody();
     db.update("update sessions set share_channel_id=? where id=?", channelId, UUID.fromString(body.get("sessionId").toString()));
     return started;
+  }
+
+  private boolean consumeBootstrap(UUID channel, UUID release, String token) {
+    if(token==null)return false; String[] p=token.split("\\.",2); if(p.length!=2)return false;
+    try{return db.update("update form_share_channel_bootstraps set consumed_at=now() where id=? and channel_id=? and release_id=? and nonce=? and consumed_at is null and expires_at>now()",UUID.fromString(p[0]),channel,release,p[1])==1;}catch(IllegalArgumentException e){return false;}
   }
 
   private ResponseEntity<?> startForRelease(UUID share, R release, StartSession in) {
@@ -528,6 +541,25 @@ public class IntakeApplicationService {
 
   public Map<String, Object> session(UUID id, String token) {
     return sessionView(respondent(id, token));
+  }
+
+  @Transactional
+  public Map<String,Object> navigate(UUID id,String token,Navigate in){
+    S s=respondent(id,token,true); if(!"DRAFT".equals(s.status()))throw new ResponseStatusException(HttpStatus.CONFLICT,"SESSION_CLOSED");
+    if(in.baseRevision()!=s.revision())throw new ResponseStatusException(HttpStatus.CONFLICT,"SESSION_REVISION_CONFLICT");
+    JsonNode d=json.valueToTree(parse(release(s.releaseId()).pkg()));
+    var o=typedRuntime.mutate(d,json.valueToTree(parse(s.answers())),parseNode(s.runtimeState()),List.of(),in.currentPageId(),s.sessionDate().toString(),s.timeZone(),s.locale(),Instant.now());
+    if(!o.accepted())throw bad("NAVIGATION_INVALID","Page is not reachable"); long next=s.revision()+1;
+    db.update("update sessions set runtime_state=cast(? as jsonb),revision=? where id=?",stringify(o.runtimeState()),next,id);
+    return Map.of("acceptedRevision",next,"currentPageId",o.runtimeState().get("currentPageId"),"reachablePageIds",o.reachablePageIds(),"requiredCount",o.requiredCount(),"completedRequiredCount",o.completedRequiredCount());
+  }
+
+  public ResponseEntity<?> receipt(UUID id,String token,String attemptId){
+    respondent(id,token);
+    try { Map<String,Object> row=db.queryForMap("select id,attempt_id from submissions where session_id=?",id);
+      if(attemptId!=null&&!attemptId.equals(row.get("attempt_id")))throw new ResponseStatusException(HttpStatus.NOT_FOUND,"RECEIPT_NOT_FOUND");
+      return receipt((UUID)row.get("id"));
+    } catch(EmptyResultDataAccessException none){throw new ResponseStatusException(HttpStatus.NOT_FOUND,"RECEIPT_NOT_FOUND");}
   }
 
   @Transactional
@@ -1216,6 +1248,15 @@ public class IntakeApplicationService {
         "definition",
         definition));
     response.put("invalidInputs", invalidInputs);
+    if (typedRuntime.canonical(definitionNode)) {
+      var outcome = typedRuntime.mutate(definitionNode, json.valueToTree(parse(s.answers())), parseNode(s.runtimeState()), List.of(), null, s.sessionDate().toString(), s.timeZone(), s.locale(), Instant.now());
+      response.put("reachablePageIds", outcome.reachablePageIds());
+      response.put("requiredCount", outcome.requiredCount());
+      response.put("completedRequiredCount", outcome.completedRequiredCount());
+      response.put("currentPageId", outcome.runtimeState().get("currentPageId"));
+      response.put("runtimeState", outcome.runtimeState());
+      response.put("diagnostics", outcome.validation());
+    }
     return response;
   }
 
