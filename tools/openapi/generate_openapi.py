@@ -189,7 +189,11 @@ def request_definition(method: str, path: str) -> tuple[str, dict[str, Any], dic
         name = f"{resource}{verb}Request"
         properties = resource_write_properties(resource)
         required = [next(iter(properties))] if properties else []
-        props = properties
+        props = (
+            {**properties, "profile": {"type": "string", "enum": ["canonical-4.0.0"]}}
+            if name == "FormCreateRequest"
+            else properties
+        )
         valid = {required[0]: example_for_property(required[0], props[required[0]])} if required else {}
     return name, closed(required, props), valid, {}
 

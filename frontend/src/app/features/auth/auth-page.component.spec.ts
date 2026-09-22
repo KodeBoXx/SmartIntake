@@ -4,9 +4,20 @@ import { of } from 'rxjs';
 import { describe, expect, it, vi } from 'vitest';
 import { StaffSessionStore } from '../../core/m5-session.store';
 import { SmartIntakeApiService } from '../../smart-intake-api.service';
-import { AuthPageComponent } from './auth-page.component';
+import { AuthPageComponent, authViewState } from './auth-page.component';
 
 describe('AuthPageComponent', () => {
+  it('maps guard and unknown query states to the interactive sign-in state', () => {
+    expect(authViewState('anonymous')).toBe('ready');
+    expect(authViewState('unknown')).toBe('ready');
+    expect(authViewState(null)).toBe('ready');
+    expect(authViewState('expired')).toBe('expired');
+    expect(authViewState('empty-or-no-access')).toBe('empty-or-no-access');
+    expect(authViewState('no-access')).toBe('no-access');
+    expect(authViewState('sign-in')).toBe('sign-in');
+    expect(authViewState('pending')).toBe('pending');
+  });
+
   it('redirects a fresh sign-in to the server-selected workspace', () => {
     const router = { navigateByUrl: vi.fn(() => Promise.resolve(true)) };
     const session = {

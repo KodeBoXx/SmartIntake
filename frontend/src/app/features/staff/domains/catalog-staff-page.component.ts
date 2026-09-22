@@ -15,7 +15,7 @@ type CatalogState = 'loading' | 'ready' | 'empty' | 'invalid' | 'denied' | 'expi
   providers: [{ provide: M5_STAFF_DOMAIN, useValue: 'catalog' }],
   template: `
 <section class="mx-auto max-w-6xl space-y-5" data-testid="catalog-page" [attr.data-state]="state()">
-  <div class="flex flex-wrap items-end justify-between gap-3"><div><p class="type-caption">WORKSPACE {{ screen().toUpperCase() }}</p><h1 class="type-h3">{{ screenTitle() }}</h1><p class="type-caption">{{ workspaceContext()?.name || 'No selected workspace' }}</p></div>@if (screen() === 'catalog' && state() === 'ready') { <cui-button [disabled]="!canEdit()" (buttonClick)="createForm()">Create form</cui-button> }</div>
+  <div class="flex flex-wrap items-end justify-between gap-3"><div><p class="type-caption">WORKSPACE {{ screen().toUpperCase() }}</p><h1 class="type-h3">{{ screenTitle() }}</h1><p class="type-caption">{{ workspaceContext()?.name || 'No selected workspace' }}</p></div>@if (screen() === 'catalog' && (state() === 'ready' || state() === 'empty')) { <cui-button [disabled]="!canEdit()" (buttonClick)="createForm()">Create form</cui-button> }</div>
   @if (message()) { <cui-alert [variant]="state() === 'invalid' || state() === 'denied' ? 'error' : 'warning'" [title]="state()">{{ message() }}</cui-alert> }
   @if (state() === 'loading') { <cui-card><p class="type-body">Loading the server-authorized catalog…</p></cui-card> }
   @else if (showsEmptyState()) { <cui-empty-state icon="inbox" title="No forms found" description="Try changing the filters or create the first form in this workspace." /> }

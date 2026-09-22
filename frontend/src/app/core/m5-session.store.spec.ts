@@ -1,10 +1,11 @@
 import { HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { StaffCsrfContext } from './staff-csrf.interceptor';
 import { StaffSessionStore } from './m5-session.store';
 
 describe('StaffSessionStore', () => {
+  beforeEach(() => localStorage.clear());
   it('bootstraps a safe identity from the authoritative server session', () => {
     const api = { session: vi.fn(() => of({ identity: { accountId: 'a1', username: 'owner' }, organizations: [], currentOrganizationId: null, csrfToken: 'csrf-1' })) } as any;
     const csrf = new StaffCsrfContext();
@@ -27,10 +28,46 @@ describe('StaffSessionStore', () => {
   it('cleans local staff state even when a stale cookie has already expired', () => {
     const api = { signOut: vi.fn(() => throwError(() => new HttpErrorResponse({ status: 401 }))) } as any;
     const csrf = new StaffCsrfContext();
+    localStorage.setItem('smart-intake.authoring.account-1.workspace.form.draft', 'draft');
     const store = new StaffSessionStore(api, csrf);
     store.signOut().subscribe();
     expect(store.state()).toBe('anonymous');
     expect(csrf.token()).toBeNull();
+    expect(localStorage.getItem('smart-intake.authoring.account-1.workspace.form.draft')).toBeNull();
+  });
+
+  it('clears authoring draft and conflict state when a session expires', () => {
+    const api = { session: vi.fn(() => throwError(() => new HttpErrorResponse({ status: 440 }))) } as any;
+    localStorage.setItem('smart-intake.authoring.account-1.workspace.form.draft', 'draft');
+    const store = new StaffSessionStore(api, new StaffCsrfContext());
+
+    store.ensureLoaded().subscribe();
+
+    expect(store.state()).toBe('expired');
+    expect(localStorage.getItem('smart-intake.authoring.account-1.workspace.form.draft')).toBeNull();
+  });
+
+  it('clears authoring state when access is denied', () => {
+    const api = { session: vi.fn(() => throwError(() => new HttpErrorResponse({ status: 403 }))) } as any;
+    localStorage.setItem('smart-intake.authoring.account-1.workspace.form.draft', 'conflict');
+    const store = new StaffSessionStore(api, new StaffCsrfContext());
+
+    store.ensureLoaded().subscribe();
+
+    expect(store.state()).toBe('denied');
+    expect(localStorage.getItem('smart-intake.authoring.account-1.workspace.form.draft')).toBeNull();
+  });
+
+  it('clears authoring state when the authenticated account changes', () => {
+    const api = { session: vi.fn(() => of({ identity: { accountId: 'account-2', username: 'next' }, organizations: [] })) } as any;
+    localStorage.setItem('smart-intake.authoring.account-1.workspace.form.draft', 'draft');
+    const store = new StaffSessionStore(api, new StaffCsrfContext());
+    store.identity.set({ accountId: 'account-1', username: 'previous', displayName: 'Previous account' });
+
+    store.ensureLoaded().subscribe();
+
+    expect(store.identity()?.accountId).toBe('account-2');
+    expect(localStorage.getItem('smart-intake.authoring.account-1.workspace.form.draft')).toBeNull();
   });
 
   it('derives organization, workspace, and role context only from the safe session', () => {

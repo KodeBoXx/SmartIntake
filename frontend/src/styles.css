@@ -41,7 +41,7 @@ cui-drawer[position="right"] .animate-cui-drawer-in { animation-name: m5-drawer-
     height: calc(100vh - 64px) !important;
     z-index: 10;
   }
-  [data-testid="staff-shell"] cui-app-shell main { margin-left: 270px; }
+  [data-testid="staff-shell"] cui-app-shell > div > div > main { margin-left: 270px; }
 }
 
 [data-testid="staff-shell"] cui-app-shell button[aria-label="Collapse sidebar"],

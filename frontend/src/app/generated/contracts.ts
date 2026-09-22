@@ -541,6 +541,150 @@ export namespace ContractSchemaDocuments {
       allowReorder?: boolean;
       showRowNumbers?: boolean;
       orientation?: 'vertical' | 'horizontal' | 'table' | 'cards';
+      readOnly?: boolean;
+      alternateInstancesBindSameField?: boolean;
+      endpointLowLabelKey?: Key;
+      endpointHighLabelKey?: Key;
+      /**
+       * @maxItems 20
+       */
+      allowedMime?:
+        | []
+        | [string]
+        | [string, string]
+        | [string, string, string]
+        | [string, string, string, string]
+        | [string, string, string, string, string]
+        | [string, string, string, string, string, string]
+        | [string, string, string, string, string, string, string]
+        | [string, string, string, string, string, string, string, string]
+        | [string, string, string, string, string, string, string, string, string]
+        | [string, string, string, string, string, string, string, string, string, string]
+        | [string, string, string, string, string, string, string, string, string, string, string]
+        | [string, string, string, string, string, string, string, string, string, string, string, string]
+        | [string, string, string, string, string, string, string, string, string, string, string, string, string]
+        | [string, string, string, string, string, string, string, string, string, string, string, string, string, string]
+        | [
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string
+          ]
+        | [
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string
+          ]
+        | [
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string
+          ]
+        | [
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string
+          ]
+        | [
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string
+          ]
+        | [
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string,
+            string
+          ];
+      scanReadiness?: 'normal' | 'required';
+      requireTrue?: boolean;
+      finalReviewOnly?: boolean;
+      voiceSupplyProhibited?: boolean;
     }
     export interface Layout {
       id: Id;

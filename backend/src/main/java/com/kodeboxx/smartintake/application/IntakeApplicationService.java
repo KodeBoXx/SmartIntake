@@ -15,7 +15,9 @@ import com.kodeboxx.smartintake.contract.TimeZoneRegistry;
 import com.kodeboxx.smartintake.contract.compiler.FormCompiler;
 import com.kodeboxx.smartintake.contract.runtime.TypedSessionRuntimeService;
 import com.kodeboxx.smartintake.persistence.AuditEventRepository;
+import com.kodeboxx.smartintake.security.IdentitySessionResolver;
 import com.kodeboxx.smartintake.security.StaffAuthorization;
+import jakarta.servlet.http.HttpServletRequest;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -33,6 +35,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -40,6 +44,7 @@ public class IntakeApplicationService {
   private final JdbcTemplate db;
   private final ObjectMapper json;
   private final StaffAuthorization authorization;
+  private final IdentitySessionResolver sessions;
   private final AuditEventRepository audits;
   private final RespondentSecretVerifier respondentSecrets;
   private final CompatibilityProfileRegistry profiles;
@@ -53,6 +58,7 @@ public class IntakeApplicationService {
       JdbcTemplate db,
       ObjectMapper json,
       StaffAuthorization authorization,
+      IdentitySessionResolver sessions,
       AuditEventRepository audits,
       RespondentSecretVerifier respondentSecrets,
       CompatibilityProfileRegistry profiles,
@@ -64,6 +70,7 @@ public class IntakeApplicationService {
     this.db = db;
     this.json = json;
     this.authorization = authorization;
+    this.sessions = sessions;
     this.audits = audits;
     this.respondentSecrets = respondentSecrets;
     this.profiles = profiles;
@@ -77,7 +84,7 @@ public class IntakeApplicationService {
   public record Bootstrap(
       String email, String password, String organizationName, String workspaceName) {}
 
-  public record CreateForm(String formKey, String title) {}
+  public record CreateForm(String formKey, String title, String profile) {}
 
   public record Draft(Map<String, Object> definition) {}
 
@@ -229,21 +236,27 @@ public class IntakeApplicationService {
         ws);
   }
 
+  @Transactional
   public ResponseEntity<?> create(String workspace, String token, CreateForm in) {
     UUID ws = authorization.authorizeAuthoring(workspace, token);
     if (in.formKey() == null || !in.formKey().matches("[a-z][a-z0-9-]{2,99}"))
       throw bad("FORM_KEY_INVALID", "Use a lowercase stable key of at least three characters.");
+    String title = createTitle(in.title());
+    if (in.profile() != null && !CompatibilityProfile.CANONICAL_4_0_0.key().equals(in.profile()))
+      throw bad("PROFILE_UNSUPPORTED", "profile must be canonical-4.0.0 when supplied.");
     UUID id = UUID.randomUUID();
-    Map<String, Object> def = sampleDefinition(in.formKey(), in.title());
+    boolean canonical = CompatibilityProfile.CANONICAL_4_0_0.key().equals(in.profile());
+    Map<String, Object> def = canonical ? canonicalAuthoringTemplate(in.formKey(), title) : sampleDefinition(in.formKey(), title);
     db.update(
         "insert into forms(id,workspace_id,form_key,title,definition,compatibility_profile_key)"
             + " values(?,?,?,?,cast(? as jsonb),?)",
         id,
         ws,
         in.formKey(),
-        in.title(),
+        title,
         stringify(def),
-        CompatibilityProfile.M1_CURRENT_PROTOTYPE.key());
+        canonical ? CompatibilityProfile.CANONICAL_4_0_0.key() : CompatibilityProfile.M1_CURRENT_PROTOTYPE.key());
+    if (canonical) persistLocaleReviewDrafts(id, def, currentAccount(token), 1);
     audit("FORM_CREATED", id);
     return ResponseEntity.status(201)
         .eTag(etag(1))
@@ -269,6 +282,7 @@ public class IntakeApplicationService {
                 List.of()));
   }
 
+  @Transactional
   public ResponseEntity<?> save(String workspace, UUID form, String draft, String token, String match, Draft in) {
     requireCanonicalDraftId(form, draft);
     authorization.requireOwnedForm(workspace, token, form);
@@ -289,6 +303,8 @@ public class IntakeApplicationService {
         profile,
         next,
         form);
+    if (CompatibilityProfile.CANONICAL_4_0_0.key().equals(profile))
+      persistLocaleReviewDrafts(form, in.definition(), currentAccount(token), next);
     audit("DRAFT_SAVED", form);
     return ResponseEntity.ok()
         .eTag(etag(next))
@@ -310,6 +326,7 @@ public class IntakeApplicationService {
         Map.class);
   }
 
+  @Transactional
   public ResponseEntity<?> definitionImport(
       String workspace, UUID form, String token, String match, Map<String, Object> candidate) {
     authorization.requireOwnedForm(workspace, token, form);
@@ -332,13 +349,16 @@ public class IntakeApplicationService {
                   "diagnostics",
                   List.of(Map.of("message", e.getMessage()))));
     }
+    String profile = profileForDefinition(candidate);
     long revision = row.revision() + 1;
     db.update(
         "update forms set definition=cast(? as jsonb),compatibility_profile_key=?,revision=?,updated_at=now() where id=?",
         stringify(candidate),
-        profileForDefinition(candidate),
+        profile,
         revision,
         form);
+    if (CompatibilityProfile.CANONICAL_4_0_0.key().equals(profile))
+      persistLocaleReviewDrafts(form, candidate, currentAccount(token), revision);
     audit("DEFINITION_IMPORTED", form);
     return ResponseEntity.ok()
         .eTag(etag(revision))
@@ -350,14 +370,16 @@ public class IntakeApplicationService {
     requireCatalogActive(form);
     requireNewWriteAllowed("FORM", form);
     var row = formRow(form);
-    validateDefinition(parse(row.definition()));
+    Map<String, Object> definitionMap = parse(row.definition());
+    validateDefinition(definitionMap);
+    JsonNode definition = json.valueToTree(definitionMap);
+    requireTrustedLocaleApprovals(form, row.revision(), definition);
     int version =
         db.queryForObject(
             "select coalesce(max(version),0)+1 from form_releases where form_id=?",
             Integer.class,
             form);
     UUID release = UUID.randomUUID();
-    JsonNode definition = json.valueToTree(parse(row.definition()));
     String pinnedManifest = typedRuntime.canonical(definition) ? stringify(runtimeManifest(definition)) : null;
     db.update(
         "insert into form_releases(id,form_id,version,package,compatibility_profile_key,runtime_manifest)"
@@ -381,6 +403,25 @@ public class IntakeApplicationService {
                 form.toString(),
                 "status",
                 "PUBLISHED"));
+  }
+
+  /** Canonical package reviewState values are author-controlled content, never publication authority. */
+  private void requireTrustedLocaleApprovals(UUID form, long revision, JsonNode definition) {
+    if (!typedRuntime.canonical(definition)) return;
+    String packageHash = CanonicalJson.sha256(definition);
+    LinkedHashMap<String, Boolean> locales = new LinkedHashMap<>();
+    for (JsonNode locale : definition.path("supportedLocales")) {
+      if (locale.isTextual() && !locale.asText().isBlank()) locales.put(locale.asText(), Boolean.TRUE);
+    }
+    for (String locale : locales.keySet()) {
+      Integer approved = db.queryForObject(
+          "select count(*) from form_authoring_locale_reviews where form_id=? and draft_id=? and locale=? "
+              + "and source_revision=? and source_package_hash=? and status='APPROVED' and reviewed_by is not null",
+          Integer.class, form, form, locale, revision, packageHash);
+      if (approved == null || approved != 1)
+        throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+            "LOCALE_REVIEW_REQUIRED: " + locale + " lacks a trusted approval for this exact package revision");
+    }
   }
 
   // Respondent session lifecycle
@@ -1181,6 +1222,47 @@ public class IntakeApplicationService {
                 List.of(name, contact, email))));
   }
 
+  /** New authoring forms start canonical; legacy definitions remain readable but are never silently rewritten. */
+  private Map<String, Object> canonicalSampleDefinition(String key, String title) {
+    Map<String,Object> root = new LinkedHashMap<>();
+    root.put("schemaVersion", "4.0.0"); root.put("engineContract", "4.0.0"); root.put("contractVersion", "4.0.0");
+    root.put("kind", "smart-form-package"); root.put("formKey", key); root.put("definitionVersion", "1.0.0");
+    root.put("titleKey", "form.title"); root.put("descriptionKey", "form.description"); root.put("defaultLocale", "en"); root.put("supportedLocales", List.of("en", "hi", "ar"));
+    root.put("data", Map.of("fields", List.of(
+        Map.of("id","fld_name","key","name","type","text","labelKey","q.name","sensitivity","personal","mode","input","hiddenRetention","clear","normalizer","preserve","constraints",Map.of("required",true,"maxLength",120)),
+        Map.of("id","fld_acknowledgment","key","acknowledgment","type","boolean","labelKey","q.acknowledgment","sensitivity","personal","mode","input","hiddenRetention","clear","normalizer","preserve","constraints",Map.of("required",false)))));
+    root.put("flow", Map.of("startPageId","page_name","phases",List.of(Map.of("id","phase_request","titleKey","phase.request","pages",List.of(
+        Map.of("id","page_name","titleKey","page.about","sections",List.of(Map.of("id","section_name","titleKey","section.about","layout","stack","nodes",List.of(Map.of("id","node_name","kind","question","fieldId","fld_name","control","shortText"),Map.of("id","node_acknowledgment","kind","question","fieldId","fld_acknowledgment","control","acknowledgment","acknowledgmentContentKey","q.acknowledgment")))),"routes",List.of(),"defaultNextPageId","page_review"),
+        Map.of("id","page_review","titleKey","page.review","sections",List.of(Map.of("id","section_review","titleKey","page.review","layout","stack","nodes",List.of(Map.of("id","node_review","kind","review")))),"routes",List.of()))))));
+    root.put("expressions",Map.of()); root.put("guidance",Map.of());
+    root.put("translations",Map.of(
+        "en", translation("ltr", title, "A guided intake.", "Request", "About", "About", "Full name", "I acknowledge this information.", "Review and submit", "Your response has been received."),
+        "hi", translation("ltr", title, "एक निर्देशित इनटेक.", "अनुरोध", "विवरण", "विवरण", "पूरा नाम", "मैं इस जानकारी को स्वीकार करता/करती हूँ।", "समीक्षा करें और भेजें", "आपकी प्रतिक्रिया प्राप्त हो गई है।"),
+        "ar", translation("rtl", title, "نموذج إرشادي.", "الطلب", "التفاصيل", "التفاصيل", "الاسم الكامل", "أقر بهذه المعلومات.", "راجع وأرسل", "تم استلام ردك.")));
+    root.put("theme",Map.of("themeKey","accessible-default","version","1.0.0","tokens",Map.of("accent","#175CD3","background","#FFFFFF","text","#182230","fontFamily","system","density","comfortable","radius",8)));
+    root.put("policies",Map.of("reviewBeforeSubmit",true,"draftExpiryDays",30,"showProgress",true,"presentation","grouped","guidanceMode","text","narrationAutoplay",false,"allowVoiceQuestions",false,"retentionPolicyKey","standard-intake","responseAccess","anonymous","confirmationKey","confirmation"));
+    root.put("dependencies",List.of()); root.put("assets",List.of()); return root;
+  }
+
+  /** Canonical starter used by the isolated M7 migration path; legacy APIs retain their old shape. */
+  public Map<String,Object> canonicalAuthoringTemplate(String key, String title) { return canonicalSampleDefinition(key,title); }
+
+  private Map<String, Object> translation(String direction, String title, String description, String phase,
+      String page, String section, String name, String acknowledgment, String review, String confirmation) {
+    return Map.of("direction", direction, "messages", Map.of("form.title", title,
+        "form.description", description, "phase.request", phase, "page.about", page,
+        "section.about", section, "q.name", name, "q.acknowledgment", acknowledgment,
+        "page.review", review, "confirmation", confirmation), "pronunciations", List.of());
+  }
+
+  /** FormCreateRequest keeps title optional; normalize omission while rejecting invalid supplied titles. */
+  private String createTitle(String title) {
+    if (title == null) return "Untitled form";
+    if (title.isBlank() || title.length() > 200)
+      throw bad("FORM_TITLE_INVALID", "title must contain 1-200 characters.");
+    return title;
+  }
+
   private void validateDefinition(Map<String, Object> d) {
     try {
       var candidate = json.valueToTree(d);
@@ -1202,6 +1284,26 @@ public class IntakeApplicationService {
     return typedRuntime.canonical(json.valueToTree(definition))
         ? CompatibilityProfile.CANONICAL_4_0_0.key()
         : CompatibilityProfile.M1_CURRENT_PROTOTYPE.key();
+  }
+
+  private UUID currentAccount(String token) {
+    try {
+      HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+      String session = sessions.session(request, token).orElseThrow();
+      return db.queryForObject("select account_id from staff_sessions where token::text=?", UUID.class, session);
+    } catch (Exception e) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Valid staff workspace session required");
+    }
+  }
+
+  private void persistLocaleReviewDrafts(UUID form, Map<String, Object> definition, UUID actor, long revision) {
+    JsonNode packageNode = json.valueToTree(definition);
+    String packageHash = CanonicalJson.sha256(packageNode);
+    for (JsonNode locale : packageNode.path("supportedLocales")) {
+      if (!locale.isTextual() || locale.asText().isBlank()) continue;
+      db.update("insert into form_authoring_locale_reviews(form_id,draft_id,locale,source_revision,source_package_hash,status,reviewed_by,reviewed_at) values(?,?,?,?,?,?,?,now()) on conflict(form_id,draft_id,locale) do update set source_revision=excluded.source_revision,source_package_hash=excluded.source_package_hash,status='DRAFT',reviewed_by=excluded.reviewed_by,reviewed_at=excluded.reviewed_at",
+          form, form, locale.asText(), revision, packageHash, "DRAFT", actor);
+    }
   }
 
   private void requireCanonicalRuntimeState(S session, JsonNode definition) {

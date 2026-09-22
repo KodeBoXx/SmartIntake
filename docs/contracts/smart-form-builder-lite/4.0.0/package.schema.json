@@ -806,6 +806,43 @@
             "table",
             "cards"
           ]
+        },
+        "readOnly": {
+          "type": "boolean"
+        },
+        "alternateInstancesBindSameField": {
+          "type": "boolean"
+        },
+        "endpointLowLabelKey": {
+          "$ref": "#/$defs/key"
+        },
+        "endpointHighLabelKey": {
+          "$ref": "#/$defs/key"
+        },
+        "allowedMime": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "uniqueItems": true,
+          "maxItems": 20
+        },
+        "scanReadiness": {
+          "enum": [
+            "normal",
+            "required"
+          ]
+        },
+        "requireTrue": {
+          "type": "boolean"
+        },
+        "finalReviewOnly": {
+          "type": "boolean"
+        },
+        "voiceSupplyProhibited": {
+          "type": "boolean"
         }
       }
     },

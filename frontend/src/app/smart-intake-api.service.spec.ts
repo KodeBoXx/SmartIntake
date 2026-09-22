@@ -2,8 +2,9 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { provideHttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { afterEach, describe, expect, it } from 'vitest';
+import { retry } from 'rxjs';
 import { createDefaultDefinition } from './models/form-definition.models';
-import { SmartIntakeApiService } from './smart-intake-api.service';
+import { authoringDocument, SmartIntakeApiService } from './smart-intake-api.service';
 import type { PublishedSchema } from './smart-intake-api.service';
 
 describe('SmartIntakeApiService', () => {
@@ -142,6 +143,201 @@ describe('SmartIntakeApiService', () => {
     expect(submitted.request.headers.get('X-Respondent-Session')).toBe('respondent-token');
     expect(submitted.request.body).toEqual({ sessionRevision: 4 });
     submitted.flush({ receiptId: 'receipt-1' });
+  });
+
+  it('uses only the dedicated authoring preview endpoint for synthetic author preview', () => {
+    api.authoringPreview('local', 'form-1', 'draft-1', { 'field-name': 'Ada' }, 'hi').subscribe();
+    const preview = http.expectOne('/v1/workspaces/local/forms/form-1/authoring/draft-1/preview');
+    expect(preview.request.method).toBe('POST');
+    expect(preview.request.withCredentials).toBe(true);
+    expect(preview.request.body).toEqual({ answers: { 'field-name': 'Ada' }, locale: 'hi' });
+    preview.flush({ mode: 'synthetic', packageHash: 'package-hash', diagnostics: [], syntheticAnswers: { 'field-name': 'Ada' }, effects: { sessions: 0, submissions: 0, email: 0, webhooks: 0, providers: 0 } });
+    http.expectNone('/v1/public/forms/form-1/sessions');
+    http.expectNone('/v1/sessions');
+    http.expectNone('/v1/workspaces/local/forms/form-1/releases');
+  });
+
+  it('sends the selected Arabic locale to the ordinary author preview endpoint', () => {
+    api.authoringPreview('local', 'form-1', 'draft-1', {}, 'ar').subscribe();
+    const preview = http.expectOne('/v1/workspaces/local/forms/form-1/authoring/draft-1/preview');
+    expect(preview.request.body).toEqual({ answers: {}, locale: 'ar' });
+    preview.flush({ mode: 'synthetic', effects: { sessions: 0, submissions: 0, email: 0, webhooks: 0, providers: 0 } });
+  });
+
+  it('uses the strict backend candidate envelope for authoring import validation and commit', () => {
+    const candidate = { contractVersion: '4.0.0', formKey: 'imported' };
+    api.validateAuthoringImport('workspace-1', 'form-1', 'draft-1', candidate).subscribe((validation) => expect(validation.state).toBe('VALID'));
+    const validate = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/imports/validate');
+    expect(validate.request.method).toBe('POST');
+    expect(validate.request.body).toEqual({ candidate });
+    validate.flush({ candidateId: 'candidate-1', digest: 'sha256', baseRevision: 7, state: 'VALID', diagnostics: [] });
+
+    api.commitAuthoringImport('workspace-1', 'form-1', 'draft-1', 7, { candidateId: 'candidate-1', digest: 'sha256' }, 'COPY').subscribe((document) => expect(document.revision).toBe(8));
+    const commit = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/imports/commit');
+    expect(commit.request.method).toBe('POST');
+    expect(commit.request.headers.get('If-Match')).toBe('"7"');
+    expect(commit.request.body).toEqual({ candidateId: 'candidate-1', digest: 'sha256', mode: 'COPY' });
+    commit.flush({ revision: 8, definition: { title: 'Imported', pages: [] } });
+  });
+
+  it('reuses one idempotency key when a command batch retries and sends it for pinned component insertion', () => {
+    const document = authoringDocument({ draftId: 'draft-1', revision: 7, packageHash: 'before-hash', definition: { data: { fields: [{ id: 'field-1', labelKey: 'name.label' }] }, flow: { phases: [{ id: 'phase-1', pages: [{ id: 'page-1', sections: [{ id: 'section-1', nodes: [{ id: 'field-1', kind: 'question', fieldId: 'field-1' }] }] }] }] }, translations: { en: { messages: { 'name.label': 'Name' } }, hi: { messages: {} }, ar: { messages: {} } } } });
+    const command = api.authoringCommands('workspace-1', 'form-1', 'draft-1', 7, document, [{ type: 'rename', targetId: 'field-1', label: 'Legal name' }]);
+    command.pipe(retry(1)).subscribe((document) => expect(document.revision).toBe(8));
+    const first = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/commands');
+    const key = first.request.headers.get('Idempotency-Key');
+    expect(key).toMatch(/.+/);
+    expect(first.request.headers.get('If-Match')).toBe('"7"');
+    expect(first.request.body).toEqual({ commands: [
+      { op: 'add', path: '/translations/en/messages/name.label', value: 'Legal name' },
+      { op: 'add', path: '/translations/hi/messages/name.label', value: '' },
+      { op: 'add', path: '/translations/ar/messages/name.label', value: '' },
+    ], definition: document.definition, expectedHash: 'before-hash' });
+    first.flush({ code: 'TRANSIENT' }, { status: 503, statusText: 'Service Unavailable' });
+    const retried = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/commands');
+    expect(retried.request.headers.get('Idempotency-Key')).toBe(key);
+    retried.flush({ revision: 8, definition: { title: 'Saved', pages: [] } });
+
+    api.insertAuthoringComponent('workspace-1', 'form-1', 'draft-1', 8, { id: 'component-1', key: 'name-question', name: 'Name question', version: '2', description: 'Governed' }, '/flow/phases/0/pages/0/sections/0/nodes/-', 'component-action').subscribe((document) => expect(document.revision).toBe(9));
+    const insert = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/components/name-question/insert');
+    expect(insert.request.headers.get('If-Match')).toBe('"8"');
+    expect(insert.request.headers.get('Idempotency-Key')).toBe('component-action');
+    expect(insert.request.body).toEqual({ path: '/flow/phases/0/pages/0/sections/0/nodes/-', operation: 'add', version: 2 });
+    insert.flush({ revision: 9, definition: { title: 'Saved', pages: [] } });
+  });
+
+  it('forwards explicit invalid-draft acceptance for a confirmed page deletion', () => {
+    const document = authoringDocument({ draftId: 'draft-1', revision: 7, packageHash: 'before-hash', definition: {
+      data: { fields: [{ id: 'field-1', key: 'field-1', type: 'text', labelKey: 'name.label' }] },
+      flow: { startPageId: 'page-1', phases: [{ id: 'phase-1', pages: [{ id: 'page-1', sections: [] }, { id: 'page-2', sections: [] }] }] },
+      translations: { en: { messages: { 'name.label': 'Name' } }, hi: { messages: {} }, ar: { messages: {} } },
+    } });
+    api.authoringCommands('workspace-1', 'form-1', 'draft-1', 7, document, [{ type: 'remove-page', targetId: 'page-2', confirmed: true, acceptInvalidDraft: true }]).subscribe();
+    const request = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/commands');
+    expect(request.request.body.acceptInvalidDraft).toBe(true);
+    request.flush({ revision: 8, definition: { title: 'Saved', pages: [] } });
+  });
+
+  it('sends stable caller-owned keys on server undo and redo with the numeric authoring ETag', () => {
+    api.authoringUndo('workspace-1', 'form-1', 'draft-1', 8, 'undo-key').pipe(retry(1)).subscribe();
+    const undo = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/undo');
+    expect(undo.request.headers.get('If-Match')).toBe('"8"');
+    expect(undo.request.headers.get('Idempotency-Key')).toBe('undo-key');
+    undo.flush({}, { status: 503, statusText: 'Retry' });
+    const retriedUndo = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/undo');
+    expect(retriedUndo.request.headers.get('Idempotency-Key')).toBe('undo-key');
+    retriedUndo.flush({ revision: 9, definition: { title: 'Undo', pages: [] } });
+
+    api.authoringRedo('workspace-1', 'form-1', 'draft-1', 9, 'redo-key').subscribe();
+    const redo = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/redo');
+    expect(redo.request.headers.get('If-Match')).toBe('"9"');
+    expect(redo.request.headers.get('Idempotency-Key')).toBe('redo-key');
+    redo.flush({ revision: 10, definition: { title: 'Redo', pages: [] } });
+  });
+
+  it('maps top-level theme locks/preflight and backend locale completeness envelopes', () => {
+    api.authoringTheme('workspace-1', 'form-1', 'draft-1').subscribe((theme) => expect(theme).toMatchObject({ preset: 'accessible-default', locks: ['/tokens/accent'], preflight: [{ code: 'contrast' }] }));
+    const theme = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/theme');
+    theme.flush({ revision: 7, theme: { themeKey: 'accessible-default', tokens: { accent: '#175CD3' } }, locks: ['/tokens/accent'], preflight: [{ code: 'contrast', severity: 'warning', message: 'Review contrast.' }] });
+
+    api.authoringContent('workspace-1', 'form-1', 'draft-1').subscribe((content) => expect(content.localeCompleteness).toEqual({ en: { present: true, complete: true }, hi: { present: false, complete: false }, ar: { present: false, complete: false } }));
+    const content = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/content');
+    content.flush({ revision: 7, guidance: { welcome: { id: 'guidance-welcome', messageKey: 'guidance.welcome' } }, translations: { en: { direction: 'ltr', messages: { 'guidance.welcome': 'Complete this.' }, pronunciations: [], reviewState: 'approved' } }, localeCompleteness: { en: { present: true, complete: true }, hi: { present: false, complete: false }, ar: { present: false, complete: false } } });
+  });
+
+  it('preserves only server-supplied locale bundles and uses a reviewer key for current-revision approval', () => {
+    api.authoringContent('workspace-1', 'form-1', 'draft-1').subscribe((content) => {
+      expect(content.translations).toEqual({ en: { direction: 'ltr', messages: { 'guidance.brief': 'Complete this.' } } });
+      expect(content.translations.hi).toBeUndefined();
+      expect(content.translations.ar).toBeUndefined();
+      expect(content.localeReviews).toEqual([{ locale: 'hi', sourceRevision: 7, status: 'DRAFT', reviewedAt: null }]);
+    });
+    const content = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/content');
+    content.flush({ revision: 7, guidance: {}, translations: { en: { direction: 'ltr', messages: { 'guidance.brief': 'Complete this.' } } }, localeReviews: [{ locale: 'hi', sourceRevision: 7, status: 'DRAFT', reviewedAt: null }] });
+
+    api.approveAuthoringLocales('workspace-1', 'form-1', 'draft-1', 7, ['hi'], 'review-key').subscribe((content) => expect(content.localeReviews?.[0].status).toBe('APPROVED'));
+    const approve = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/content');
+    expect(approve.request.method).toBe('PUT');
+    expect(approve.request.headers.get('If-Match')).toBe('"7"');
+    expect(approve.request.headers.get('Idempotency-Key')).toBe('review-key');
+    expect(approve.request.body).toEqual({ approveLocales: ['hi'] });
+    approve.flush({ revision: 7, approved: ['hi'] });
+    const refreshed = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/content');
+    refreshed.flush({ revision: 7, guidance: {}, translations: {}, localeReviews: [{ locale: 'hi', sourceRevision: 7, status: 'APPROVED', reviewedAt: '2026-09-21T01:00:00Z' }] });
+  });
+
+  it('calls the controlled authoring speech endpoint with visible canonical scope only', () => {
+    api.authoringSpeech('workspace-1', 'form-1', 'draft-1', 'ar', { scope: { pageId: 'page-a', sectionId: 'section-a', fieldId: 'field-a' } }).subscribe((speech) => expect(speech).toEqual({ available: false, code: 'SPEECH_UNAVAILABLE', locale: 'ar' }));
+    const speech = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/speech');
+    expect(speech.request.method).toBe('POST');
+    expect(speech.request.body).toEqual({ locale: 'ar', scope: { pageId: 'page-a', sectionId: 'section-a', fieldId: 'field-a' } });
+    speech.flush({ available: false, code: 'SPEECH_UNAVAILABLE', locale: 'ar' });
+  });
+
+  it('preserves required theme version and sends one closed content scope at a time', () => {
+    const theme = { preset: 'accessible-default', themeKey: 'accessible-default', version: '3', tokens: { accent: '#175CD3' }, locks: [], preflight: [] };
+    api.updateAuthoringTheme('workspace-1', 'form-1', 'draft-1', 7, theme).subscribe((result) => expect(result.document?.revision).toBe(8));
+    const savedTheme = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/theme');
+    expect(savedTheme.request.body).toEqual({ theme: { themeKey: 'accessible-default', version: '3', tokens: { accent: '#175CD3' } } });
+    savedTheme.flush({ revision: 8, definition: { title: 'Theme', pages: [] } });
+    const refreshedTheme = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/theme');
+    refreshedTheme.flush({ revision: 8, theme: { themeKey: 'accessible-default', version: '3', tokens: { accent: '#175CD3' } }, locks: [], preflight: [] });
+
+    const content = { locale: 'ar' as const, translations: { ar: { direction: 'rtl' as const, messages: { 'guidance.welcome': 'أهلاً' }, pronunciations: [] } }, guidance: { welcome: { id: 'guidance-welcome', messageKey: 'guidance.welcome' } } };
+    api.updateAuthoringContent('workspace-1', 'form-1', 'draft-1', 8, content, 'translations').subscribe((result) => expect(result.document?.revision).toBe(9));
+    const savedContent = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/content');
+    expect(savedContent.request.body).toEqual({ translations: content.translations });
+    savedContent.flush({ revision: 9, definition: { title: 'Content', pages: [] } });
+    const refreshedContent = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/content');
+    refreshedContent.flush({ revision: 9, guidance: content.guidance, translations: content.translations, localeCompleteness: {} });
+  });
+
+  it('resolves a retained backend conflict using its conflict id and chosen definition', () => {
+    const definition = { title: 'Client package', pages: [] };
+    api.resolveAuthoringConflict('workspace-1', 'form-1', 'draft-1', 8, 'conflict-1', definition).subscribe((document) => expect(document.title).toBe('Resolved package'));
+    const resolve = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/resolve');
+    expect(resolve.request.method).toBe('POST');
+    expect(resolve.request.headers.get('If-Match')).toBe('"8"');
+    expect(resolve.request.body).toEqual({ conflictId: 'conflict-1', definition });
+    resolve.flush({ revision: 9, definition: { title: 'Resolved package', pages: [] } });
+  });
+
+  it('uses caller-owned keys for replayable comment, conflict, theme, and content mutations', () => {
+    api.addAuthoringComment('workspace-1', 'form-1', 'draft-1', 'Review this', '/flow', 'comment-key').subscribe();
+    const comment = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/comments');
+    expect(comment.request.headers.get('Idempotency-Key')).toBe('comment-key');
+    expect(comment.request.body).toEqual({ body: 'Review this', pointer: '/flow' });
+    comment.flush({ id: 'comment-1', pointer: '/flow', body: 'Review this', authorId: 'author-1', createdAt: '2026-09-21T00:00:00Z' });
+
+    const definition = { title: 'Resolved package', pages: [] };
+    api.resolveAuthoringConflict('workspace-1', 'form-1', 'draft-1', 8, 'conflict-1', definition, 'resolve-key').subscribe();
+    const resolve = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/resolve');
+    expect(resolve.request.headers.get('Idempotency-Key')).toBe('resolve-key');
+    resolve.flush({ revision: 9, definition });
+
+    const theme = { preset: 'accessible-default', themeKey: 'accessible-default', version: '3', tokens: { accent: '#175CD3' }, locks: [], preflight: [] };
+    api.updateAuthoringTheme('workspace-1', 'form-1', 'draft-1', 9, theme, 'theme-key').subscribe();
+    const savedTheme = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/theme');
+    expect(savedTheme.request.headers.get('Idempotency-Key')).toBe('theme-key');
+    savedTheme.flush({ revision: 10, definition });
+    http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/theme').flush({ revision: 10, theme: { themeKey: 'accessible-default', version: '3', tokens: { accent: '#175CD3' } }, locks: [], preflight: [] });
+
+    const content = { locale: 'en' as const, translations: { en: { direction: 'ltr' as const, messages: {} } }, guidance: { welcome: { id: 'guidance-welcome', messageKey: 'guidance.welcome' } } };
+    api.updateAuthoringContent('workspace-1', 'form-1', 'draft-1', 10, content, 'translations', 'content-key').subscribe();
+    const savedContent = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/content');
+    expect(savedContent.request.headers.get('Idempotency-Key')).toBe('content-key');
+    savedContent.flush({ revision: 11, definition });
+    http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/content').flush({ revision: 11, guidance: content.guidance, translations: content.translations, localeCompleteness: {} });
+  });
+
+  it('maps backend pointer comments and cursor presence without inventing fields', () => {
+    api.authoringComments('workspace-1', 'form-1', 'draft-1').subscribe((comments) => expect(comments[0]).toMatchObject({ targetId: '/pages/0', author: 'author-1' }));
+    const comments = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/comments');
+    comments.flush([{ id: 'comment-1', pointer: '/pages/0', body: 'Review this', authorId: 'author-1', createdAt: '2026-09-21T00:00:00Z' }]);
+
+    api.authoringPresence('workspace-1', 'form-1', 'draft-1').subscribe((presence) => expect(presence[0]).toMatchObject({ selectedId: '/pages/0' }));
+    const presence = http.expectOne('/v1/workspaces/workspace-1/forms/form-1/authoring/draft-1/presence');
+    presence.flush([{ accountId: 'author-1', displayName: 'Author', cursor: '/pages/0', expiresAt: '2026-09-21T00:01:30Z' }]);
   });
 
   it('serializes typed mutations with stable row paths and identity-based moves', () => {

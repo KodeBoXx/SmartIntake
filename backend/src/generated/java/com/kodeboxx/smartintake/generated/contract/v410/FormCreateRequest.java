@@ -28,7 +28,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
  */
 @JsonPropertyOrder({
   FormCreateRequest.JSON_PROPERTY_FORM_KEY,
-  FormCreateRequest.JSON_PROPERTY_TITLE
+  FormCreateRequest.JSON_PROPERTY_TITLE,
+  FormCreateRequest.JSON_PROPERTY_PROFILE
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.10.0")
 public class FormCreateRequest {
@@ -39,6 +40,43 @@ public class FormCreateRequest {
   public static final String JSON_PROPERTY_TITLE = "title";
   @jakarta.annotation.Nullable
   private String title;
+
+  /**
+   * Gets or Sets profile
+   */
+  public enum ProfileEnum {
+    CANONICAL_4_0_0(String.valueOf("canonical-4.0.0"));
+
+    private String value;
+
+    ProfileEnum(String value) {
+      this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    @JsonCreator
+    public static ProfileEnum fromValue(String value) {
+      for (ProfileEnum b : ProfileEnum.values()) {
+        if (b.value.equals(value)) {
+          return b;
+        }
+      }
+      throw new IllegalArgumentException("Unexpected value '" + value + "'");
+    }
+  }
+
+  public static final String JSON_PROPERTY_PROFILE = "profile";
+  @jakarta.annotation.Nullable
+  private ProfileEnum profile;
 
   public FormCreateRequest() {
   }
@@ -93,6 +131,31 @@ public class FormCreateRequest {
     this.title = title;
   }
 
+  public FormCreateRequest profile(@jakarta.annotation.Nullable ProfileEnum profile) {
+    
+    this.profile = profile;
+    return this;
+  }
+
+  /**
+   * Get profile
+   * @return profile
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_PROFILE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public ProfileEnum getProfile() {
+    return profile;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_PROFILE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setProfile(@jakarta.annotation.Nullable ProfileEnum profile) {
+    this.profile = profile;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -103,12 +166,13 @@ public class FormCreateRequest {
     }
     FormCreateRequest formCreateRequest = (FormCreateRequest) o;
     return Objects.equals(this.formKey, formCreateRequest.formKey) &&
-        Objects.equals(this.title, formCreateRequest.title);
+        Objects.equals(this.title, formCreateRequest.title) &&
+        Objects.equals(this.profile, formCreateRequest.profile);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(formKey, title);
+    return Objects.hash(formKey, title, profile);
   }
 
   @Override
@@ -117,6 +181,7 @@ public class FormCreateRequest {
     sb.append("class FormCreateRequest {\n");
     sb.append("    formKey: ").append(toIndentedString(formKey)).append("\n");
     sb.append("    title: ").append(toIndentedString(title)).append("\n");
+    sb.append("    profile: ").append(toIndentedString(profile)).append("\n");
     sb.append("}");
     return sb.toString();
   }

@@ -32,6 +32,18 @@ export const appRoutes: Routes = [
       catalogStaff('workspaces/:workspaceId/forms', 'catalog'),
       { path: 'preview/:draftId', data: { screen: 'preview' }, loadComponent: () => import('./app.component').then((m) => m.AppComponent) },
       { path: 'workspaces/:workspaceId/forms/new', data: { screen: 'builder' }, loadComponent: () => import('./app.component').then((m) => m.AppComponent) },
+      {
+        path: 'workspaces/:workspaceId/forms/:formId/drafts/:draftId/author',
+        loadComponent: () => import('./features/authoring/authoring-page.component').then((m) => m.AuthoringPageComponent),
+        children: [
+          { path: 'preview', data: { authoringTab: 'preview' } },
+          { path: 'history', data: { authoringTab: 'history' } },
+          { path: 'import', data: { authoringTab: 'import' } },
+          { path: 'components', data: { authoringTab: 'components' } },
+          { path: 'theme', data: { authoringTab: 'theme' } },
+          { path: 'content', data: { authoringTab: 'content' } },
+        ],
+      },
       { path: 'workspaces/:workspaceId/forms/:formId/drafts/:draftId', data: { screen: 'builder' }, loadComponent: () => import('./app.component').then((m) => m.AppComponent) },
       { path: 'workspaces/:workspaceId/forms/:formId/drafts/:draftId/preview', data: { screen: 'preview' }, loadComponent: () => import('./app.component').then((m) => m.AppComponent) },
       { path: 'workspaces/:workspaceId/forms/:formId/review', data: { screen: 'review-publish' }, loadComponent: () => import('./app.component').then((m) => m.AppComponent) },

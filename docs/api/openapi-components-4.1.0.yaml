@@ -1176,7 +1176,7 @@ components:
           id: https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/package.schema.json
           kind: package
           resource: contracts/smart-form-builder-lite/4.0.0/package.schema.json
-          sha256: ed6947e3d2fbfd0e46824d23d23b1e06358d48d7da641d0fc705d7c1eb5bba1e
+          sha256: 1622079d036eb1b46e78c47b0e05a8608ae174fba48debfa30e8e80c1a274dd8
           version: 4.0.0
         - file: expression.schema.json
           id: https://kodeboxx.example/contracts/smart-form-builder-lite/4.0.0/expression.schema.json
@@ -2941,6 +2941,10 @@ components:
           type: string
           minLength: 1
           maxLength: 200
+        profile:
+          type: string
+          enum:
+          - canonical-4.0.0
     FormUpdateRequest:
       type: object
       additionalProperties: false
