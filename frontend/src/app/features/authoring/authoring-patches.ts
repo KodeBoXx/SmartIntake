@@ -234,7 +234,8 @@ export function pageDeletionImpact(authoring: AuthoringDocument, targetId: strin
       .filter((route) => outgoing || route.targetPageId === targetId || expressions.includes(String(route.whenExpressionId)))
       .map((route) => `${String(page.id)}.${String(route.id)}`);
     return [
-      ...(outgoing || page.defaultNextPageId === targetId ? [`${String(page.id)}.defaultNextPageId`] : []),
+      ...((outgoing && typeof page.defaultNextPageId === 'string') || page.defaultNextPageId === targetId
+        ? [`${String(page.id)}.defaultNextPageId`] : []),
       ...affectedRoutes,
     ];
   }).sort();
