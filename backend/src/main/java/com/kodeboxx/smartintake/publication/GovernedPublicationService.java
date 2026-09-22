@@ -195,32 +195,40 @@ public class GovernedPublicationService {
   }
   private boolean hasRequiredUnsupportedCapture(JsonNode packageNode) {
     java.util.Set<String> captureIds = new java.util.HashSet<>();
-    collectRequiredCaptures(packageNode.path("data").path("fields"), captureIds);
-    return hasStaticRequiredCapture(packageNode.path("data").path("fields")) || hasRequiredCapturePlacement(packageNode.path("flow"), captureIds);
+    collectRequiredCaptures(packageNode.path("data").path("fields"), captureIds, packageNode);
+    return hasStaticRequiredCapture(packageNode.path("data").path("fields"), packageNode) || hasRequiredCapturePlacement(packageNode.path("flow"), captureIds, packageNode);
   }
-  private void collectRequiredCaptures(JsonNode fields, java.util.Set<String> captureIds) {
+  private void collectRequiredCaptures(JsonNode fields, java.util.Set<String> captureIds, JsonNode pkg) {
     if (!fields.isArray()) return;
     for (JsonNode field : fields) {
       String type = field.path("type").asText();
       if ("attachments".equals(type) || "drawing".equals(type)) {
         captureIds.add(field.path("id").asText());
       }
-      collectRequiredCaptures(field.path("fields"), captureIds); collectRequiredCaptures(field.path("itemSchema").path("fields"), captureIds);
+      collectRequiredCaptures(field.path("fields"), captureIds, pkg); collectRequiredCaptures(field.path("itemSchema").path("fields"), captureIds, pkg);
     }
   }
-  private boolean hasStaticRequiredCapture(JsonNode fields) {
+  private boolean hasStaticRequiredCapture(JsonNode fields, JsonNode pkg) {
     if(!fields.isArray()) return false; for(JsonNode field:fields) {
       if (("attachments".equals(field.path("type").asText()) || "drawing".equals(field.path("type").asText()))
-          && (field.path("required").asBoolean(false) || field.path("constraints").path("required").asBoolean(false) || field.hasNonNull("requiredExpressionId"))) return true;
-      if(hasStaticRequiredCapture(field.path("fields")) || hasStaticRequiredCapture(field.path("itemSchema").path("fields"))) return true;
+          && (field.path("required").asBoolean(false) || field.path("constraints").path("required").asBoolean(false) || requiredExpressionCanBeTrue(field.path("requiredExpressionId").asText(null),pkg))) return true;
+      if(hasStaticRequiredCapture(field.path("fields"),pkg) || hasStaticRequiredCapture(field.path("itemSchema").path("fields"),pkg)) return true;
     } return false;
   }
-  private boolean hasRequiredCapturePlacement(JsonNode node, java.util.Set<String> captures) {
+  private boolean hasRequiredCapturePlacement(JsonNode node, java.util.Set<String> captures, JsonNode pkg) {
     if (node.isObject()) {
-      if (captures.contains(node.path("fieldId").asText()) && node.hasNonNull("requiredExpressionId")) return true;
-      java.util.Iterator<JsonNode> values=node.elements(); while(values.hasNext()) if(hasRequiredCapturePlacement(values.next(),captures)) return true;
-    } else if(node.isArray()) for(JsonNode child:node) if(hasRequiredCapturePlacement(child,captures)) return true;
+      if (captures.contains(node.path("fieldId").asText()) && requiredExpressionCanBeTrue(node.path("requiredExpressionId").asText(null),pkg)) return true;
+      java.util.Iterator<JsonNode> values=node.elements(); while(values.hasNext()) if(hasRequiredCapturePlacement(values.next(),captures,pkg)) return true;
+    } else if(node.isArray()) for(JsonNode child:node) if(hasRequiredCapturePlacement(child,captures,pkg)) return true;
     return false;
+  }
+  private boolean requiredExpressionCanBeTrue(String id, JsonNode pkg) {
+    if(id==null||id.isBlank()) return false;
+    JsonNode expressions=pkg.path("expressions"); JsonNode expression=expressions.path(id);
+    if(expression.isMissingNode()&&expressions.isArray()) for(JsonNode item:expressions) if(id.equals(item.path("id").asText())) { expression=item.path("expression").isMissingNode()?item:item.path("expression"); break; }
+    if(expression.isBoolean()) return expression.booleanValue();
+    if(expression.has("value")&&expression.path("value").isBoolean()) return expression.path("value").booleanValue();
+    return true; // unknown/nonconstant expression is conservatively required
   }
   private void invalidateChangedRequests(UUID form, Snapshot snapshot) {
     db.update("""

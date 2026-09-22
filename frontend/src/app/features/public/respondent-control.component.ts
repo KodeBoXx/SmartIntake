@@ -83,6 +83,7 @@ export class RespondentControlComponent implements AfterViewInit {
   private readonly route = inject(ActivatedRoute, { optional: true });
   @ViewChild('control') private readonly control?: ElementRef<HTMLElement>;
   readonly field = input.required<RuntimeFieldDefinition>();
+  readonly instanceId = input<string>();
   readonly cell = input<Cell>();
   readonly serverCell = input<ServerAnswerCell>();
   readonly invalid = input<Readonly<Record<string, string>>>({});
@@ -113,7 +114,7 @@ export class RespondentControlComponent implements AfterViewInit {
   objectServerCell(id: string): ServerAnswerCell | undefined { const value = cellValue(this.serverCell()); return value && typeof value === 'object' && 'fields' in value ? (value as { fields: Record<string, ServerAnswerCell> }).fields[id] : undefined; }
   itemServerCell(itemId: string, id: string): ServerAnswerCell | undefined { const value = cellValue(this.serverCell()); return value && typeof value === 'object' && 'items' in value ? (value as { items: readonly ListItem<ServerAnswerCell>[] }).items.find((item) => item.itemId === itemId)?.fields[id] : undefined; }
   rowPathKey(): string { return this.rowPath().map((segment) => `${segment.listFieldId}:${segment.itemId}`).join('/'); }
-  controlId(): string { return this.rowPathKey() ? `${this.field().id}-${this.rowPathKey().replaceAll(/[^A-Za-z0-9_-]/g, '-')}` : this.field().id; }
+  controlId(): string { const base = `${this.instanceId() ? `${this.instanceId()}-` : ''}${this.field().id}`; return this.rowPathKey() ? `${base}-${this.rowPathKey().replaceAll(/[^A-Za-z0-9_-]/g, '-')}` : base; }
   errorId(): string { return `${this.controlId()}-error`; }
   invalidReason(): string | undefined { const path = this.rowPathKey(); return this.invalid()[`${path ? `${path}/` : '/'}${this.field().id}`]; }
   childPath(itemId: string): RowPath { return [...this.rowPath(), { listFieldId: this.field().id, itemId }]; }

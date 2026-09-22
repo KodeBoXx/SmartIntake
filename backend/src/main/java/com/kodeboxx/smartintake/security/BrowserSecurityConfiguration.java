@@ -37,11 +37,11 @@ public class BrowserSecurityConfiguration implements WebMvcConfigurer {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
         throws ServletException, IOException {
-      boolean iframeBootstrap = request.getRequestURI().matches(".*/v1/public/channels/[0-9a-fA-F-]+/bootstrap");
-      response.setHeader("Content-Security-Policy", "default-src 'self'; base-uri 'self'; frame-ancestors " + (iframeBootstrap ? "'self'" : "'none'") + "; object-src 'none'");
+      boolean iframeEmbed = request.getRequestURI().matches(".*/v1/public/channels/[0-9a-fA-F-]+/embed");
+      response.setHeader("Content-Security-Policy", "default-src 'self'; base-uri 'self'; frame-ancestors " + (iframeEmbed ? "'self'" : "'none'") + "; object-src 'none'");
       response.setHeader("X-Content-Type-Options", "nosniff");
       response.setHeader("Referrer-Policy", "same-origin");
-      if (!iframeBootstrap) response.setHeader("X-Frame-Options", "DENY");
+      if (!iframeEmbed) response.setHeader("X-Frame-Options", "DENY");
       chain.doFilter(request, response);
     }
   }

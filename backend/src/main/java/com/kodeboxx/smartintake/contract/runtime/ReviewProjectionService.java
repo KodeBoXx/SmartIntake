@@ -37,11 +37,16 @@ public final class ReviewProjectionService {
       Status status,
       String statusLabel,
       JsonNode value,
-      List<ReviewRow> children) {
+      List<ReviewRow> children,
+      boolean reviewGate) {
     public ReviewRow {
       rowPath = List.copyOf(rowPath);
       value = value == null ? null : value.deepCopy();
       children = List.copyOf(children);
+    }
+    public ReviewRow(String instanceId, String fieldId, String label, List<RowSegment> rowPath,
+        String itemId, Status status, String statusLabel, JsonNode value, List<ReviewRow> children) {
+      this(instanceId, fieldId, label, rowPath, itemId, status, statusLabel, value, children, false);
     }
   }
 
@@ -64,11 +69,18 @@ public final class ReviewProjectionService {
     ObjectNode export = JsonNodeFactory.instance.objectNode();
     for (Placement placement : placements) {
       List<ReviewRow> rows = rows(state, placement, List.of(), emitted, activePlacementKeys);
-      if (placement.reviewGate()) reviewGates.addAll(rows);
-      else answers.addAll(rows);
+      for (ReviewRow row : rows) partition(row, answers, reviewGates);
       for (ReviewRow row : rows) appendExport(export, row);
     }
     return new Projection(answers, reviewGates, export);
+  }
+
+  private void partition(ReviewRow row, List<ReviewRow> answers, List<ReviewRow> reviewGates) {
+    List<ReviewRow> ordinaryChildren = new ArrayList<>();
+    for (ReviewRow child : row.children()) partition(child, ordinaryChildren, reviewGates);
+    ReviewRow projected = new ReviewRow(row.instanceId(), row.fieldId(), row.label(), row.rowPath(),
+        row.itemId(), row.status(), row.statusLabel(), row.value(), ordinaryChildren, row.reviewGate());
+    if (row.reviewGate()) reviewGates.add(projected); else answers.add(projected);
   }
 
   public Projection project(CompiledForm compiled, State state) {
@@ -133,7 +145,7 @@ public final class ReviewProjectionService {
           children.addAll(rows(state, child, itemPath, emitted, activePlacementKeys));
         result.add(new ReviewRow(
             placement.instanceId(), placement.fieldId(), placement.label(), path, itemId,
-            Status.answered, "Answered", null, children));
+            Status.answered, "Answered", null, children, placement.reviewGate()));
       }
       return result;
     }
@@ -146,7 +158,7 @@ public final class ReviewProjectionService {
     return List.of(new ReviewRow(
         placement.instanceId(), placement.fieldId(), placement.label(), path, null,
         cell == null ? Status.unanswered : cell.status(),
-        statusLabel(cell == null ? Status.unanswered : cell.status()), cell == null ? null : cell.value(), children));
+        statusLabel(cell == null ? Status.unanswered : cell.status()), cell == null ? null : cell.value(), children, placement.reviewGate()));
   }
 
   private void appendExport(ObjectNode target, ReviewRow row) {

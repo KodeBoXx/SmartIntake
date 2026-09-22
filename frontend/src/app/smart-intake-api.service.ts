@@ -199,7 +199,7 @@ export type StartedRespondentSession = RespondentSession & {
   readonly release?: Record<string, unknown>;
 };
 
-export type PublicReceipt = { readonly receiptId: string; readonly submittedAt?: string; readonly status?: string; readonly sessionId?: string; readonly attemptId?: string; readonly shareId?: string; readonly receiptCapability?: string };
+export type PublicReceipt = { readonly receiptId: string; readonly submissionId?: string; readonly requestId?: string; readonly submittedAt?: string; readonly status?: string; readonly sessionId?: string; readonly attemptId?: string; readonly shareId?: string; readonly receiptCapability?: string };
 export type ChannelBootstrap = { readonly bootstrap: string; readonly channelId: string; readonly releaseId: string; readonly expiresInSeconds: number };
 
 export type RespondentReview = {

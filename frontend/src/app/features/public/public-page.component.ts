@@ -50,7 +50,7 @@ import { RespondentControlComponent } from './respondent-control.component';
             <div class="border-b py-3" data-testid="review-item" [attr.data-row-path]="item.rowPath">
               <div class="type-label">{{ item.label }}</div>
               <div class="type-body">{{ item.value }}</div>
-              <button cui-button variant="secondary" size="sm" type="button" (click)="store.edit(item.fieldId, item.path, item.instanceId)">Edit</button>
+              <button cui-button variant="secondary" size="sm" type="button" [disabled]="store.isBusy()" (click)="store.edit(item.fieldId, item.path, item.instanceId)">Edit</button>
             </div>
           }
           @for (ack of acknowledgments(); track ack.key) {
@@ -58,7 +58,7 @@ import { RespondentControlComponent } from './respondent-control.component';
           }
           <div class="mt-6 flex gap-3">
             <button cui-button variant="secondary" type="button" (click)="backToForm()" [disabled]="store.phase() === 'submitting'">Back to form</button>
-            <button cui-button variant="primary" type="button" (click)="submit()" [disabled]="store.phase() === 'submitting' || !acksAccepted()" data-testid="submit-response">{{ store.phase() === 'submitting' ? 'Submitting…' : 'Submit response' }}</button>
+            <button cui-button variant="primary" type="button" (click)="submit()" [disabled]="store.isBusy() || !acksAccepted()" data-testid="submit-response">{{ store.phase() === 'submitting' ? 'Submitting…' : 'Submit response' }}</button>
           </div>
         </cui-card>
       } @else if (store.session(); as session) {
@@ -69,8 +69,8 @@ import { RespondentControlComponent } from './respondent-control.component';
             @else if (store.queueSize()) { <span class="type-caption" aria-live="assertive">Not saved <button type="button" (click)="store.retrySave()">Retry</button></span> }
             @else { <span class="type-caption">Saved</span> }
           </div>
-          @for (field of currentFields(); track field.id) {
-            <si-respondent-control [field]="field" [cell]="answerForControl(field)" [serverCell]="store.state().server?.answers?.[field.id]" [invalid]="store.state().invalid" (operation)="store.apply($event)" />
+          @for (placement of currentPlacements(); track placement.instanceId) {
+            <si-respondent-control [field]="placement.field" [instanceId]="placement.instanceId" [cell]="answerForControl(placement.field)" [serverCell]="store.state().server?.answers?.[placement.field.id]" [invalid]="store.state().invalid" (operation)="store.apply($event)" />
           }
           <div class="mt-8 flex justify-between gap-3">
             <button cui-button variant="secondary" type="button" (click)="store.navigate(-1)" [disabled]="!store.canMovePrevious()">Previous</button>
@@ -87,6 +87,7 @@ export class PublicPageComponent implements OnInit {
   entryShareId: string | null = null;
   private iframeOrigin: string | null = null;
   private iframeBootstrap: string | null = null;
+  private iframeApprovedOrigin: string | null = null;
   reviewRoute = false;
   receiptRoute = false;
   acknowledgments = () => this.acknowledgmentFields();
@@ -115,12 +116,14 @@ export class PublicPageComponent implements OnInit {
     this.receiptRoute = this.route.snapshot.url.some((segment) => segment.path === 'receipt');
     if (this.receiptRoute && sessionId) this.store.restoreReceipt(sessionId);
     if (sessionId && !this.store.session() && !this.testState && !this.receiptRoute) this.store.hydrate(sessionId, this.reviewRoute);
+    else if (sessionId && this.reviewRoute && !this.store.review()?.reviewDigest) this.store.ensureReview();
     if (!this.testState && this.entryShareId && window.parent !== window) {
       addEventListener('message', (event) => {
-        const message = event.data as { protocol?: string; type?: string; bootstrap?: string };
+        const message = event.data as { protocol?: string; type?: string; bootstrap?: string; parentOrigin?: string };
         if (event.source !== window.parent || message?.protocol !== 'smart-intake.v1' || message.type !== 'bootstrap' || typeof message.bootstrap !== 'string' || !message.bootstrap) return;
         this.iframeOrigin = event.origin;
         this.iframeBootstrap = message.bootstrap;
+        this.iframeApprovedOrigin = typeof message.parentOrigin === 'string' ? message.parentOrigin : event.origin;
         window.parent.postMessage({ protocol: 'smart-intake.v1', type: 'ready', shareId: this.entryShareId }, event.origin);
       });
     }
@@ -128,9 +131,10 @@ export class PublicPageComponent implements OnInit {
 
   get testMessage(): string { return `${this.testTitle} is ${this.testState}; real respondent session behavior is active without a test state.`; }
 
-  start(): void { if (this.entryShareId) { const channel = this.route.snapshot.queryParamMap.get('channel'); if (channel) { if (!this.iframeOrigin || !this.iframeBootstrap) { this.store.error.set('Waiting for the approved embedding site to connect.'); return; } this.store.startFromChannel(this.entryShareId, channel, this.iframeBootstrap, this.iframeOrigin); } else this.store.start(this.entryShareId); } }
+  start(): void { if (this.entryShareId) { const channel = this.route.snapshot.queryParamMap.get('channel'); if (channel) { if (!this.iframeOrigin || !this.iframeBootstrap || !this.iframeApprovedOrigin) { this.store.error.set('Waiting for the approved embedding site to connect.'); return; } this.store.startFromChannel(this.entryShareId, channel, this.iframeBootstrap, this.iframeApprovedOrigin); } else this.store.start(this.entryShareId); } }
   currentPage() { return this.store.pages().find((page) => page.id === this.store.currentPageId()); }
   currentFields(): readonly RuntimeFieldDefinition[] { const ids = this.currentPage()?.fieldIds ?? []; return this.store.definition().fields.filter((field) => ids.includes(field.id) && !field.hidden); }
+  currentPlacements(): readonly { instanceId: string; field: RuntimeFieldDefinition }[] { const fields = new Map(this.store.definition().fields.map((field) => [field.id, field])); return (this.currentPage()?.placements ?? []).flatMap((placement) => { const field = fields.get(placement.fieldId); return field && !field.hidden ? [{ instanceId: placement.instanceId, field }] : []; }); }
   label(field: RuntimeFieldDefinition): string { return field.id.replace(/([A-Z])/g, ' $1').replace(/^./, (letter) => letter.toUpperCase()); }
   isProtected(field: RuntimeFieldDefinition): boolean { return Boolean(field.readOnly || field.calculated); }
   inputType(field: RuntimeFieldDefinition): string { return field.type === 'integer' || field.type === 'decimal' ? 'number' : field.type === 'date' || field.type === 'time' || field.type === 'dateTime' ? field.type === 'dateTime' ? 'datetime-local' : field.type : 'text'; }

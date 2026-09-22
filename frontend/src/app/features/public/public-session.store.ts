@@ -64,6 +64,7 @@ export class PublicSessionStore implements OnDestroy {
   private queue: QueuedMutation[] = [];
   private inFlight: string | null = null;
   private navigationInFlight = false;
+  private reviewAfterSave = false;
   private readonly channel = typeof BroadcastChannel === 'undefined' ? null : new BroadcastChannel('smart-intake.respondent.v1');
   constructor(private readonly api: SmartIntakeApiService, private readonly router: Router) {
     this.channel?.addEventListener('message', ({ data }) => {
@@ -134,17 +135,20 @@ export class PublicSessionStore implements OnDestroy {
   openReview(): void {
     const current = this.session(); const token = this.token();
     if (!current || !token) return;
-    if (this.queue.length || this.inFlight || this.navigationInFlight) { this.error.set('Wait for the current change to finish before reviewing your response.'); return; }
+    if (this.queue.length || this.inFlight || this.navigationInFlight) { this.reviewAfterSave = true; this.error.set('Saving the current change before review.'); this.flushQueue(); return; }
+    this.reviewAfterSave = false;
     this.phase.set('loading');
     this.api.validateRespondentSession(current.sessionId, token).subscribe({
       next: (review) => {
-        if (review.errors.length) { this.phase.set('ready'); this.error.set('Complete the highlighted answers before reviewing your response.'); return; }
+        if (review.errors.length) { this.phase.set('ready'); this.markReviewErrors(review.errors); this.error.set('Complete the highlighted answers before reviewing your response.'); return; }
         this.review.set(review); this.phase.set('review');
         void this.router.navigate(['/sessions', current.sessionId, 'review']);
       },
       error: () => this.fail('We could not validate this response. Please try again.'),
     });
   }
+  ensureReview(): void { if (!this.review()?.reviewDigest) this.openReview(); }
+  isBusy(): boolean { return Boolean(this.inFlight || this.navigationInFlight || this.phase() === 'saving' || this.phase() === 'submitting' || this.phase() === 'loading'); }
 
   edit(fieldId: string, rowPath: RowPath = [], instanceId?: string): void {
     const current = this.session(); if (!current) return;
@@ -155,7 +159,7 @@ export class PublicSessionStore implements OnDestroy {
   submit(acknowledgments: readonly { fieldId: string; rowPath: { listFieldId: string; itemId: string }[]; expectedContentHash: string; accepted: true }[] = []): void {
     const current = this.session(); const token = this.token(); const review = this.review();
     if (!current || !token || !review?.reviewDigest) { this.fail('Review the current response before submitting it.'); return; }
-    if (this.queue.length || this.inFlight) { this.phase.set('review'); this.error.set('Your latest changes have not been saved. Wait for saving to finish before submitting.'); return; }
+    if (this.queue.length || this.inFlight || this.navigationInFlight) { this.phase.set('review'); this.error.set('Wait for the current change to finish before submitting.'); return; }
     const attemptId = this.attemptId() ?? mutationId('submit');
     this.attemptId.set(attemptId); this.persist(); this.phase.set('submitting');
     this.api.submitSession(current.sessionId, token, current.revision, review.reviewDigest, attemptId, acknowledgments).subscribe({
@@ -181,7 +185,7 @@ export class PublicSessionStore implements OnDestroy {
     if (clearSecret && current) sessionStorage.removeItem(secretKey(current.sessionId));
     this.phase.set('idle'); this.session.set(null); this.token.set(null); this.state.set(createRuntimeAnswerState());
     this.currentPageId.set(null); this.reachablePageIds.set([]); this.requiredCount.set(0); this.completedRequiredCount.set(0);
-    this.review.set(null); this.receiptId.set(null); this.attemptId.set(null); this.queue = []; this.inFlight = null; this.navigationInFlight = false; this.queueSize.set(0); this.error.set(null);
+    this.review.set(null); this.receiptId.set(null); this.attemptId.set(null); this.queue = []; this.inFlight = null; this.navigationInFlight = false; this.reviewAfterSave = false; this.queueSize.set(0); this.error.set(null);
   }
 
   private mutate(operation: RuntimeOperation): void {
@@ -259,6 +263,7 @@ export class PublicSessionStore implements OnDestroy {
     if (this.queue[0]?.id === this.inFlight) this.queue.shift();
     this.inFlight = null; this.queueSize.set(this.queue.length); this.persist(); this.channel?.postMessage({ sessionId: current.sessionId, revision: projection.acceptedRevision });
     this.phase.set('ready'); this.flushQueue();
+    if (!this.queue.length && !this.inFlight && this.reviewAfterSave) this.openReview();
   }
 
   private reconcileAttempt(attemptId: string): void {
@@ -275,7 +280,7 @@ export class PublicSessionStore implements OnDestroy {
   }
 
   private acceptOperation(operation: SubmissionOperation): void {
-    if (operation.state === 'succeeded' && (operation.receiptId ?? operation.submissionId)) this.resolveReceipt(operation.receiptId ?? operation.submissionId!);
+    if (operation.state === 'succeeded' && (operation.receiptId ?? operation.submissionId)) { this.phase.set('loading'); this.resolveReceipt(operation.receiptId ?? operation.submissionId!); }
     else if (operation.state === 'failed' || operation.state === 'notStarted') { this.phase.set('review'); this.error.set('Submission was not completed. Please review and try again.'); }
   }
 
@@ -283,6 +288,21 @@ export class PublicSessionStore implements OnDestroy {
     const current = this.session(); const token = this.token();
     if (!current || !token) return;
     this.api.respondentReceipt(current.sessionId, token, this.attemptId() ?? undefined).subscribe({ next: (receipt) => this.acceptReceipt(receipt), error: () => { this.phase.set('review'); this.error.set(`Submission succeeded with receipt ${receiptId}, but receipt recovery is unavailable. Try again safely.`); } });
+  }
+
+  private markReviewErrors(errors: readonly unknown[]): void {
+    const invalid = { ...this.state().invalid };
+    let first: { fieldId: string; rowPath: RowPath } | null = null;
+    for (const error of errors) {
+      if (!error || typeof error !== 'object') continue;
+      const value = error as Record<string, unknown>; const fieldId = typeof value['fieldId'] === 'string' ? value['fieldId'] : '';
+      const rowPath = Array.isArray(value['rowPath']) ? value['rowPath'].filter(isRowSegment) : [];
+      if (!fieldId) continue;
+      invalid[`${rowPath.map((segment) => `${segment.listFieldId}:${segment.itemId}`).join('/')}/${fieldId}`] = String(value['code'] ?? 'INVALID');
+      first ??= { fieldId, rowPath };
+    }
+    this.state.set({ ...this.state(), invalid });
+    if (first) this.edit(first.fieldId, first.rowPath);
   }
 
   private acceptReceipt(response: PublicReceipt): void {
@@ -302,7 +322,7 @@ export class PublicSessionStore implements OnDestroy {
 
   restoreReceipt(sessionId: string): void {
     const accepted = storedReceipt(sessionId);
-    if (accepted) { this.phase.set('loading'); this.api.publicReceipt(accepted.receiptCapability).subscribe({ next: (verified) => { if (verified.receiptId !== accepted.receiptId) { this.fail('This receipt is not available on this device.'); return; } this.receipt.set(accepted); this.receiptId.set(accepted.receiptId); this.shareId.set(accepted.shareId); this.phase.set('receipt'); }, error: () => this.fail('This receipt is not available on this device.') }); return; }
+    if (accepted) { this.phase.set('loading'); this.api.publicReceipt(accepted.receiptCapability).subscribe({ next: (verified) => { if ((verified.submissionId ?? verified.receiptId) !== accepted.receiptId || verified.status !== 'accepted') { this.fail('This receipt is not available on this device.'); return; } this.receipt.set(accepted); this.receiptId.set(accepted.receiptId); this.shareId.set(accepted.shareId); this.phase.set('receipt'); }, error: () => this.fail('This receipt is not available on this device.') }); return; }
     const stored = this.secret(sessionId);
     if (!stored) { this.fail('This receipt is not available on this device.'); return; }
     this.api.respondentReceipt(sessionId, stored.token, stored.attemptId).subscribe({ next: (receipt) => {
@@ -352,11 +372,15 @@ function runtimeField(field: CanonicalField, messages: Record<string, string>): 
     min: stringValue(constraints?.['min']), max: stringValue(constraints?.['max']), step: stringValue(constraints?.['step']), scale: numberValue(constraints?.['scale']), minItems: numberValue(constraints?.['minItems']), maxItems: numberValue(constraints?.['maxItems']), minLength: numberValue(constraints?.['minLength']), maxLength: numberValue(constraints?.['maxLength']), exclusiveOptionIds: stringArray(constraints?.['exclusiveOptionIds']), normalizer: field['normalizer'] as RuntimeFieldDefinition['normalizer'], hiddenRetention: field['hiddenRetention'] as RuntimeFieldDefinition['hiddenRetention'], hidden: Boolean(field['hidden'] ?? field['visible'] === false), fixedRows: Boolean(field['fixedRows'] ?? field['matrix']), fixedItemIds: stringArray(field['fixedItemIds']), fields: fields.length ? fields : undefined, itemFields: itemFields.length ? itemFields : undefined,
   };
 }
-function canonicalPages(definition: Record<string, unknown> | undefined, pinnedLocale?: string): { id: string; title: string; fieldIds: readonly string[] }[] {
+function canonicalPages(definition: Record<string, unknown> | undefined, pinnedLocale?: string): { id: string; title: string; fieldIds: readonly string[]; placements: readonly { instanceId: string; fieldId: string }[] }[] {
   const messages = (((definition?.['translations'] as Record<string, { messages?: Record<string, string> }> | undefined)?.[pinnedLocale ?? String(definition?.['defaultLocale'] ?? 'en')] ?? {}).messages ?? {});
   const phases = ((definition?.['flow'] as { phases?: Record<string, unknown>[] } | undefined)?.phases ?? []);
-  return phases.flatMap((phase) => (Array.isArray(phase['pages']) ? phase['pages'] as Record<string, unknown>[] : []).map((page) => ({ id: String(page['id']), title: messages[String(page['titleKey'])] ?? String(page['id']), fieldIds: (Array.isArray(page['sections']) ? page['sections'] as Record<string, unknown>[] : []).flatMap((section) => (Array.isArray(section['nodes']) ? section['nodes'] as Record<string, unknown>[] : []).map((node) => String(node['fieldId'] ?? ''))).filter(Boolean) })));
+  return phases.flatMap((phase) => (Array.isArray(phase['pages']) ? phase['pages'] as Record<string, unknown>[] : []).map((page) => {
+    const placements = (Array.isArray(page['sections']) ? page['sections'] as Record<string, unknown>[] : []).flatMap((section) => (Array.isArray(section['nodes']) ? section['nodes'] as Record<string, unknown>[] : []).flatMap(topPlacement));
+    return { id: String(page['id']), title: messages[String(page['titleKey'])] ?? String(page['id']), fieldIds: placements.map((placement) => placement.fieldId), placements };
+  }));
 }
+function topPlacement(node: Record<string, unknown>): { instanceId: string; fieldId: string }[] { const fieldId = String(node['fieldId'] ?? ''); return fieldId ? [{ instanceId: String(node['id'] ?? fieldId), fieldId }] : (Array.isArray(node['children']) ? node['children'] as Record<string, unknown>[] : []).flatMap(topPlacement); }
 function pageForPlacement(definition: Record<string, unknown>, instanceId: string | undefined, fieldId: string): string | undefined {
   const phases = ((definition?.['flow'] as { phases?: Record<string, unknown>[] } | undefined)?.phases ?? []);
   for (const phase of phases) for (const page of (Array.isArray(phase['pages']) ? phase['pages'] as Record<string, unknown>[] : [])) {
@@ -370,6 +394,7 @@ function nodeMatches(node: Record<string, unknown>, instanceId: string | undefin
   return (Array.isArray(node['children']) ? node['children'] as Record<string, unknown>[] : []).some((child) => nodeMatches(child, instanceId, fieldId));
 }
 function storedReceipt(sessionId: string): StoredReceipt | null { try { const value = JSON.parse(sessionStorage.getItem(receiptKey(sessionId)) ?? 'null'); return typeof value?.receiptId === 'string' && typeof value?.shareId === 'string' && typeof value?.submittedAt === 'string' && typeof value?.receiptCapability === 'string' ? value : null; } catch { return null; } }
+function isRowSegment(value: unknown): value is { listFieldId: string; itemId: string } { return Boolean(value && typeof value === 'object' && typeof (value as Record<string, unknown>)['listFieldId'] === 'string' && typeof (value as Record<string, unknown>)['itemId'] === 'string'); }
 function stringValue(value: unknown): string | undefined { return typeof value === 'string' ? value : undefined; }
 function numberValue(value: unknown): number | undefined { return typeof value === 'number' ? value : undefined; }
 function stringArray(value: unknown): readonly string[] | undefined { return Array.isArray(value) && value.every((item) => typeof item === 'string') ? value : undefined; }

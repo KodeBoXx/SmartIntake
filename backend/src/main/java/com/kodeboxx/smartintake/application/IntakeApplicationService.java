@@ -30,6 +30,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -53,6 +54,7 @@ public class IntakeApplicationService {
   private final TypedSessionRuntimeService typedRuntime;
   private final SubmissionAttemptLedger submissionAttempts;
   private final ContractRegistry contracts;
+  @Value("${smartintake.public-app-base-url:http://localhost:4200}") private String publicAppBaseUrl;
 
   public IntakeApplicationService(
       JdbcTemplate db,
@@ -467,6 +469,14 @@ public class IntakeApplicationService {
     UUID id=UUID.randomUUID(); String nonce=UUID.randomUUID().toString();
     db.update("insert into form_share_channel_bootstraps(id,channel_id,release_id,parent_origin,nonce,expires_at) values(?,?,?,?,?,now()+interval '5 minutes')",id,channelId,c.get("release_id"),parentOrigin,nonce);
     return Map.of("bootstrap",id+"."+nonce,"channelId",channelId,"releaseId",c.get("release_id"),"expiresInSeconds",300);
+  }
+  public String embedChannel(UUID channelId, String parentOrigin) {
+    Map<String,Object> c=db.queryForMap("select allowed_origins::text from form_share_channels where id=? and channel_type='IFRAME' and state='ACTIVE'",channelId);
+    List<?> origins=json.convertValue(parseNode((String)c.get("allowed_origins")),List.class);
+    if(!origins.contains(parentOrigin)) throw new ResponseStatusException(HttpStatus.FORBIDDEN,"IFRAME_PARENT_ORIGIN_DENIED");
+    String src=publicAppBaseUrl.replaceAll("/$","")+"/f/"+channelId+"?channelId="+channelId;
+    String escaped=parentOrigin.replace("\\","\\\\").replace("'","\\'");
+    return "<!doctype html><meta charset=\"utf-8\"><iframe id=\"smart-intake\" src=\""+src+"\" sandbox=\"allow-scripts allow-forms allow-same-origin\"></iframe><script>const parentOrigin='"+escaped+"',frame=document.getElementById('smart-intake');window.addEventListener('message',e=>{if(e.origin!==parentOrigin||e.source!==parent)return;frame.contentWindow.postMessage({type:'smart-intake.v1',parentOrigin,...e.data},'*')});window.addEventListener('message',e=>{if(e.source!==frame.contentWindow)return;parent.postMessage(e.data,parentOrigin)});</script>";
   }
 
   @Transactional
@@ -1552,6 +1562,6 @@ public class IntakeApplicationService {
   }
   private ResponseEntity<?> minimalReceipt(UUID submissionId, HttpStatus status) {
     Map<String,Object> submitted = db.queryForMap("select submitted_at from submissions where id=?", submissionId);
-    return ResponseEntity.status(status).body(Map.of("receiptId",submissionId,"submittedAt",submitted.get("submitted_at").toString(),"status","SUBMITTED","message","Your response has been received."));
+    return ResponseEntity.status(status).body(Map.of("submissionId",submissionId,"submittedAt",submitted.get("submitted_at").toString(),"status","accepted","requestId",submissionId.toString()));
   }
 }
