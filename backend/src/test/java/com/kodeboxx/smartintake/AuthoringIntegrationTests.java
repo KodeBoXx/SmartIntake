@@ -606,6 +606,22 @@ class AuthoringIntegrationTests {
     assertEquals(reviews,db.queryForObject("select count(*) from form_authoring_locale_reviews where form_id=?",Integer.class,form));
   }
 
+  @Test void separates_administrator_theme_lock_authority_from_ordinary_authoring() throws Exception {
+    UUID workspaceId=db.queryForObject("select workspace_id from forms where id=?",UUID.class,form);
+    db.update("delete from memberships where account_id=? and workspace_id=?",account,workspaceId);
+    db.update("insert into memberships(account_id,workspace_id,role) values(?,?,?)",account,workspaceId,"AUTHOR");
+    Map<String,Object> theme=Map.of("themeKey","accessible-default","version","1.0.0","tokens",Map.of("accent","#175CD3","background","#FFFFFF","text","#182230","fontFamily","system","density","comfortable","radius",8));
+
+    assertEquals(HttpStatus.FORBIDDEN,call("/theme",HttpMethod.PUT,"\"1\"",Map.of("theme",theme,"locks",List.of("/tokens/accent")),"author-locks").getStatusCode());
+    assertEquals(0,db.queryForObject("select count(*) from form_authoring_history where form_id=?",Integer.class,form));
+
+    db.update("delete from memberships where account_id=? and workspace_id=?",account,workspaceId);
+    db.update("insert into memberships(account_id,workspace_id,role) values(?,?,?)",account,workspaceId,"WORKSPACE_ADMINISTRATOR");
+    ResponseEntity<String> locked=call("/theme",HttpMethod.PUT,"\"1\"",Map.of("theme",theme,"locks",List.of("/tokens/accent")),"administrator-locks");
+    assertEquals(HttpStatus.OK,locked.getStatusCode(),locked.getBody());
+    assertEquals(1,db.queryForObject("select count(*) from form_authoring_theme_locks where form_id=? and token_path='/tokens/accent'",Integer.class,form));
+  }
+
   @Test void rejects_forged_package_review_state_without_a_trusted_approval_record() throws Exception {
     Object candidate=json.readValue(Files.readString(Path.of("..", "docs", "contracts", "smart-form-builder-lite", "4.0.0", "fixtures", "package-prd-inline-minimal.positive.json")), new TypeReference<>() {});
     ResponseEntity<String> validated=call("/imports/validate",HttpMethod.POST,null,Map.of("candidate",candidate));

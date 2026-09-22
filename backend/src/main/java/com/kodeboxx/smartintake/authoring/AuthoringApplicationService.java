@@ -265,8 +265,9 @@ public class AuthoringApplicationService {
   @Transactional public ResponseEntity<?> updateTheme(String w, UUID f, String d, String t, String m,
       String idempotencyKey, Map<String, Object> body) {
     boolean administratorLocks = body.containsKey("locks");
-    draft(f,d); authorization.requireOwnedForm(w,t,f); requireAuthoringWritable(f);
-    if (administratorLocks) authorization.authorizeWorkspaceAdministration(w,t);
+    if (administratorLocks) {
+      draft(f,d); requireFormInWorkspace(w,f); authorization.authorizeWorkspaceAdministration(w,t); requireAuthoringWritable(f);
+    } else authorizeWrite(w,f,d,t);
     UUID author = actor(t);
     if (replays != null) return replays.execute(author, "authoring:" + f + ":" + d,
         "authoring-theme-update", idempotencyKey, map("ifMatch", m, "request", body),
@@ -572,6 +573,7 @@ public class AuthoringApplicationService {
   private void authorizeRead(String w,UUID f,String d,String t){draft(f,d);authorization.requireReadableForm(w,t,f);}
   private void authorizeContentWrite(String w,UUID f,String d,String t){draft(f,d);authorization.requireContentForm(w,t,f);requireAuthoringWritable(f);}
   private void authorizeWrite(String w,UUID f,String d,String t){draft(f,d);authorization.requireOwnedForm(w,t,f);requireAuthoringWritable(f);}
+  private void requireFormInWorkspace(String workspace,UUID form){Integer found=db.queryForObject("select count(*) from forms f join workspaces w on w.id=f.workspace_id where f.id=? and w.workspace_key=?",Integer.class,form,workspace);if(found==null||found!=1)throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Resource not found");}
   private void requireAuthoringWritable(UUID form){Integer archived=db.queryForObject("select count(*) from form_catalog_metadata where form_id=? and archived_at is not null",Integer.class,form);if(archived!=null&&archived>0)throw new ResponseStatusException(HttpStatus.CONFLICT,"FORM_ARCHIVED");String profile=db.queryForObject("select compatibility_profile_key from forms where id=?",String.class,form);if(!"canonical-4.0.0".equals(profile))throw new ResponseStatusException(HttpStatus.CONFLICT,"CANONICAL_MIGRATION_REQUIRED");Boolean quarantined=db.queryForObject("select exists(select 1 from record_migration_state where record_type='FORM' and record_key=? and state='QUARANTINED')",Boolean.class,form.toString());if(Boolean.TRUE.equals(quarantined))throw new ResponseStatusException(HttpStatus.CONFLICT,"FORM_QUARANTINED");}
   private void draft(UUID form,String draft){if(!form.toString().equals(draft))throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Resource not found");}
   private Row row(UUID form){ Row result=db.query("select revision,definition::text from forms where id=?",rs->rs.next()?new Row(rs.getLong(1),rs.getString(2)):null,form); if(result==null)throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Resource not found"); return result; }
