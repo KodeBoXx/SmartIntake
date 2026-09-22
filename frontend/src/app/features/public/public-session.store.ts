@@ -1,4 +1,4 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, OnDestroy, computed, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { EMPTY, catchError, expand, map, switchMap, takeWhile, timer } from 'rxjs';
@@ -21,12 +21,14 @@ import type {
   RuntimeDefinition,
   RuntimeFieldDefinition,
   RuntimeOperation,
-  ServerProjection,
+  RowPath,
 } from '../../runtime/runtime-types';
 
 export type RespondentPhase = 'idle' | 'loading' | 'ready' | 'saving' | 'review' | 'submitting' | 'receipt' | 'error';
 
-type StoredSecret = { token: string; shareId: string };
+type QueuedMutation = { id: string; operation: RuntimeOperation };
+type StoredSecret = { token: string; shareId: string; queue?: QueuedMutation[]; currentPageId?: string };
+export type StoredReceipt = { receiptId: string; shareId: string; submittedAt: string };
 type CanonicalField = Record<string, unknown>;
 
 /**
@@ -35,7 +37,7 @@ type CanonicalField = Record<string, unknown>;
  * progress always come back from the pinned session/release API.
  */
 @Injectable({ providedIn: 'root' })
-export class PublicSessionStore {
+export class PublicSessionStore implements OnDestroy {
   readonly phase = signal<RespondentPhase>('idle');
   readonly session = signal<RespondentSession | null>(null);
   readonly shareId = signal<string | null>(null);
@@ -49,6 +51,8 @@ export class PublicSessionStore {
   readonly receiptId = signal<string | null>(null);
   readonly attemptId = signal<string | null>(null);
   readonly error = signal<string | null>(null);
+  readonly receipt = signal<StoredReceipt | null>(null);
+  readonly queueSize = signal(0);
   readonly definition = computed<RuntimeDefinition>(() => runtimeDefinition(this.session()?.definition));
   readonly pages = computed(() => canonicalPages(this.session()?.definition));
   readonly currentPageIndex = computed(() => Math.max(0, this.reachablePageIds().indexOf(this.currentPageId() ?? '')));
@@ -56,7 +60,17 @@ export class PublicSessionStore {
   readonly canMovePrevious = computed(() => this.currentPageIndex() > 0);
   readonly canMoveNext = computed(() => this.currentPageIndex() >= 0 && this.currentPageIndex() < this.reachablePageIds().length - 1);
 
-  constructor(private readonly api: SmartIntakeApiService, private readonly router: Router) {}
+  private queue: QueuedMutation[] = [];
+  private inFlight: string | null = null;
+  private readonly channel = typeof BroadcastChannel === 'undefined' ? null : new BroadcastChannel('smart-intake.respondent.v1');
+  constructor(private readonly api: SmartIntakeApiService, private readonly router: Router) {
+    this.channel?.addEventListener('message', ({ data }) => {
+      const current = this.session(); const message = data as { sessionId?: string; revision?: number };
+      if (current && message?.sessionId === current.sessionId && (message.revision ?? 0) > current.revision) this.hydrate(current.sessionId);
+    });
+    addEventListener('storage', (event) => { const current = this.session(); if (current && event.key === secretKey(current.sessionId)) this.hydrate(current.sessionId); });
+  }
+  ngOnDestroy(): void { this.channel?.close(); }
 
   start(shareId: string): void {
     this.reset(false);
@@ -69,20 +83,24 @@ export class PublicSessionStore {
       error: (failure) => this.fail(startFailure(failure)),
     });
   }
+  startFromChannel(shareId: string, channelId: string): void {
+    this.reset(false); this.phase.set('loading'); this.shareId.set(shareId);
+    this.api.startChannel(channelId, browserLocale(), Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC').subscribe({ next: (started) => { this.acceptStarted(shareId, started); void this.router.navigate(['/sessions', started.sessionId]); }, error: (failure) => this.fail(startFailure(failure)) });
+  }
 
   hydrate(sessionId: string): void {
     const stored = this.secret(sessionId);
     if (!stored) { this.fail('This response is not available on this device. Start a new response from the public link.'); return; }
-    this.phase.set('loading'); this.shareId.set(stored.shareId); this.token.set(stored.token);
+    this.phase.set('loading'); this.shareId.set(stored.shareId); this.token.set(stored.token); this.queue = stored.queue ?? []; this.queueSize.set(this.queue.length); this.currentPageId.set(stored.currentPageId ?? null);
     this.api.respondentSession(sessionId, stored.token).subscribe({
-      next: (session) => this.acceptSession(session),
+      next: (session) => { this.acceptSession(session); this.flushQueue(); },
       error: (failure) => this.fail(sessionFailure(failure)),
     });
   }
 
-  setAnswer(field: RuntimeFieldDefinition, raw: string | boolean | readonly string[]): void {
+  setAnswer(field: RuntimeFieldDefinition, raw: string | boolean | readonly string[], rowPath?: RowPath): void {
     const answer = inputAnswer(field, raw);
-    this.mutate({ kind: 'set', target: { fieldId: field.id }, answer });
+    this.mutate({ kind: 'set', target: { fieldId: field.id, rowPath }, answer });
   }
 
   setStatus(field: RuntimeFieldDefinition, status: 'unknown' | 'declined' | 'respondentNotApplicable'): void {
@@ -90,6 +108,9 @@ export class PublicSessionStore {
   }
 
   clear(field: RuntimeFieldDefinition): void { this.mutate({ kind: 'clear', target: { fieldId: field.id } }); }
+  addItem(field: RuntimeFieldDefinition, rowPath?: RowPath): void { this.mutate({ kind: 'addItem', target: { fieldId: field.id, rowPath }, itemId: `item_${crypto.randomUUID().replaceAll('-', '')}` }); }
+  removeItem(field: RuntimeFieldDefinition, itemId: string, rowPath?: RowPath): void { this.mutate({ kind: 'removeItem', target: { fieldId: field.id, rowPath }, itemId }); }
+  moveItem(field: RuntimeFieldDefinition, itemId: string, beforeItemId?: string, rowPath?: RowPath): void { this.mutate({ kind: 'moveItem', target: { fieldId: field.id, rowPath }, itemId, beforeItemId }); }
 
   navigate(delta: -1 | 1): void {
     const pages = this.reachablePageIds();
@@ -149,14 +170,21 @@ export class PublicSessionStore {
 
   private mutate(operation: RuntimeOperation): void {
     const session = this.session(); const token = this.token();
-    if (!session || !token || this.phase() === 'saving') return;
+    if (!session || !token) return;
     const local = applyRuntimeOperation(this.definition(), this.state(), operation);
     if (!local.accepted) { this.error.set('That answer is not valid for this field.'); return; }
-    this.state.set(local.state); this.phase.set('saving'); this.error.set(null);
-    const clientMutationId = mutationId('save');
-    this.api.patchTypedSession(session.sessionId, token, session.revision, clientMutationId, [operation], this.currentPageId() ?? undefined).subscribe({
+    this.state.set(local.state); this.error.set(null);
+    this.queue.push({ id: mutationId('save'), operation }); this.queueSize.set(this.queue.length); this.persist(); this.flushQueue();
+  }
+
+  private flushQueue(): void {
+    const session = this.session(); const token = this.token(); const queued = this.queue[0];
+    if (!session || !token || !queued || this.inFlight) return;
+    this.inFlight = queued.id; this.phase.set('saving');
+    this.api.patchTypedSession(session.sessionId, token, session.revision, queued.id, [queued.operation], this.currentPageId() ?? undefined).subscribe({
       next: (projection) => this.acceptProjection(projection),
       error: (failure) => {
+        this.inFlight = null;
         if (failure.status === 409) { this.hydrate(session.sessionId); this.error.set('This response changed in another tab. The latest saved response has been restored.'); return; }
         this.phase.set('ready'); this.error.set('Your change has not been saved. Check your connection and try again.');
       },
@@ -165,7 +193,8 @@ export class PublicSessionStore {
 
   private acceptStarted(shareId: string, started: StartedRespondentSession): void {
     this.shareId.set(shareId); this.token.set(started.respondentSession);
-    sessionStorage.setItem(secretKey(started.sessionId), JSON.stringify({ token: started.respondentSession, shareId } satisfies StoredSecret));
+    this.queue = []; this.queueSize.set(0);
+    sessionStorage.setItem(secretKey(started.sessionId), JSON.stringify({ token: started.respondentSession, shareId, queue: [] } satisfies StoredSecret));
     this.acceptSession({ ...started, definition: started.release ?? started.definition ?? {}, answers: started.answers ?? {}, status: started.status ?? 'DRAFT' });
   }
 
@@ -181,11 +210,15 @@ export class PublicSessionStore {
 
   private acceptProjection(projection: TypedSessionProjection): void {
     const current = this.session(); if (!current) return;
+    if (projection.acceptedRevision <= current.revision) return;
     this.session.set({ ...current, revision: projection.acceptedRevision, answers: projection.answers });
     this.state.set(reconcileServerProjection(this.state(), { answers: projection.answers, invalidInputs: projection.invalidInputs }));
     this.reachablePageIds.set(projection.reachablePageIds);
     if (!projection.reachablePageIds.includes(this.currentPageId() ?? '')) this.currentPageId.set(projection.reachablePageIds[0] ?? null);
-    this.requiredCount.set(projection.requiredCount); this.completedRequiredCount.set(projection.completedRequiredCount); this.phase.set('ready');
+    this.requiredCount.set(projection.requiredCount); this.completedRequiredCount.set(projection.completedRequiredCount);
+    if (this.queue[0]?.id === this.inFlight) this.queue.shift();
+    this.inFlight = null; this.queueSize.set(this.queue.length); this.persist(); this.channel?.postMessage({ sessionId: current.sessionId, revision: projection.acceptedRevision });
+    this.phase.set('ready'); this.flushQueue();
   }
 
   private reconcileAttempt(attemptId: string): void {
@@ -209,6 +242,8 @@ export class PublicSessionStore {
     const current = this.session(); if (!current) return;
     // A submitted response cannot be resumed from a shared device after receipt.
     sessionStorage.removeItem(secretKey(current.sessionId));
+    const receipt: StoredReceipt = { receiptId, shareId: this.shareId() ?? '', submittedAt: new Date().toISOString() };
+    sessionStorage.setItem(receiptKey(current.sessionId), JSON.stringify(receipt)); this.receipt.set(receipt);
     this.receiptId.set(receiptId); this.phase.set('receipt'); this.error.set(null);
     void this.router.navigate(['/sessions', current.sessionId, 'receipt']);
   }
@@ -217,10 +252,19 @@ export class PublicSessionStore {
     try { const value = JSON.parse(sessionStorage.getItem(secretKey(sessionId)) ?? 'null'); return typeof value?.token === 'string' && typeof value?.shareId === 'string' ? value : null; } catch { return null; }
   }
 
+  restoreReceipt(sessionId: string): void {
+    try { this.receipt.set(JSON.parse(sessionStorage.getItem(receiptKey(sessionId)) ?? 'null')); } catch { this.receipt.set(null); }
+  }
+  private persist(): void {
+    const current = this.session(); const token = this.token(); const shareId = this.shareId();
+    if (current && token && shareId) sessionStorage.setItem(secretKey(current.sessionId), JSON.stringify({ token, shareId, queue: this.queue, currentPageId: this.currentPageId() ?? undefined } satisfies StoredSecret));
+  }
+
   private fail(message: string): void { this.phase.set('error'); this.error.set(message); }
 }
 
 function secretKey(sessionId: string): string { return `smart-intake.respondent.${sessionId}`; }
+function receiptKey(sessionId: string): string { return `smart-intake.receipt.${sessionId}`; }
 function mutationId(prefix: string): string { return `${prefix}-${crypto.randomUUID()}`; }
 function browserLocale(): string { return navigator.language.split('-')[0] || 'en'; }
 function startFailure(error: HttpErrorResponse): string { return error.status === 410 ? 'This form is no longer accepting new responses.' : error.status === 404 ? 'This public form is unavailable.' : 'We could not start this form. Please try again.'; }
@@ -236,9 +280,10 @@ function runtimeField(field: CanonicalField): RuntimeFieldDefinition {
   const options = Array.isArray(field['options']) ? field['options'].map((option) => typeof option === 'string' ? option : String((option as Record<string, unknown>)['id'])) : undefined;
   const type = String(field['type'] ?? 'text') as RuntimeFieldDefinition['type'];
   const itemFields = ((field['itemSchema'] as { fields?: CanonicalField[] } | undefined)?.fields ?? []).map(runtimeField);
+  const fields = ((field['fields'] as CanonicalField[] | undefined) ?? []).map(runtimeField);
   return {
     id: String(field['id']), type, readOnly: Boolean(field['readOnly']), calculated: Boolean(field['calculated']), allowUnknown: Boolean(field['allowUnknown']), allowDeclined: Boolean(field['allowDeclined']), allowNotApplicable: Boolean(field['allowNotApplicable']), options,
-    min: stringValue(constraints?.['min']), max: stringValue(constraints?.['max']), step: stringValue(constraints?.['step']), scale: numberValue(constraints?.['scale']), minItems: numberValue(constraints?.['minItems']), maxItems: numberValue(constraints?.['maxItems']), minLength: numberValue(constraints?.['minLength']), maxLength: numberValue(constraints?.['maxLength']), exclusiveOptionIds: stringArray(constraints?.['exclusiveOptionIds']), normalizer: field['normalizer'] as RuntimeFieldDefinition['normalizer'], hiddenRetention: field['hiddenRetention'] as RuntimeFieldDefinition['hiddenRetention'], itemFields: itemFields.length ? itemFields : undefined,
+    min: stringValue(constraints?.['min']), max: stringValue(constraints?.['max']), step: stringValue(constraints?.['step']), scale: numberValue(constraints?.['scale']), minItems: numberValue(constraints?.['minItems']), maxItems: numberValue(constraints?.['maxItems']), minLength: numberValue(constraints?.['minLength']), maxLength: numberValue(constraints?.['maxLength']), exclusiveOptionIds: stringArray(constraints?.['exclusiveOptionIds']), normalizer: field['normalizer'] as RuntimeFieldDefinition['normalizer'], hiddenRetention: field['hiddenRetention'] as RuntimeFieldDefinition['hiddenRetention'], fixedRows: Boolean(field['fixedRows'] ?? field['matrix']), fixedItemIds: stringArray(field['fixedItemIds']), fields: fields.length ? fields : undefined, itemFields: itemFields.length ? itemFields : undefined,
   };
 }
 function canonicalPages(definition: Record<string, unknown> | undefined): { id: string; title: string; fieldIds: readonly string[] }[] {

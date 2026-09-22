@@ -313,6 +313,9 @@ body {
 .mb-2 {
   margin-bottom: var(--spacing-2);
 }
+.mb-3 {
+  margin-bottom: var(--spacing-3);
+}
 .mb-4 {
   margin-bottom: var(--spacing-4);
 }
@@ -327,6 +330,9 @@ body {
 }
 .ml-0\.5 {
   margin-left: calc(var(--spacing) * 0.5);
+}
+.ml-3 {
+  margin-left: var(--spacing-3);
 }
 .ml-auto {
   margin-left: auto;

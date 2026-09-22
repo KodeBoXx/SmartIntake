@@ -197,6 +197,8 @@ export type StartedRespondentSession = RespondentSession & {
   readonly release?: Record<string, unknown>;
 };
 
+export type PublicReceipt = { readonly receiptId: string; readonly submittedAt?: string; readonly sessionId?: string; readonly shareId?: string };
+
 export type RespondentReview = {
   readonly errors: readonly unknown[];
   readonly review?: Record<string, unknown>;
@@ -463,6 +465,13 @@ export class SmartIntakeApiService {
     }, {
       withCredentials: false,
     });
+  }
+
+  startChannel(channelId: string, locale?: string, timeZone?: string): Observable<StartedRespondentSession> {
+    return this.http.post<StartedRespondentSession>(`/v1/public/channels/${encodeURIComponent(channelId)}/sessions`, {
+      ...(locale ? { locale } : {}),
+      ...(timeZone ? { timeZone } : {}),
+    }, { withCredentials: false });
   }
 
   respondentSession(sessionId: string, respondentToken: string): Observable<RespondentSession> {
