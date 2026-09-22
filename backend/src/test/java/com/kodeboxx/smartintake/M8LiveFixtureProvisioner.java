@@ -39,6 +39,10 @@ class M8LiveFixtureProvisioner {
     for(String role:List.of("AUTHOR","REVIEWER","PUBLISHER"))db.update("insert into memberships(account_id,workspace_id,role) values(?,?,?)",account,workspaceId,role);
     db.update("insert into staff_sessions(token,account_id,expires_at,absolute_expires_at,last_seen_at) values(?,?,now()+interval '8 hours',now()+interval '8 hours',now())",UUID.fromString(token),account);
     ObjectNode definition=(ObjectNode)json.readTree(Files.readString(Path.of("../docs/contracts/smart-form-builder-lite/4.0.0/fixtures/package.positive.json")));
+    ArrayNode locales=(ArrayNode)definition.withArray("supportedLocales");locales.removeAll();locales.add("en").add("hi").add("ar");
+    ObjectNode translations=definition.withObject("translations");
+    translations.set("hi",json.readTree("{\"direction\":\"ltr\",\"reviewState\":\"approved\",\"pronunciations\":[],\"messages\":{\"title\":\"प्रवेश\",\"amount\":\"राशि\",\"name\":\"नाम\",\"attendees\":\"प्रतिभागी\",\"attendee_name\":\"प्रतिभागी का नाम\"}}"));
+    translations.set("ar",json.readTree("{\"direction\":\"rtl\",\"reviewState\":\"approved\",\"pronunciations\":[],\"messages\":{\"title\":\"الإدخال\",\"amount\":\"المبلغ\",\"name\":\"الاسم\",\"attendees\":\"الحضور\",\"attendee_name\":\"اسم الحاضر\"}}"));
     ((ArrayNode)definition.at("/flow/phases/0/pages/0/sections/0/nodes")).add(json.readTree("{\"id\":\"review\",\"kind\":\"review\",\"labelKey\":\"title\"}"));
     db.update("insert into forms(id,workspace_id,form_key,title,definition,revision,compatibility_profile_key) values(?,?,?,?,cast(? as jsonb),1,?)",form,workspaceId,"m8-live-"+form.toString().substring(0,8),"M8 Live",json.writeValueAsString(definition),"canonical-4.0.0");
     String hash=CanonicalJson.sha256(definition);
@@ -46,8 +50,8 @@ class M8LiveFixtureProvisioner {
     MockHttpServletRequest request=new MockHttpServletRequest();request.addHeader("X-Staff-Session",token);RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
     UUID review=UUID.fromString(governed.requestReview(workspace,form,token).get("reviewRequestId").toString());governed.approve(workspace,form,review,token);
     @SuppressWarnings("unchecked") Map<String,Object> published=(Map<String,Object>)governed.publish(workspace,form,review,token).getBody();UUID release=UUID.fromString(published.get("releaseId").toString());
-    Map<String,Object> channels=new LinkedHashMap<>();channels.put("link",channel(workspace,form,release,"LINK",List.of(),token));channels.put("qr",channel(workspace,form,release,"QR",List.of(),token));channels.put("iframe",channel(workspace,form,release,"IFRAME",List.of("https://embed.example.test"),token));
-    Map<String,Object> fixture=Map.of("workspace",workspace,"formId",form,"releaseId",release,"staffSession",token,"parentOrigin","https://embed.example.test","channels",channels);
+    Map<String,Object> channels=new LinkedHashMap<>();channels.put("link",channel(workspace,form,release,"LINK",List.of(),token));channels.put("qr",channel(workspace,form,release,"QR",List.of(),token));channels.put("iframe",channel(workspace,form,release,"IFRAME",List.of("https://localhost:4443"),token));
+    Map<String,Object> fixture=Map.of("workspace",workspace,"formId",form,"releaseId",release,"staffSession",token,"parentOrigin","https://localhost:4443","channels",channels);
     Files.writeString(Path.of("/var/tmp/m8-live-fixture.json"),json.writerWithDefaultPrettyPrinter().writeValueAsString(fixture));
   }
 

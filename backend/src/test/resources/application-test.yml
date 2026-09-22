@@ -10,4 +10,4 @@ smartintake:
   bootstrap-token: test-bootstrap-token
   trusted-proxy-addresses: 127.0.0.1
   security:
-    allowed-origins: http://localhost:4200,http://127.0.0.1:4200,https://embed.example.test,https://denied.example.test
+    allowed-origins: http://localhost:4200,http://127.0.0.1:4200,https://localhost:4443,https://embed.example.test,https://denied.example.test
