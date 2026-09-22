@@ -10,14 +10,21 @@ export function isRespondentDocument(pathname) {
   return pathname.startsWith('/f/') || pathname.startsWith('/sessions/');
 }
 
+export function parseRequestPath(requestTarget) {
+  try { return new URL(requestTarget ?? '/', 'http://localhost').pathname; } catch { return null; }
+}
+
 export function createFrontendServer(rootDirectory) {
   const root = resolve(rootDirectory);
   return createServer((request, response) => {
-    const pathname = new URL(request.url ?? '/', 'http://localhost').pathname;
-    response.setHeader('Content-Security-Policy', `${basePolicy}; frame-ancestors ${isRespondentDocument(pathname) ? 'https:' : "'none'"}`);
-    response.setHeader('X-Content-Type-Options', 'nosniff');
-    response.setHeader('Referrer-Policy', 'no-referrer');
-    response.setHeader('Permissions-Policy', 'camera=(), geolocation=(), payment=()');
+    const pathname = parseRequestPath(request.url);
+    if (pathname === null) {
+      setSecurityHeaders(response, false);
+      response.statusCode = 400;
+      response.end('Bad request');
+      return;
+    }
+    setSecurityHeaders(response, isRespondentDocument(pathname));
 
     let decodedPath;
     try { decodedPath = decodeURIComponent(pathname); } catch {
@@ -34,6 +41,13 @@ export function createFrontendServer(rootDirectory) {
       response.end('Not found');
     }).pipe(response);
   });
+}
+
+function setSecurityHeaders(response, respondentDocument) {
+  response.setHeader('Content-Security-Policy', `${basePolicy}; frame-ancestors ${respondentDocument ? 'https:' : "'none'"}`);
+  response.setHeader('X-Content-Type-Options', 'nosniff');
+  response.setHeader('Referrer-Policy', 'no-referrer');
+  response.setHeader('Permissions-Policy', 'camera=(), geolocation=(), payment=()');
 }
 
 function statIsFile(path) {
