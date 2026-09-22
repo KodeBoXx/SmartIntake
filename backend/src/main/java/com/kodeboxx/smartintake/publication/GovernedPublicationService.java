@@ -87,6 +87,7 @@ public class GovernedPublicationService {
   @Transactional
   public ResponseEntity<?> publish(String workspace, UUID form, UUID request, String token) {
     authorization.requirePublishForm(workspace, token, form);
+    db.queryForObject("select id from forms where id=? for update", UUID.class, form);
     Snapshot snapshot = snapshot(form);
     Map<String, Object> requestRow;
     try {
@@ -131,6 +132,8 @@ public class GovernedPublicationService {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Release not found");
     UUID actor = account(token);
     if ("activate".equals(action) || "rollback".equals(action)) {
+      String state = db.queryForObject("select release_state from form_releases where id=? for update", String.class, release);
+      if ("RETIRED".equals(state) || "EMERGENCY_CLOSED".equals(state)) throw conflict("RELEASE_TERMINAL");
       db.update("update form_releases set release_state='ROLLED_BACK' where form_id=? and id<>? and release_state='ACTIVE'", form, release);
       db.update("update form_releases set release_state='ACTIVE',activated_at=now(),retired_at=null,emergency_closed_at=null where id=?", release);
       db.update("""
@@ -139,10 +142,10 @@ public class GovernedPublicationService {
           """, form, release, actor);
     } else if ("retire".equals(action)) {
       db.update("update form_releases set release_state='RETIRED',retired_at=now() where id=?", release);
-      db.update("delete from form_release_selections where form_id=? and active_release_id=?", form, release);
+      db.update("update form_release_selections set active_release_id=null,selected_by=?,selected_at=now() where form_id=? and active_release_id=?", actor, form, release);
     } else if ("emergency-close".equals(action)) {
       db.update("update form_releases set release_state='EMERGENCY_CLOSED',emergency_closed_at=now() where id=?", release);
-      db.update("delete from form_release_selections where form_id=? and active_release_id=?", form, release);
+      db.update("update form_release_selections set active_release_id=null,selected_by=?,selected_at=now() where form_id=? and active_release_id=?", actor, form, release);
       // Emergency close deliberately terminates existing incomplete sessions; retire does not.
       db.update("update sessions set status='CLOSED' where release_id=? and status='DRAFT'", release);
     } else throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown release action");

@@ -380,7 +380,7 @@ public class IntakeApplicationService {
             Integer.class,
             form);
     UUID release = UUID.randomUUID();
-    String pinnedManifest = typedRuntime.canonical(definition) ? stringify(runtimeManifest(definition)) : null;
+    String pinnedManifest = typedRuntime.canonical(definition) ? stringify(runtimeManifest(definition, form)) : null;
     db.update(
         "insert into form_releases(id,form_id,version,package,compatibility_profile_key,runtime_manifest,package_hash,manifest_hash)"
             + " values(?,?,?,cast(? as jsonb),?,cast(? as jsonb),?,?)",
@@ -430,6 +430,8 @@ public class IntakeApplicationService {
 
   public ResponseEntity<?> start(UUID share, StartSession in) {
     R release = latestRelease(share);
+    if (typedRuntime.canonical(json.valueToTree(parse(release.pkg()))) && hasGovernedSelection(share))
+      throw new ResponseStatusException(HttpStatus.GONE, "A governed release requires a share channel");
     return startForRelease(share, release, in);
   }
 
@@ -451,17 +453,13 @@ public class IntakeApplicationService {
       if (origin == null || !origins.contains(origin))
         throw new ResponseStatusException(HttpStatus.FORBIDDEN, "SHARE_ORIGIN_DENIED");
     }
-    int claimed = db.update("""
-        update form_share_channels set starts_count=starts_count+1
-        where id=? and state='ACTIVE' and (opens_at is null or opens_at <= now())
-          and (closes_at is null or now() < closes_at)
-          and (response_cap is null or starts_count < response_cap)
-        """, channelId);
-    if (claimed != 1) throw new ResponseStatusException(HttpStatus.GONE, "SHARE_CAP_REACHED");
     R release = release((UUID) channel.get("release_id"));
     if (!"ACTIVE".equals(releaseState(release.id())))
       throw new ResponseStatusException(HttpStatus.GONE, "Release is not accepting responses");
-    return startForRelease((UUID) channel.get("form_id"), release, in);
+    ResponseEntity<?> started = startForRelease((UUID) channel.get("form_id"), release, in);
+    @SuppressWarnings("unchecked") Map<String, Object> body = (Map<String, Object>) started.getBody();
+    db.update("update sessions set share_channel_id=? where id=?", channelId, UUID.fromString(body.get("sessionId").toString()));
+    return started;
   }
 
   private ResponseEntity<?> startForRelease(UUID share, R release, StartSession in) {
@@ -648,6 +646,8 @@ public class IntakeApplicationService {
   public ResponseEntity<?> submit(UUID id, String token, Submit in) {
     var s = respondent(id, token, true);
     R release = release(s.releaseId());
+    if ("EMERGENCY_CLOSED".equals(releaseState(release.id())))
+      throw new ResponseStatusException(HttpStatus.GONE, "RELEASE_EMERGENCY_CLOSED");
     JsonNode definition = json.valueToTree(parse(release.pkg()));
     boolean canonical = typedRuntime.canonical(definition);
     if (!s.status().equals("DRAFT")) {
@@ -696,6 +696,7 @@ public class IntakeApplicationService {
       return ResponseEntity.unprocessableEntity()
           .body(Map.of("code", code, "errors", errors));
     }
+    claimChannelSubmission(s);
     List<Map<String, Object>> acceptedAcknowledgments = List.of();
     if (canonical) {
       if (in.reviewDigest() == null || !in.reviewDigest().equals(acceptedReviewDigest))
@@ -879,7 +880,9 @@ public class IntakeApplicationService {
     return manifest;
   }
 
-  private Map<String, Object> runtimeManifest(JsonNode definition) {
+  private Map<String, Object> runtimeManifest(JsonNode definition) { return runtimeManifest(definition, null); }
+
+  private Map<String, Object> runtimeManifest(JsonNode definition, UUID form) {
     Map<String, Object> manifest = new LinkedHashMap<>();
     manifest.put("schemaVersion", "4.0.0");
     manifest.put("contractVersion", "4.0.0");
@@ -887,7 +890,8 @@ public class IntakeApplicationService {
     manifest.put("runtimeManifestVersion", "1");
     manifest.put("runtimeManifestHash", "sha256:" + "0".repeat(64));
     manifest.put("packageHash", CanonicalJson.sha256(definition));
-    manifest.put("policyVersion", CanonicalJson.sha256(definition.path("policies")));
+    Map<String, Object> effectivePolicy = form == null ? Map.of("package", definition.path("policies")) : effectivePolicy(form);
+    manifest.put("policyVersion", CanonicalJson.sha256(json.valueToTree(effectivePolicy)));
     manifest.put("timeZoneDatabaseVersion", TimeZoneRegistry.VERSION);
     List<Map<String, Object>> resolvedComponents = new ArrayList<>();
     for (JsonNode dependency : definition.path("dependencies")) {
@@ -906,12 +910,23 @@ public class IntakeApplicationService {
     }
     manifest.put("resolvedComponents", resolvedComponents);
     manifest.put("resolvedAssets", json.convertValue(definition.path("assets"), List.class));
-    manifest.put("extensions", Map.of());
+    manifest.put("extensions", Map.of("x-kodeboxx.effective-policy", Map.of(
+        "dependencyId", "effectivePolicy", "version", "1",
+        "digest", CanonicalJson.sha256(json.valueToTree(effectivePolicy)), "value", stringify(effectivePolicy))));
     Map<String, Object> hashInput = new LinkedHashMap<>(manifest);
     hashInput.remove("runtimeManifestHash");
     manifest.put("runtimeManifestHash", CanonicalJson.sha256(json.valueToTree(hashInput)));
     contracts.requireValid("runtime-manifest", "4.0.0", json.valueToTree(manifest));
     return Map.copyOf(manifest);
+  }
+
+  private Map<String, Object> effectivePolicy(UUID form) {
+    return db.query("""
+        select coalesce(os.policy_settings,'{}'::jsonb)::text,coalesce(ws.policy_settings,'{}'::jsonb)::text
+        from forms f join workspaces w on w.id=f.workspace_id
+        left join catalog_organization_settings os on os.organization_id=w.organization_id
+        left join catalog_workspace_settings ws on ws.workspace_id=w.id where f.id=?
+        """, rs -> rs.next() ? Map.of("organization", parse(rs.getString(1)), "workspace", parse(rs.getString(2))) : Map.of(), form);
   }
 
   private static String canonicalId(String kind, UUID id) {
@@ -1007,7 +1022,7 @@ public class IntakeApplicationService {
   private record S(
       UUID id, UUID formId, UUID releaseId, long revision, String answers, String status,
       java.time.LocalDate sessionDate, String timeZone, String tzdbVersion, String runtimeState,
-      String locale, Instant createdAt) {}
+      String locale, Instant createdAt, UUID shareChannelId) {}
 
   private record RespondentRow(S session, String secretDigest, UUID retainedLegacyToken) {}
   private record Replay(String response, String requestDigest) {}
@@ -1030,7 +1045,7 @@ public class IntakeApplicationService {
       RespondentRow row =
           db.queryForObject(
               "select"
-                  + " id,form_id,release_id,revision,answers::text,status,session_date,time_zone,tzdb_version,runtime_state::text,locale,created_at,respondent_secret_sha256,respondent_token"
+                  + " id,form_id,release_id,revision,answers::text,status,session_date,time_zone,tzdb_version,runtime_state::text,locale,created_at,share_channel_id,respondent_secret_sha256,respondent_token"
                   + " from sessions where id=? and expires_at>now()"
                   + (lock ? " for update" : ""),
               (rs, n) -> {
@@ -1047,8 +1062,8 @@ public class IntakeApplicationService {
                         rs.getString(9),
                         rs.getString(10),
                         rs.getString(11),
-                        rs.getTimestamp(12).toInstant());
-                return new RespondentRow(session, rs.getString(13), (UUID) rs.getObject(14));
+                        rs.getTimestamp(12).toInstant(), (UUID) rs.getObject(13));
+                return new RespondentRow(session, rs.getString(14), (UUID) rs.getObject(15));
               },
               id);
       String digest = row.secretDigest();
@@ -1137,10 +1152,28 @@ public class IntakeApplicationService {
     JsonNode definition = json.valueToTree(parse(row.definition()));
     if (!typedRuntime.canonical(definition))
       throw bad("CANONICAL_DRAFT_REQUIRED", "Governed publication requires the canonical draft.");
-    Map<String, Object> manifest = runtimeManifest(definition);
+    Map<String, Object> manifest = runtimeManifest(definition, form);
     return Map.of("revision", row.revision(), "package", row.definition(),
         "packageHash", CanonicalJson.sha256(definition),
         "manifestHash", CanonicalJson.sha256(json.valueToTree(manifest)));
+  }
+
+  public boolean canonicalForm(UUID form) { return typedRuntime.canonical(json.valueToTree(parse(formRow(form).definition()))); }
+
+  private boolean hasGovernedSelection(UUID form) {
+    return Boolean.TRUE.equals(db.queryForObject("select exists(select 1 from form_release_selections where form_id=?)", Boolean.class, form));
+  }
+
+  /** Claiming occurs only after validation and remains in the submission transaction. */
+  private void claimChannelSubmission(S session) {
+    if (session.shareChannelId() == null) return;
+    int claimed = db.update("""
+        update form_share_channels set accepted_count=accepted_count+1
+        where id=? and state='ACTIVE' and (opens_at is null or opens_at <= now())
+          and (closes_at is null or now() < closes_at)
+          and (response_cap is null or accepted_count < response_cap)
+        """, session.shareChannelId());
+    if (claimed != 1) throw new ResponseStatusException(HttpStatus.GONE, "SHARE_CHANNEL_CLOSED_OR_CAP_REACHED");
   }
 
   private String releaseState(UUID release) {

@@ -310,7 +310,7 @@ class AuthoringIntegrationTests {
     String revisedHash=json.readTree(edit.getBody()).path("packageHash").asText();
     assertEquals(3,db.queryForObject("select count(*) from form_authoring_locale_reviews where form_id=? and draft_id=? and source_revision=2 and source_package_hash=? and status='DRAFT'",Integer.class,createdForm,createdForm,revisedHash));
     assertEquals(HttpStatus.OK,authoringCall(createdForm,"/content",HttpMethod.PUT,"\"2\"",Map.of("approveLocales",List.of("en", "hi", "ar")),"approve-v2").getStatusCode());
-    assertEquals(HttpStatus.CREATED,publish(createdForm).getStatusCode());
+    assertEquals(HttpStatus.CONFLICT,publish(createdForm).getStatusCode());
   }
 
   @Test void treats_omitted_profile_as_legacy_and_rejects_unknown_explicit_profiles() throws Exception {
@@ -629,7 +629,7 @@ class AuthoringIntegrationTests {
     assertEquals(HttpStatus.OK,call("/imports/commit",HttpMethod.POST,"\"1\"",Map.of("candidateId",validation.get("candidateId"),"digest",validation.get("digest"),"mode","UPDATE")).getStatusCode());
 
     ResponseEntity<String> published=publish();
-    assertEquals(HttpStatus.UNPROCESSABLE_ENTITY,published.getStatusCode());
+    assertEquals(HttpStatus.CONFLICT,published.getStatusCode());
     assertEquals(0,db.queryForObject("select count(*) from form_authoring_locale_reviews where form_id=? and status='APPROVED'",Integer.class,form));
   }
 
@@ -646,7 +646,7 @@ class AuthoringIntegrationTests {
     @SuppressWarnings("unchecked") Map<String,Object> guidance=(Map<String,Object>) fixture.get("guidance");
     assertEquals(HttpStatus.OK,call("/content",HttpMethod.PUT,"\"2\"",Map.of("guidance",guidance),"guidance-v3").getStatusCode());
     ResponseEntity<String> published=publish();
-    assertEquals(HttpStatus.UNPROCESSABLE_ENTITY,published.getStatusCode());
+    assertEquals(HttpStatus.CONFLICT,published.getStatusCode());
   }
 
   @Test void replays_other_authoring_mutations_and_rejects_changed_key_bodies() throws Exception {

@@ -258,10 +258,8 @@ class M4CanonicalRuntimeIntegrationTests {
         () -> intake.startChannel(channel, "https://denied.example.test", null));
     assertEquals(HttpStatus.FORBIDDEN, denied.getStatusCode());
     assertTrue(intake.startChannel(channel, "https://embed.example.test", null).getStatusCode().is2xxSuccessful());
-    ResponseStatusException capped = assertThrows(ResponseStatusException.class,
-        () -> intake.startChannel(channel, "https://embed.example.test", null));
-    assertEquals(HttpStatus.GONE, capped.getStatusCode());
-    assertEquals(1L, db.queryForObject("select starts_count from form_share_channels where id=?", Long.class, channel));
+    assertTrue(intake.startChannel(channel, "https://embed.example.test", null).getStatusCode().is2xxSuccessful());
+    assertEquals(0L, db.queryForObject("select accepted_count from form_share_channels where id=?", Long.class, channel));
   }
 
   @Test

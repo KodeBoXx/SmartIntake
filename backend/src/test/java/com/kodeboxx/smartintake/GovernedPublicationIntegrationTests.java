@@ -84,18 +84,21 @@ class GovernedPublicationIntegrationTests {
     assertEquals(HttpStatus.OK, governed.publish(workspace, form, request, token).getStatusCode());
     assertEquals(1, db.queryForObject("select count(*) from form_releases where form_id=?", Integer.class, form));
 
-    var old = intake.start(form, null); assertTrue(old.getStatusCode().is2xxSuccessful());
+    UUID firstChannel = channel(first, "LINK", null, null, null, List.of());
+    var old = intake.startChannel(firstChannel, null, null); assertTrue(old.getStatusCode().is2xxSuccessful());
     UUID oldSession = UUID.fromString(((Map<?, ?>) old.getBody()).get("sessionId").toString());
     definition.withObject("translations").withObject("en").withObject("messages").put("title", "release two");
     db.update("update forms set definition=cast(? as jsonb),revision=2 where id=?", json.writeValueAsString(definition), form);
     approveLocales(2, definition);
     UUID second = publishGoverned();
-    UUID activeSession = UUID.fromString(((Map<?, ?>) intake.start(form, null).getBody()).get("sessionId").toString());
+    UUID secondChannel = channel(second, "LINK", null, null, null, List.of());
+    UUID activeSession = UUID.fromString(((Map<?, ?>) intake.startChannel(secondChannel, null, null).getBody()).get("sessionId").toString());
     assertEquals(second, db.queryForObject("select release_id from sessions where id=?", UUID.class, activeSession));
     assertEquals(first, db.queryForObject("select release_id from sessions where id=?", UUID.class, oldSession));
 
     governed.transition(workspace, form, first, "rollback", token);
-    UUID rollbackSession = UUID.fromString(((Map<?, ?>) intake.start(form, null).getBody()).get("sessionId").toString());
+    UUID rollbackChannel = channel(first, "LINK", null, null, null, List.of());
+    UUID rollbackSession = UUID.fromString(((Map<?, ?>) intake.startChannel(rollbackChannel, null, null).getBody()).get("sessionId").toString());
     assertEquals(first, db.queryForObject("select release_id from sessions where id=?", UUID.class, rollbackSession));
     assertEquals(second, db.queryForObject("select release_id from sessions where id=?", UUID.class, activeSession));
 
@@ -103,7 +106,8 @@ class GovernedPublicationIntegrationTests {
     assertThrows(ResponseStatusException.class, () -> intake.start(form, null));
     assertEquals("DRAFT", db.queryForObject("select status from sessions where id=?", String.class, rollbackSession));
     governed.transition(workspace, form, second, "activate", token);
-    var emergency = intake.start(form, null);
+    UUID emergencyChannel = channel(second, "LINK", null, null, null, List.of());
+    var emergency = intake.startChannel(emergencyChannel, null, null);
     UUID emergencySession = UUID.fromString(((Map<?, ?>) emergency.getBody()).get("sessionId").toString());
     governed.transition(workspace, form, second, "emergency-close", token);
     assertEquals("CLOSED", db.queryForObject("select status from sessions where id=?", String.class, emergencySession));
@@ -123,7 +127,7 @@ class GovernedPublicationIntegrationTests {
     var pool = Executors.newFixedThreadPool(2); List<Future<Boolean>> starts = new ArrayList<>();
     for (int i = 0; i < 2; i++) starts.add(pool.submit(() -> { try { return intake.startChannel(capped, null, null).getStatusCode().is2xxSuccessful(); } catch (ResponseStatusException gone) { return false; } }));
     int accepted = 0; for (Future<Boolean> start : starts) if (start.get()) accepted++; pool.shutdown();
-    assertEquals(1, accepted); assertEquals(1L, db.queryForObject("select starts_count from form_share_channels where id=?", Long.class, capped));
+    assertEquals(2, accepted); assertEquals(0L, db.queryForObject("select accepted_count from form_share_channels where id=?", Long.class, capped));
   }
 
   private UUID publishGoverned() {

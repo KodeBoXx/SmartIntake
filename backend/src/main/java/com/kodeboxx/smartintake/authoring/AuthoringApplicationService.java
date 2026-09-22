@@ -456,6 +456,9 @@ public class AuthoringApplicationService {
     long revision=current.revision()+1; String before=CanonicalJson.sha256(parse(current.definition())); String after=CanonicalJson.sha256(next);
     int updated=db.update("update forms set definition=cast(? as jsonb),revision=?,updated_at=now() where id=? and revision=?",stringify(next),revision,form,current.revision());
     if(updated!=1) return stale(form,draft,row(form),next,etag(current.revision()));
+    // Reviews attest exact revision/hash/manifest bytes; every successful authoring mutation
+    // invalidates prior attestations in this same transaction.
+    db.update("update form_review_requests set state='INVALIDATED',invalidated_at=now() where form_id=? and state in ('OPEN','APPROVED')", form);
     if (!"UNDO".equals(operation) && !"REDO".equals(operation))
       db.update("delete from form_authoring_history where form_id=? and draft_id=? and undone_at is not null",form,UUID.fromString(draft));
     String acceptanceJson=acceptance.isEmpty() ? null : stringify(json.valueToTree(map(
