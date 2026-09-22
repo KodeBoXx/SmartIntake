@@ -88,6 +88,7 @@ export type ServerAnswerCell =
 
 export interface RuntimeFieldDefinition {
   readonly id: string;
+  readonly label?: string;
   readonly type: FieldType;
   readonly readOnly?: boolean;
   readonly calculated?: boolean;
@@ -97,6 +98,7 @@ export interface RuntimeFieldDefinition {
   /** Stored decimals must have precisely this many fractional digits. */
   readonly scale?: number;
   readonly options?: readonly string[];
+  readonly optionLabels?: Readonly<Record<string, string>>;
   readonly minItems?: number;
   readonly maxItems?: number;
   readonly min?: string;

@@ -179,6 +179,7 @@ export type TypedSessionProjection = ServerProjection & {
   readonly reachablePageIds: readonly string[];
   readonly requiredCount: number;
   readonly completedRequiredCount: number;
+  readonly currentPageId?: string;
 };
 
 /** Public respondent data is always hydrated from the pinned release/session response. */
@@ -197,7 +198,7 @@ export type StartedRespondentSession = RespondentSession & {
   readonly release?: Record<string, unknown>;
 };
 
-export type PublicReceipt = { readonly receiptId: string; readonly submittedAt?: string; readonly sessionId?: string; readonly shareId?: string };
+export type PublicReceipt = { readonly receiptId: string; readonly submittedAt?: string; readonly status?: string; readonly sessionId?: string; readonly attemptId?: string; readonly shareId?: string; readonly receiptCapability?: string };
 export type ChannelBootstrap = { readonly bootstrap: string; readonly channelId: string; readonly releaseId: string; readonly expiresInSeconds: number };
 
 export type RespondentReview = {
@@ -491,6 +492,10 @@ export class SmartIntakeApiService {
     return this.http.get<PublicReceipt>(`/v1/sessions/${encodeURIComponent(sessionId)}/receipt`, { ...this.respondent(respondentToken), params: attemptId ? new HttpParams().set('attemptId', attemptId) : undefined });
   }
 
+  publicReceipt(receiptCapability: string): Observable<PublicReceipt> {
+    return this.http.get<PublicReceipt>(`/v1/public/receipts/${encodeURIComponent(receiptCapability)}`, { withCredentials: false });
+  }
+
   patchSession(sessionId: string, respondentToken: string, body: unknown): Observable<{ acceptedRevision: number }> {
     return this.http.patch<{ acceptedRevision: number }>(`/v1/sessions/${sessionId}`, body, this.respondent(respondentToken));
   }
@@ -528,8 +533,8 @@ export class SmartIntakeApiService {
     reviewDigest?: string,
     attemptId?: string,
     acknowledgments: readonly GeneratedAcknowledgment[] = [],
-  ): Observable<{ receiptId: string }> {
-    return this.http.post<{ receiptId: string }>(`/v1/sessions/${sessionId}/submissions`, {
+  ): Observable<PublicReceipt> {
+    return this.http.post<PublicReceipt>(`/v1/sessions/${sessionId}/submissions`, {
       sessionRevision,
       ...(reviewDigest === undefined ? {} : { reviewDigest, attemptId, acknowledgments }),
     }, this.respondent(respondentToken));

@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.UUID;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 
@@ -211,8 +212,13 @@ public class CatalogRepository {
             "providers", merge(map((String) row.get("orv")), providerOverride)),
         "overrides", Map.of("policy", policyOverride, "providers", providerOverride));
   }
+  @Transactional
   public Map<String, Object> updateSettings(UUID workspaceId, Map<String, Object> policy, Map<String, Object> providers) {
+    db.query("select pg_advisory_xact_lock(hashtext(?))", rs -> null, workspaceId.toString());
     db.update("insert into catalog_workspace_settings(workspace_id,policy_settings,provider_settings) values(?,cast(? as jsonb),cast(? as jsonb)) on conflict(workspace_id) do update set policy_settings=excluded.policy_settings, provider_settings=excluded.provider_settings, updated_at=now()", workspaceId, stringify(policy), stringify(providers));
+    // Effective policy bytes are part of the reviewed manifest; a policy write invalidates all
+    // outstanding attestations for forms inheriting this workspace policy.
+    db.update("update form_review_requests set state='INVALIDATED',invalidated_at=now() where state in ('OPEN','APPROVED') and form_id in (select id from forms where workspace_id=?)", workspaceId);
     return effectiveSettings(workspaceId);
   }
 

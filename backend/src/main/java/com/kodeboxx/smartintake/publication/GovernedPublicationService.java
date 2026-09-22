@@ -32,6 +32,7 @@ public class GovernedPublicationService {
   @Transactional
   public Map<String, Object> requestReview(String workspace, UUID form, String token) {
     authorization.requireOwnedForm(workspace, token, form);
+    db.queryForObject("select id from forms where id=? for update", UUID.class, form);
     Snapshot snapshot = snapshot(form);
     invalidateChangedRequests(form, snapshot);
     UUID id = UUID.randomUUID();
@@ -66,10 +67,11 @@ public class GovernedPublicationService {
   @Transactional(noRollbackFor = ResponseStatusException.class)
   public Map<String, Object> approve(String workspace, UUID form, UUID request, String token) {
     authorization.requireReviewForm(workspace, token, form);
-    Snapshot snapshot = snapshot(form);
-    Map<String, Object> row = db.queryForMap("select form_id,source_revision,package_hash,manifest_hash,state from form_review_requests where id=?", request);
+    db.queryForObject("select id from forms where id=? for update", UUID.class, form);
+    Map<String, Object> row = db.queryForMap("select form_id,source_revision,package_hash,manifest_hash,state from form_review_requests where id=? for update", request);
     if (!form.equals(row.get("form_id")) || !"OPEN".equals(row.get("state")))
       throw conflict("REVIEW_NOT_OPEN");
+    Snapshot snapshot = snapshot(form);
     if (((Number) row.get("source_revision")).longValue() != snapshot.revision()
         || !snapshot.packageHash().equals(row.get("package_hash")) || !snapshot.manifestHash().equals(row.get("manifest_hash"))) {
       db.update("update form_review_requests set state='INVALIDATED',invalidated_at=now() where id=?", request);
@@ -108,12 +110,14 @@ public class GovernedPublicationService {
           and a.package_hash=r.package_hash and a.manifest_hash=r.manifest_hash
         """, Integer.class, request, form, snapshot.revision(), snapshot.packageHash(), snapshot.manifestHash());
     if (approvals == null || approvals == 0) throw conflict("GOVERNED_APPROVAL_REQUIRED");
-    ResponseEntity<?> result = intake.publish(workspace, form, token);
+    ResponseEntity<?> result = intake.publishGoverned(workspace, form, token, snapshot.packageJson(), snapshot.manifestJson());
     @SuppressWarnings("unchecked") Map<String, Object> body = (Map<String, Object>) result.getBody();
     UUID release = UUID.fromString(body.get("releaseId").toString());
     db.update("update form_releases set package_hash=?,manifest_hash=?,release_state='ACTIVE',activated_at=now() where id=?",
         snapshot.packageHash(), snapshot.manifestHash(), release);
     db.update("update form_releases set release_state='ROLLED_BACK' where form_id=? and id<>? and release_state='ACTIVE'", form, release);
+    // A published share identity is durable; activation changes its target but never recreates its cap.
+    db.update("update form_share_channels set release_id=? where form_id=? and state='ACTIVE'", release, form);
     db.update("""
         insert into form_release_selections(form_id,active_release_id,selected_by) values(?,?,?)
         on conflict(form_id) do update set active_release_id=excluded.active_release_id,
@@ -136,6 +140,7 @@ public class GovernedPublicationService {
       if ("RETIRED".equals(state) || "EMERGENCY_CLOSED".equals(state)) throw conflict("RELEASE_TERMINAL");
       db.update("update form_releases set release_state='ROLLED_BACK' where form_id=? and id<>? and release_state='ACTIVE'", form, release);
       db.update("update form_releases set release_state='ACTIVE',activated_at=now(),retired_at=null,emergency_closed_at=null where id=?", release);
+      db.update("update form_share_channels set release_id=? where form_id=? and state='ACTIVE'", release, form);
       db.update("""
           insert into form_release_selections(form_id,active_release_id,selected_by) values(?,?,?)
           on conflict(form_id) do update set active_release_id=excluded.active_release_id,selected_by=excluded.selected_by,selected_at=now()
@@ -175,8 +180,21 @@ public class GovernedPublicationService {
 
   private Snapshot snapshot(UUID form) {
     Map<String, Object> value = intake.publicationSnapshot(form);
+    JsonNode packageNode = read(value.get("package").toString());
+    if (hasRequiredUnsupportedCapture(packageNode.path("data").path("fields")))
+      throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "UNSUPPORTED_REQUIRED_CAPTURE");
     return new Snapshot(((Number) value.get("revision")).longValue(), value.get("package").toString(),
-        value.get("packageHash").toString(), value.get("manifestHash").toString());
+        value.get("packageHash").toString(), value.get("manifestHash").toString(), value.get("manifest").toString());
+  }
+  private boolean hasRequiredUnsupportedCapture(JsonNode fields) {
+    if (!fields.isArray()) return false;
+    for (JsonNode field : fields) {
+      String type = field.path("type").asText();
+      boolean required = field.path("required").asBoolean(false) || field.path("constraints").path("required").asBoolean(false);
+      if (required && ("attachments".equals(type) || "drawing".equals(type))) return true;
+      if (hasRequiredUnsupportedCapture(field.path("fields")) || hasRequiredUnsupportedCapture(field.path("itemSchema").path("fields"))) return true;
+    }
+    return false;
   }
   private void invalidateChangedRequests(UUID form, Snapshot snapshot) {
     db.update("""
@@ -188,5 +206,5 @@ public class GovernedPublicationService {
   private JsonNode read(String value) { try { return json.readTree(value); } catch (Exception e) { throw new IllegalArgumentException(e); } }
   private String write(Object value) { try { return json.writeValueAsString(value); } catch (Exception e) { throw new IllegalArgumentException(e); } }
   private ResponseStatusException conflict(String code) { return new ResponseStatusException(HttpStatus.CONFLICT, code); }
-  private record Snapshot(long revision, String packageJson, String packageHash, String manifestHash) {}
+  private record Snapshot(long revision, String packageJson, String packageHash, String manifestHash, String manifestJson) {}
 }

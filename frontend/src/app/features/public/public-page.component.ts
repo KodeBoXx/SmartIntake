@@ -36,7 +36,7 @@ import { RespondentControlComponent } from './respondent-control.component';
         </cui-card>
       } @else if (store.phase() === 'loading' || store.phase() === 'idle') {
         <p class="type-body" aria-live="polite">Loading your response…</p>
-      } @else if (receiptRoute || store.phase() === 'receipt') {
+      } @else if (store.phase() === 'receipt' && store.receipt()) {
         <cui-card padding="lg" data-testid="public-receipt">
           <h1 class="type-h2 mb-2">Response received</h1>
           <p class="type-body mb-6">Thank you. Your response has been submitted successfully.</p>
@@ -50,7 +50,7 @@ import { RespondentControlComponent } from './respondent-control.component';
             <div class="border-b py-3" data-testid="review-item" [attr.data-row-path]="item.rowPath">
               <div class="type-label">{{ item.label }}</div>
               <div class="type-body">{{ item.value }}</div>
-              <button cui-button variant="secondary" size="sm" type="button" (click)="store.edit(item.fieldId, item.path)">Edit</button>
+              <button cui-button variant="secondary" size="sm" type="button" (click)="store.edit(item.fieldId, item.path, item.instanceId)">Edit</button>
             </div>
           }
           @for (ack of acknowledgments(); track ack.fieldId) {
@@ -65,15 +65,18 @@ import { RespondentControlComponent } from './respondent-control.component';
         <cui-card padding="lg" data-testid="public-form">
           <div class="mb-5 flex items-baseline justify-between gap-4">
             <div><h1 class="type-h2">{{ currentPage()?.title || 'Your response' }}</h1><p class="type-caption">{{ store.progressLabel() }}</p></div>
-            @if (store.phase() === 'saving') { <span class="type-caption" aria-live="polite">Saving…</span> } @else { <span class="type-caption">Saved</span> }
+            @if (store.phase() === 'saving') { <span class="type-caption" aria-live="polite">Saving…</span> }
+            @else if (store.queueSize()) { <span class="type-caption" aria-live="assertive">Not saved <button type="button" (click)="store.retrySave()">Retry</button></span> }
+            @else { <span class="type-caption">Saved</span> }
           </div>
           @for (field of currentFields(); track field.id) {
-            <si-respondent-control [field]="field" [cell]="answerForControl(field)" (operation)="store.apply($event)" />
+            <si-respondent-control [field]="field" [cell]="answerForControl(field)" [serverCell]="store.state().server?.answers?.[field.id]" (operation)="store.apply($event)" />
           }
           <div class="mt-8 flex justify-between gap-3">
             <button cui-button variant="secondary" type="button" (click)="store.navigate(-1)" [disabled]="!store.canMovePrevious()">Previous</button>
             @if (store.canMoveNext()) { <button cui-button variant="primary" type="button" (click)="store.navigate(1)">Next</button> } @else { <button cui-button variant="primary" type="button" (click)="store.openReview()" data-testid="review-response">Review response</button> }
           </div>
+          <button class="mt-5 type-caption" type="button" (click)="store.clearAndExit()">Clear this device and exit</button>
         </cui-card>
       }
       }
@@ -83,6 +86,7 @@ import { RespondentControlComponent } from './respondent-control.component';
 export class PublicPageComponent implements OnInit {
   entryShareId: string | null = null;
   private iframeOrigin: string | null = null;
+  private iframeBootstrap: string | null = null;
   reviewRoute = false;
   receiptRoute = false;
   acknowledgments = () => this.acknowledgmentFields();
@@ -113,9 +117,10 @@ export class PublicPageComponent implements OnInit {
     if (sessionId && !this.store.session() && !this.testState && !this.receiptRoute) this.store.hydrate(sessionId);
     if (!this.testState && this.entryShareId && window.parent !== window) {
       addEventListener('message', (event) => {
-        const message = event.data as { protocol?: string; type?: string };
-        if (event.source !== window.parent || message?.protocol !== 'smart-intake.v1' || message.type !== 'bootstrap') return;
+        const message = event.data as { protocol?: string; type?: string; bootstrap?: string };
+        if (event.source !== window.parent || message?.protocol !== 'smart-intake.v1' || message.type !== 'bootstrap' || typeof message.bootstrap !== 'string' || !message.bootstrap) return;
         this.iframeOrigin = event.origin;
+        this.iframeBootstrap = message.bootstrap;
         window.parent.postMessage({ protocol: 'smart-intake.v1', type: 'ready', shareId: this.entryShareId }, event.origin);
       });
     }
@@ -123,7 +128,7 @@ export class PublicPageComponent implements OnInit {
 
   get testMessage(): string { return `${this.testTitle} is ${this.testState}; real respondent session behavior is active without a test state.`; }
 
-  start(): void { if (this.entryShareId) { const channel = this.route.snapshot.queryParamMap.get('channel'); if (channel) { if (!this.iframeOrigin) { this.store.error.set('Waiting for the approved embedding site to connect.'); return; } this.store.startFromChannel(this.entryShareId, channel, this.iframeOrigin); } else this.store.start(this.entryShareId); } }
+  start(): void { if (this.entryShareId) { const channel = this.route.snapshot.queryParamMap.get('channel'); if (channel) { if (!this.iframeOrigin || !this.iframeBootstrap) { this.store.error.set('Waiting for the approved embedding site to connect.'); return; } this.store.startFromChannel(this.entryShareId, channel, this.iframeBootstrap); } else this.store.start(this.entryShareId); } }
   currentPage() { return this.store.pages().find((page) => page.id === this.store.currentPageId()); }
   currentFields(): readonly RuntimeFieldDefinition[] { const ids = this.currentPage()?.fieldIds ?? []; return this.store.definition().fields.filter((field) => ids.includes(field.id) && !field.hidden); }
   label(field: RuntimeFieldDefinition): string { return field.id.replace(/([A-Z])/g, ' $1').replace(/^./, (letter) => letter.toUpperCase()); }
@@ -136,8 +141,9 @@ export class PublicPageComponent implements OnInit {
   listItems(field: RuntimeFieldDefinition): readonly { itemId: string; fields: Record<string, { value?: unknown }> }[] { const value = this.answer(field)?.value; return value && typeof value === 'object' && 'items' in value ? (value as { items: { itemId: string; fields: Record<string, { value?: unknown }> }[] }).items : []; }
   itemValue(item: { fields: Record<string, { value?: unknown }> }, child: RuntimeFieldDefinition): string { return String(item.fields[child.id]?.value ?? ''); }
   toggleChoice(field: RuntimeFieldDefinition, option: string, checked: boolean): void { const selected = new Set(this.multiValue(field)); checked ? selected.add(option) : selected.delete(option); this.store.setAnswer(field, [...selected]); }
-  reviewItems(): { key: string; fieldId: string; path: readonly { listFieldId: string; itemId: string }[]; rowPath: string; label: string; value: string }[] {
-    return flattenReview(this.store.definition().fields, this.store.state().server?.answers ?? this.store.state().answers);
+  reviewItems(): ReviewItem[] {
+    const rows = this.store.review()?.review?.['answers'];
+    return Array.isArray(rows) ? flattenAuthoritativeReview(rows) : [];
   }
   backToForm(): void { const sessionId = this.store.session()?.sessionId; if (sessionId) void this.store.edit(this.currentFields()[0]?.id ?? ''); }
   submit(): void { this.store.submit(this.acknowledgmentFields().filter((ack) => ack.accepted).map(({ fieldId, rowPath, contentHash }) => ({ fieldId, rowPath, expectedContentHash: contentHash, accepted: true }))); }
@@ -174,18 +180,21 @@ function isRowPath(value: unknown): value is { listFieldId: string; itemId: stri
   return Boolean(value && typeof value === 'object' && typeof (value as Record<string, unknown>)['listFieldId'] === 'string' && typeof (value as Record<string, unknown>)['itemId'] === 'string');
 }
 function display(answer: { status: string; value?: unknown } | undefined): string { if (!answer || answer.status === 'unanswered') return 'Not answered'; if (answer.status !== 'answered') return answer.status; if (Array.isArray(answer.value)) return answer.value.join(', '); if (typeof answer.value === 'boolean') return answer.value ? 'Yes' : 'No'; return String(answer.value ?? 'Not answered'); }
-function flattenReview(fields: readonly RuntimeFieldDefinition[], answers: Record<string, InputAnswerCell | ServerAnswerCell>, rowPath: readonly { listFieldId: string; itemId: string }[] = []): { key: string; fieldId: string; path: readonly { listFieldId: string; itemId: string }[]; rowPath: string; label: string; value: string }[] {
-  return fields.flatMap((field) => {
-    if (field.hidden) return [];
-    const answer = answers[field.id]; const path = JSON.stringify(rowPath);
-    if (field.type === 'object') {
-      const nested = answer?.status === 'answered' && answer.value && typeof answer.value === 'object' && 'fields' in answer.value ? (answer.value as { fields: Record<string, InputAnswerCell | ServerAnswerCell> }).fields : {};
-      return flattenReview(field.fields ?? [], nested, rowPath);
-    }
-    if (field.type === 'list') {
-      const items = answer?.status === 'answered' && answer.value && typeof answer.value === 'object' && 'items' in answer.value ? (answer.value as { items: readonly { itemId: string; fields: Record<string, InputAnswerCell | ServerAnswerCell> }[] }).items : [];
-      return items.flatMap((item) => flattenReview(field.itemFields ?? [], item.fields, [...rowPath, { listFieldId: field.id, itemId: item.itemId }]));
-    }
-    return [{ key: `${field.id}:${path}`, fieldId: field.id, path: rowPath, rowPath: path, label: field.id.replace(/([A-Z])/g, ' $1').replace(/^./, (letter) => letter.toUpperCase()), value: display(answer) }];
+type ReviewItem = { key: string; instanceId: string; fieldId: string; path: readonly { listFieldId: string; itemId: string }[]; rowPath: string; label: string; value: string };
+function flattenAuthoritativeReview(rows: readonly unknown[]): ReviewItem[] {
+  return rows.flatMap((candidate): ReviewItem[] => {
+    if (!candidate || typeof candidate !== 'object') return [];
+    const row = candidate as Record<string, unknown>;
+    const fieldId = typeof row['fieldId'] === 'string' ? row['fieldId'] : '';
+    const instanceId = typeof row['instanceId'] === 'string' ? row['instanceId'] : fieldId;
+    const path = Array.isArray(row['rowPath']) ? row['rowPath'].filter(isRowPath) : [];
+    const itemPath = typeof row['itemId'] === 'string' ? [...path, { listFieldId: fieldId, itemId: row['itemId'] }] : path;
+    const children = Array.isArray(row['children']) ? flattenAuthoritativeReview(row['children']) : [];
+    if (children.length) return children;
+    if (!fieldId) return [];
+    const serialized = JSON.stringify(path);
+    return [{ key: `${instanceId}:${serialized}:${String(row['itemId'] ?? '')}`, instanceId, fieldId, path, rowPath: serialized,
+      label: typeof row['label'] === 'string' ? row['label'] : fieldId,
+      value: row['status'] === 'answered' ? display({ status: 'answered', value: row['value'] }) : typeof row['statusLabel'] === 'string' ? row['statusLabel'] : String(row['status'] ?? 'Not answered') }];
   });
 }

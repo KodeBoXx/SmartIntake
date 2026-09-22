@@ -23,14 +23,14 @@ type Cell = InputAnswerCell | ServerAnswerCell | undefined;
   standalone: true,
   imports: [CommonModule, FormsModule, CuiAlertComponent],
   template: `
-    @if (!field().hidden && cell()?.status !== 'notApplicable') {
+    @if (!field().hidden && serverCell()?.status !== 'notApplicable' && cell()?.status !== 'notApplicable') {
       <div class="mb-5" [attr.data-field-id]="field().id" [attr.data-row-path]="rowPathKey()">
         @if (!['object', 'list', 'multiChoice', 'attachments', 'drawing'].includes(field().type)) { <label class="type-label mb-1 block" [for]="controlId()">{{ label(field()) }}</label> }
         @else if (field().type !== 'multiChoice') { <div class="type-label mb-1">{{ label(field()) }}</div> }
         @if (field().type === 'object') {
           <div class="ml-3 border-l pl-4" data-testid="object-control">
             @for (child of field().fields || []; track child.id) {
-              <si-respondent-control [field]="child" [cell]="objectCell(child.id)" [rowPath]="rowPath()" (operation)="operation.emit($event)" />
+              <si-respondent-control [field]="child" [cell]="objectCell(child.id)" [serverCell]="objectServerCell(child.id)" [rowPath]="rowPath()" (operation)="operation.emit($event)" />
             }
           </div>
         } @else if (field().type === 'list') {
@@ -39,7 +39,7 @@ type Cell = InputAnswerCell | ServerAnswerCell | undefined;
               <fieldset class="mb-3 border p-3" [attr.data-item-id]="item.itemId">
                 <legend class="type-caption">{{ field().fixedRows ? 'Row' : 'Item' }} {{ index + 1 }}</legend>
                 @for (child of field().itemFields || []; track child.id) {
-                  <si-respondent-control [field]="child" [cell]="item.fields[child.id]" [rowPath]="childPath(item.itemId)" (operation)="operation.emit($event)" />
+                  <si-respondent-control [field]="child" [cell]="item.fields[child.id]" [serverCell]="itemServerCell(item.itemId, child.id)" [rowPath]="childPath(item.itemId)" (operation)="operation.emit($event)" />
                 }
                 @if (!field().fixedRows) {
                   <div class="flex flex-wrap gap-2">
@@ -55,17 +55,17 @@ type Cell = InputAnswerCell | ServerAnswerCell | undefined;
             }
           </div>
         } @else if (field().type === 'attachments' || field().type === 'drawing') {
-          <cui-alert variant="info" title="Secure {{ field().type }}">{{ cell()?.status === 'answered' ? 'Ready' : 'Secure capture is unavailable in this channel.' }}</cui-alert>
+          <div #control [id]="controlId()" tabindex="-1"><cui-alert variant="info" title="Secure {{ field().type }}">{{ cell()?.status === 'answered' ? 'Ready' : 'Secure capture is unavailable in this channel.' }}</cui-alert></div>
         } @else if (field().type === 'boolean') {
           <select #control [id]="controlId()" class="w-full" [disabled]="protected()" [ngModel]="booleanValue()" (ngModelChange)="setBoolean($event)">
             <option [ngValue]="null">Select an answer</option><option [ngValue]="true">Yes</option><option [ngValue]="false">No</option>
           </select>
         } @else if (field().type === 'choice') {
           <select #control [id]="controlId()" class="w-full" [disabled]="protected()" [ngModel]="textValue()" (ngModelChange)="set($event)">
-            <option value="">Select an answer</option>@for (option of field().options || []; track option) { <option [value]="option">{{ option }}</option> }
+            <option value="">Select an answer</option>@for (option of field().options || []; track option) { <option [value]="option">{{ field().optionLabels?.[option] || option }}</option> }
           </select>
         } @else if (field().type === 'multiChoice') {
-          <fieldset><legend class="type-label mb-1">{{ label(field()) }}</legend>@for (option of field().options || []; track option) { <label class="mr-4 inline-flex gap-2"><input #control type="checkbox" [checked]="multiValue().includes(option)" [disabled]="protected()" (change)="toggleChoice(option, $any($event.target).checked)" />{{ option }}</label> }</fieldset>
+          <fieldset><legend class="type-label mb-1">{{ label(field()) }}</legend>@for (option of field().options || []; track option) { <label class="mr-4 inline-flex gap-2"><input #control type="checkbox" [checked]="multiValue().includes(option)" [disabled]="protected()" (change)="toggleChoice(option, $any($event.target).checked)" />{{ field().optionLabels?.[option] || option }}</label> }</fieldset>
         } @else if (field().type === 'text' && (field().maxLength || 0) > 120) {
           <textarea #control [id]="controlId()" class="w-full" rows="4" [disabled]="protected()" [ngModel]="textValue()" (ngModelChange)="set($event)"></textarea>
         } @else {
@@ -83,6 +83,7 @@ export class RespondentControlComponent implements AfterViewInit {
   @ViewChild('control') private readonly control?: ElementRef<HTMLElement>;
   readonly field = input.required<RuntimeFieldDefinition>();
   readonly cell = input<Cell>();
+  readonly serverCell = input<ServerAnswerCell>();
   readonly rowPath = input<RowPath>([]);
   readonly operation = output<RuntimeOperation>();
 
@@ -90,7 +91,7 @@ export class RespondentControlComponent implements AfterViewInit {
     if (this.route?.snapshot.queryParamMap.get('focus') === this.controlId()) queueMicrotask(() => this.control?.nativeElement.focus());
   }
 
-  label(field: RuntimeFieldDefinition): string { return field.id.replace(/([A-Z])/g, ' $1').replace(/^./, (letter) => letter.toUpperCase()); }
+  label(field: RuntimeFieldDefinition): string { return field.label ?? field.id.replace(/([A-Z])/g, ' $1').replace(/^./, (letter) => letter.toUpperCase()); }
   protected(): boolean { return Boolean(this.field().readOnly || this.field().calculated); }
   inputType(): string { const type = this.field().type; return type === 'integer' || type === 'decimal' ? 'number' : type === 'dateTime' ? 'datetime-local' : ['date', 'time'].includes(type) ? type : 'text'; }
   textValue(): string {
@@ -107,12 +108,17 @@ export class RespondentControlComponent implements AfterViewInit {
   multiValue(): readonly string[] { const value = cellValue(this.cell()); return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []; }
   items(): readonly ListItem<InputAnswerCell | ServerAnswerCell>[] { const value = cellValue(this.cell()); return value && typeof value === 'object' && 'items' in value ? (value as { items: readonly ListItem<InputAnswerCell | ServerAnswerCell>[] }).items : []; }
   objectCell(id: string): Cell { const value = cellValue(this.cell()); return value && typeof value === 'object' && 'fields' in value ? (value as { fields: Record<string, Cell> }).fields[id] : undefined; }
+  objectServerCell(id: string): ServerAnswerCell | undefined { const value = cellValue(this.serverCell()); return value && typeof value === 'object' && 'fields' in value ? (value as { fields: Record<string, ServerAnswerCell> }).fields[id] : undefined; }
+  itemServerCell(itemId: string, id: string): ServerAnswerCell | undefined { const value = cellValue(this.serverCell()); return value && typeof value === 'object' && 'items' in value ? (value as { items: readonly ListItem<ServerAnswerCell>[] }).items.find((item) => item.itemId === itemId)?.fields[id] : undefined; }
   rowPathKey(): string { return this.rowPath().map((segment) => `${segment.listFieldId}:${segment.itemId}`).join('/'); }
   controlId(): string { return this.rowPathKey() ? `${this.field().id}-${this.rowPathKey().replaceAll(/[^A-Za-z0-9_-]/g, '-')}` : this.field().id; }
   childPath(itemId: string): RowPath { return [...this.rowPath(), { listFieldId: this.field().id, itemId }]; }
   set(raw: string): void {
     const type = this.field().type;
-    const value = type === 'dateTime' ? { instant: new Date(raw).toISOString(), timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC' }
+    if (!raw) { this.clear(); return; }
+    const parsed = type === 'dateTime' ? new Date(raw) : null;
+    if (parsed && Number.isNaN(parsed.getTime())) return;
+    const value = parsed ? { instant: parsed.toISOString(), timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC' }
       : type === 'time' ? normalizeTime(raw) : raw;
     this.operation.emit({ kind: 'set', target: this.target(), answer: { status: 'answered', value } });
   }

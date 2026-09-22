@@ -82,7 +82,8 @@ class DatabaseCompatibilityIntegrationTests {
           new FlywayHistory("27", "SQL", "V27__m8_governed_publication_sharing_outbox.sql", 1150234132),
           new FlywayHistory("28", "SQL", "V28__m8_governed_publication_idempotency.sql", -1451223491),
           new FlywayHistory("29", "SQL", "V29__m8_channel_submission_caps_and_selection.sql", 1794656124),
-          new FlywayHistory("30", "SQL", "V30__m8_iframe_bootstrap.sql", 1373360594));
+          new FlywayHistory("30", "SQL", "V30__m8_iframe_bootstrap.sql", 1373360594),
+          new FlywayHistory("31", "SQL", "V31__m8_receipt_capabilities.sql", 1418682170));
 
   @Autowired JdbcTemplate db;
   @Autowired CompatibilityReconciliationService reconciliation;
