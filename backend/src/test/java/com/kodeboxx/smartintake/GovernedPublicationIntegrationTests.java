@@ -100,6 +100,9 @@ class GovernedPublicationIntegrationTests {
   @Test void governedPublishIsAtomicAndIdempotentAndLifecyclePinsExistingSessions() throws Exception {
     UUID first = publishGoverned();
     assertEquals(1, db.queryForObject("select count(*) from form_releases where form_id=?", Integer.class, form));
+    assertEquals(true, ((Map<?,?>) governed.state(workspace, form, token).get("review")).get("matchesCurrentSnapshot"));
+    db.update("insert into catalog_workspace_settings(workspace_id,policy_settings) values(?,cast(? as jsonb)) on conflict(workspace_id) do update set policy_settings=excluded.policy_settings", workspaceId, "{\"retentionDays\":30}");
+    assertEquals(false, ((Map<?,?>) governed.state(workspace, form, token).get("review")).get("matchesCurrentSnapshot"));
     UUID request = db.queryForObject("select id from form_review_requests where form_id=?", UUID.class, form);
     assertEquals(HttpStatus.OK, governed.publish(workspace, form, request, token).getStatusCode());
     assertEquals(1, db.queryForObject("select count(*) from form_releases where form_id=?", Integer.class, form));

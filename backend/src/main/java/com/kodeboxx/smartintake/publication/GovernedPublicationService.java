@@ -90,6 +90,11 @@ public class GovernedPublicationService {
       review.computeIfPresent("semanticDiff", (key, value) -> read(value.toString()));
       review.computeIfPresent("dependencyDiff", (key, value) -> read(value.toString()));
     }
+    if (!reviews.isEmpty()) {
+      Snapshot current = snapshot(form); Map<String,Object> review = reviews.get(0);
+      review.put("matchesCurrentSnapshot", ((Number) review.get("revision")).longValue() == current.revision()
+          && current.packageHash().equals(review.get("packageHash")) && current.manifestHash().equals(review.get("manifestHash")));
+    }
     List<Map<String,Object>> releases = db.queryForList("""
         select id as "releaseId",version,release_state as state,activated_at as "activatedAt",
           retired_at as "retiredAt",emergency_closed_at as "emergencyClosedAt"

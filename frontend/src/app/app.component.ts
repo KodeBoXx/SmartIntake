@@ -199,7 +199,7 @@ export class AppComponent {
   canPublish(): boolean { return hasWorkspaceRole(this.routeWorkspaceRoles(), 'publisher'); }
   canGovernPublication(): boolean { return this.canAuthor() || this.canReview() || this.canPublish(); }
   governanceActionLabel(): string { return this.canPublish() ? 'Publish' : this.canReview() ? 'Approve review' : 'Request review'; }
-  reviewMatchesDraft(): boolean { const review=this.governanceReview(); return !!review && review.state!=='INVALIDATED' && review.revision===this.draftRevision(); }
+  reviewMatchesDraft(): boolean { const review=this.governanceReview(); return !!review && review.state!=='INVALIDATED' && review.matchesCurrentSnapshot !== false && review.revision===this.draftRevision(); }
   canViewResponses(): boolean { return hasWorkspaceRole(this.routeWorkspaceRoles(), 'response-viewer') || this.canExportResponses(); }
   canExportResponses(): boolean { return hasWorkspaceRole(this.routeWorkspaceRoles(), 'response-exporter'); }
 
