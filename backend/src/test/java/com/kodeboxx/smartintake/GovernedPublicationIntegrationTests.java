@@ -144,7 +144,8 @@ class GovernedPublicationIntegrationTests {
     assertTrue(embed.contains("nonce=\"testnonce\""));
     assertTrue(embed.contains("typeof d.receiptId==='string'"));
     assertTrue(embed.contains("x.receiptId=d.receiptId"));
-    assertTrue(embed.contains("frame.addEventListener('load'"));
+    assertTrue(embed.contains("d.type==='listener-ready'"));
+    assertTrue(embed.contains("childReady=true;deliver()"));
     assertTrue(embed.contains("pendingBootstrap=d.bootstrap"));
     mockMvc.perform(get("/v1/public/channels/{channel}/embed",iframe).param("parentOrigin","https://embed.example.test"))
         .andExpect(header().doesNotExist("X-Frame-Options"))

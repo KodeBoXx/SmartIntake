@@ -146,6 +146,7 @@ export class PublicPageComponent implements OnInit {
         this.iframeApprovedOrigin.set(typeof message.parentOrigin === 'string' ? message.parentOrigin : event.origin);
         window.parent.postMessage({ protocol: 'smart-intake.v1', type: 'ready', shareId: this.entryShareId }, event.origin);
       });
+      window.parent.postMessage({ protocol: 'smart-intake.v1', type: 'listener-ready' }, window.location.origin);
     }
   }
 
