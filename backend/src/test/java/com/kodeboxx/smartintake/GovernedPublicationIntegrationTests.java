@@ -27,6 +27,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockHttpServletRequest;
+import jakarta.servlet.http.Cookie;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -77,6 +78,15 @@ class GovernedPublicationIntegrationTests {
     assertEquals("INVALIDATED", db.queryForObject("select state from form_review_requests where id=?", String.class, request));
   }
 
+  @Test void governedWorkflowResolvesCookieOnlyStaffActor() {
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    request.setCookies(new Cookie("SI_STAFF_SESSION", token));
+    RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+    UUID review = UUID.fromString(governed.requestReview(workspace, form, null).get("reviewRequestId").toString());
+    governed.approve(workspace, form, review, null);
+    assertTrue(governed.publish(workspace, form, review, null).getStatusCode().is2xxSuccessful());
+  }
+
   @Test void governedPublishIsAtomicAndIdempotentAndLifecyclePinsExistingSessions() throws Exception {
     UUID first = publishGoverned();
     assertEquals(1, db.queryForObject("select count(*) from form_releases where form_id=?", Integer.class, form));
@@ -121,6 +131,10 @@ class GovernedPublicationIntegrationTests {
     UUID expired = channel(release, "LINK", null, Instant.now().minusSeconds(1), null, List.of());
     assertGone(future, null); assertGone(expired, null);
     UUID iframe = channel(release, "IFRAME", null, null, null, List.of("https://embed.example.test"));
+    String embed = intake.embedChannel(iframe, "https://embed.example.test", "testnonce");
+    assertTrue(embed.contains("nonce=\"testnonce\""));
+    assertTrue(embed.contains("typeof d.receiptId==='string'"));
+    assertTrue(embed.contains("x.receiptId=d.receiptId"));
     assertStatus(HttpStatus.FORBIDDEN, () -> intake.startChannel(iframe, null, null));
     assertStatus(HttpStatus.FORBIDDEN, () -> intake.bootstrapChannel(iframe, "https://denied.example.test"));
     String bootstrap = intake.bootstrapChannel(iframe, "https://embed.example.test").get("bootstrap").toString();
