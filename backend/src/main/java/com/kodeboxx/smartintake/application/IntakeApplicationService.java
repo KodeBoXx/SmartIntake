@@ -382,14 +382,16 @@ public class IntakeApplicationService {
     UUID release = UUID.randomUUID();
     String pinnedManifest = typedRuntime.canonical(definition) ? stringify(runtimeManifest(definition)) : null;
     db.update(
-        "insert into form_releases(id,form_id,version,package,compatibility_profile_key,runtime_manifest)"
-            + " values(?,?,?,cast(? as jsonb),?,cast(? as jsonb))",
+        "insert into form_releases(id,form_id,version,package,compatibility_profile_key,runtime_manifest,package_hash,manifest_hash)"
+            + " values(?,?,?,cast(? as jsonb),?,cast(? as jsonb),?,?)",
         release,
         form,
         version,
         row.definition(),
         profileForDefinition(parse(row.definition())),
-        pinnedManifest);
+        pinnedManifest,
+        CanonicalJson.sha256(definition),
+        pinnedManifest == null ? null : CanonicalJson.sha256(parseNode(pinnedManifest)));
     db.update("update forms set status='PUBLISHED',updated_at=now() where id=?", form);
     audit("FORM_PUBLISHED", form);
     return ResponseEntity.status(201)
@@ -428,6 +430,41 @@ public class IntakeApplicationService {
 
   public ResponseEntity<?> start(UUID share, StartSession in) {
     R release = latestRelease(share);
+    return startForRelease(share, release, in);
+  }
+
+  /** Channel starts supply an immutable release binding; form UUID starts retain legacy compatibility. */
+  @Transactional
+  public ResponseEntity<?> startChannel(UUID channelId, String origin, StartSession in) {
+    Map<String, Object> channel;
+    try {
+      channel = db.queryForMap("""
+          select id,form_id,release_id,channel_type,allowed_origins::text from form_share_channels
+          where id=? and state='ACTIVE' and (opens_at is null or opens_at <= now())
+            and (closes_at is null or now() < closes_at) for update
+          """, channelId);
+    } catch (EmptyResultDataAccessException missing) {
+      throw new ResponseStatusException(HttpStatus.GONE, "Share channel is unavailable");
+    }
+    if ("IFRAME".equals(channel.get("channel_type"))) {
+      List<?> origins = json.convertValue(parseNode((String) channel.get("allowed_origins")), List.class);
+      if (origin == null || !origins.contains(origin))
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "SHARE_ORIGIN_DENIED");
+    }
+    int claimed = db.update("""
+        update form_share_channels set starts_count=starts_count+1
+        where id=? and state='ACTIVE' and (opens_at is null or opens_at <= now())
+          and (closes_at is null or now() < closes_at)
+          and (response_cap is null or starts_count < response_cap)
+        """, channelId);
+    if (claimed != 1) throw new ResponseStatusException(HttpStatus.GONE, "SHARE_CAP_REACHED");
+    R release = release((UUID) channel.get("release_id"));
+    if (!"ACTIVE".equals(releaseState(release.id())))
+      throw new ResponseStatusException(HttpStatus.GONE, "Release is not accepting responses");
+    return startForRelease((UUID) channel.get("form_id"), release, in);
+  }
+
+  private ResponseEntity<?> startForRelease(UUID share, R release, StartSession in) {
     requireNewWriteAllowed("RELEASE", release.id());
     UUID id = UUID.randomUUID(), bearer = UUID.randomUUID(), legacyPlaceholder = UUID.randomUUID();
     JsonNode releaseNode = json.valueToTree(parse(release.pkg()));
@@ -697,6 +734,12 @@ public class IntakeApplicationService {
         acceptedReviewDigest,
         canonical ? in.attemptId() : null,
         canonical ? stringify(pinnedManifest) : null);
+    // The receipt, sealed envelope, session transition, and event are committed together.
+    db.update("""
+        insert into submission_outbox_events(id,submission_id,event_type,payload,payload_hash)
+        values(?,?,'submission.accepted',cast(? as jsonb),?)
+        """, UUID.randomUUID(), sub, stringify(Map.of("submissionId", sub, "envelope", envelope)),
+        CanonicalJson.sha256(json.valueToTree(envelope)));
     if (acceptedRuntimeState == null) {
       db.update("update sessions set status='SUBMITTED',answers=cast(? as jsonb) where id=?",
           stringify(acceptedAnswers), id);
@@ -1040,8 +1083,7 @@ public class IntakeApplicationService {
       throw new ResponseStatusException(HttpStatus.GONE, "This form is no longer accepting responses");
     try {
       return db.queryForObject(
-          "select r.id,r.package::text,r.compatibility_profile_key from form_releases r join forms f on f.id=r.form_id left join form_catalog_metadata cm on cm.form_id=f.id where r.form_id=? and cm.archived_at is null order by r.version desc limit"
-              + " 1",
+          "select r.id,r.package::text,r.compatibility_profile_key from form_releases r join forms f on f.id=r.form_id left join form_catalog_metadata cm on cm.form_id=f.id left join form_release_selections selected on selected.form_id=r.form_id where r.form_id=? and cm.archived_at is null and ((selected.form_id is not null and selected.active_release_id=r.id and r.release_state='ACTIVE') or (selected.form_id is null and r.release_state in ('PUBLISHED','ACTIVE'))) order by r.version desc limit 1",
           (rs, n) -> new R((UUID) rs.getObject(1), rs.getString(2), rs.getString(3)),
           form);
     } catch (EmptyResultDataAccessException e) {
@@ -1086,6 +1128,26 @@ public class IntakeApplicationService {
           id);
     } catch (Exception e) {
       throw missing();
+    }
+  }
+
+  /** Snapshot used by the governed review service before publication; it never writes a release. */
+  public Map<String, Object> publicationSnapshot(UUID form) {
+    F row = formRow(form);
+    JsonNode definition = json.valueToTree(parse(row.definition()));
+    if (!typedRuntime.canonical(definition))
+      throw bad("CANONICAL_DRAFT_REQUIRED", "Governed publication requires the canonical draft.");
+    Map<String, Object> manifest = runtimeManifest(definition);
+    return Map.of("revision", row.revision(), "package", row.definition(),
+        "packageHash", CanonicalJson.sha256(definition),
+        "manifestHash", CanonicalJson.sha256(json.valueToTree(manifest)));
+  }
+
+  private String releaseState(UUID release) {
+    try {
+      return db.queryForObject("select release_state from form_releases where id=?", String.class, release);
+    } catch (EmptyResultDataAccessException missing) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No published release");
     }
   }
 

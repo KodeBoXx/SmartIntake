@@ -83,6 +83,10 @@ class M4CanonicalRuntimeIntegrationTests {
             1L, review.get("reviewDigest").toString(), List.of(), "submission-attempt-other")));
     assertEquals(1, db.queryForObject(
         "select count(*) from submissions where session_id=?", Integer.class, fixture.session));
+    assertEquals(1, db.queryForObject("""
+        select count(*) from submission_outbox_events o join submissions s on s.id=o.submission_id
+        where s.session_id=? and o.event_type='submission.accepted'
+        """, Integer.class, fixture.session));
     JsonNode sealed = json.readTree(db.queryForObject(
         "select envelope::text from submissions where session_id=?", String.class, fixture.session));
     JsonNode sealedReview = json.readTree(db.queryForObject(
@@ -232,6 +236,28 @@ class M4CanonicalRuntimeIntegrationTests {
     assertThrows(ResponseStatusException.class, () -> intake.submit(
         fixture.session, fixture.bearer.toString(), new IntakeApplicationService.Submit(
             1L, validation.get("reviewDigest").toString(), List.of(), "attempt-consent-missing")));
+  }
+
+  @Test
+  void iframeChannelRejectsOriginsAndAtomicallyEnforcesItsCap() throws Exception {
+    Fixture fixture = fixture();
+    UUID form = db.queryForObject("select form_id from sessions where id=?", UUID.class, fixture.session);
+    UUID release = db.queryForObject("select release_id from sessions where id=?", UUID.class, fixture.session);
+    UUID account = UUID.randomUUID(), channel = UUID.randomUUID();
+    db.update("insert into accounts(id,email,password_hash) values(?,?,?)", account, "channel-" + account + "@example.test", "unused");
+    db.update("update form_releases set release_state='ACTIVE' where id=?", release);
+    db.update("""
+        insert into form_share_channels(id,form_id,release_id,channel_type,response_cap,allowed_origins,created_by)
+        values(?,?,?,'IFRAME',1,cast('["https://embed.example.test"]' as jsonb),?)
+        """, channel, form, release, account);
+    ResponseStatusException denied = assertThrows(ResponseStatusException.class,
+        () -> intake.startChannel(channel, "https://denied.example.test", null));
+    assertEquals(HttpStatus.FORBIDDEN, denied.getStatusCode());
+    assertTrue(intake.startChannel(channel, "https://embed.example.test", null).getStatusCode().is2xxSuccessful());
+    ResponseStatusException capped = assertThrows(ResponseStatusException.class,
+        () -> intake.startChannel(channel, "https://embed.example.test", null));
+    assertEquals(HttpStatus.GONE, capped.getStatusCode());
+    assertEquals(1L, db.queryForObject("select starts_count from form_share_channels where id=?", Long.class, channel));
   }
 
   @Test

@@ -11,6 +11,7 @@ public class RespondentSessionController {
  private final IntakeApplicationService intake;
  public RespondentSessionController(IntakeApplicationService intake){this.intake=intake;}
  @PostMapping("/public/forms/{share}/sessions") public ResponseEntity<?> start(@PathVariable UUID share,@RequestBody(required=false) IntakeApplicationService.StartSession in){return intake.start(share,in);}
+ @PostMapping("/public/channels/{channel}/sessions") public ResponseEntity<?> startChannel(@PathVariable UUID channel,@RequestHeader(value="Origin",required=false) String origin,@RequestBody(required=false) IntakeApplicationService.StartSession in){return intake.startChannel(channel,origin,in);}
  @GetMapping("/sessions/{id}") public Map<String,Object> session(@PathVariable UUID id,@RequestHeader(value="X-Respondent-Session",required=false) String token){return intake.session(id,token);}
  @PatchMapping("/sessions/{id}") public Map<String,Object> patch(@PathVariable UUID id,@RequestHeader(value="X-Respondent-Session",required=false) String token,@RequestBody IntakeApplicationService.PatchSession in){return intake.patch(id,token,in);}
  @PostMapping("/sessions/{id}/validate") public Map<String,Object> validate(@PathVariable UUID id,@RequestHeader(value="X-Respondent-Session",required=false) String token){return intake.validate(id,token);}
