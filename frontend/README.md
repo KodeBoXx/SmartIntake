@@ -13,6 +13,11 @@ cd frontend && npm install && npm start
 
 Open <http://localhost:4200>. API health: <http://localhost:8080/v1/health>.
 
+## Serve a production build
+
+Run `npm run build && npm run serve:production` behind the deployment TLS proxy.
+The production server denies framing for every document by default. It permits HTTPS ancestors only for `/f/*` and `/sessions/*`, which the governed iframe wrapper protects with an exact configured parent origin. Static hosts that only consume `_headers` fail closed and do not support cross-origin iframe channels.
+
 ## Implemented vertical slices
 
 - Canonical `4.0.0` form definitions with stable field IDs, typed field metadata, conditional visibility, draft revision/ETag save, and immutable release records.
