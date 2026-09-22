@@ -90,7 +90,6 @@ import { RespondentControlComponent } from './respondent-control.component';
 })
 export class PublicPageComponent implements OnInit {
   entryShareId: string | null = null;
-  private readonly iframeOrigin = signal<string | null>(null);
   private readonly iframeBootstrap = signal<string | null>(null);
   private readonly iframeApprovedOrigin = signal<string | null>(null);
   reviewRoute = false;
@@ -113,7 +112,7 @@ export class PublicPageComponent implements OnInit {
       queueMicrotask(() => this.focusTargets.find((node) => node.nativeElement.id === target)?.nativeElement.focus());
     });
     effect(() => {
-      const origin = this.iframeOrigin(); if (!origin) return;
+      const origin = this.store.iframeOrigin(); if (!origin) return;
       const phase = this.store.phase(); const error = this.store.error();
       const type = error ? 'error' : phase === 'receipt' ? 'completed' : 'progress';
       window.parent.postMessage({ protocol: 'smart-intake.v1', type, currentPageId: this.store.currentPageId(), requiredCount: this.store.requiredCount(), completedRequiredCount: this.store.completedRequiredCount(), ...(type === 'completed' && this.store.receiptId() ? { receiptId: this.store.receiptId() } : {}), ...(error ? { code: 'RESPONDENT_ERROR' } : {}) }, origin);
@@ -142,7 +141,7 @@ export class PublicPageComponent implements OnInit {
       addEventListener('message', (event) => {
         const message = event.data as { protocol?: string; type?: string; bootstrap?: string; parentOrigin?: string };
         if (event.source !== window.parent || message?.protocol !== 'smart-intake.v1' || message.type !== 'bootstrap' || typeof message.bootstrap !== 'string' || !message.bootstrap) return;
-        this.iframeOrigin.set(event.origin);
+        this.store.setIframeOrigin(event.origin);
         this.iframeBootstrap.set(message.bootstrap);
         this.iframeApprovedOrigin.set(typeof message.parentOrigin === 'string' ? message.parentOrigin : event.origin);
         window.parent.postMessage({ protocol: 'smart-intake.v1', type: 'ready', shareId: this.entryShareId }, event.origin);
@@ -152,7 +151,7 @@ export class PublicPageComponent implements OnInit {
 
   get testMessage(): string { return `${this.testTitle} is ${this.testState}; real respondent session behavior is active without a test state.`; }
 
-  start(): void { if (this.entryShareId) { const channel = this.route.snapshot.queryParamMap.get('channel'); if (channel) { if (window.parent === window) this.store.startFromTopLevelChannel(this.entryShareId, channel); else if (!this.iframeOrigin() || !this.iframeBootstrap() || !this.iframeApprovedOrigin()) this.store.error.set('Waiting for the approved embedding site to connect.'); else this.store.startFromChannel(this.entryShareId, channel, this.iframeBootstrap()!, this.iframeApprovedOrigin()!); } else this.store.start(this.entryShareId); } }
+  start(): void { if (this.entryShareId) { const channel = this.route.snapshot.queryParamMap.get('channel'); if (channel) { if (window.parent === window) this.store.startFromTopLevelChannel(this.entryShareId, channel); else if (!this.store.iframeOrigin() || !this.iframeBootstrap() || !this.iframeApprovedOrigin()) this.store.error.set('Waiting for the approved embedding site to connect.'); else this.store.startFromChannel(this.entryShareId, channel, this.iframeBootstrap()!, this.iframeApprovedOrigin()!); } else this.store.start(this.entryShareId); } }
   currentPage() { return this.store.pages().find((page) => page.id === this.store.currentPageId()); }
   currentFields(): readonly RuntimeFieldDefinition[] { const ids = this.currentPage()?.fieldIds ?? []; return this.store.definition().fields.filter((field) => ids.includes(field.id) && !field.hidden); }
   currentPlacements(): readonly { key: string; instanceId?: string; field: RuntimeFieldDefinition }[] { const fields = new Map(this.store.definition().fields.map((field) => [field.id, field])); const placements = this.currentPage()?.placements ?? []; const active = new Set(this.store.activePlacementKeys()); return placements.flatMap((placement) => { const field = fields.get(placement.fieldId); const repeated = placements.filter((candidate) => candidate.fieldId === placement.fieldId).length > 1; const visible = !this.store.placementProjectionKnown() || [...active].some((key) => key.startsWith(`${placement.instanceId}|`)); return field && !field.hidden && visible ? [{ key: placement.instanceId, instanceId: repeated ? placement.instanceId : undefined, field }] : []; }); }

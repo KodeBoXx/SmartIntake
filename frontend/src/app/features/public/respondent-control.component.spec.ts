@@ -33,7 +33,9 @@ describe('RespondentControlComponent', () => {
     fixture.componentRef.setInput('field', field);
     fixture.componentRef.setInput('cell', { status: 'answered', value: { items: Array.from({ length: 50 }, (_, index) => ({ itemId: `row-${index + 1}`, fields: {} })) } });
     const operations: RuntimeOperation[] = [];
+    const announcements: string[] = [];
     fixture.componentInstance.operation.subscribe((operation) => operations.push(operation));
+    fixture.componentInstance.announcement.subscribe((message) => announcements.push(message));
     fixture.detectChanges();
     fixture.componentInstance.move('row-50', 'row-1');
     fixture.componentInstance.remove('row-17');
@@ -42,5 +44,6 @@ describe('RespondentControlComponent', () => {
       { kind: 'removeItem', target: { fieldId: 'matrix', rowPath: undefined }, itemId: 'row-17' },
     ]);
     expect(fixture.nativeElement.querySelector('[data-testid="add-list-item"]')).toBeNull();
+    expect(announcements).toEqual(['Item 50 moved to position 1', 'Item 17 removed from position']);
   });
 });

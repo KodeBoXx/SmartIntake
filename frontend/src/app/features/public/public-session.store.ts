@@ -62,6 +62,7 @@ export class PublicSessionStore implements OnDestroy {
   readonly error = signal<string | null>(null);
   readonly receipt = signal<StoredReceipt | null>(null);
   readonly channelId = signal<string | null>(null);
+  readonly iframeOrigin = signal<string | null>(null);
   readonly queueSize = signal(0);
   readonly definition = computed<RuntimeDefinition>(() => runtimeDefinition(this.session()?.definition, this.session()?.locale));
   readonly pages = computed(() => canonicalPages(this.session()?.definition, this.session()?.locale));
@@ -99,6 +100,7 @@ export class PublicSessionStore implements OnDestroy {
     this.reset(true); this.phase.set('loading'); this.shareId.set(shareId); this.channelId.set(channelId);
     this.api.startChannel(channelId, bootstrap, parentOrigin, browserLocale(), Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC').subscribe({ next: (started) => { this.acceptStarted(shareId, started); void this.router.navigate(['/sessions', started.sessionId]); }, error: (failure) => this.fail(startFailure(failure)) });
   }
+  setIframeOrigin(origin: string): void { this.iframeOrigin.set(origin); }
   startFromTopLevelChannel(shareId: string, channelId: string): void { this.startFromChannel(shareId, channelId, '', location.origin); }
 
   hydrate(sessionId: string, reviewAfter = false): void {
@@ -175,8 +177,8 @@ export class PublicSessionStore implements OnDestroy {
 
   returnToReview(): void { this.openReview(); }
   completeReviewReturn(found: boolean): void { const now={required:this.requiredCount(),completed:this.completedRequiredCount(),errors:Object.keys(this.state().invalid).length}; const changed=this.reviewBaseline && (this.reviewBaseline.required!==now.required||this.reviewBaseline.completed!==now.completed||this.reviewBaseline.errors!==now.errors); this.reviewAnnouncement.set(!found ? this.message('reviewMissing') : changed ? this.message('reviewChanged') : this.message('reviewReturned')); this.reviewReturnKey.set(null); this.reviewBaseline=null; }
-  setSharedDevice(enabled: boolean): void { this.sharedDevice.set(enabled); if (enabled) this.persist(); }
-  changeLocale(locale: string): void { const current=this.session(),token=this.token(); if(!current||!token||this.isBusy())return; this.phase.set('loading'); this.api.changeRespondentLocale(current.sessionId,token,locale).subscribe({next:(session)=>this.acceptSession(session),error:()=>this.fail('We could not change the language.')}); }
+  setSharedDevice(enabled: boolean): void { this.sharedDevice.set(enabled); const current=this.session(); if (enabled && current) { sessionStorage.removeItem(secretKey(current.sessionId)); sessionStorage.removeItem(receiptKey(current.sessionId)); } else this.persist(); }
+  changeLocale(locale: string): void { const current=this.session(),token=this.token(); if(!current||!token||this.isBusy())return; this.phase.set('loading'); this.api.changeRespondentLocale(current.sessionId,token,locale).subscribe({next:(session)=>this.acceptSession(session),error:()=>this.fail(this.message('localeFailure'))}); }
 
   submit(acknowledgments: readonly { fieldId: string; rowPath: { listFieldId: string; itemId: string }[]; expectedContentHash: string; accepted: true }[] = []): void {
     const current = this.session(); const token = this.token(); const review = this.review();
@@ -237,7 +239,7 @@ export class PublicSessionStore implements OnDestroy {
   private acceptStarted(shareId: string, started: StartedRespondentSession): void {
     this.shareId.set(shareId); this.token.set(started.respondentSession);
     this.queue = []; this.queueSize.set(0);
-    sessionStorage.setItem(secretKey(started.sessionId), JSON.stringify({ token: started.respondentSession, shareId, channelId: this.channelId() ?? undefined, queue: [] } satisfies StoredSecret));
+    if (!this.sharedDevice()) sessionStorage.setItem(secretKey(started.sessionId), JSON.stringify({ token: started.respondentSession, shareId, channelId: this.channelId() ?? undefined, queue: [] } satisfies StoredSecret));
     this.acceptSession({ ...started, definition: started.release ?? started.definition ?? {}, answers: started.answers ?? {}, status: started.status ?? 'DRAFT' });
   }
 
@@ -250,13 +252,14 @@ export class PublicSessionStore implements OnDestroy {
     const authoritativePage = session.currentPageId;
     this.currentPageId.set(authoritativePage && reachable.includes(authoritativePage) ? authoritativePage : reachable.includes(this.currentPageId() ?? '') ? this.currentPageId() : reachable[0] ?? null);
     this.requiredCount.set(session.requiredCount ?? 0); this.completedRequiredCount.set(session.completedRequiredCount ?? 0);
-    if ((session.requiredCount ?? 0) === 0) this.progressAnnouncement.set('No answer steps. Review and submit remain.');
-    else if (session.completedRequiredCount === session.requiredCount) this.progressAnnouncement.set('Answer steps complete. Review and submit remain.');
+    if ((session.requiredCount ?? 0) === 0) this.progressAnnouncement.set(this.message('noSteps'));
+    else if (session.completedRequiredCount === session.requiredCount) this.progressAnnouncement.set(this.message('stepsComplete'));
     else this.progressAnnouncement.set('');
     if (routeUnresolved(session.definition, this.currentPageId(), session.answers)) this.progressAnnouncement.set('Remaining steps may change.');
     this.activePlacementKeys.set(session.activePlacementKeys ?? []);
     this.placementProjectionKnown.set(session.activePlacementKeys !== undefined);
-    this.phase.set(session.status === 'SUBMITTED' ? 'receipt' : 'ready');
+    this.phase.set(session.status === 'SUBMITTED' ? 'receipt' : (session.requiredCount ?? 0) === 0 ? 'review' : 'ready');
+    if (session.status !== 'SUBMITTED' && (session.requiredCount ?? 0) === 0) queueMicrotask(()=>this.ensureReview());
   }
 
   private recoverAuthenticatedReceipt(sessionId: string, stored: StoredSecret): void {
@@ -347,7 +350,7 @@ export class PublicSessionStore implements OnDestroy {
     // A submitted response cannot be resumed from a shared device after receipt.
     sessionStorage.removeItem(secretKey(current.sessionId));
     const receipt: StoredReceipt = { receiptId, receiptCapability: response.receiptCapability, shareId: response.shareId ?? this.shareId() ?? '', channelId: this.channelId() ?? undefined, submittedAt: response.submittedAt ?? new Date().toISOString() };
-    sessionStorage.setItem(receiptKey(current.sessionId), JSON.stringify(receipt)); this.receipt.set(receipt); this.review.set(null);
+    if (!this.sharedDevice()) sessionStorage.setItem(receiptKey(current.sessionId), JSON.stringify(receipt)); this.receipt.set(receipt); this.review.set(null);
     this.receiptId.set(receiptId); this.phase.set('receipt'); this.error.set(null);
     void this.router.navigate(['/sessions', current.sessionId, 'receipt']);
   }
@@ -366,19 +369,19 @@ export class PublicSessionStore implements OnDestroy {
       if (!receiptId) { this.fail('This receipt is not available on this device.'); return; }
       if (!receipt.receiptCapability) { this.fail('This receipt is not available on this device.'); return; }
       const verified: StoredReceipt = { receiptId, receiptCapability: receipt.receiptCapability, shareId: receipt.shareId ?? stored.shareId, channelId: stored.channelId, submittedAt: receipt.submittedAt ?? new Date().toISOString() };
-      sessionStorage.setItem(receiptKey(sessionId), JSON.stringify(verified)); this.receipt.set(verified); this.receiptId.set(verified.receiptId); this.phase.set('receipt');
+      if (!this.sharedDevice()) sessionStorage.setItem(receiptKey(sessionId), JSON.stringify(verified)); this.receipt.set(verified); this.receiptId.set(verified.receiptId); this.phase.set('receipt');
     }, error: () => this.fail('This receipt is not available on this device.') });
   }
   private persist(): void {
     const current = this.session(); const token = this.token(); const shareId = this.shareId();
-    if (current && token && shareId) sessionStorage.setItem(secretKey(current.sessionId), JSON.stringify({ token, shareId, channelId: this.channelId() ?? undefined, queue: this.sharedDevice() ? [] : this.queue, currentPageId: this.currentPageId() ?? undefined, attemptId: this.attemptId() ?? undefined } satisfies StoredSecret));
+    if (current && token && shareId && !this.sharedDevice()) sessionStorage.setItem(secretKey(current.sessionId), JSON.stringify({ token, shareId, channelId: this.channelId() ?? undefined, queue: this.queue, currentPageId: this.currentPageId() ?? undefined, attemptId: this.attemptId() ?? undefined } satisfies StoredSecret));
   }
 
   private fail(message: string): void { if (message === 'This response is no longer available on this device.') this.reset(true); this.phase.set('error'); this.error.set(message); }
   private message(key: string): string { const locale=this.session()?.locale ?? 'en'; return STORE_MESSAGES[locale]?.[key] ?? STORE_MESSAGES['en'][key] ?? key; }
 }
 
-const STORE_MESSAGES: Record<string,Record<string,string>>={en:{stepAdded:'An answer added a step.',stepsMayChange:'Remaining steps may change.',needsAttention:'A completed answer step needs attention.',stepsComplete:'Answer steps complete. Review and submit remain.',reviewMissing:'The original review item is no longer available. Review totals and errors were updated.',reviewChanged:'Returned to the review item. Review totals or errors changed.',reviewReturned:'Returned to the review item.'},hi:{stepAdded:'एक उत्तर ने एक चरण जोड़ा।',stepsMayChange:'शेष चरण बदल सकते हैं।',needsAttention:'एक पूर्ण उत्तर चरण पर ध्यान देने की आवश्यकता है।',stepsComplete:'उत्तर चरण पूरे हुए। समीक्षा और जमा करना शेष है।',reviewMissing:'मूल समीक्षा आइटम अब उपलब्ध नहीं है। समीक्षा योग और त्रुटियाँ अपडेट हुईं।',reviewChanged:'समीक्षा आइटम पर लौटे। समीक्षा योग या त्रुटियाँ बदलीं।',reviewReturned:'समीक्षा आइटम पर लौटे।'},ar:{stepAdded:'أضافت إجابة خطوة.',stepsMayChange:'قد تتغير الخطوات المتبقية.',needsAttention:'تحتاج خطوة إجابة مكتملة إلى الانتباه.',stepsComplete:'اكتملت خطوات الإجابة. تبقى المراجعة والإرسال.',reviewMissing:'لم يعد عنصر المراجعة الأصلي متاحًا. تم تحديث المجاميع والأخطاء.',reviewChanged:'تمت العودة إلى عنصر المراجعة. تغيرت المجاميع أو الأخطاء.',reviewReturned:'تمت العودة إلى عنصر المراجعة.'}};
+const STORE_MESSAGES: Record<string,Record<string,string>>={en:{localeFailure:'We could not change the language.',noSteps:'No answer steps. Review and submit remain.',stepAdded:'An answer added a step.',stepsMayChange:'Remaining steps may change.',needsAttention:'A completed answer step needs attention.',stepsComplete:'Answer steps complete. Review and submit remain.',reviewMissing:'The original review item is no longer available. Review totals and errors were updated.',reviewChanged:'Returned to the review item. Review totals or errors changed.',reviewReturned:'Returned to the review item.'},hi:{localeFailure:'भाषा बदली नहीं जा सकी।',noSteps:'कोई उत्तर चरण नहीं। समीक्षा और जमा करना शेष है।',stepAdded:'एक उत्तर ने एक चरण जोड़ा।',stepsMayChange:'शेष चरण बदल सकते हैं।',needsAttention:'एक पूर्ण उत्तर चरण पर ध्यान देने की आवश्यकता है।',stepsComplete:'उत्तर चरण पूरे हुए। समीक्षा और जमा करना शेष है।',reviewMissing:'मूल समीक्षा आइटम अब उपलब्ध नहीं है। समीक्षा योग और त्रुटियाँ अपडेट हुईं।',reviewChanged:'समीक्षा आइटम पर लौटे। समीक्षा योग या त्रुटियाँ बदलीं।',reviewReturned:'समीक्षा आइटम पर लौटे।'},ar:{localeFailure:'تعذر تغيير اللغة.',noSteps:'لا توجد خطوات إجابة. تبقى المراجعة والإرسال.',stepAdded:'أضافت إجابة خطوة.',stepsMayChange:'قد تتغير الخطوات المتبقية.',needsAttention:'تحتاج خطوة إجابة مكتملة إلى الانتباه.',stepsComplete:'اكتملت خطوات الإجابة. تبقى المراجعة والإرسال.',reviewMissing:'لم يعد عنصر المراجعة الأصلي متاحًا. تم تحديث المجاميع والأخطاء.',reviewChanged:'تمت العودة إلى عنصر المراجعة. تغيرت المجاميع أو الأخطاء.',reviewReturned:'تمت العودة إلى عنصر المراجعة.'}};
 
 function secretKey(sessionId: string): string { return `smart-intake.respondent.${sessionId}`; }
 function receiptKey(sessionId: string): string { return `smart-intake.receipt.${sessionId}`; }

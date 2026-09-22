@@ -273,22 +273,23 @@ public final class TypedSessionRuntimeService {
     JsonNode messages = packageNode.path("translations").path(locale).path("messages");
     Map<String, JsonNode> fields = new LinkedHashMap<>();
     collectFieldDefinitions(packageNode.path("data").path("fields"), fields);
-    localizeRows(review.get("answers"), messages, fields);
-    localizeRows(review.get("reviewGates"), messages, fields);
+    localizeRows(review.get("answers"), messages, fields, locale);
+    localizeRows(review.get("reviewGates"), messages, fields, locale);
   }
 
   @SuppressWarnings("unchecked")
-  private void localizeRows(Object raw, JsonNode messages, Map<String, JsonNode> fields) {
+  private void localizeRows(Object raw, JsonNode messages, Map<String, JsonNode> fields, String locale) {
     if (!(raw instanceof List<?> rows)) return;
     for (Object item : rows) {
       if (!(item instanceof Map<?, ?> source)) continue;
       Map<String, Object> row = (Map<String, Object>) source;
       String key = Objects.toString(row.get("label"), "");
       if (messages.path(key).isTextual()) row.put("label", messages.path(key).asText());
+      String status=Objects.toString(row.get("status"), "unanswered"); row.put("statusLabel", localizedStatus(status,locale));
       JsonNode field = fields.get(Objects.toString(row.get("fieldId"), ""));
       if (field != null && "answered".equals(Objects.toString(row.get("status"), ""))) {
         String type = field.path("type").asText();
-        if ("attachments".equals(type) || "drawing".equals(type)) row.put("value", "Ready");
+        if ("attachments".equals(type) || "drawing".equals(type)) row.put("value", localizedStatus("ready",locale));
         else if (("choice".equals(type) || "multiChoice".equals(type)) && row.get("value") != null) {
           Map<String, String> options = new LinkedHashMap<>();
           for (JsonNode option : field.path("options")) {
@@ -299,8 +300,16 @@ public final class TypedSessionRuntimeService {
           else row.put("value", options.getOrDefault(row.get("value").toString(), row.get("value").toString()));
         }
       }
-      localizeRows(row.get("children"), messages, fields);
+      localizeRows(row.get("children"), messages, fields, locale);
     }
+  }
+
+  private String localizedStatus(String status,String locale){
+    Map<String,Map<String,String>> labels=Map.of(
+      "en",Map.of("answered","Answered","unanswered","Not answered","unknown","Unknown","declined","Prefer not to answer","respondentNotApplicable","Not applicable","notApplicable","System not applicable","ready","Ready"),
+      "hi",Map.of("answered","उत्तर दिया","unanswered","उत्तर नहीं दिया","unknown","अज्ञात","declined","उत्तर देने से मना किया","respondentNotApplicable","लागू नहीं","notApplicable","सिस्टम लागू नहीं","ready","तैयार"),
+      "ar",Map.of("answered","تمت الإجابة","unanswered","لم تتم الإجابة","unknown","غير معروف","declined","تم رفض الإجابة","respondentNotApplicable","غير منطبق","notApplicable","غير منطبق بواسطة النظام","ready","جاهز"));
+    return labels.getOrDefault(locale,labels.get("en")).getOrDefault(status,status);
   }
 
   private void collectFieldDefinitions(JsonNode source, Map<String, JsonNode> fields) {
