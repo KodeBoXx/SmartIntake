@@ -16,12 +16,14 @@ describe('CatalogStaffPageComponent', () => {
     createCatalogFolder: vi.fn(() => of({})), createCatalogTag: vi.fn(() => of({})), duplicateCatalogForm: vi.fn(() => of(form)), archiveCatalogForm: vi.fn(() => of(form)), restoreCatalogForm: vi.fn(() => of(form)), classifyCatalogForm: vi.fn(() => of(void 0)), transferCatalogFormOwnership: vi.fn(() => of(form)), updateCatalogSettings: vi.fn(() => of({ workspaceId: 'workspace-1', effective: {}, overrides: {} })), workspaceMembers: vi.fn(() => of([])),
   };
   const session = { currentOrganizationId: () => null, currentWorkspaceId: () => 'workspace-1', currentWorkspace: () => ({ workspaceId: 'workspace-1', name: 'Clinical', roles: ['workspace-administrator'] }), currentRoles: () => ['workspace-administrator'] };
+  const router = { navigate: vi.fn(() => Promise.resolve(true)), navigateByUrl: vi.fn(() => Promise.resolve(true)) };
 
-  function setup(): ComponentFixture<CatalogStaffPageComponent> {
+  function setup(sessionValue: typeof session = session): ComponentFixture<CatalogStaffPageComponent> {
     api.catalogForms.mockClear();
+    router.navigate.mockClear(); router.navigateByUrl.mockClear();
     TestBed.configureTestingModule({ imports: [CatalogStaffPageComponent], providers: [
-      { provide: SmartIntakeApiService, useValue: api }, { provide: StaffSessionStore, useValue: session },
-      { provide: Router, useValue: { navigate: vi.fn(() => Promise.resolve(true)) } },
+      { provide: SmartIntakeApiService, useValue: api }, { provide: StaffSessionStore, useValue: sessionValue },
+      { provide: Router, useValue: router },
       { provide: ActivatedRoute, useValue: { snapshot: { data: { screen: 'catalog' } }, queryParamMap: query.asObservable() } },
     ] });
     const fixture = TestBed.createComponent(CatalogStaffPageComponent); fixture.detectChanges(); return fixture;
@@ -42,6 +44,19 @@ describe('CatalogStaffPageComponent', () => {
     expect(fixture.componentInstance.canManage()).toBe(true);
   });
 
+  it('lets an author create the first form from an empty catalog', () => {
+    api.catalogForms.mockReturnValueOnce(of({ items: [], nextCursor: '' }));
+    const author = { ...session, currentWorkspace: () => ({ workspaceId: 'workspace-1', name: 'Clinical', roles: ['author'] }), currentRoles: () => ['author'] };
+    const fixture = setup(author);
+
+    expect(fixture.componentInstance.state()).toBe('empty');
+    expect(fixture.componentInstance.canEdit()).toBe(true);
+    const button = [...fixture.nativeElement.querySelectorAll('button')].find((candidate: HTMLButtonElement) => candidate.textContent?.includes('Create form')) as HTMLButtonElement;
+    expect(button).toBeTruthy();
+    fixture.componentInstance.createForm();
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/workspaces/workspace-1/forms/new');
+  });
+
   it('opens a deep-linked detail drawer and maps forbidden catalog access to denied', () => {
     const fixture = setup(); const component = fixture.componentInstance;
     component.openDetails('form-1');
@@ -60,7 +75,7 @@ describe('CatalogStaffPageComponent', () => {
     api.catalogForms.mockClear();
     TestBed.configureTestingModule({ imports: [CatalogStaffPageComponent], providers: [
       { provide: SmartIntakeApiService, useValue: api }, { provide: StaffSessionStore, useValue: hydrated },
-      { provide: Router, useValue: { navigate: vi.fn(() => Promise.resolve(true)) } },
+      { provide: Router, useValue: router },
       { provide: ActivatedRoute, useValue: { snapshot: { data: { screen: 'catalog' }, queryParamMap: new Map(), paramMap: new Map([['workspaceId', 'workspace-1']]) }, queryParamMap: query.asObservable() } },
     ] });
     const fixture = TestBed.createComponent(CatalogStaffPageComponent); fixture.detectChanges();
