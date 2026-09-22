@@ -1,6 +1,8 @@
 package com.kodeboxx.smartintake;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,6 +26,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -32,14 +35,17 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.test.web.servlet.MockMvc;
 
 @ActiveProfiles("test")
 @SpringBootTest
+@AutoConfigureMockMvc
 class GovernedPublicationIntegrationTests {
   @Autowired JdbcTemplate db;
   @Autowired ObjectMapper json;
   @Autowired GovernedPublicationService governed;
   @Autowired IntakeApplicationService intake;
+  @Autowired MockMvc mockMvc;
   UUID account, form, workspaceId;
   String workspace, token;
   ObjectNode definition;
@@ -140,6 +146,9 @@ class GovernedPublicationIntegrationTests {
     assertTrue(embed.contains("x.receiptId=d.receiptId"));
     assertTrue(embed.contains("frame.addEventListener('load'"));
     assertTrue(embed.contains("pendingBootstrap=d.bootstrap"));
+    mockMvc.perform(get("/v1/public/channels/{channel}/embed",iframe).param("parentOrigin","https://embed.example.test"))
+        .andExpect(header().doesNotExist("X-Frame-Options"))
+        .andExpect(header().string("Content-Security-Policy",org.hamcrest.Matchers.containsString("frame-ancestors https://embed.example.test")));
     assertStatus(HttpStatus.FORBIDDEN, () -> intake.startChannel(iframe, null, null));
     assertStatus(HttpStatus.FORBIDDEN, () -> intake.bootstrapChannel(iframe, "https://denied.example.test"));
     String bootstrap = intake.bootstrapChannel(iframe, "https://embed.example.test").get("bootstrap").toString();

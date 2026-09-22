@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponseWrapper;
 import java.io.IOException;
 import java.util.Arrays;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,7 +43,11 @@ public class BrowserSecurityConfiguration implements WebMvcConfigurer {
       response.setHeader("X-Content-Type-Options", "nosniff");
       response.setHeader("Referrer-Policy", "same-origin");
       if (!iframeEmbed) response.setHeader("X-Frame-Options", "DENY");
-      chain.doFilter(request, response);
+      HttpServletResponse target = iframeEmbed ? new HttpServletResponseWrapper(response) {
+        @Override public void setHeader(String name,String value) { if (!"X-Frame-Options".equalsIgnoreCase(name)) super.setHeader(name,value); }
+        @Override public void addHeader(String name,String value) { if (!"X-Frame-Options".equalsIgnoreCase(name)) super.addHeader(name,value); }
+      } : response;
+      chain.doFilter(request, target);
     }
   }
 }
