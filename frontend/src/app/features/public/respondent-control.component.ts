@@ -30,7 +30,7 @@ type Cell = InputAnswerCell | ServerAnswerCell | undefined;
         @if (field().type === 'object') {
           <div #control [id]="controlId()" tabindex="-1" role="group" [attr.aria-labelledby]="labelId()" class="ml-3 border-l pl-4" data-testid="object-control" [attr.aria-invalid]="invalidReason() ? 'true' : null" [attr.aria-describedby]="invalidReason() ? errorId() : null">
             @for (child of field().fields || []; track child.id) {
-              <si-respondent-control [field]="child" [locale]="locale()" [instanceId]="instanceId()" [cell]="objectCell(child.id)" [serverCell]="objectServerCell(child.id)" [invalid]="invalid()" [rowPath]="rowPath()" (operation)="operation.emit($event)" />
+              <si-respondent-control [field]="child" [locale]="locale()" [instanceId]="instanceId()" [cell]="objectCell(child.id)" [serverCell]="objectServerCell(child.id)" [invalid]="invalid()" [rowPath]="rowPath()" (operation)="operation.emit($event)" (announcement)="announcement.emit($event)" />
             }
           </div>
         } @else if (field().type === 'list') {
@@ -39,12 +39,12 @@ type Cell = InputAnswerCell | ServerAnswerCell | undefined;
               <fieldset tabindex="-1" class="mb-3 border p-3" [attr.data-item-id]="item.itemId">
                 <legend class="type-caption">{{ t(field().fixedRows ? 'row' : 'item') }} {{ index + 1 }}</legend>
                 @for (child of field().itemFields || []; track child.id) {
-                  <si-respondent-control [field]="child" [locale]="locale()" [instanceId]="instanceId()" [cell]="item.fields[child.id]" [serverCell]="itemServerCell(item.itemId, child.id)" [invalid]="invalid()" [rowPath]="childPath(item.itemId)" (operation)="operation.emit($event)" />
+                  <si-respondent-control [field]="child" [locale]="locale()" [instanceId]="instanceId()" [cell]="item.fields[child.id]" [serverCell]="itemServerCell(item.itemId, child.id)" [invalid]="invalid()" [rowPath]="childPath(item.itemId)" (operation)="operation.emit($event)" (announcement)="announcement.emit($event)" />
                 }
                 @if (!field().fixedRows) {
                   <div class="flex flex-wrap gap-2">
-                    <button cui-button size="sm" type="button" [disabled]="index === 0" (click)="move(item.itemId, items()[index - 1]?.itemId)">{{ t('moveUp') }}</button>
-                    <button cui-button size="sm" type="button" [disabled]="index === items().length - 1" (click)="move(item.itemId, items()[index + 2]?.itemId)">{{ t('moveDown') }}</button>
+                    <button data-move-control cui-button size="sm" type="button" [disabled]="index === 0" (click)="move(item.itemId, items()[index - 1]?.itemId)">{{ t('moveUp') }}</button>
+                    <button data-move-control cui-button size="sm" type="button" [disabled]="index === items().length - 1" (click)="move(item.itemId, items()[index + 2]?.itemId)">{{ t('moveDown') }}</button>
                     <button cui-button size="sm" type="button" (click)="remove(item.itemId)">{{ t('remove') }}</button>
                   </div>
                 }
@@ -55,7 +55,7 @@ type Cell = InputAnswerCell | ServerAnswerCell | undefined;
             }
           </div>
         } @else if (field().type === 'attachments' || field().type === 'drawing') {
-          <div #control [id]="controlId()" tabindex="-1"><cui-alert variant="info" title="Secure {{ field().type }}">{{ cell()?.status === 'answered' ? 'Ready' : 'Secure capture is unavailable in this channel.' }}</cui-alert></div>
+          <div #control [id]="controlId()" tabindex="-1"><cui-alert variant="info" [title]="t('secureCapture')">{{ cell()?.status === 'answered' ? t('ready') : t('captureUnavailable') }}</cui-alert></div>
         } @else if (field().type === 'boolean') {
           <select #control [id]="controlId()" class="w-full" [disabled]="protected()" [attr.aria-invalid]="invalidReason() ? 'true' : null" [attr.aria-describedby]="invalidReason() ? errorId() : null" [ngModel]="booleanValue()" (ngModelChange)="setBoolean($event)">
             <option [ngValue]="null">{{ t('select') }}</option><option [ngValue]="true">{{ t('yes') }}</option><option [ngValue]="false">{{ t('no') }}</option>
@@ -73,7 +73,7 @@ type Cell = InputAnswerCell | ServerAnswerCell | undefined;
         }
         @if (invalidReason()) { <p [id]="errorId()" class="type-caption text-error" role="alert">{{ t('invalid') }}</p> }
         @if (!protected() && (field().allowUnknown || field().allowDeclined || field().allowNotApplicable)) {
-          <div class="mt-2 flex flex-wrap gap-2"><button cui-button size="sm" variant="secondary" type="button" (click)="clear()">Clear</button>@if (field().allowUnknown) { <button cui-button size="sm" variant="secondary" type="button" (click)="status('unknown')">Unknown</button> } @if (field().allowDeclined) { <button cui-button size="sm" variant="secondary" type="button" (click)="status('declined')">Decline</button> } @if (field().allowNotApplicable) { <button cui-button size="sm" variant="secondary" type="button" (click)="status('respondentNotApplicable')">Not applicable</button> }</div>
+          <div class="mt-2 flex flex-wrap gap-2"><button cui-button size="sm" variant="secondary" type="button" (click)="clear()">{{ t('clear') }}</button>@if (field().allowUnknown) { <button cui-button size="sm" variant="secondary" type="button" (click)="status('unknown')">{{ t('unknown') }}</button> } @if (field().allowDeclined) { <button cui-button size="sm" variant="secondary" type="button" (click)="status('declined')">{{ t('decline') }}</button> } @if (field().allowNotApplicable) { <button cui-button size="sm" variant="secondary" type="button" (click)="status('respondentNotApplicable')">{{ t('notApplicable') }}</button> }</div>
         }
       </div>
     }
@@ -90,12 +90,13 @@ export class RespondentControlComponent implements AfterViewInit, AfterViewCheck
   readonly invalid = input<Readonly<Record<string, string>>>({});
   readonly rowPath = input<RowPath>([]);
   readonly operation = output<RuntimeOperation>();
+  readonly announcement = output<string>();
   private pendingFocus: string | null = null;
 
   ngAfterViewInit(): void {
     if (this.route?.snapshot.queryParamMap.get('focus') === this.controlId()) queueMicrotask(() => this.control?.nativeElement.focus());
   }
-  ngAfterViewChecked(): void { if (!this.pendingFocus) return; const selector=this.pendingFocus==='add'?'[data-testid="add-list-item"]':`[data-item-id="${CSS.escape(this.pendingFocus)}"]`; const target=this.control?.nativeElement.querySelector<HTMLElement>(selector); if(target){this.pendingFocus=null;queueMicrotask(()=>target.focus());} }
+  ngAfterViewChecked(): void { if (!this.pendingFocus) return; const [id,kind]=this.pendingFocus.split('|'); const selector=id==='add'?'[data-testid="add-list-item"]':`[data-item-id="${CSS.escape(id)}"] ${kind==='move'?'[data-move-control]':'input,select,textarea,button'}, [data-item-id="${CSS.escape(id)}"]`; const target=this.control?.nativeElement.querySelector<HTMLElement>(selector); if(target){this.pendingFocus=null;queueMicrotask(()=>target.focus());} }
 
   label(field: RuntimeFieldDefinition): string { return field.label ?? field.id.replace(/([A-Z])/g, ' $1').replace(/^./, (letter) => letter.toUpperCase()); }
   t(key: string): string { return CONTROL_MESSAGES[this.locale()]?.[key] ?? CONTROL_MESSAGES['en'][key] ?? key; }
@@ -135,13 +136,13 @@ export class RespondentControlComponent implements AfterViewInit, AfterViewCheck
   setBoolean(raw: boolean | null): void { if (raw !== null) this.operation.emit({ kind: 'set', target: this.target(), answer: { status: 'answered', value: raw } }); }
   clear(): void { this.operation.emit({ kind: 'clear', target: this.target() }); }
   status(status: 'unknown' | 'declined' | 'respondentNotApplicable'): void { this.operation.emit({ kind: 'set', target: this.target(), answer: { status } }); }
-  add(): void { const itemId=`item_${crypto.randomUUID().replaceAll('-', '')}`; this.pendingFocus=itemId; this.operation.emit({ kind: 'addItem', target: this.target(), itemId }); }
-  remove(itemId: string): void { const rows=this.items(); const index=rows.findIndex((item)=>item.itemId===itemId); this.pendingFocus=rows[index+1]?.itemId ?? rows[index-1]?.itemId ?? 'add'; this.operation.emit({ kind: 'removeItem', target: this.target(), itemId }); }
-  move(itemId: string, beforeItemId?: string): void { this.pendingFocus=itemId; this.operation.emit({ kind: 'moveItem', target: this.target(), itemId, beforeItemId }); }
+  add(): void { const itemId=`item_${crypto.randomUUID().replaceAll('-', '')}`,position=this.items().length+1; this.pendingFocus=`${itemId}|edit`; this.announcement.emit(`${this.t('item')} ${position} ${this.t('added')}`); this.operation.emit({ kind: 'addItem', target: this.target(), itemId }); }
+  remove(itemId: string): void { const rows=this.items(); const index=rows.findIndex((item)=>item.itemId===itemId); const next=rows[index+1]?.itemId ?? rows[index-1]?.itemId; this.pendingFocus=next?`${next}|edit`:'add'; this.announcement.emit(`${this.t('item')} ${index+1} ${this.t('removed')}`); this.operation.emit({ kind: 'removeItem', target: this.target(), itemId }); }
+  move(itemId: string, beforeItemId?: string): void { const rows=this.items(); const target=beforeItemId?rows.findIndex((item)=>item.itemId===beforeItemId)+1:rows.length; this.pendingFocus=`${itemId}|move`; this.announcement.emit(`${this.t('item')} ${rows.findIndex((item)=>item.itemId===itemId)+1} ${this.t('moved')} ${target}`); this.operation.emit({ kind: 'moveItem', target: this.target(), itemId, beforeItemId }); }
   toggleChoice(option: string, checked: boolean): void { const values = new Set(this.multiValue()); checked ? values.add(option) : values.delete(option); this.operation.emit({ kind: 'set', target: this.target(), answer: { status: 'answered', value: [...values] } }); }
   private target() { return { fieldId: this.field().id, rowPath: this.rowPath().length ? this.rowPath() : undefined }; }
 }
 
 function cellValue(cell: Cell): unknown { return cell?.status === 'answered' ? cell.value : undefined; }
 function normalizeTime(value: string): string { return /^\d{2}:\d{2}$/.test(value) ? `${value}:00` : value; }
-const CONTROL_MESSAGES: Record<string,Record<string,string>> = { en:{row:'Row',item:'Item',moveUp:'Move up',moveDown:'Move down',remove:'Remove',addItem:'Add item',select:'Select an answer',yes:'Yes',no:'No',invalid:'This answer has an invalid value.'}, hi:{row:'पंक्ति',item:'आइटम',moveUp:'ऊपर ले जाएँ',moveDown:'नीचे ले जाएँ',remove:'हटाएँ',addItem:'आइटम जोड़ें',select:'उत्तर चुनें',yes:'हाँ',no:'नहीं',invalid:'इस उत्तर का मान अमान्य है।'}, ar:{row:'صف',item:'عنصر',moveUp:'نقل لأعلى',moveDown:'نقل لأسفل',remove:'إزالة',addItem:'إضافة عنصر',select:'اختر إجابة',yes:'نعم',no:'لا',invalid:'قيمة هذه الإجابة غير صالحة.'} };
+const CONTROL_MESSAGES: Record<string,Record<string,string>> = { en:{secureCapture:'Secure capture',ready:'Ready',captureUnavailable:'Secure capture is unavailable in this channel.',clear:'Clear',unknown:'Unknown',decline:'Decline',notApplicable:'Not applicable',row:'Row',item:'Item',added:'added at position',removed:'removed from position',moved:'moved to position',moveUp:'Move up',moveDown:'Move down',remove:'Remove',addItem:'Add item',select:'Select an answer',yes:'Yes',no:'No',invalid:'This answer has an invalid value.'}, hi:{secureCapture:'सुरक्षित कैप्चर',ready:'तैयार',captureUnavailable:'इस चैनल में सुरक्षित कैप्चर उपलब्ध नहीं है।',clear:'साफ़ करें',unknown:'अज्ञात',decline:'मना करें',notApplicable:'लागू नहीं',row:'पंक्ति',item:'आइटम',added:'स्थान पर जोड़ा गया',removed:'स्थान से हटाया गया',moved:'स्थान पर ले जाया गया',moveUp:'ऊपर ले जाएँ',moveDown:'नीचे ले जाएँ',remove:'हटाएँ',addItem:'आइटम जोड़ें',select:'उत्तर चुनें',yes:'हाँ',no:'नहीं',invalid:'इस उत्तर का मान अमान्य है।'}, ar:{secureCapture:'التقاط آمن',ready:'جاهز',captureUnavailable:'الالتقاط الآمن غير متاح في هذه القناة.',clear:'مسح',unknown:'غير معروف',decline:'رفض',notApplicable:'غير منطبق',row:'صف',item:'عنصر',added:'تمت إضافته في الموضع',removed:'تمت إزالته من الموضع',moved:'تم نقله إلى الموضع',moveUp:'نقل لأعلى',moveDown:'نقل لأسفل',remove:'إزالة',addItem:'إضافة عنصر',select:'اختر إجابة',yes:'نعم',no:'لا',invalid:'قيمة هذه الإجابة غير صالحة.'} };

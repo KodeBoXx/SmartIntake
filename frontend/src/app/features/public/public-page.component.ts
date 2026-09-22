@@ -27,7 +27,7 @@ import { RespondentControlComponent } from './respondent-control.component';
         </cui-card>
       } @else {
       @if (store.error(); as error) { <cui-alert variant="error" class="mb-4" data-testid="public-error">{{ error }}</cui-alert> }
-      @if (invalidItems().length) { <nav aria-label="Answer errors" class="mb-4" aria-live="assertive"><p class="type-label">Review {{ invalidItems().length }} answer errors.</p><ul>@for (item of invalidItems(); track item.key) { <li><button type="button" (click)="store.edit(item.fieldId, item.rowPath)">Go to {{ item.fieldId }}</button></li> }</ul></nav> }
+      @if (invalidItems().length) { <nav [attr.aria-label]="t('answerErrors')" class="mb-4" aria-live="assertive"><p class="type-label">{{ t('reviewErrors') }} {{ invalidItems().length }}</p><ul>@for (item of invalidItems(); track item.key) { <li><button type="button" (click)="store.edit(item.fieldId, item.rowPath, item.instanceId)">{{ t('goTo') }} {{ item.fieldId }}</button></li> }</ul></nav> }
 
       @if (entryShareId) {
         <cui-card padding="lg" data-testid="public-entry">
@@ -37,7 +37,7 @@ import { RespondentControlComponent } from './respondent-control.component';
           <button cui-button variant="primary" type="button" (click)="start()" [disabled]="store.phase() === 'loading'">{{ t('start') }}</button>
         </cui-card>
       } @else if (store.phase() === 'loading' || store.phase() === 'idle') {
-        <p class="type-body" aria-live="polite">Loading your response…</p>
+        <p class="type-body" aria-live="polite">{{ t('loading') }}</p>
       } @else if (store.phase() === 'receipt' && store.receipt()) {
         <cui-card padding="lg" data-testid="public-receipt">
           <h1 class="type-h2 mb-2">{{ t('received') }}</h1>
@@ -73,15 +73,15 @@ import { RespondentControlComponent } from './respondent-control.component';
             @else { <span class="type-caption">{{ t('saved') }}</span> }
           </div>
           @for (placement of currentPlacements(); track placement.key) {
-            <si-respondent-control [field]="placement.field" [locale]="language()" [instanceId]="placement.instanceId" [cell]="answerForControl(placement.field)" [serverCell]="store.state().server?.answers?.[placement.field.id]" [invalid]="store.state().invalid" (operation)="store.apply($event)" />
+            <si-respondent-control [field]="placement.field" [locale]="language()" [instanceId]="placement.instanceId" [cell]="answerForControl(placement.field)" [serverCell]="store.state().server?.answers?.[placement.field.id]" [invalid]="store.state().invalid" (operation)="store.apply($event)" (announcement)="store.announceStructure($event)" />
           }
           <p class="sr-only" aria-live="polite">{{ store.structureAnnouncement() }}</p>
           <div class="mt-8 flex justify-between gap-3">
             <button cui-button variant="secondary" type="button" (click)="store.navigate(-1)" [disabled]="!store.canMovePrevious()">{{ t('previous') }}</button>
             @if (store.canMoveNext()) { <button cui-button variant="primary" type="button" (click)="store.navigate(1)">{{ t('next') }}</button> } @else { <button cui-button variant="primary" type="button" (click)="store.openReview()" data-testid="review-response">{{ t('review') }}</button> }
           </div>
-          @if (store.reviewReturnKey()) { <button class="mt-4" cui-button variant="secondary" type="button" (click)="store.returnToReview()">Return to review</button> }
-          <button class="mt-5 type-caption" type="button" (click)="store.clearAndExit()">Clear this device and exit</button>
+          @if (store.reviewReturnKey()) { <button class="mt-4" cui-button variant="secondary" type="button" (click)="store.returnToReview()">{{ t('returnReview') }}</button> }
+          <button class="mt-5 type-caption" type="button" (click)="store.clearAndExit()">{{ t('clearExit') }}</button>
         </cui-card>
       }
       }
@@ -122,7 +122,7 @@ export class PublicPageComponent implements OnInit {
     effect(() => {
       const key = this.store.reviewReturnKey();
       if (this.store.phase() !== 'review' || !key) return;
-      queueMicrotask(() => { const row=document.getElementById(`review-${this.safeId(key)}`); if(row)row.focus(); else {document.getElementById('review-heading')?.focus();this.store.announceReviewChange('The original review item is no longer available. Review totals and errors were updated.');} });
+      queueMicrotask(() => { const row=document.getElementById(`review-${this.safeId(key)}`); if(row)row.focus(); else document.getElementById('review-heading')?.focus(); this.store.completeReviewReturn(Boolean(row)); });
     });
     effect(() => {
       this.store.activePlacementKeys(); const active=document.activeElement as HTMLElement | null; const fieldRoot=active?.closest('[data-field-id]');
@@ -155,7 +155,7 @@ export class PublicPageComponent implements OnInit {
   start(): void { if (this.entryShareId) { const channel = this.route.snapshot.queryParamMap.get('channel'); if (channel) { if (window.parent === window) this.store.startFromTopLevelChannel(this.entryShareId, channel); else if (!this.iframeOrigin() || !this.iframeBootstrap() || !this.iframeApprovedOrigin()) this.store.error.set('Waiting for the approved embedding site to connect.'); else this.store.startFromChannel(this.entryShareId, channel, this.iframeBootstrap()!, this.iframeApprovedOrigin()!); } else this.store.start(this.entryShareId); } }
   currentPage() { return this.store.pages().find((page) => page.id === this.store.currentPageId()); }
   currentFields(): readonly RuntimeFieldDefinition[] { const ids = this.currentPage()?.fieldIds ?? []; return this.store.definition().fields.filter((field) => ids.includes(field.id) && !field.hidden); }
-  currentPlacements(): readonly { key: string; instanceId?: string; field: RuntimeFieldDefinition }[] { const fields = new Map(this.store.definition().fields.map((field) => [field.id, field])); const placements = this.currentPage()?.placements ?? []; const active = new Set(this.store.activePlacementKeys()); return placements.flatMap((placement) => { const field = fields.get(placement.fieldId); const repeated = placements.filter((candidate) => candidate.fieldId === placement.fieldId).length > 1; const visible = !active.size || [...active].some((key) => key.startsWith(`${placement.instanceId}|`)); return field && !field.hidden && visible ? [{ key: placement.instanceId, instanceId: repeated ? placement.instanceId : undefined, field }] : []; }); }
+  currentPlacements(): readonly { key: string; instanceId?: string; field: RuntimeFieldDefinition }[] { const fields = new Map(this.store.definition().fields.map((field) => [field.id, field])); const placements = this.currentPage()?.placements ?? []; const active = new Set(this.store.activePlacementKeys()); return placements.flatMap((placement) => { const field = fields.get(placement.fieldId); const repeated = placements.filter((candidate) => candidate.fieldId === placement.fieldId).length > 1; const visible = !this.store.placementProjectionKnown() || [...active].some((key) => key.startsWith(`${placement.instanceId}|`)); return field && !field.hidden && visible ? [{ key: placement.instanceId, instanceId: repeated ? placement.instanceId : undefined, field }] : []; }); }
   label(field: RuntimeFieldDefinition): string { return field.id.replace(/([A-Z])/g, ' $1').replace(/^./, (letter) => letter.toUpperCase()); }
   isProtected(field: RuntimeFieldDefinition): boolean { return Boolean(field.readOnly || field.calculated); }
   inputType(field: RuntimeFieldDefinition): string { return field.type === 'integer' || field.type === 'decimal' ? 'number' : field.type === 'date' || field.type === 'time' || field.type === 'dateTime' ? field.type === 'dateTime' ? 'datetime-local' : field.type : 'text'; }
@@ -177,7 +177,7 @@ export class PublicPageComponent implements OnInit {
   language(): string { return this.store.session()?.locale ?? String(this.store.session()?.definition?.['defaultLocale'] ?? 'en'); }
   t(key: string): string { return PAGE_MESSAGES[this.language()]?.[key] ?? PAGE_MESSAGES['en'][key] ?? key; }
   supportedLocales(): string[] { const value=this.store.session()?.definition?.['supportedLocales']; return Array.isArray(value) ? value.filter((locale): locale is string => typeof locale === 'string') : [this.language()]; }
-  invalidItems(): { key: string; fieldId: string; rowPath: { listFieldId: string; itemId: string }[] }[] { return Object.keys(this.store.state().invalid).map((key) => { const parts=key.replace(/^\//,'').split('/'); const fieldId=parts.pop() ?? ''; const rowPath=parts.flatMap((part) => { const split=part.indexOf(':'); return split > 0 ? [{listFieldId:part.slice(0,split),itemId:part.slice(split+1)}] : []; }); return {key,fieldId,rowPath}; }).filter((item)=>item.fieldId); }
+  invalidItems(): { key: string; fieldId: string; instanceId?: string; rowPath: { listFieldId: string; itemId: string }[] }[] { return Object.keys(this.store.state().invalid).map((key) => { const parts=key.replace(/^\//,'').split('/'); const fieldId=parts.pop() ?? ''; const rowPath=parts.flatMap((part) => { const split=part.indexOf(':'); return split > 0 ? [{listFieldId:part.slice(0,split),itemId:part.slice(split+1)}] : []; }); const instanceId=this.currentPlacements().find((placement)=>placement.field.id===fieldId)?.instanceId; return {key,fieldId,instanceId,rowPath}; }).filter((item)=>item.fieldId); }
   safeId(value: string): string { return value.replaceAll(/[^A-Za-z0-9_-]/g, '-'); }
 
   answer(field: RuntimeFieldDefinition): { status: string; value?: unknown } | undefined { return this.store.state().answers[field.id] ?? this.store.state().server?.answers[field.id]; }
@@ -206,7 +206,7 @@ export class PublicPageComponent implements OnInit {
     });
   }
 }
-const PAGE_MESSAGES: Record<string,Record<string,string>>={en:{startTitle:'Start your response',savedSecurely:'Your progress is saved securely as you go.',sharedDevice:'Shared device',start:'Start form',received:'Response received',thankYou:'Thank you. Your response has been submitted successfully.',startAnother:'Start another response',reviewTitle:'Review your response',checkAnswers:'Check your answers before submitting.',edit:'Edit',back:'Back to form',submitting:'Submitting…',submit:'Submit response',language:'Language',saving:'Saving…',notSaved:'Not saved',retry:'Retry',saved:'Saved',previous:'Previous',next:'Next',review:'Review response'},hi:{startTitle:'अपना उत्तर शुरू करें',savedSecurely:'आपकी प्रगति सुरक्षित रूप से सहेजी जाती है।',sharedDevice:'साझा डिवाइस',start:'फ़ॉर्म शुरू करें',received:'उत्तर प्राप्त हुआ',thankYou:'धन्यवाद। आपका उत्तर सफलतापूर्वक जमा हो गया है।',startAnother:'एक और उत्तर शुरू करें',reviewTitle:'अपने उत्तर की समीक्षा करें',checkAnswers:'जमा करने से पहले अपने उत्तर जाँचें।',edit:'संपादित करें',back:'फ़ॉर्म पर वापस जाएँ',submitting:'जमा हो रहा है…',submit:'उत्तर जमा करें',language:'भाषा',saving:'सहेजा जा रहा है…',notSaved:'सहेजा नहीं गया',retry:'फिर प्रयास करें',saved:'सहेजा गया',previous:'पिछला',next:'अगला',review:'उत्तर की समीक्षा करें'},ar:{startTitle:'ابدأ إجابتك',savedSecurely:'يتم حفظ تقدمك بأمان.',sharedDevice:'جهاز مشترك',start:'ابدأ النموذج',received:'تم استلام الرد',thankYou:'شكرًا لك. تم إرسال ردك بنجاح.',startAnother:'ابدأ ردًا آخر',reviewTitle:'راجع ردك',checkAnswers:'تحقق من إجاباتك قبل الإرسال.',edit:'تعديل',back:'العودة إلى النموذج',submitting:'جارٍ الإرسال…',submit:'إرسال الرد',language:'اللغة',saving:'جارٍ الحفظ…',notSaved:'غير محفوظ',retry:'إعادة المحاولة',saved:'تم الحفظ',previous:'السابق',next:'التالي',review:'مراجعة الرد'}};
+const PAGE_MESSAGES: Record<string,Record<string,string>>={en:{answerErrors:'Answer errors',reviewErrors:'Answer errors:',goTo:'Go to',loading:'Loading your response…',returnReview:'Return to review',clearExit:'Clear this device and exit',startTitle:'Start your response',savedSecurely:'Your progress is saved securely as you go.',sharedDevice:'Shared device',start:'Start form',received:'Response received',thankYou:'Thank you. Your response has been submitted successfully.',startAnother:'Start another response',reviewTitle:'Review your response',checkAnswers:'Check your answers before submitting.',edit:'Edit',back:'Back to form',submitting:'Submitting…',submit:'Submit response',language:'Language',saving:'Saving…',notSaved:'Not saved',retry:'Retry',saved:'Saved',previous:'Previous',next:'Next',review:'Review response'},hi:{answerErrors:'उत्तर त्रुटियाँ',reviewErrors:'उत्तर त्रुटियाँ:',goTo:'यहाँ जाएँ',loading:'आपका उत्तर लोड हो रहा है…',returnReview:'समीक्षा पर लौटें',clearExit:'यह डिवाइस साफ़ करें और बाहर निकलें',startTitle:'अपना उत्तर शुरू करें',savedSecurely:'आपकी प्रगति सुरक्षित रूप से सहेजी जाती है।',sharedDevice:'साझा डिवाइस',start:'फ़ॉर्म शुरू करें',received:'उत्तर प्राप्त हुआ',thankYou:'धन्यवाद। आपका उत्तर सफलतापूर्वक जमा हो गया है।',startAnother:'एक और उत्तर शुरू करें',reviewTitle:'अपने उत्तर की समीक्षा करें',checkAnswers:'जमा करने से पहले अपने उत्तर जाँचें।',edit:'संपादित करें',back:'फ़ॉर्म पर वापस जाएँ',submitting:'जमा हो रहा है…',submit:'उत्तर जमा करें',language:'भाषा',saving:'सहेजा जा रहा है…',notSaved:'सहेजा नहीं गया',retry:'फिर प्रयास करें',saved:'सहेजा गया',previous:'पिछला',next:'अगला',review:'उत्तर की समीक्षा करें'},ar:{answerErrors:'أخطاء الإجابة',reviewErrors:'أخطاء الإجابة:',goTo:'انتقل إلى',loading:'جارٍ تحميل ردك…',returnReview:'العودة إلى المراجعة',clearExit:'مسح هذا الجهاز والخروج',startTitle:'ابدأ إجابتك',savedSecurely:'يتم حفظ تقدمك بأمان.',sharedDevice:'جهاز مشترك',start:'ابدأ النموذج',received:'تم استلام الرد',thankYou:'شكرًا لك. تم إرسال ردك بنجاح.',startAnother:'ابدأ ردًا آخر',reviewTitle:'راجع ردك',checkAnswers:'تحقق من إجاباتك قبل الإرسال.',edit:'تعديل',back:'العودة إلى النموذج',submitting:'جارٍ الإرسال…',submit:'إرسال الرد',language:'اللغة',saving:'جارٍ الحفظ…',notSaved:'غير محفوظ',retry:'إعادة المحاولة',saved:'تم الحفظ',previous:'السابق',next:'التالي',review:'مراجعة الرد'}};
 
 function isRowPath(value: unknown): value is { listFieldId: string; itemId: string } {
   return Boolean(value && typeof value === 'object' && typeof (value as Record<string, unknown>)['listFieldId'] === 'string' && typeof (value as Record<string, unknown>)['itemId'] === 'string');
