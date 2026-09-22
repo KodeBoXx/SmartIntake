@@ -477,7 +477,7 @@ public class IntakeApplicationService {
     String src=publicAppBaseUrl.replaceAll("/$","")+"/f/"+channelId+"?channel="+channelId;
     String escaped=parentOrigin.replace("\\","\\\\").replace("'","\\'");
     java.net.URI app=java.net.URI.create(publicAppBaseUrl); String childOrigin=app.getScheme()+"://"+app.getAuthority();
-    return "<!doctype html><meta charset=\"utf-8\"><iframe id=\"smart-intake\" src=\""+src+"\" sandbox=\"allow-scripts allow-forms allow-same-origin\"></iframe><script>const parentOrigin='"+escaped+"',childOrigin='"+childOrigin+"',frame=document.getElementById('smart-intake'),childTypes=new Set(['ready','resize','progress','completed','error']),answer=/answer|value|field|response|submission|token/i;function safe(x){return x&&typeof x==='object'&&!Object.keys(x).some(k=>answer.test(k))}window.addEventListener('message',e=>{let d=e.data;if(e.source===parent&&e.origin===parentOrigin&&safe(d)&&d.type==='smart-intake.v1'&&typeof d.bootstrap==='string')frame.contentWindow.postMessage({type:'smart-intake.v1',bootstrap:d.bootstrap,parentOrigin},childOrigin);else if(e.source===frame.contentWindow&&e.origin===childOrigin&&safe(d)&&childTypes.has(d&&d.type))parent.postMessage(d,parentOrigin)});</script>";
+    return "<!doctype html><meta charset=\"utf-8\"><iframe id=\"smart-intake\" src=\""+src+"\" sandbox=\"allow-scripts allow-forms allow-same-origin\"></iframe><script>const parentOrigin='"+escaped+"',childOrigin='"+childOrigin+"',frame=document.getElementById('smart-intake'),childTypes=new Set(['ready','resize','progress','completed','error']);function outbound(d){let x={protocol:'smart-intake.v1',type:d.type};if(d.type==='ready')x.shareId=d.shareId;if(d.type==='resize')x.height=d.height;if(d.type==='progress'){x.currentPageId=d.currentPageId;x.requiredCount=d.requiredCount;x.completedRequiredCount=d.completedRequiredCount}if(d.type==='error')x.code=d.code;return x}window.addEventListener('message',e=>{let d=e.data;if(e.source===parent&&e.origin===parentOrigin&&d&&d.protocol==='smart-intake.v1'&&d.type==='bootstrap'&&typeof d.bootstrap==='string')frame.contentWindow.postMessage({protocol:'smart-intake.v1',type:'bootstrap',bootstrap:d.bootstrap,parentOrigin},childOrigin);else if(e.source===frame.contentWindow&&e.origin===childOrigin&&d&&d.protocol==='smart-intake.v1'&&childTypes.has(d.type))parent.postMessage(outbound(d),parentOrigin)});</script>";
   }
 
   @Transactional
@@ -485,13 +485,14 @@ public class IntakeApplicationService {
     Map<String, Object> channel;
     try {
       channel = db.queryForMap("""
-          select id,form_id,release_id,channel_type,allowed_origins::text,response_cap,accepted_count from form_share_channels
-          where id=? and state='ACTIVE' and (opens_at is null or opens_at <= now())
-            and (closes_at is null or now() < closes_at) for update
+          select id,form_id,release_id,channel_type,allowed_origins::text,response_cap,accepted_count,
+            (state='ACTIVE' and (opens_at is null or opens_at <= now()) and (closes_at is null or now() < closes_at)) as available
+          from form_share_channels where id=? for update
           """, channelId);
     } catch (EmptyResultDataAccessException missing) {
-      throw new ResponseStatusException(HttpStatus.GONE, "Share channel is unavailable");
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "SHARE_CHANNEL_NOT_FOUND");
     }
+    if (!Boolean.TRUE.equals(channel.get("available"))) throw new ResponseStatusException(HttpStatus.CONFLICT, "CHANNEL_CLOSED");
     if (channel.get("response_cap") != null && ((Number)channel.get("accepted_count")).longValue() >= ((Number)channel.get("response_cap")).longValue())
       throw new ResponseStatusException(HttpStatus.CONFLICT, "RESPONSE_CAP_REACHED");
     if ("IFRAME".equals(channel.get("channel_type"))) {
@@ -1264,7 +1265,7 @@ public class IntakeApplicationService {
         """, session.shareChannelId());
     if (claimed != 1) {
       Integer cap = db.queryForObject("select count(*) from form_share_channels where id=? and response_cap is not null and accepted_count>=response_cap", Integer.class, session.shareChannelId());
-      throw new ResponseStatusException(cap != null && cap == 1 ? HttpStatus.CONFLICT : HttpStatus.GONE, cap != null && cap == 1 ? "RESPONSE_CAP_REACHED" : "SHARE_CHANNEL_CLOSED");
+      throw new ResponseStatusException(HttpStatus.CONFLICT, cap != null && cap == 1 ? "RESPONSE_CAP_REACHED" : "CHANNEL_CLOSED");
     }
   }
 

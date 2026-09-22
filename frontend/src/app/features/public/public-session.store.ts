@@ -28,8 +28,8 @@ import type {
 export type RespondentPhase = 'idle' | 'loading' | 'ready' | 'saving' | 'review' | 'submitting' | 'receipt' | 'error';
 
 type QueuedMutation = { id: string; operation: RuntimeOperation };
-type StoredSecret = { token: string; shareId: string; queue?: QueuedMutation[]; currentPageId?: string; attemptId?: string };
-export type StoredReceipt = { receiptId: string; shareId: string; submittedAt: string; receiptCapability: string };
+type StoredSecret = { token: string; shareId: string; channelId?: string; queue?: QueuedMutation[]; currentPageId?: string; attemptId?: string };
+export type StoredReceipt = { receiptId: string; shareId: string; channelId?: string; submittedAt: string; receiptCapability: string };
 type CanonicalField = Record<string, unknown>;
 
 /**
@@ -91,11 +91,12 @@ export class PublicSessionStore implements OnDestroy {
     this.reset(true); this.phase.set('loading'); this.shareId.set(shareId); this.channelId.set(channelId);
     this.api.startChannel(channelId, bootstrap, parentOrigin, browserLocale(), Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC').subscribe({ next: (started) => { this.acceptStarted(shareId, started); void this.router.navigate(['/sessions', started.sessionId]); }, error: (failure) => this.fail(startFailure(failure)) });
   }
+  startFromTopLevelChannel(shareId: string, channelId: string): void { this.startFromChannel(shareId, channelId, '', location.origin); }
 
   hydrate(sessionId: string, reviewAfter = false): void {
     const stored = this.secret(sessionId);
     if (!stored) { this.fail('This response is not available on this device. Start a new response from the public link.'); return; }
-    this.phase.set('loading'); this.shareId.set(stored.shareId); this.token.set(stored.token); this.queue = stored.queue ?? []; this.queueSize.set(this.queue.length); this.currentPageId.set(stored.currentPageId ?? null); this.attemptId.set(stored.attemptId ?? null);
+    this.phase.set('loading'); this.shareId.set(stored.shareId); this.channelId.set(stored.channelId ?? null); this.token.set(stored.token); this.queue = stored.queue ?? []; this.queueSize.set(this.queue.length); this.currentPageId.set(stored.currentPageId ?? null); this.attemptId.set(stored.attemptId ?? null);
     this.api.respondentSession(sessionId, stored.token).subscribe({
       next: (session) => {
         this.acceptSession(session);
@@ -218,7 +219,7 @@ export class PublicSessionStore implements OnDestroy {
   private acceptStarted(shareId: string, started: StartedRespondentSession): void {
     this.shareId.set(shareId); this.token.set(started.respondentSession);
     this.queue = []; this.queueSize.set(0);
-    sessionStorage.setItem(secretKey(started.sessionId), JSON.stringify({ token: started.respondentSession, shareId, queue: [] } satisfies StoredSecret));
+    sessionStorage.setItem(secretKey(started.sessionId), JSON.stringify({ token: started.respondentSession, shareId, channelId: this.channelId() ?? undefined, queue: [] } satisfies StoredSecret));
     this.acceptSession({ ...started, definition: started.release ?? started.definition ?? {}, answers: started.answers ?? {}, status: started.status ?? 'DRAFT' });
   }
 
@@ -314,7 +315,7 @@ export class PublicSessionStore implements OnDestroy {
     if (!receiptId || !response.receiptCapability) { this.phase.set('review'); this.error.set('Submission succeeded, but secure receipt recovery is unavailable. Try again safely.'); return; }
     // A submitted response cannot be resumed from a shared device after receipt.
     sessionStorage.removeItem(secretKey(current.sessionId));
-    const receipt: StoredReceipt = { receiptId, receiptCapability: response.receiptCapability, shareId: response.shareId ?? this.shareId() ?? '', submittedAt: response.submittedAt ?? new Date().toISOString() };
+    const receipt: StoredReceipt = { receiptId, receiptCapability: response.receiptCapability, shareId: response.shareId ?? this.shareId() ?? '', channelId: this.channelId() ?? undefined, submittedAt: response.submittedAt ?? new Date().toISOString() };
     sessionStorage.setItem(receiptKey(current.sessionId), JSON.stringify(receipt)); this.receipt.set(receipt); this.review.set(null);
     this.receiptId.set(receiptId); this.phase.set('receipt'); this.error.set(null);
     void this.router.navigate(['/sessions', current.sessionId, 'receipt']);
@@ -326,20 +327,20 @@ export class PublicSessionStore implements OnDestroy {
 
   restoreReceipt(sessionId: string): void {
     const accepted = storedReceipt(sessionId);
-    if (accepted) { this.phase.set('loading'); this.api.publicReceipt(accepted.receiptCapability).subscribe({ next: (verified) => { if ((verified.submissionId ?? verified.receiptId) !== accepted.receiptId || verified.status !== 'accepted') { this.fail('This receipt is not available on this device.'); return; } this.receipt.set(accepted); this.receiptId.set(accepted.receiptId); this.shareId.set(accepted.shareId); this.phase.set('receipt'); }, error: () => this.fail('This receipt is not available on this device.') }); return; }
+    if (accepted) { this.phase.set('loading'); this.api.publicReceipt(accepted.receiptCapability).subscribe({ next: (verified) => { if ((verified.submissionId ?? verified.receiptId) !== accepted.receiptId || verified.status !== 'accepted') { this.fail('This receipt is not available on this device.'); return; } this.receipt.set(accepted); this.receiptId.set(accepted.receiptId); this.shareId.set(accepted.shareId); this.channelId.set(accepted.channelId ?? null); this.phase.set('receipt'); }, error: () => this.fail('This receipt is not available on this device.') }); return; }
     const stored = this.secret(sessionId);
     if (!stored) { this.fail('This receipt is not available on this device.'); return; }
     this.api.respondentReceipt(sessionId, stored.token, stored.attemptId).subscribe({ next: (receipt) => {
       const receiptId = receipt.submissionId ?? receipt.receiptId;
       if (!receiptId) { this.fail('This receipt is not available on this device.'); return; }
       if (!receipt.receiptCapability) { this.fail('This receipt is not available on this device.'); return; }
-      const verified: StoredReceipt = { receiptId, receiptCapability: receipt.receiptCapability, shareId: receipt.shareId ?? stored.shareId, submittedAt: receipt.submittedAt ?? new Date().toISOString() };
+      const verified: StoredReceipt = { receiptId, receiptCapability: receipt.receiptCapability, shareId: receipt.shareId ?? stored.shareId, channelId: stored.channelId, submittedAt: receipt.submittedAt ?? new Date().toISOString() };
       sessionStorage.setItem(receiptKey(sessionId), JSON.stringify(verified)); this.receipt.set(verified); this.receiptId.set(verified.receiptId); this.phase.set('receipt');
     }, error: () => this.fail('This receipt is not available on this device.') });
   }
   private persist(): void {
     const current = this.session(); const token = this.token(); const shareId = this.shareId();
-    if (current && token && shareId) sessionStorage.setItem(secretKey(current.sessionId), JSON.stringify({ token, shareId, queue: this.queue, currentPageId: this.currentPageId() ?? undefined, attemptId: this.attemptId() ?? undefined } satisfies StoredSecret));
+    if (current && token && shareId) sessionStorage.setItem(secretKey(current.sessionId), JSON.stringify({ token, shareId, channelId: this.channelId() ?? undefined, queue: this.queue, currentPageId: this.currentPageId() ?? undefined, attemptId: this.attemptId() ?? undefined } satisfies StoredSecret));
   }
 
   private fail(message: string): void { if (message === 'This response is no longer available on this device.') this.reset(true); this.phase.set('error'); this.error.set(message); }

@@ -151,6 +151,6 @@ class GovernedPublicationIntegrationTests {
         """, form, form, locale.asText(), revision, hash, account);
   }
   private void requestContext() { MockHttpServletRequest request = new MockHttpServletRequest(); request.addHeader("X-Staff-Session", token); RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request)); }
-  private void assertGone(UUID channel, String origin) { assertStatus(HttpStatus.GONE, () -> intake.startChannel(channel, origin, null)); }
+  private void assertGone(UUID channel, String origin) { assertStatus(HttpStatus.CONFLICT, () -> intake.startChannel(channel, origin, null)); }
   private void assertStatus(HttpStatus expected, Runnable action) { ResponseStatusException response = assertThrows(ResponseStatusException.class, action::run); assertEquals(expected, response.getStatusCode()); }
 }

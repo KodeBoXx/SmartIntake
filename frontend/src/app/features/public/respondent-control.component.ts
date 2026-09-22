@@ -28,13 +28,13 @@ type Cell = InputAnswerCell | ServerAnswerCell | undefined;
         @if (!['object', 'list', 'multiChoice', 'attachments', 'drawing'].includes(field().type)) { <label class="type-label mb-1 block" [for]="controlId()">{{ label(field()) }}</label> }
         @else if (field().type !== 'multiChoice') { <div class="type-label mb-1">{{ label(field()) }}</div> }
         @if (field().type === 'object') {
-          <div class="ml-3 border-l pl-4" data-testid="object-control">
+          <div #control [id]="controlId()" tabindex="-1" class="ml-3 border-l pl-4" data-testid="object-control" [attr.aria-invalid]="invalidReason() ? 'true' : null" [attr.aria-describedby]="invalidReason() ? errorId() : null">
             @for (child of field().fields || []; track child.id) {
               <si-respondent-control [field]="child" [instanceId]="instanceId()" [cell]="objectCell(child.id)" [serverCell]="objectServerCell(child.id)" [invalid]="invalid()" [rowPath]="rowPath()" (operation)="operation.emit($event)" />
             }
           </div>
         } @else if (field().type === 'list') {
-          <div [attr.data-testid]="field().fixedRows ? 'fixed-matrix-control' : 'dynamic-matrix-control'">
+          <div #control [id]="controlId()" tabindex="-1" [attr.data-testid]="field().fixedRows ? 'fixed-matrix-control' : 'dynamic-matrix-control'" [attr.aria-invalid]="invalidReason() ? 'true' : null" [attr.aria-describedby]="invalidReason() ? errorId() : null">
             @for (item of items(); track item.itemId; let index = $index) {
               <fieldset class="mb-3 border p-3" [attr.data-item-id]="item.itemId">
                 <legend class="type-caption">{{ field().fixedRows ? 'Row' : 'Item' }} {{ index + 1 }}</legend>
@@ -65,7 +65,7 @@ type Cell = InputAnswerCell | ServerAnswerCell | undefined;
             <option value="">Select an answer</option>@for (option of field().options || []; track option) { <option [value]="option">{{ field().optionLabels?.[option] || option }}</option> }
           </select>
         } @else if (field().type === 'multiChoice') {
-          <fieldset><legend class="type-label mb-1">{{ label(field()) }}</legend>@for (option of field().options || []; track option) { <label class="mr-4 inline-flex gap-2"><input #control type="checkbox" [checked]="multiValue().includes(option)" [disabled]="protected()" (change)="toggleChoice(option, $any($event.target).checked)" />{{ field().optionLabels?.[option] || option }}</label> }</fieldset>
+          <fieldset #control [id]="controlId()" tabindex="-1" [attr.aria-invalid]="invalidReason() ? 'true' : null" [attr.aria-describedby]="invalidReason() ? errorId() : null"><legend class="type-label mb-1">{{ label(field()) }}</legend>@for (option of field().options || []; track option) { <label class="mr-4 inline-flex gap-2"><input type="checkbox" [checked]="multiValue().includes(option)" [disabled]="protected()" (change)="toggleChoice(option, $any($event.target).checked)" />{{ field().optionLabels?.[option] || option }}</label> }</fieldset>
         } @else if (field().type === 'text' && (field().maxLength || 0) > 120) {
           <textarea #control [id]="controlId()" class="w-full" rows="4" [disabled]="protected()" [attr.aria-invalid]="invalidReason() ? 'true' : null" [attr.aria-describedby]="invalidReason() ? errorId() : null" [ngModel]="textValue()" (ngModelChange)="set($event)"></textarea>
         } @else {

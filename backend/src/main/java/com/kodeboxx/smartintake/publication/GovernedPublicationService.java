@@ -192,7 +192,7 @@ public class GovernedPublicationService {
     authorization.requirePublishForm(workspace, token, form);
     if (db.update("update form_share_channels set state='CLOSED' where id=? and form_id=? and state='ACTIVE'", channel, form) != 1)
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Share channel not active");
-    return Map.of("channelId",channel,"state","CLOSED");
+    return Map.of("channelId",channel,"state","REVOKED");
   }
 
   private Snapshot snapshot(UUID form) {
@@ -238,6 +238,7 @@ public class GovernedPublicationService {
     if(expression.isMissingNode()&&expressions.isArray()) for(JsonNode item:expressions) if(id.equals(item.path("id").asText())) { expression=item.path("expression").isMissingNode()?item:item.path("expression"); break; }
     if(expression.isBoolean()) return expression.booleanValue();
     if(expression.has("value")&&expression.path("value").isBoolean()) return expression.path("value").booleanValue();
+    if(expression.path("literal").path("type").asText().equals("boolean") && expression.path("literal").path("value").isBoolean()) return expression.path("literal").path("value").booleanValue();
     return true; // unknown/nonconstant expression is conservatively required
   }
   private void invalidateChangedRequests(UUID form, Snapshot snapshot) {
