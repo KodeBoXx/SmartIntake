@@ -50,8 +50,8 @@ class M8LiveFixtureProvisioner {
     MockHttpServletRequest request=new MockHttpServletRequest();request.addHeader("X-Staff-Session",token);RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
     UUID review=UUID.fromString(governed.requestReview(workspace,form,token).get("reviewRequestId").toString());governed.approve(workspace,form,review,token);
     @SuppressWarnings("unchecked") Map<String,Object> published=(Map<String,Object>)governed.publish(workspace,form,review,token).getBody();UUID release=UUID.fromString(published.get("releaseId").toString());
-    Map<String,Object> channels=new LinkedHashMap<>();channels.put("link",channel(workspace,form,release,"LINK",List.of(),token));channels.put("qr",channel(workspace,form,release,"QR",List.of(),token));channels.put("iframe",channel(workspace,form,release,"IFRAME",List.of("https://localhost:4443"),token));
-    Map<String,Object> fixture=Map.of("workspace",workspace,"formId",form,"releaseId",release,"staffSession",token,"parentOrigin","https://localhost:4443","channels",channels);
+    Map<String,Object> channels=new LinkedHashMap<>();channels.put("link",channel(workspace,form,release,"LINK",List.of(),token));channels.put("qr",channel(workspace,form,release,"QR",List.of(),token));channels.put("iframe",channel(workspace,form,release,"IFRAME",List.of("https://127.0.0.1:4444"),token));
+    Map<String,Object> fixture=Map.of("workspace",workspace,"formId",form,"releaseId",release,"staffSession",token,"parentOrigin","https://127.0.0.1:4444","channels",channels);
     Files.writeString(Path.of("/var/tmp/m8-live-fixture.json"),json.writerWithDefaultPrettyPrinter().writeValueAsString(fixture));
   }
 
