@@ -402,9 +402,10 @@ function nodeMatches(node: Record<string, unknown>, instanceId: string | undefin
 function repeatedRootInstanceForPlacement(definition: Record<string, unknown>, instanceId?: string): string | undefined {
   if (!instanceId) return undefined;
   const phases = ((definition?.['flow'] as { phases?: Record<string, unknown>[] } | undefined)?.phases ?? []);
-  for (const phase of phases) for (const page of (Array.isArray(phase['pages']) ? phase['pages'] as Record<string, unknown>[] : []))
-    for (const section of (Array.isArray(page['sections']) ? page['sections'] as Record<string, unknown>[] : []))
-      { const roots = (Array.isArray(section['nodes']) ? section['nodes'] as Record<string, unknown>[] : []); for (const node of roots) if (nodeContainsInstance(node, instanceId)) { const fieldId = String(node['fieldId'] ?? ''); return roots.filter((candidate) => candidate['fieldId'] === fieldId).length > 1 ? String(node['id']) : undefined; } }
+  for (const phase of phases) for (const page of (Array.isArray(phase['pages']) ? phase['pages'] as Record<string, unknown>[] : [])) {
+    const roots = (Array.isArray(page['sections']) ? page['sections'] as Record<string, unknown>[] : []).flatMap((section) => Array.isArray(section['nodes']) ? section['nodes'] as Record<string, unknown>[] : []);
+    for (const node of roots) if (nodeContainsInstance(node, instanceId)) { const fieldId = String(node['fieldId'] ?? ''); return roots.filter((candidate) => candidate['fieldId'] === fieldId).length > 1 ? String(node['id']) : undefined; }
+  }
   return undefined;
 }
 function nodeContainsInstance(node: Record<string, unknown>, instanceId: string): boolean { return node['id'] === instanceId || (Array.isArray(node['children']) ? node['children'] as Record<string, unknown>[] : []).some((child) => nodeContainsInstance(child, instanceId)); }

@@ -26,15 +26,15 @@ type Cell = InputAnswerCell | ServerAnswerCell | undefined;
     @if (!field().hidden && serverCell()?.status !== 'notApplicable' && cell()?.status !== 'notApplicable') {
       <div class="mb-5" [attr.data-field-id]="field().id" [attr.data-row-path]="rowPathKey()">
         @if (!['object', 'list', 'multiChoice', 'attachments', 'drawing'].includes(field().type)) { <label class="type-label mb-1 block" [for]="controlId()">{{ label(field()) }}</label> }
-        @else if (field().type !== 'multiChoice') { <div class="type-label mb-1">{{ label(field()) }}</div> }
+        @else if (field().type !== 'multiChoice') { <div [id]="labelId()" class="type-label mb-1">{{ label(field()) }}</div> }
         @if (field().type === 'object') {
-          <div #control [id]="controlId()" tabindex="-1" class="ml-3 border-l pl-4" data-testid="object-control" [attr.aria-invalid]="invalidReason() ? 'true' : null" [attr.aria-describedby]="invalidReason() ? errorId() : null">
+          <div #control [id]="controlId()" tabindex="-1" role="group" [attr.aria-labelledby]="labelId()" class="ml-3 border-l pl-4" data-testid="object-control" [attr.aria-invalid]="invalidReason() ? 'true' : null" [attr.aria-describedby]="invalidReason() ? errorId() : null">
             @for (child of field().fields || []; track child.id) {
               <si-respondent-control [field]="child" [instanceId]="instanceId()" [cell]="objectCell(child.id)" [serverCell]="objectServerCell(child.id)" [invalid]="invalid()" [rowPath]="rowPath()" (operation)="operation.emit($event)" />
             }
           </div>
         } @else if (field().type === 'list') {
-          <div #control [id]="controlId()" tabindex="-1" [attr.data-testid]="field().fixedRows ? 'fixed-matrix-control' : 'dynamic-matrix-control'" [attr.aria-invalid]="invalidReason() ? 'true' : null" [attr.aria-describedby]="invalidReason() ? errorId() : null">
+          <div #control [id]="controlId()" tabindex="-1" role="group" [attr.aria-labelledby]="labelId()" [attr.data-testid]="field().fixedRows ? 'fixed-matrix-control' : 'dynamic-matrix-control'" [attr.aria-invalid]="invalidReason() ? 'true' : null" [attr.aria-describedby]="invalidReason() ? errorId() : null">
             @for (item of items(); track item.itemId; let index = $index) {
               <fieldset class="mb-3 border p-3" [attr.data-item-id]="item.itemId">
                 <legend class="type-caption">{{ field().fixedRows ? 'Row' : 'Item' }} {{ index + 1 }}</legend>
@@ -115,6 +115,7 @@ export class RespondentControlComponent implements AfterViewInit {
   itemServerCell(itemId: string, id: string): ServerAnswerCell | undefined { const value = cellValue(this.serverCell()); return value && typeof value === 'object' && 'items' in value ? (value as { items: readonly ListItem<ServerAnswerCell>[] }).items.find((item) => item.itemId === itemId)?.fields[id] : undefined; }
   rowPathKey(): string { return this.rowPath().map((segment) => `${segment.listFieldId}:${segment.itemId}`).join('/'); }
   controlId(): string { const base = `${this.instanceId() ? `${this.instanceId()}-` : ''}${this.field().id}`; return this.rowPathKey() ? `${base}-${this.rowPathKey().replaceAll(/[^A-Za-z0-9_-]/g, '-')}` : base; }
+  labelId(): string { return `${this.controlId()}-label`; }
   errorId(): string { return `${this.controlId()}-error`; }
   invalidReason(): string | undefined { const path = this.rowPathKey(); return this.invalid()[`${path ? `${path}/` : '/'}${this.field().id}`]; }
   childPath(itemId: string): RowPath { return [...this.rowPath(), { listFieldId: this.field().id, itemId }]; }
