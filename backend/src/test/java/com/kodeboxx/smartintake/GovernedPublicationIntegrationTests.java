@@ -115,6 +115,14 @@ class GovernedPublicationIntegrationTests {
     assertEquals(second, db.queryForObject("select release_id from sessions where id=?", UUID.class, activeSession));
     assertEquals(first, db.queryForObject("select release_id from sessions where id=?", UUID.class, oldSession));
 
+    var lifecyclePool = Executors.newFixedThreadPool(2);
+    var concurrentActivations = List.of(
+        lifecyclePool.submit(() -> transitionWithRequestContext(first)),
+        lifecyclePool.submit(() -> transitionWithRequestContext(second)));
+    for (var activation : concurrentActivations) activation.get();
+    lifecyclePool.shutdown();
+    assertEquals(1, db.queryForObject("select count(*) from form_releases where form_id=? and release_state='ACTIVE'", Integer.class, form));
+
     governed.transition(workspace, form, first, "rollback", token);
     UUID rollbackChannel = channel(first, "LINK", null, null, null, List.of());
     UUID rollbackSession = UUID.fromString(((Map<?, ?>) intake.startChannel(rollbackChannel, null, null).getBody()).get("sessionId").toString());
@@ -194,6 +202,10 @@ class GovernedPublicationIntegrationTests {
         """, form, form, locale.asText(), revision, hash, account);
   }
   private void requestContext() { MockHttpServletRequest request = new MockHttpServletRequest(); request.addHeader("X-Staff-Session", token); RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request)); }
+  private Map<String,Object> transitionWithRequestContext(UUID release) {
+    try { requestContext(); return governed.transition(workspace, form, release, "activate", token); }
+    finally { RequestContextHolder.resetRequestAttributes(); }
+  }
   private void assertGone(UUID channel, String origin) { assertStatus(HttpStatus.CONFLICT, () -> intake.startChannel(channel, origin, null)); }
   private void assertStatus(HttpStatus expected, Runnable action) { ResponseStatusException response = assertThrows(ResponseStatusException.class, action::run); assertEquals(expected, response.getStatusCode()); }
 }

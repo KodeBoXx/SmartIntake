@@ -22,6 +22,7 @@ export type StaffSession = { identity: StaffIdentity; platformRoles: ('administr
 export type CreatedForm = { id: string; draftId: string; revision: number; definition: FormDefinition };
 export type SavedDraft = { revision: number; definition: FormDefinition; diagnostics: unknown[] };
 export type PublishedForm = { releaseId: string; version: number; shareId: string; status: string };
+export type GovernanceReview = { reviewRequestId: string; revision: number; packageHash: string; manifestHash: string; state: 'OPEN' | 'APPROVED' | 'PUBLISHED' | 'INVALIDATED'; semanticDiff?: unknown; dependencyDiff?: unknown };
 export type FormSummary = { id: string; formKey: string; title: string; status: string; revision: number; updatedAt: string };
 export type CurrentDraft = { id: string; revision: number; definition: FormDefinition; diagnostics: unknown[] };
 export type CatalogForm = components['schemas']['CatalogForm'];
@@ -458,8 +459,28 @@ export class SmartIntakeApiService {
     });
   }
 
-  publish(workspaceId: string, formId: string): Observable<PublishedForm> {
-    return this.http.post<PublishedForm>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/forms/${formId}/releases`, {}, this.staff());
+  requestPublicationReview(workspaceId: string, formId: string): Observable<GovernanceReview> {
+    return this.http.post<GovernanceReview>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/forms/${formId}/review-requests`, {}, this.staff());
+  }
+
+  approvePublicationReview(workspaceId: string, formId: string, reviewRequestId: string): Observable<GovernanceReview> {
+    return this.http.post<GovernanceReview>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/forms/${formId}/review-requests/${reviewRequestId}/approvals`, {}, this.staff());
+  }
+
+  publish(workspaceId: string, formId: string, reviewRequestId: string): Observable<PublishedForm> {
+    return this.http.post<PublishedForm>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/forms/${formId}/governed-releases?reviewRequestId=${encodeURIComponent(reviewRequestId)}`, {}, this.staff());
+  }
+
+  transitionRelease(workspaceId: string, formId: string, releaseId: string, action: 'activate' | 'rollback' | 'retire' | 'emergency-close'): Observable<unknown> {
+    return this.http.post(`/v1/workspaces/${encodeURIComponent(workspaceId)}/forms/${formId}/releases/${releaseId}/${action}`, {}, this.staff());
+  }
+
+  createShareChannel(workspaceId: string, formId: string, releaseId: string, type: 'LINK' | 'QR' | 'IFRAME', allowedOrigins: string[]): Observable<{ channelId: string; type: string }> {
+    return this.http.post<{ channelId: string; type: string }>(`/v1/workspaces/${encodeURIComponent(workspaceId)}/forms/${formId}/share-channels?releaseId=${releaseId}`, { type, allowedOrigins }, this.staff());
+  }
+
+  revokeShareChannel(workspaceId: string, formId: string, channelId: string): Observable<unknown> {
+    return this.http.post(`/v1/workspaces/${encodeURIComponent(workspaceId)}/forms/${formId}/share-channels/${channelId}/revoke`, {}, this.staff());
   }
 
   startSession(shareId: string, locale?: string, timeZone?: string): Observable<StartedRespondentSession> {

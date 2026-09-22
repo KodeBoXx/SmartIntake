@@ -38,7 +38,7 @@ public class GovernedPublicationService {
 
   @Transactional
   public Map<String, Object> requestReview(String workspace, UUID form, String token) {
-    authorization.requireOwnedForm(workspace, token, form);
+    authorization.requireReadableForm(workspace, token, form);
     intake.lockWorkspacePolicy(form);
     db.queryForObject("select id from forms where id=? for update", UUID.class, form);
     Snapshot snapshot = snapshot(form);
@@ -71,8 +71,9 @@ public class GovernedPublicationService {
     int reopened = db.update("update form_review_requests set state='OPEN',requested_by=?,requested_at=now(),invalidated_at=null,semantic_diff=cast(? as jsonb),dependency_diff=cast(? as jsonb) where id=? and state='INVALIDATED'",
         UUID.fromString(actor), write(semantic), write(dependencies), resolved);
     if (reopened == 1) db.update("delete from form_review_approvals where review_request_id=?", resolved);
+    String state = db.queryForObject("select state from form_review_requests where id=?", String.class, resolved);
     return Map.of("reviewRequestId", resolved, "revision", snapshot.revision(), "packageHash", snapshot.packageHash(),
-        "manifestHash", snapshot.manifestHash(), "state", "OPEN");
+        "manifestHash", snapshot.manifestHash(), "state", state, "semanticDiff", semantic, "dependencyDiff", dependencies);
   }
 
   @Transactional(noRollbackFor = ResponseStatusException.class)
@@ -126,9 +127,9 @@ public class GovernedPublicationService {
     ResponseEntity<?> result = intake.publishGoverned(workspace, form, token, snapshot.packageJson(), snapshot.manifestJson());
     @SuppressWarnings("unchecked") Map<String, Object> body = (Map<String, Object>) result.getBody();
     UUID release = UUID.fromString(body.get("releaseId").toString());
+    db.update("update form_releases set release_state='ROLLED_BACK' where form_id=? and id<>? and release_state='ACTIVE'", form, release);
     db.update("update form_releases set package_hash=?,manifest_hash=?,release_state='ACTIVE',activated_at=now() where id=?",
         snapshot.packageHash(), snapshot.manifestHash(), release);
-    db.update("update form_releases set release_state='ROLLED_BACK' where form_id=? and id<>? and release_state='ACTIVE'", form, release);
     // A published share identity is durable; activation changes its target but never recreates its cap.
     db.update("update form_share_channels set release_id=? where form_id=? and state='ACTIVE'", release, form);
     db.update("""
@@ -145,6 +146,8 @@ public class GovernedPublicationService {
   @Transactional
   public Map<String, Object> transition(String workspace, UUID form, UUID release, String action, String token) {
     authorization.requirePublishForm(workspace, token, form);
+    intake.lockWorkspacePolicy(form);
+    db.queryForObject("select id from forms where id=? for update", UUID.class, form);
     if (db.queryForObject("select count(*) from form_releases where id=? and form_id=?", Integer.class, release, form) != 1)
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Release not found");
     UUID actor = account(token);
@@ -175,8 +178,8 @@ public class GovernedPublicationService {
   @Transactional
   public Map<String, Object> createChannel(String workspace, UUID form, UUID release, Map<String, Object> in, String token) {
     authorization.requirePublishForm(workspace, token, form);
-    if (db.queryForObject("select count(*) from form_releases where id=? and form_id=?", Integer.class, release, form) != 1)
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Release not found");
+    if (db.queryForObject("select count(*) from form_releases where id=? and form_id=? and release_state='ACTIVE'", Integer.class, release, form) != 1)
+      throw conflict("RELEASE_NOT_ACTIVE");
     String type = String.valueOf(in.getOrDefault("type", "LINK")).toUpperCase();
     if (!List.of("LINK", "QR", "IFRAME").contains(type)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid channel type");
     List<?> origins = in.get("allowedOrigins") instanceof List<?> values ? values : List.of();

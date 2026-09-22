@@ -11,8 +11,8 @@ import { StaffSessionStore } from './core/m5-session.store';
 
 describe('AppComponent journeys', () => {
   const staffSessionProvider = { provide: StaffSessionStore, useValue: {
-    currentWorkspaceId: signal('local'), currentRoles: signal(['author', 'publisher', 'response-viewer', 'response-exporter']),
-    organizations: signal([{ workspaces: [{ workspaceId: 'local', roles: ['author', 'publisher', 'response-viewer', 'response-exporter'] }] }]),
+    currentWorkspaceId: signal('local'), currentRoles: signal(['author', 'reviewer', 'publisher', 'response-viewer', 'response-exporter']),
+    organizations: signal([{ workspaces: [{ workspaceId: 'local', roles: ['author', 'reviewer', 'publisher', 'response-viewer', 'response-exporter'] }] }]),
   } };
   function createApi() {
     const definition = createDefaultDefinition();
@@ -21,7 +21,12 @@ describe('AppComponent journeys', () => {
       currentDraft: vi.fn(() => of({ id: 'form-1', revision: 2, definition, diagnostics: [] })),
       createForm: vi.fn(() => of({ id: 'form-1', draftId: 'draft-1', revision: 1, definition })),
       updateDraft: vi.fn(() => of({ revision: 2, definition, diagnostics: [] })),
+      requestPublicationReview: vi.fn(() => of({ reviewRequestId: 'review-1', revision: 2, packageHash: 'package', manifestHash: 'manifest', state: 'OPEN' })),
+      approvePublicationReview: vi.fn(() => of({ reviewRequestId: 'review-1', state: 'APPROVED', packageHash: 'package' })),
       publish: vi.fn(() => of({ releaseId: 'release-1', version: 1, shareId: 'form-1', status: 'PUBLISHED' })),
+      transitionRelease: vi.fn(() => of({})),
+      createShareChannel: vi.fn(() => of({ channelId: 'channel-1', type: 'LINK' })),
+      revokeShareChannel: vi.fn(() => of({})),
       startSession: vi.fn(() => of({ sessionId: 'session-1', respondentSession: 'respondent-token', revision: 3 })),
       patchSession: vi.fn(() => of({ acceptedRevision: 4 })),
       submitSession: vi.fn(() => of({ receiptId: 'receipt-1' })),
@@ -136,7 +141,7 @@ describe('AppComponent journeys', () => {
     expect(fixture.nativeElement.textContent).toContain(title);
   });
 
-  it('lets a publisher review and publish a draft without exposing author operations', () => {
+  it('lets a publisher request review without exposing author operations', () => {
     const api = createApi();
     const publisherSession = { provide: StaffSessionStore, useValue: {
       currentWorkspaceId: signal('local'), currentRoles: signal(['publisher']),
@@ -161,7 +166,9 @@ describe('AppComponent journeys', () => {
     expect(component.page().fields).toHaveLength(fieldsBefore);
     component.publish();
     expect(api.updateDraft).not.toHaveBeenCalled();
-    expect(api.publish).toHaveBeenCalledWith('local', 'form-1');
+    expect(api.requestPublicationReview).toHaveBeenCalledWith('local', 'form-1');
+    expect(api.publish).not.toHaveBeenCalled();
+    expect(component.message()).toContain('awaits an authorized reviewer');
   });
 
   it('uses the server-selected workspace for the legacy builder route', () => {
@@ -256,7 +263,7 @@ describe('AppComponent journeys', () => {
     expect(api.updateDraft).toHaveBeenLastCalledWith('local', 'form-1', 'draft-1', 2, component.definition());
 
     toolbarButton(fixture, 'Publish').click();
-    expect(api.publish).toHaveBeenCalledWith('local', 'form-1');
+    expect(api.publish).toHaveBeenCalledWith('local', 'form-1', 'review-1');
     expect(component.message()).toBe('Form published. Release release-1');
     expect(component.publishedShareId).toBe('form-1');
 
@@ -334,7 +341,7 @@ describe('AppComponent journeys', () => {
     component.publish();
     expect(api.updateDraft).toHaveBeenCalledOnce();
     saved.next({ revision: 2, definition: savedDefinition, diagnostics: [] });
-    expect(api.publish).toHaveBeenCalledWith('local', 'form-1');
+    expect(api.publish).toHaveBeenCalledWith('local', 'form-1', 'review-1');
     expect(component.publishing()).toBe(true);
 
     component.publish();
@@ -524,7 +531,7 @@ describe('AppComponent journeys', () => {
     expect(component.message()).toBe('Save a form before publishing.');
     component.formId = 'form-1';
     component.publish();
-    expect(component.message()).toBe('Publish failed.');
+    expect(component.message()).toBe('Governed publish failed. Refresh the review state and try again.');
     component.startPreview();
     expect(component.message()).toBe('Publish the saved form before starting a public session.');
   });

@@ -96,8 +96,18 @@ describe('SmartIntakeApiService', () => {
     expect(save.request.body).toEqual({ definition });
     save.flush({ revision: 4, definition, diagnostics: [] });
 
-    api.publish('local', 'form-1').subscribe();
-    const publish = http.expectOne('/v1/workspaces/local/forms/form-1/releases');
+    api.requestPublicationReview('local', 'form-1').subscribe();
+    const review = http.expectOne('/v1/workspaces/local/forms/form-1/review-requests');
+    expect(review.request.method).toBe('POST');
+    review.flush({ reviewRequestId: 'review-1', revision: 4, packageHash: 'package', manifestHash: 'manifest', state: 'OPEN' });
+
+    api.approvePublicationReview('local', 'form-1', 'review-1').subscribe();
+    const approval = http.expectOne('/v1/workspaces/local/forms/form-1/review-requests/review-1/approvals');
+    expect(approval.request.method).toBe('POST');
+    approval.flush({ reviewRequestId: 'review-1', revision: 4, packageHash: 'package', manifestHash: 'manifest', state: 'APPROVED' });
+
+    api.publish('local', 'form-1', 'review-1').subscribe();
+    const publish = http.expectOne('/v1/workspaces/local/forms/form-1/governed-releases?reviewRequestId=review-1');
     expect(publish.request.method).toBe('POST');
     expect(publish.request.withCredentials).toBe(true);
     expect(publish.request.headers.has('X-Staff-Session')).toBe(false);

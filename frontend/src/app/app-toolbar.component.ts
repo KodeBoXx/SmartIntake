@@ -9,7 +9,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
     <button *ngIf="authorAllowed" class="pill" (click)="author.emit()">Author</button>
     <button class="pill" (click)="preview.emit()">Public preview</button>
     <button *ngIf="authorAllowed" class="pill" [disabled]="saveDisabled" (click)="save.emit()">Save draft</button>
-    <button class="pill" [disabled]="publishDisabled" (click)="publish.emit()">Publish</button>
+    <button class="pill" [disabled]="publishDisabled" (click)="publish.emit()">{{publishLabel}}</button>
     <button *ngIf="authorAllowed" class="pill" (click)="definitionExport.emit()">Export definition</button>
     <label *ngIf="authorAllowed" class="pill">Import definition<input type="file" accept="application/json" hidden [disabled]="importDisabled" (change)="definitionImport.emit($event)"></label>
     <button *ngIf="responseExporterAllowed" class="pill" (click)="responsesExport.emit()">Export responses</button>
@@ -22,6 +22,7 @@ export class AppToolbarComponent {
   @Input() responseExporterAllowed = false;
   @Input() saveDisabled = false;
   @Input() publishDisabled = false;
+  @Input() publishLabel = 'Publish';
   @Input() importDisabled = false;
   @Output() author = new EventEmitter<void>();
   @Output() preview = new EventEmitter<void>();
